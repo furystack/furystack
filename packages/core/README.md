@@ -1,2 +1,2 @@
 # core
-core package
+FuryStack Core package
