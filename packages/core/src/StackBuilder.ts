@@ -20,12 +20,17 @@ export class StackBuilder {
     public attachLogger = (logger: ILogger) => this.logger.attachLogger(logger);
 
     protected apis: Array<IApi<IContext>> = [];
-    public getApis() {
-        return [...this.apis];
-    }
-    public addApi(api: IApi<IContext>) {
+    public getApis = () => [...this.apis];
+    public addApi(api: (builder: this) => IApi<IContext>): this {
+        this.apis.push(api(this));
         return this;
     }
 
-    constructor(protected server: Server) { }
+    public getServer = () => this.server;
+
+    public async start() {
+        await Promise.all([...this.apis.map((a) => a.activate())]);
+    }
+
+    constructor(protected readonly server: Server) { }
 }

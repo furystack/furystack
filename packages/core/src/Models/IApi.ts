@@ -1,7 +1,6 @@
-import { IDisposable } from "@sensenet/client-utils";
+import { IActivateable } from "./IActivateable";
 import { IContext } from "./IContext";
 
-export interface IApi<TContext extends IContext> extends IDisposable {
-    ContextFactory: (...args: any[]) => TContext;
-    Start();
+export interface IApi<TContext extends IContext> extends IActivateable {
+    contextFactory: (...args: any[]) => TContext;
 }

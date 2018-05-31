@@ -1,9 +1,8 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-// tslint:disable:completed-docs
-describe("Query", () => {
-    it("Can be constructed", () => {
-        /** */
-    });
-});
+__export(require("./ActivateableCollectionTests"));
+__export(require("./StackBuilderTests"));
 //# sourceMappingURL=index.js.map
