@@ -1,2 +1,2 @@
-export * from "./ActivateableCollectionTests";
+export * from "./CollectionExtensionsTests";
 export * from "./StackBuilderTests";

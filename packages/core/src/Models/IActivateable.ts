@@ -1,5 +1,3 @@
-import { IDisposable } from "@sensenet/client-utils";
-
-export interface IActivateable extends IDisposable {
+export interface IActivateable {
     activate: () => Promise<void>;
 }
