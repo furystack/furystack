@@ -1,2 +1,2 @@
-export * from "./BypassLogger";
 export * from "./ConsoleLogger";
+export * from "./LoggerCollection";

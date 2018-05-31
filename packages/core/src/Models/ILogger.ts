@@ -1,6 +1,6 @@
 export interface ILogger {
-    error(...args: any[]): void;
-    warn(...args: any[]): void;
+    error(scope: string, ...args: any[]): void;
+    warn(scope: string, ...args: any[]): void;
 
-    trace(...args: any[]): void;
+    trace(scope: string, ...args: any[]): void;
 }

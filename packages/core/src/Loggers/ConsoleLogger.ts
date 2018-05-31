@@ -1,20 +1,20 @@
 import { ILogger } from "../Models/ILogger";
 
-export class Logger implements ILogger {
-    public error(...args: any[]) {
-        const msgs: any[] = [`${new Date().toISOString()}: `, ...args];
+export class ConsoleLogger implements ILogger {
+    public error(scope: string, ...args: any[]) {
+        const msgs: any[] = [`${scope} >${new Date().toISOString()}: `, ...args];
         // tslint:disable-next-line:no-console
         console.error(...msgs);
     }
 
-    public warn(...args: any[]) {
-        const msgs: any[] = [`${new Date().toISOString()}: `, ...args];
+    public warn(scope: string, ...args: any[]) {
+        const msgs: any[] = [`${scope} > ${new Date().toISOString()}: `, ...args];
         // tslint:disable-next-line:no-console
         console.warn(...msgs);
     }
 
-    public trace(...args: any[]) {
-        const msgs: any[] = [`${new Date().toISOString()}: `, ...args];
+    public trace(scope: string, ...args: any[]) {
+        const msgs: any[] = [`${scope} >${new Date().toISOString()}: `, ...args];
         // tslint:disable-next-line:no-console
         console.log(...msgs);
     }
