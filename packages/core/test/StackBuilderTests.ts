@@ -21,7 +21,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
             expect(sb.getApis()[0]).to.be.eq(api);
         });
 
-        it("Should call activate.start() on server.start()", (done) => {
+        it("Should call apis.activate() on server.start()", (done) => {
             const sb = new StackBuilder(new Server());
             const api: IApi<any> = { activate: done } as any;
             sb.addApi(() => api);
