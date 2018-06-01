@@ -1,5 +1,6 @@
 import { IDisposable } from "@sensenet/client-utils";
 import { Server } from "tls";
+import { IActivateable } from ".";
 import { makeCollectionActivateable, makeCollectionDisposable } from "./CollectionExtensions";
 import { LoggerCollection } from "./Loggers/LoggerCollection";
 import { LogScopes } from "./Loggers/LogScopes";
@@ -18,13 +19,7 @@ export class StackBuilder {
 
     public attachLogger = (logger: ILogger) => this.logger.attachLogger(logger);
 
-    protected apis = makeCollectionDisposable(makeCollectionActivateable([] as Array<IApi<IContext>>));
-    public getApis = () => [...this.apis];
-    public addApi(api: (builder: this) => IApi<IContext>): this {
-        this.apis.push(api(this));
-        return this;
-    }
-
+    public readonly apis = makeCollectionDisposable(makeCollectionActivateable([] as Array<IApi<IContext>>));
     public getServer = () => this.server;
 
     public async start() {
