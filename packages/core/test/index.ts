@@ -1,2 +1,3 @@
 export * from "./CollectionExtensionsTests";
-export * from "./StackBuilderTests";
+export * from "./FuryStackTests";
+export * from "./LoggersTests";

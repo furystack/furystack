@@ -3,8 +3,8 @@ import { ILogger } from "../Models/ILogger";
 export class LoggerCollection implements ILogger {
 
     private loggers: ILogger[] = [];
-    public attachLogger(logger: ILogger) {
-        this.loggers.push(logger);
+    public attachLogger(...loggers: ILogger[]) {
+        this.loggers.push(...loggers);
     }
 
     public error(scope: string, ...args: any[]) {

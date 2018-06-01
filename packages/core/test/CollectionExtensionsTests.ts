@@ -1,8 +1,11 @@
 import { IDisposable } from "@sensenet/client-utils";
 import { expect } from "chai";
 import { Server } from "tls";
-import { makeCollectionActivateable, makeCollectionDisposable } from "../src/CollectionExtensions";
+import { makeCollectionActivateable, makeCollectionDisposable, makeServiceCollection } from "../src/CollectionExtensions";
+import { LoggerCollection } from "../src/Loggers";
+import { IService } from "../src/Models";
 import { IActivateable } from "../src/Models/IActivateable";
+import { ILogger } from "../src/Models/ILogger";
 
 class DummyActivateable implements IActivateable, IDisposable {
     public isActivated = false;
@@ -81,4 +84,39 @@ export const makeCollectionDisposableTests = describe("makeCollectionDisposable"
             expect(item.isDisposed).to.be.eq(true);
         }
     });
+});
+
+export const makeServiceCollectionTests = describe("serviceCollection", () => {
+
+    const item1: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
+    const item2: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
+    const item3: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
+
+    it("Should be called on array with IServices", async () => {
+        const collection = makeServiceCollection([item1, item2, item3]);
+        await collection.start();
+        for (const service of collection) {
+            expect(service.isRunning).to.be.eq(true);
+        }
+    });
+
+    it("Start should start all services", async () => {
+        const collection = makeServiceCollection([item1, item2, item3]);
+        await collection.start();
+        for (const service of collection) {
+            expect(service.isRunning).to.be.eq(true);
+        }
+        expect(collection.isRunning).to.be.eq(true);
+    });
+
+    it("Stop should stop all services", async () => {
+        const collection = makeServiceCollection([item1, item2, item3]);
+        await collection.start();
+        await collection.stop();
+        for (const service of collection) {
+            expect(service.isRunning).to.be.eq(false);
+        }
+        expect(collection.isRunning).to.be.eq(false);
+    });
+
 });
