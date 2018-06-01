@@ -14,6 +14,22 @@ class DummyActivateable implements IActivateable, IDisposable {
     public dispose: () => void = () => { this.isDisposed = true; };
 }
 
+// tslint:disable-next-line:max-classes-per-file
+export class DummyService implements IService {
+    public loggers: LoggerCollection = new LoggerCollection();
+    private isRunningValue: boolean = false;
+    public get isRunning(): boolean {
+        return this.isRunningValue;
+    }
+    public async start() {
+        this.isRunningValue = true;
+    }
+
+    public async stop() {
+        this.isRunningValue = false;
+    }
+}
+
 export const collectionExtensionsTests = describe("Collection extensions", () => {
     it("Extensions can be mixed", () => {
         const collection = makeCollectionActivateable(makeCollectionDisposable([new DummyActivateable()]));
@@ -88,9 +104,9 @@ export const makeCollectionDisposableTests = describe("makeCollectionDisposable"
 
 export const makeServiceCollectionTests = describe("serviceCollection", () => {
 
-    const item1: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
-    const item2: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
-    const item3: IService = { start: async () => undefined, stop: async () => undefined, isRunning: false, loggers: new LoggerCollection() };
+    const item1 = new DummyService();
+    const item2 = new DummyService();
+    const item3 = new DummyService();
 
     it("Should be called on array with IServices", async () => {
         const collection = makeServiceCollection([item1, item2, item3]);
