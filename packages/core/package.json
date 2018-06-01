@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "src",
-    "test"
+    "src"
   ],
   "scripts": {
     "precommit": "npm run test",

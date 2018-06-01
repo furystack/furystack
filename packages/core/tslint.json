@@ -14,11 +14,14 @@
             true,
             "allow-fast-null-checks"
         ],
-        "variable-name": [
-            true,
-            "ban-keywords",
-            "check-format"
-        ]
+        "variable-name": {
+            "options": [
+                true,
+                "allow-leading-underscore",
+                "allow-pascal-case",
+                "allow-pascal-case"
+            ]
+        }
         // "completed-docs": [
         //     true,
         //     {
