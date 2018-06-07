@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -43,7 +43,8 @@
   "nyc": {
     "exclude": [
       "temp/test/**/*.*",
-      "temp/src/**/I*.js"
+      "temp/src/**/I*.js",
+      "temp/src/Types/**/*.*"
     ],
     "include": "temp/src/**/*.*",
     "check-coverage": true,

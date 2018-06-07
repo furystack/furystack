@@ -3,6 +3,7 @@ export * from "./IApi";
 export * from "./IContext";
 export * from "./IEntityStore";
 export * from "./IFuryStackOptions";
+export * from "./ILogger";
 export * from "./IPhysicalStore";
 export * from "./IService";
 export * from "./IUser";
