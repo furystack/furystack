@@ -37,7 +37,7 @@ export const httpApiTests = describe("HttpApi tests", () => {
                 },
             });
             // tslint:disable-next-line:no-string-literal
-            expect((api as any)["server"]["listener"]).to.be.eq(api.mainRequestListener);
+            expect((api as any)["server"]["listener"].prototype).to.be.eq(api.mainRequestListener.bind(api).prototype);
         });
     });
 
