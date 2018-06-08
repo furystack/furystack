@@ -4,7 +4,7 @@ import { IPhysicalStore } from "./models/IPhysicalStore";
 
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
     private cache: Map<T[this["primaryKey"]], T> = new Map();
-    public tick = setInterval(() => this.checkChanges(), this.tickMs);
+    public tick = setInterval(() => this.saveChanges(), this.tickMs);
     private hasChanges: boolean = false;
     private saveInProgress: boolean = false;
 
@@ -23,31 +23,39 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
         return this.cache.size;
     }
 
-    private checkChanges() {
-        if (this.hasChanges && !this.saveInProgress) {
-            this.saveChanges();
-        }
-    }
-
     private async saveChanges() {
+        if (this.saveInProgress || !this.hasChanges) {
+            return;
+        }
+        this.saveInProgress = true;
         const values: T[] = [];
         for (const key of this.cache.keys()) {
             values.push(this.cache.get(key) as T);
         }
-        return new Promise((resolve, reject) => {
-            this.writeFile(this.fileName, JSON.stringify(values), (err) => {
-                if (!err) {
-                    resolve();
-                } else {
-                    this.logger.error(LogScopes.FileStore, "Error when saving store data to file:", err);
-                    reject(err);
-                }
+        try {
+            await new Promise((resolve, reject) => {
+                this.writeFile(this.fileName, JSON.stringify(values), (err) => {
+                    if (!err) {
+                        resolve();
+                    } else {
+                        this.logger.error(LogScopes.FileStore, "Error when saving store data to file:", err);
+                        reject(err);
+                    }
+                });
             });
-        });
+            this.hasChanges = false;
+        } finally {
+            this.saveInProgress = false;
+        }
+    }
+
+    public dispose() {
+        this.saveChanges();
+        clearInterval(this.tick);
     }
 
     public async reloadData() {
-        return new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             this.readFile(this.fileName, (err, data) => {
                 if (err) {
                     this.logger.error(LogScopes.FileStore, "Error when loading store data from file:", err);

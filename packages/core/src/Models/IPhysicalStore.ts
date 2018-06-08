@@ -1,6 +1,7 @@
+import { IDisposable } from "@sensenet/client-utils";
 import { ILogger } from "./ILogger";
 
-export interface IPhysicalStore<T, K extends keyof T = keyof T, TFilter = Partial<T>> {
+export interface IPhysicalStore<T, K extends keyof T = keyof T, TFilter = Partial<T>> extends IDisposable {
     readonly primaryKey: K;
     logger: ILogger;
     update(id: T[this["primaryKey"]], data: T): Promise<void>;

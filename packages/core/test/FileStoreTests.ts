@@ -22,7 +22,7 @@ export const fileStoreTests = describe("FileStore", () => {
     });
 
     afterEach(() => {
-        clearInterval(f["tick"]);
+        f.dispose();
     });
 
     it("should be constructed with default parameters", () => {
@@ -71,10 +71,10 @@ export const fileStoreTests = describe("FileStore", () => {
         expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
     });
 
-    it("checkChanges should skip on no changes", () => {
+    it("saveChanges should skip file writing on no changes", () => {
         f["hasChanges"] = false;
-        f["saveChanges"] = () => { throw Error("Shouldn't be triggered on no change!"); };
-        f["checkChanges"]();
+        f["writeFile"] = ((_name: string, _value: any, _callback: (err: any) => void) => { throw Error("Shouldn't be triggered on no change!"); }) as any;
+        f["saveChanges"]();
     });
 
     it("saveChanges fail should add a log event", async () => {
