@@ -62,7 +62,7 @@ export class HttpApi implements IApi<RequestContext> {
     }
 
     public async activate() {
-        this.server.listen(this.options.port, this.options.hostName, 8192, this.mainRequestListener);
+        this.server.listen(this.options.port, this.options.hostName, 8192);
     }
     public dispose() {
         this.server.close();
@@ -78,6 +78,6 @@ export class HttpApi implements IApi<RequestContext> {
             notFound: this.options.notFoundAction,
             default: this.options.defaultAction,
         });
-        this.server = this.options.serverFactory(this.mainRequestListener);
+        this.server = this.options.serverFactory(this.mainRequestListener.bind(this));
     }
 }
