@@ -1,6 +1,7 @@
+import { IDisposable } from "@sensenet/client-utils";
 import { IUser } from "./IUser";
 
-export interface IEntityStore<T, K extends keyof T = keyof T, TFilter = Partial<T>> {
+export interface IEntityStore<T, K extends keyof T = keyof T, TFilter = Partial<T>> extends IDisposable {
     readonly primaryKey: K;
     update(id: T[this["primaryKey"]], data: T, user: IUser): Promise<void>;
     count(user: IUser): Promise<number>;
