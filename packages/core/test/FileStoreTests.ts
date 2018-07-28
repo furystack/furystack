@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
 import { FileStore } from "../src/FileStore";
-import { ILogger } from "../src/models/ILogger";
+import { ILogger } from "../src/Models/ILogger";
 
 // tslint:disable:no-string-literal
 

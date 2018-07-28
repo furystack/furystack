@@ -9,6 +9,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "experimentalDecorators": true,

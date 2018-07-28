@@ -1,5 +1,5 @@
 import { LoggerCollection } from "./Loggers";
-import { IPhysicalStore } from "./models/IPhysicalStore";
+import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
     private cache: Map<T[this["primaryKey"]], T> = new Map();
