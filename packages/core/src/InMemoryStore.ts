@@ -1,4 +1,4 @@
-import { LoggerCollection, LogScopes } from "./Loggers";
+import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./models/IPhysicalStore";
 
 export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {

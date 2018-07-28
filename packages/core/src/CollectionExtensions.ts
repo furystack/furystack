@@ -1,4 +1,4 @@
-import { IDisposable, Trace } from "@sensenet/client-utils";
+import { IDisposable } from "@sensenet/client-utils";
 import { IService } from "./Models";
 import { IActivateable } from "./Models/IActivateable";
 

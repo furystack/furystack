@@ -6,7 +6,6 @@ import { LogScopes } from "./Loggers/LogScopes";
 import { IActivateable, IFuryStackOptions } from "./Models";
 import { IApi } from "./Models/IApi";
 import { IContext } from "./Models/IContext";
-import { ILogger } from "./Models/ILogger";
 
 export const defaultFuryStackOptions: IFuryStackOptions = {
     apis: [],
