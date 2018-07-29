@@ -1,3 +1,4 @@
+import { Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { IService } from "./Models";
 import { IActivateable } from "./Models/IActivateable";
@@ -29,3 +30,11 @@ export const makeServiceCollection = <T extends IService, T2 extends Iterable<T>
     };
     return c;
 });
+
+export const setParentInjector = <TItem extends {injector: Injector}, TCollection extends Iterable<TItem>>(collection: TCollection, parentInjector: Injector) => {
+    Array.from(collection).map((c) => {
+        c.injector.options.parent = parentInjector;
+        return c as TItem;
+    });
+    return collection;
+};

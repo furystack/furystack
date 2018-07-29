@@ -1,6 +1,7 @@
+import { Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { IService } from ".";
-import { makeCollectionActivateable, makeCollectionDisposable, makeServiceCollection } from "./CollectionExtensions";
+import { makeCollectionActivateable, makeCollectionDisposable, makeServiceCollection, setParentInjector } from "./CollectionExtensions";
 import { LoggerCollection } from "./Loggers/LoggerCollection";
 import { LogScopes } from "./Loggers/LogScopes";
 import { IActivateable, IFuryStackOptions } from "./Models";
@@ -11,6 +12,7 @@ export const defaultFuryStackOptions: IFuryStackOptions = {
     apis: [],
     services: [],
     loggers: [],
+    injector: new Injector(),
 };
 
 export class FuryStack {
@@ -48,7 +50,8 @@ export class FuryStack {
         this.attachLoggers(this.options.apis, this.options.services);
 
         this.logger.attachLogger(...this.options.loggers);
-        this.apis = makeCollectionDisposable(makeCollectionActivateable(Array.from(this.options.apis)));
+        this.apis = setParentInjector(makeCollectionDisposable(makeCollectionActivateable(Array.from(this.options.apis))), this.options.injector);
         this.services = makeServiceCollection(Array.from(this.options.services));
+
     }
 }

@@ -1,9 +1,9 @@
-import { IEntityStore } from "./IEntityStore";
+import { Injector } from "@furystack/inject";
 import { IUser } from "./IUser";
 
 export interface IContext {
     getCurrentUser(): Promise<IUser>;
     isAuthenticated(): Promise<boolean>;
     isAuthorized(...claims: string[]): Promise<boolean>;
-    getEntityStore: <T>(type: { new(...args: any[]): T }) => IEntityStore<T> | undefined;
+    getInjector: () => Injector;
 }

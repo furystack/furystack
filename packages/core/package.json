@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -55,6 +55,7 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
+    "@furystack/inject": "^0.1.0",
     "@sensenet/client-utils": "^1.0.1",
     "@types/node": "^10.5.4"
   },

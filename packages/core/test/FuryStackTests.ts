@@ -1,5 +1,5 @@
+import { Injector } from "@furystack/inject";
 import { expect } from "chai";
-import { Server } from "tls";
 import { FuryStack, IApi, IService } from "../src";
 
 export const stackBuilderTests = describe("StackBuilder", () => {
@@ -49,7 +49,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Apis should be added", () => {
-            const api: IApi<any> = {} as any;
+            const api: IApi<any> = {injector: new Injector()} as any;
             const sb = new FuryStack({
                 apis: [api],
             });
@@ -58,7 +58,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
 
         it("Should call apis.activate() on stack.start()", (done) => {
 
-            const api: IApi<any> = { activate: done } as any;
+            const api: IApi<any> = { activate: done, injector: new Injector() } as any;
             const sb = new FuryStack({
                 apis: [api],
             });
@@ -66,7 +66,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Dispose should dispose the APIs", (done) => {
-            const api: IApi<any> = { start: () => ({}), dispose: done } as any;
+            const api: IApi<any> = { start: () => ({}), dispose: done, injector: new Injector() } as any;
             const sb = new FuryStack({
                 apis: [api],
             });
