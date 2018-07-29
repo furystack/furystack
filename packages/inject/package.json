@@ -1,6 +1,6 @@
 {
-  "name": "@furystack/core",
-  "version": "0.1.6",
+  "name": "@furystack/inject",
+  "version": "0.1.0",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -23,11 +23,8 @@
     "url": "https://github.com/furystack/core.git"
   },
   "keywords": [
-    "sensenet",
-    "ecm",
-    "content management",
-    "content query",
-    "lucene"
+    "furystack",
+    "dependency injection"
   ],
   "publishConfig": {
     "access": "public"
