@@ -57,7 +57,7 @@
   "dependencies": {
     "@furystack/core": "^0.1.8",
     "@sensenet/client-utils": "^1.0.1",
-    "@types/node": "^10.5.4",
+    "@types/node": "^10.5.7",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -66,10 +66,10 @@
     "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
-    "nyc": "^11.9.0",
+    "nyc": "^12.0.2",
     "rimraf": "^2.6.1",
     "tslint": "^5.11.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.0.1"
   },
   "config": {
     "commitizen": {
