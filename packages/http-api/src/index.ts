@@ -1,5 +1,6 @@
 export * from "./ActionDecorators";
 export * from "./Actions";
+export * from "./Claims";
 export * from "./ErrorAction";
 export * from "./IdentityService";
 export * from "./HttpApi";
