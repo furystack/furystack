@@ -5,7 +5,6 @@ import { v1 } from "uuid";
 export type ILoginUser<T extends IUser> = T & { Password: string };
 
 export class IdentityService<TUser extends ILoginUser<IUser> = ILoginUser<IUser>> {
-
     public readonly sessions: Map<string, number> = new Map();
 
     private hashPassword(password: string): string {

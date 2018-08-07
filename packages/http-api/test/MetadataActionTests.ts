@@ -1,4 +1,5 @@
 import { visitorUser } from "@furystack/core";
+import { Injector } from "@furystack/inject";
 import { expect } from "chai";
 import { OutgoingHttpHeaders } from "http";
 import { MetadataAction, RouteAction } from "../src";
@@ -26,7 +27,7 @@ export const metadataActionTests = describe("MetadataAction tests", () => {
             getCurrentUser: async () => visitorUser,
             isAuthenticated: async () => true,
             isAuthorized: async () => true,
-            getEntityStore: () => undefined,
+            getInjector: () => new Injector(),
         }));
     });
 
@@ -48,6 +49,7 @@ export const metadataActionTests = describe("MetadataAction tests", () => {
             isAuthenticated: async () => true,
             isAuthorized: async () => true,
             getEntityStore: () => undefined,
+            getInjector: () => new Injector(),
         }));
     });
 });

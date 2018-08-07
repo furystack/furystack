@@ -1,4 +1,5 @@
 import { IContext, visitorUser } from "@furystack/core";
+import { Injector } from "@furystack/inject";
 import { expect } from "chai";
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from "http";
 import { AllowCors } from "../src/ActionDecorators";
@@ -42,6 +43,8 @@ export const allowCorsTests = describe("AllowCors decorator tests", () => {
             isAuthenticated: async () => true,
             isAuthorized: async () => true,
             getEntityStore: () => undefined,
+            getInjector: () => new Injector(),
+
         }));
     });
 

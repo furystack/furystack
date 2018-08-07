@@ -1,4 +1,5 @@
 import { IContext, visitorUser } from "@furystack/core";
+import { Injector } from "@furystack/inject";
 import { expect } from "chai";
 import { IncomingMessage, ServerResponse } from "http";
 import { Authenticate } from "../src/ActionDecorators";
@@ -26,6 +27,8 @@ export const authenticateDecoratorTests = describe("Authenticate decorator", () 
             isAuthorized: async () => false,
             getEntityStore: () => undefined,
             getCurrentUser: async () => visitorUser,
+            getInjector: () => new Injector(),
+
         }))
             .then(() => { /** */ })
             .catch(() => {/** */ });
@@ -38,6 +41,8 @@ export const authenticateDecoratorTests = describe("Authenticate decorator", () 
             isAuthorized: async () => false,
             getEntityStore: () => undefined,
             getCurrentUser: async () => visitorUser,
+            getInjector: () => new Injector(),
+
         }))
             .then(() => done())
             .catch((err) => done(err));
