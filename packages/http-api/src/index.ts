@@ -1,6 +1,6 @@
 export * from "./ActionDecorators";
+export * from "./Actions";
 export * from "./ErrorAction";
-export * from "./GetCurrentUser";
 export * from "./IdentityService";
 export * from "./HttpApi";
 export * from "./MetadataAction";

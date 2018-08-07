@@ -1,4 +1,5 @@
 import { IApi, InMemoryStore, IUser, LoggerCollection } from "@furystack/core";
+import { Injector } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { Server as HttpServer } from "http";
 import { Server } from "net";
@@ -33,6 +34,7 @@ export const defaultHttpApiConfiguration: IHttpApiConfiguration = {
 };
 
 export class HttpApi implements IApi<RequestContext> {
+    public injector = new Injector();
     public loggers: LoggerCollection = new LoggerCollection();
     public contextFactory(incomingMessage: IncomingMessage, serverResponse: ServerResponse, identityService: IdentityService<ILoginUser<IUser>>) {
         return new RequestContext(incomingMessage, serverResponse, identityService);
