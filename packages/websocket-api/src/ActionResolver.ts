@@ -4,9 +4,9 @@ import { IWebSocketAction } from "./models/IWebSocketAction";
 import { WebSocketContext } from "./WebSocketContext";
 
 export class ActionResolver {
-    public execute(data: Data, context: WebSocketContext, injector: Injector, send: (data: any) => Promise<void>) {
+    public execute(data: Data, context: WebSocketContext, injector: Injector) {
         const action = this.actions.find((a) => a.canExecute(data));
-        action && action.execute(data, context, send);
+        action && action.execute(data, context, injector);
     }
 
     constructor(public readonly actions: IWebSocketAction[]) {
