@@ -19,6 +19,7 @@ export interface IHttpApiConfiguration {
     defaultAction: RequestAction;
     notFoundAction: RequestAction;
     errorAction: RequestAction & { returnError(incomingMessage: IncomingMessage, serverResponse: ServerResponse, getContext: () => RequestContext, error: any): Promise<void> };
+    logScope: string;
 }
 
 export const defaultHttpApiConfiguration: IHttpApiConfiguration = {
@@ -31,6 +32,7 @@ export const defaultHttpApiConfiguration: IHttpApiConfiguration = {
     rootActions: [],
     port: 8080,
     protocol: "http",
+    logScope: "HTTP_API",
 };
 
 export class HttpApi implements IApi<RequestContext> {
@@ -56,9 +58,9 @@ export class HttpApi implements IApi<RequestContext> {
         const action = this.rootAction.resolve(pathSegments, incomingMessage, serverResponse);
         try {
             await action.exec(incomingMessage, serverResponse, contextFactoryCached);
-            this.loggers.trace(`Returned ${serverResponse.statusCode} from '${incomingMessage.url}'`);
+            this.loggers.trace(this.options.logScope, `Returned ${serverResponse.statusCode} from '${incomingMessage.url}'`);
         } catch (error) {
-            this.loggers.error(error);
+            this.loggers.error(this.options.logScope, error);
             this.options.errorAction.returnError(incomingMessage, serverResponse, contextFactoryCached, error);
         }
     }
