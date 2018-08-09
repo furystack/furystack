@@ -1,14 +1,14 @@
 import { IPhysicalStore, IUser, visitorUser } from "@furystack/core";
+import { sha256 } from "hash.js";
 import { IncomingMessage, ServerResponse } from "http";
 import { v1 } from "uuid";
-
 export type ILoginUser<T extends IUser> = T & { Password: string };
 
 export class IdentityService<TUser extends ILoginUser<IUser> = ILoginUser<IUser>> {
     public readonly sessions: Map<string, number> = new Map();
 
     private hashPassword(password: string): string {
-        return password;
+        return this.hashMethod(password); // password;
     }
 
     public async authenticateUser(userName: string, password: string): Promise<TUser> {
@@ -74,6 +74,6 @@ export class IdentityService<TUser extends ILoginUser<IUser> = ILoginUser<IUser>
         }
     }
 
-    constructor(public readonly users: IPhysicalStore<TUser>, private readonly cookieName: string = "SENTINEL_SESSION") { }
+    constructor(public readonly users: IPhysicalStore<TUser>, private readonly cookieName: string = "SENTINEL_SESSION", private readonly hashMethod: (plainText: string) => string = (plain) => sha256().update(plain).digest("hex")) { }
 
 }
