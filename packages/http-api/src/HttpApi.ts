@@ -71,7 +71,7 @@ export class HttpApi implements IApi<RequestContext> {
     }
 
     private readonly options: IHttpApiConfiguration;
-    private readonly server: Server;
+    public readonly server: Server;
 
     constructor(options?: Partial<IHttpApiConfiguration>) {
         this.options = { ...defaultHttpApiConfiguration, ...options };
