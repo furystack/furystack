@@ -16,14 +16,6 @@ export const injectorTests = describe("Injector", () => {
         expect(i["options"]["parent"]).to.be.eq(Injector.Default);
     });
 
-    it("Should throw an error if class is not defined on the scope", () => {
-        class Service { }
-        const i = new Injector({scope: {}});
-        @Injectable(i)
-        class InstanceClass { constructor(private _service: Service) { /** */ } }
-        expect(() => i.GetInstance(InstanceClass)).to.throw();
-    });
-
     it("Should throw an error on circular dependencies", () => {
         const scope: any = {};
         const i = new Injector({scope});
@@ -48,7 +40,7 @@ export const injectorTests = describe("Injector", () => {
         const scope: any = {};
         class Service { }
         scope.Service = Service;
-        const i = new Injector({scope});
+        const i = new Injector({scope, parent: undefined});
         @Injectable(i)
         class InstanceClass { constructor(public service: Service) { /** */ } }
         scope.InstanceClass = InstanceClass;
@@ -63,7 +55,7 @@ export const injectorTests = describe("Injector", () => {
         const parentScope: any = {};
         class Service { }
         parentScope.Service = Service;
-        const parent = new Injector({scope: parentScope});
+        const parent = new Injector({scope: parentScope, parent: undefined});
         const childI = new Injector({scope: childScope, parent});
         @Injectable(childI)
         class InstanceClass { constructor(public service: Service) { /** */ } }

@@ -21,14 +21,14 @@ export class Injector {
     }
 
     public GetInstance<T>(ctor: Constructable<T>) {
-        return this.GetInstanceByName<T>(ctor.name);
+        return this.GetInstanceByName<T>(ctor.name, ctor);
     }
 
     public SetInstance<T>(instance: T, key: string = instance.constructor.name) {
         this.cachedSingletons.set(key, instance);
     }
 
-    public GetInstanceByName<T>(ctorName: string, deps: string[] = []): T {
+    public GetInstanceByName<T>(ctorName: string, ctor?: Constructable<T>, deps: string[] = []): T {
 
         if (deps.includes(ctorName)) {
             throw Error(`Circular dependency when resolving '${ctorName}', dependency chain is: "${deps.join(" -> ")}"`);
@@ -38,12 +38,14 @@ export class Injector {
             return this.cachedSingletons.get(ctorName) as T;
         }
 
-        const fromParent = this.options.parent && this.options.parent.options.scope[ctorName] && this.options.parent.GetInstanceByName<T>(ctorName, deps);
+        const fromParent = this.options.parent && this.options.parent.options.scope[ctorName] && this.options.parent.GetInstanceByName<T>(ctorName, ctor, deps);
         if (fromParent) {
             return fromParent;
         }
 
-        const ctor: Constructable<T> = this.getCtorFromName(ctorName);
+        if (!ctor) {
+            ctor = this.getCtorFromName(ctorName);
+        }
 
         const meta = this.meta.get(ctorName);
         if (!meta) {
@@ -52,7 +54,7 @@ export class Injector {
             this.cachedSingletons.set(ctorName, instanceWoMeta);
             return instanceWoMeta;
         }
-        const argCtors: Array<Constructable<any>> = meta.map((arg) => this.GetInstanceByName(arg, [...deps, ctorName]));
+        const argCtors: Array<Constructable<any>> = meta.map((arg) => this.GetInstanceByName(arg, undefined, [...deps, ctorName]));
         const instance = new ctor(...argCtors) as T;
         this.cachedSingletons.set(ctorName, instance);
         return instance;
