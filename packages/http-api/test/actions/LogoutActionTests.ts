@@ -4,7 +4,7 @@ import { IdentityService } from "../../src/IdentityService";
 
 export const logoutActionTests = describe("LogoutAction", () => {
     it("should be constructed without parameters", () => {
-        const c = new LogoutAction(new IdentityService({} as any));
+        const c = new LogoutAction(new IdentityService());
         expect(c).to.be.instanceof(LogoutAction);
     });
 
