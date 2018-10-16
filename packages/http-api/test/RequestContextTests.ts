@@ -5,7 +5,7 @@ import { IdentityService } from "../src/IdentityService";
 import { RequestContext } from "../src/RequestContext";
 export const requestContextTests = describe("RequestContext", () => {
 
-    const r = new RequestContext({ headers: {} } as any, null as any, new IdentityService({} as any));
+    const r = new RequestContext({ headers: {} } as any, null as any, new IdentityService());
 
     it("should be constructed", () => {
         expect(r).to.be.instanceof(RequestContext);

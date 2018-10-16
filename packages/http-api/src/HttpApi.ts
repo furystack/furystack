@@ -26,7 +26,7 @@ export const defaultHttpApiConfiguration: IHttpApiConfiguration = {
     defaultAction: new MetadataAction(),
     errorAction: new ErrorAction(),
     hostName: "localhost",
-    identityService: new IdentityService(new InMemoryStore<ILoginUser<IUser>>("", "Id")),
+    identityService: new IdentityService(),
     serverFactory: (listener) => new HttpServer(listener),
     notFoundAction: new NotFoundAction(),
     rootActions: [],

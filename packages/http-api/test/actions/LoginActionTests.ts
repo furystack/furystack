@@ -5,7 +5,7 @@ import { IdentityService } from "../../src/IdentityService";
 
 export const loginActionTests = describe("LoginAction", () => {
     it("should be constructed without parameters", () => {
-        const c = new LoginAction(new IdentityService({} as any));
+        const c = new LoginAction(new IdentityService());
         expect(c).to.be.instanceof(LoginAction);
     });
 
