@@ -70,9 +70,9 @@ export class IdentityService<TUser extends ILoginUser<IUser> = ILoginUser<IUser>
         return user;
     }
 
-    public async externalLogin<T extends IExternalLoginService<TUser, TArgs>, TArgs extends any[]>(service: Constructable<T>, ...args: TArgs) {
+    public async externalLogin<T extends IExternalLoginService<TUser, TArgs>, TArgs extends any[]>(service: Constructable<T>, ...args: TArgs): Promise<TUser> {
         const instance = Injector.Default.GetInstance(service);
-        instance.login(this, ...args);
+        return await instance.login(this, ...args);
     }
 
     public async cookieLogout(req: IncomingMessage, serverResponse: ServerResponse) {
