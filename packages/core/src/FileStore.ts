@@ -10,6 +10,14 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
 
     public get = async (key: T[this["primaryKey"]]) => this.cache.get(key);
 
+    public async add(data: T) {
+        if (this.cache.has(data[this.primaryKey])) {
+            throw new Error("Item with the same key already exists");
+        }
+        this.update(data[this.primaryKey], data);
+        return data;
+    }
+
     public filter = async (filter: Partial<T>) => [...this.cache.values()].filter((item) => {
         for (const key in filter) {
             if (filter[key] !== (item as any)[key]) {

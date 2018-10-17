@@ -18,7 +18,6 @@
             "options": [
                 true,
                 "allow-leading-underscore",
-                "allow-pascal-case",
                 "allow-pascal-case"
             ]
         }
