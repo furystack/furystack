@@ -32,7 +32,7 @@ export class SystemPermissions {
     };
 
     public static CanRegisterWithExternalLoginProvider: IPermissionType = {
-        Id: 5,
+        Id: 6,
         Name: "Can register with external Login provider",
         Description: "A new user will be created during the first login with an external login provider",
     };
