@@ -3,7 +3,7 @@ import { IAccessControlItem } from "./IAccessControlItem";
 import { IRole } from "./IRole";
 
 export const visitorUser: IUser = {
-    Id: 0,
+    Id: 1,
     Username: "Visitor",
     Roles: [SystemRoles.Visitors],
     Permissions: [],
