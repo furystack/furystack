@@ -1,7 +1,7 @@
 import { Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { IService } from "./Models";
 import { IActivateable } from "./Models/IActivateable";
+import { IService } from "./Models/IService";
 
 export const attachCollectionBehaviour = <K, T extends Iterable<K>= Iterable<K>>(collection: T, behaviour: (collection: T & K) => T & K) => behaviour(collection as T & K);
 export const makeCollectionActivateable = <T extends IActivateable, T2 extends Iterable<T>>(collection: T2) => attachCollectionBehaviour<T, T2>(collection, (c) => {

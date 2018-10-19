@@ -1,13 +1,17 @@
-import { IdentityClaims } from "../Claims";
+import { SystemRoles } from "../SystemRoles";
+import { IAccessControlItem } from "./IAccessControlItem";
+import { IRole } from "./IRole";
 
 export const visitorUser: IUser = {
     Id: 0,
     Username: "Visitor",
-    Claims: [IdentityClaims.IsVisitor],
+    Roles: [SystemRoles.Visitors],
+    Permissions: [],
 };
 
 export interface IUser {
     Id: number;
     Username: string;
-    Claims: string[];
+    Roles: IRole[];
+    Permissions: IAccessControlItem[];
 }
