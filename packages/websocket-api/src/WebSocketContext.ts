@@ -1,4 +1,4 @@
-import { IUser, visitorUser } from "@furystack/core";
+import { IRole, IUser, visitorUser } from "@furystack/core";
 import { IdentityService } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
 import { IncomingMessage } from "http";
@@ -21,10 +21,10 @@ export class WebSocketContext implements IWebSocketContext {
         return currentUser !== visitorUser;
     }
 
-    public async isAuthorized(...claims: string[]): Promise<boolean> {
+    public async isAuthorized(...roles: IRole[]): Promise<boolean> {
         const currentUser = await this.getCurrentUser();
-        for (const claim of claims) {
-            if (!currentUser.Claims.some((c) => c === claim)) {
+        for (const role of roles) {
+            if (!currentUser.Roles.some((c) => c.Id === role.Id)) {
                 return false;
             }
         }
