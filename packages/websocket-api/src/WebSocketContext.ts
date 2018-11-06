@@ -43,7 +43,7 @@ export class WebSocketContext implements IWebSocketContext {
 
     public getInjector = () => this.injector;
 
-    constructor(private readonly identityService: IdentityService, private readonly incomingMessage: IncomingMessage, private ws: Ws, private readonly injector = new Injector()) {
+    constructor(private readonly identityService: IdentityService, private readonly incomingMessage: IncomingMessage, private ws: Ws, private readonly injector = Injector.Default) {
 
     }
 
