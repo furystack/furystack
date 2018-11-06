@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { Server } from "tls";
 import { ConsoleLogger, LoggerCollection } from "../src/Loggers";
-import { ILogger } from "../src/Models/ILogger";
+import { TestLogger } from "../src/Loggers/TestLogger";
+import { LogLevel } from "../src/Models/ILogEntries";
 
 export const loggersTests = describe("Loggers", () => {
     describe("LoggerCollection", () => {
@@ -10,44 +10,119 @@ export const loggersTests = describe("Loggers", () => {
             expect(loggers).to.be.instanceof(LoggerCollection);
         });
 
-        it("Should forward trace event", (done) => {
+        it("Should forward Verbose event", (done) => {
             const loggers = new LoggerCollection();
-            loggers.attachLogger({
-                trace: () => done(),
-                error: () => undefined,
-                warn: () => undefined,
-            } as ILogger);
-
-            loggers.trace("");
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Verbose);
+                done();
+            }));
+            loggers.Verbose({
+                message: "alma",
+                scope: "alma",
+            });
         });
 
-        it("Should forward error event", (done) => {
+        it("Should forward Debug event", (done) => {
             const loggers = new LoggerCollection();
-            loggers.attachLogger({
-                trace: () => undefined,
-                error: () => done(),
-                warn: () => undefined,
-            } as ILogger);
-
-            loggers.error("");
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Debug);
+                done();
+            }));
+            loggers.Debug({
+                message: "alma",
+                scope: "alma",
+            });
         });
 
-        it("Should forward warn event", (done) => {
+        it("Should forward Information event", (done) => {
             const loggers = new LoggerCollection();
-            loggers.attachLogger({
-                trace: () => undefined,
-                error: () => undefined,
-                warn: () => done(),
-            } as ILogger);
-
-            loggers.warn("");
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Information);
+                done();
+            }));
+            loggers.Information({
+                message: "alma",
+                scope: "alma",
+            });
         });
+
+        it("Should forward Warning event", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Warning);
+                done();
+            }));
+            loggers.Warning({
+                message: "alma",
+                scope: "alma",
+            });
+        });
+
+        it("Should forward Error event", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Error);
+                done();
+            }));
+            loggers.Error({
+                message: "alma",
+                scope: "alma",
+            });
+        });
+
+        it("Should raise an Error event if failed to insert below Error", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                if (e.level < LogLevel.Error) {
+                    throw new Error("Nooo");
+                } else {
+                    expect(e.level).to.be.eq(LogLevel.Error);
+                    done();
+                }
+            }));
+            loggers.Verbose({
+                message: "alma",
+                scope: "alma",
+            });
+        });
+
+        it("Should raise a Fatal event if failed to insert an Error", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                if (e.level < LogLevel.Fatal) {
+                    throw new Error("Nooo");
+                } else {
+                    expect(e.level).to.be.eq(LogLevel.Fatal);
+                    done();
+                }
+            }));
+            loggers.Verbose({
+                message: "alma",
+                scope: "alma",
+            });
+        });
+
+        it("Should forward Fatal event", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Fatal);
+                done();
+            }));
+            loggers.Fatal({
+                message: "alma",
+                scope: "alma",
+            });
+        });
+
     });
 
     describe("ConsoleLogger", () => {
         const consoleLogger = new ConsoleLogger();
-        it("Should print traces", () => consoleLogger.trace("trace"));
-        it("Should print warns", () => consoleLogger.warn("warn"));
-        it("Should print errors", () => consoleLogger.error("error"));
+        it("Should print Verbose", () => consoleLogger.Verbose({ scope: "scope", message: "Example Verbose Message"}));
+        it("Should print Debug", () => consoleLogger.Debug({ scope: "scope", message: "Example Debug Message"}));
+        it("Should print Information", () => consoleLogger.Information({ scope: "scope", message: "Example Information Message"}));
+        it("Should print Warning", () => consoleLogger.Warning({ scope: "scope", message: "Example Warning Message"}));
+        it("Should print Error", () => consoleLogger.Error({ scope: "scope", message: "Example Error Message"}));
+        it("Should print Fatal", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message"}));
     });
 });

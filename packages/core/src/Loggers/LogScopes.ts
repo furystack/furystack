@@ -1,6 +1,6 @@
 export enum LogScopes {
-    System = "System",
-    FuryStack = "FuryStack",
-    FileStore = "FileStore",
+    System = "@furystack/core/System",
+    FuryStack = "@furystack/core/FuryStack",
+    FileStore = "@furystack/core/FileStore",
 
 }

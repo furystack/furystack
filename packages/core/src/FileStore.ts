@@ -42,12 +42,16 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
         }
         try {
             await new Promise((resolve, reject) => {
-                this.writeFile(this.fileName, JSON.stringify(values), (err) => {
-                    if (!err) {
+                this.writeFile(this.fileName, JSON.stringify(values), (error) => {
+                    if (!error) {
                         resolve();
                     } else {
-                        this.logger.error(LogScopes.FileStore, "Error when saving store data to file:", err);
-                        reject(err);
+                        this.logger.Error({
+                            scope: LogScopes.FileStore,
+                            message: "Error when saving store data to file:",
+                            data: {error},
+                        });
+                        reject(error);
                     }
                 });
             });
@@ -64,10 +68,14 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
 
     public async reloadData() {
         await new Promise((resolve, reject) => {
-            this.readFile(this.fileName, (err, data) => {
-                if (err) {
-                    this.logger.error(LogScopes.FileStore, "Error when loading store data from file:", err);
-                    reject(err);
+            this.readFile(this.fileName, (error, data) => {
+                if (error) {
+                    this.logger.Error({
+                        scope: LogScopes.FileStore,
+                        message: "Error when loading store data from file:",
+                        data: {error},
+                    });
+                    reject(error);
                 } else {
                     this.cache.clear();
                     const json = JSON.parse(data.toString()) as T[];

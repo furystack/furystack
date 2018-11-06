@@ -1,6 +1,8 @@
 import { expect } from "chai";
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
 import { FileStore } from "../src/FileStore";
+import { TestLogger } from "../src/Loggers/TestLogger";
+import { LogLevel } from "../src/Models/ILogEntries";
 import { ILogger } from "../src/Models/ILogger";
 
 // tslint:disable:no-string-literal
@@ -36,6 +38,30 @@ export const fileStoreTests = describe("FileStore", () => {
 
     it("Update should set a value", async () => {
         await f.update(1, { id: 1, value: "asd" });
+        const count = await f.count();
+        expect(count).to.be.eq(1);
+        const persisted = await f.get(1);
+        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+    });
+
+    it("Add should set a value", async () => {
+        await f.add({ id: 1, value: "asd" });
+        const count = await f.count();
+        expect(count).to.be.eq(1);
+        const persisted = await f.get(1);
+        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+    });
+
+    it("Adding an item that already exists should throw an error", async () => {
+        await f.add({ id: 1, value: "asd" });
+
+        try {
+            await f.add({ id: 1, value: "asd" });
+            throw Error("Should throw");
+        } catch (error) {
+            /** */
+        }
+
         const count = await f.count();
         expect(count).to.be.eq(1);
         const persisted = await f.get(1);
@@ -81,12 +107,11 @@ export const fileStoreTests = describe("FileStore", () => {
         f["writeFile"] = ((_name: string, _value: any, callback: (err: any) => void) => {
             callback("Error during file write");
         }) as any;
-        await new Promise((resolve, reject) => {
-            f.logger.attachLogger({
-                error: () => resolve(),
-                trace: () => undefined,
-                warn: () => undefined,
-            } as ILogger);
+        await new Promise((resolve) => {
+            f.logger.attachLogger(new TestLogger(async (ev) => {
+                expect(ev.level).to.be.eq(LogLevel.Error);
+                resolve();
+            }));
             f["hasChanges"] = true;
             f["saveChanges"]();
         });
@@ -97,11 +122,10 @@ export const fileStoreTests = describe("FileStore", () => {
             callback("Error reading file", "");
         }) as any;
         await new Promise((resolve, reject) => {
-            f.logger.attachLogger({
-                error: () => resolve(),
-                trace: () => undefined,
-                warn: () => undefined,
-            } as ILogger);
+            f.logger.attachLogger(new TestLogger(async (ev) => {
+                expect(ev.level).to.be.eq(LogLevel.Error);
+                resolve();
+            }));
             f["reloadData"]();
         });
     });

@@ -19,18 +19,30 @@ export class FuryStack {
     public logger: LoggerCollection = new LoggerCollection();
     public readonly options: IFuryStackOptions;
     public async dispose() {
-        this.logger.trace(LogScopes.FuryStack, `Disposing ${this.constructor.name}.`);
+        this.logger.Debug({
+            scope: LogScopes.FuryStack,
+            message: `Disposing ${this.constructor.name}.`,
+        });
         this.apis.dispose();
         await this.services.stop();
-        this.logger.trace(LogScopes.FuryStack, `Disposing ${this.constructor.name} finished.`);
+        this.logger.Debug({
+            scope: LogScopes.FuryStack,
+            message: `Disposing ${this.constructor.name} finished.`,
+        });
     }
     public readonly apis: Array<IApi<IContext>> & IActivateable & IDisposable;
     public readonly services: IService[] & IService;
     public async start() {
-        this.logger.trace(LogScopes.FuryStack, `Starting ${this.constructor.name}.`);
+        this.logger.Debug({
+            scope: LogScopes.FuryStack,
+            message: `Starting ${this.constructor.name}.`,
+        });
         await this.apis.activate();
         await this.services.start();
-        this.logger.trace(LogScopes.FuryStack, `Starting ${this.constructor.name} finished.`);
+        this.logger.Debug({
+            scope: LogScopes.FuryStack,
+            message: `Starting ${this.constructor.name} finished.`,
+        });
     }
 
     private attachLoggers(...args: Array<Iterable<{ loggers: LoggerCollection }>>) {
@@ -39,7 +51,11 @@ export class FuryStack {
                 try {
                     item.loggers.attachLogger(this.logger);
                 } catch (error) {
-                    this.logger.error(LogScopes.FuryStack, `Error attaching logger for item '${item.constructor.name}'`, error);
+                    this.logger.Error({
+                        scope: LogScopes.FuryStack,
+                        message: `Error attaching logger for item '${item.constructor.name}'`,
+                        data: {error},
+                    });
                 }
             }
         }

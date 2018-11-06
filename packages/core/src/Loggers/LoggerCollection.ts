@@ -1,27 +1,16 @@
+import { ILeveledLogEntry } from "../Models/ILogEntries";
 import { ILogger } from "../Models/ILogger";
+import { AbstractLogger } from "./AbstractLogger";
 
-export class LoggerCollection implements ILogger {
+export class LoggerCollection extends AbstractLogger {
+    public async AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
+        const promises = this.loggers.map((l) => l.AddEntry(entry));
+        await Promise.all(promises);
+
+    }
 
     private loggers: ILogger[] = [];
     public attachLogger(...loggers: ILogger[]) {
         this.loggers.push(...loggers);
-    }
-
-    public error(scope: string, ...args: any[]) {
-        for (const logger of this.loggers) {
-            logger.error(scope, ...args);
-        }
-    }
-
-    public warn(scope: string, ...args: any[]) {
-        for (const logger of this.loggers) {
-            logger.warn(scope, ...args);
-        }
-    }
-
-    public trace(scope: string, ...args: any[]) {
-        for (const logger of this.loggers) {
-            logger.trace(scope, ...args);
-        }
     }
 }

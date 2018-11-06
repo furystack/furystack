@@ -4,6 +4,7 @@ export * from "./IApi";
 export * from "./IContext";
 export * from "./IFuryStackOptions";
 export * from "./ILogger";
+export * from "./ILogEntries";
 export * from "./IPermissionType";
 export * from "./IPhysicalStore";
 export * from "./IRole";
