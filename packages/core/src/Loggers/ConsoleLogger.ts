@@ -13,6 +13,7 @@ export const FgCyan = "\x1b[36m";
 export const FgWhite = "\x1b[37m";
 
 export class ConsoleLogger extends AbstractLogger {
+
     public async AddEntry<T>(entry: ILeveledLogEntry<T>) {
         let fontColor!: string;
         switch (entry.level) {
@@ -31,8 +32,12 @@ export class ConsoleLogger extends AbstractLogger {
                 fontColor = FgRed;
                 break;
         }
+        entry.data ?
         // tslint:disable-next-line:no-console
-        console.log(`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data);
+        console.log(`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data)
+        :
+        // tslint:disable-next-line:no-console
+        console.log(`${fontColor}%s${Reset}`, entry.scope, entry.message);
     }
 
 }

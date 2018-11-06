@@ -1,11 +1,27 @@
 import { ILeveledLogEntry, ILogEntry, LogLevel } from "../Models/ILogEntries";
-import { ILogger } from "../Models/ILogger";
+import { ILogger, ILoggerOptions } from "../Models/ILogger";
 
 export const AbstractLoggerScope = "@furystack/core/AbstractLogger";
 
+export const defaultLoggerOptions: ILoggerOptions = {
+    filter: <T>(entry: ILeveledLogEntry<T>) => true,
+};
+
 export abstract class AbstractLogger implements ILogger {
+
+    public readonly options: ILoggerOptions;
+    constructor(options?: Partial<ILoggerOptions>) {
+        this.options = {
+            ...defaultLoggerOptions,
+            ...options,
+        };
+    }
+
     public abstract AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void>;
     private async addEntryInternal<T>(entry: ILeveledLogEntry<T>) {
+        if (!this.options.filter(entry)) {
+            return;
+        }
         try {
             await this.AddEntry(entry);
         } catch (error) {

@@ -4,7 +4,7 @@ import { AbstractLogger } from "./AbstractLogger";
 
 export class LoggerCollection extends AbstractLogger {
     public async AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
-        const promises = this.loggers.map((l) => l.AddEntry(entry));
+        const promises = this.loggers.filter((l) => l.options.filter(entry)).map((l) => l.AddEntry(entry));
         await Promise.all(promises);
 
     }

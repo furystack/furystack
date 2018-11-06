@@ -114,6 +114,43 @@ export const loggersTests = describe("Loggers", () => {
             });
         });
 
+        it("Should skip filtered events in a simple logger", (done) => {
+            const logger = new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Error);
+                done();
+            }, {
+                filter: (ev) => ev.level === LogLevel.Error,
+            });
+            logger.Verbose({
+                message: "alma",
+                scope: "alma",
+            });
+            logger.Error({
+                message: "alma",
+                scope: "alma",
+            });
+
+        });
+
+        it("Should skip filtered events in a collection", (done) => {
+            const loggers = new LoggerCollection();
+            loggers.attachLogger(new TestLogger(async (e) => {
+                expect(e.level).to.be.eq(LogLevel.Error);
+                done();
+            }, {
+                filter: (ev) => ev.level === LogLevel.Error,
+            }));
+            loggers.Verbose({
+                message: "alma",
+                scope: "alma",
+            });
+            loggers.Error({
+                message: "alma",
+                scope: "alma",
+            });
+
+        });
+
     });
 
     describe("ConsoleLogger", () => {
@@ -124,5 +161,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should print Warning", () => consoleLogger.Warning({ scope: "scope", message: "Example Warning Message"}));
         it("Should print Error", () => consoleLogger.Error({ scope: "scope", message: "Example Error Message"}));
         it("Should print Fatal", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message"}));
+
+        it("Should print additional data", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message", data: {a: 1} }));
     });
 });
