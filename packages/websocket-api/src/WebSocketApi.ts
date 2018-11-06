@@ -15,11 +15,12 @@ export const defaultOptions: IWebSocketApiConfiguration = {
     logScope: "@furystack/websocket-api/WebSocketAPI",
     path: "/socket",
     actions: [],
+    injector: Injector.Default,
 };
 
 export class WebSocketApi implements IApi<IWebSocketContext> {
     public loggers: LoggerCollection = new LoggerCollection();
-    public injector: Injector = new Injector();
+    public injector: Injector;
     public contextFactory = (identityService: IdentityService, incomingMessage: IncomingMessage, webSocket: Ws, injector?: Injector) => new WebSocketContext(identityService, incomingMessage, webSocket, injector);
     public activate: () => Promise<void> = async () => { /** */ };
     public dispose: () => void = async () => { /** */ };
@@ -28,6 +29,7 @@ export class WebSocketApi implements IApi<IWebSocketContext> {
     private readonly resolver: ActionResolver;
     constructor(options: Partial<IWebSocketApiConfiguration> & { server: IWebSocketApiConfiguration["server"], identityService: IWebSocketApiConfiguration["identityService"] }) {
         this.options = { ...defaultOptions, ...options };
+        this.injector = this.options.injector;
         this.socket = new WebSocketServer({ noServer: true });
         this.resolver = new ActionResolver(this.options.actions);
         this.socket.on("connection", (ws, msg) => {
