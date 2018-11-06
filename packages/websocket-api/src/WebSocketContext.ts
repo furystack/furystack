@@ -24,7 +24,7 @@ export class WebSocketContext implements IWebSocketContext {
     public async isAuthorized(...roles: IRole[]): Promise<boolean> {
         const currentUser = await this.getCurrentUser();
         for (const role of roles) {
-            if (!currentUser.Roles.some((c) => c.Id === role.Id)) {
+            if (!currentUser.Roles.some((c) => c.Name === role.Name)) {
                 return false;
             }
         }
