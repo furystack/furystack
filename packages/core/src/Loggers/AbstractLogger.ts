@@ -7,14 +7,14 @@ export const defaultLoggerOptions: ILoggerOptions = {
     filter: <T>(entry: ILeveledLogEntry<T>) => true,
 };
 
-export abstract class AbstractLogger implements ILogger {
+export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOptions> implements ILogger {
 
-    public readonly options: ILoggerOptions;
+    public readonly options: TOptions;
     constructor(options?: Partial<ILoggerOptions>) {
         this.options = {
             ...defaultLoggerOptions,
             ...options,
-        };
+        } as TOptions;
     }
 
     public abstract AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void>;

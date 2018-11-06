@@ -1,5 +1,6 @@
+import { ILoggerOptions } from "../Models";
 import { ILeveledLogEntry, LogLevel } from "../Models/ILogEntries";
-import { AbstractLogger } from "./AbstractLogger";
+import { AbstractLogger, defaultLoggerOptions } from "./AbstractLogger";
 
 export const Reset = "\x1b[0m";
 
@@ -12,32 +13,61 @@ export const FgMagenta = "\x1b[35m";
 export const FgCyan = "\x1b[36m";
 export const FgWhite = "\x1b[37m";
 
-export class ConsoleLogger extends AbstractLogger {
+export const getLevelColor = (level: LogLevel) => {
+    switch (level) {
+        case LogLevel.Verbose:
+        case LogLevel.Debug:
+            return FgBlue;
+        case LogLevel.Information:
+            return FgGreen;
+        case LogLevel.Warning:
+            return FgYellow;
+        case LogLevel.Error:
+        case LogLevel.Fatal:
+            return FgRed;
+    }
+};
+
+export const defaultFormatter = <T>(entry: ILeveledLogEntry<T>) => {
+    const fontColor = getLevelColor(entry.level);
+    return [`${fontColor}%s${Reset}`, entry.scope, entry.message];
+};
+
+export const verboseFormatter = <T>(entry: ILeveledLogEntry<T>) => {
+    const fontColor = getLevelColor(entry.level);
+
+    return entry.data ?
+    [`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data]
+    :
+    [`${fontColor}%s${Reset}`, entry.scope, entry.message];
+};
+
+export interface IConsoleLoggerOptions extends ILoggerOptions {
+    formatter: <T>(entry: ILeveledLogEntry<T>) => any[];
+}
+
+export class ConsoleLogger extends AbstractLogger<IConsoleLoggerOptions> {
+
+    public readonly options: IConsoleLoggerOptions;
+
+    /**
+     *
+     */
+    constructor(options?: Partial<IConsoleLoggerOptions> ) {
+        super(options);
+        this.options = {
+            ...defaultLoggerOptions,
+            ...{
+                formatter: defaultFormatter,
+            },
+            ...options,
+        };
+    }
 
     public async AddEntry<T>(entry: ILeveledLogEntry<T>) {
-        let fontColor!: string;
-        switch (entry.level) {
-            case LogLevel.Verbose:
-                fontColor = FgBlue;
-                break;
-            case LogLevel.Debug:
-            case LogLevel.Information:
-                fontColor = FgGreen;
-                break;
-            case LogLevel.Warning:
-                fontColor = FgYellow;
-                break;
-            case LogLevel.Error:
-            case LogLevel.Fatal:
-                fontColor = FgRed;
-                break;
-        }
-        entry.data ?
+        const data = this.options.formatter(entry);
         // tslint:disable-next-line:no-console
-        console.log(`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data)
-        :
-        // tslint:disable-next-line:no-console
-        console.log(`${fontColor}%s${Reset}`, entry.scope, entry.message);
+        console.log(...data);
     }
 
 }

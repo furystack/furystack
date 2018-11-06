@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ConsoleLogger, LoggerCollection } from "../src/Loggers";
+import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from "../src/Loggers";
 import { TestLogger } from "../src/Loggers/TestLogger";
 import { LogLevel } from "../src/Models/ILogEntries";
 
@@ -164,4 +164,29 @@ export const loggersTests = describe("Loggers", () => {
 
         it("Should print additional data", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message", data: {a: 1} }));
     });
+
+    describe("defaultFormatter", () => {
+        it("Should print compact messages", () => expect(defaultFormatter({
+            level: LogLevel.Debug,
+            scope: "scope",
+            message: "message",
+            data: {},
+        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message"]));
+    });
+
+    describe("verboseFormatter", () => {
+        it("Should print compact messages", () => expect(verboseFormatter({
+            level: LogLevel.Debug,
+            scope: "scope",
+            message: "message",
+        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message"]));
+
+        it("Should print verbose messages with data", () => expect(verboseFormatter({
+            level: LogLevel.Debug,
+            scope: "scope",
+            message: "message",
+            data: {},
+        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message", {}]));
+    });
+
 });
