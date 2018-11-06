@@ -12,7 +12,7 @@ import { IWebSocketApiConfiguration, IWebSocketContext } from "./models";
 export const defaultOptions: IWebSocketApiConfiguration = {
     server: undefined as any,
     identityService: undefined as any,
-    logScope: "WEB_SOCKET_API",
+    logScope: "@furystack/websocket-api/WebSocketAPI",
     path: "/socket",
     actions: [],
 };
@@ -31,15 +31,34 @@ export class WebSocketApi implements IApi<IWebSocketContext> {
         this.socket = new WebSocketServer({ noServer: true });
         this.resolver = new ActionResolver(this.options.actions);
         this.socket.on("connection", (ws, msg) => {
-            this.loggers.trace(this.options.logScope, "Client connected to WebSocket");
+            this.loggers.Verbose({
+                scope: this.options.logScope,
+                message: "Client connected to WebSocket",
+                data: {
+                    address: msg.connection.address,
+                },
+            });
             const context = this.contextFactory(this.options.identityService, msg, ws, this.injector);
             ws.on("message", (message) => {
-                this.loggers.trace(this.options.logScope, "Client Message received");
-                this.resolver.execute(message, context, this.injector);
+                this.loggers.Verbose({
+                    scope: this.options.logScope,
+                    message: "Client Message received",
+                    data: {
+                        message: message.toString(),
+                        address: msg.connection.address,
+                    },
+                });
+                this.resolver.execute(message, context);
             });
 
             ws.on("close", () => {
-                this.loggers.trace(this.options.logScope, "Client disconnected");
+                this.loggers.Verbose({
+                    scope: this.options.logScope,
+                    message: "Client disconnected",
+                    data: {
+                        address: msg.connection.address,
+                    },
+                });
             });
         });
 
@@ -47,7 +66,13 @@ export class WebSocketApi implements IApi<IWebSocketContext> {
             const pathname = parse(request.url).pathname;
             if (pathname === this.options.path) {
                 this.socket.handleUpgrade(request, socket, head, (ws) => {
-                    this.loggers.trace(this.options.logScope, `Client connected to socket at '${this.options.path}'.`);
+                    this.loggers.Verbose({
+                        scope: this.options.logScope,
+                        message: `Client connected to socket at '${this.options.path}'.`,
+                        data: {
+                            path: this.options.path,
+                        },
+                    });
                     this.socket.emit("connection", ws, request);
                 });
             }
