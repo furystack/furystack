@@ -11,7 +11,6 @@ export * from "./IPermissionType";
 export * from "./IReference";
 export * from "./IReferenceType";
 export * from "./IRole";
-export * from "./IUser";
 export * from "./IView";
 export * from "./IViewField";
 export * from "./IViewReference";
