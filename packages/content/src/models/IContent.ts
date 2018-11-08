@@ -17,7 +17,7 @@ export interface IContent extends IEntity {
     /**
      * List of the content's fields
      */
-    Fields: IField;
+    Fields: IField[];
 
     /**
      * List of the content's jobs
