@@ -57,6 +57,9 @@
   "dependencies": {
     "@furystack/content": "^0.1.2",
     "@furystack/core": "^0.3.3",
+    "@furystack/http-api": "^0.4.4",
+    "@furystack/websocket-api": "^0.3.4",
+    "reflect-metadata": "^0.1.12",
     "typeorm": "^0.2.8"
   },
   "devDependencies": {
