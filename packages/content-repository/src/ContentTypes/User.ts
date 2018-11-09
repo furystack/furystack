@@ -15,6 +15,16 @@ export class User implements ILoginUser<IUser> {
     public Id!: number;
     @Field({
         Unique: true,
+        Visible: {
+            Create: {
+                ReadOnly: true,
+                Category: "Profile",
+                Order: 1,
+                Required: true,
+                Visible: true,
+                ControlName: "UserNameField",
+            },
+        },
     })
 
     public Username!: string;

@@ -7,7 +7,9 @@ export interface IVisibilityOption {
     Visible?: boolean;
     ReadOnly?: boolean;
     Required?: boolean;
-    ControlName?: boolean;
+    ControlName?: string;
+    Category?: string;
+    Order?: number;
 }
 
 export interface IFieldTypeDecoratorOptions {
