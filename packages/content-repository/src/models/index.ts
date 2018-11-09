@@ -4,6 +4,8 @@ export * from "./Field";
 export * from "./FieldType";
 export * from "./Job";
 export * from "./JobType";
+export * from "./Permission";
+export * from "./PermissionType";
 export * from "./Reference";
 export * from "./ReferenceType";
 export * from "./Role";

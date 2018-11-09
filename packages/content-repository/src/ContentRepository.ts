@@ -1,5 +1,6 @@
 import { LoggerCollection } from "@furystack/core";
 import { Injector } from "@furystack/inject";
+import { IDisposable } from "@sensenet/client-utils";
 import { Connection, ConnectionOptions, createConnection } from "typeorm";
 import * as Models from "./models";
 import { Seeder } from "./Seeder";
@@ -11,48 +12,72 @@ export interface IRepositoryOptions {
      */
     connection: ConnectionOptions;
     injector: Injector;
+    logScope: string;
+    models: typeof Models;
 }
 
-export class ContentRepository {
+export const defaultRepositoryOptions: IRepositoryOptions = {
+    connection: {
+        type: "sqlite",
+        database: ":memory:",
+        synchronize: true,
+    },
+    injector: Injector.Default,
+    logScope: "@furystack/content-repository/ContentRepository",
+    models: Models,
+};
+
+export class ContentRepository implements IDisposable {
+    public async dispose() {
+        await this.connection.close();
+    }
     public readonly DbEntities = Models;
-
-    public readonly LogScope = "@furystack/content-repository/ContentRepository";
-
     private connection!: Connection;
 
     public GetConnection() {
         return this.connection;
     }
 
+    public readonly Options: IRepositoryOptions;
+
     private get logger(): LoggerCollection {
-        return this.options.injector.GetInstance(LoggerCollection);
+        return this.Options.injector.GetInstance(LoggerCollection);
+    }
+
+    public async Initialize() {
+        await this.initConnection();
     }
 
     private async initConnection() {
         this.logger.Verbose({
-            scope: this.LogScope,
+            scope: this.Options.logScope,
             message: "Initializing connection",
         });
         try {
+            const modelArray = Object.values(this.Options.models);
             this.connection = await createConnection({
-                ...this.options.connection,
-                entities: Object.keys(this.DbEntities).map((key) => (this.DbEntities as any)[key]),
+                ...this.Options.connection,
+                entities: modelArray,
             });
+            await new Seeder({
+                injector: this.Options.injector,
+                repository: this,
+            }).SeedBuiltinEntries();
 
         } catch (error) {
             this.logger.Fatal({
-                scope: this.LogScope,
+                scope: this.Options.logScope,
                 message: "Failed to initialize repository DB connection.",
-                data: { options: this.connection.options, error },
+                data: { options: this.Options.connection, error },
             });
+            throw error;
         }
-        await new Seeder({
-            injector: this.options.injector,
-            repository: this,
-        }).SeedBuiltinEntries();
     }
 
-    constructor(public readonly options: IRepositoryOptions) {
-        this.initConnection();
+    constructor(options?: Partial<IRepositoryOptions>) {
+        this.Options = {
+            ...defaultRepositoryOptions,
+            ...options,
+        };
     }
 }
