@@ -6,6 +6,8 @@ import { IViewField } from "./IViewField";
 export interface IFieldType extends INamedEntity {
     Description: string;
     DefaultValue: string;
+    Unique: boolean;
+    Category: string;
     ContentType: IContentType;
     ViewFields: IViewField[];
 }
