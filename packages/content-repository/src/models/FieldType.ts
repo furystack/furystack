@@ -15,8 +15,12 @@ export class FieldType implements IFieldType {
 
     @Column({ nullable: true })
     public Description!: string;
-    @Column()
+    @Column({ nullable: true })
     public DefaultValue!: string;
+    @Column({ default: false })
+    public Unique!: boolean;
+    @Column({ nullable: true })
+    public Category!: string;
 
     @ManyToOne(() => ContentType)
     public ContentType!: ContentType;

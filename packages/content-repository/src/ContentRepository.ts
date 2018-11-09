@@ -19,7 +19,8 @@ export interface IRepositoryOptions {
 export const defaultRepositoryOptions: IRepositoryOptions = {
     connection: {
         type: "sqlite",
-        database: ":memory:",
+        // database: ":memory:",
+        database: "./db.sqlite",
         synchronize: true,
     },
     injector: Injector.Default,

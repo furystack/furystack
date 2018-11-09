@@ -12,6 +12,8 @@ export class ReferenceType implements IReferenceType {
     public DisplayName!: string;
     @Column({ nullable: true })
     public Description!: string;
+    @Column({ nullable: true })
+    public Category!: string;
 
     @ManyToOne(() => ContentType)
     public ContentType!: ContentType;
