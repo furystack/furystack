@@ -1,6 +1,17 @@
+import { IDisposable } from "@sensenet/client-utils";
 import { Constructable } from "./Types/Constructable";
 
-export class Injector {
+export class Injector implements IDisposable {
+    public async dispose() {
+        /** */
+        const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1]);
+        const disposeRequests = singletons.map(async (s) => {
+            if (s.dispose) {
+                await s.dispose();
+            }
+        });
+        await Promise.all(disposeRequests);
+    }
 
     public options: { parent: Injector, scope: any } = {
         parent: Injector.Default,
