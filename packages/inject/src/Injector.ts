@@ -13,8 +13,9 @@ export class Injector implements IDisposable {
         await Promise.all(disposeRequests);
     }
 
-    public options: { parent: Injector } = {
+    public options: { parent: Injector, owner: any } = {
         parent: Injector.Default,
+        owner: null,
     };
 
     public static Default: Injector = new Injector({ parent: undefined });
@@ -22,18 +23,18 @@ export class Injector implements IDisposable {
 
     private cachedSingletons: Map<Constructable<any>, any> = new Map();
 
-    public GetInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
+    public GetInstance<T>(ctor: Constructable<T>, local: boolean = false, dependencies: Array<Constructable<T>> = []): T {
         if (dependencies.includes(ctor)) {
             throw Error(`Circular dependencies found.`);
         }
         if (this.cachedSingletons.has(ctor)) {
             return this.cachedSingletons.get(ctor) as T;
         }
-        const fromParent = this.options.parent && this.options.parent.GetInstance(ctor);
+        const fromParent = !local && this.options.parent && this.options.parent.GetInstance(ctor);
         if (fromParent) {
             return fromParent;
         }
-        const deps = (this.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, [...dependencies, ctor]));
+        const deps = (this.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, local, [...dependencies, ctor]));
         const newInstance = new ctor(...deps);
         this.SetInstance(newInstance);
         return newInstance;
