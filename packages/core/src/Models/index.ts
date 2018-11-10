@@ -1,7 +1,6 @@
 export * from "./IAccessControlItem";
 export * from "./IActivateable";
 export * from "./IApi";
-export * from "./IContext";
 export * from "./IFuryStackOptions";
 export * from "./ILogger";
 export * from "./ILogEntries";

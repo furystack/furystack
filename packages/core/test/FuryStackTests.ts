@@ -49,7 +49,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Apis should be added", () => {
-            const api: IApi<any> = {injector: new Injector()} as any;
+            const api: IApi = {injector: new Injector()} as any;
             const sb = new FuryStack({
                 apis: [api],
             });
@@ -58,7 +58,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
 
         it("Should call apis.activate() on stack.start()", (done) => {
 
-            const api: IApi<any> = { activate: done, injector: new Injector() } as any;
+            const api: IApi = { activate: done, injector: new Injector() } as any;
             const sb = new FuryStack({
                 apis: [api],
             });
@@ -66,7 +66,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Dispose should dispose the APIs", (done) => {
-            const api: IApi<any> = { start: () => ({}), dispose: done, injector: new Injector() } as any;
+            const api: IApi = { start: () => ({}), dispose: done, injector: new Injector() } as any;
             const sb = new FuryStack({
                 apis: [api],
             });

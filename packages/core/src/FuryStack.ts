@@ -6,7 +6,6 @@ import { LoggerCollection } from "./Loggers/LoggerCollection";
 import { LogScopes } from "./Loggers/LogScopes";
 import { IActivateable, IFuryStackOptions } from "./Models";
 import { IApi } from "./Models/IApi";
-import { IContext } from "./Models/IContext";
 
 export const defaultFuryStackOptions: IFuryStackOptions = {
     apis: [],
@@ -30,7 +29,7 @@ export class FuryStack {
             message: `Disposing ${this.constructor.name} finished.`,
         });
     }
-    public readonly apis: Array<IApi<IContext>> & IActivateable & IDisposable;
+    public readonly apis: IApi[] & IActivateable & IDisposable;
     public readonly services: IService[] & IService;
     public async start() {
         this.logger.Debug({
