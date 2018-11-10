@@ -1,5 +1,5 @@
 export interface IRole {
-    Id: number;
     Name: string;
+    DisplayName?: string;
     Description?: string;
 }
