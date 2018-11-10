@@ -34,7 +34,7 @@ export class Injector implements IDisposable {
         if (fromParent) {
             return fromParent;
         }
-        const deps = (this.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, local, [...dependencies, ctor]));
+        const deps = (Injector.Default.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, local, [...dependencies, ctor]));
         const newInstance = new ctor(...deps);
         this.SetInstance(newInstance);
         return newInstance;
