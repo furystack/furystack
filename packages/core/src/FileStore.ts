@@ -1,8 +1,9 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
-import { LoggerCollection, LogScopes } from "./Loggers";
+import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+    public readonly LogScope: string = "@furystack/core/" + this.constructor.name;
     private cache: Map<T[this["primaryKey"]], T> = new Map();
     public tick = setInterval(() => this.saveChanges(), this.tickMs);
     private hasChanges: boolean = false;
@@ -47,7 +48,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
                         resolve();
                     } else {
                         this.logger.Error({
-                            scope: LogScopes.FileStore,
+                            scope: this.LogScope,
                             message: "Error when saving store data to file:",
                             data: {error},
                         });
@@ -71,7 +72,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
             this.readFile(this.fileName, (error, data) => {
                 if (error) {
                     this.logger.Error({
-                        scope: LogScopes.FileStore,
+                        scope: this.LogScope,
                         message: "Error when loading store data from file:",
                         data: {error},
                     });
