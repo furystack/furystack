@@ -1,3 +1,4 @@
+import { usingAsync } from "@sensenet/client-utils";
 import { expect } from "chai";
 import { Injectable } from "../src/Injectable";
 import { Injector } from "../src/Injector";
@@ -64,5 +65,15 @@ export const injectorTests = describe("Injector", () => {
         expect(instance.service).to.be.instanceof(Service);
         // tslint:disable-next-line:no-string-literal
         expect(childI["cachedSingletons"].has(Service.name));
+    });
+
+    it("Should be disposed", async () => {
+        await usingAsync(new Injector(),  async () => {/** */});
+    });
+
+    it("Should dispose cached entries on dispose", (done: MochaDone) => {
+        usingAsync(new Injector(),  async (i) => {
+            i.SetInstance({dispose: () => done()}, "testDisposable");
+        });
     });
 });
