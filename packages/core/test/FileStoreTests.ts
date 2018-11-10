@@ -3,7 +3,6 @@ import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
 import { FileStore } from "../src/FileStore";
 import { TestLogger } from "../src/Loggers/TestLogger";
 import { LogLevel } from "../src/Models/ILogEntries";
-import { ILogger } from "../src/Models/ILogger";
 
 // tslint:disable:no-string-literal
 

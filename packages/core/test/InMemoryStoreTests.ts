@@ -8,11 +8,11 @@ export const inMemoryStoreTests = describe("InMemoryStore", () => {
     let f!: InMemoryStore<{ id: number, value: string }>;
 
     beforeEach(() => {
-        f = new InMemoryStore<{ id: number, value: string }>("example.txt", "id", 1000);
+        f = new InMemoryStore<{ id: number, value: string }>("id", 1000);
     });
 
     it("should be constructed with default parameters", () => {
-        const f2 = new InMemoryStore<{ id: number, value: string }>("example.txt", "id");
+        const f2 = new InMemoryStore<{ id: number, value: string }>("id");
         expect(f2).to.be.instanceof(InMemoryStore);
     });
 

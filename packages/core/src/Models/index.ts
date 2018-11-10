@@ -7,5 +7,4 @@ export * from "./ILogEntries";
 export * from "./IPermissionType";
 export * from "./IPhysicalStore";
 export * from "./IRole";
-export * from "./IService";
 export * from "./IUser";

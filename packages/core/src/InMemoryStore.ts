@@ -35,8 +35,7 @@ export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalS
         /** */
     }
 
-    constructor(private readonly fileName: string,
-                public readonly primaryKey: K,
+    constructor(public readonly primaryKey: K,
                 public readonly tickMs = 10000,
                 public logger = new LoggerCollection(),
     ) {

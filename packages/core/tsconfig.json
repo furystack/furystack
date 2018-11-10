@@ -13,7 +13,8 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "noUnusedLocals": true,
   },
   "files": [
     "./src/index.ts"

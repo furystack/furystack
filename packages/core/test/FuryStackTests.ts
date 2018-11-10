@@ -1,6 +1,7 @@
-import { Injector } from "@furystack/inject";
 import { expect } from "chai";
-import { FuryStack, IApi, IService } from "../src";
+import { FuryStack, IApi } from "../src";
+
+// tslint:disable:max-classes-per-file
 
 export const stackBuilderTests = describe("StackBuilder", () => {
     it("Should be constructed without options", () => {
@@ -11,35 +12,8 @@ export const stackBuilderTests = describe("StackBuilder", () => {
     it("Should be constructed with options", () => {
         const sb = new FuryStack({
             apis: [],
-            services: [],
         });
         expect(sb).to.be.instanceof(FuryStack);
-    });
-
-    describe("Logger", () => {
-        it("Should add stack logger to APIs", (done) => {
-            const sb = new FuryStack({
-                apis: [
-                    {
-                        loggers: {
-                            attachLogger: () => done(),
-                        } as any,
-                    } as any,
-                ],
-            });
-        });
-
-        it("Should add stack logger to services", (done) => {
-            const sb = new FuryStack({
-                services: [
-                    {
-                        loggers: {
-                            attachLogger: () => done(),
-                        } as any,
-                    } as any,
-                ],
-            });
-        });
     });
 
     describe("apis", () => {
@@ -49,60 +23,42 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Apis should be added", () => {
-            const api: IApi = {injector: new Injector()} as any;
+            class Api1 implements IApi {
+                public async activate() { /**  */}
+                public dispose() { /** */}
+            }
             const sb = new FuryStack({
-                apis: [api],
+                apis: [Api1],
             });
-            expect(sb.apis[0]).to.be.eq(api);
+            expect(sb.apis[0]).to.be.instanceof(Api1);
         });
 
         it("Should call apis.activate() on stack.start()", (done) => {
 
-            const api: IApi = { activate: done, injector: new Injector() } as any;
+            class Api2 implements IApi {
+                public async activate() {
+                    done();
+                }
+                public dispose() { /** */}
+            }
             const sb = new FuryStack({
-                apis: [api],
+                apis: [Api2],
             });
             sb.start();
         });
 
         it("Dispose should dispose the APIs", (done) => {
-            const api: IApi = { start: () => ({}), dispose: done, injector: new Injector() } as any;
+
+            class Api implements IApi {
+                public async activate() { /** */  }
+                public dispose() { done(); }
+            }
             const sb = new FuryStack({
-                apis: [api],
+                apis: [Api],
             });
-            sb.dispose();
+            sb.start().then(() => {
+                sb.dispose();
+            });
         });
     });
-
-    describe("services", () => {
-        it("Should initialize with an empty service list", () => {
-            const sb = new FuryStack();
-            expect(sb.services.length).to.be.eq(0);
-        });
-
-        it("Services should be added", () => {
-            const service: IService = {} as any;
-            const sb = new FuryStack({
-                services: [service],
-            });
-            expect(sb.services[0]).to.be.eq(service);
-        });
-
-        it("Should call services.start() on stack.start()", (done) => {
-            const service: IService = { start: () => done() } as any;
-            const sb = new FuryStack({
-                services: [service],
-            });
-            sb.start();
-        });
-
-        it("Should call services.stop() on stack.dispose()", (done) => {
-            const service: IService = { stop: () => done() } as any;
-            const sb = new FuryStack({
-                services: [service],
-            });
-            sb.dispose();
-        });
-    });
-
 });
