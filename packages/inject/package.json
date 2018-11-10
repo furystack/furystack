@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
