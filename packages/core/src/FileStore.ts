@@ -3,6 +3,10 @@ import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+    public async remove(key: T[this["primaryKey"]]): Promise<void> {
+        this.cache.delete(key);
+        this.hasChanges = true;
+    }
     public readonly LogScope: string = "@furystack/core/" + this.constructor.name;
     private cache: Map<T[this["primaryKey"]], T> = new Map();
     public tick = setInterval(() => this.saveChanges(), this.tickMs);

@@ -2,6 +2,9 @@ import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+    public async remove(key: T[this["primaryKey"]]): Promise<void> {
+        this.cache.delete(key);
+    }
 
     public async add(data: T): Promise<T> {
         if (this.cache.has(data[this.primaryKey])) {
