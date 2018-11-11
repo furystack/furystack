@@ -5,7 +5,9 @@ export class Injector implements IDisposable {
     public async dispose() {
         /** */
         const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1]);
-        const disposeRequests = singletons.map(async (s) => {
+        const disposeRequests = singletons
+            .filter((s) => s !== this)
+            .map(async (s) => {
             if (s.dispose) {
                 await s.dispose();
             }
