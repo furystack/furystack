@@ -1,7 +1,7 @@
 import { IContentType, IFieldType } from "@furystack/content";
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
 import { Constructable, Injector } from "@furystack/inject";
-import { DeepPartial, FindOneOptions } from "typeorm";
+import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "./ContentDescriptorStore";
 import { ContentRepository } from "./ContentRepository";
 import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
@@ -49,8 +49,7 @@ export class Seeder {
         return this.options.injector.GetInstance(LoggerCollection);
     }
 
-    private ensureExists = async<T>(entry: ISeedEntry<T>) => {
-        const manager = this.options.repository.GetConnection().manager;
+    private ensureExists = async<T>(entry: ISeedEntry<T>, manager: EntityManager) => {
         const found = await manager.findOne(entry.model, entry.findOption);
         if (!found) {
             this.logger.Debug({
@@ -68,8 +67,8 @@ export class Seeder {
 
     }
 
-    public async SeedDbEntries(entries: Array<ISeedEntry<any>>) {
-        const promises = entries.map((e) => this.ensureExists(e));
+    public async SeedDbEntries(entries: Array<ISeedEntry<any>>, manager: EntityManager) {
+        const promises = entries.map((e) => this.ensureExists(e, manager));
         Promise.all(promises);
     }
 
@@ -100,23 +99,27 @@ export class Seeder {
 
         // ToDo: Import system users and roles
 
+        const store = this.options.injector.GetInstance(ContentDescriptorStore);
+        const contentTypeDescriptors = Array.from(store.ContentTypeDescriptors.entries());
+        const connection = this.options.repository.GetConnection();
+        if (!connection) {
+            throw Error("Connection not initialized!");
+        }
+        const manager = connection.manager;
+
         log("Seeding built-in entries...");
         log("Seeding @furystack System Permissions...");
         const fsPermissionImports = getFuryStackSystemPermissions().map(async (p) => await this.ensureExists({
             model: PermissionType,
             findOption: { where: { Name: p.Name } },
             instance: p,
-        }));
+        }, manager));
         await Promise.all(fsPermissionImports);
-
-        const store = this.options.injector.GetInstance(ContentDescriptorStore);
-        const contentTypeDescriptors = Array.from(store.ContentTypeDescriptors.entries());
-        const manager = this.options.repository.GetConnection().manager;
 
         log("Seeding content type structure...");
         const contentTypeStructure = contentTypeDescriptors.map(async ([ctor, ctd]) => {
             const contentType = await this.ensureExists({
-                model: this.options.repository.Options.models.ContentType,
+                model: this.options.repository.options.models.ContentType,
                 findOption: { where: { Name: ctor.name }, relations: [
                     "CreateView",
                     "ListView",
@@ -128,11 +131,11 @@ export class Seeder {
                     Description: ctd.Description,
                     Category: ctd.Category,
                 },
-            });
+            }, manager);
 
             const fieldRequests = Array.from(ctd.Fields.entries()).map(async ([name, fieldDescripior]) => {
                 return await this.ensureExists({
-                    model: this.options.repository.Options.models.FieldType,
+                    model: this.options.repository.options.models.FieldType,
                     findOption: { where: { ContentType: contentType, Name: name } },
                     instance: {
                         Name: name,
@@ -143,13 +146,13 @@ export class Seeder {
                         Description: fieldDescripior.Description,
                         Unique: fieldDescripior.Unique,
                     },
-                });
+                }, manager);
             });
             contentType.FieldTypes = await Promise.all(fieldRequests);
 
             const referenceRequests = Array.from(ctd.References.entries()).map(async ([name, refDescriptor]) => {
                 return await this.ensureExists({
-                    model: this.options.repository.Options.models.ReferenceType,
+                    model: this.options.repository.options.models.ReferenceType,
                     findOption: { where: { ContentType: contentType, Name: name } },
                     instance: {
                         Name: name,
@@ -158,7 +161,7 @@ export class Seeder {
                         Category: refDescriptor.Category,
                         Description: refDescriptor.Description,
                     },
-                });
+                }, manager);
             });
             contentType.ReferenceTypes = await Promise.all(referenceRequests);
             return contentType;
@@ -183,7 +186,7 @@ export class Seeder {
             // views - todo
 
             if (!contentType.CreateView) {
-                const created = await manager.create(this.options.repository.Options.models.View, {
+                const created = await manager.create(this.options.repository.options.models.View, {
                     ContentType: contentType,
                 });
                 contentType.CreateView = created;
@@ -212,7 +215,7 @@ export class Seeder {
                         View: contentType.CreateView,
                         Order: viewData.Order,
                     },
-                });
+                }, manager);
             }));
         });
 

@@ -1,4 +1,4 @@
-import { LoggerCollection } from "@furystack/core";
+import { IApi, LoggerCollection } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Connection, createConnection } from "typeorm";
@@ -7,19 +7,18 @@ import * as Models from "./models";
 import { Seeder } from "./Seeder";
 
 @Injectable()
-export class ContentRepository implements IDisposable {
+export class ContentRepository implements IDisposable, IApi {
+    public async activate() {
+        await this.initConnection();
+    }
     public async dispose() {
-        await this.connection.close();
+        this.connection && await this.connection.close();
     }
     public readonly DbEntities = Models;
-    private connection!: Connection;
+    private connection?: Connection;
 
     public GetConnection() {
         return this.connection;
-    }
-
-    public async Initialize() {
-        await this.initConnection();
     }
 
     private async initConnection() {
@@ -51,7 +50,7 @@ export class ContentRepository implements IDisposable {
     private readonly injector: Injector;
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
 
-    constructor(private readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection, injector: Injector) {
+    constructor(public readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection, injector: Injector) {
         this.injector = new Injector({owner: this, parent: injector});
     }
 }
