@@ -1,10 +1,14 @@
 import { Injector } from "@furystack/inject";
+import { IDisposable } from "@sensenet/client-utils";
 import { Data } from "ws";
-import { IWebSocketContext } from "./IWebSocketContext";
 
-export interface IWebSocketAction {
+export interface IWebSocketActionStatic {
+    canExecute(data: Data): boolean;
+}
+
+export interface IWebSocketAction extends IDisposable {
+    new: (...args: any[]) => IWebSocketActionStatic;
     authenticate: boolean;
     authorize: string[];
-    canExecute(data: Data): boolean;
-    execute(data: Data, context: IWebSocketContext): void;
+    execute(data: Data): void;
 }

@@ -1,61 +1,54 @@
 import { IApi, LoggerCollection } from "@furystack/core";
-import { IdentityService } from "@furystack/http-api";
-import { Injector } from "@furystack/inject";
+import { Constructable, Injectable, Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
 import { IncomingMessage } from "http";
 import { parse } from "url";
-import { Server as WebSocketServer } from "ws";
-import * as Ws from "ws";
-import { WebSocketContext } from ".";
-import { ActionResolver } from "./ActionResolver";
-import { IWebSocketApiConfiguration, IWebSocketContext } from "./models";
+import { Data, Server as WebSocketServer } from "ws";
+import * as ws from "ws";
+import { IWebSocketAction, IWebSocketActionStatic } from "./models";
+import { WebSocketApiConfiguration } from "./WebSocketApiConfiguration";
 
-export const defaultOptions: IWebSocketApiConfiguration = {
-    server: undefined as any,
-    identityService: undefined as any,
-    logScope: "@furystack/websocket-api/WebSocketAPI",
-    path: "/socket",
-    actions: [],
-    injector: Injector.Default,
-};
-
-export class WebSocketApi implements IApi<IWebSocketContext> {
-    public loggers: LoggerCollection = new LoggerCollection();
-    public injector: Injector;
-    public contextFactory = (identityService: IdentityService, incomingMessage: IncomingMessage, webSocket: Ws, injector?: Injector) => new WebSocketContext(identityService, incomingMessage, webSocket, injector);
-    public activate: () => Promise<void> = async () => { /** */ };
-    public dispose: () => void = async () => { /** */ };
-    private readonly options: IWebSocketApiConfiguration;
+@Injectable()
+export class WebSocketApi implements IApi {
+    public async activate() {
+        /** */
+    }
+    public async dispose() {
+        /** */
+    }
     private readonly socket: WebSocketServer;
-    private readonly resolver: ActionResolver;
-    constructor(options: Partial<IWebSocketApiConfiguration> & { server: IWebSocketApiConfiguration["server"], identityService: IWebSocketApiConfiguration["identityService"] }) {
-        this.options = { ...defaultOptions, ...options };
-        this.injector = this.options.injector;
+    private readonly injector: Injector;
+    private readonly logScope: string = "@furystack/websocket-api" + this.constructor.name;
+
+    public Actions: Array<Constructable<IWebSocketAction> & IWebSocketActionStatic> = [];
+    public Path: string = "/socket";
+
+    constructor(private readonly logger: LoggerCollection, private readonly options: WebSocketApiConfiguration, parentInjector: Injector) {
         this.socket = new WebSocketServer({ noServer: true });
-        this.resolver = new ActionResolver(this.options.actions);
-        this.socket.on("connection", (ws, msg) => {
-            this.loggers.Verbose({
-                scope: this.options.logScope,
+        this.injector = new Injector({ parent: parentInjector });
+        this.socket.on("connection", (websocket, msg) => {
+            this.logger.Verbose({
+                scope: this.logScope,
                 message: "Client connected to WebSocket",
                 data: {
                     address: msg.connection.address,
                 },
             });
-            const context = this.contextFactory(this.options.identityService, msg, ws, this.injector);
-            ws.on("message", (message) => {
-                this.loggers.Verbose({
-                    scope: this.options.logScope,
+            websocket.on("message", (message) => {
+                this.logger.Verbose({
+                    scope: this.logScope,
                     message: "Client Message received",
                     data: {
                         message: message.toString(),
                         address: msg.connection.address,
                     },
                 });
-                this.resolver.execute(message, context);
+                this.execute(message, msg, websocket);
             });
 
-            ws.on("close", () => {
-                this.loggers.Verbose({
-                    scope: this.options.logScope,
+            websocket.on("close", () => {
+                this.logger.Verbose({
+                    scope: this.logScope,
                     message: "Client disconnected",
                     data: {
                         address: msg.connection.address,
@@ -64,20 +57,33 @@ export class WebSocketApi implements IApi<IWebSocketContext> {
             });
         });
 
-        this.options.server.on("upgrade", (request, socket, head) => {
+        this.options.Server.on("upgrade", (request, socket, head) => {
             const pathname = parse(request.url).pathname;
-            if (pathname === this.options.path) {
-                this.socket.handleUpgrade(request, socket, head, (ws) => {
-                    this.loggers.Verbose({
-                        scope: this.options.logScope,
-                        message: `Client connected to socket at '${this.options.path}'.`,
+            if (pathname === this.Path) {
+                this.socket.handleUpgrade(request, socket, head, (websocket) => {
+                    this.logger.Verbose({
+                        scope: this.logScope,
+                        message: `Client connected to socket at '${this.Path}'.`,
                         data: {
-                            path: this.options.path,
+                            path: this.Path,
                         },
                     });
-                    this.socket.emit("connection", ws, request);
+                    this.socket.emit("connection", websocket, request);
                 });
             }
         });
+    }
+
+    public execute(data: Data, msg: IncomingMessage, websocket: ws) {
+        const action = this.Actions.find((a) => a.canExecute(data));
+        if (action) {
+            usingAsync(new Injector({ parent: this.injector }), async (i) => {
+                i.SetInstance(i);
+                i.SetInstance(msg);
+                i.SetInstance(websocket);
+                const actionInstance = i.GetInstance<IWebSocketAction>(action);
+                actionInstance.execute(data);
+            });
+        }
     }
 }
