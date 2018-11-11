@@ -12,7 +12,6 @@ import { Role } from "./Role";
     Category: "System",
 })
 export class User implements ILoginUser<IUser> {
-    public Id!: number;
     @Field({
         Unique: true,
         Visible: {
