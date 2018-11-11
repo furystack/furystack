@@ -14,6 +14,5 @@ export class ContentRepositoryConfiguration {
         database: "./db.sqlite",
         synchronize: true,
     };
-    public logScope: string;
     public models: typeof Models = Models;
 }

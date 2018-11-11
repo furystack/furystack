@@ -1,7 +1,7 @@
 import { LoggerCollection } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { Connection, ConnectionOptions, createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 import {ContentRepositoryConfiguration} from "./ContentRepositoryConfiguration";
 import * as Models from "./models";
 import { Seeder } from "./Seeder";
