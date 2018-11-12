@@ -20,7 +20,19 @@ export class User implements ILoginUser<IUser> {
                 Category: "Profile",
                 Order: 1,
                 Required: true,
-                Visible: true,
+                ControlName: "UserNameField",
+            },
+            List: {
+                ReadOnly: true,
+                Category: "Profile",
+                Order: 1,
+                Required: true,
+                ControlName: "UserNameField",
+            }, Details: {
+                ReadOnly: true,
+                Category: "Profile",
+                Order: 1,
+                Required: true,
                 ControlName: "UserNameField",
             },
         },
@@ -29,6 +41,29 @@ export class User implements ILoginUser<IUser> {
     public Username!: string;
     @Reference({
         AllowedTypes: [Role],
+        Visible: {
+            Create: {
+                ControlName: "RolePicker",
+                ReadOnly: false,
+                Required: false,
+                Visible: true,
+                Order: 1,
+            },
+            List: {
+                ControlName: "RolePicker",
+                ReadOnly: false,
+                Required: false,
+                Visible: true,
+                Order: 1,
+            },
+            Details: {
+                ControlName: "RolePicker",
+                ReadOnly: false,
+                Required: false,
+                Visible: true,
+                Order: 1,
+            },
+        },
     })
     public Roles!: IRole[];
     public Permissions!: IPermission[];

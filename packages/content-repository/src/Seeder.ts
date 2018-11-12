@@ -1,4 +1,4 @@
-import { IContentType, IFieldType } from "@furystack/content";
+import { IContentType, IFieldType, IReferenceType, IView } from "@furystack/content";
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
 import { Constructable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
@@ -7,7 +7,6 @@ import { ContentRepository } from "./ContentRepository";
 import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
 import { IVisibilityOption } from "./Decorators/Field";
 import { IReferenceTypeDecoratorOptions } from "./Decorators/Reference";
-import { ViewField } from "./models";
 import { PermissionType } from "./models/PermissionType";
 
 export interface ISeedEntry<T> {
@@ -87,6 +86,69 @@ export class Seeder {
             throw Error(message);
         }
         return contentType;
+    }
+
+    private async ensureViewExists(manager: EntityManager, contentType: IContentType, typeName: "Create" | "List" | "Details", view: IView, contentTypeDescriptor: IContentTypeDecoratorOptions) {
+        if (!view) {
+            const created = await manager.create(this.options.repository.options.models.View, {
+                ContentType: contentType,
+            });
+            view = created;
+            await manager.save(created);
+            (contentType as any)[typeName + "View"] = created;
+            await manager.save(contentType);
+        }
+
+        await Promise.all(Array.from(contentTypeDescriptor.Fields.entries())
+        .filter((f) => f[1].Visible !== undefined && f[1].Visible[typeName] !== undefined)
+        .map(async (f) => {
+            const viewData = (f[1].Visible && f[1].Visible[typeName]) as IVisibilityOption;
+            const fieldType = contentType.FieldTypes.find((field) => field.Name === f[0]) as IFieldType;
+            return await this.ensureExists({
+                model: this.options.repository.options.models.ViewField,
+                findOption: {
+                    where: {
+                        FieldType: fieldType.Id,
+                        View: view,
+                    },
+                },
+                instance: {
+                    Category: viewData.Category || f[1].Category || "default",
+                    ControlName: viewData.ControlName,
+                    FieldType: fieldType.Id as any,
+                    ReadOnly: viewData.ReadOnly,
+                    Required: viewData.Required,
+                    View: (contentType as any)[typeName + "View" ]as any,
+                    Order: viewData.Order,
+                },
+            }, manager);
+        }));
+
+        await Promise.all(Array.from(contentTypeDescriptor.References.entries())
+            .filter((f) => f[1].Visible !== undefined && f[1].Visible[typeName] !== undefined)
+            .map(async (f) => {
+                const viewData = (f[1].Visible && f[1].Visible[typeName]) as IVisibilityOption;
+                const refType = contentType.ReferenceTypes.find((ref) => ref.Name === f[0]) as IReferenceType;
+                return await this.ensureExists({
+                    model: this.options.repository.options.models.ViewReference,
+                    findOption: {
+                        where: {
+                            Reference: refType.Id,
+                            View: view,
+                        },
+                    },
+                    instance: {
+                        Category: viewData.Category || f[1].Category || "default",
+                        ControlName: viewData.ControlName,
+                        ReferenceType: refType.Id as any,
+                        ReadOnly: viewData.ReadOnly,
+                        Required: viewData.Required,
+                        View: (contentType as any)[typeName + "View"] as any,
+                        Order: viewData.Order,
+                    },
+                }, manager);
+            }));
+
     }
 
     public async SeedBuiltinEntries() {
@@ -183,57 +245,10 @@ export class Seeder {
                 await manager.save(reference);
             });
 
-            // views - todo
+            await this.ensureViewExists(manager, contentType, "Create", contentType.CreateView, contentTypeDescriptor);
+            await this.ensureViewExists(manager, contentType, "Details", contentType.DetailsView, contentTypeDescriptor);
+            await this.ensureViewExists(manager, contentType, "List", contentType.ListView, contentTypeDescriptor);
 
-            if (!contentType.CreateView) {
-                const created = await manager.create(this.options.repository.options.models.View, {
-                    ContentType: contentType,
-                });
-                contentType.CreateView = created;
-                await manager.save(contentType);
-            }
-
-            await Promise.all(Array.from(contentTypeDescriptor.Fields.entries())
-            .filter((f) => f[1].Visible !== undefined && f[1].Visible.Create !== undefined)
-            .map(async (f) => {
-                const viewData = (f[1].Visible && f[1].Visible.Create) as IVisibilityOption;
-                const fieldType = contentType.FieldTypes.find((field) => field.Name === f[0]) as IFieldType;
-                return await this.ensureExists({
-                    model: ViewField,
-                    findOption: {
-                        where: {
-                            FieldType: fieldType.Id,
-                            View: contentType.CreateView,
-                        },
-                    },
-                    instance: {
-                        Category: viewData.Category || f[1].Category || "default",
-                        ControlName: viewData.ControlName,
-                        FieldType: fieldType.Id as any,
-                        ReadOnly: viewData.ReadOnly,
-                        Required: viewData.Required,
-                        View: contentType.CreateView,
-                        Order: viewData.Order,
-                    },
-                }, manager);
-            }));
         });
-
-        // const fsRoleImports = getFuryStackSystemRoles().map(async (r) => await this.ensureExists({
-        //     model: Role,
-        //     findOption: { where: { Name: r.Name } },
-        //     instance: r,
-        // }));
-
-        // await Promise.all(fsRoleImports);
-
-        // const fscrRoleImports = getContentRepositoryRoles().map(async (r) => await this.ensureExists({
-        //     model: Role,
-        //     findOption: { where: { Name: r.Name } },
-        //     instance: r,
-        // }));
-
-        // await Promise.all(fscrRoleImports);
-
     }
 }

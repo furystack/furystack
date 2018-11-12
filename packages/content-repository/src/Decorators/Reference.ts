@@ -7,11 +7,12 @@ export interface IReferenceVisibilityOption {
     Visible?: boolean;
     ReadOnly?: boolean;
     Required?: boolean;
-    ControlName?: boolean;
+    ControlName?: string;
+    Order: number;
 }
 
 export interface IReferenceTypeDecoratorOptions {
-    Unique?: boolean;
+    AllowMultiple: boolean;
     DisplayName?: string;
     Description?: string;
     DefaultValue?: string;
@@ -27,6 +28,7 @@ export interface IReferenceTypeDecoratorOptions {
 
 export const getDefaultFieldDecoratorOptions = () => ({
     Injector: Injector.Default,
+    AllowMultiple: false,
     AllowedTypes: [],
 } as IReferenceTypeDecoratorOptions);
 

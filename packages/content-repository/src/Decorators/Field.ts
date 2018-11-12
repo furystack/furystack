@@ -4,7 +4,6 @@ import { ContentDescriptorStore } from "../ContentDescriptorStore";
 import { ContentType, IContentTypeDecoratorOptions } from "./ContentType";
 
 export interface IVisibilityOption {
-    Visible?: boolean;
     ReadOnly?: boolean;
     Required?: boolean;
     ControlName?: string;
@@ -19,6 +18,7 @@ export interface IFieldTypeDecoratorOptions {
     DefaultValue?: string;
     Category?: string;
     Injector: Injector;
+    Index?: number;
     Visible?: {
         Create?: IVisibilityOption,
         List?: IVisibilityOption,

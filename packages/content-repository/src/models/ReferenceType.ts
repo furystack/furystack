@@ -22,4 +22,6 @@ export class ReferenceType implements IReferenceType {
     @JoinTable()
     public AllowedTypes!: ContentType[];
 
+    @Column({default: false})
+    public AllowMultiple!: boolean;
 }

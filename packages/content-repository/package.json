@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/furystack/content",
   "dependencies": {
-    "@furystack/content": "^0.1.3",
+    "@furystack/content": "^0.1.6",
     "@furystack/core": "^1.0.4",
     "@furystack/http-api": "^0.5.0",
     "@furystack/websocket-api": "^0.4.0",

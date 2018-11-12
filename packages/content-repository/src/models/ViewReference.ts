@@ -1,6 +1,7 @@
 import { IViewReference } from "@furystack/content";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Reference } from "./Reference";
+import { ReferenceType } from "./ReferenceType";
 import { View } from "./View";
 
 @Entity()
@@ -9,7 +10,7 @@ export class ViewReference implements IViewReference {
     public Id!: number;
 
     @ManyToOne(() => Reference)
-    public Reference!: Reference;
+    public ReferenceType!: ReferenceType;
 
     @Column()
     public Order!: number;
@@ -24,4 +25,6 @@ export class ViewReference implements IViewReference {
 
     @ManyToOne(() => View, (v) => v.ViewReferences)
     public View!: View;
+    @Column()
+    public Required!: boolean;
 }
