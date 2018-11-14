@@ -1,7 +1,6 @@
+import { IAspectField } from "./IAspectField";
 import { IContentType } from "./IContentType";
-import { IEntity } from "./IEntity";
 import { INamedEntity } from "./INamedEntity";
-import { IViewField } from "./IViewField";
 
 export interface IFieldType extends INamedEntity {
     Description: string;
@@ -9,5 +8,5 @@ export interface IFieldType extends INamedEntity {
     Unique: boolean;
     Category: string;
     ContentType: IContentType;
-    ViewFields: IViewField[];
+    AspectFields: IAspectField[];
 }

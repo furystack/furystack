@@ -1,9 +1,9 @@
+import { IAspect } from "./IAspect";
 import { IFieldType } from "./IFieldType";
 import { IJobType } from "./IJobType";
 import { INamedEntity } from "./INamedEntity";
 import { IPermission } from "./IPermission";
 import { IReferenceType } from "./IReferenceType";
-import { IView } from "./IView";
 
 /**
  * Represents a type definition for a generic content instance
@@ -19,19 +19,9 @@ export interface IContentType extends INamedEntity {
     Category: string;
 
     /**
-     *  Default view when creating a content
+     *  List of aspects
      */
-    CreateView: IView;
-
-    /**
-     * Default view when listing a type
-     */
-    ListView: IView;
-
-    /**
-     * Default view for opening the content details
-     */
-    DetailsView: IView;
+    Aspects: IAspect[];
 
     /**
      * Definition for field types. These fields will be created automatically for the content

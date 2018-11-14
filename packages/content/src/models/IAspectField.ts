@@ -1,7 +1,7 @@
+import { IAspect } from "./IAspect";
 import { IFieldType } from "./IFieldType";
-import { IView } from "./IView";
 
-export interface IViewField {
+export interface IAspectField {
     Id: number;
     FieldType: IFieldType;
     Category: string;
@@ -9,5 +9,5 @@ export interface IViewField {
     ReadOnly: boolean;
     Required: boolean;
     ControlName: string;
-    View: IView;
+    Aspect: IAspect;
 }
