@@ -19,10 +19,8 @@ export interface IReferenceTypeDecoratorOptions {
     Category?: string;
     AllowedTypes: Array<Constructable<any>>;
     Injector: Injector;
-    Visible?: {
-        Create?: IReferenceVisibilityOption,
-        List?: IReferenceVisibilityOption,
-        Details?: IReferenceVisibilityOption,
+    Aspects?: {
+        [s: string]: IReferenceVisibilityOption,
     };
 }
 

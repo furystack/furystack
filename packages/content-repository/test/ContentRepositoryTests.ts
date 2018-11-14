@@ -14,6 +14,7 @@ export const contentRepositoryTests = describe("Repository", () => {
 
     it("Can be initialized", async () => {
         await usingAsync(new Injector({ parent: undefined }), async (i) => {
+
             usingAsync(i.GetInstance(ContentRepository), async (r) => {
                 await r.activate();
                 const connection = r.GetConnection();

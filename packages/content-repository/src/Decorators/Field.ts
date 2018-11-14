@@ -19,10 +19,8 @@ export interface IFieldTypeDecoratorOptions {
     Category?: string;
     Injector: Injector;
     Index?: number;
-    Visible?: {
-        Create?: IVisibilityOption,
-        List?: IVisibilityOption,
-        Details?: IVisibilityOption,
+    Aspects?: {
+        [s: string]: IVisibilityOption,
     };
 }
 

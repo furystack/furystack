@@ -1,6 +1,6 @@
 
 import { IContentType } from "@furystack/content";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
 import { Content } from "./Content";
 import { FieldType } from "./FieldType";

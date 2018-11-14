@@ -14,7 +14,7 @@ import { Role } from "./Role";
 export class User implements ILoginUser<IUser> {
     @Field({
         Unique: true,
-        Visible: {
+        Aspects: {
             Create: {
                 ReadOnly: true,
                 Category: "Profile",
@@ -41,7 +41,7 @@ export class User implements ILoginUser<IUser> {
     public Username!: string;
     @Reference({
         AllowedTypes: [Role],
-        Visible: {
+        Aspects: {
             Create: {
                 ControlName: "RolePicker",
                 ReadOnly: false,
