@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { FuryStack, IApi } from "../src";
 
 // tslint:disable:max-classes-per-file
@@ -6,31 +5,31 @@ import { FuryStack, IApi } from "../src";
 export const stackBuilderTests = describe("StackBuilder", () => {
     it("Should be constructed without options", () => {
         const sb = new FuryStack();
-        expect(sb).to.be.instanceof(FuryStack);
+        expect(sb).toBeInstanceOf(FuryStack);
     });
 
     it("Should be constructed with options", () => {
         const sb = new FuryStack({
             apis: [],
         });
-        expect(sb).to.be.instanceof(FuryStack);
+        expect(sb).toBeInstanceOf(FuryStack);
     });
 
     describe("apis", () => {
         it("Should initialize with an empty API list", () => {
             const sb = new FuryStack();
-            expect(sb.apis.length).to.be.eq(0);
+            expect(sb.apis.length).toBe(0);
         });
 
         it("Apis should be added", () => {
             class Api1 implements IApi {
-                public async activate() { /**  */}
-                public dispose() { /** */}
+                public async activate() { /**  */ }
+                public dispose() { /** */ }
             }
             const sb = new FuryStack({
                 apis: [Api1],
             });
-            expect(sb.apis[0]).to.be.instanceof(Api1);
+            expect(sb.apis[0]).toBeInstanceOf(Api1);
         });
 
         it("Should call apis.activate() on stack.start()", (done) => {
@@ -39,7 +38,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
                 public async activate() {
                     done();
                 }
-                public dispose() { /** */}
+                public dispose() { /** */ }
             }
             const sb = new FuryStack({
                 apis: [Api2],
@@ -50,7 +49,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         it("Dispose should dispose the APIs", (done) => {
 
             class Api implements IApi {
-                public async activate() { /** */  }
+                public async activate() { /** */ }
                 public dispose() { done(); }
             }
             const sb = new FuryStack({

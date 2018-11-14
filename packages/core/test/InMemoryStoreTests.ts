@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { InMemoryStore } from "../src/InMemoryStore";
 
 // tslint:disable:no-string-literal
@@ -13,15 +12,15 @@ export const inMemoryStoreTests = describe("InMemoryStore", () => {
 
     it("should be constructed with default parameters", () => {
         const f2 = new InMemoryStore<{ id: number, value: string }>("id");
-        expect(f2).to.be.instanceof(InMemoryStore);
+        expect(f2).toBeInstanceOf(InMemoryStore);
     });
 
     it("Update should set a value", async () => {
         await f.update(1, { id: 1, value: "asd" });
         const count = await f.count();
-        expect(count).to.be.eq(1);
+        expect(count).toBe(1);
         const persisted = await f.get(1);
-        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+        expect(persisted).toEqual({ id: 1, value: "asd" });
     });
 
     it("filter should return the corresponding entries", async () => {
@@ -30,6 +29,6 @@ export const inMemoryStoreTests = describe("InMemoryStore", () => {
         f.update(3, { id: 3, value: "def" });
 
         const result = await f.filter({ value: "def" });
-        expect(result.length).to.be.eq(2);
+        expect(result.length).toBe(2);
     });
 });

@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from "../src/Loggers";
 import { TestLogger } from "../src/Loggers/TestLogger";
 import { LogLevel } from "../src/Models/ILogEntries";
@@ -7,13 +6,13 @@ export const loggersTests = describe("Loggers", () => {
     describe("LoggerCollection", () => {
         it("Should be constructed", () => {
             const loggers = new LoggerCollection();
-            expect(loggers).to.be.instanceof(LoggerCollection);
+            expect(loggers).toBeInstanceOf(LoggerCollection);
         });
 
         it("Should forward Verbose event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Verbose);
+                expect(e.level).toBe(LogLevel.Verbose);
                 done();
             }));
             loggers.Verbose({
@@ -25,7 +24,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should forward Debug event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Debug);
+                expect(e.level).toBe(LogLevel.Debug);
                 done();
             }));
             loggers.Debug({
@@ -37,7 +36,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should forward Information event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Information);
+                expect(e.level).toBe(LogLevel.Information);
                 done();
             }));
             loggers.Information({
@@ -49,7 +48,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should forward Warning event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Warning);
+                expect(e.level).toBe(LogLevel.Warning);
                 done();
             }));
             loggers.Warning({
@@ -61,7 +60,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should forward Error event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Error);
+                expect(e.level).toBe(LogLevel.Error);
                 done();
             }));
             loggers.Error({
@@ -76,7 +75,7 @@ export const loggersTests = describe("Loggers", () => {
                 if (e.level < LogLevel.Error) {
                     throw new Error("Nooo");
                 } else {
-                    expect(e.level).to.be.eq(LogLevel.Error);
+                    expect(e.level).toBe(LogLevel.Error);
                     done();
                 }
             }));
@@ -92,7 +91,7 @@ export const loggersTests = describe("Loggers", () => {
                 if (e.level < LogLevel.Fatal) {
                     throw new Error("Nooo");
                 } else {
-                    expect(e.level).to.be.eq(LogLevel.Fatal);
+                    expect(e.level).toBe(LogLevel.Fatal);
                     done();
                 }
             }));
@@ -105,7 +104,7 @@ export const loggersTests = describe("Loggers", () => {
         it("Should forward Fatal event", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Fatal);
+                expect(e.level).toBe(LogLevel.Fatal);
                 done();
             }));
             loggers.Fatal({
@@ -116,11 +115,11 @@ export const loggersTests = describe("Loggers", () => {
 
         it("Should skip filtered events in a simple logger", (done) => {
             const logger = new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Error);
+                expect(e.level).toBe(LogLevel.Error);
                 done();
             }, {
-                filter: (ev) => ev.level === LogLevel.Error,
-            });
+                    filter: (ev) => ev.level === LogLevel.Error,
+                });
             logger.Verbose({
                 message: "alma",
                 scope: "alma",
@@ -135,11 +134,11 @@ export const loggersTests = describe("Loggers", () => {
         it("Should skip filtered events in a collection", (done) => {
             const loggers = new LoggerCollection();
             loggers.attachLogger(new TestLogger(async (e) => {
-                expect(e.level).to.be.eq(LogLevel.Error);
+                expect(e.level).toBe(LogLevel.Error);
                 done();
             }, {
-                filter: (ev) => ev.level === LogLevel.Error,
-            }));
+                    filter: (ev) => ev.level === LogLevel.Error,
+                }));
             loggers.Verbose({
                 message: "alma",
                 scope: "alma",
@@ -155,14 +154,14 @@ export const loggersTests = describe("Loggers", () => {
 
     describe("ConsoleLogger", () => {
         const consoleLogger = new ConsoleLogger();
-        it("Should print Verbose", () => consoleLogger.Verbose({ scope: "scope", message: "Example Verbose Message"}));
-        it("Should print Debug", () => consoleLogger.Debug({ scope: "scope", message: "Example Debug Message"}));
-        it("Should print Information", () => consoleLogger.Information({ scope: "scope", message: "Example Information Message"}));
-        it("Should print Warning", () => consoleLogger.Warning({ scope: "scope", message: "Example Warning Message"}));
-        it("Should print Error", () => consoleLogger.Error({ scope: "scope", message: "Example Error Message"}));
-        it("Should print Fatal", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message"}));
+        it("Should print Verbose", () => consoleLogger.Verbose({ scope: "scope", message: "Example Verbose Message" }));
+        it("Should print Debug", () => consoleLogger.Debug({ scope: "scope", message: "Example Debug Message" }));
+        it("Should print Information", () => consoleLogger.Information({ scope: "scope", message: "Example Information Message" }));
+        it("Should print Warning", () => consoleLogger.Warning({ scope: "scope", message: "Example Warning Message" }));
+        it("Should print Error", () => consoleLogger.Error({ scope: "scope", message: "Example Error Message" }));
+        it("Should print Fatal", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message" }));
 
-        it("Should print additional data", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message", data: {a: 1} }));
+        it("Should print additional data", () => consoleLogger.Fatal({ scope: "scope", message: "Example Fatal Message", data: { a: 1 } }));
     });
 
     describe("defaultFormatter", () => {
@@ -171,7 +170,7 @@ export const loggersTests = describe("Loggers", () => {
             scope: "scope",
             message: "message",
             data: {},
-        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message"]));
+        })).toEqual(["\u001b[34m%s\u001b[0m", "scope", "message"]));
     });
 
     describe("verboseFormatter", () => {
@@ -179,14 +178,14 @@ export const loggersTests = describe("Loggers", () => {
             level: LogLevel.Debug,
             scope: "scope",
             message: "message",
-        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message"]));
+        })).toEqual(["\u001b[34m%s\u001b[0m", "scope", "message"]));
 
         it("Should print verbose messages with data", () => expect(verboseFormatter({
             level: LogLevel.Debug,
             scope: "scope",
             message: "message",
             data: {},
-        })).to.be.deep.eq(["\u001b[34m%s\u001b[0m", "scope", "message", {}]));
+        })).toEqual(["\u001b[34m%s\u001b[0m", "scope", "message", {}]));
     });
 
 });

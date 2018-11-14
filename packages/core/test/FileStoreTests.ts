@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
 import { FileStore } from "../src/FileStore";
 import { TestLogger } from "../src/Loggers/TestLogger";
@@ -28,27 +27,27 @@ export const fileStoreTests = describe("FileStore", () => {
 
     it("should be constructed with default parameters", () => {
         const f2 = new FileStore<{ id: number, value: string }>("example.txt", "id");
-        expect(f2).to.be.instanceof(FileStore);
-        expect(f2["tickMs"]).to.be.eq(10000);
-        expect(f2["readFile"]).to.be.eq(nodeReadFile);
-        expect(f2["writeFile"]).to.be.eq(nodeWriteFile);
+        expect(f2).toBeInstanceOf(FileStore);
+        expect(f2["tickMs"]).toBe(10000);
+        expect(f2["readFile"]).toBe(nodeReadFile);
+        expect(f2["writeFile"]).toBe(nodeWriteFile);
         clearInterval(f2["tick"]);
     });
 
     it("Update should set a value", async () => {
         await f.update(1, { id: 1, value: "asd" });
         const count = await f.count();
-        expect(count).to.be.eq(1);
+        expect(count).toBe(1);
         const persisted = await f.get(1);
-        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+        expect(persisted).toEqual({ id: 1, value: "asd" });
     });
 
     it("Add should set a value", async () => {
         await f.add({ id: 1, value: "asd" });
         const count = await f.count();
-        expect(count).to.be.eq(1);
+        expect(count).toBe(1);
         const persisted = await f.get(1);
-        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+        expect(persisted).toEqual({ id: 1, value: "asd" });
     });
 
     it("Adding an item that already exists should throw an error", async () => {
@@ -62,12 +61,12 @@ export const fileStoreTests = describe("FileStore", () => {
         }
 
         const count = await f.count();
-        expect(count).to.be.eq(1);
+        expect(count).toBe(1);
         const persisted = await f.get(1);
-        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+        expect(persisted).toEqual({ id: 1, value: "asd" });
     });
 
-    it("save should be triggered after change", (done: MochaDone) => {
+    it("save should be triggered after change", (done) => {
         f["writeFile"] = ((_name: string, _value: any, callback: () => void) => {
             callback();
             done();
@@ -81,7 +80,7 @@ export const fileStoreTests = describe("FileStore", () => {
         f.update(3, { id: 3, value: "def" });
 
         const result = await f.filter({ value: "def" });
-        expect(result.length).to.be.eq(2);
+        expect(result.length).toBe(2);
     });
 
     it("reload should fill the cache from the response", async () => {
@@ -91,9 +90,9 @@ export const fileStoreTests = describe("FileStore", () => {
 
         await f.reloadData();
         const count = await f.count();
-        expect(count).to.be.eq(1);
+        expect(count).toBe(1);
         const persisted = await f.get(1);
-        expect(persisted).to.be.deep.eq({ id: 1, value: "asd" });
+        expect(persisted).toEqual({ id: 1, value: "asd" });
     });
 
     it("saveChanges should skip file writing on no changes", () => {
@@ -108,7 +107,7 @@ export const fileStoreTests = describe("FileStore", () => {
         }) as any;
         await new Promise((resolve) => {
             f.logger.attachLogger(new TestLogger(async (ev) => {
-                expect(ev.level).to.be.eq(LogLevel.Error);
+                expect(ev.level).toBe(LogLevel.Error);
                 resolve();
             }));
             f["hasChanges"] = true;
@@ -122,7 +121,7 @@ export const fileStoreTests = describe("FileStore", () => {
         }) as any;
         await new Promise((resolve, reject) => {
             f.logger.attachLogger(new TestLogger(async (ev) => {
-                expect(ev.level).to.be.eq(LogLevel.Error);
+                expect(ev.level).toBe(LogLevel.Error);
                 resolve();
             }));
             f["reloadData"]();
