@@ -1,12 +1,12 @@
 
 import { IContentType } from "@furystack/content";
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Aspect } from "./Aspect";
 import { Content } from "./Content";
 import { FieldType } from "./FieldType";
 import { JobType } from "./JobType";
 import { Permission } from "./Permission";
 import { ReferenceType } from "./ReferenceType";
-import { View } from "./View";
 
 @Entity()
 export class ContentType implements IContentType {
@@ -31,14 +31,8 @@ export class ContentType implements IContentType {
     @OneToMany(() => Content, (c) => c.Type)
     public Content!: Content[];
 
-    @ManyToOne(() => View)
-    public CreateView!: View;
-
-    @ManyToOne(() => View)
-    public ListView!: View;
-
-    @ManyToOne(() => View)
-    public DetailsView!: View;
+    @OneToMany(() => Aspect, (a) => a.ContentType)
+    public Aspects!: Aspect[];
 
     @OneToMany(() => FieldType, (f) => f.ContentType)
     public FieldTypes!: FieldType[];

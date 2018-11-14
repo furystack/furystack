@@ -1,14 +1,14 @@
-import { IViewField } from "@furystack/content";
+import { IAspectField } from "@furystack/content";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Aspect } from "./Aspect";
 import { FieldType } from "./FieldType";
-import { View } from "./View";
 
 @Entity()
-export class ViewField implements IViewField {
+export class AspectField implements IAspectField {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
-    @ManyToOne(() => FieldType, (f) => f.ViewFields)
+    @ManyToOne(() => FieldType, (f) => f.AspectFields)
     public FieldType!: FieldType;
 
     @Column()
@@ -26,6 +26,6 @@ export class ViewField implements IViewField {
     @Column()
     public ControlName!: string;
 
-    @ManyToOne(() => View, (v) => v.ViewFields)
-    public View!: View;
+    @ManyToOne(() => Aspect, (v) => v.AspectFields)
+    public Aspect!: Aspect;
 }

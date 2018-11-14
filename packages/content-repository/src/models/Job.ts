@@ -1,8 +1,8 @@
 import { IJob } from "@furystack/content";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Aspect } from "./Aspect";
 import { Content } from "./Content";
 import { Permission } from "./Permission";
-import { View } from "./View";
 
 @Entity()
 export class Job implements IJob {
@@ -27,8 +27,8 @@ export class Job implements IJob {
     @JoinTable()
     public Prerequisites!: Job[];
 
-    @OneToOne(() => View)
-    public View!: View;
+    @OneToOne(() => Aspect)
+    public Aspect!: Aspect;
 
     @OneToMany(() => Permission, (p) => p.Job)
     public Permissions!: Permission[];

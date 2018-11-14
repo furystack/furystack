@@ -1,7 +1,7 @@
 import { IFieldType } from "@furystack/content";
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { AspectField } from "./AspectField";
 import { ContentType } from "./ContentType";
-import { ViewField } from "./ViewField";
 
 @Entity()
 export class FieldType implements IFieldType {
@@ -25,6 +25,6 @@ export class FieldType implements IFieldType {
     @ManyToOne(() => ContentType)
     public ContentType!: ContentType;
 
-    @OneToMany(() => ViewField, (f) => f.FieldType)
-    public ViewFields!: ViewField[];
+    @OneToMany(() => AspectField, (f) => f.FieldType)
+    public AspectFields!: AspectField[];
 }

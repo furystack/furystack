@@ -1,11 +1,11 @@
-import { IViewReference } from "@furystack/content";
+import { IAspectReference } from "@furystack/content";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Aspect } from "./Aspect";
 import { Reference } from "./Reference";
 import { ReferenceType } from "./ReferenceType";
-import { View } from "./View";
 
 @Entity()
-export class ViewReference implements IViewReference {
+export class AspectReference implements IAspectReference {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
@@ -23,8 +23,8 @@ export class ViewReference implements IViewReference {
     @Column()
     public ControlName!: string;
 
-    @ManyToOne(() => View, (v) => v.ViewReferences)
-    public View!: View;
+    @ManyToOne(() => Aspect, (v) => v.AspectReferences)
+    public Aspect!: Aspect;
     @Column()
     public Required!: boolean;
 }

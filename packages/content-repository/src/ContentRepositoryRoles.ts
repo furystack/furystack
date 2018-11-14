@@ -5,7 +5,7 @@ export class ContentRepositoryRoles {
     public static ManageContentTypes: IRole = {
         Name: "ManageContentTypes",
         DisplayName: "Manage content types",
-        Description: "Allow the editing of content types, views and jobs",
+        Description: "Allow the editing of content types, aspects and jobs",
     };
 
     public static Console: IRole = {

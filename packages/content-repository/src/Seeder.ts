@@ -1,4 +1,4 @@
-import { IContentType, IFieldType, IReferenceType, IView } from "@furystack/content";
+import { IAspect, IContentType, IFieldType, IReferenceType } from "@furystack/content";
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
 import { Constructable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
@@ -100,29 +100,29 @@ export class Seeder {
         }
 
         await Promise.all(Array.from(contentTypeDescriptor.Fields.entries())
-        .filter((f) => f[1].Visible !== undefined && f[1].Visible[typeName] !== undefined)
-        .map(async (f) => {
-            const viewData = (f[1].Visible && f[1].Visible[typeName]) as IVisibilityOption;
-            const fieldType = contentType.FieldTypes.find((field) => field.Name === f[0]) as IFieldType;
-            return await this.ensureExists({
-                model: this.options.repository.options.models.ViewField,
-                findOption: {
-                    where: {
-                        FieldType: fieldType.Id,
-                        View: view,
+            .filter((f) => f[1].Visible !== undefined && f[1].Visible[typeName] !== undefined)
+            .map(async (f) => {
+                const viewData = (f[1].Visible && f[1].Visible[typeName]) as IVisibilityOption;
+                const fieldType = contentType.FieldTypes.find((field) => field.Name === f[0]) as IFieldType;
+                return await this.ensureExists({
+                    model: this.options.repository.options.models.ViewField,
+                    findOption: {
+                        where: {
+                            FieldType: fieldType.Id,
+                            View: view,
+                        },
                     },
-                },
-                instance: {
-                    Category: viewData.Category || f[1].Category || "default",
-                    ControlName: viewData.ControlName,
-                    FieldType: fieldType.Id as any,
-                    ReadOnly: viewData.ReadOnly,
-                    Required: viewData.Required,
-                    View: (contentType as any)[typeName + "View" ]as any,
-                    Order: viewData.Order,
-                },
-            }, manager);
-        }));
+                    instance: {
+                        Category: viewData.Category || f[1].Category || "default",
+                        ControlName: viewData.ControlName,
+                        FieldType: fieldType.Id as any,
+                        ReadOnly: viewData.ReadOnly,
+                        Required: viewData.Required,
+                        View: (contentType as any)[typeName + "View"] as any,
+                        Order: viewData.Order,
+                    },
+                }, manager);
+            }));
 
         await Promise.all(Array.from(contentTypeDescriptor.References.entries())
             .filter((f) => f[1].Visible !== undefined && f[1].Visible[typeName] !== undefined)
@@ -153,7 +153,7 @@ export class Seeder {
 
     public async SeedBuiltinEntries() {
 
-        const log = <T>(message: string, data?: T ) => this.logger.Debug({
+        const log = <T>(message: string, data?: T) => this.logger.Debug({
             scope: this.LogScope,
             message,
             data,
@@ -182,11 +182,13 @@ export class Seeder {
         const contentTypeStructure = contentTypeDescriptors.map(async ([ctor, ctd]) => {
             const contentType = await this.ensureExists({
                 model: this.options.repository.options.models.ContentType,
-                findOption: { where: { Name: ctor.name }, relations: [
-                    "CreateView",
-                    "ListView",
-                    "DetailsView",
-                ] },
+                findOption: {
+                    where: { Name: ctor.name }, relations: [
+                        "CreateView",
+                        "ListView",
+                        "DetailsView",
+                    ],
+                },
                 instance: {
                     Name: ctor.name,
                     DisplayName: ctd.DisplayName,
