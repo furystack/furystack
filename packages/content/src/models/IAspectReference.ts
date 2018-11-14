@@ -1,9 +1,9 @@
 import { IAspect } from "./IAspect";
-import { IReference } from "./IReference";
+import { IReferenceType } from "./IReferenceType";
 
 export interface IAspectReference {
     Id: number;
-    Reference: IReference;
+    ReferenceType: IReferenceType;
     Order: number;
     Category: string;
     ReadOnly: boolean;
