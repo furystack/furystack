@@ -1,11 +1,11 @@
 import { IApi, LoggerCollection } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { Connection, createConnection, FindOneOptions, In } from "typeorm";
+import { Connection, createConnection, FindOneOptions } from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
-import { Aspect } from "./models";
+import { Aspect, AspectReference, Content } from "./models";
 import { Seeder } from "./Seeder";
 
 @Injectable()
@@ -86,24 +86,50 @@ export class ContentRepository implements IDisposable, IApi {
         };
     }
 
-    public async CreateContent<T>(contentCtor: Constructable<T>, content: T) {
+    public async CreateContent<T>(contentCtor: Constructable<T>, contentData: T) {
         const manager = this.connection.manager;
         const contentType = await this.loadRequired(this.options.models.ContentType, {where: {Name: contentCtor.name}});
         const createAspect = await this.loadRequired(this.options.models.Aspect, {where: {Name: DefaultAspects.Create, ContentType: contentType, relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"]}});
 
-        const validationResult = this.validateAspectUpdate(createAspect, content);
+        const validationResult = this.validateAspectUpdate(createAspect, contentData);
 
         if (!validationResult.isValid) {
             const errorMsg = `Error creating content '${contentCtor.name}'. The aspect is invalid`;
             this.logger.Error({
                 scope: this.LogScope,
                 message: errorMsg,
-                data: {contentCtor, content, validationResult},
+                data: {contentCtor, contentData, validationResult},
             });
             throw Error(errorMsg);
         }
-        manager.transaction(async (transactionManager) => {
-            /** ToDo: inserts */
+        await manager.transaction(async (transactionManager) => {
+            /** content */
+            const newContent = await transactionManager.create(this.options.models.Content, {
+                Type: contentType,
+            });
+            const content = await manager.save(newContent);
+
+            /** fields */
+            for (const aspectField of createAspect.AspectFields) {
+                const createdField = await transactionManager.create(this.options.models.Field, {
+                    Type: aspectField.FieldType,
+                    Content: content,
+                    Value: contentData[aspectField.FieldType.Name as keyof T].toString(),
+                });
+                await transactionManager.save(createdField);
+            }
+
+            /** todo: refs */
+            for (const aspectRef of createAspect.AspectReferences) {
+                const createdField = await transactionManager.create(this.options.models.Reference, {
+                    Type: aspectRef.ReferenceType,
+                    Content: content,
+                    References: contentData[aspectRef.ReferenceType.Name as keyof T] as any as Content[], // ToDo: check? wtf?
+                });
+                await transactionManager.save(createdField);
+            }
+
+            /** todo: jobs from types */
         });
     }
 
