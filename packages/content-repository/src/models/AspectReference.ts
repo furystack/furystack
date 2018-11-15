@@ -15,7 +15,7 @@ export class AspectReference implements IAspectReference {
     @Column()
     public Order!: number;
 
-    @Column()
+    @Column({ nullable: true })
     public Category!: string;
     @Column()
     public ReadOnly!: boolean;

@@ -1,6 +1,7 @@
 import { Injector } from "@furystack/inject";
 import { usingAsync } from "@sensenet/client-utils";
 import { Connection } from "typeorm";
+import "../src";
 import { ContentRepository } from "../src/ContentRepository";
 
 export const contentRepositoryTests = describe("Repository", () => {
@@ -14,12 +15,12 @@ export const contentRepositoryTests = describe("Repository", () => {
 
     it("Can be initialized", async () => {
         await usingAsync(new Injector({ parent: undefined }), async (i) => {
-
-            usingAsync(i.GetInstance(ContentRepository), async (r) => {
+            await usingAsync(i.GetInstance(ContentRepository), async (r) => {
+                jest.setTimeout(100000);
                 await r.activate();
                 const connection = r.GetConnection();
                 expect(connection).toBeInstanceOf(Connection);
-                expect((connection as any).isConnected).toEqual(true);
+                expect((connection as any).isConnected).toBe(true);
             });
         });
     });

@@ -5,7 +5,8 @@ import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "./ContentDescriptorStore";
 import { ContentRepository } from "./ContentRepository";
 import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
-import { IReferenceTypeDecoratorOptions } from "./Decorators/Reference";
+import { IVisibilityOption } from "./Decorators/Field";
+import { IReferenceTypeDecoratorOptions, IReferenceVisibilityOption } from "./Decorators/Reference";
 import { PermissionType } from "./models/PermissionType";
 
 export interface ISeedEntry<T> {
@@ -43,8 +44,12 @@ export class Seeder {
                 message: `Entity '${JSON.stringify(entry.findOption)}' not found, creating...`,
                 data: { instance: entry.instance },
             });
-            const created = await manager.create(entry.model, entry.instance);
-            return await manager.save(created);
+            try {
+                const created = await manager.create(entry.model, entry.instance);
+                return await manager.save(created);
+            } catch (error) {
+                throw error;
+            }
         }
         return found;
     }
@@ -86,16 +91,84 @@ export class Seeder {
             const refAspects = r.Aspects ? Object.keys(r.Aspects) : [];
             refAspects.forEach((ra) => aspectNames.add(ra));
         });
-        const createdAspects = contentType.Aspects.map((a) => a.Name);
-        const aspectsToCreate = Array.from(aspectNames).filter((name) => createdAspects.indexOf(name) === -1);
+
+        if (!contentType.Aspects) {
+            contentType.Aspects = [];
+        }
+
+        const definedAspects = contentType.Aspects.map((a) => a.Name);
+        const aspectsToCreate = Array.from(aspectNames).filter((name) => definedAspects.indexOf(name) === -1);
 
         for (const aspectName of aspectsToCreate) {
-            const created = await manager.create(this.options.repository.options.models.Aspect, {
-                ContentType: contentType,
-                Name: aspectName,
-            });
-            await manager.save(created);
+            const created = await this.ensureExists({
+                model: this.options.repository.options.models.Aspect,
+                findOption: {
+                    where: {
+                        ContentType: contentType,
+                        Name: aspectName,
+                    },
+                }, instance: {
+                    ContentType: contentType,
+                    Name: aspectName,
+                },
+            }, manager);
+            contentType.Aspects.push(created);
+        }
 
+        for (const [fieldName, fieldDescriptor] of Array.from(contentTypeDescriptor.Fields.entries())) {
+            if (!fieldDescriptor.Aspects) { return; }
+            const names = Object.keys(fieldDescriptor.Aspects);
+            names.map(async (aspectName) => {
+                const aspectDescriptor = (fieldDescriptor.Aspects as any)[aspectName] as IVisibilityOption;
+                const aspect = contentType.Aspects.find((a) => a.Name === aspectName);
+                const fieldType = contentType.FieldTypes.find((f) => f.Name === fieldName);
+                await this.ensureExists({
+                    model: this.options.repository.options.models.AspectField,
+                    instance: {
+                        Aspect: aspect,
+                        Category: aspectDescriptor.Category,
+                        FieldType: fieldType,
+                        ControlName: aspectDescriptor.ControlName,
+                        Order: aspectDescriptor.Order,
+                        ReadOnly: aspectDescriptor.ReadOnly,
+                        Required: aspectDescriptor.Required,
+                    },
+                    findOption: {
+                        where: {
+                            Aspect: aspect,
+                            FieldType: fieldType,
+                        },
+                    },
+                }, manager);
+            });
+        }
+
+        for (const [refName, refDescriptor] of Array.from(contentTypeDescriptor.References.entries())) {
+            if (!refDescriptor.Aspects) { return; }
+            const names = Object.keys(refDescriptor.Aspects);
+            names.map(async (aspectName) => {
+                const aspectDescriptor = (refDescriptor.Aspects as any)[aspectName] as IReferenceVisibilityOption;
+                const aspect = contentType.Aspects.find((a) => a.Name === aspectName);
+                const referenceType = contentType.ReferenceTypes.find((f) => f.Name === refName);
+                await this.ensureExists({
+                    model: this.options.repository.options.models.AspectReference,
+                    instance: {
+                        Aspect: aspect,
+                        Category: aspectDescriptor.Category,
+                        ReferenceType: referenceType,
+                        ControlName: aspectDescriptor.ControlName,
+                        Order: aspectDescriptor.Order,
+                        ReadOnly: aspectDescriptor.ReadOnly,
+                        Required: aspectDescriptor.Required,
+                    },
+                    findOption: {
+                        where: {
+                            Aspect: aspect,
+                            ReferenceType: referenceType,
+                        },
+                    },
+                }, manager);
+            });
         }
     }
 
@@ -180,7 +253,7 @@ export class Seeder {
         const contentTypes = await Promise.all(contentTypeStructure);
 
         log("Seeding reference types and views...");
-        await contentTypeDescriptors.map(async (contentTypeDescriptorEntry) => {
+        for (const contentTypeDescriptorEntry of contentTypeDescriptors) {
             const [contentTypeDescriptorCtor, contentTypeDescriptor] = contentTypeDescriptorEntry;
 
             const contentType = this.getContentTypeFromDescriptorEntry(contentTypeDescriptorCtor, contentTypeDescriptor, contentTypes);
@@ -194,6 +267,6 @@ export class Seeder {
             });
 
             await this.createAspects(manager, contentType, contentTypeDescriptor);
-        });
+        }
     }
 }

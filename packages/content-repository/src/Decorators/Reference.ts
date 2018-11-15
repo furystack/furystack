@@ -4,6 +4,7 @@ import { ContentDescriptorStore } from "../ContentDescriptorStore";
 import { ContentType, IContentTypeDecoratorOptions } from "./ContentType";
 
 export interface IReferenceVisibilityOption {
+    Category?: string;
     Visible?: boolean;
     ReadOnly?: boolean;
     Required?: boolean;
