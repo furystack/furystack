@@ -7,6 +7,7 @@ import { ContentRepository } from "./ContentRepository";
 import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
 import { IVisibilityOption } from "./Decorators/Field";
 import { IReferenceTypeDecoratorOptions, IReferenceVisibilityOption } from "./Decorators/Reference";
+import { DefaultAspects } from "./DefaultAspects";
 import { PermissionType } from "./models/PermissionType";
 
 export interface ISeedEntry<T> {
@@ -81,7 +82,7 @@ export class Seeder {
     }
 
     private async createAspects(manager: EntityManager, contentType: IContentType, contentTypeDescriptor: IContentTypeDecoratorOptions) {
-        const aspectNames = new Set<string>(["Create", "List", "Details", "Autocomplete"]);
+        const aspectNames = new Set<string>([...Object.keys(DefaultAspects)]);
         contentTypeDescriptor.Fields.forEach((f) => {
             const fieldAspects = f.Aspects ? Object.keys(f.Aspects) : [];
             fieldAspects.forEach((fa) => aspectNames.add(fa));
