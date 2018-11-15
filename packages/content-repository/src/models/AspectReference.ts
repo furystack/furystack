@@ -1,7 +1,6 @@
 import { IAspectReference } from "@furystack/content";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
-import { Reference } from "./Reference";
 import { ReferenceType } from "./ReferenceType";
 
 @Entity()
@@ -9,7 +8,7 @@ export class AspectReference implements IAspectReference {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
-    @ManyToOne(() => Reference)
+    @ManyToOne(() => ReferenceType)
     public ReferenceType!: ReferenceType;
 
     @Column()

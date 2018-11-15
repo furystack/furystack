@@ -20,20 +20,20 @@ export class User implements ILoginUser<IUser> {
                 Category: "Profile",
                 Order: 1,
                 Required: true,
-                ControlName: "UserNameField",
+                ControlName: "InputText",
             },
             List: {
                 ReadOnly: true,
                 Category: "Profile",
                 Order: 1,
                 Required: true,
-                ControlName: "UserNameField",
+                ControlName: "ShortText",
             }, Details: {
                 ReadOnly: true,
                 Category: "Profile",
                 Order: 1,
                 Required: true,
-                ControlName: "UserNameField",
+                ControlName: "ShortText",
             },
         },
     })
@@ -57,7 +57,7 @@ export class User implements ILoginUser<IUser> {
                 Order: 1,
             },
             Details: {
-                ControlName: "RolePicker",
+                ControlName: "RoleList",
                 ReadOnly: false,
                 Required: false,
                 Visible: true,
