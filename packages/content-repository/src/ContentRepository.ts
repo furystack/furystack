@@ -186,7 +186,7 @@ export class ContentRepository implements IDisposable, IApi {
         }
 
         if (c.Type.Name !== type.name) {
-            // Content Not Found
+            // Type mismatch
             const errorMsg = `Content with '${id}' is not from type '${type.name}'`;
             this.logger.Warning({
                 scope: this.LogScope,
@@ -219,7 +219,7 @@ export class ContentRepository implements IDisposable, IApi {
     }
 
     public async findContent<T>(type: Constructable<T>, findOptions: FindManyOptions<T>, aspectName: string) {
-        /** */
+        /** ToDo: Model mapper... */
     }
 
     constructor(public readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection, injector: Injector) {
