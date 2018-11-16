@@ -7,11 +7,31 @@ import { Field } from "../Decorators/Field";
     Description: "Role for a specified user",
 })
 export class Role implements IRole {
-    @Field()
+    @Field({
+        Aspects: {
+            Create: {
+                ReadOnly: false,
+            },
+        },
+    })
     public Description?: string;
 
-    @Field({ Unique: true })
+    @Field({
+        Unique: true,
+        Aspects: {
+            Create: {
+                Required: true,
+                ReadOnly: false,
+            },
+        },
+    })
     public Name!: string;
-    @Field()
+    @Field({
+        Aspects: {
+            Create: {
+                ReadOnly: false,
+            },
+        },
+    })
     public DisplayName!: string;
 }

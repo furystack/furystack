@@ -1,4 +1,4 @@
-import {Injectable} from "@furystack/inject";
+import { Injectable } from "@furystack/inject";
 import { ConnectionOptions } from "typeorm";
 import * as Models from "./models";
 
@@ -9,6 +9,7 @@ export class ContentRepositoryConfiguration {
      * Entities will be overwritten.
      */
     public connection: ConnectionOptions = {
+        name: "FuryStackContentReposiroty",
         type: "sqlite",
         // database: ":memory:",
         database: "./db.sqlite",

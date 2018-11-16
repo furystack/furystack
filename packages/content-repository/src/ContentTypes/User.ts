@@ -16,7 +16,7 @@ export class User implements ILoginUser<IUser> {
         Unique: true,
         Aspects: {
             Create: {
-                ReadOnly: true,
+                ReadOnly: false,
                 Category: "Profile",
                 Order: 1,
                 Required: true,
@@ -37,7 +37,6 @@ export class User implements ILoginUser<IUser> {
             },
         },
     })
-
     public Username!: string;
     @Reference({
         AllowedTypes: [Role],

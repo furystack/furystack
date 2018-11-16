@@ -11,19 +11,19 @@ export class AspectField implements IAspectField {
     @ManyToOne(() => FieldType, (f) => f.AspectFields)
     public FieldType!: FieldType;
 
-    @Column()
+    @Column({ nullable: true })
     public Category!: string;
 
-    @Column()
+    @Column({ nullable: true })
     public Order!: number;
 
-    @Column()
+    @Column({ default: true })
     public ReadOnly!: boolean;
 
-    @Column()
+    @Column({ default: false })
     public Required!: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public ControlName!: string;
 
     @ManyToOne(() => Aspect, (v) => v.AspectFields)

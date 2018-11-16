@@ -4,10 +4,12 @@ import { Constructable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "./ContentDescriptorStore";
 import { ContentRepository } from "./ContentRepository";
+import { User } from "./ContentTypes";
 import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
 import { IVisibilityOption } from "./Decorators/Field";
 import { IReferenceTypeDecoratorOptions, IReferenceVisibilityOption } from "./Decorators/Reference";
 import { DefaultAspects } from "./DefaultAspects";
+import { Role } from "./models";
 import { PermissionType } from "./models/PermissionType";
 
 export interface ISeedEntry<T> {
@@ -185,11 +187,7 @@ export class Seeder {
 
         const store = this.options.injector.GetInstance(ContentDescriptorStore);
         const contentTypeDescriptors = Array.from(store.ContentTypeDescriptors.entries());
-        const connection = this.options.repository.GetConnection();
-        if (!connection) {
-            throw Error("Connection not initialized!");
-        }
-        const manager = connection.manager;
+        const manager = this.options.repository.GetManager();
 
         log("Seeding built-in entries...");
         log("Seeding @furystack System Permissions...");
@@ -269,5 +267,30 @@ export class Seeder {
 
             await this.createAspects(manager, contentType, contentTypeDescriptor);
         }
+
+        const visitorRole = await this.options.repository.CreateContent(Role, {
+            Name: "Visitor",
+            Description: "The user is not authenticated",
+        });
+
+        const authenticatedRole = await this.options.repository.CreateContent(Role, {
+            Name: "Authenticated",
+            Description: "The user is authenticated",
+        });
+
+        const adminRole = await this.options.repository.CreateContent(Role, {
+            Name: "Admin",
+            Description: "The user is a global administrator",
+        });
+
+        await this.options.repository.CreateContent(User, {
+            Username: "Visitor",
+            Roles: [visitorRole],
+        });
+        await this.options.repository.CreateContent(User, {
+            Username: "Administrator",
+            Roles: [authenticatedRole, adminRole],
+        });
+
     }
 }
