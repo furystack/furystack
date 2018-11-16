@@ -1,6 +1,6 @@
 import { IContentType } from "@furystack/content";
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
-import { Constructable, Injector } from "@furystack/inject";
+import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "./ContentDescriptorStore";
 import { ContentRepository } from "./ContentRepository";
@@ -18,11 +18,6 @@ export interface ISeedEntry<T> {
     instance: DeepPartial<T>;
 }
 
-export interface ISeederOptions {
-    repository: ContentRepository;
-    injector: Injector;
-}
-
 export const getFuryStackSystemPermissions = () => {
     return Object.keys(FSSystemPermissions).map((key) => {
         return ({
@@ -32,11 +27,12 @@ export const getFuryStackSystemPermissions = () => {
     });
 };
 
+@Injectable()
 export class Seeder {
 
     public readonly LogScope = "@furystack/content-repository/seeder";
     private get logger(): LoggerCollection {
-        return this.options.injector.GetInstance(LoggerCollection);
+        return this.injector.GetInstance(LoggerCollection);
     }
 
     private ensureExists = async<T>(entry: ISeedEntry<T>, manager: EntityManager) => {
@@ -57,7 +53,7 @@ export class Seeder {
         return found;
     }
 
-    constructor(private readonly options: ISeederOptions) {
+    constructor(private readonly repository: ContentRepository, private readonly injector: Injector) {
 
     }
 
@@ -104,7 +100,7 @@ export class Seeder {
 
         for (const aspectName of aspectsToCreate) {
             const created = await this.ensureExists({
-                model: this.options.repository.options.models.Aspect,
+                model: this.repository.options.models.Aspect,
                 findOption: {
                     where: {
                         ContentType: contentType,
@@ -126,7 +122,7 @@ export class Seeder {
                 const aspect = contentType.Aspects.find((a) => a.Name === aspectName);
                 const fieldType = contentType.FieldTypes.find((f) => f.Name === fieldName);
                 await this.ensureExists({
-                    model: this.options.repository.options.models.AspectField,
+                    model: this.repository.options.models.AspectField,
                     instance: {
                         Aspect: aspect,
                         Category: aspectDescriptor.Category,
@@ -154,7 +150,7 @@ export class Seeder {
                 const aspect = contentType.Aspects.find((a) => a.Name === aspectName);
                 const referenceType = contentType.ReferenceTypes.find((f) => f.Name === refName);
                 await this.ensureExists({
-                    model: this.options.repository.options.models.AspectReference,
+                    model: this.repository.options.models.AspectReference,
                     instance: {
                         Aspect: aspect,
                         Category: aspectDescriptor.Category,
@@ -176,7 +172,7 @@ export class Seeder {
     }
 
     public async SeedBuiltinEntries() {
-
+        await this.repository.activate();
         const log = <T>(message: string, data?: T) => this.logger.Debug({
             scope: this.LogScope,
             message,
@@ -185,9 +181,9 @@ export class Seeder {
 
         // ToDo: Import system users and roles
 
-        const store = this.options.injector.GetInstance(ContentDescriptorStore);
+        const store = this.injector.GetInstance(ContentDescriptorStore);
         const contentTypeDescriptors = Array.from(store.ContentTypeDescriptors.entries());
-        const manager = this.options.repository.GetManager();
+        const manager = this.repository.GetManager();
 
         log("Seeding built-in entries...");
         log("Seeding @furystack System Permissions...");
@@ -201,7 +197,7 @@ export class Seeder {
         log("Seeding content type structure...");
         const contentTypeStructure = contentTypeDescriptors.map(async ([ctor, ctd]) => {
             const contentType = await this.ensureExists({
-                model: this.options.repository.options.models.ContentType,
+                model: this.repository.options.models.ContentType,
                 findOption: {
                     where: { Name: ctor.name }, relations: [
                         "Aspects",
@@ -217,7 +213,7 @@ export class Seeder {
 
             const fieldRequests = Array.from(ctd.Fields.entries()).map(async ([name, fieldDescripior]) => {
                 return await this.ensureExists({
-                    model: this.options.repository.options.models.FieldType,
+                    model: this.repository.options.models.FieldType,
                     findOption: { where: { ContentType: contentType, Name: name } },
                     instance: {
                         Name: name,
@@ -234,7 +230,7 @@ export class Seeder {
 
             const referenceRequests = Array.from(ctd.References.entries()).map(async ([name, refDescriptor]) => {
                 return await this.ensureExists({
-                    model: this.options.repository.options.models.ReferenceType,
+                    model: this.repository.options.models.ReferenceType,
                     findOption: { where: { ContentType: contentType, Name: name } },
                     instance: {
                         Name: name,
@@ -268,26 +264,26 @@ export class Seeder {
             await this.createAspects(manager, contentType, contentTypeDescriptor);
         }
 
-        const visitorRole = await this.options.repository.CreateContent(Role, {
+        const visitorRole = await this.repository.CreateContent(Role, {
             Name: "Visitor",
             Description: "The user is not authenticated",
         });
 
-        const authenticatedRole = await this.options.repository.CreateContent(Role, {
+        const authenticatedRole = await this.repository.CreateContent(Role, {
             Name: "Authenticated",
             Description: "The user is authenticated",
         });
 
-        const adminRole = await this.options.repository.CreateContent(Role, {
+        const adminRole = await this.repository.CreateContent(Role, {
             Name: "Admin",
             Description: "The user is a global administrator",
         });
 
-        await this.options.repository.CreateContent(User, {
+        await this.repository.CreateContent(User, {
             Username: "Visitor",
             Roles: [visitorRole],
         });
-        await this.options.repository.CreateContent(User, {
+        await this.repository.CreateContent(User, {
             Username: "Administrator",
             Roles: [authenticatedRole, adminRole],
         });

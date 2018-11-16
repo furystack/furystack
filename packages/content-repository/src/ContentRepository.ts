@@ -1,12 +1,11 @@
 import { IApi, LoggerCollection } from "@furystack/core";
-import { Constructable, Injectable, Injector } from "@furystack/inject";
+import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { createConnection, EntityManager, FindManyOptions, FindOneOptions, getConnectionManager, getManager } from "typeorm";
+import { createConnection, EntityManager, FindOneOptions, getConnectionManager, getManager} from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
 import { Aspect, Content } from "./models";
-import { Seeder } from "./Seeder";
 
 @Injectable()
 export class ContentRepository implements IDisposable, IApi {
@@ -38,11 +37,6 @@ export class ContentRepository implements IDisposable, IApi {
                 });
             }
 
-            await new Seeder({
-                injector: this.injector,
-                repository: this,
-            }).SeedBuiltinEntries();
-
         } catch (error) {
             this.logger.Fatal({
                 scope: this.LogScope,
@@ -52,8 +46,6 @@ export class ContentRepository implements IDisposable, IApi {
             throw error;
         }
     }
-
-    private readonly injector: Injector;
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
 
     private async loadRequired<T>(model: Constructable<T>, findOption: FindOneOptions<T>, manager: EntityManager) {
@@ -97,7 +89,7 @@ export class ContentRepository implements IDisposable, IApi {
         let content!: Content;
         try {
             await this.GetManager().transaction(async (transactionManager) => {
-                /** content */
+                // ToDo: User context and permission check
 
                 const contentType = await this.loadRequired(this.options.models.ContentType, { where: { Name: contentCtor.name }, relations: ["JobTypes"] }, transactionManager);
                 const createAspect = await this.loadRequired(this.options.models.Aspect, {
@@ -218,11 +210,25 @@ export class ContentRepository implements IDisposable, IApi {
         return returned;
     }
 
-    public async findContent<T>(type: Constructable<T>, findOptions: FindManyOptions<T>, aspectName: string) {
-        /** ToDo: Model mapper... */
+    public async findContent<T>(type: Constructable<T>, aspectName: string, findOptions: Partial<T>) {
+        // const findKeys = Object.keys(findOptions);
+        // const findFields = await this.GetManager().find(this.options.models.FieldType, {
+        //     where: {
+        //         Name: In(findKeys),
+        //     },
+        // });
+        // const findReferences = await this.GetManager().find(this.options.models.Aspect, {
+        //     where: {
+        //         Name: In(findKeys),
+        //     },
+        // });
+
+        // const items = await this.GetManager().createQueryBuilder()
+        //     .select("Content")
+        //     .from(this.options.models.Content, "Content")
+        //     .innerJoin();
     }
 
-    constructor(public readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection, injector: Injector) {
-        this.injector = new Injector({ owner: this, parent: injector });
+    constructor(public readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection) {
     }
 }
