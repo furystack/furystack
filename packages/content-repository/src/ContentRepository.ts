@@ -6,7 +6,8 @@ import { Brackets, createConnection, EntityManager, FindOneOptions, getConnectio
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
-import { Aspect, Content, IContent } from "./models";
+import { Aspect, Content } from "./models";
+import { SystemContent } from "./SystemContent";
 
 @Injectable()
 export class ContentRepository implements IDisposable, IApi {
@@ -167,52 +168,40 @@ export class ContentRepository implements IDisposable, IApi {
 
         const currentUser = await this.userContext.getCurrentUser();
 
-        const contents = this.GetManager()
-            .createQueryBuilder()
-            .select()
-            .from(this.options.models.Content, "Content")
-            .innerJoinAndSelect("Content.Fields", "Field", "Field.contentId=Content.Id")
-            .innerJoinAndSelect("Content.Type", "ContentType", "Content.typeId=ContentType.Id")
-            .innerJoinAndSelect("Field.Type", "Type", "Field.typeId=Type.Id")
-            .innerJoinAndSelect("Content.References", "References")
-            .innerJoinAndSelect("Content.Permissions", "Permissions")
-            .where("Content.Id= :id", {id: In(id)})
-            // ToDo: Where permission check
-            .getMany();
+        const returned: T[] = [];
+        const c = await this.GetManager().find(this.options.models.Content, {
+            where: And({
+                Id: In(id),
+                Permissions: Any
+            },
+            relations: ["Type", "Fields", "Fields.Type", "References", "References.Type", "Type.Aspects", "Type.Aspects.AspectFields", "Type.Aspect.AspectReferences"],,, , , ,,,,,,,
+        });
 
-        // const returneds: T[] = [];
-        // const c = await this.GetManager().find(this.options.models.Content, {
-        //     where: {
-        //         Id: In(id),
-        //     },
-        //     relations: ["Type", "Fields", "Fields.Type", "References", "References.Type"],
-        // });
+        const aspects = await this.GetManager().find(this.options.models.Aspect, {
+            where: {
+                ContentType: In(c.map((ct) => ct.Type)),
+                Name: aspectName,
+            },
+            relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"],
+        });
+        if (!aspects.length) {
+            // Content Not Found
+            const errorMsg = `Aspect not found with name '${aspectName}'`;
+            this.logger.Warning({
+                scope: this.LogScope,
+                message: errorMsg,
+            });
+            throw Error(errorMsg);
+        }
+        aspects.map((aspect) => {
 
-        // const aspects = await this.GetManager().find(this.options.models.Aspect, {
-        //     where: {
-        //         ContentType: In(c.map((ct) => ct.Type)),
-        //         Name: aspectName,
-        //     },
-        //     relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"],
-        // });
-        // if (!aspects.length) {
-        //     // Content Not Found
-        //     const errorMsg = `Aspect not found with name '${aspectName}'`;
-        //     this.logger.Warning({
-        //         scope: this.LogScope,
-        //         message: errorMsg,
-        //     });
-        //     throw Error(errorMsg);
-        // }
-        // aspects.map((aspect) => {
-
-        //     aspect.AspectFields.map((f) => {
-        //         const fieldName = f.FieldType.Name;
-        //         const fieldValue = c.Fields.find((field) => field.Type.Name === fieldName);
-        //         (returned as any)[fieldName] = fieldValue && fieldValue.Value;
-        //     });
-        // });
-        // return returned;
+            aspect.AspectFields.map((f) => {
+                const fieldName = f.FieldType.Name;
+                const fieldValue = c.Fields.find((field) => field.Type.Name === fieldName);
+                (returned as any)[fieldName] = fieldValue && fieldValue.Value;
+            });
+        });
+        return returned;
     }
 
     public async findContent<T>(contentType: Constructable<T>, aspectName: string, findOptions: Partial<T>) {
@@ -242,6 +231,7 @@ export class ContentRepository implements IDisposable, IApi {
     constructor(
         public readonly options: ContentRepositoryConfiguration,
         private readonly logger: LoggerCollection,
-        public readonly userContext: UserContextService) {
+        private readonly userContext: UserContextService,
+        private readonly systemContent: SystemContent) {
     }
 }

@@ -1,6 +1,7 @@
 import { Constructable, Injectable } from "@furystack/inject";
 import { ContentRepository } from "../ContentRepository";
 import { Role, User } from "../ContentTypes";
+import { PermissionType } from "../models";
 import { SystemContent } from "../SystemContent";
 
 @Injectable()
@@ -18,16 +19,18 @@ export class ContentSeeder {
         if (!existing) {
             return await this.repository.CreateContent(model, instance);
         }
-        return await this.repository.LoadContent<T>(model, existing.Id, "Create");
+        return await this.repository.LoadContent<T>(model, [existing.Id], "Create");
     }
 
     public async SeedSystemContent() {
-        this.systemContent.VisitorRole = await this.repository.CreateContent(Role, {
+        await this.repository.activate();
+        this.systemContent.VisitorRole = await this.EnsureContentExists(Role, {Name: "Visitor"}, {
             Name: "Visitor",
+            DisplayName: "Visitor Role",
             Description: "The user is not authenticated",
         });
 
-        this.systemContent.AuthenticatedRole = await this.repository.CreateContent(Role, {
+        this.systemContent.AuthenticatedRole = await this.EnsureContentExists(Role, {Name: "Authenticated"}, {
             Name: "Authenticated",
             Description: "The user is authenticated",
         });
@@ -45,5 +48,20 @@ export class ContentSeeder {
             Username: "Administrator",
             Roles: [this.systemContent.AuthenticatedRole, this.systemContent.AdminRole],
         });
+
+        this.systemContent.CanRead = await this.repository.CreateContent(PermissionType, {
+            Name: "CanRead",
+            DisplayName: "Can Read",
+            Description: "Permission to read access to a specific content",
+            Category: "@furystack/content-repository",
+        });
+
+        this.systemContent.CanWrite = await this.repository.CreateContent(PermissionType, {
+            Name: "CanWrite",
+            DisplayName: "Can Write",
+            Description: "Write access to a specific content",
+            Category: "@furystack/content-repository",
+        });
+
     }
 }
