@@ -36,4 +36,15 @@ export const contentRepositoryTests = describe("Repository", () => {
             });
         });
     });
+
+    it("Content can be searched", async () => {
+        await usingAsync(new Injector({ parent: undefined }), async (i) => {
+            await usingAsync(i.GetInstance(ContentRepository), async (r) => {
+                jest.setTimeout(100000);
+                await r.activate();
+                const content = await r.findContent(Role, "Create", {Name: "Visitor"});
+                expect(content).toBeTruthy();
+            });
+        });
+    });
 });

@@ -1,11 +1,12 @@
 import { IApi, LoggerCollection } from "@furystack/core";
+import { UserContextService } from "@furystack/http-api";
 import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { createConnection, EntityManager, FindOneOptions, getConnectionManager, getManager} from "typeorm";
+import { Brackets, createConnection, EntityManager, FindOneOptions, getConnectionManager, getManager, In} from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
-import { Aspect, Content } from "./models";
+import { Aspect, Content, IContent } from "./models";
 
 @Injectable()
 export class ContentRepository implements IDisposable, IApi {
@@ -159,76 +160,88 @@ export class ContentRepository implements IDisposable, IApi {
         } as T & { Id: number };
     }
 
-    public async LoadContent<T>(type: Constructable<T>, id: number, aspectName: string): Promise<T> {
-        const returned: T = {} as T;
-        const c = await this.GetManager().findOne(this.options.models.Content, {
-            where: {
-                Id: id,
-            },
-            relations: ["Type", "Fields", "Fields.Type", "References", "References.Type"],
-        });
-        if (!c) {
-            // Content Not Found
-            const errorMsg = `Content not found with id '${id}'`;
-            this.logger.Warning({
-                scope: this.LogScope,
-                message: errorMsg,
-            });
-            throw Error(errorMsg);
-        }
+    public async LoadContent<T>(type: Constructable<T>, id: number[], aspectName: string) {
 
-        if (c.Type.Name !== type.name) {
-            // Type mismatch
-            const errorMsg = `Content with '${id}' is not from type '${type.name}'`;
-            this.logger.Warning({
-                scope: this.LogScope,
-                message: errorMsg,
-            });
-            throw Error(errorMsg);
-        }
-        const aspect = await this.GetManager().findOne(this.options.models.Aspect, {
-            where: {
-                ContentType: c.Type,
-                Name: aspectName,
-            },
-            relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"],
-        });
-        if (!aspect) {
-            // Content Not Found
-            const errorMsg = `Aspect not found with name '${aspectName}'`;
-            this.logger.Warning({
-                scope: this.LogScope,
-                message: errorMsg,
-            });
-            throw Error(errorMsg);
-        }
-        aspect.AspectFields.map((f) => {
-            const fieldName = f.FieldType.Name;
-            const fieldValue = c.Fields.find((field) => field.Type.Name === fieldName);
-            (returned as any)[fieldName] = fieldValue && fieldValue.Value;
-        });
-        return returned;
-    }
+        // ToDo: create query with permission checks
+        // ToDo2: Generalize and extract raw data to content parser
 
-    public async findContent<T>(type: Constructable<T>, aspectName: string, findOptions: Partial<T>) {
-        // const findKeys = Object.keys(findOptions);
-        // const findFields = await this.GetManager().find(this.options.models.FieldType, {
+        const currentUser = await this.userContext.getCurrentUser();
+
+        const contents = this.GetManager()
+            .createQueryBuilder()
+            .select()
+            .from(this.options.models.Content, "Content")
+            .innerJoinAndSelect("Content.Fields", "Field", "Field.contentId=Content.Id")
+            .innerJoinAndSelect("Content.Type", "ContentType", "Content.typeId=ContentType.Id")
+            .innerJoinAndSelect("Field.Type", "Type", "Field.typeId=Type.Id")
+            .innerJoinAndSelect("Content.References", "References")
+            .innerJoinAndSelect("Content.Permissions", "Permissions")
+            .where("Content.Id= :id", {id: In(id)})
+            // ToDo: Where permission check
+            .getMany();
+
+        // const returneds: T[] = [];
+        // const c = await this.GetManager().find(this.options.models.Content, {
         //     where: {
-        //         Name: In(findKeys),
+        //         Id: In(id),
         //     },
-        // });
-        // const findReferences = await this.GetManager().find(this.options.models.Aspect, {
-        //     where: {
-        //         Name: In(findKeys),
-        //     },
+        //     relations: ["Type", "Fields", "Fields.Type", "References", "References.Type"],
         // });
 
-        // const items = await this.GetManager().createQueryBuilder()
-        //     .select("Content")
-        //     .from(this.options.models.Content, "Content")
-        //     .innerJoin();
+        // const aspects = await this.GetManager().find(this.options.models.Aspect, {
+        //     where: {
+        //         ContentType: In(c.map((ct) => ct.Type)),
+        //         Name: aspectName,
+        //     },
+        //     relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"],
+        // });
+        // if (!aspects.length) {
+        //     // Content Not Found
+        //     const errorMsg = `Aspect not found with name '${aspectName}'`;
+        //     this.logger.Warning({
+        //         scope: this.LogScope,
+        //         message: errorMsg,
+        //     });
+        //     throw Error(errorMsg);
+        // }
+        // aspects.map((aspect) => {
+
+        //     aspect.AspectFields.map((f) => {
+        //         const fieldName = f.FieldType.Name;
+        //         const fieldValue = c.Fields.find((field) => field.Type.Name === fieldName);
+        //         (returned as any)[fieldName] = fieldValue && fieldValue.Value;
+        //     });
+        // });
+        // return returned;
     }
 
-    constructor(public readonly options: ContentRepositoryConfiguration, private readonly logger: LoggerCollection) {
+    public async findContent<T>(contentType: Constructable<T>, aspectName: string, findOptions: Partial<T>) {
+        const findKeys = Object.keys(findOptions);
+
+        const fieldHits = await this.GetManager()
+            .createQueryBuilder()
+            .select(["Content.Id"])
+            .from(this.options.models.Content, "Content")
+            .innerJoinAndSelect("Content.Fields", "Field", "Field.contentId=Content.Id")
+            .innerJoinAndSelect("Content.Type", "ContentType", "Content.typeId=ContentType.Id")
+            .innerJoinAndSelect("Field.Type", "Type", "Field.typeId=Type.Id")
+            .where("ContentType.Name = :contentTypeName", {contentTypeName: contentType.name})
+            .andWhere(new Brackets((qb) => {
+                findKeys.forEach((key) => {
+                    qb = qb
+                        .andWhere("Type.Name = :key", {key})
+                        .andWhere("Field.Value LIKE :value", {value: "%" + (findOptions as any)[key] + "%"});
+                });
+                // return qb;
+                return qb;
+            }),
+            ).groupBy("content.id");
+        return await fieldHits.getMany();
+    }
+
+    constructor(
+        public readonly options: ContentRepositoryConfiguration,
+        private readonly logger: LoggerCollection,
+        public readonly userContext: UserContextService) {
     }
 }

@@ -2,15 +2,15 @@ import { IContentType } from "@furystack/content";
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
-import { ContentDescriptorStore } from "./ContentDescriptorStore";
-import { ContentRepository } from "./ContentRepository";
-import { User } from "./ContentTypes";
-import { IContentTypeDecoratorOptions } from "./Decorators/ContentType";
-import { IVisibilityOption } from "./Decorators/Field";
-import { IReferenceTypeDecoratorOptions, IReferenceVisibilityOption } from "./Decorators/Reference";
-import { DefaultAspects } from "./DefaultAspects";
-import { Role } from "./models";
-import { PermissionType } from "./models/PermissionType";
+import { ContentDescriptorStore } from "../ContentDescriptorStore";
+import { ContentRepository } from "../ContentRepository";
+import { User } from "../ContentTypes";
+import { IContentTypeDecoratorOptions } from "../Decorators/ContentType";
+import { IVisibilityOption } from "../Decorators/Field";
+import { IReferenceTypeDecoratorOptions, IReferenceVisibilityOption } from "../Decorators/Reference";
+import { DefaultAspects } from "../DefaultAspects";
+import { Role } from "../models";
+import { PermissionType } from "../models/PermissionType";
 
 export interface ISeedEntry<T> {
     model: Constructable<T>;
@@ -28,14 +28,14 @@ export const getFuryStackSystemPermissions = () => {
 };
 
 @Injectable()
-export class Seeder {
+export class SchemaSeeder {
 
     public readonly LogScope = "@furystack/content-repository/seeder";
     private get logger(): LoggerCollection {
         return this.injector.GetInstance(LoggerCollection);
     }
 
-    private ensureExists = async<T>(entry: ISeedEntry<T>, manager: EntityManager) => {
+    private async ensureExists<T>(entry: ISeedEntry<T>, manager: EntityManager) {
         const found = await manager.findOne(entry.model, entry.findOption);
         if (!found) {
             this.logger.Debug({

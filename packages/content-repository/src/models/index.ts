@@ -12,3 +12,4 @@ export * from "./Role";
 export * from "./Aspect";
 export * from "./AspectField";
 export * from "./AspectReference";
+export * from "./IContent";
