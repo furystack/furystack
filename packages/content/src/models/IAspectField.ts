@@ -3,11 +3,11 @@ import { IFieldType } from "./IFieldType";
 
 export interface IAspectField {
     Id: number;
-    FieldType: IFieldType;
+    FieldType: Promise<IFieldType>;
     Category: string;
     Order: number;
     ReadOnly: boolean;
     Required: boolean;
     ControlName: string;
-    Aspect: IAspect;
+    Aspect: Promise<IAspect>;
 }

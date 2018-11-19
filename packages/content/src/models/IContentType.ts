@@ -21,22 +21,22 @@ export interface IContentType extends INamedEntity {
     /**
      *  List of aspects
      */
-    Aspects: IAspect[];
+    Aspects: Promise<IAspect[]>;
 
     /**
      * Definition for field types. These fields will be created automatically for the content
      */
-    FieldTypes: IFieldType[];
+    FieldTypes: Promise<IFieldType[]>;
     /**
      * Definition for reference types. These references will be created automatically for the content
      */
-    ReferenceTypes: IReferenceType[];
+    ReferenceTypes: Promise<IReferenceType[]>;
     /**
      * Definition for job types. These jobs will be created automatically for the content
      */
-    JobTypes: IJobType[];
+    JobTypes: Promise<IJobType[]>;
     /**
      * Assigned permissions for the content type
      */
-    Permissions: IPermission[];
+    Permissions: Promise<IPermission[]>;
 }

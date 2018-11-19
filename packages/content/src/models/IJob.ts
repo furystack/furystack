@@ -6,8 +6,8 @@ import { IPermission } from "./IPermission";
 export interface IJob extends INamedEntity {
     Description: string;
     Completed: boolean;
-    Content: IContent;
-    Prerequisites: IJob[];
-    Aspect: IAspect;
-    Permissions: IPermission[];
+    Content: Promise<IContent>;
+    Prerequisites: Promise<IJob[]>;
+    Aspect: Promise<IAspect>;
+    Permissions: Promise<IPermission[]>;
 }

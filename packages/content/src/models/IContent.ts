@@ -12,25 +12,25 @@ export interface IContent extends IEntity {
     /**
      * Reference to the type of the content
      */
-    Type: IContentType;
+    Type: Promise<IContentType>;
 
     /**
      * List of the content's fields
      */
-    Fields: IField[];
+    Fields: Promise<IField[]>;
 
     /**
      * List of the content's jobs
      */
-    Jobs: IJob[];
+    Jobs: Promise<IJob[]>;
 
     /**
      * List of the content's references
      */
-    References: IReference[];
+    References: Promise<IReference[]>;
 
     /**
      * List of the content's permissions
      */
-    Permissions: IPermission[];
+    Permissions: Promise<IPermission[]>;
 }

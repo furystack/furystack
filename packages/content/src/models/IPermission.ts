@@ -8,10 +8,10 @@ import { IPermissionType } from "./IPermissionType";
 export interface IPermission extends IEntity {
     IdentityType: "user" | "role";
     IdentityId: number;
-    User: IContent;
-    PermissionType: IPermissionType;
-    Content?: IContent;
-    Job?: IJob;
-    ContentType?: IContentType;
-    JobType?: IJobType;
+    User: Promise<IContent>;
+    PermissionType: Promise<IPermissionType>;
+    Content?: Promise<IContent>;
+    Job?: Promise<IJob>;
+    ContentType?: Promise<IContentType>;
+    JobType?: Promise<IJobType>;
 }

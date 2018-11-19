@@ -7,8 +7,8 @@ export interface IJobType extends INamedEntity {
     Name: string;
     DisplayName: string;
     Description: string;
-    ContentType: IContentType;
-    Prerequisites: IJobType[];
-    Aspect: IAspect;
-    Permissions: IPermission[];
+    ContentType: Promise<IContentType>;
+    Prerequisites: Promise<IJobType[]>;
+    Aspect: Promise<IAspect>;
+    Permissions: Promise<IPermission[]>;
 }

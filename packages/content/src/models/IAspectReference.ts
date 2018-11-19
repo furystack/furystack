@@ -3,10 +3,10 @@ import { IReferenceType } from "./IReferenceType";
 
 export interface IAspectReference {
     Id: number;
-    ReferenceType: IReferenceType;
+    ReferenceType: Promise<IReferenceType>;
     Order: number;
     Category: string;
     ReadOnly: boolean;
     ControlName: string;
-    Aspect: IAspect;
+    Aspect: Promise<IAspect>;
 }

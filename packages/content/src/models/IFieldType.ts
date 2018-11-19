@@ -7,6 +7,6 @@ export interface IFieldType extends INamedEntity {
     DefaultValue: string;
     Unique: boolean;
     Category: string;
-    ContentType: IContentType;
-    AspectFields: IAspectField[];
+    ContentType: Promise<IContentType>;
+    AspectFields: Promise<IAspectField[]>;
 }

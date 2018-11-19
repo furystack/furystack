@@ -5,7 +5,7 @@ import { IContentType } from "./IContentType";
 export interface IAspect {
     Id: number;
     Name: string;
-    ContentType: IContentType;
-    AspectFields: IAspectField[];
-    AspectReferences: IAspectReference[];
+    ContentType: Promise<IContentType>;
+    AspectFields: Promise<IAspectField[]>;
+    AspectReferences: Promise<IAspectReference[]>;
 }
