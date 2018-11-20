@@ -1,10 +1,11 @@
-import { IAspect, IAspectField, IAspectReference } from "@furystack/content";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { IAspect } from "@furystack/content";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { AspectField } from "./AspectField";
 import { AspectReference } from "./AspectReference";
 import { ContentType } from "./ContentType";
 
 @Entity()
+@Index(["ContentType", "Name"], { unique: true })
 export class Aspect implements IAspect {
     @PrimaryGeneratedColumn()
     public Id!: number;
@@ -13,11 +14,11 @@ export class Aspect implements IAspect {
     public Name!: string;
 
     @ManyToOne(() => ContentType)
-    public ContentType!: ContentType;
+    public ContentType!: Promise<ContentType>;
 
     @OneToMany(() => AspectField, (v) => v.Aspect)
-    public AspectFields!: IAspectField[];
+    public AspectFields!: Promise<AspectField[]>;
 
     @OneToMany(() => AspectReference, (v) => v.Aspect)
-    public AspectReferences!: IAspectReference[];
+    public AspectReferences!: Promise<AspectReference[]>;
 }

@@ -1,10 +1,11 @@
 import { IJobType } from "@furystack/content";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
 import { ContentType } from "./ContentType";
 import { Permission } from "./Permission";
 
 @Entity()
+@Index(["Name", "ContentType"], { unique: true })
 export class JobType implements IJobType {
     @PrimaryGeneratedColumn()
     public Id!: number;
@@ -26,15 +27,15 @@ export class JobType implements IJobType {
     public Completed!: boolean;
 
     @ManyToOne(() => ContentType, (c) => c.JobTypes)
-    public ContentType!: ContentType;
+    public ContentType!: Promise<ContentType>;
 
     @ManyToMany(() => JobType)
     @JoinTable()
-    public Prerequisites!: JobType[];
+    public Prerequisites!: Promise<JobType[]>;
 
     @OneToOne(() => Aspect)
-    public Aspect!: Aspect;
+    public Aspect!: Promise<Aspect>;
 
     @OneToMany(() => Permission, (p) => p.JobType)
-    public Permissions!: Permission[];
+    public Permissions!: Promise<Permission[]>;
 }

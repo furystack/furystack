@@ -9,13 +9,13 @@ export class Reference implements IReference {
     public Id!: number;
 
     @ManyToOne(() => ReferenceType)
-    public Type!: ReferenceType;
+    public Type!: Promise<ReferenceType>;
 
     @ManyToOne(() => Content, (c) => c.References)
-    public Content!: Content;
+    public Content!: Promise<Content>;
 
     @ManyToMany(() => Content)
     @JoinTable()
-    public References!: Content[];
+    public References!: Promise<Content[]>;
 
 }

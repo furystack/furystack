@@ -5,7 +5,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 export class Role implements CoreRole, IRole {
 
     @PrimaryGeneratedColumn()
-    public Id!: number;
+    public Id?: number;
 
     @Column({
         unique: true,
@@ -13,7 +13,7 @@ export class Role implements CoreRole, IRole {
     public Name!: string;
 
     @Column({ nullable: true })
-    public DisplayName!: string;
+    public DisplayName?: string;
 
     @Column()
     public Description?: string;

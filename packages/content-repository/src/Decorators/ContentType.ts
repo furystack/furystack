@@ -5,6 +5,7 @@ import { IFieldTypeDecoratorOptions } from "./Field";
 import { IReferenceTypeDecoratorOptions } from "./Reference";
 
 export interface IContentTypeDecoratorOptions {
+    Name?: string;
     DisplayName?: string;
     Description?: string;
     Category?: string;

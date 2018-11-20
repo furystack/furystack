@@ -14,6 +14,7 @@ export class ContentRepositoryConfiguration {
         // database: ":memory:",
         database: "./db.sqlite",
         synchronize: true,
+        logging: true,
     };
     public models: typeof Models = Models;
 }

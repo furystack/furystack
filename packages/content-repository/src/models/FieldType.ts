@@ -1,9 +1,10 @@
 import { IFieldType } from "@furystack/content";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { AspectField } from "./AspectField";
 import { ContentType } from "./ContentType";
 
 @Entity()
+@Index(["ContentType", "Name"], { unique: true })
 export class FieldType implements IFieldType {
     @PrimaryGeneratedColumn()
     public Id!: number;
@@ -23,8 +24,8 @@ export class FieldType implements IFieldType {
     public Category!: string;
 
     @ManyToOne(() => ContentType)
-    public ContentType!: ContentType;
+    public ContentType!: Promise<ContentType>;
 
     @OneToMany(() => AspectField, (f) => f.FieldType)
-    public AspectFields!: AspectField[];
+    public AspectFields!: Promise<AspectField[]>;
 }

@@ -1,6 +1,4 @@
 import { IPermission, IRole } from "@furystack/content";
-import { IUser } from "@furystack/core";
-import { ILoginUser } from "@furystack/http-api";
 import { ContentType } from "../Decorators/ContentType";
 import { Field } from "../Decorators/Field";
 import { Reference } from "../Decorators/Reference";
@@ -11,8 +9,13 @@ import { Role } from "./Role";
     Description: "Represents an User content",
     Category: "System",
 })
-export class User implements ILoginUser<IUser> {
+export class User {
     @Field({
+        Category: "Default",
+        Description: "The unique name for the user",
+        DefaultValue: "assd",
+        DisplayName: "User Name",
+        Index: 2,
         Unique: true,
         Aspects: {
             Create: {
@@ -65,6 +68,6 @@ export class User implements ILoginUser<IUser> {
         },
     })
     public Roles!: IRole[];
-    public Permissions!: IPermission[];
+    public Permissions!: Promise<IPermission[]>;
     public Password!: string;
 }

@@ -1,15 +1,16 @@
 import { IAspectReference } from "@furystack/content";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
 import { ReferenceType } from "./ReferenceType";
 
 @Entity()
+@Index(["Aspect", "ReferenceType"], { unique: true })
 export class AspectReference implements IAspectReference {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
     @ManyToOne(() => ReferenceType)
-    public ReferenceType!: ReferenceType;
+    public ReferenceType!: Promise<ReferenceType>;
 
     @Column()
     public Order!: number;
@@ -23,7 +24,7 @@ export class AspectReference implements IAspectReference {
     public ControlName!: string;
 
     @ManyToOne(() => Aspect, (v) => v.AspectReferences)
-    public Aspect!: Aspect;
+    public Aspect!: Promise<Aspect>;
     @Column()
     public Required!: boolean;
 }

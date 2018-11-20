@@ -16,12 +16,12 @@ export class ReferenceType implements IReferenceType {
     public Category!: string;
 
     @ManyToOne(() => ContentType)
-    public ContentType!: ContentType;
+    public ContentType!: Promise<ContentType>;
 
     @ManyToMany(() => ContentType)
     @JoinTable()
-    public AllowedTypes!: ContentType[];
+    public AllowedTypes!: Promise<ContentType[]>;
 
-    @Column({default: false})
+    @Column({ default: false })
     public AllowMultiple!: boolean;
 }

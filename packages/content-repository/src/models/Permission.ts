@@ -1,11 +1,10 @@
 import { IPermission } from "@furystack/content";
-import { IAccessControlItem } from "@furystack/core";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Content, ContentType, Job, JobType } from "./";
 import { PermissionType } from "./PermissionType";
 
 @Entity()
-export class Permission implements IAccessControlItem, IPermission {
+export class Permission implements IPermission {
 
     @PrimaryGeneratedColumn()
     public Id!: number;
@@ -14,33 +13,33 @@ export class Permission implements IAccessControlItem, IPermission {
     public IdentityType: "user" | "role" = "user";
 
     public get IdentityId(): number {
-        return this.User.Id;
+        return 0;
     }
 
     @ManyToOne(() => Content, (u) => u.Permissions)
-    public User!: Content;
+    public User!: Promise<Content>;
 
     @ManyToOne(() => PermissionType)
-    public PermissionType!: PermissionType;
+    public PermissionType!: Promise<PermissionType>;
 
     @ManyToOne(() => Content, (c) => c.Permissions, {
         nullable: true,
     })
-    public Content!: Content;
+    public Content!: Promise<Content>;
 
     @ManyToOne(() => Job, (j) => j.Permissions, {
         nullable: true,
     })
-    public Job!: Job;
+    public Job!: Promise<Job>;
 
     @ManyToOne(() => JobType, (j) => j.Permissions, {
         nullable: true,
     })
-    public JobType!: JobType;
+    public JobType!: Promise<JobType>;
 
     @ManyToOne(() => ContentType, (c) => c.Permissions, {
         nullable: true,
     })
-    public ContentType!: ContentType;
+    public ContentType!: Promise<ContentType>;
 
 }

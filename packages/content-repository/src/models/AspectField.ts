@@ -1,15 +1,16 @@
 import { IAspectField } from "@furystack/content";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
 import { FieldType } from "./FieldType";
 
 @Entity()
+@Index(["Aspect", "FieldType"], { unique: true })
 export class AspectField implements IAspectField {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
     @ManyToOne(() => FieldType, (f) => f.AspectFields)
-    public FieldType!: FieldType;
+    public FieldType!: Promise<FieldType>;
 
     @Column({ nullable: true })
     public Category!: string;
@@ -27,5 +28,5 @@ export class AspectField implements IAspectField {
     public ControlName!: string;
 
     @ManyToOne(() => Aspect, (v) => v.AspectFields)
-    public Aspect!: Aspect;
+    public Aspect!: Promise<Aspect>;
 }

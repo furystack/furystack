@@ -12,17 +12,17 @@ export class Content implements IContent {
     public Id!: number;
 
     @ManyToOne(() => ContentType, (ct) => ct.Content)
-    public Type!: ContentType;
+    public Type!: Promise<ContentType>;
 
     @OneToMany(() => Field, (f) => f.Content)
-    public Fields!: Field[];
+    public Fields!: Promise<Field[]>;
 
     @OneToMany(() => Job, (j) => j.Content)
-    public Jobs!: Job[];
+    public Jobs!: Promise<Job[]>;
 
     @OneToMany(() => Reference, (r) => r.Content)
-    public References!: Reference[];
+    public References!: Promise<Reference[]>;
 
     @OneToMany(() => Permission, (p) => p.Content)
-    public Permissions!: Permission[];
+    public Permissions!: Promise<Permission[]>;
 }

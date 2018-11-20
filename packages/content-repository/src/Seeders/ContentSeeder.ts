@@ -1,6 +1,7 @@
 import { Constructable, Injectable } from "@furystack/inject";
-import { ContentRepository } from "../ContentRepository";
+import { DeepPartial } from "typeorm";
 import { Role, User } from "../ContentTypes";
+import { ElevatedRepository } from "../ElevatedRepository";
 import { PermissionType } from "../models";
 import { SystemContent } from "../SystemContent";
 
@@ -10,27 +11,27 @@ export class ContentSeeder {
     /**
      *
      */
-    constructor(private readonly repository: ContentRepository, private systemContent: SystemContent) {
+    constructor(private readonly repository: ElevatedRepository, private systemContent: SystemContent) {
 
     }
 
-    public async EnsureContentExists<T>(model: Constructable<T>, findOptions: Partial<T>, instance: T) {
+    public async EnsureContentExists<T>(model: Constructable<T>, findOptions: DeepPartial<T>, instance: DeepPartial<T>) {
         const existing = (await this.repository.findContent<T>(model, "Create", findOptions))[0];
         if (!existing) {
             return await this.repository.CreateContent(model, instance);
         }
-        return await this.repository.LoadContent<T>(model, [existing.Id], "Create");
+        return (await this.repository.LoadContent<T>(model, [existing.Id], "Create"))[0];
     }
 
     public async SeedSystemContent() {
         await this.repository.activate();
-        this.systemContent.VisitorRole = await this.EnsureContentExists(Role, {Name: "Visitor"}, {
+        this.systemContent.VisitorRole = await this.EnsureContentExists(Role, { Name: "Visitor" }, {
             Name: "Visitor",
             DisplayName: "Visitor Role",
             Description: "The user is not authenticated",
         });
 
-        this.systemContent.AuthenticatedRole = await this.EnsureContentExists(Role, {Name: "Authenticated"}, {
+        this.systemContent.AuthenticatedRole = await this.EnsureContentExists(Role, { Name: "Authenticated" }, {
             Name: "Authenticated",
             Description: "The user is authenticated",
         });

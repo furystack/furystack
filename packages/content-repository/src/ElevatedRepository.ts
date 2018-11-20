@@ -1,16 +1,14 @@
 import { IApi, LoggerCollection } from "@furystack/core";
-import { UserContextService } from "@furystack/http-api";
 import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { Brackets, createConnection, EntityManager, FindOneOptions, getConnectionManager, getManager, In} from "typeorm";
+import { Brackets, createConnection, DeepPartial, EntityManager, FindOneOptions, getConnectionManager, getManager, In } from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
-import { Aspect, Content } from "./models";
-import { SystemContent } from "./SystemContent";
+import { Aspect, Content, IContent } from "./models";
 
 @Injectable()
-export class ContentRepository implements IDisposable, IApi {
+export class ElevatedRepository implements IDisposable, IApi {
     public async activate() {
         await this.initConnection();
     }
@@ -50,7 +48,7 @@ export class ContentRepository implements IDisposable, IApi {
     }
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
 
-    private async loadRequired<T>(model: Constructable<T>, findOption: FindOneOptions<T>, manager: EntityManager) {
+    public async loadRequired<T>(model: Constructable<T>, findOption: FindOneOptions<T>, manager: EntityManager) {
         const instance = await manager.findOne(model, findOption);
         if (!instance) {
             const errorMsg = `Error loading type '${model.name}' - not found with options '${JSON.stringify(findOption)}'`;
@@ -67,13 +65,33 @@ export class ContentRepository implements IDisposable, IApi {
         return instance;
     }
 
-    private validateAspectUpdate<T>(aspect: Aspect, change: T) {
+    private async validateAspectUpdate<T>(aspect: Aspect, change: T) {
         const keys = Object.keys(change).filter((key) => Boolean(change[key as keyof T]));
-        const missingFields = aspect.AspectFields.filter((f) => f.Required && !f.ReadOnly).filter((f) => keys.indexOf(f.FieldType.Name) === -1);
-        const writeProtectedFields = aspect.AspectFields.filter((f) => f.ReadOnly).filter((f) => keys.indexOf(f.FieldType.Name) !== -1);
-        const missingReferences = aspect.AspectReferences.filter((f) => f.Required && !f.ReadOnly).filter((f) => keys.indexOf(f.ReferenceType.Name) === -1);
-        const writeProtectedReferences = aspect.AspectReferences.filter((r) => r.ReadOnly).filter((r) => keys.indexOf(r.ReferenceType.Name) !== -1);
-        const unknownFields = keys.filter((f) => aspect.AspectFields.findIndex((field) => field.FieldType.Name === f) === -1 && aspect.AspectReferences.findIndex((ref) => ref.ReferenceType.Name === f));
+
+        const aspectFields = await aspect.AspectFields;
+        const aspectReferences = await aspect.AspectReferences;
+
+        const missingFields = aspectFields
+            .filter((f) => f.Required && !f.ReadOnly)
+            .filterAsync(async (f) => keys.indexOf((await f.FieldType).Name) === -1);
+
+        const writeProtectedFields = aspectFields
+            .filter((f) => f.ReadOnly)
+            .filterAsync(async (f) => keys.indexOf((await f.FieldType).Name) !== -1);
+
+        const missingReferences = aspectReferences
+            .filter((f) => f.Required && !f.ReadOnly)
+            .filterAsync(async (f) => keys.indexOf((await f.ReferenceType).Name) === -1);
+
+        const writeProtectedReferences = aspectReferences
+            .filter((r) => r.ReadOnly)
+            .filterAsync(async (r) => keys.indexOf((await r.ReferenceType).Name) !== -1);
+
+        const unknownFields = keys
+            .filterAsync(async (f) =>
+                (await aspectFields.filterAsync(async (field) => (await field.FieldType).Name === f)).length > 0
+                &&
+                (await aspectReferences.filterAsync(async (ref) => (await ref.ReferenceType).Name === f)).length > 0);
 
         // todo: unique fields
 
@@ -87,7 +105,7 @@ export class ContentRepository implements IDisposable, IApi {
         };
     }
 
-    public async CreateContent<T>(contentCtor: Constructable<T>, contentData: Partial<T>) {
+    public async CreateContent<T>(contentCtor: Constructable<T>, contentData: DeepPartial<T>) {
         let content!: Content;
         try {
             await this.GetManager().transaction(async (transactionManager) => {
@@ -100,7 +118,7 @@ export class ContentRepository implements IDisposable, IApi {
                     },
                     relations: ["AspectFields", "AspectReferences", "AspectFields.FieldType", "AspectReferences.ReferenceType"],
                 }, transactionManager);
-                const validationResult = this.validateAspectUpdate(createAspect, contentData);
+                const validationResult = await this.validateAspectUpdate(createAspect, contentData);
                 if (!validationResult.isValid) {
                     const errorMsg = `Error creating content '${contentCtor.name}'. The aspect is invalid`;
                     this.logger.Error({
@@ -112,36 +130,39 @@ export class ContentRepository implements IDisposable, IApi {
                 }
 
                 const newContent = await transactionManager.create(this.options.models.Content, {
-                    Type: contentType,
+                    Type: Promise.resolve(contentType),
                 });
                 content = await transactionManager.save(newContent);
 
                 /** fields */
-                for (const aspectField of createAspect.AspectFields) {
-                    const fieldValue = contentData[aspectField.FieldType.Name as keyof T];
+                const aspectFields = await createAspect.AspectFields;
+                for (const aspectField of aspectFields) {
+                    const fieldType = await aspectField.FieldType;
+                    const fieldValue = contentData[fieldType.Name as keyof T];
                     if (fieldValue) {
                         const createdField = await transactionManager.create(this.options.models.Field, {
-                            Type: aspectField.FieldType,
-                            Content: content,
+                            Type: Promise.resolve(fieldType),
+                            Content: Promise.resolve(content),
                             Value: fieldValue as any as string,
                         });
                         await transactionManager.save(createdField);
                     }
                 }
 
-                for (const aspectRef of createAspect.AspectReferences) {
-                    const createdField = await transactionManager.create(this.options.models.Reference, {
-                        Type: aspectRef.ReferenceType,
-                        Content: content,
-                        References: contentData[aspectRef.ReferenceType.Name as keyof T] as any as Content[], // ToDo: check? wtf?
+                for (const aspectRef of (await createAspect.AspectReferences)) {
+                    const refType = await aspectRef.ReferenceType;
+                    const createdReference = await transactionManager.create(this.options.models.Reference, {
+                        Type: Promise.resolve(refType),
+                        Content: Promise.resolve(content),
+                        References: Promise.resolve(contentData[refType.Name as keyof T] as any as Content[]), // ToDo: check? wtf?
                     });
-                    await transactionManager.save(createdField);
+                    await transactionManager.save(createdReference);
                 }
 
                 /** todo: jobs from types */
-                for (const jobType of contentType.JobTypes) {
+                for (const jobType of (await contentType.JobTypes)) {
                     const newJob = transactionManager.create(this.options.models.Job, {
-                        Content: content,
+                        Content: Promise.resolve(content),
                         Completed: jobType.Completed,
                         Description: jobType.Description,
                         DisplayName: jobType.DisplayName,
@@ -158,53 +179,24 @@ export class ContentRepository implements IDisposable, IApi {
         return {
             ...contentData as {},
             Id: content && content.Id,
-        } as T & { Id: number };
+            Type: contentCtor.name,
+        } as IContent<T>;
     }
 
-    public async LoadContent<T>(type: Constructable<T>, id: number[], aspectName: string) {
-
-        // ToDo: create query with permission checks
-        // ToDo2: Generalize and extract raw data to content parser
-
-        const currentUser = await this.userContext.getCurrentUser();
-
-        const returned: T[] = [];
-        const c = await this.GetManager().find(this.options.models.Content, {
-            where: And({
-                Id: In(id),
-                Permissions: Any
-            },
-            relations: ["Type", "Fields", "Fields.Type", "References", "References.Type", "Type.Aspects", "Type.Aspects.AspectFields", "Type.Aspect.AspectReferences"],,, , , ,,,,,,,
-        });
-
-        const aspects = await this.GetManager().find(this.options.models.Aspect, {
+    public async LoadContent<T>(type: Constructable<T>, ids: number[], aspectName: string) {
+        const plainHits = await this.GetManager().find(this.options.models.Content, {
             where: {
-                ContentType: In(c.map((ct) => ct.Type)),
-                Name: aspectName,
+                Id: In(ids),
             },
-            relations: ["AspectFields", "AspectFields.FieldType", "AspectReferences", "AspectReferences.ReferenceType"],
         });
-        if (!aspects.length) {
-            // Content Not Found
-            const errorMsg = `Aspect not found with name '${aspectName}'`;
-            this.logger.Warning({
-                scope: this.LogScope,
-                message: errorMsg,
-            });
-            throw Error(errorMsg);
-        }
-        aspects.map((aspect) => {
-
-            aspect.AspectFields.map((f) => {
-                const fieldName = f.FieldType.Name;
-                const fieldValue = c.Fields.find((field) => field.Type.Name === fieldName);
-                (returned as any)[fieldName] = fieldValue && fieldValue.Value;
-            });
-        });
-        return returned;
+        return Promise.all(plainHits.map(async (hit) => this.parseContent<T>(type, hit, aspectName)));
     }
 
-    public async findContent<T>(contentType: Constructable<T>, aspectName: string, findOptions: Partial<T>) {
+    private async parseContent<T>(type: Constructable<T>, plainContent: Content, aspectName: string) {
+        return {} as T;
+    }
+
+    public async findContent<T>(contentType: Constructable<T>, aspectName: string, findOptions: DeepPartial<T>) {
         const findKeys = Object.keys(findOptions);
 
         const fieldHits = await this.GetManager()
@@ -214,14 +206,13 @@ export class ContentRepository implements IDisposable, IApi {
             .innerJoinAndSelect("Content.Fields", "Field", "Field.contentId=Content.Id")
             .innerJoinAndSelect("Content.Type", "ContentType", "Content.typeId=ContentType.Id")
             .innerJoinAndSelect("Field.Type", "Type", "Field.typeId=Type.Id")
-            .where("ContentType.Name = :contentTypeName", {contentTypeName: contentType.name})
+            .where("ContentType.Name = :contentTypeName", { contentTypeName: contentType.name })
             .andWhere(new Brackets((qb) => {
                 findKeys.forEach((key) => {
                     qb = qb
-                        .andWhere("Type.Name = :key", {key})
-                        .andWhere("Field.Value LIKE :value", {value: "%" + (findOptions as any)[key] + "%"});
+                        .andWhere("Type.Name = :key", { key })
+                        .andWhere("Field.Value LIKE :value", { value: "%" + (findOptions as any)[key] + "%" });
                 });
-                // return qb;
                 return qb;
             }),
             ).groupBy("content.id");
@@ -230,8 +221,6 @@ export class ContentRepository implements IDisposable, IApi {
 
     constructor(
         public readonly options: ContentRepositoryConfiguration,
-        private readonly logger: LoggerCollection,
-        private readonly userContext: UserContextService,
-        private readonly systemContent: SystemContent) {
+        private readonly logger: LoggerCollection) {
     }
 }
