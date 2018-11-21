@@ -23,7 +23,7 @@ export class FieldType implements IFieldType {
     @Column({ nullable: true })
     public Category!: string;
 
-    @ManyToOne(() => ContentType)
+    @ManyToOne(() => ContentType, (ct) => ct.FieldTypes)
     public ContentType!: Promise<ContentType>;
 
     @OneToMany(() => AspectField, (f) => f.FieldType)

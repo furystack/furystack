@@ -18,7 +18,7 @@ export class ReferenceType implements IReferenceType {
     @ManyToOne(() => ContentType)
     public ContentType!: Promise<ContentType>;
 
-    @ManyToMany(() => ContentType)
+    @ManyToMany(() => ContentType, (ct) => ct.AllowedInReferenceTypes)
     @JoinTable()
     public AllowedTypes!: Promise<ContentType[]>;
 

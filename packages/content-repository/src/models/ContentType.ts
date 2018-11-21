@@ -1,6 +1,6 @@
 
 import { IContentType } from "@furystack/content";
-import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Aspect } from "./Aspect";
 import { Content } from "./Content";
 import { FieldType } from "./FieldType";
@@ -32,19 +32,22 @@ export class ContentType implements IContentType {
     @OneToMany(() => Content, (c) => c.Type)
     public Content!: Content[];
 
-    @OneToMany(() => Aspect, (a) => a.ContentType)
+    @OneToMany(() => Aspect, (a) => a.ContentType, { cascade: true })
     public Aspects!: Promise<Aspect[]>;
 
-    @OneToMany(() => FieldType, (f) => f.ContentType, { cascade: ["insert"] })
+    @OneToMany(() => FieldType, (f) => f.ContentType, { cascade: true })
     public FieldTypes!: Promise<FieldType[]>;
 
-    @OneToMany(() => ReferenceType, (r) => r.ContentType)
+    @OneToMany(() => ReferenceType, (r) => r.ContentType, { cascade: true })
     public ReferenceTypes!: Promise<ReferenceType[]>;
 
-    @OneToMany(() => JobType, (r) => r.ContentType)
+    @OneToMany(() => JobType, (r) => r.ContentType, { cascade: true })
     public JobTypes!: Promise<JobType[]>;
 
-    @OneToMany(() => Permission, (p) => p.ContentType)
+    @OneToMany(() => Permission, (p) => p.ContentType, { cascade: true })
     public Permissions!: Promise<Permission[]>;
+
+    @ManyToMany(() => ReferenceType, (r) => r.AllowedTypes)
+    public AllowedInReferenceTypes!: Promise<ReferenceType[]>;
 
 }

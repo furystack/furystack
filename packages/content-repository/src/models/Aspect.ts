@@ -13,7 +13,7 @@ export class Aspect implements IAspect {
     @Column()
     public Name!: string;
 
-    @ManyToOne(() => ContentType)
+    @ManyToOne(() => ContentType, (ct) => ct.Aspects)
     public ContentType!: Promise<ContentType>;
 
     @OneToMany(() => AspectField, (v) => v.Aspect)

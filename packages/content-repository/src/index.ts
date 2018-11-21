@@ -5,5 +5,6 @@ import * as Models from "./models";
 export * from "./DefaultAspects";
 export * from "./SystemContent";
 export * from "./Seeders";
+export * from "./Store";
 
 export { Models };

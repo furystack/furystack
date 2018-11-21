@@ -10,14 +10,11 @@ export class ContentDescriptorStore {
     public readonly ContentTypeDescriptors: Map<Constructable<any>, IContentTypeDecoratorOptions> = new Map();
 
     private async mapFieldTypesFromDescriptor(contentDescriptor: IContentTypeDecoratorOptions & { Name: string }, manager: EntityManager) {
-        const contentType = await manager.findOne(ContentType, {
+        const contentType = await manager.findOneOrFail(ContentType, {
             where: {
                 Name: contentDescriptor.Name,
             },
         });
-        if (!contentType) {
-            throw Error(`Content type '${contentDescriptor.Name}' not found!`);
-        }
         return Array.from(contentDescriptor.Fields.entries()).map((d) => {
             const [fieldName, fieldDescriptor] = d;
             return manager.create(FieldType, {
@@ -33,14 +30,11 @@ export class ContentDescriptorStore {
     }
 
     private async mapReferenceTypesFromDescriptorEntry(contentDescriptor: IContentTypeDecoratorOptions & { Name: string }, manager: EntityManager) {
-        const contentType = await manager.findOne(ContentType, {
+        const contentType = await manager.findOneOrFail(ContentType, {
             where: {
                 Name: contentDescriptor.Name,
             },
         });
-        if (!contentType) {
-            throw Error(`Content type '${contentDescriptor.Name}' not found!`);
-        }
         return await Promise.all(Array.from(contentDescriptor.References.entries()).map(async (r) => {
             const [refName, refDescriptor] = r;
             const allowedTypes = await manager.find(ContentType, {
@@ -48,19 +42,24 @@ export class ContentDescriptorStore {
                     Name: In(refDescriptor.AllowedTypes.map((ctor) => ctor.name)),
                 },
             });
-            return {
+            return manager.create(ReferenceType, {
                 Name: refName,
                 DisplayName: refDescriptor.DisplayName,
                 Category: refDescriptor.Category,
                 AllowMultiple: refDescriptor.AllowMultiple,
                 ContentType: contentType.Id as any,
                 Description: refDescriptor.Description,
-                AllowedTypes: allowedTypes.map((t) => t.Id) as any,
-            } as ReferenceType;
+                AllowedTypes: allowedTypes as any,
+            } as ReferenceType);
         }));
     }
 
-    private mapAspectsFromContentTypeDescriptor(contentDescriptor: IContentTypeDecoratorOptions & { Name: string }, manager: EntityManager) {
+    private async mapAspectsFromContentTypeDescriptor(contentDescriptor: IContentTypeDecoratorOptions & { Name: string }, manager: EntityManager) {
+        const contentType = await manager.findOneOrFail(ContentType, {
+            where: {
+                Name: contentDescriptor.Name,
+            },
+        });
         const aspectNames = new Set<string>([...Object.keys(DefaultAspects)]);
         contentDescriptor.Fields.forEach((f) => {
             const keys = f.Aspects && Object.keys(f.Aspects) || [];
@@ -70,7 +69,10 @@ export class ContentDescriptorStore {
             const keys = r.Aspects && Object.keys(r.Aspects) || [];
             keys.forEach((k) => aspectNames.add(k));
         });
-        return Array.from(aspectNames).map((a) => ({ Name: a } as Aspect));
+        return Array.from(aspectNames).map((a) => manager.create(Aspect, {
+            Name: a,
+            ContentType: contentType.Id as any,
+        } as Aspect));
     }
 
     public async getContentTypes(manager: EntityManager) {

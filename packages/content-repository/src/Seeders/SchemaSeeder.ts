@@ -1,10 +1,11 @@
 import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
-import { DeepPartial, EntityManager, FindOneOptions, In } from "typeorm";
+import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "../ContentDescriptorStore";
 import { ElevatedRepository } from "../ElevatedRepository";
 import { Aspect, ContentType, FieldType, ReferenceType } from "../models";
 import { PermissionType } from "../models/PermissionType";
+import { AspectStore, ContentTypeStore, FieldTypeStore, ReferenceTypeStore } from "../Store";
 
 export interface ISeedEntry<T> {
     model: Constructable<T>;
@@ -47,6 +48,13 @@ export class SchemaSeeder {
         return found;
     }
 
+    private stores = {
+        contentType: this.injector.GetInstance(ContentTypeStore),
+        fieldType: this.injector.GetInstance(FieldTypeStore),
+        aspect: this.injector.GetInstance(AspectStore),
+        referenceTypes: this.injector.GetInstance(ReferenceTypeStore),
+    };
+
     constructor(private readonly repository: ElevatedRepository, private readonly injector: Injector) {
 
     }
@@ -76,70 +84,90 @@ export class SchemaSeeder {
 
     private async seedBuiltinEntries(contentTypes: ContentType[], m: EntityManager) {
         await m.transaction("SERIALIZABLE", async (transactionManager) => {
-            await transactionManager.createQueryBuilder()
-                .insert()
-                .into(ContentType)
-                .values(contentTypes)
-                .execute();
-            for (const ct of contentTypes) {
-                const contentType = await transactionManager.findOne(ContentType, { where: { Name: ct.Name } });
-                if (!contentType) {
-                    throw Error(`Content type '${ct.Name}' not found!`);
+
+            for (const originalContentType of contentTypes) {
+                const contentType = await this.stores.contentType.update(originalContentType, transactionManager.getRepository(ContentType));
+
+                const fieldTypes = await originalContentType.FieldTypes;
+                for (const fieldType of fieldTypes) {
+                    await this.stores.fieldType.updateOnContentType(contentType, fieldType, transactionManager.getRepository(FieldType));
                 }
 
-                const fieldTypes = (await ct.FieldTypes);
-                fieldTypes.length && await transactionManager.createQueryBuilder()
-                    .insert()
-                    .into(FieldType)
-                    .values(fieldTypes)
-                    .execute();
-
-                const refTypes = (await ct.ReferenceTypes);
-                if (refTypes.length) {
-                    const result = await transactionManager.createQueryBuilder()
-                        .insert()
-                        .into(ReferenceType)
-                        .values(refTypes)
-                        .execute();
-
-                    // allowed types
-                    for (const refTypeId of result.identifiers) {
-                        const reloaded = await transactionManager.findOne(ReferenceType, refTypeId);
-                        if (reloaded) {
-                            const descriptor = (await ct.ReferenceTypes).find((t) => t.Name === reloaded.Name);
-                            if (descriptor) {
-                                await transactionManager.createQueryBuilder()
-                                    .relation(ReferenceType, "AllowedTypes")
-                                    .of(reloaded)
-                                    .add(descriptor.AllowedTypes);
-                            }
-                        }
-                    }
-
+                const refTypes = await originalContentType.ReferenceTypes;
+                for (const refType of refTypes) {
+                    await this.stores.referenceTypes.updateOnContentType(contentType, refType, transactionManager.getRepository(ReferenceType));
                 }
 
-                const aspects = (await ct.Aspects);
-                if (aspects.length) {
-                    const result = await transactionManager.createQueryBuilder()
-                        .insert()
-                        .into(Aspect)
-                        .values(aspects)
-                        .execute();
-
-                    const reloadedAspects = await transactionManager.find(Aspect, {
-                        where: {
-                            Id: In(result.identifiers.map((i) => i.Id)),
-                        },
-                    });
-
-                    // tslint:disable-next-line:variable-name
-                    for (const _reloadedAspect of reloadedAspects) {
-                        /** */
-                    }
+                const aspects = await originalContentType.Aspects;
+                for (const aspect of aspects) {
+                    await this.stores.aspect.updateOnContentType(contentType, aspect, transactionManager.getRepository(Aspect));
                 }
-
-                // ToDo: AspectFields and AspectRefs
             }
+
+            // await transactionManager.createQueryBuilder()
+            //     .insert()
+            //     .into(ContentType)
+            //     .values(contentTypes)
+            //     .execute();
+            // for (const ct of contentTypes) {
+            //     const contentType = await transactionManager.findOne(ContentType, { where: { Name: ct.Name } });
+            //     if (!contentType) {
+            //         throw Error(`Content type '${ct.Name}' not found!`);
+            //     }
+
+            //     const fieldTypes = (await ct.FieldTypes);
+            //     fieldTypes.length && await transactionManager.createQueryBuilder()
+            //         .insert()
+            //         .into(FieldType)
+            //         .values(fieldTypes)
+            //         .execute();
+
+            //     const refTypes = (await ct.ReferenceTypes);
+            //     if (refTypes.length) {
+            //         const result = await transactionManager.createQueryBuilder()
+            //             .insert()
+            //             .into(ReferenceType)
+            //             .values(refTypes)
+            //             .execute();
+
+            //         // allowed types
+            //         for (const refTypeId of result.identifiers) {
+            //             const reloaded = await transactionManager.findOne(ReferenceType, refTypeId);
+            //             if (reloaded) {
+            //                 const descriptor = (await ct.ReferenceTypes).find((t) => t.Name === reloaded.Name);
+            //                 if (descriptor) {
+            //                     await transactionManager.createQueryBuilder()
+            //                         .relation(ReferenceType, "AllowedTypes")
+            //                         .of(reloaded)
+            //                         .add(descriptor.AllowedTypes);
+            //                 }
+            //             }
+            //         }
+
+            //     }
+
+            //     const aspects = (await ct.Aspects);
+            //     if (aspects.length) {
+            //         const result = await transactionManager.createQueryBuilder()
+            //             .insert()
+            //             .into(Aspect)
+            //             .values(aspects)
+            //             .execute();
+
+            //         const reloadedAspects = await transactionManager.find(Aspect, {
+            //             where: {
+            //                 Id: In(result.identifiers.map((i) => i.Id)),
+            //             },
+            //         });
+
+            //         // tslint:disable-next-line:variable-name
+            //         for (const _reloadedAspect of reloadedAspects) {
+            //             /** */
+            //         }
+            //     }
+
+            //     // ToDo: AspectFields and AspectRefs
+            // }
         });
 
     }
