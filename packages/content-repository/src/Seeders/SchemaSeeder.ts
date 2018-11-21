@@ -77,15 +77,19 @@ export class SchemaSeeder {
             instance: p,
         }, manager));
         await Promise.all(fsPermissionImports);
-
-        const contentTypesFromDescriptors = await store.getContentTypes(manager);
-        await this.seedBuiltinEntries(contentTypesFromDescriptors, manager);
+        await this.seedBuiltinEntries(manager, store);
     }
 
-    private async seedBuiltinEntries(contentTypes: ContentType[], m: EntityManager) {
+    private async seedBuiltinEntries(m: EntityManager, store: ContentDescriptorStore) {
         await m.transaction("SERIALIZABLE", async (transactionManager) => {
 
+            const contentTypes = await store.getContentTypes(transactionManager);
+
             for (const originalContentType of contentTypes) {
+
+                const originalDescriptor = Array.from(store.ContentTypeDescriptors.entries()).find((e) =>
+                    e[0].name === originalContentType.Name);
+
                 const contentType = await this.stores.contentType.update(originalContentType, transactionManager.getRepository(ContentType));
 
                 const fieldTypes = await originalContentType.FieldTypes;
@@ -98,76 +102,13 @@ export class SchemaSeeder {
                     await this.stores.referenceTypes.updateOnContentType(contentType, refType, transactionManager.getRepository(ReferenceType));
                 }
 
-                const aspects = await originalContentType.Aspects;
+                const aspects = await store.mapAspectsFromContentTypeDescriptor(originalDescriptor as any, transactionManager);
                 for (const aspect of aspects) {
-                    await this.stores.aspect.updateOnContentType(contentType, aspect, transactionManager.getRepository(Aspect));
+                    await this.stores.aspect.updateOnContentType(contentType, aspect.aspect, transactionManager.getRepository(Aspect));
+                    await this.stores.aspect.updateAspectFields(aspect.aspect, aspect.AspectFields || [], transactionManager);
                 }
             }
 
-            // await transactionManager.createQueryBuilder()
-            //     .insert()
-            //     .into(ContentType)
-            //     .values(contentTypes)
-            //     .execute();
-            // for (const ct of contentTypes) {
-            //     const contentType = await transactionManager.findOne(ContentType, { where: { Name: ct.Name } });
-            //     if (!contentType) {
-            //         throw Error(`Content type '${ct.Name}' not found!`);
-            //     }
-
-            //     const fieldTypes = (await ct.FieldTypes);
-            //     fieldTypes.length && await transactionManager.createQueryBuilder()
-            //         .insert()
-            //         .into(FieldType)
-            //         .values(fieldTypes)
-            //         .execute();
-
-            //     const refTypes = (await ct.ReferenceTypes);
-            //     if (refTypes.length) {
-            //         const result = await transactionManager.createQueryBuilder()
-            //             .insert()
-            //             .into(ReferenceType)
-            //             .values(refTypes)
-            //             .execute();
-
-            //         // allowed types
-            //         for (const refTypeId of result.identifiers) {
-            //             const reloaded = await transactionManager.findOne(ReferenceType, refTypeId);
-            //             if (reloaded) {
-            //                 const descriptor = (await ct.ReferenceTypes).find((t) => t.Name === reloaded.Name);
-            //                 if (descriptor) {
-            //                     await transactionManager.createQueryBuilder()
-            //                         .relation(ReferenceType, "AllowedTypes")
-            //                         .of(reloaded)
-            //                         .add(descriptor.AllowedTypes);
-            //                 }
-            //             }
-            //         }
-
-            //     }
-
-            //     const aspects = (await ct.Aspects);
-            //     if (aspects.length) {
-            //         const result = await transactionManager.createQueryBuilder()
-            //             .insert()
-            //             .into(Aspect)
-            //             .values(aspects)
-            //             .execute();
-
-            //         const reloadedAspects = await transactionManager.find(Aspect, {
-            //             where: {
-            //                 Id: In(result.identifiers.map((i) => i.Id)),
-            //             },
-            //         });
-
-            //         // tslint:disable-next-line:variable-name
-            //         for (const _reloadedAspect of reloadedAspects) {
-            //             /** */
-            //         }
-            //     }
-
-            //     // ToDo: AspectFields and AspectRefs
-            // }
         });
 
     }

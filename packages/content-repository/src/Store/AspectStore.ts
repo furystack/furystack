@@ -1,10 +1,25 @@
 import { Injectable } from "@furystack/inject";
-import { FindOneOptions, Repository } from "typeorm";
-import { Aspect, ContentType } from "../models";
+import { EntityManager, FindOneOptions, Repository } from "typeorm";
+import { Aspect, AspectField, ContentType } from "../models";
 import { AbstractStore } from "./AbstractStore";
 
 @Injectable()
 export class AspectStore extends AbstractStore<Aspect, number> {
+
+    public async updateAspectFields(aspect: Aspect, aspectFields: Array<Partial<AspectField>>, manager: EntityManager) {
+        for (const aspectField of aspectFields) {
+            const existing = await manager.findOne(AspectField, {
+                where: {
+                    Aspect: aspect,
+                    FieldType: aspectField.FieldType,
+                },
+            });
+            if (!existing) {
+                await manager.save(AspectField, aspectField);
+            }
+        }
+
+    }
 
     public async updateOnContentType(contentType: ContentType, value: Aspect, repository: Repository<Aspect>) {
         const existing = await repository.findOne({
