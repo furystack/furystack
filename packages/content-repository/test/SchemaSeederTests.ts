@@ -14,7 +14,12 @@ export const seederTests = describe("Seeder", () => {
     it("Seed can be triggered", async () => {
         await usingAsync(new Injector({ parent: undefined }), async (i) => {
             const s = i.GetInstance(SchemaSeeder);
-            await s.SeedBuiltinEntries();
+            try {
+                await s.SeedBuiltinEntries();
+            } catch (error) {
+                throw error;
+            }
+
         });
     });
 

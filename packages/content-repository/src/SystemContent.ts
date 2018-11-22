@@ -1,6 +1,5 @@
 import {Injectable } from "@furystack/inject";
-import { User } from "./ContentTypes";
-import { PermissionType, Role } from "./models";
+import { Role, User } from "./ContentTypes";
 
 @Injectable()
 export class SystemContent {
@@ -9,8 +8,4 @@ export class SystemContent {
     public VisitorRole!: Role;
     public AuthenticatedRole!: Role;
     public AdminRole!: Role;
-
-    public CanRead!: PermissionType;
-    public CanWrite!: PermissionType;
-
 }

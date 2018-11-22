@@ -1,28 +1,18 @@
-import { IContent } from "@furystack/content";
-import { Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ContentField } from "./ContentField";
 import { ContentType } from "./ContentType";
-import { Field } from "./Field";
-import { Job } from "./Job";
-import { Permission } from "./Permission";
-import { Reference } from "./Reference";
 
 @Entity()
-export class Content implements IContent {
+export class Content {
     @PrimaryGeneratedColumn()
     public Id!: number;
 
-    @ManyToOne(() => ContentType, (ct) => ct.Content)
-    public Type!: Promise<ContentType>;
+    @Column("simple-json")
+    public Type!: ContentType;
 
-    @OneToMany(() => Field, (f) => f.Content)
-    public Fields!: Promise<Field[]>;
+    @ManyToOne(() => ContentType, (ct) => ct.ContentInstances)
+    public ContentTypeRef!: ContentType;
 
-    @OneToMany(() => Job, (j) => j.Content)
-    public Jobs!: Promise<Job[]>;
-
-    @OneToMany(() => Reference, (r) => r.Content)
-    public References!: Promise<Reference[]>;
-
-    @OneToMany(() => Permission, (p) => p.Content)
-    public Permissions!: Promise<Permission[]>;
+    @OneToMany(() => ContentField, (cf) => cf.Content, {eager: true})
+    public Fields!: ContentField[];
 }

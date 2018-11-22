@@ -1,53 +1,35 @@
-
-import { IContentType } from "@furystack/content";
-import { Column, Entity, Index, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Aspect } from "./Aspect";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { Content } from "./Content";
-import { FieldType } from "./FieldType";
-import { JobType } from "./JobType";
-import { Permission } from "./Permission";
-import { ReferenceType } from "./ReferenceType";
+import { IAspect } from "./IAspect";
+import { IJob } from "./IJob";
+import { IReferenceType } from "./IReferenceType";
+import { IValueType } from "./IValueType";
 
 @Entity()
-@Index(["Name"], { unique: true })
-export class ContentType implements IContentType {
-    @PrimaryGeneratedColumn()
-    public Id!: number;
-    @Column({
-        unique: true,
-    })
+export class ContentType<T = {}> {
+    @PrimaryColumn()
     public Name!: string;
 
-    @Column({ nullable: true })
-    public DisplayName!: string;
+    @PrimaryColumn()
+    public DisplayName?: string;
 
-    @Column({
-        nullable: true,
-    })
-    public Description!: string;
-    @Column({
-        nullable: true,
-    })
-    public Category!: string;
-    @OneToMany(() => Content, (c) => c.Type)
-    public Content!: Content[];
+    @Column({nullable: true})
+    public Description?: string;
+    @Column({nullable: true})
+    public Category?: string;
+    @Column({nullable: true, type: "simple-json"})
+    public Fields?: {
+        [K: string]: IValueType | IReferenceType;
+    };
+    @Column({nullable: true, type: "simple-json"})
+    public Aspects?: {
+        [K: string]: IAspect<T>,
+    };
+    @Column({nullable: true, type: "simple-json"})
+    public Jobs?: {
+        [K: string]: IJob,
+    };
 
-    @OneToMany(() => Aspect, (a) => a.ContentType, { cascade: true })
-    public Aspects!: Promise<Aspect[]>;
-
-    @OneToMany(() => FieldType, (f) => f.ContentType, { cascade: true })
-    public FieldTypes!: Promise<FieldType[]>;
-
-    @OneToMany(() => ReferenceType, (r) => r.ContentType, { cascade: true })
-    public ReferenceTypes!: Promise<ReferenceType[]>;
-
-    @OneToMany(() => JobType, (r) => r.ContentType, { cascade: true })
-    public JobTypes!: Promise<JobType[]>;
-
-    @OneToMany(() => Permission, (p) => p.ContentType, { cascade: true })
-    public Permissions!: Promise<Permission[]>;
-
-    @ManyToMany(() => ReferenceType, (r) => r.AllowedTypes)
-    public AllowedInReferenceTypes!: Promise<ReferenceType[]>;
-
+    @OneToMany(() => Content, (c) => c.ContentTypeRef)
+    public ContentInstances?: Content[];
 }

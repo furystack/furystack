@@ -1,42 +1,32 @@
 import { Injector } from "@furystack/inject";
 import "reflect-metadata";
 import { ContentDescriptorStore } from "../ContentDescriptorStore";
-import { ContentType, IContentTypeDecoratorOptions } from "./ContentType";
+import { IValueType } from "../models";
+import { ContentType, ContentTypeDecoratorOptions } from "./ContentType";
 
-export interface IVisibilityOption {
-    ReadOnly?: boolean;
-    Required?: boolean;
-    ControlName?: string;
-    Category?: string;
-    Order?: number;
-}
+type decoratorOptins = IValueType & {Injector: Injector};
 
-export interface IFieldTypeDecoratorOptions {
-    Unique?: boolean;
-    DisplayName?: string;
-    Description?: string;
-    DefaultValue?: string;
-    Category?: string;
-    Injector: Injector;
-    Index?: number;
-    Aspects?: {
-        [s: string]: IVisibilityOption,
-    };
-}
-
-export const defaultFieldDecoratorOptions: IFieldTypeDecoratorOptions = {
+export const defaultFieldDecoratorOptions: decoratorOptins = {
     Injector: Injector.Default,
 };
 
-export const Field = (options?: Partial<IFieldTypeDecoratorOptions>) => {
+export const Field = (options?: Partial<decoratorOptins>) => {
     return (target: any, propertyKey: string) => {
         const mergedOptions = { ...defaultFieldDecoratorOptions, ...options };
         const store = mergedOptions.Injector.GetInstance(ContentDescriptorStore);
         let contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor);
         if (!contentTypeDescriptor) {
             ContentType({ Injector: mergedOptions.Injector })(target.constructor);
-            contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor) as IContentTypeDecoratorOptions;
+            contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor) as ContentTypeDecoratorOptions<any>;
         }
-        contentTypeDescriptor.Fields.set(propertyKey, mergedOptions);
+        if (!contentTypeDescriptor.Fields) {
+            contentTypeDescriptor.Fields = {};
+        }
+
+        if (contentTypeDescriptor && contentTypeDescriptor.Fields) {
+            delete mergedOptions.Injector;
+            contentTypeDescriptor.Fields[propertyKey] = mergedOptions;
+        }
+        store.ContentTypeDescriptors.set(target.constructor, contentTypeDescriptor);
     };
 };

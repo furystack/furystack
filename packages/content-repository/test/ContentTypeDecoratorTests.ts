@@ -1,13 +1,13 @@
 import { Injector } from "@furystack/inject";
 import { ContentDescriptorStore } from "../src";
-import { ContentType, IContentTypeDecoratorOptions } from "../src/Decorators/ContentType";
-import { Field, IFieldTypeDecoratorOptions } from "../src/Decorators/Field";
-import { IReferenceTypeDecoratorOptions, Reference } from "../src/Decorators/Reference";
+import { ContentType } from "../src/Decorators/ContentType";
+import { Field } from "../src/Decorators/Field";
+import { Reference } from "../src/Decorators/Reference";
 export const contentTypeDecoratorTests = describe("@ContentType() decorator", () => {
     /** */
     it("Should", () => {
 
-        const injector = new Injector();
+        const injector = new Injector({owner: "ContentTypeDecoratorTests", parent: undefined});
         injector.SetInstance(new ContentDescriptorStore());
         @ContentType({ DisplayName: "My Test Class", Injector: injector })
         class TestClass {
@@ -18,10 +18,13 @@ export const contentTypeDecoratorTests = describe("@ContentType() decorator", ()
             public Valami!: object;
         }
 
-        const value = injector.GetInstance(ContentDescriptorStore).ContentTypeDescriptors.get(TestClass) as IContentTypeDecoratorOptions;
-
-        expect(value.DisplayName).toEqual("My Test Class");
-        expect((value.Fields.get("Username") as IFieldTypeDecoratorOptions).DisplayName).toEqual("User Name Display Name");
-        expect((value.References.get("Valami") as IReferenceTypeDecoratorOptions).DisplayName).toEqual("Referenceke");
+        const value = injector.GetInstance(ContentDescriptorStore).ContentTypeDescriptors.get(TestClass);
+        expect(value).toBeTruthy();
+        expect(value && value.Fields).toBeTruthy();
+        if (value && value.Fields) {
+            expect(value.DisplayName).toEqual("My Test Class");
+            expect((value.Fields.Username).DisplayName).toEqual("User Name Display Name");
+            expect((value.Fields.Valami).DisplayName).toEqual("Referenceke");
+        }
     });
 });

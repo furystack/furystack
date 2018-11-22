@@ -1,26 +1,15 @@
-import { IPermissionType, LoggerCollection, SystemPermissions as FSSystemPermissions } from "@furystack/core";
+import { LoggerCollection } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { DeepPartial, EntityManager, FindOneOptions } from "typeorm";
 import { ContentDescriptorStore } from "../ContentDescriptorStore";
 import { ElevatedRepository } from "../ElevatedRepository";
-import { Aspect, ContentType, FieldType, ReferenceType } from "../models";
-import { PermissionType } from "../models/PermissionType";
-import { AspectStore, ContentTypeStore, FieldTypeStore, ReferenceTypeStore } from "../Store";
+import { ContentType } from "../models";
 
 export interface ISeedEntry<T> {
     model: Constructable<T>;
     findOption: FindOneOptions<T>;
     instance: DeepPartial<T>;
 }
-
-export const getFuryStackSystemPermissions = () => {
-    return Object.keys(FSSystemPermissions).map((key) => {
-        return ({
-            ...(FSSystemPermissions as any)[key] as IPermissionType,
-            Category: "@furystack/core",
-        } as PermissionType);
-    });
-};
 
 @Injectable()
 export class SchemaSeeder {
@@ -48,13 +37,6 @@ export class SchemaSeeder {
         return found;
     }
 
-    private stores = {
-        contentType: this.injector.GetInstance(ContentTypeStore),
-        fieldType: this.injector.GetInstance(FieldTypeStore),
-        aspect: this.injector.GetInstance(AspectStore),
-        referenceTypes: this.injector.GetInstance(ReferenceTypeStore),
-    };
-
     constructor(private readonly repository: ElevatedRepository, private readonly injector: Injector) {
 
     }
@@ -67,49 +49,23 @@ export class SchemaSeeder {
             data,
         });
 
-        const store = this.injector.GetInstance(ContentDescriptorStore);
+        const store = Injector.Default.GetInstance(ContentDescriptorStore);
         const manager = this.repository.GetManager();
         log("Seeding built-in entries...");
-        log("Seeding @furystack System Permissions...");
-        const fsPermissionImports = getFuryStackSystemPermissions().map(async (p) => await this.ensureExists({
-            model: PermissionType,
-            findOption: { where: { Name: p.Name } },
-            instance: p,
-        }, manager));
-        await Promise.all(fsPermissionImports);
-        await this.seedBuiltinEntries(manager, store);
-    }
 
-    private async seedBuiltinEntries(m: EntityManager, store: ContentDescriptorStore) {
-        await m.transaction("SERIALIZABLE", async (transactionManager) => {
-
-            const contentTypes = await store.getContentTypes(transactionManager);
-
-            for (const originalContentType of contentTypes) {
-
-                const originalDescriptor = Array.from(store.ContentTypeDescriptors.entries()).find((e) =>
-                    e[0].name === originalContentType.Name);
-
-                const contentType = await this.stores.contentType.update(originalContentType, transactionManager.getRepository(ContentType));
-
-                const fieldTypes = await originalContentType.FieldTypes;
-                for (const fieldType of fieldTypes) {
-                    await this.stores.fieldType.updateOnContentType(contentType, fieldType, transactionManager.getRepository(FieldType));
-                }
-
-                const refTypes = await originalContentType.ReferenceTypes;
-                for (const refType of refTypes) {
-                    await this.stores.referenceTypes.updateOnContentType(contentType, refType, transactionManager.getRepository(ReferenceType));
-                }
-
-                const aspects = await store.mapAspectsFromContentTypeDescriptor(originalDescriptor as any, transactionManager);
-                for (const aspect of aspects) {
-                    await this.stores.aspect.updateOnContentType(contentType, aspect.aspect, transactionManager.getRepository(Aspect));
-                    await this.stores.aspect.updateAspectFields(aspect.aspect, aspect.AspectFields || [], transactionManager);
-                }
+        await manager.transaction(async (tm) => {
+            const cts = store.ContentTypeDescriptors.entries();
+            for (const [, contentType] of cts) {
+                await this.ensureExists({
+                    model: ContentType,
+                    findOption: {
+                        where: {
+                            Name: contentType.Name,
+                        },
+                    },
+                    instance: contentType,
+                }, tm);
             }
-
         });
-
     }
 }

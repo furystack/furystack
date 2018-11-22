@@ -1,35 +1,28 @@
-import { Constructable, Injector } from "@furystack/inject";
+import { Constructable, Injector as FInjector } from "@furystack/inject";
 import "reflect-metadata";
 import { ContentDescriptorStore } from "../ContentDescriptorStore";
-import { IFieldTypeDecoratorOptions } from "./Field";
-import { IReferenceTypeDecoratorOptions } from "./Reference";
+import { ContentType as ContentTypeModel} from "../models";
 
-export interface IContentTypeDecoratorOptions {
-    Name?: string;
-    DisplayName?: string;
-    Description?: string;
-    Category?: string;
-    Fields: Map<string, IFieldTypeDecoratorOptions>;
-    References: Map<string, IReferenceTypeDecoratorOptions>;
-    Injector: Injector;
-}
+export type ContentTypeDecoratorOptions<T> = ContentTypeModel<T> & {Injector: FInjector};
 
-const getDefaultContentTypeDecoratorOptions = () => ({
-    Fields: new Map(),
-    References: new Map(),
-    Injector: Injector.Default,
-} as IContentTypeDecoratorOptions);
-
-export const ContentType = (options?: Partial<IContentTypeDecoratorOptions>) => {
-    return <T extends Constructable<any>>(ctor: T) => {
-        const defaultOptions = getDefaultContentTypeDecoratorOptions();
-        const mergedOptions = { ...defaultOptions, ...options };
-        const store = mergedOptions.Injector.GetInstance(ContentDescriptorStore).ContentTypeDescriptors;
-        const existing = store.get(ctor);
-        store.set(ctor, {
+export const ContentType = <T>(options?: Partial<ContentTypeDecoratorOptions<T>>) => {
+    return <T2 extends Constructable<any>>(ctor: T2) => {
+        const defaultOptions: ContentTypeDecoratorOptions<T> = {
+            Name: ctor.name,
+            Injector: FInjector.Default,
+        };
+        const injector = options && options.Injector || defaultOptions.Injector;
+        const store = injector.GetInstance(ContentDescriptorStore);
+        const existingOptions = store.ContentTypeDescriptors.get(ctor);
+        const mergedOptions = {
             ...defaultOptions,
-            ...existing,
+            ...existingOptions,
             ...options,
-        });
+        } as ContentTypeDecoratorOptions<T>;
+        delete mergedOptions.Injector;
+
+        // tslint:disable-next-line:no-shadowed-variable
+        const {Injector, ...contentType} = {...mergedOptions};
+        store.ContentTypeDescriptors.set(ctor, contentType as ContentTypeModel);
     };
 };
