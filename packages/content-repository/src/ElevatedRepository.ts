@@ -1,5 +1,5 @@
 import { IApi, LoggerCollection } from "@furystack/core";
-import { Injectable } from "@furystack/inject";
+import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { createConnection, getConnectionManager, getManager } from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
@@ -20,8 +20,14 @@ export class ElevatedRepository implements IDisposable, IApi {
         return getManager(this.options.connection.name);
     }
 
-    public async ValidateAspect<T>(model: T, aspectName: string) {
-        /** */
+    public async ValidateAspect<T>(change: Partial<T>, aspectName: string): Promise<boolean> {
+        /** ToDo: check for missing / required fields or modified / readonly fields */
+        return true;
+    }
+
+    public async FindContent<T = {}>(data: Partial<T> | string, model: Constructable<T>): Promise<Array<ISavedContent<T>>> {
+        /** ToDo: find content of a type with a specified field set or term */
+        return [];
     }
 
     public async CreateContent<T>(data: T): Promise<ISavedContent<T>> {
