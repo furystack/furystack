@@ -2,6 +2,8 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { ContentField } from "./ContentField";
 import { ContentType } from "./ContentType";
 
+export type ISavedContent<T> = T & {Id: number};
+
 @Entity()
 export class Content {
     @PrimaryGeneratedColumn()

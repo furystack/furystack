@@ -22,7 +22,7 @@ export const ContentType = <T>(options?: Partial<ContentTypeDecoratorOptions<T>>
         delete mergedOptions.Injector;
 
         // tslint:disable-next-line:no-shadowed-variable
-        const {Injector, ...contentType} = {...mergedOptions};
+        const {Injector, ...contentType} = Object.assign(new ContentTypeModel(), {...mergedOptions});
         store.ContentTypeDescriptors.set(ctor, contentType as ContentTypeModel);
     };
 };

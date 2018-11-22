@@ -4,6 +4,7 @@ import { IDisposable } from "@sensenet/client-utils";
 import { createConnection, getConnectionManager, getManager } from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import * as Models from "./models";
+import { Content, ContentField, ISavedContent } from "./models";
 
 @Injectable()
 export class ElevatedRepository implements IDisposable, IApi {
@@ -17,6 +18,34 @@ export class ElevatedRepository implements IDisposable, IApi {
 
     public GetManager() {
         return getManager(this.options.connection.name);
+    }
+
+    public async ValidateAspect<T>(model: T, aspectName: string) {
+        /** */
+    }
+
+    public async CreateContent<T>(data: T): Promise<ISavedContent<T>> {
+        const contentTypeName = data.constructor.name;
+        return await this.GetManager().transaction(async (tr) => {
+            /** */
+            const contentType = await tr.findOneOrFail(this.options.models.ContentType, {where: {Name: contentTypeName}});
+            const c = tr.create(Content, {
+                Type: contentType,
+                ContentTypeRef: contentType,
+            });
+
+            const savedContent = await tr.save(c);
+            const fields = Object.keys(data).map((field) => ({
+                Content: savedContent,
+                Name: field,
+                Value: (data as any)[field],
+            } as ContentField));
+            await tr.createQueryBuilder()
+                .relation(Content, "Fields")
+                .of(savedContent)
+                .add(fields);
+            return Object.assign(data, savedContent);
+        });
     }
 
     private async initConnection() {
