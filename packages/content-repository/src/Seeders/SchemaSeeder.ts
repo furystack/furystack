@@ -19,7 +19,7 @@ export class SchemaSeeder {
         return this.injector.GetInstance(LoggerCollection);
     }
 
-    private async ensureExists<T>(entry: ISeedEntry<T>, manager: EntityManager) {
+    private async update<T>(entry: ISeedEntry<T>, manager: EntityManager) {
         const found = await manager.findOne(entry.model, entry.findOption);
         if (!found) {
             this.logger.Debug({
@@ -27,14 +27,12 @@ export class SchemaSeeder {
                 message: `Entity '${JSON.stringify(entry.findOption)}' not found, creating...`,
                 data: { instance: entry.instance },
             });
-            try {
-                const created = await manager.create(entry.model, entry.instance);
-                return await manager.save(created);
-            } catch (error) {
-                throw error;
-            }
+            const created = await manager.create(entry.model, entry.instance);
+            return await manager.save(created);
+        } else {
+            Object.assign(found, entry.instance);
+            return await manager.save(found);
         }
-        return found;
     }
 
     constructor(private readonly repository: ElevatedRepository, private readonly injector: Injector) {
@@ -56,7 +54,7 @@ export class SchemaSeeder {
         await manager.transaction(async (tm) => {
             const cts = store.ContentTypeDescriptors.entries();
             for (const [, contentType] of cts) {
-                await this.ensureExists({
+                await this.update({
                     model: ContentType,
                     findOption: {
                         where: {
