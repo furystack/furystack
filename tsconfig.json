@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true
+  },
+  "references": [
+    {
+      "path": "./packages/content"
+    },
+    {
+      "path": "./packages/content-repository"
+    },
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/http-api"
+    },
+    {
+      "path": "./packages/inject"
+    },
+    {
+      "path": "./packages/websocket-api"
+    },
+  ]
+}
