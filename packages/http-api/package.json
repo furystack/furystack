@@ -76,5 +76,6 @@
       "path": "sensenet-kfi-cz-conventional-changelog"
     }
   },
-  "typings": "./dist/index.d.ts"
+  "typings": "./dist/index.d.ts",
+  "gitHead": "053ececc7dfe5a1ccc5f06c510b78b9999e1f4f0"
 }
