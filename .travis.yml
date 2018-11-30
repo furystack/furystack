@@ -7,8 +7,8 @@ before_script:
   - npm --v
 script: 
   # Insall yarn
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.12.3
-  - export PATH=$HOME/.yarn/bin:$PATH
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - export PATH="$HOME/.yarn/bin:$PATH"
   - npm run bootstrap
   - npm run build
   - npm test
