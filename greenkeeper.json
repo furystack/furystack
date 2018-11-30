@@ -1,0 +1,15 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "package.json",
+        "packages/content-repository/package.json",
+        "packages/content/package.json",
+        "packages/core/package.json",
+        "packages/http-api/package.json",
+        "packages/inject/package.json",
+        "packages/websocket-api/package.json"
+      ]
+    }
+  }
+}
