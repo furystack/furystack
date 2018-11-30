@@ -1,6 +1,6 @@
 {
   "name": "@furystack/content",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Content management layer for FuryStack",
   "main": "dist/index.js",
   "files": [
