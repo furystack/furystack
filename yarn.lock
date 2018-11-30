@@ -20,17 +20,6 @@
   version "0.1.10"
   resolved "https://registry.yarnpkg.com/@furystack/content/-/content-0.1.10.tgz#68e9788b2383f24c0676d83f59ee7b63d39eb01c"
 
-"@furystack/http-api@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@furystack/http-api/-/http-api-0.5.0.tgz#fcad54ac3030cd142716dae1d5672d953e92807e"
-  dependencies:
-    "@furystack/core" "^1.0.4"
-    "@furystack/inject" "^1.0.3"
-    "@sensenet/client-utils" "^1.2.1"
-    "@types/node" "^10.12.3"
-    hash.js "^1.1.5"
-    uuid "^3.3.2"
-
 "@lerna/add@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@lerna/add/-/add-3.5.0.tgz#3518b3d4afc3743b7227b1ee3534114eb9575888"
