@@ -1,27 +1,24 @@
-import { expect } from "chai";
+import { Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
+import { ServerResponse } from "http";
+import { UserContextService } from "../../src";
 import { GetCurrentUser } from "../../src/Actions/GetCurrentUser";
 
 export const getCurrentUserTests = describe("getCurrentUser", () => {
-    it("should be constructed without parameters", () => {
-        const c = new GetCurrentUser();
-        expect(c).to.be.instanceof(GetCurrentUser);
-    });
 
-    it("exec", async () => {
-        const c = new GetCurrentUser();
-        await c.exec({
-            method: "GET",
-        } as any, {
-            writeHead: () => undefined,
-            write: (data: string) => {
-                expect(data).to.be.eq(JSON.stringify({ Email: "ExampleUser" }));
-            },
-            end: () => undefined,
-        } as any, () => ({
-            getCurrentUser: async () => {
-                return { Email: "ExampleUser", Password: "" };
-            },
-            isAuthorized: async () => true,
-        } as any));
+    it("exec", (done) => {
+        const testUser = { Name: "Userke" };
+        usingAsync(new Injector({ parent: undefined }), async (i) => {
+            i.SetInstance({
+                writeHead: () => (undefined), end: (result: string) => {
+                    expect(result).toEqual(JSON.stringify(testUser));
+                    done();
+                },
+            }, ServerResponse);
+            i.SetInstance({ getCurrentUser: async () => (testUser) }, UserContextService);
+            await usingAsync(i.GetInstance(GetCurrentUser, true), async (c) => {
+                await c.exec();
+            });
+        });
     });
 });

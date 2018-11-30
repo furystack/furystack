@@ -1,80 +1,173 @@
-import { IContext } from "@furystack/core";
-import { expect } from "chai";
-import { RequestContext } from "../src";
+import { LoggerCollection, visitorUser } from "@furystack/core";
+import { Injectable, Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
+import { IncomingMessage, ServerResponse } from "http";
+import { HttpApiConfiguration, IRequestAction, UserContextService } from "../src";
 import { HttpApi } from "../src/HttpApi";
 
+// tslint:disable:max-classes-per-file
+
 export const httpApiTests = describe("HttpApi tests", () => {
-    it("Can be constructed", () => {
-        const api = new HttpApi({});
-        expect(api).to.be.instanceof(HttpApi);
-    });
 
-    describe("Server", () => {
-        it("activate should start the server to listen", (done) => {
-            const api = new HttpApi({
-                serverFactory: (listener) => ({
-                    listen: () => done(),
-                } as any),
+    it("Can be constructed", async () => {
+        await usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+            i.SetInstance(new HttpApiConfiguration({ serverFactory: () => ({} as any) }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                expect(api).toBeInstanceOf(HttpApi);
             });
-            api.activate();
-        });
-
-        it("dispose should close the server", (done) => {
-            const api = new HttpApi({
-                serverFactory: (listener) => ({
-                    close: () => done(),
-                } as any),
-            });
-            api.dispose();
-        });
-
-        it("mainRequestListener should be attached", () => {
-            const api = new HttpApi({
-                serverFactory: (listener) => {
-                    return {
-                        listener,
-                    } as any;
-                },
-            });
-            // tslint:disable-next-line:no-string-literal
-            expect((api as any)["server"]["listener"].name).to.be.eq(`bound ${api.mainRequestListener.name}`);
         });
     });
 
-    describe("mainRequestListener", () => {
-        it("Should trigger the default action by default", (done) => {
-            const api = new HttpApi({
-                defaultAction: { exec: () => done() } as any,
+    it("Can be activated", async () => {
+        await usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+            i.SetInstance(new HttpApiConfiguration({
+                serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+            }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                await api.activate();
             });
-            api.mainRequestListener({ url: "/" } as any, undefined as any);
         });
-
-        it("Should trigger the notFound action for not found routes", (done) => {
-            const api = new HttpApi({
-                notFoundAction: { exec: () => done() } as any,
-            });
-            api.mainRequestListener({ url: "/invalid/route" } as any, undefined as any);
-        });
-
-        it("contextFactory should return the same context instance in methods", (done) => {
-            const api = new HttpApi({
-                defaultAction: {
-                    exec: (_in: any, _sr: any, _ctx: () => IContext) => {
-                        const context = _ctx();
-                        const context2 = _ctx();
-
-                        expect(context).to.be.eq(context2);
-                        done();
-                    },
-                } as any,
-            });
-            api.mainRequestListener({ url: "/" } as any, undefined as any);
-        });
-
     });
 
-    it("ContextFactory should work with RequestContext objects", () => {
-        const api = new HttpApi();
-        expect(api.contextFactory(undefined as any, undefined as any, undefined as any)).to.be.instanceof(RequestContext);
+    it("NotFound Action is executed when no other action is awailable", (done) => {
+        usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+
+            @Injectable()
+            class ExampleNotFoundAction implements IRequestAction {
+                public async exec() {
+                    done();
+                }
+                public dispose() { /** */ }
+            }
+            i.SetInstance(new HttpApiConfiguration({
+                notFoundAction: ExampleNotFoundAction as any,
+                serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+            }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                await api.activate();
+                api.mainRequestListener({} as any, {} as any);
+            });
+        });
     });
+
+    it("Action can be executed", (done) => {
+        usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+
+            @Injectable()
+            class ExampleAction implements IRequestAction {
+                public async exec() {
+                    const currentUser = await this.userContext.getCurrentUser();
+                    const currentUser2 = await this.userContext.getCurrentUser();
+                    expect(currentUser.Username).toEqual(visitorUser.Username);
+                    expect(currentUser2.Username).toEqual(visitorUser.Username);
+                    // tslint:disable-next-line:no-string-literal
+                    this.perRequestInjector["cachedSingletons"].has(this.userContext.constructor);
+                    done();
+                }
+                public dispose() { /** */ }
+
+                /**
+                 *
+                 */
+                constructor(private userContext: UserContextService, private perRequestInjector: Injector) {
+
+                }
+
+            }
+            i.SetInstance(new HttpApiConfiguration({
+                actions: [() => ExampleAction],
+                serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+            }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                await api.activate();
+                api.mainRequestListener({} as any, {} as any);
+            });
+        });
+    });
+
+    it("Should throw error if multiple actions are resolved for a request", (done) => {
+        usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+
+            @Injectable()
+            class ExampleAction implements IRequestAction {
+                public async exec() {
+                    done();
+                }
+                public dispose() { /** */ }
+
+            }
+            i.SetInstance(new HttpApiConfiguration({
+                actions: [() => ExampleAction, () => ExampleAction],
+                serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+            }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                await api.activate();
+                try {
+                    await api.mainRequestListener({} as any, {} as any);
+                    done("Should throw error");
+                } catch (error) {
+                    done();
+                }
+            });
+        });
+    });
+
+    it("Error Action is executed on other action errors executed", (done) => {
+        usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
+
+            @Injectable()
+            class ExampleFailAction implements IRequestAction {
+                public async exec() {
+                    throw Error(":(");
+                }
+                public dispose() { /** */ }
+
+            }
+
+            @Injectable()
+            class ExampleErrorAction implements IRequestAction {
+                public async returnError(error: any) {
+                    done();
+                }
+                public async exec() { /**  */ }
+                public dispose() { /** */ }
+
+            }
+
+            i.SetInstance(new HttpApiConfiguration({
+                actions: [() => ExampleFailAction],
+                errorAction: ExampleErrorAction as any,
+                serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+            }));
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({}, ServerResponse);
+            i.SetInstance(i);
+            i.SetInstance(new LoggerCollection());
+            await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
+                await api.activate();
+                api.mainRequestListener({} as any, {} as any);
+            });
+        });
+    });
+
 });

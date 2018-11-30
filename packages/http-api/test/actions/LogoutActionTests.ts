@@ -1,25 +1,26 @@
-import { expect } from "chai";
+import { Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
+import { IncomingMessage, ServerResponse } from "http";
+import { IdentityService } from "../../src";
 import { LogoutAction } from "../../src/Actions/Logout";
-import { IdentityService } from "../../src/IdentityService";
 
 export const logoutActionTests = describe("LogoutAction", () => {
-    it("should be constructed without parameters", () => {
-        const c = new LogoutAction(new IdentityService());
-        expect(c).to.be.instanceof(LogoutAction);
-    });
+    it("exec", (done) => {
+        let cookieLogoutCalled: boolean = false;
+        usingAsync(new Injector({ parent: undefined }), async (i) => {
+            i.SetInstance({ cookieLogout: async () => { cookieLogoutCalled = true; } }, IdentityService);
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({
+                writeHead: () => (undefined), end: (result: string) => {
+                    expect(result).toEqual(JSON.stringify({ success: true }));
+                    expect(cookieLogoutCalled).toEqual(true);
+                    done();
+                },
+            }, ServerResponse);
+            await usingAsync(i.GetInstance(LogoutAction, true), async (c) => {
+                await c.exec();
+            });
 
-    it("exec", async () => {
-        const c = new LogoutAction({
-            cookieLogout: async () => undefined,
-        } as any);
-        await c.exec({
-            method: "POST",
-            headers: {
-                cookie: "",
-            },
-        } as any, {
-            writeHead: () => undefined,
-            end: () => undefined,
-        } as any);
+        });
     });
 });

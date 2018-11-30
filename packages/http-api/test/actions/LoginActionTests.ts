@@ -1,31 +1,25 @@
-import { IContext, visitorUser } from "@furystack/core";
-import { expect } from "chai";
+import { Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
+import { IncomingMessage, ServerResponse } from "http";
+import { IdentityService, Utils } from "../../src";
 import { LoginAction } from "../../src/Actions/Login";
-import { IdentityService } from "../../src/IdentityService";
-
 export const loginActionTests = describe("LoginAction", () => {
-    it("should be constructed without parameters", () => {
-        const c = new LoginAction(new IdentityService());
-        expect(c).to.be.instanceof(LoginAction);
-    });
-
-    it("exec", async () => {
-        const c = new LoginAction({
-            cookieLogin: async () => visitorUser,
-        } as any);
-        await c.exec({
-            method: "POST",
-            on: (_event: string, callback: () => void) => {
-                callback();
-            },
-            read: () => '{"value": 1}',
-
-        } as any, {
-            writeHead: (no: number) => expect(no).to.be.eq(200),
-            write: () => undefined,
-            end: () => undefined,
-        } as any, () => ({
-            isAuthorized: async () => true,
-        } as Partial<IContext> as any));
+    /** */
+    it("exec", (done) => {
+        const testUser = { Name: "Userke" };
+        usingAsync(new Injector({ parent: undefined }), async (i) => {
+            i.SetInstance({ cookieLogin: async () => testUser }, IdentityService);
+            i.SetInstance({}, IncomingMessage);
+            i.SetInstance({ readPostBody: async () => ({}) }, Utils);
+            i.SetInstance({
+                writeHead: () => (undefined), end: (result: string) => {
+                    expect(result).toEqual(JSON.stringify(testUser));
+                    done();
+                },
+            }, ServerResponse);
+            await usingAsync(i.GetInstance(LoginAction, true), async (c) => {
+                await c.exec();
+            });
+        });
     });
 });

@@ -1,22 +1,17 @@
+import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
-import { Method } from "../ActionDecorators/Method";
 import { IdentityService } from "../IdentityService";
-import { RequestAction } from "../RequestAction";
+import { IRequestAction } from "../Models";
 
-@Method("POST")
-export class LogoutAction extends RequestAction {
+@Injectable()
+export class LogoutAction implements IRequestAction {
+    public dispose() { /**  */}
 
-    public async exec(_incomingMessage: IncomingMessage, _response: ServerResponse) {
-        await this.identityService.cookieLogout(_incomingMessage, _response);
-        _response.writeHead(200);
-        _response.end(JSON.stringify({ success: true }));
+    public async exec() {
+        await this.identityService.cookieLogout(this.incomingMessage, this.serverResponse);
+        this.serverResponse.writeHead(200);
+        this.serverResponse.end(JSON.stringify({ success: true }));
     }
-    public segmentName: string = "logout";
-
-    /**
-     *
-     */
-    constructor(private readonly identityService: IdentityService) {
-        super();
+    constructor(private readonly identityService: IdentityService, private incomingMessage: IncomingMessage, private serverResponse: ServerResponse) {
     }
 }

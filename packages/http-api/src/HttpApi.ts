@@ -1,87 +1,78 @@
-import { IApi, InMemoryStore, IUser, LoggerCollection } from "@furystack/core";
-import { Injector } from "@furystack/inject";
+import { IApi, LoggerCollection } from "@furystack/core";
+import { Constructable, Injectable, Injector } from "@furystack/inject";
+import { usingAsync } from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
-import { Server as HttpServer } from "http";
 import { Server } from "net";
-import { parse } from "url";
-import { ErrorAction, IdentityService, ILoginUser, RequestAction, RequestContext } from "./";
-import { MetadataAction } from "./MetadataAction";
-import { NotFoundAction } from "./NotFoundAction";
-import { RootAction } from "./RootAction";
+import { HttpApiConfiguration } from "./HttpApiConfiguration";
+import { IRequestAction } from "./Models";
+import { Utils } from "./Utils";
 
-export interface IHttpApiConfiguration {
-    serverFactory: (requestListener: (incomingMessage: IncomingMessage, serverResponse: ServerResponse) => void) => Server;
-    hostName: string;
-    port: number;
-    protocol: "http" | "https";
-    identityService: IdentityService;
-    rootActions: RequestAction[];
-    defaultAction: RequestAction;
-    notFoundAction: RequestAction;
-    errorAction: RequestAction & { returnError(incomingMessage: IncomingMessage, serverResponse: ServerResponse, getContext: () => RequestContext, error: any): Promise<void> };
-    logScope: string;
-}
+@Injectable()
+export class HttpApi implements IApi {
 
-export const defaultHttpApiConfiguration: IHttpApiConfiguration = {
-    defaultAction: new MetadataAction(),
-    errorAction: new ErrorAction(),
-    hostName: "localhost",
-    identityService: new IdentityService(),
-    serverFactory: (listener) => new HttpServer(listener),
-    notFoundAction: new NotFoundAction(),
-    rootActions: [],
-    port: 8080,
-    protocol: "http",
-    logScope: "HTTP_API",
-};
-
-export class HttpApi implements IApi<RequestContext> {
-    public injector = new Injector();
-    public loggers: LoggerCollection = new LoggerCollection();
-    public contextFactory(incomingMessage: IncomingMessage, serverResponse: ServerResponse, identityService: IdentityService<ILoginUser<IUser>>) {
-        return new RequestContext(incomingMessage, serverResponse, identityService);
-    }
-
-    private readonly rootAction: RequestAction;
+    public readonly LogScope = "@furystack/http-api/HttpApi";
 
     public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
-        let context!: RequestContext;
-        const contextFactoryCached = () => {
-            if (!context) {
-                context = this.contextFactory(incomingMessage, serverResponse, this.options.identityService);
+        await usingAsync(new Injector({ parent: this.injector, owner: IncomingMessage }), async (injector) => {
+            injector.SetInstance(incomingMessage);
+            injector.SetInstance(serverResponse);
+            injector.SetInstance(injector);
+            this.utils.addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse);
+            const actionCtors = this.options.actions.map((a) => a(incomingMessage)).filter((a) => a !== undefined) as Array<Constructable<IRequestAction>>;
+            if (actionCtors.length > 1) {
+                this.logger.Error({
+                    scope: this.LogScope,
+                    message: `Multiple HTTP actions found that can be execute the request`,
+                    data: {
+                        incomingMessage,
+                    },
+                });
+                throw Error(`Multiple HTTP actions found that can be execute the request`);
             }
-            return context;
-        };
+            if (actionCtors.length === 1) {
+                try {
+                    this.options.PerRequestServices.map((s) => injector.SetInstance(s));
+                    const actionCtor = actionCtors[0];
+                    await usingAsync(injector.GetInstance(actionCtor, true), async (action) => {
+                        await action.exec();
+                    });
+                } catch (error) {
+                    await usingAsync(injector.GetInstance(this.options.errorAction), async (e) => {
+                        await e.returnError(error);
+                    });
+                }
 
-        const url = parse(`${this.options.port}://${this.options.hostName}:${this.options.port}${incomingMessage.url}`, true);
-        const pathSegments = (url.pathname as string).split("/").filter((s) => s.length);
-        const action = this.rootAction.resolve(pathSegments, incomingMessage, serverResponse);
-        try {
-            await action.exec(incomingMessage, serverResponse, contextFactoryCached);
-            this.loggers.trace(this.options.logScope, `Returned ${serverResponse.statusCode} from '${incomingMessage.url}'`);
-        } catch (error) {
-            this.loggers.error(this.options.logScope, error);
-            this.options.errorAction.returnError(incomingMessage, serverResponse, contextFactoryCached, error);
-        }
+            } else {
+                await usingAsync(injector.GetInstance(this.options.notFoundAction), async (a) => {
+                    a.exec();
+                });
+            }
+
+        });
     }
 
     public async activate() {
+        this.server = this.options.serverFactory(this.mainRequestListener.bind(this));
         this.server.listen(this.options.port, this.options.hostName, 8192);
     }
-    public dispose() {
-        this.server.close();
+    public async dispose() {
+        if (this.server !== undefined) {
+            await new Promise((resolve) => {
+                (this.server as Server).on("close", () => resolve());
+                (this.server as Server).close();
+            });
+        }
     }
 
-    private readonly options: IHttpApiConfiguration;
-    public readonly server: Server;
+    public server?: Server;
+    private readonly injector: Injector;
 
-    constructor(options?: Partial<IHttpApiConfiguration>) {
-        this.options = { ...defaultHttpApiConfiguration, ...options };
-        this.rootAction = new RootAction({
-            children: this.options.rootActions,
-            notFound: this.options.notFoundAction,
-            default: this.options.defaultAction,
-        });
-        this.server = this.options.serverFactory(this.mainRequestListener.bind(this));
+    constructor(
+        parentInjector: Injector,
+        private readonly options: HttpApiConfiguration,
+        private readonly logger: LoggerCollection,
+        private readonly utils: Utils,
+    ) {
+        this.injector = new Injector({ parent: parentInjector });
     }
 }

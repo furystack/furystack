@@ -1,16 +1,22 @@
-import { IContext, IUser } from "@furystack/core";
-import { IncomingMessage, ServerResponse } from "http";
-import { ILoginUser } from "../IdentityService";
-import { RequestAction } from "../RequestAction";
+import { Injectable } from "@furystack/inject";
+import { ServerResponse } from "http";
+import { IRequestAction } from "../Models";
+import { UserContextService } from "../UserContextService";
 
-export class GetCurrentUser extends RequestAction {
-    public async exec(_incomingMessage: IncomingMessage, serverResponse: ServerResponse, getContext: () => IContext): Promise<void> {
-        const user = await getContext().getCurrentUser() as ILoginUser<IUser>;
-        const { Password, ...userWithoutPassword } = user;
-        serverResponse.writeHead(200, {
+@Injectable()
+export class GetCurrentUser implements IRequestAction {
+    public dispose() { /**  */}
+    public async exec(): Promise<void> {
+        const user = await this.userContext.getCurrentUser();
+        this.serverResponse.writeHead(200, {
             "Content-Type": "application/json",
         });
-        serverResponse.end(JSON.stringify(userWithoutPassword));
+        this.serverResponse.end(JSON.stringify(user));
     }
-    public segmentName: string = "getCurrentUser";
+    /**
+     *
+     */
+    constructor(private serverResponse: ServerResponse, private userContext: UserContextService) {
+
+    }
 }
