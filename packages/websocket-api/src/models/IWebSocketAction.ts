@@ -1,4 +1,3 @@
-import { Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Data } from "ws";
 
