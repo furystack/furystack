@@ -15,8 +15,8 @@ export const injectTests = describe("Tests", () => {
             constructor(public service: Service) {
             }
         }
-        // const a = new Injected(null as any);
-        // expect(a).to.be.instanceof(Alma);
+        const a = new Alma2(null as any);
+        expect(a).toBeInstanceOf(Alma2);
     });
 
 });

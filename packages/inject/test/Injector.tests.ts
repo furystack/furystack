@@ -19,7 +19,7 @@ export const injectorTests = describe("Injector", () => {
     it("Should throw an error on circular dependencies", () => {
         const i = new Injector({});
         @Injectable()
-        class InstanceClass { constructor(private _ohgodno: InstanceClass) { /** */ } }
+        class InstanceClass { constructor(public ohgodno: InstanceClass) { /** */ } }
         expect(() => i.GetInstance(InstanceClass)).toThrow();
     });
 
