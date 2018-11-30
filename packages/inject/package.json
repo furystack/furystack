@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -57,8 +57,8 @@
   "devDependencies": {
     "@types/jest": "^23.3.9",
     "jest": "^23.6.0",
-    "ts-jest": "^23.10.4",
     "rimraf": "^2.6.1",
+    "ts-jest": "^23.10.4",
     "tslint": "^5.11.0",
     "typescript": "^3.1.6"
   },
