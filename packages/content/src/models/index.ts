@@ -1,3 +1,10 @@
+export * from "./INamedEntity";
+export * from "./IPermission";
+export * from "./IPermissionType";
+export * from "./IReference";
+export * from "./IReferenceType";
+export * from "./IRole";
+
 export * from "./IAspect";
 export * from "./IAspectField";
 export * from "./IAspectReference";
@@ -8,9 +15,3 @@ export * from "./IField";
 export * from "./IFieldType";
 export * from "./IJob";
 export * from "./IJobType";
-export * from "./INamedEntity";
-export * from "./IPermission";
-export * from "./IPermissionType";
-export * from "./IReference";
-export * from "./IReferenceType";
-export * from "./IRole";
