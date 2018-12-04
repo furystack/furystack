@@ -20,5 +20,5 @@ module.exports = {
         "node"
     ],
     "collectCoverage": true,
-    "coverageReporters": ["json", "html"],
+    "coverageReporters": ["text", "json", "html"],
 }
