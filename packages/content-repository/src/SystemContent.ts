@@ -1,4 +1,4 @@
-import {Injectable } from "@furystack/inject";
+import { Injectable } from "@furystack/inject";
 import { Role, User } from "./ContentTypes";
 
 @Injectable()
