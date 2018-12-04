@@ -4,7 +4,7 @@ import { IDisposable } from "@sensenet/client-utils";
 import { createConnection, getConnectionManager, getManager } from "typeorm";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import * as Models from "./models";
-import { Content, ContentField, ISavedContent } from "./models";
+import { Content, ContentField, IAspect, ISavedContent } from "./models";
 
 @Injectable()
 export class ElevatedRepository implements IDisposable, IApi {
@@ -20,9 +20,30 @@ export class ElevatedRepository implements IDisposable, IApi {
         return getManager(this.options.connection.name);
     }
 
-    public async ValidateAspect<T>(change: Partial<T>, aspectName: string): Promise<boolean> {
+    public async ValidateAspect<T>(originalEntity: T, change: Partial<T>, aspect: IAspect<T>) {
+        const missing = [];
+        const readonly = [];
+        if (aspect.Fields) {
+            for (const aspectFieldName in aspect.Fields) {
+                if (aspect.Fields.hasOwnProperty(aspectFieldName)) {
+                    const fieldName = aspectFieldName as any as (keyof typeof originalEntity & keyof typeof change);
+                    const aspectField = aspect.Fields[aspectFieldName];
+                    if (aspectField.ReadOnly && originalEntity[fieldName] !== change[fieldName]) {
+                        readonly.push(fieldName);
+                    }
+                    if (aspectField.Required && !originalEntity[fieldName] && !change[fieldName]) {
+                        missing.push(fieldName);
+                    }
+                }
+            }
+        }
+
         /** ToDo: check for missing / required fields or modified / readonly fields */
-        return true;
+        return {
+            missing,
+            readonly,
+            isValid: missing.length + readonly.length ? false : true,
+        };
     }
 
     public async FindContent<T = {}>(data: Partial<T> | string, model: Constructable<T>): Promise<Array<ISavedContent<T>>> {
@@ -34,7 +55,7 @@ export class ElevatedRepository implements IDisposable, IApi {
         const contentTypeName = data.constructor.name;
         return await this.GetManager().transaction(async (tr) => {
             /** */
-            const contentType = await tr.findOneOrFail(this.options.models.ContentType, {where: {Name: contentTypeName}});
+            const contentType = await tr.findOneOrFail(this.options.models.ContentType, { where: { Name: contentTypeName } });
             const c = tr.create(Content, {
                 Type: contentType,
                 ContentTypeRef: contentType,
