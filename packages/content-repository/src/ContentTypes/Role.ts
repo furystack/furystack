@@ -8,13 +8,18 @@ import { Field } from "../Decorators/Field";
     Aspects: {
         Create: {
             Fields:
-            [
-                {FieldName: "Name", Required: true},
-            ],
+                [
+                    { FieldName: "Name", Required: true },
+                ],
         },
         Modify: {
             Fields: [
-                {FieldName: "Name", ReadOnly: true},
+                { FieldName: "Name", ReadOnly: true },
+            ],
+        },
+        List: {
+            Fields: [
+                { FieldName: "Name", ReadOnly: true },
             ],
         },
     },

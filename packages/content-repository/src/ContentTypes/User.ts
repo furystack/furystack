@@ -1,7 +1,7 @@
-import { IRole } from "@furystack/content";
 import { ContentType } from "../Decorators/ContentType";
 import { Field } from "../Decorators/Field";
 import { Reference } from "../Decorators/Reference";
+import { Role } from "./Role";
 
 @ContentType<User>({
     DisplayName: "User",
@@ -10,8 +10,13 @@ import { Reference } from "../Decorators/Reference";
     Aspects: {
         Create: {
             Fields: [
-                {FieldName: "Username", Required: true, ControlHint: "UserName"},
-                {FieldName: "Password", Required: true, ControlHint: "Password"},
+                { FieldName: "Username", Required: true, ControlHint: "UserName" },
+                { FieldName: "Password", Required: true, ControlHint: "Password" },
+            ],
+        },
+        List: {
+            Fields: [
+                { FieldName: "Username", ReadOnly: true },
             ],
         },
     },
@@ -27,7 +32,7 @@ export class User {
     @Reference({
         AllowedTypeNames: ["Role"],
     })
-    public Roles!: IRole[];
+    public Roles!: Role[];
 
     @Field()
     public Password!: string;
