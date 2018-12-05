@@ -11,10 +11,10 @@ export class ContentRepositoryConfiguration {
     public connection: ConnectionOptions = {
         name: "FuryStackContentReposiroty",
         type: "sqlite",
-        // database: ":memory:",
-        database: "./db.sqlite",
+        database: ":memory:",
+        // database: "./db.sqlite",
         synchronize: true,
-        logging: true,
+        // logging: true,
     };
     public models: typeof Models = Models;
 }
