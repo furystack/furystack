@@ -80,4 +80,74 @@ describe("Aspect Manager", () => {
         });
     });
 
+    describe("GetAspect", () => {
+
+        it("Should return undefined when no aspect has been found", () => {
+            const aspect = av.GetAspect({
+                Id: 123,
+                ContentTypeRef: null as any,
+                Fields: [],
+                Type: {
+                    Name: "ContentType",
+                    Aspects: {},
+                },
+            }, "Create");
+            expect(aspect).toBeUndefined();
+        });
+
+        it("Should return a valid aspect", () => {
+            const a = {
+                Fields: [],
+                DisplayName: "Create Aspect",
+            };
+            const aspect = av.GetAspect({
+                Id: 123,
+                ContentTypeRef: null as any,
+                Fields: [],
+                Type: {
+                    Name: "ContentType",
+                    Aspects: {
+                        Create: a,
+                    },
+                },
+            }, "Create");
+            expect(aspect).toEqual(a);
+        });
+    });
+
+    describe("GetAspectOrFaile()", () => {
+        it("Should return an aspect", () => {
+            const a = {
+                Fields: [],
+                DisplayName: "Create Aspect",
+            };
+            const aspect = av.GetAspectOrFail({
+                Id: 123,
+                ContentTypeRef: null as any,
+                Fields: [],
+                Type: {
+                    Name: "ContentType",
+                    Aspects: {
+                        Create: a,
+                    },
+                },
+            }, "Create");
+            expect(aspect).toEqual(a);
+        });
+
+        it("Should throw an error for non-existing aspects", () => {
+            expect(() => {
+                av.GetAspectOrFail({
+                    Id: 123,
+                    ContentTypeRef: null as any,
+                    Fields: [],
+                    Type: {
+                        Name: "ContentType",
+                        Aspects: {},
+                    },
+                }, "Create");
+            }).toThrowError("Aspect 'Create' not found for content type 'ContentType'");
+        });
+    });
+
 });
