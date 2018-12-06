@@ -6,8 +6,8 @@ export class Permission {
     @PrimaryGeneratedColumn()
     public Id!: number;
     @ManyToOne(() => Content)
-    public User!: string;
+    public User!: Content;
     @ManyToOne(() => Content)
-    public Content!: string;
+    public Content!: Content;
     public PermissionType!: string;
 }

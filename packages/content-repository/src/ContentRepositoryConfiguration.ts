@@ -17,4 +17,8 @@ export class ContentRepositoryConfiguration {
         // logging: true,
     };
     public models: typeof Models = Models;
+
+    constructor(options?: Partial<ContentRepositoryConfiguration>) {
+        Object.assign(this, options);
+    }
 }

@@ -8,7 +8,8 @@ export type ILoginUser<T extends IUser> = T & { Password: string };
 
 export interface IIdentityServiceOptions<TUser extends IUser> {
     users: IPhysicalStore<ILoginUser<TUser>>;
-    sessions: IPhysicalStore<{SessionId: string, Username: string}>;
+    sessions: IPhysicalStore<{ SessionId: string, Username: string }>;
+    visitorUser: TUser;
     cookieName: string;
     hashMethod: (plain: string) => string;
     injector: Injector;
@@ -25,7 +26,7 @@ export class IdentityService<TUser extends IUser = IUser> {
         if (match.length === 1) {
             return match[0];
         }
-        return visitorUser as TUser;
+        return this.options.visitorUser as TUser;
     }
 
     private getSessionIdFromRequest(req: IncomingMessage): string | null {
@@ -56,17 +57,17 @@ export class IdentityService<TUser extends IUser = IUser> {
         const sessionId = this.getSessionIdFromRequest(req);
         if (sessionId) {
             const session = await this.options.sessions.get(sessionId);
-            return (session && await this.options.users.get(session.Username as any)) || visitorUser as TUser;
+            return (session && await this.options.users.get(session.Username as any)) || this.options.visitorUser as TUser;
         }
 
-        return visitorUser as TUser;
+        return this.options.visitorUser as TUser;
     }
 
     public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<TUser> {
         const user = await this.authenticateUser(username, password);
-        if (user !== visitorUser) {
+        if (user !== this.options.visitorUser) {
             const sessionId = v1();
-            await this.options.sessions.update(sessionId, {SessionId: sessionId, Username: user.Username});
+            await this.options.sessions.update(sessionId, { SessionId: sessionId, Username: user.Username });
             serverResponse.setHeader("Set-Cookie", `${this.options.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`);
             this.options.injector.GetInstance(LoggerCollection).Information({
                 scope: IdentityService.LogScope,
@@ -84,9 +85,9 @@ export class IdentityService<TUser extends IUser = IUser> {
         try {
             const instance = this.options.injector.GetInstance(service);
             const user = await instance.login(this, ...args);
-            if (user.Username !== visitorUser.Username) {
+            if (user.Username !== this.options.visitorUser.Username) {
                 const sessionId = v1();
-                await this.options.sessions.update(sessionId, {SessionId: sessionId, Username: user.Username});
+                await this.options.sessions.update(sessionId, { SessionId: sessionId, Username: user.Username });
                 serverResponse.setHeader("Set-Cookie", `${this.options.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`);
                 this.options.injector.GetInstance(LoggerCollection).Information({
                     scope: IdentityService.LogScope,
@@ -106,7 +107,7 @@ export class IdentityService<TUser extends IUser = IUser> {
                 data: { error },
             });
         }
-        return visitorUser as TUser;
+        return this.options.visitorUser as TUser;
     }
 
     public async cookieLogout(req: IncomingMessage, serverResponse: ServerResponse) {
@@ -128,10 +129,11 @@ export class IdentityService<TUser extends IUser = IUser> {
 
     public readonly options: IIdentityServiceOptions<TUser> = {
         users: new InMemoryStore<ILoginUser<TUser>>("Username"),
-        sessions: new InMemoryStore<{SessionId: string, Username: string}>("SessionId"),
+        sessions: new InMemoryStore<{ SessionId: string, Username: string }>("SessionId"),
         cookieName: "fss",
         hashMethod: (plain) => sha256().update(plain).digest("hex"),
         injector: Injector.Default,
+        visitorUser: visitorUser as TUser,
     };
 
     constructor(options?: Partial<IdentityService<TUser>["options"]>) {

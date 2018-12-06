@@ -64,7 +64,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
 
     it("Action can be executed", (done) => {
         usingAsync(new Injector({ parent: undefined, owner: "Test" }), async (i) => {
-
             @Injectable()
             class ExampleAction implements IRequestAction {
                 public async exec() {
@@ -90,8 +89,8 @@ export const httpApiTests = describe("HttpApi tests", () => {
                 actions: [() => ExampleAction],
                 serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
             }));
-            i.SetInstance({}, IncomingMessage);
-            i.SetInstance({}, ServerResponse);
+            i.SetInstance({ headers: {} }, IncomingMessage);
+            i.SetInstance({ writeHead: () => (null), end: () => (null) }, ServerResponse);
             i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {

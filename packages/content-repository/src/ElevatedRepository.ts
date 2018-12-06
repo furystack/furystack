@@ -1,4 +1,4 @@
-import { IApi, LoggerCollection } from "@furystack/core";
+import { IApi, IPhysicalStore, LoggerCollection } from "@furystack/core";
 import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Brackets, createConnection, getConnectionManager, getManager, In } from "typeorm";
@@ -117,6 +117,19 @@ export class ElevatedRepository implements IDisposable, IApi {
         }
     }
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
+
+    public GetPhysicalStoreForType = <TM extends ISavedContent<any>>(type: Constructable<TM>) => ({
+        primaryKey: "Id",
+        logger: this.logger,
+        add: (data) => this.Create(type, data),
+        count: undefined as any,
+        dispose: () => (undefined) as any,
+        // todo: implement this
+        update: (_id, _change) => (undefined) as any,
+        get: async (key) => (await this.Load(type, [key], DefaultAspects.List))[0],
+        remove: () => (undefined) as any,
+        filter: (data) => this.Find(data, type),
+    } as IPhysicalStore<TM>)
 
     constructor(
         public readonly options: ContentRepositoryConfiguration,

@@ -8,10 +8,10 @@ export class Injector implements IDisposable {
         const disposeRequests = singletons
             .filter((s) => s !== this)
             .map(async (s) => {
-            if (s.dispose) {
-                await s.dispose();
-            }
-        });
+                if (s.dispose) {
+                    await s.dispose();
+                }
+            });
         await Promise.all(disposeRequests);
     }
 
@@ -36,7 +36,7 @@ export class Injector implements IDisposable {
         if (fromParent) {
             return fromParent;
         }
-        const deps = (Injector.Default.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, local, [...dependencies, ctor]));
+        const deps = (Injector.Default.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, false, [...dependencies, ctor]));
         const newInstance = new ctor(...deps);
         this.SetInstance(newInstance);
         return newInstance;

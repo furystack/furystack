@@ -2,7 +2,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "examples/*"
     ],
     "nohoist": []
   },
@@ -19,5 +20,6 @@
     "build": "lerna run build --stream",
     "clean:packages": "lerna clean",
     "test": "jest"
-  }
+  },
+  "name": "furystack"
 }

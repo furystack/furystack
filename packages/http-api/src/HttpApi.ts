@@ -17,7 +17,8 @@ export class HttpApi implements IApi {
             injector.SetInstance(incomingMessage);
             injector.SetInstance(serverResponse);
             injector.SetInstance(injector);
-            this.utils.addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse);
+            injector.SetInstance(new Utils(incomingMessage, serverResponse));
+            injector.GetInstance(Utils).addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse);
             const actionCtors = this.options.actions.map((a) => a(incomingMessage)).filter((a) => a !== undefined) as Array<Constructable<IRequestAction>>;
             if (actionCtors.length > 1) {
                 this.logger.Error({
@@ -71,7 +72,6 @@ export class HttpApi implements IApi {
         parentInjector: Injector,
         private readonly options: HttpApiConfiguration,
         private readonly logger: LoggerCollection,
-        private readonly utils: Utils,
     ) {
         this.injector = new Injector({ parent: parentInjector });
     }
