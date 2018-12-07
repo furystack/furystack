@@ -19,31 +19,24 @@
   "references": [
     {
       "path": "./packages/content",
-      "prepend": true,
     },
     {
       "path": "./packages/content-repository",
-      "prepend": true,
     },
     {
       "path": "./packages/core",
-      "prepend": true,
     },
     {
       "path": "./packages/http-api",
-      "prepend": true,
     },
     {
       "path": "./packages/inject",
-      "prepend": true,
     },
     {
       "path": "./packages/websocket-api",
-      "prepend": true,
     },
     {
       "path": "./examples/repository"
     },
-
   ]
 }
