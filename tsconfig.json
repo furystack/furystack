@@ -13,26 +13,37 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": false,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "declarationMap": true
   },
   "references": [
     {
-      "path": "./packages/content"
+      "path": "./packages/content",
+      "prepend": true,
     },
     {
-      "path": "./packages/content-repository"
+      "path": "./packages/content-repository",
+      "prepend": true,
     },
     {
-      "path": "./packages/core"
+      "path": "./packages/core",
+      "prepend": true,
     },
     {
-      "path": "./packages/http-api"
+      "path": "./packages/http-api",
+      "prepend": true,
     },
     {
-      "path": "./packages/inject"
+      "path": "./packages/inject",
+      "prepend": true,
     },
     {
-      "path": "./packages/websocket-api"
+      "path": "./packages/websocket-api",
+      "prepend": true,
     },
+    {
+      "path": "./examples/repository"
+    },
+
   ]
 }

@@ -11,7 +11,7 @@
     "precommit": "npm run test",
     "commit": "git-cz",
     "test": "jest",
-    "prebuild": "tslint --project tsconfig.json",
+    "lint": "tslint --project tsconfig.json",
     "clean": "rimraf dist && rimraf coverage",
     "build": "tsc -b",
     "prepublishOnly": "npm run build",
