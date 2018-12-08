@@ -32,7 +32,7 @@ export class HttpApi implements IApi {
             }
             if (actionCtors.length === 1) {
                 try {
-                    this.options.PerRequestServices.map((s) => injector.SetInstance(s));
+                    this.options.PerRequestServices.map((s) => injector.GetInstance(s, true));
                     const actionCtor = actionCtors[0];
                     await usingAsync(injector.GetInstance(actionCtor, true), async (action) => {
                         await action.exec();

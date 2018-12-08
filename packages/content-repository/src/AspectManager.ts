@@ -16,14 +16,25 @@ export class AspectManager {
         return asp;
     }
 
-    public TransformPlainContent<T>(content: Content, aspect: IAspect<T>) {
+    public async TransformPlainContent<T>(options: {content: Content, aspect: IAspect<T>, loadRef: (ids: number[]) => Promise<Array<ISavedContent<{}>>>}) {
         const createdObject: ISavedContent<T> = {
-            Id: content.Id,
+            ...JSON.parse(JSON.stringify(options.content)),
         } as ISavedContent<T>;
 
-        for (const field of Object.values(aspect.Fields || [])) {
-            const contentField = content.Fields.find((f) => f.Name === field.FieldName);
-            createdObject[field.FieldName as keyof T] = contentField && contentField.Value as any;
+        for (const field of Object.values(options.aspect.Fields || [])) {
+            const contentField = options.content.Fields.find((f) => f.Name === field.FieldName);
+            const contentFieldType = options.content.Type.Fields && options.content.Type.Fields[field.FieldName as any];
+            if (contentField && contentFieldType && contentField.Value) {
+                if (contentFieldType.Type === "Value") {
+                    createdObject[field.FieldName as keyof T] = contentField.Value as any;
+                } else if (contentFieldType.Type === "Reference") {
+                    const id = JSON.parse(contentField.Value) as number;
+                    createdObject[field.FieldName as keyof T] = (await options.loadRef([id])) as any;
+                } else if (contentFieldType.Type === "ReferenceList") {
+                    const ids = JSON.parse(contentField.Value) as number[];
+                    createdObject[field.FieldName as keyof T] = (await options.loadRef(ids)) as any;
+                }
+            }
         }
         return createdObject;
     }

@@ -22,6 +22,18 @@ import { Field } from "../Decorators/Field";
                 { FieldName: "Name", ReadOnly: true },
             ],
         },
+        Expanded: {
+            Fields: [
+                {FieldName: "DisplayName"},
+            ],
+        },
+        Details: {
+            Fields: [
+                {FieldName: "Name", ReadOnly: true},
+                {FieldName: "DisplayName", ReadOnly: true},
+                {FieldName: "Description", ReadOnly: true},
+            ],
+        },
     },
 })
 export class Role implements IRole {

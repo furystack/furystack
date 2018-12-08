@@ -19,6 +19,19 @@ import { Role } from "./Role";
                 { FieldName: "Username", ReadOnly: true },
             ],
         },
+        Expanded: {
+            Fields: [
+                {FieldName: "Username"},
+            ],
+        },
+        Details: {
+            Fields: [
+                {FieldName: "Username", ReadOnly: true},
+                {FieldName: "Roles", ReadOnly: true},
+                {FieldName: "Password", ReadOnly: true},
+
+            ],
+        },
     },
 })
 export class User {
@@ -31,6 +44,7 @@ export class User {
     public Username!: string;
     @Reference({
         AllowedTypeNames: ["Role"],
+        AllowMultiple: true,
     })
     public Roles!: Role[];
 

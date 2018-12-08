@@ -1,10 +1,11 @@
 import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
 import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
-import { GetCurrentUser, HttpApi, HttpApiConfiguration, IdentityService, NotFoundAction } from "@furystack/http-api";
+import { HttpApi, HttpApiConfiguration, IdentityService, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { createServer } from "https";
 import { CertificateManager } from "./CertificateManager";
+import { GetContent } from "./GetContentAction";
 
 Injector.Default.SetInstance(new ContentRepositoryConfiguration({
     connection: {
@@ -25,7 +26,7 @@ Injector.Default.SetInstance(new HttpApiConfiguration({
     },
     defaultAction: NotFoundAction,
     actions: [
-        () => GetCurrentUser,
+        () => GetContent,
     ],
     serverFactory: (listener) => createServer(Injector.Default.GetInstance(CertificateManager).getCredentials(), (req: IncomingMessage, resp: ServerResponse) => listener(req, resp)),
 }));

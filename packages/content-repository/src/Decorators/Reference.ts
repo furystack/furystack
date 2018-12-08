@@ -9,12 +9,13 @@ export const getDefaultFieldDecoratorOptions = () => ({
     Injector: Injector.Default,
     AllowMultiple: false,
     AllowedTypeNames: [],
+    Type: "Reference",
 } as ReferenceDecoratorOptions);
 
 export const Reference = (options?: Partial<ReferenceDecoratorOptions>) => {
     return (target: any, propertyKey: string) => {
         const defaultOptions = getDefaultFieldDecoratorOptions();
-        const mergedOptions = { ...defaultOptions, ...options };
+        const mergedOptions: ReferenceDecoratorOptions = { ...defaultOptions, ...options, Type: (options && options.AllowMultiple) ? "ReferenceList" : "Reference" };
         const store = mergedOptions.Injector.GetInstance(ContentDescriptorStore);
         let contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor);
         if (!contentTypeDescriptor) {

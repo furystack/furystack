@@ -3,4 +3,5 @@ export enum DefaultAspects {
     List = "List",
     Details = "Details",
     Autocomplete = "Autocomplete",
+    Expanded = "Expanded",
 }

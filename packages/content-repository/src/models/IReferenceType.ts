@@ -5,4 +5,5 @@ export interface IReferenceType {
     Category?: string;
     AllowMultiple?: boolean;
     AllowedTypeNames?: string[];
+    Type: "Reference" | "ReferenceList";
 }

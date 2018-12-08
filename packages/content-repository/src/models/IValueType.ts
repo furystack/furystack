@@ -3,4 +3,5 @@ export interface IValueType {
     Description?: string;
     DefaultValue?: string;
     Unique?: boolean;
+    Type: "Value";
 }

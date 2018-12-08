@@ -22,23 +22,30 @@ export class ElevatedRepository implements IDisposable, IApi {
         return getManager(this.options.connection.name);
     }
 
-    public async Find<T>(data: Partial<T>, model?: Constructable<T>, aspectName: string = DefaultAspects.List): Promise<Array<ISavedContent<T>>> {
-        /** ToDo: find content of a type with a specified field set or term */
+    public async Find<T>(options: {data: Partial<T>, contentType?: Constructable<T>, aspectName: string, top?: number, skip?: number}): Promise<Array<ISavedContent<T>>> {
         let query = this.GetManager()
             .createQueryBuilder(ContentField, "ContentField")
             .where(new Brackets((qb) => {
-                for (const key of Object.keys(data)) {
+                for (const key of Object.keys(options.data)) {
                     qb = qb.where(new Brackets((fieldBracket) =>
                         fieldBracket.where("ContentField.Name = :name", { name: key })
-                            .andWhere("ContentField.Value = :value", { value: (data as any)[key] as string })));
+                            .andWhere("ContentField.Value = :value", { value: (options.data as any)[key] as string })));
                 }
                 return qb;
             }));
 
-        if (model) {
+        if (options.contentType) {
             query = query.innerJoinAndSelect("ContentField.Content", "Content")
                 .innerJoin("Content.ContentTypeRef", "contentType")
-                .andWhere("contentType.name = :contentTypeName", { contentTypeName: model.name });
+                .andWhere("contentType.name = :contentTypeName", { contentTypeName: options.contentType.name });
+        }
+
+        if (options.top) {
+            query = query.take(options.top);
+        }
+
+        if (options.skip) {
+            query = query.skip(options.skip);
         }
 
         const result = await query.groupBy("contentId")
@@ -52,11 +59,15 @@ export class ElevatedRepository implements IDisposable, IApi {
             loadEagerRelations: true,
         });
 
-        return loadedContents.map((c) => this.aspectManager.TransformPlainContent(c, this.aspectManager.GetAspectOrFail(c, aspectName)) as any as ISavedContent<T>);
+        return await Promise.all(loadedContents.map(async (c) => this.aspectManager.TransformPlainContent({
+            content: c,
+            aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
+            loadRef: (ids) => this.Load({ids, aspectName: DefaultAspects.Expanded}),
+        }) as any as ISavedContent<T>));
     }
 
-    public async Create<T>(model: Constructable<T>, data: T): Promise<ISavedContent<T>> {
-        const contentTypeName = model.name;
+    public async Create<T>(options: {contentType: Constructable<T>, data: T}): Promise<ISavedContent<T>> {
+        const contentTypeName = options.contentType.name;
         return await this.GetManager().transaction(async (tr) => {
             /** */
             const contentType = await tr.findOneOrFail(this.options.models.ContentType, { where: { Name: contentTypeName } });
@@ -66,29 +77,49 @@ export class ElevatedRepository implements IDisposable, IApi {
             });
 
             const savedContent = await tr.save(c);
-            const fields = Object.keys(data).map((field) => (tr.create(ContentField, {
-                Name: field,
-                Value: (data as any)[field],
-                Content: savedContent,
-            }) as ContentField));
+            const fields = Object.keys(options.data).map((field) => {
+                const fieldDef = contentType.Fields && contentType.Fields[field as keyof typeof contentType["Fields"]];
+                if (fieldDef && fieldDef.Type !== "Value") {
+                    if (fieldDef.Type === "Reference") {
+                        /** ToDo: load ref if needed */
+                        const fieldValue = (options.data as any)[field] as ISavedContent<{}>;
+                        (options.data as any)[field] = JSON.stringify(fieldValue.Id);
+                    }
+                    if (fieldDef.Type === "ReferenceList") {
+                        const fieldValue = (options.data as any)[field] as Array<ISavedContent<{}>>;
+                        (options.data as any)[field] = JSON.stringify(fieldValue.map((f) => f.Id));
+                    }
+                }
+                return (tr.create(ContentField, {
+                    Name: field,
+                    Value: (options.data as any)[field],
+                    Content: savedContent,
+                }) as ContentField);
+            });
             const savedFields = await tr.save(fields);
             await tr.createQueryBuilder()
                 .relation(Content, "Fields")
                 .of(savedContent)
                 .add(savedFields);
-            return Object.assign(data, savedContent);
+            const reloaded = await this.Load<T>({contentType: options.contentType, ids: [savedContent.Id], aspectName: DefaultAspects.Details});
+            return reloaded[0];
         });
     }
 
-    public async Load<T>(model: Constructable<T>, ids: number[], aspectName: string): Promise<T[]> {
+    public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string}): Promise<Array<ISavedContent<T>>> {
         const content = await this.GetManager()
             .find(Content, {
                 where: {
-                    Id: In(ids),
-                    ContentTypeRef: model.name,
+                    Id: In(options.ids),
                 },
+                loadEagerRelations: true,
             });
-        return content.map((c) => this.aspectManager.TransformPlainContent<T>(c, this.aspectManager.GetAspectOrFail(c, aspectName)));
+        return await Promise.all(content.map(async (c) =>
+            this.aspectManager.TransformPlainContent<T>({
+                content: c,
+                aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
+                loadRef: (ids) => this.Load({ids, aspectName: DefaultAspects.Expanded}),
+            })));
     }
 
     private async initConnection() {
@@ -118,17 +149,18 @@ export class ElevatedRepository implements IDisposable, IApi {
     }
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
 
-    public GetPhysicalStoreForType = <TM extends ISavedContent<any>>(type: Constructable<TM>) => ({
+    public GetPhysicalStoreForType = <TM extends ISavedContent<any>>(contentType: Constructable<TM>) => ({
         primaryKey: "Id",
         logger: this.logger,
-        add: (data) => this.Create(type, data),
-        count: undefined as any,
+        add: (data) => this.Create({contentType, data}),
+        count: () => this.GetManager().count(contentType),
         dispose: () => (undefined) as any,
         // todo: implement this
         update: (_id, _change) => (undefined) as any,
-        get: async (key) => (await this.Load(type, [key], DefaultAspects.List))[0],
+        get: async (key) => (await this.Load({contentType, ids: [key], aspectName: DefaultAspects.List}))[0],
+        // todo: implement this
         remove: () => (undefined) as any,
-        filter: (data) => this.Find(data, type),
+        filter: (data, aspectName= DefaultAspects.List) => this.Find({data, contentType, aspectName}),
     } as IPhysicalStore<TM>)
 
     constructor(

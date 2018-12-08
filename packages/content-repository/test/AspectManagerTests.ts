@@ -54,11 +54,20 @@ describe("Aspect Manager", () => {
     });
 
     describe("TransformPlainContent", () => {
-        it("Should transform plain object to the defined value", () => {
-            const transformed = av.TransformPlainContent<{ UserName: string }>({
+        it("Should transform plain object to the defined value", async () => {
+            const transformed = await av.TransformPlainContent<{ UserName: string }>({
+                content: {
                 Id: 123,
-                Type: undefined as any,
+                Type: {
+                    Fields: {
+                        UserName: {
+                            Type: "Value",
+                        },
+                    },
+                } as any,
                 ContentTypeRef: undefined as any,
+                CreationDate: new Date(),
+                ModificationDate: new Date(),
                 Fields: [
                     {
                         Id: 123,
@@ -67,7 +76,8 @@ describe("Aspect Manager", () => {
                         Content: undefined as any,
                     },
                 ],
-            }, {
+            },
+            aspect: {
                     Fields: {
                         0: {
                             ReadOnly: false,
@@ -75,8 +85,13 @@ describe("Aspect Manager", () => {
                             FieldName: "UserName",
                         },
                     },
-                });
-            expect(transformed).toEqual({ Id: 123, UserName: "Béla" });
+                },
+                loadRef: () => Promise.resolve({Id: 1}) as any,
+            });
+            const expectedValue = { Id: 123, UserName: "Béla" };
+            for (const key of Object.keys(expectedValue)) {
+                expect(transformed[key as keyof typeof transformed]).toEqual(expectedValue[key as keyof typeof expectedValue]);
+            }
         });
     });
 
@@ -87,6 +102,8 @@ describe("Aspect Manager", () => {
                 Id: 123,
                 ContentTypeRef: null as any,
                 Fields: [],
+                CreationDate: new Date(),
+                ModificationDate: new Date(),
                 Type: {
                     Name: "ContentType",
                     Aspects: {},
@@ -104,6 +121,8 @@ describe("Aspect Manager", () => {
                 Id: 123,
                 ContentTypeRef: null as any,
                 Fields: [],
+                CreationDate: new Date(),
+                ModificationDate: new Date(),
                 Type: {
                     Name: "ContentType",
                     Aspects: {
@@ -125,6 +144,8 @@ describe("Aspect Manager", () => {
                 Id: 123,
                 ContentTypeRef: null as any,
                 Fields: [],
+                CreationDate: new Date(),
+                ModificationDate: new Date(),
                 Type: {
                     Name: "ContentType",
                     Aspects: {
@@ -141,6 +162,8 @@ describe("Aspect Manager", () => {
                     Id: 123,
                     ContentTypeRef: null as any,
                     Fields: [],
+                    CreationDate: new Date(),
+                    ModificationDate: new Date(),
                     Type: {
                         Name: "ContentType",
                         Aspects: {},

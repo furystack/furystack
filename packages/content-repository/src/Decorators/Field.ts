@@ -8,6 +8,7 @@ type decoratorOptins = IValueType & {Injector: Injector};
 
 export const defaultFieldDecoratorOptions: decoratorOptins = {
     Injector: Injector.Default,
+    Type: "Value",
 };
 
 export const Field = (options?: Partial<decoratorOptins>) => {
