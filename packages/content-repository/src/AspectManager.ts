@@ -17,8 +17,9 @@ export class AspectManager {
     }
 
     public async TransformPlainContent<T>(options: {content: Content, aspect: IAspect<T>, loadRef: (ids: number[]) => Promise<Array<ISavedContent<{}>>>}) {
+        const {Fields, ...content} = {...options.content};
         const createdObject: ISavedContent<T> = {
-            ...JSON.parse(JSON.stringify(options.content)),
+            ...JSON.parse(JSON.stringify(content)),
         } as ISavedContent<T>;
 
         for (const field of Object.values(options.aspect.Fields || [])) {

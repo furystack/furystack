@@ -114,11 +114,12 @@ export class ElevatedRepository implements IDisposable, IApi {
                 },
                 loadEagerRelations: true,
             });
+
         return await Promise.all(content.map(async (c) =>
             this.aspectManager.TransformPlainContent<T>({
                 content: c,
                 aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
-                loadRef: (ids) => this.Load({ids, aspectName: DefaultAspects.Expanded}),
+                loadRef: async (ids) => await this.Load({ids, aspectName: DefaultAspects.Expanded}),
             })));
     }
 
