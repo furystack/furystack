@@ -38,13 +38,13 @@ export class HttpApi implements IApi {
                         await action.exec();
                     });
                 } catch (error) {
-                    await usingAsync(injector.GetInstance(this.options.errorAction), async (e) => {
+                    await usingAsync(injector.GetInstance(this.options.errorAction, true), async (e) => {
                         await e.returnError(error);
                     });
                 }
 
             } else {
-                await usingAsync(injector.GetInstance(this.options.notFoundAction), async (a) => {
+                await usingAsync(injector.GetInstance(this.options.notFoundAction, true), async (a) => {
                     a.exec();
                 });
             }
