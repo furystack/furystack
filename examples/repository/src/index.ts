@@ -1,11 +1,13 @@
 import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
 import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
-import { HttpApi, HttpApiConfiguration, IdentityService, NotFoundAction } from "@furystack/http-api";
+import { GetCurrentUser, HttpApi, HttpApiConfiguration, IdentityService, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { createServer } from "https";
+import { parse } from "url";
+import { ContentAction } from "./Actions/ContentAction";
+import { FindContent } from "./Actions/FindContentAction";
 import { CertificateManager } from "./CertificateManager";
-import { GetContent } from "./GetContentAction";
 
 Injector.Default.SetInstance(new ContentRepositoryConfiguration({
     connection: {
@@ -26,7 +28,17 @@ Injector.Default.SetInstance(new HttpApiConfiguration({
     },
     defaultAction: NotFoundAction,
     actions: [
-        () => GetContent,
+        (msg) => {
+            const urlPathName = parse(msg.url || "", true).pathname;
+            switch (urlPathName) {
+                case "/content": return ContentAction;
+                case "/find": return FindContent;
+                case "/currentUser": return GetCurrentUser;
+            }
+            return undefined;
+        },
+        // (msg) => (parse(msg.url || "", true).pathname === "/findContent") ? FindContent : undefined,
+
     ],
     serverFactory: (listener) => createServer(Injector.Default.GetInstance(CertificateManager).getCredentials(), (req: IncomingMessage, resp: ServerResponse) => listener(req, resp)),
 }));

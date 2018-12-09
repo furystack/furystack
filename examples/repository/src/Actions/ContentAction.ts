@@ -1,13 +1,14 @@
 import { ElevatedRepository } from "@furystack/content-repository";
+import { IRequestAction } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { parse } from "url";
-import { IRequestAction } from "../../../packages/http-api/dist";
 
 @Injectable()
-export class GetContent implements IRequestAction {
+export class ContentAction implements IRequestAction {
     public dispose() { /**  */}
-    public async exec(): Promise<void> {
+
+    private async getContent() {
         const parsedUrl = parse(this.incomingMessage.url as string, true);
         const contentId = parseInt(parsedUrl.query.contentId as string, 10);
         const aspectName = parsedUrl.query.aspectName as string;
@@ -19,6 +20,18 @@ export class GetContent implements IRequestAction {
             "Content-Type": "application/json",
         });
         this.serverResponse.end(JSON.stringify(content[0]));
+
+    }
+
+    public async exec(): Promise<void> {
+        switch (this.incomingMessage.method) {
+            case "GET": {
+                return this.getContent();
+            }
+            default: {
+                throw Error(`Method '${this.incomingMessage.method}' not supported for this action`);
+            }
+        }
     }
     /**
      *

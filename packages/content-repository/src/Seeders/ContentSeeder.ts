@@ -1,3 +1,4 @@
+import { IdentityService } from "@furystack/http-api";
 import { Constructable, Injectable } from "@furystack/inject";
 import { Role, User } from "../ContentTypes";
 import { ElevatedRepository } from "../ElevatedRepository";
@@ -9,7 +10,9 @@ export class ContentSeeder {
     /**
      *
      */
-    constructor(public readonly repository: ElevatedRepository, public systemContent: SystemContent) {
+    constructor(private readonly repository: ElevatedRepository,
+                private readonly systemContent: SystemContent,
+                private readonly identityService: IdentityService) {
 
     }
 
@@ -44,12 +47,12 @@ export class ContentSeeder {
 
         this.systemContent.VisitorUser = await this.EnsureContentExists(User, { Username: "Visitor" }, {
             Username: "Visitor",
-            Password: "",
+            Password: this.identityService.options.hashMethod("Visitor"),
             Roles: [this.systemContent.VisitorRole],
         });
         this.systemContent.AdminUser = await this.EnsureContentExists(User, { Username: "Administrator" }, {
             Username: "Administrator",
-            Password: "",
+            Password: this.identityService.options.hashMethod("admin"),
             Roles: [this.systemContent.AuthenticatedRole, this.systemContent.AdminRole],
         });
     }

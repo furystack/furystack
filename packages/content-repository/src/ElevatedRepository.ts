@@ -32,12 +32,13 @@ export class ElevatedRepository implements IDisposable, IApi {
                             .andWhere("ContentField.Value = :value", { value: (options.data as any)[key] as string })));
                 }
                 return qb;
-            }));
+            }))
+            .innerJoinAndSelect("ContentField.Content", "Content");
 
         if (options.contentType) {
-            query = query.innerJoinAndSelect("ContentField.Content", "Content")
-                .innerJoin("Content.ContentTypeRef", "contentType")
-                .andWhere("contentType.name = :contentTypeName", { contentTypeName: options.contentType.name });
+            query = query
+            .innerJoin("Content.ContentTypeRef", "contentType")
+            .andWhere("contentType.name = :contentTypeName", { contentTypeName: options.contentType.name });
         }
 
         if (options.top) {
@@ -51,7 +52,7 @@ export class ElevatedRepository implements IDisposable, IApi {
         const result = await query.groupBy("contentId")
             .getMany();
 
-        const contentIds = result.map((c) => c.Content.Id);
+        const contentIds = result.filter((c) => c.Content && c.Content.Id).map((c) => c.Content.Id);
         const loadedContents = await this.GetManager().find(Content, {
             where: {
                 Id: In(contentIds),
@@ -157,10 +158,10 @@ export class ElevatedRepository implements IDisposable, IApi {
         count: () => this.GetManager().count(contentType),
         dispose: () => (undefined) as any,
         // todo: implement this
-        update: (_id, _change) => (undefined) as any,
+        update: (_id, _change) => { throw Error("Method not implemented"); },
         get: async (key) => (await this.Load({contentType, ids: [key], aspectName: DefaultAspects.List}))[0],
         // todo: implement this
-        remove: () => (undefined) as any,
+        remove: async () => { throw Error("Method not implemented"); },
         filter: (data, aspectName= DefaultAspects.List) => this.Find({data, contentType, aspectName}),
     } as IPhysicalStore<TM>)
 
