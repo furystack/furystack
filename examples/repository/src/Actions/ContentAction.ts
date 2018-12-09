@@ -38,11 +38,12 @@ export class ContentAction implements IRequestAction {
     }
 
     private async patchContent() {
-        const payload = await this.utils.readPostBody<ISavedContent<{}>>(this.incomingMessage);
-        const {Id, ContentTypeRef, CreationDate, ModificationDate, Type, Fields, ...data} = payload;
+        const payload = await this.utils.readPostBody<ISavedContent<{aspectName: string}>>(this.incomingMessage);
+        const {Id, ContentTypeRef, CreationDate, ModificationDate, Type, Fields, aspectName, ...data} = payload;
         const content = await this.elevatedRepository.Update({
             id: Id,
             change: data,
+            aspectName,
         });
         this.serverResponse.writeHead(200, {
             "Content-Type": "application/json",

@@ -159,11 +159,7 @@ export class ElevatedRepository implements IDisposable, IApi {
     public async Update<T>(options: {id: number, change: Partial<T>, aspectName?: string}): Promise<ISavedContent<T>> {
         return await this.GetManager().transaction(async (tm) => {
             const aspectName = options.aspectName || DefaultAspects.Details;
-            const [existingContent] = await this.Load({
-                aspectName,
-                ids: [options.id],
-                manager: tm,
-            });
+            const existingContent = await tm.findOne(Content, options.id);
             if (!existingContent) {
                 throw Error(`Content not found with id '${options.id}'`);
             }
@@ -176,7 +172,7 @@ export class ElevatedRepository implements IDisposable, IApi {
             for (const field of existingContent.Fields) {
                 const changeValue = options.change[field.Name as keyof T];
                 if (changeValue !== field.Value) {
-                    field.Value = changeValue.toString();
+                    field.Value = changeValue && changeValue.toString && changeValue.toString() || null as any;
                     await tm.save(field);
                 }
             }
