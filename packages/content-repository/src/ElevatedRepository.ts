@@ -1,7 +1,7 @@
 import { IApi, IPhysicalStore, LoggerCollection } from "@furystack/core";
 import { Constructable, Injectable } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
-import { Brackets, createConnection, getConnectionManager, getManager, In } from "typeorm";
+import { Brackets, createConnection, EntityManager, getConnectionManager, getManager, In } from "typeorm";
 import { AspectManager } from "./AspectManager";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
 import { DefaultAspects } from "./DefaultAspects";
@@ -107,8 +107,8 @@ export class ElevatedRepository implements IDisposable, IApi {
         });
     }
 
-    public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string}): Promise<Array<ISavedContent<T>>> {
-        const content = await this.GetManager()
+    public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string, manager?: EntityManager}): Promise<Array<ISavedContent<T>>> {
+        const content = await (options.manager || this.GetManager())
             .find(Content, {
                 where: {
                     Id: In(options.ids),
@@ -151,17 +151,52 @@ export class ElevatedRepository implements IDisposable, IApi {
     }
     public readonly LogScope = "@furystack/content-repository/ContentRepository";
 
+    public async Remove(..._ids: number[]): Promise<void> {
+        // todo: implement this (logicalDelete?)
+        throw Error("Method 'Remove' is not implemented");
+    }
+
+    public async Update<T>(options: {id: number, change: Partial<T>, aspectName?: string}): Promise<ISavedContent<T>> {
+        return await this.GetManager().transaction(async (tm) => {
+            const aspectName = options.aspectName || DefaultAspects.Details;
+            const [existingContent] = await this.Load({
+                aspectName,
+                ids: [options.id],
+                manager: tm,
+            });
+            if (!existingContent) {
+                throw Error(`Content not found with id '${options.id}'`);
+            }
+            const aspect = this.aspectManager.GetAspectOrFail(existingContent, aspectName);
+            const validationResult = this.aspectManager.Validate(existingContent, options.change, aspect);
+            if (!validationResult.isValid) {
+                throw Error(`Content update is not valid. Details: ${JSON.stringify(validationResult)}`);
+            }
+            /** todo: implement update logics */
+            for (const field of existingContent.Fields) {
+                const changeValue = options.change[field.Name as keyof T];
+                if (changeValue !== field.Value) {
+                    field.Value = changeValue.toString();
+                    await tm.save(field);
+                }
+            }
+            return (await this.Load({
+                ids: [existingContent.Id],
+                aspectName: DefaultAspects.Details,
+            }))[0] as ISavedContent<T>;
+        });
+
+    }
+
     public GetPhysicalStoreForType = <TM extends ISavedContent<any>>(contentType: Constructable<TM>) => ({
         primaryKey: "Id",
         logger: this.logger,
         add: (data) => this.Create({contentType, data}),
         count: () => this.GetManager().count(contentType),
         dispose: () => (undefined) as any,
-        // todo: implement this
-        update: (_id, _change) => { throw Error("Method not implemented"); },
+        update: async (id, change) => { await this.Update({id, change}); },
         get: async (key) => (await this.Load({contentType, ids: [key], aspectName: DefaultAspects.List}))[0],
-        // todo: implement this
-        remove: async () => { throw Error("Method not implemented"); },
+        remove: async (id) => await this.Remove(id),
         filter: (data, aspectName= DefaultAspects.List) => this.Find({data, contentType, aspectName}),
     } as IPhysicalStore<TM>)
 
