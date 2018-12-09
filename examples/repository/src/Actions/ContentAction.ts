@@ -1,5 +1,5 @@
-import { ElevatedRepository } from "@furystack/content-repository";
-import { IRequestAction } from "@furystack/http-api";
+import { ContentDescriptorStore, ElevatedRepository } from "@furystack/content-repository";
+import { IRequestAction, Utils } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { parse } from "url";
@@ -20,13 +20,29 @@ export class ContentAction implements IRequestAction {
             "Content-Type": "application/json",
         });
         this.serverResponse.end(JSON.stringify(content[0]));
+    }
 
+    private async postContent() {
+        const payload = await this.utils.readPostBody<{Type: string & {}}>(this.incomingMessage);
+        const {Type, ...data} = payload;
+        const contentType = this.store.getByName(Type) ;
+        const content = await this.elevatedRepository.Create({
+            contentType,
+            data,
+        });
+        this.serverResponse.writeHead(200, {
+            "Content-Type": "application/json",
+        });
+        this.serverResponse.end(JSON.stringify(content));
     }
 
     public async exec(): Promise<void> {
         switch (this.incomingMessage.method) {
             case "GET": {
                 return this.getContent();
+            }
+            case "POST": {
+                return this.postContent();
             }
             default: {
                 throw Error(`Method '${this.incomingMessage.method}' not supported for this action`);
@@ -36,7 +52,12 @@ export class ContentAction implements IRequestAction {
     /**
      *
      */
-    constructor(private serverResponse: ServerResponse, private incomingMessage: IncomingMessage, private elevatedRepository: ElevatedRepository) {
+    constructor(private serverResponse: ServerResponse,
+                private incomingMessage: IncomingMessage,
+                private utils: Utils,
+                private elevatedRepository: ElevatedRepository,
+                private store: ContentDescriptorStore,
+                ) {
 
     }
 }
