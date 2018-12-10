@@ -47,11 +47,20 @@ export class AspectManager {
             for (const aspectField of Object.values(aspect.Fields)) {
                 const fieldName = aspectField.FieldName as any as (keyof typeof originalEntity["Fields"] & keyof typeof change);
                 const field = originalEntity.Fields && Object.values(originalEntity.Fields).find((f) => f.Name === fieldName);
+                // Try to update a read-only field
                 if (aspectField.ReadOnly && field && field.Value !== change[fieldName]) {
                     readonly.push(fieldName);
                 }
-                if (aspectField.Required && !field && !change[fieldName] || change[fieldName] === null) {
-                    missing.push(fieldName);
+                if (aspectField.Required) {
+                    if (
+                        // not defined in the original entity AND in the change
+                        (field && !field.Value && !change[fieldName])
+                        ||
+                        // explicitly try to override with null
+                        (change[fieldName] === null)
+                        ) {
+                        missing.push(fieldName);
+                    }
                 }
             }
         }

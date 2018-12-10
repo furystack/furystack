@@ -1,5 +1,5 @@
 import { AspectManager } from "../src/AspectManager";
-import { IAspect } from "../src/models";
+import { Content, IAspect } from "../src/models";
 
 describe("Aspect Manager", () => {
     const av = new AspectManager();
@@ -7,42 +7,55 @@ describe("Aspect Manager", () => {
     describe("Validate", () => {
         it("Should return true for empty fields", () => {
             /**/
-            const result = av.Validate({ a: 1 }, {}, {
+            const result = av.Validate<{a: string}>({ Fields: [
+                {Name: "a", Value: "1"},
+            ]} as Content, {}, {
             });
             expect(result.isValid).toBeTruthy();
         });
 
         it("Should return true for valid aspects", () => {
             /**/
-            const result = av.Validate({ a: 1 }, {}, {
+            const result = av.Validate<{a: string}>({ Fields: [
+                {Name: "a", Value: "1"},
+            ]} as Content, {}, {
                 Fields: {
                     a: {
+                        FieldName: "a",
                         Required: true,
                     },
                 },
-            } as IAspect<{ a: number }>);
+            } as IAspect<{ a: string }>);
             expect(result.isValid).toBeTruthy();
         });
 
-        it("Should return false and fill missing fields", () => {
-            /**/
-            const result = av.Validate({ a: undefined as any }, {}, {
-                Fields: {
-                    a: {
-                        Required: true,
+        describe("Missing fields", () => {
+            it("Should return false if not defined in original content and in the change", () => {
+                /**/
+                const result = av.Validate<{a: string}>({ Fields: [
+                    {Name: "a", Value: undefined as any},
+                ]} as Content, {}, {
+                    Fields: {
+                        a: {
+                            FieldName: "a",
+                            Required: true,
+                        },
                     },
-                },
-            } as IAspect<{ a: number }>);
-            expect(result.isValid).toBeFalsy();
-            expect(result.readonly.length).toEqual(0);
-            expect(result.missing).toContain("a");
+                } as IAspect<{ a: string }>);
+                expect(result.isValid).toBeFalsy();
+                expect(result.readonly.length).toEqual(0);
+                expect(result.missing).toContain("a");
+            });
         });
 
         it("Should return false and fill read only fields", () => {
             /**/
-            const result = av.Validate({ a: 1 as any }, { a: 2 }, {
+            const result = av.Validate({ Fields: [
+                {Name: "a", Value: "1"},
+            ]} as Content, { a: 2 }, {
                 Fields: {
                     a: {
+                        FieldName: "a",
                         ReadOnly: true,
                     },
                 },

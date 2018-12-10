@@ -168,7 +168,6 @@ export class ElevatedRepository implements IDisposable, IApi {
             if (!validationResult.isValid) {
                 throw Error(`Content update is not valid. Details: ${JSON.stringify(validationResult)}`);
             }
-            /** todo: implement update logics */
             for (const field of existingContent.Fields) {
                 const changeValue = options.change[field.Name as keyof T];
                 if (changeValue !== field.Value) {
