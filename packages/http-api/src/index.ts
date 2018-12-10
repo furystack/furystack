@@ -5,5 +5,5 @@ export * from "./HttpApi";
 export * from "./HttpApiConfiguration";
 export * from "./Actions/NotFoundAction";
 export * from "./Models";
-export * from "./UserContextService";
+export * from "./HttpUserContext";
 export * from "./Utils";

@@ -1,9 +1,11 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { Content } from "./Content";
+import { ContentTypePermission } from "./ContentTypePermissions";
 import { IAspect } from "./IAspect";
 import { IJob } from "./IJob";
 import { IReferenceType } from "./IReferenceType";
 import { IValueType } from "./IValueType";
+import { JobTypePermission } from "./JobTypePermission";
 
 @Entity()
 export class ContentType<T = {}> {
@@ -32,4 +34,11 @@ export class ContentType<T = {}> {
 
     @OneToMany(() => Content, (c) => c.ContentTypeRef)
     public ContentInstances?: Content[];
+
+    @OneToMany(() => ContentTypePermission, (ctp) => ctp.ContentType, {eager: true, cascade: true})
+    public Permissions!: ContentTypePermission[];
+
+    @OneToMany(() => JobTypePermission, (jtp) => jtp.ContentType, {eager: true, cascade: true})
+    public JobTypePermissions!: JobTypePermission[];
+
 }

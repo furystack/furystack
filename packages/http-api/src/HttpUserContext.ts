@@ -1,10 +1,10 @@
-import { IUser } from "@furystack/core";
+import { IUser, UserContext } from "@furystack/core";
 import {Injectable} from "@furystack/inject";
 import { IncomingMessage } from "http";
 import { IdentityService } from "./IdentityService";
 
 @Injectable()
-export class UserContextService {
+export class HttpUserContext implements UserContext {
     private user?: IUser;
     public async getCurrentUser() {
         if (!this.user) {

@@ -1,7 +1,7 @@
+import { UserContext } from "@furystack/core";
 import { Injectable } from "@furystack/inject";
 import { ServerResponse } from "http";
 import { IRequestAction } from "../Models";
-import { UserContextService } from "../UserContextService";
 
 @Injectable()
 export class GetCurrentUser implements IRequestAction {
@@ -16,7 +16,7 @@ export class GetCurrentUser implements IRequestAction {
     /**
      *
      */
-    constructor(private serverResponse: ServerResponse, private userContext: UserContextService) {
+    constructor(private serverResponse: ServerResponse, private userContext: UserContext) {
 
     }
 }

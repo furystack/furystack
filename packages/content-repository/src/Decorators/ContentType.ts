@@ -10,6 +10,8 @@ export const ContentType = <T>(options?: Partial<ContentTypeDecoratorOptions<T>>
         const defaultOptions: ContentTypeDecoratorOptions<T> = {
             Name: ctor.name,
             Injector: FInjector.Default,
+            JobTypePermissions: [],
+            Permissions: [],
         };
         const injector = options && options.Injector || defaultOptions.Injector;
         const store = injector.GetInstance(ContentDescriptorStore);

@@ -5,4 +5,7 @@ export * from "./IAspect";
 export * from "./IJob";
 export * from "./IReferenceType";
 export * from "./IValueType";
-export * from "./Permission";
+export * from "./ContentPermission";
+export * from "./ContentTypePermissions";
+export * from "./JobPermission";
+export * from "./JobTypePermission";
