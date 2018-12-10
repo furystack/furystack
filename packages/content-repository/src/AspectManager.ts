@@ -40,16 +40,17 @@ export class AspectManager {
         return createdObject;
     }
 
-    public Validate<T>(originalEntity: T, change: Partial<T>, aspect: IAspect<T>) {
+    public Validate<T>(originalEntity: Content, change: Partial<T>, aspect: IAspect<T>) {
         const missing = [];
         const readonly = [];
         if (aspect.Fields) {
             for (const aspectField of Object.values(aspect.Fields)) {
-                const fieldName = aspectField.FieldName as any as (keyof typeof originalEntity & keyof typeof change);
-                if (aspectField.ReadOnly && originalEntity[fieldName] !== change[fieldName]) {
+                const fieldName = aspectField.FieldName as any as (keyof typeof originalEntity["Fields"] & keyof typeof change);
+                const field = originalEntity.Fields && Object.values(originalEntity.Fields).find((f) => f.Name === fieldName);
+                if (aspectField.ReadOnly && field && field.Value !== change[fieldName]) {
                     readonly.push(fieldName);
                 }
-                if (aspectField.Required && !originalEntity[fieldName] && !change[fieldName] || change[fieldName] === null) {
+                if (aspectField.Required && !field && !change[fieldName] || change[fieldName] === null) {
                     missing.push(fieldName);
                 }
             }

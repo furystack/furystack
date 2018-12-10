@@ -164,8 +164,7 @@ export class ElevatedRepository implements IDisposable, IApi {
                 throw Error(`Content not found with id '${options.id}'`);
             }
             const aspect = this.aspectManager.GetAspectOrFail(existingContent, aspectName);
-            const transformedContent = await this.aspectManager.TransformPlainContent({content: existingContent, aspect, loadRef: async (p) => p as any});
-            const validationResult = this.aspectManager.Validate(transformedContent, options.change, aspect);
+            const validationResult = this.aspectManager.Validate(existingContent, options.change, aspect);
             if (!validationResult.isValid) {
                 throw Error(`Content update is not valid. Details: ${JSON.stringify(validationResult)}`);
             }
