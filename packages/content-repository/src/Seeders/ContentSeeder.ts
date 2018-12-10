@@ -27,33 +27,39 @@ export class ContentSeeder {
 
     public async SeedSystemContent() {
         await this.repository.activate();
-        this.systemContent.VisitorRole = await this.EnsureContentExists(Role, { Name: "Visitor" }, {
+        const VisitorRole = await this.EnsureContentExists(Role, { Name: "Visitor" }, {
             Name: "Visitor",
             DisplayName: "Visitor Role",
             Description: "The user is not authenticated",
         });
 
-        this.systemContent.AuthenticatedRole = await this.EnsureContentExists(Role,  { Name: "Authenticated" }, {
+        const AuthenticatedRole = await this.EnsureContentExists(Role,  { Name: "Authenticated" }, {
             Name: "Authenticated",
             Description: "The user is authenticated",
             DisplayName: "Authenticated",
         });
 
-        this.systemContent.AdminRole = await this.EnsureContentExists(Role, { Name: "Admin" }, {
+        const AdminRole = await this.EnsureContentExists(Role, { Name: "Admin" }, {
             Name: "Admin",
             DisplayName: "Administrator",
             Description: "The user is a global administrator",
         });
 
-        this.systemContent.VisitorUser = await this.EnsureContentExists(User, { Username: "Visitor" }, {
+        const VisitorUser = await this.EnsureContentExists(User, { Username: "Visitor" }, {
             Username: "Visitor",
             Password: this.identityService.options.hashMethod("Visitor"),
             Roles: [this.systemContent.VisitorRole],
         });
-        this.systemContent.AdminUser = await this.EnsureContentExists(User, { Username: "Administrator" }, {
+        const AdminUser = await this.EnsureContentExists(User, { Username: "Administrator" }, {
             Username: "Administrator",
             Password: this.identityService.options.hashMethod("admin"),
             Roles: [this.systemContent.AuthenticatedRole, this.systemContent.AdminRole],
         });
+
+        this.systemContent.AdminRole = AdminRole;
+        this.systemContent.AuthenticatedRole = AuthenticatedRole;
+        this.systemContent.VisitorRole = VisitorRole;
+        this.systemContent.VisitorUser = VisitorUser;
+        this.systemContent.AdminUser = AdminUser;
     }
 }
