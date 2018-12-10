@@ -12,6 +12,12 @@ import { Field } from "../Decorators/Field";
                     { FieldName: "Name", Required: true },
                 ],
         },
+        Edit: {
+            Fields:
+                [
+                    { FieldName: "Name", Required: true },
+                ],
+        },
         Modify: {
             Fields: [
                 { FieldName: "Name", ReadOnly: true },

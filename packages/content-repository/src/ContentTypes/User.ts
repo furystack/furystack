@@ -14,6 +14,12 @@ import { Role } from "./Role";
                 { FieldName: "Password", Required: true, ControlHint: "Password" },
             ],
         },
+        Edit: {
+            Fields: [
+                { FieldName: "Username", Required: true, ControlHint: "UserName" },
+                { FieldName: "Password", Required: true, ControlHint: "Password" },
+            ],
+        },
         List: {
             Fields: [
                 { FieldName: "Username", ReadOnly: true },
@@ -26,7 +32,7 @@ import { Role } from "./Role";
         },
         Details: {
             Fields: [
-                {FieldName: "Username", ReadOnly: true},
+                {FieldName: "Username", ReadOnly: true, Required: true},
                 {FieldName: "Roles", ReadOnly: true},
                 {FieldName: "Password", ReadOnly: true},
 
@@ -37,7 +43,6 @@ import { Role } from "./Role";
 export class User {
     @Field({
         Description: "The unique name for the user",
-        DefaultValue: "assd",
         DisplayName: "User Name",
         Unique: true,
     })
