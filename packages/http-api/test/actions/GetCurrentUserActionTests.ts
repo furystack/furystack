@@ -1,7 +1,7 @@
+import { UserContext } from "@furystack/core";
 import { Injector } from "@furystack/inject";
 import { usingAsync } from "@sensenet/client-utils";
 import { ServerResponse } from "http";
-import { UserContextService } from "../../src";
 import { GetCurrentUser } from "../../src/Actions/GetCurrentUser";
 
 export const getCurrentUserTests = describe("getCurrentUser", () => {
@@ -15,7 +15,7 @@ export const getCurrentUserTests = describe("getCurrentUser", () => {
                     done();
                 },
             }, ServerResponse);
-            i.SetInstance({ getCurrentUser: async () => (testUser) }, UserContextService);
+            i.SetInstance({ getCurrentUser: async () => (testUser) }, UserContext);
             await usingAsync(i.GetInstance(GetCurrentUser, true), async (c) => {
                 await c.exec();
             });

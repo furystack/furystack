@@ -2,7 +2,7 @@ import { LoggerCollection, visitorUser } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { usingAsync } from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
-import { HttpApiConfiguration, IRequestAction, UserContextService } from "../src";
+import { HttpApiConfiguration, HttpUserContext, IRequestAction } from "../src";
 import { HttpApi } from "../src/HttpApi";
 
 // tslint:disable:max-classes-per-file
@@ -80,7 +80,7 @@ export const httpApiTests = describe("HttpApi tests", () => {
                 /**
                  *
                  */
-                constructor(private userContext: UserContextService, private perRequestInjector: Injector) {
+                constructor(private userContext: HttpUserContext, private perRequestInjector: Injector) {
 
                 }
 
