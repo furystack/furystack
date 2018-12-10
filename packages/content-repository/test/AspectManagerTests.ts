@@ -89,7 +89,7 @@ describe("Aspect Manager", () => {
                         Content: undefined as any,
                     },
                 ],
-            },
+            } as Content,
             aspect: {
                     Fields: {
                         0: {
@@ -120,7 +120,11 @@ describe("Aspect Manager", () => {
                 Type: {
                     Name: "ContentType",
                     Aspects: {},
+                    Permissions: [],
+                    JobTypePermissions: [],
                 },
+                JobPermissions: [],
+                Permissions: [],
             }, "Create");
             expect(aspect).toBeUndefined();
         });
@@ -141,7 +145,11 @@ describe("Aspect Manager", () => {
                     Aspects: {
                         Create: a,
                     },
+                    Permissions: [],
+                    JobTypePermissions: [],
                 },
+                Permissions: [],
+                JobPermissions: [],
             }, "Create");
             expect(aspect).toEqual(a);
         });
@@ -164,7 +172,11 @@ describe("Aspect Manager", () => {
                     Aspects: {
                         Create: a,
                     },
+                    Permissions: [],
+                    JobTypePermissions: [],
                 },
+                Permissions: [],
+                JobPermissions: [],
             }, "Create");
             expect(aspect).toEqual(a);
         });
@@ -180,7 +192,11 @@ describe("Aspect Manager", () => {
                     Type: {
                         Name: "ContentType",
                         Aspects: {},
+                        Permissions: [],
+                        JobTypePermissions: [],
                     },
+                    Permissions: [],
+                    JobPermissions: [],
                 }, "Create");
             }).toThrowError("Aspect 'Create' not found for content type 'ContentType'");
         });
