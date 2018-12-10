@@ -17,7 +17,7 @@ export class AspectManager {
     }
 
     public async TransformPlainContent<T>(options: {content: Content, aspect: IAspect<T>, loadRef: (ids: number[]) => Promise<Array<ISavedContent<{}>>>}) {
-        const {Fields, ...content} = {...options.content};
+        const {...content} = {...options.content};
         const createdObject: ISavedContent<T> = {
             ...JSON.parse(JSON.stringify(content)),
         } as ISavedContent<T>;
@@ -44,13 +44,12 @@ export class AspectManager {
         const missing = [];
         const readonly = [];
         if (aspect.Fields) {
-            for (const aspectFieldName of Object.keys(aspect.Fields)) {
-                const fieldName = aspectFieldName as any as (keyof typeof originalEntity & keyof typeof change);
-                const aspectField = aspect.Fields[aspectFieldName as any];
+            for (const aspectField of Object.values(aspect.Fields)) {
+                const fieldName = aspectField.FieldName as any as (keyof typeof originalEntity & keyof typeof change);
                 if (aspectField.ReadOnly && originalEntity[fieldName] !== change[fieldName]) {
                     readonly.push(fieldName);
                 }
-                if (aspectField.Required && !originalEntity[fieldName] && !change[fieldName]) {
+                if (aspectField.Required && !originalEntity[fieldName] && !change[fieldName] || change[fieldName] === null) {
                     missing.push(fieldName);
                 }
             }
