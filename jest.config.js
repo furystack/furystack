@@ -17,8 +17,13 @@ module.exports = {
         "js",
         "jsx",
         "json",
-        "node"
+        "node",
     ],
     "collectCoverage": true,
+    "collectCoverageFrom": [
+        "**/*.{ts,tsx}",
+        "!**/node_modules/**",
+        "!**/vendor/**"
+      ],
     "coverageReporters": ["text", "json", "html"],
 }
