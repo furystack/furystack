@@ -1,14 +1,14 @@
 import { Injector } from "@furystack/inject";
 import { usingAsync } from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
-import { IdentityService, Utils } from "../../src";
+import { HttpUserContext, Utils } from "../../src";
 import { LoginAction } from "../../src/Actions/Login";
 export const loginActionTests = describe("LoginAction", () => {
     /** */
     it("exec", (done) => {
         const testUser = { Name: "Userke" };
         usingAsync(new Injector({ parent: undefined }), async (i) => {
-            i.SetInstance({ cookieLogin: async () => testUser }, IdentityService);
+            i.SetInstance({ CookieLogin: async () => testUser }, HttpUserContext);
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({ readPostBody: async () => ({}) }, Utils);
             i.SetInstance({

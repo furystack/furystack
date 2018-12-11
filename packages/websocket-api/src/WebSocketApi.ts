@@ -78,7 +78,6 @@ export class WebSocketApi implements IApi {
         const action = this.Actions.find((a) => a.canExecute(data));
         if (action) {
             usingAsync(new Injector({ parent: this.injector }), async (i) => {
-                i.SetInstance(i);
                 i.SetInstance(msg);
                 i.SetInstance(websocket);
                 const actionInstance = i.GetInstance<IWebSocketAction>(action);

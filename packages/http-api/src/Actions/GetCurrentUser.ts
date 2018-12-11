@@ -7,7 +7,7 @@ import { IRequestAction } from "../Models";
 export class GetCurrentUser implements IRequestAction {
     public dispose() { /**  */}
     public async exec(): Promise<void> {
-        const user = await this.userContext.getCurrentUser();
+        const user = await this.userContext.GetCurrentUser();
         this.serverResponse.writeHead(200, {
             "Content-Type": "application/json",
         });

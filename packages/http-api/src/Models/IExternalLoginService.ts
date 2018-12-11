@@ -1,9 +1,9 @@
 import { IUser } from "@furystack/core";
-import { IdentityService } from "..";
+import { HttpUserContext } from "../HttpUserContext";
 
 /**
  * Interface for implementing an external login provider
  */
 export interface IExternalLoginService<TUser extends IUser, TArgs extends any[]> {
-    login(identityService: IdentityService<TUser>, ...args: TArgs): Promise<TUser>;
+    login(identityService: HttpUserContext<TUser>, ...args: TArgs): Promise<TUser>;
 }

@@ -2,7 +2,7 @@ import { Injectable } from "@furystack/inject";
 import { ConnectionOptions } from "typeorm";
 import * as Models from "./models";
 
-@Injectable()
+@Injectable({ResolveDependencies: false})
 export class ContentRepositoryConfiguration {
     /**
      * TypeORM Connection options for managing the Repository data

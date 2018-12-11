@@ -1,8 +1,8 @@
-import { LoggerCollection, visitorUser } from "@furystack/core";
+import { IUser, LoggerCollection, visitorUser } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { usingAsync } from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
-import { HttpApiConfiguration, HttpUserContext, IRequestAction } from "../src";
+import { HttpApiConfiguration, HttpAuthenticationSettings, HttpUserContext, IRequestAction } from "../src";
 import { HttpApi } from "../src/HttpApi";
 
 // tslint:disable:max-classes-per-file
@@ -14,7 +14,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
             i.SetInstance(new HttpApiConfiguration({ serverFactory: () => ({} as any) }));
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({}, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 expect(api).toBeInstanceOf(HttpApi);
@@ -29,7 +28,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
             }));
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({}, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 await api.activate();
@@ -53,7 +51,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
             }));
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({}, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 await api.activate();
@@ -67,8 +64,8 @@ export const httpApiTests = describe("HttpApi tests", () => {
             @Injectable()
             class ExampleAction implements IRequestAction {
                 public async exec() {
-                    const currentUser = await this.userContext.getCurrentUser();
-                    const currentUser2 = await this.userContext.getCurrentUser();
+                    const currentUser = await this.userContext.GetCurrentUser();
+                    const currentUser2 = await this.userContext.GetCurrentUser();
                     expect(currentUser.Username).toEqual(visitorUser.Username);
                     expect(currentUser2.Username).toEqual(visitorUser.Username);
                     // tslint:disable-next-line:no-string-literal
@@ -80,7 +77,7 @@ export const httpApiTests = describe("HttpApi tests", () => {
                 /**
                  *
                  */
-                constructor(private userContext: HttpUserContext, private perRequestInjector: Injector) {
+                constructor(private userContext: HttpUserContext<IUser>, private perRequestInjector: Injector) {
 
                 }
 
@@ -89,9 +86,9 @@ export const httpApiTests = describe("HttpApi tests", () => {
                 actions: [() => ExampleAction],
                 serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
             }));
+            i.SetInstance(new HttpAuthenticationSettings());
             i.SetInstance({ headers: {} }, IncomingMessage);
             i.SetInstance({ writeHead: () => (null), end: () => (null) }, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 await api.activate();
@@ -117,7 +114,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
             }));
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({}, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 await api.activate();
@@ -160,7 +156,6 @@ export const httpApiTests = describe("HttpApi tests", () => {
             }));
             i.SetInstance({}, IncomingMessage);
             i.SetInstance({}, ServerResponse);
-            i.SetInstance(i);
             i.SetInstance(new LoggerCollection());
             await usingAsync(i.GetInstance(HttpApi, true), async (api) => {
                 await api.activate();

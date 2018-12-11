@@ -1,7 +1,8 @@
-import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
+import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, ElevatedUserContext, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
 import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
-import { GetCurrentUser, HttpApi, HttpApiConfiguration, IdentityService, NotFoundAction } from "@furystack/http-api";
+import { GetCurrentUser, HttpApi, HttpApiConfiguration, HttpAuthenticationSettings, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
+import { usingAsync} from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
 import { createServer } from "https";
 import { parse } from "url";
@@ -54,14 +55,19 @@ const stack = new FuryStack({
     injectorParent: Injector.Default,
 });
 (async () => {
-    await Injector.Default.GetInstance(SchemaSeeder).SeedBuiltinEntries();
-    await Injector.Default.GetInstance(ContentSeeder).SeedSystemContent();
+    await usingAsync(new Injector({parent: Injector.Default}), async (i) => {
+        await usingAsync(ElevatedUserContext.Create(i), async () => {
+            await i.GetInstance(SchemaSeeder, true).SeedBuiltinEntries();
+            await i.GetInstance(ContentSeeder, true).SeedSystemContent();
+        });
+
+    });
 
     const repo = Injector.Default.GetInstance(ElevatedRepository);
     const systemContent = Injector.Default.GetInstance(SystemContent);
-    Injector.Default.SetInstance(new IdentityService({
-        users: repo.GetPhysicalStoreForType(User),
-        visitorUser: systemContent.VisitorUser,
+    Injector.Default.SetInstance(new HttpAuthenticationSettings({
+        Users: repo.GetPhysicalStoreForType(User),
+        VisitorUser: systemContent.VisitorUser,
     }));
 
     await stack.start();

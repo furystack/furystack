@@ -15,7 +15,7 @@ export const getCurrentUserTests = describe("getCurrentUser", () => {
                     done();
                 },
             }, ServerResponse);
-            i.SetInstance({ getCurrentUser: async () => (testUser) }, UserContext);
+            i.SetInstance({ GetCurrentUser: async () => (testUser) }, UserContext);
             await usingAsync(i.GetInstance(GetCurrentUser, true), async (c) => {
                 await c.exec();
             });

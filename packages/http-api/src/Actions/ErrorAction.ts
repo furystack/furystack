@@ -23,5 +23,7 @@ export class ErrorAction implements IRequestAction {
         });
     }
 
-    constructor(private incomingMessage: IncomingMessage, private serverResponse: ServerResponse, private logger: LoggerCollection) { }
+    constructor(private incomingMessage: IncomingMessage,
+                private serverResponse: ServerResponse,
+                private logger: LoggerCollection) { }
 }

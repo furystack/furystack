@@ -40,7 +40,6 @@ export class FuryStack {
     constructor(options?: Partial<IFuryStackOptions>) {
         this.options = { ...defaultFuryStackOptions, ...options };
         this.injector = new Injector({parent: this.options.injectorParent, owner: this});
-        this.injector.SetInstance(this.injector);
         this.logger = this.injector.GetInstance(LoggerCollection);
         this.apis = Array.from(this.options.apis).map((api) => this.injector.GetInstance(api));
     }

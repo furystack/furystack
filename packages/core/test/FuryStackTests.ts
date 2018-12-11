@@ -1,3 +1,4 @@
+import { Injectable } from "@furystack/inject";
 import { FuryStack, IApi } from "../src";
 
 // tslint:disable:max-classes-per-file
@@ -22,6 +23,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
         });
 
         it("Apis should be added", () => {
+            @Injectable()
             class Api1 implements IApi {
                 public async activate() { /**  */ }
                 public dispose() { /** */ }
@@ -34,6 +36,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
 
         it("Should call apis.activate() on stack.start()", (done) => {
 
+            @Injectable()
             class Api2 implements IApi {
                 public async activate() {
                     done();
@@ -48,6 +51,7 @@ export const stackBuilderTests = describe("StackBuilder", () => {
 
         it("Dispose should dispose the APIs", (done) => {
 
+            @Injectable()
             class Api implements IApi {
                 public async activate() { /** */ }
                 public dispose() { done(); }

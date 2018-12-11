@@ -1,7 +1,9 @@
+import { Injectable } from "@furystack/inject";
 import { ILeveledLogEntry } from "../Models/ILogEntries";
 import { ILogger } from "../Models/ILogger";
 import { AbstractLogger } from "./AbstractLogger";
 
+@Injectable()
 export class LoggerCollection extends AbstractLogger {
     public async AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
         const promises = this.loggers.filter((l) => l.options.filter(entry)).map((l) => l.AddEntry(entry));

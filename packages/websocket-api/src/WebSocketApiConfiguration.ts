@@ -1,4 +1,4 @@
-import { UserContextService } from "@furystack/http-api";
+import { HttpUserContext } from "@furystack/http-api";
 import { Constructable, Injectable } from "@furystack/inject";
 import { createServer } from "http";
 import { Server } from "net";
@@ -7,5 +7,5 @@ import { Server } from "net";
 export class WebSocketApiConfiguration {
     public Path: string = "/socket";
     public Server: Server = createServer();
-    public PerActionServices: Array<Constructable<any>> = [UserContextService];
+    public PerActionServices: Array<Constructable<any>> = [HttpUserContext];
 }

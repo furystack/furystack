@@ -12,11 +12,11 @@ export class ElevatedUserContext implements UserContext, IDisposable {
         this.isDisposed = true;
     }
 
-    public async getCurrentUser(): Promise<IUser> {
+    public async GetCurrentUser(): Promise<IUser> {
         if (!this.isDisposed) {
             return this.systemContent.AdminUser;
         }
-        return await this.injector.options.parent.GetInstance(UserContext).getCurrentUser();
+        return await this.injector.options.parent.GetInstance(UserContext).GetCurrentUser();
     }
     constructor(
         private readonly systemContent: SystemContent,

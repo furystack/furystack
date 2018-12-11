@@ -1,14 +1,12 @@
-import { IApi, IPhysicalStore, LoggerCollection, UserContext } from "@furystack/core";
-import { Constructable, Injectable } from "@furystack/inject";
+import { IApi, IPhysicalStore, LoggerCollection } from "@furystack/core";
+import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Brackets, createConnection, EntityManager, getConnectionManager, getManager, In } from "typeorm";
 import { AspectManager } from "./AspectManager";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
-import { User } from "./ContentTypes";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
 import { Content, ContentField, ISavedContent } from "./models";
-import "./PermissionExtensions";
 
 @Injectable()
 export class ElevatedRepository implements IDisposable, IApi {
@@ -25,10 +23,8 @@ export class ElevatedRepository implements IDisposable, IApi {
     }
 
     public async Find<T>(options: {data: Partial<T>, contentType?: Constructable<T>, aspectName: string, top?: number, skip?: number}): Promise<Array<ISavedContent<T>>> {
-        const currentUser = await this.userContext.getCurrentUser();
         let query = (this.GetManager() as EntityManager)
             .createQueryBuilder(ContentField, "ContentField")
-            .withPermission(currentUser, "Read")
             .where(new Brackets((qb) => {
                 for (const key of Object.keys(options.data)) {
                     qb = qb.where(new Brackets((fieldBracket) =>
@@ -199,10 +195,11 @@ export class ElevatedRepository implements IDisposable, IApi {
         filter: (data, aspectName= DefaultAspects.List) => this.Find({data, contentType, aspectName}),
     } as IPhysicalStore<TM>)
 
+    public readonly options: ContentRepositoryConfiguration;
+
     constructor(
-        public readonly options: ContentRepositoryConfiguration,
         private readonly logger: LoggerCollection,
-        private readonly aspectManager: AspectManager,
-        private readonly userContext: UserContext<ISavedContent<User>>) {
+        private readonly aspectManager: AspectManager) {
+            this.options = Injector.Default.GetInstance(ContentRepositoryConfiguration);
     }
 }

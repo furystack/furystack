@@ -55,7 +55,9 @@ export const injectorTests = describe("Injector", () => {
     it("Should resolve parameters", () => {
         const i = new Injector();
 
+        @Injectable()
         class Injected1 { }
+        @Injectable()
         class Injected2 { }
 
         @Injectable()
@@ -68,6 +70,7 @@ export const injectorTests = describe("Injector", () => {
     it("Should resolve parameters recursively", () => {
         const i = new Injector();
 
+        @Injectable()
         class Injected1 { }
         @Injectable()
         class Injected2 { constructor(public injected1: Injected1) { } }

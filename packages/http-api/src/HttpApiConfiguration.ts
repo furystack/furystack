@@ -7,7 +7,7 @@ import { NotFoundAction } from "./Actions/NotFoundAction";
 import { HttpUserContext } from "./HttpUserContext";
 import { IRequestAction } from "./Models";
 import { ICorsOptions } from "./Models/ICorsOptions";
-@Injectable()
+@Injectable({ResolveDependencies: false})
 export class HttpApiConfiguration {
 
     public defaultAction: Constructable<IRequestAction> = NotFoundAction;

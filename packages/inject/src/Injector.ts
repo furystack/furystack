@@ -21,11 +21,14 @@ export class Injector implements IDisposable {
     };
 
     public static Default: Injector = new Injector({ parent: undefined });
-    public meta: Map<Constructable<any>, Array<Constructable<any>>> = new Map();
+    public meta: Map<Constructable<any>, {Dependencies: Array<Constructable<any>>, Options: import ("./Injectable").InjectableOptions}> = new Map();
 
     private cachedSingletons: Map<Constructable<any>, any> = new Map();
 
     public GetInstance<T>(ctor: Constructable<T>, local: boolean = false, dependencies: Array<Constructable<T>> = []): T {
+        if (ctor === this.constructor) {
+            return this as any as T;
+        }
         if (dependencies.includes(ctor)) {
             throw Error(`Circular dependencies found.`);
         }
@@ -36,14 +39,20 @@ export class Injector implements IDisposable {
         if (fromParent) {
             return fromParent;
         }
-        const deps = (Injector.Default.meta.get(ctor) || []).map((dep) => this.GetInstance(dep, false, [...dependencies, ctor]));
+        const meta = Injector.Default.meta.get(ctor);
+        if (!meta) {
+            throw Error(`No metadata found for '${ctor.name}'. Dependencies: ${dependencies.map((d) => d.name).join(",")} Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`);
+        }
+        const deps = meta.Options.ResolveDependencies ? meta.Dependencies.map((dep) => this.GetInstance(dep, false, [...dependencies, ctor])) : [];
         const newInstance = new ctor(...deps);
         this.SetInstance(newInstance);
         return newInstance;
-
     }
 
     public SetInstance<T>(instance: T, key?: Constructable<any>) {
+        if (instance.constructor === this.constructor) {
+            throw Error("Cannot set an injector instance as injectable");
+        }
         this.cachedSingletons.set(key || instance.constructor as Constructable<T>, instance);
     }
 
