@@ -11,7 +11,7 @@ export class JobPermission {
     @ManyToOne(() => Content, (c) => c.JobPermissions)
     public Content!: Content;
     @Column({ type: "varchar"})
-    public PermissionType!: "Read" | "Write" | "Complete" | "Reject";
+    public Type!: "Read" | "Write" | "Complete" | "Reject";
     @Column()
     public JobName!: string;
 }

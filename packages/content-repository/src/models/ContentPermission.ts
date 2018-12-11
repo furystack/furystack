@@ -11,5 +11,5 @@ export class ContentPermission {
     @ManyToOne(() => Content, (c) => c.Permissions)
     public Content!: Content;
     @Column({ type: "varchar"})
-    public PermissionType!: "Read" | "Write" | "ModifyJobs" | "Delete";
+    public Type!: "Read" | "Write" | "ModifyJobs" | "Delete";
 }

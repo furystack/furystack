@@ -36,7 +36,6 @@ export class SchemaSeeder {
     }
 
     constructor(private readonly repository: ElevatedRepository, private readonly injector: Injector) {
-
     }
 
     public async SeedBuiltinEntries() {

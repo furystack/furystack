@@ -24,4 +24,10 @@ export class ElevatedUserContext implements UserContext, IDisposable {
         ) {
     }
 
+    public static Create(injector: Injector): ElevatedUserContext {
+        const instance = injector.GetInstance(ElevatedUserContext, true);
+        injector.SetInstance(instance, UserContext);
+        return instance;
+    }
+
 }

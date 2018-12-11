@@ -1,3 +1,4 @@
 {
-    "jest.pathToJest": "yarn test"
+    "jest.pathToJest": "yarn test",
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }
