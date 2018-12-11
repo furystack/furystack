@@ -1,8 +1,8 @@
 import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, ElevatedUserContext, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
-import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
+import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from "@furystack/core";
 import { GetCurrentUser, HttpApi, HttpApiConfiguration, HttpAuthenticationSettings, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
-import { usingAsync} from "@sensenet/client-utils";
+import { sleepAsync, usingAsync} from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
 import { createServer } from "https";
 import { parse } from "url";
@@ -55,7 +55,45 @@ const stack = new FuryStack({
     injectorParent: Injector.Default,
 });
 (async () => {
+
     await usingAsync(new Injector({parent: Injector.Default}), async (i) => {
+
+        const p1 = (async () => {
+            try {
+                return await i.GetInstance(UserContext).GetCurrentUser();
+            } catch (error) {
+                /** */
+                return {joooo: 1};
+            }
+        })();
+
+        const p2 = (async () => {
+            return await usingAsync(ElevatedUserContext.Create(i), async () => {
+                return await i.GetInstance(UserContext).GetCurrentUser();
+            });
+        })();
+
+        const p3 = (async () => {
+            await sleepAsync(100);
+            try {
+                return await i.GetInstance(UserContext).GetCurrentUser();
+            } catch (error) {
+                /** */
+                return {joooo: 1};
+            }
+        })();
+
+        const p4 = (async () => {
+            await sleepAsync(150);
+            return await usingAsync(ElevatedUserContext.Create(i), async () => {
+                return await i.GetInstance(UserContext).GetCurrentUser();
+            });
+        })();
+
+        const users = await Promise.all([p1, p2, p3, p4]);
+        // tslint:disable-next-line:no-console
+        console.log(users);
+
         await usingAsync(ElevatedUserContext.Create(i), async () => {
             await i.GetInstance(SchemaSeeder, true).SeedBuiltinEntries();
             await i.GetInstance(ContentSeeder, true).SeedSystemContent();

@@ -25,6 +25,8 @@ export class Injector implements IDisposable {
 
     private cachedSingletons: Map<Constructable<any>, any> = new Map();
 
+    public Remove = <T>(ctor: Constructable<T>) => this.cachedSingletons.delete(ctor);
+
     public GetInstance<T>(ctor: Constructable<T>, local: boolean = false, dependencies: Array<Constructable<T>> = []): T {
         if (ctor === this.constructor) {
             return this as any as T;
