@@ -1,4 +1,5 @@
 export * from "./ContentTypes";
+export * from "./BaseRepository";
 export * from "./ElevatedRepository";
 export * from "./ContentDescriptorStore";
 export * from "./ContentRepositoryConfiguration";
