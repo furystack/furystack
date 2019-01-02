@@ -2,10 +2,9 @@ import { IApi, IPhysicalStore, LoggerCollection } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Brackets, createConnection, EntityManager, getConnectionManager, getManager, In } from "typeorm";
-import { ILoginUser } from "../../http-api/dist";
 import { AspectManager } from "./AspectManager";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
-import { Role, User } from "./ContentTypes";
+import { User } from "./ContentTypes";
 import { DefaultAspects } from "./DefaultAspects";
 import { ElevatedUserContext } from "./ElevatedUserContext";
 import * as Models from "./models";
@@ -29,10 +28,6 @@ export class ElevatedRepository implements IDisposable, IApi {
 
     public async Find<T>(options: {data: Partial<T>, contentType?: Constructable<T>, aspectName: string, top?: number, skip?: number}): Promise<Array<ISavedContent<T>>> {
         const currentUser = await this.userContext.GetCurrentUser();
-        if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
-            /** ToDo: check if has Search role on the ContentType */
-        }
-
         let query = (this.GetManager() as EntityManager)
             .createQueryBuilder(ContentField, "ContentField")
             .where(new Brackets((qb) => {
@@ -49,6 +44,10 @@ export class ElevatedRepository implements IDisposable, IApi {
             query = query
             .innerJoin("Content.ContentTypeRef", "contentType")
             .andWhere("contentType.name = :contentTypeName", { contentTypeName: options.contentType.name });
+        }
+
+        if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
+            /** ToDo: add permission checks for content and / or type */
         }
 
         if (options.top) {
@@ -80,15 +79,15 @@ export class ElevatedRepository implements IDisposable, IApi {
 
     public async Create<T>(options: {contentType: Constructable<T>, data: T}): Promise<ISavedContent<T>> {
         const contentTypeName = options.contentType.name;
-
         const currentUser = await this.userContext.GetCurrentUser();
-        if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
-            /** ToDo: check if has Create role on the ContentType */
-        }
-
         return await this.GetManager().transaction(async (tr) => {
-            /** */
             const contentType = await tr.findOneOrFail(this.options.models.ContentType, { where: { Name: contentTypeName } });
+            if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
+                if (!this.roleManager.HasPermissionForType({user: currentUser, contentType, permission: "Create"})) {
+                    throw Error(`No 'Create' permission for content type '${contentTypeName}'`);
+                }
+            }
+
             const c = tr.create(Content, {
                 Type: contentType,
                 ContentTypeRef: contentType,
@@ -99,7 +98,6 @@ export class ElevatedRepository implements IDisposable, IApi {
                 const fieldDef = contentType.Fields && contentType.Fields[field as keyof typeof contentType["Fields"]];
                 if (fieldDef && fieldDef.Type !== "Value") {
                     if (fieldDef.Type === "Reference") {
-                        /** ToDo: load ref if needed */
                         const fieldValue = (options.data as any)[field] as ISavedContent<{}>;
                         (options.data as any)[field] = JSON.stringify(fieldValue.Id);
                     }
@@ -127,13 +125,7 @@ export class ElevatedRepository implements IDisposable, IApi {
     public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string, manager?: EntityManager}): Promise<Array<ISavedContent<T>>> {
 
         const currentUser = await this.userContext.GetCurrentUser();
-        if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
-            /**
-             * ToDo: Check if has
-             *  - Read role on the Content Type
-             *  - or Read role on the Content
-             */
-        }
+        const isAdmin = !this.roleManager.HasRole(currentUser, this.systemContent.AdminRole);
 
         const content = await (options.manager || this.GetManager())
             .find(Content, {
@@ -143,7 +135,14 @@ export class ElevatedRepository implements IDisposable, IApi {
                 loadEagerRelations: true,
             });
 
-        return await Promise.all(content.map(async (c) =>
+        const filtered = await Promise.all(content.filter(async (c) => {
+            const contentPermission = await this.roleManager.HasPermissionForContent({user: currentUser, content: c, permission: "Read"});
+            const typePermission = options.contentType && await this.roleManager.HasPermissionForType({user: currentUser, permission: "Read", contentType: c.ContentTypeRef});
+            return isAdmin || contentPermission || typePermission;
+        }));
+
+        return await Promise.all(filtered
+                .map(async (c) =>
             this.aspectManager.TransformPlainContent<T>({
                 content: c,
                 aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
@@ -186,10 +185,23 @@ export class ElevatedRepository implements IDisposable, IApi {
     public async Update<T>(options: {id: number, change: Partial<T>, aspectName?: string}): Promise<ISavedContent<T>> {
         return await this.GetManager().transaction(async (tm) => {
             const aspectName = options.aspectName || DefaultAspects.Edit;
-            const existingContent = await tm.findOne(Content, options.id);
+            const existingContent = await tm.findOne(Content, options.id, {loadEagerRelations: true});
+
+            const currentUser = await this.userContext.GetCurrentUser();
+            const isAdmin = await this.roleManager.HasRole(currentUser, this.systemContent.AdminRole);
+
+            if (!isAdmin) {
+                const contentPermission = existingContent && await this.roleManager.HasPermissionForContent({user: currentUser, content: existingContent, permission: "Write"});
+                const typePermission = existingContent && await this.roleManager.HasPermissionForType({user: currentUser, permission: "Write", contentType: existingContent.ContentTypeRef});
+                if (!contentPermission && !typePermission) {
+                    throw Error(`No 'Write' permission for content :(`);
+                }
+            }
+
             if (!existingContent) {
                 throw Error(`Content not found with id '${options.id}'`);
             }
+
             const aspect = this.aspectManager.GetAspectOrFail(existingContent, aspectName);
             const validationResult = this.aspectManager.Validate(existingContent, options.change, aspect);
             if (!validationResult.isValid) {
@@ -223,14 +235,14 @@ export class ElevatedRepository implements IDisposable, IApi {
     } as IPhysicalStore<TM>)
 
     public readonly options: ContentRepositoryConfiguration;
-    private readonly userContext: ElevatedUserContext<ILoginUser<User>>;
+    private readonly userContext: ElevatedUserContext;
     constructor(
         private readonly logger: LoggerCollection,
         private readonly aspectManager: AspectManager,
         private readonly systemContent: SystemContent,
         private readonly injector: Injector,
-        private readonly roleManager: RoleManager<User, Role>) {
+        private readonly roleManager: RoleManager) {
             this.options = this.injector.GetInstance(ContentRepositoryConfiguration);
-            this.userContext = this.injector.GetInstance<ElevatedUserContext<ILoginUser<User>>>(ElevatedUserContext, true);
+            this.userContext = this.injector.GetInstance<ElevatedUserContext<ISavedContent<User>>>(ElevatedUserContext, true);
     }
 }

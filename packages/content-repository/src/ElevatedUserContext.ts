@@ -2,10 +2,11 @@ import { IUser, UserContext } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { User } from "./ContentTypes";
+import { ISavedContent } from "./models";
 import { SystemContent } from "./SystemContent";
 
 @Injectable()
-export class ElevatedUserContext<TUser extends IUser = User> implements UserContext<TUser>, IDisposable {
+export class ElevatedUserContext<TUser extends ISavedContent<IUser> = ISavedContent<User>> implements UserContext<TUser>, IDisposable {
 
     private isDisposed: boolean = false;
 
@@ -25,7 +26,7 @@ export class ElevatedUserContext<TUser extends IUser = User> implements UserCont
         ) {
     }
 
-    public static Create<TUser extends IUser = User>(injector: Injector): ElevatedUserContext<TUser> {
+    public static Create<TUser extends ISavedContent<IUser> = ISavedContent<User>>(injector: Injector): ElevatedUserContext<TUser> {
         injector.Remove(ElevatedUserContext);
         const instance = injector.GetInstance<ElevatedUserContext<TUser>>(ElevatedUserContext, true);
         injector.SetInstance(instance, UserContext);

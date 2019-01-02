@@ -20,7 +20,7 @@ export class Content {
     @Column("simple-json")
     public Type!: ContentType;
 
-    @ManyToOne(() => ContentType, (ct) => ct.ContentInstances)
+    @ManyToOne(() => ContentType, (ct) => ct.ContentInstances, {eager: true})
     public ContentTypeRef!: ContentType;
 
     @OneToMany(() => ContentField, (cf) => cf.Content, {eager: true, cascade: true})
