@@ -62,7 +62,7 @@
     "@sensenet/client-utils": "^1.4.0",
     "reflect-metadata": "^0.1.12",
     "sqlite3": "^4.0.4",
-    "typeorm": "^0.2.9"
+    "typeorm": "^0.2.10"
   },
   "devDependencies": {
     "@types/jest": "^23.3.9",
