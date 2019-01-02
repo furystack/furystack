@@ -1,12 +1,14 @@
-import { IApi, IPhysicalStore, LoggerCollection } from "@furystack/core";
+import { IApi, IPhysicalStore, LoggerCollection, UserContext } from "@furystack/core";
 import { Constructable, Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
 import { Brackets, createConnection, EntityManager, getConnectionManager, getManager, In } from "typeorm";
 import { AspectManager } from "./AspectManager";
 import { ContentRepositoryConfiguration } from "./ContentRepositoryConfiguration";
+import { User } from "./ContentTypes";
 import { DefaultAspects } from "./DefaultAspects";
 import * as Models from "./models";
 import { Content, ContentField, ISavedContent } from "./models";
+import { SystemContent } from "./SystemContent";
 
 @Injectable()
 export class ElevatedRepository implements IDisposable, IApi {
@@ -23,6 +25,11 @@ export class ElevatedRepository implements IDisposable, IApi {
     }
 
     public async Find<T>(options: {data: Partial<T>, contentType?: Constructable<T>, aspectName: string, top?: number, skip?: number}): Promise<Array<ISavedContent<T>>> {
+        const currentUser = await this.userContext.GetCurrentUser();
+        if (!currentUser.HasRole(this.systemContent.AdminRole)) {
+            /** ToDo: check if has Search role on the ContentType */
+        }
+
         let query = (this.GetManager() as EntityManager)
             .createQueryBuilder(ContentField, "ContentField")
             .where(new Brackets((qb) => {
@@ -49,7 +56,8 @@ export class ElevatedRepository implements IDisposable, IApi {
             query = query.skip(options.skip);
         }
 
-        const result = await query.groupBy("contentId")
+        const result = await query
+            .groupBy("contentId")
             .getMany();
 
         const contentIds = result.filter((c) => c.Content && c.Content.Id).map((c) => c.Content.Id);
@@ -69,6 +77,12 @@ export class ElevatedRepository implements IDisposable, IApi {
 
     public async Create<T>(options: {contentType: Constructable<T>, data: T}): Promise<ISavedContent<T>> {
         const contentTypeName = options.contentType.name;
+
+        const currentUser = await this.userContext.GetCurrentUser();
+        if (!currentUser.HasRole(this.systemContent.AdminRole)) {
+            /** ToDo: check if has Create role on the ContentType */
+        }
+
         return await this.GetManager().transaction(async (tr) => {
             /** */
             const contentType = await tr.findOneOrFail(this.options.models.ContentType, { where: { Name: contentTypeName } });
@@ -108,6 +122,16 @@ export class ElevatedRepository implements IDisposable, IApi {
     }
 
     public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string, manager?: EntityManager}): Promise<Array<ISavedContent<T>>> {
+
+        const currentUser = await this.userContext.GetCurrentUser();
+        if (!currentUser.HasRole(this.systemContent.AdminRole)) {
+            /**
+             * ToDo: Check if has
+             *  - Read role on the Content Type
+             *  - or Read role on the Content
+             */
+        }
+
         const content = await (options.manager || this.GetManager())
             .find(Content, {
                 where: {
@@ -199,7 +223,9 @@ export class ElevatedRepository implements IDisposable, IApi {
 
     constructor(
         private readonly logger: LoggerCollection,
-        private readonly aspectManager: AspectManager) {
+        private readonly aspectManager: AspectManager,
+        private readonly userContext: UserContext<User>,
+        private readonly systemContent: SystemContent) {
             this.options = Injector.Default.GetInstance(ContentRepositoryConfiguration);
     }
 }

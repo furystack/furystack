@@ -55,4 +55,8 @@ export class User {
 
     @Field()
     public Password!: string;
+
+    public HasRole(role: Role) {
+        return this.Roles.filter((r) => r.Name === role.Name).length === 1 ? true : false;
+    }
 }
