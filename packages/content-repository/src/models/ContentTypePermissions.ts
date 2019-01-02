@@ -13,5 +13,5 @@ export class ContentTypePermission {
     public ContentType!: ContentType;
 
     @Column({ type: "varchar"})
-    public Type!: "Read" | "Write" | "ModifyJobs" | "Delete" | "Search";
+    public Type!: "Read" | "Write" | "ModifyJobs" | "Delete" | "Search" | "Create";
 }

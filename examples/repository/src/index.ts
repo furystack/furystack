@@ -1,8 +1,8 @@
 import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, ElevatedUserContext, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
-import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from "@furystack/core";
+import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
 import { GetCurrentUser, HttpApi, HttpApiConfiguration, HttpAuthenticationSettings, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
-import { sleepAsync, usingAsync} from "@sensenet/client-utils";
+import { usingAsync} from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
 import { createServer } from "https";
 import { parse } from "url";
