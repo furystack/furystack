@@ -49,11 +49,13 @@ export class ContentSeeder {
             Username: "Visitor",
             Password: this.authSettings.HashMethod("Visitor"),
             Roles: [this.systemContent.VisitorRole],
+            HasRole: () => false,
         });
         const AdminUser = await this.EnsureContentExists(User, { Username: "Administrator" }, {
             Username: "Administrator",
             Password: this.authSettings.HashMethod("admin"),
             Roles: [this.systemContent.AuthenticatedRole, this.systemContent.AdminRole],
+            HasRole: () => false,
         });
 
         this.systemContent.AdminRole = AdminRole;
