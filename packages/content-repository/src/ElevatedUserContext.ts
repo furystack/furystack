@@ -1,10 +1,11 @@
 import { IUser, UserContext } from "@furystack/core";
 import { Injectable, Injector } from "@furystack/inject";
 import { IDisposable } from "@sensenet/client-utils";
+import { User } from "./ContentTypes";
 import { SystemContent } from "./SystemContent";
 
 @Injectable()
-export class ElevatedUserContext implements UserContext, IDisposable {
+export class ElevatedUserContext<TUser extends IUser = User> implements UserContext<TUser>, IDisposable {
 
     private isDisposed: boolean = false;
 
@@ -12,11 +13,11 @@ export class ElevatedUserContext implements UserContext, IDisposable {
         this.isDisposed = true;
     }
 
-    public async GetCurrentUser(): Promise<IUser> {
+    public async GetCurrentUser(): Promise<TUser> {
         if (!this.isDisposed) {
-            return this.systemContent.AdminUser;
+            return this.systemContent.AdminUser as any as TUser;
         }
-        return await this.injector.options.parent.GetInstance(UserContext).GetCurrentUser();
+        return await this.injector.options.parent.GetInstance(UserContext).GetCurrentUser() as TUser;
     }
     constructor(
         private readonly systemContent: SystemContent,
@@ -24,9 +25,9 @@ export class ElevatedUserContext implements UserContext, IDisposable {
         ) {
     }
 
-    public static Create(injector: Injector): ElevatedUserContext {
+    public static Create<TUser extends IUser = User>(injector: Injector): ElevatedUserContext<TUser> {
         injector.Remove(ElevatedUserContext);
-        const instance = injector.GetInstance(ElevatedUserContext, true);
+        const instance = injector.GetInstance<ElevatedUserContext<TUser>>(ElevatedUserContext, true);
         injector.SetInstance(instance, UserContext);
         return instance;
     }
