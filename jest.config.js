@@ -22,6 +22,7 @@ module.exports = {
     "collectCoverage": true,
     "collectCoverageFrom": [
         "**/*.{ts,tsx}",
+        "!**/*.d.{ts,tsx}",
         "!**/node_modules/**",
         "!**/vendor/**"
       ],
