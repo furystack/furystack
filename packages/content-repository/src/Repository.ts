@@ -11,7 +11,7 @@ import {RoleManager} from "./RoleManager";
 import { SystemContent } from "./SystemContent";
 
 @Injectable()
-export class BaseRepository implements IDisposable, IApi {
+export class Repository implements IDisposable, IApi {
     public async activate() {
         await this.initConnection();
     }
