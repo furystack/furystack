@@ -1,4 +1,4 @@
-import { ElevatedRepository } from "@furystack/content-repository";
+import { Repository } from "@furystack/content-repository";
 import { IRequestAction } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
@@ -11,7 +11,7 @@ export class FindContent implements IRequestAction {
         const parsedUrl = parse(this.incomingMessage.url as string, true);
         const data = JSON.parse(parsedUrl.query.data as string);
         const aspectName = parsedUrl.query.aspectName as string;
-        const content = await this.elevatedRepository.Find({
+        const content = await this.repository.Find({
             data,
             aspectName,
 
@@ -24,7 +24,7 @@ export class FindContent implements IRequestAction {
     /**
      *
      */
-    constructor(private serverResponse: ServerResponse, private incomingMessage: IncomingMessage, private elevatedRepository: ElevatedRepository) {
+    constructor(private serverResponse: ServerResponse, private incomingMessage: IncomingMessage, private repository: Repository) {
 
     }
 }

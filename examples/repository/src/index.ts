@@ -1,6 +1,6 @@
-import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, ElevatedUserContext, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
-import { ConsoleLogger, FuryStack, LoggerCollection } from "@furystack/core";
-import { GetCurrentUser, HttpApi, HttpApiConfiguration, HttpAuthenticationSettings, NotFoundAction } from "@furystack/http-api";
+import { ContentRepositoryConfiguration, ContentSeeder, ElevatedRepository, ElevatedUserContext, Repository, SchemaSeeder, SystemContent, User } from "@furystack/content-repository";
+import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from "@furystack/core";
+import { GetCurrentUser, HttpApi, HttpApiConfiguration, HttpAuthenticationSettings, HttpUserContext, NotFoundAction } from "@furystack/http-api";
 import { Injector } from "@furystack/inject";
 import { usingAsync} from "@sensenet/client-utils";
 import { IncomingMessage, ServerResponse } from "http";
@@ -28,6 +28,10 @@ Injector.Default.SetInstance(new HttpApiConfiguration({
         origins: ["http://localhost:8080"],
     },
     defaultAction: NotFoundAction,
+    PerRequestServices: [
+        {key: UserContext, value: HttpUserContext},
+        {key: Repository, value: Repository},
+    ],
     actions: [
         (msg) => {
             const urlPathName = parse(msg.url || "", true).pathname;
@@ -38,8 +42,6 @@ Injector.Default.SetInstance(new HttpApiConfiguration({
             }
             return undefined;
         },
-        // (msg) => (parse(msg.url || "", true).pathname === "/findContent") ? FindContent : undefined,
-
     ],
     serverFactory: (listener) => createServer(Injector.Default.GetInstance(CertificateManager).getCredentials(), (req: IncomingMessage, resp: ServerResponse) => listener(req, resp)),
 }));

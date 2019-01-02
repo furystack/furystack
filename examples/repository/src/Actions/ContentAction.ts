@@ -1,4 +1,4 @@
-import { ContentDescriptorStore, ElevatedRepository } from "@furystack/content-repository";
+import { ContentDescriptorStore, Repository } from "@furystack/content-repository";
 import { ISavedContent } from "@furystack/content-repository/dist/models";
 import { IRequestAction, Utils } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
@@ -12,22 +12,27 @@ export class ContentAction implements IRequestAction {
     private async getContent() {
         const parsedUrl = parse(this.incomingMessage.url as string, true);
         const contentId = parseInt(parsedUrl.query.contentId as string, 10);
-        const aspectName = parsedUrl.query.aspectName as string;
-        const content = await this.elevatedRepository.Load({
+        const aspectName = parsedUrl.query.aspectName as string || "Details";
+        const content = (await this.repository.Load({
             ids: [contentId],
             aspectName,
-        });
-        this.serverResponse.writeHead(200, {
-            "Content-Type": "application/json",
-        });
-        this.serverResponse.end(JSON.stringify(content[0]));
+        }))[0];
+        if (content) {
+            this.serverResponse.writeHead(200, {
+                "Content-Type": "application/json",
+            });
+            this.serverResponse.end(JSON.stringify(content));
+        } else {
+            this.serverResponse.writeHead(404);
+            this.serverResponse.end();
+        }
     }
 
     private async postContent() {
         const payload = await this.utils.readPostBody<{Type: string & {}}>(this.incomingMessage);
         const {Type, ...data} = payload;
         const contentType = this.store.getByName(Type) ;
-        const content = await this.elevatedRepository.Create({
+        const content = await this.repository.Create({
             contentType,
             data,
         });
@@ -40,7 +45,7 @@ export class ContentAction implements IRequestAction {
     private async patchContent() {
         const payload = await this.utils.readPostBody<ISavedContent<{aspectName: string}>>(this.incomingMessage);
         const {Id, ContentTypeRef, CreationDate, ModificationDate, Type, Fields, aspectName, ...data} = payload;
-        const content = await this.elevatedRepository.Update({
+        const content = await this.repository.Update({
             id: Id,
             change: data,
             aspectName,
@@ -53,7 +58,7 @@ export class ContentAction implements IRequestAction {
 
     private async deleteContent() {
         const payload = await this.utils.readPostBody<number[]>(this.incomingMessage);
-        await this.elevatedRepository.Remove(...payload);
+        await this.repository.Remove(...payload);
         this.serverResponse.writeHead(200, {
             "Content-Type": "application/json",
         });
@@ -85,7 +90,7 @@ export class ContentAction implements IRequestAction {
     constructor(private serverResponse: ServerResponse,
                 private incomingMessage: IncomingMessage,
                 private utils: Utils,
-                private elevatedRepository: ElevatedRepository,
+                private repository: Repository,
                 private store: ContentDescriptorStore,
                 ) {
 

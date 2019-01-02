@@ -22,7 +22,8 @@ export class HttpApiConfiguration {
         {
             key: UserContext,
             value: HttpUserContext,
-        }];
+        },
+    ];
     public corsOptions: ICorsOptions = {
         origins: [],
 

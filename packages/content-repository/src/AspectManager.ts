@@ -30,10 +30,12 @@ export class AspectManager {
                     createdObject[field.FieldName as keyof T] = contentField.Value as any;
                 } else if (contentFieldType.Type === "Reference") {
                     const id = JSON.parse(contentField.Value) as number;
-                    createdObject[field.FieldName as keyof T] = (await options.loadRef([id])) as any;
+                    const ref = await options.loadRef([id]);
+                    createdObject[field.FieldName as keyof T] = ref[0] as any;
                 } else if (contentFieldType.Type === "ReferenceList") {
                     const ids = JSON.parse(contentField.Value) as number[];
-                    createdObject[field.FieldName as keyof T] = (await options.loadRef(ids)) as any;
+                    const refs = await options.loadRef(ids);
+                    createdObject[field.FieldName as keyof T] = refs as any;
                 }
             }
         }

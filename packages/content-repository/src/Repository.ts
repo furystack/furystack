@@ -61,18 +61,7 @@ export class Repository implements IDisposable, IApi {
             .getMany();
 
         const contentIds = result.filter((c) => c.Content && c.Content.Id).map((c) => c.Content.Id);
-        const loadedContents = await this.GetManager().find(Content, {
-            where: {
-                Id: In(contentIds),
-            },
-            loadEagerRelations: true,
-        });
-
-        return await Promise.all(loadedContents.map(async (c) => this.aspectManager.TransformPlainContent({
-            content: c,
-            aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
-            loadRef: (ids) => this.Load({ids, aspectName: DefaultAspects.Expanded}),
-        }) as any as ISavedContent<T>));
+        return await this.Load({ids: contentIds, aspectName: options.aspectName});
     }
 
     public async Create<T>(options: {contentType: Constructable<T>, data: T}): Promise<ISavedContent<T>> {
@@ -123,7 +112,7 @@ export class Repository implements IDisposable, IApi {
     public async Load<T>(options: {contentType?: Constructable<T>, ids: number[], aspectName: string, manager?: EntityManager}): Promise<Array<ISavedContent<T>>> {
 
         const currentUser = await this.userContext.GetCurrentUser();
-        const isAdmin = !this.roleManager.HasRole(currentUser, this.systemContent.AdminRole);
+        const isAdmin = currentUser.Id === this.systemContent.AdminUser.Id || !this.roleManager.HasRole(currentUser, this.systemContent.AdminRole);
 
         const content = await (options.manager || this.GetManager())
             .find(Content, {
@@ -133,11 +122,11 @@ export class Repository implements IDisposable, IApi {
                 loadEagerRelations: true,
             });
 
-        const filtered = await Promise.all(content.filter(async (c) => {
+        const filtered = await content.filterAsync(async (c) => {
             const contentPermission = await this.roleManager.HasPermissionForContent({user: currentUser, content: c, permission: "Read"});
-            const typePermission = options.contentType && await this.roleManager.HasPermissionForType({user: currentUser, permission: "Read", contentType: c.ContentTypeRef});
+            const typePermission = options.contentType && await this.roleManager.HasPermissionForType({user: currentUser, permission: "Read", contentType: c.ContentTypeRef}) || false;
             return isAdmin || contentPermission || typePermission;
-        }));
+        });
 
         return await Promise.all(filtered
                 .map(async (c) =>
@@ -230,7 +219,7 @@ export class Repository implements IDisposable, IApi {
         update: async (id, change) => { await this.Update({id, change}); },
         get: async (key) => (await this.Load({contentType, ids: [key], aspectName: DefaultAspects.List}))[0],
         remove: async (id) => await this.Remove(id),
-        filter: (data, aspectName= DefaultAspects.List) => this.Find({data, contentType, aspectName}),
+        filter: async (data, aspectName= DefaultAspects.Details) => await this.Find({data, contentType, aspectName}),
     } as IPhysicalStore<TM>)
 
     public readonly options: ContentRepositoryConfiguration;

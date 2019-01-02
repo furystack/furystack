@@ -5,15 +5,15 @@ import { Content, ContentPermission, ContentType, ContentTypePermission, ISavedC
 @Injectable()
 export class RoleManager<TUser extends ISavedContent<IUser> = ISavedContent<IUser>, TRole extends IRole = IRole> {
     public async HasRole(user: TUser, role: TRole): Promise<boolean> {
-        return user.Roles.filter((r) => r.Name === role.Name).length === 1 ? true : false;
+        return (user.Roles && user.Roles.filter((r) => r.Name === role.Name).length === 1) ? true : false;
     }
 
     public async HasPermissionForType(options: {user: TUser, contentType: ContentType, permission: ContentTypePermission["Type"]}): Promise<boolean> {
-        return options.contentType.Permissions.filter((p) => p.Identity.Id === options.user.Id && p.Type === options.permission).length > 0 ? true : false;
+        return (options.contentType.Permissions && options.contentType.Permissions.filter((p) => p.Identity.Id === options.user.Id && p.Type === options.permission).length > 0) ? true : false;
     }
 
     public async HasPermissionForContent(options: {user: TUser, content: Content, permission: ContentPermission["Type"]}) {
-        return options.content.Permissions.filter((p) => p.Identity.Id === options.user.Id && p.Type === options.permission);
+        return (options.content.Permissions && options.content.Permissions.filter((p) => p.Identity.Id === options.user.Id && p.Type === options.permission).length) ? true : false;
     }
 
 }
