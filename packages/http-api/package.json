@@ -1,6 +1,6 @@
 {
   "name": "@furystack/http-api",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "HTTP Api FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -55,8 +55,8 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^1.0.8",
-    "@furystack/inject": "^1.0.7",
+    "@furystack/core": "^1.0.9",
+    "@furystack/inject": "^1.0.8",
     "@sensenet/client-utils": "^1.2.1",
     "@types/node": "^10.12.3",
     "hash.js": "^1.1.5",
