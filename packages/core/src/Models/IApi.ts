@@ -1,6 +1,6 @@
-import { IDisposable } from "@sensenet/client-utils";
+import { Disposable } from "@sensenet/client-utils";
 import { IActivateable } from "./IActivateable";
 
-export interface IApi extends IActivateable, IDisposable {
-    /** */
+export interface IApi extends IActivateable, Disposable {
+  /** */
 }

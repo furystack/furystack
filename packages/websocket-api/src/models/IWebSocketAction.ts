@@ -1,13 +1,13 @@
-import { IDisposable } from "@sensenet/client-utils";
+import { Disposable } from "@sensenet/client-utils";
 import { Data } from "ws";
 
 export interface IWebSocketActionStatic {
-    canExecute(data: Data): boolean;
+  canExecute(data: Data): boolean;
 }
 
-export interface IWebSocketAction extends IDisposable {
-    new: (...args: any[]) => IWebSocketActionStatic;
-    authenticate: boolean;
-    authorize: string[];
-    execute(data: Data): void;
+export interface IWebSocketAction extends Disposable {
+  new: (...args: any[]) => IWebSocketActionStatic;
+  authenticate: boolean;
+  authorize: string[];
+  execute(data: Data): void;
 }
