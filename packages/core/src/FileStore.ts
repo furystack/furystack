@@ -1,10 +1,10 @@
-import { readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from "fs";
+import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from "fs";
 import Semaphore from "semaphore-async-await";
 import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
-    private readonly watcher: import("fs").FSWatcher;
+    private readonly watcher?: FSWatcher;
     public async remove(key: T[this["primaryKey"]]): Promise<void> {
         this.cache.delete(key);
         this.hasChanges = true;
@@ -14,34 +14,39 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     public tick = setInterval(() => this.saveChanges(), this.tickMs);
     private hasChanges: boolean = false;
     public get = async (key: T[this["primaryKey"]]) => {
-        await this.fileLock.wait();
-        return this.cache.get(key);
+        return await this.fileLock.execute(async () => {
+            return this.cache.get(key);
+    });
     }
 
     public async add(data: T) {
-        await this.fileLock.wait();
-        if (this.cache.has(data[this.primaryKey])) {
-            throw new Error("Item with the same key already exists");
-        }
-        this.update(data[this.primaryKey], data);
-        return data;
+        return await this.fileLock.execute(async () => {
+            if (this.cache.has(data[this.primaryKey])) {
+                throw new Error("Item with the same key already exists");
+            }
+            this.update(data[this.primaryKey], data);
+            return data;
+
+        });
     }
 
     public filter = async (filter: Partial<T>) => {
-        await this.fileLock.wait();
-        return [...this.cache.values()].filter((item) => {
-        for (const key in filter) {
-            if (filter[key] !== (item as any)[key]) {
-                return false;
-            }
-        }
-        return true;
-    });
-}
+        return await this.fileLock.execute(async () => {
+            return [...this.cache.values()].filter((item) => {
+                for (const key in filter) {
+                    if (filter[key] !== (item as any)[key]) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        });
+    }
 
     public async count() {
-        await this.fileLock.wait();
-        return this.cache.size;
+        return await this.fileLock.execute(async () => {
+            return this.cache.size;
+        });
     }
 
     private fileLock = new Semaphore(1);
@@ -49,12 +54,12 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
         if (!this.hasChanges) {
             return;
         }
-        await this.fileLock.acquire();
-        const values: T[] = [];
-        for (const key of this.cache.keys()) {
-            values.push(this.cache.get(key) as T);
-        }
         try {
+            await this.fileLock.acquire();
+            const values: T[] = [];
+            for (const key of this.cache.keys()) {
+                values.push(this.cache.get(key) as T);
+            }
             await new Promise((resolve, reject) => {
                 this.writeFile(this.fileName, JSON.stringify(values), (error) => {
                     if (!error) {
@@ -77,32 +82,36 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
 
     public async dispose() {
         await this.saveChanges();
-        this.watcher.close();
+        this.watcher && this.watcher.close();
         clearInterval(this.tick);
     }
 
     public async reloadData() {
-        await this.fileLock.acquire();
-        await new Promise((resolve, reject) => {
-            this.readFile(this.fileName, (error, data) => {
-                if (error) {
-                    this.logger.Error({
-                        scope: this.LogScope,
-                        message: "Error when loading store data from file:",
-                        data: {error},
-                    });
-                    reject(error);
-                } else {
-                    this.cache.clear();
-                    const json = JSON.parse(data.toString()) as T[];
-                    for (const user of json) {
-                        this.cache.set(user[this.primaryKey], user);
+        try {
+            await this.fileLock.acquire();
+            await new Promise((resolve, reject) => {
+                this.readFile(this.fileName, (error, data) => {
+                    if (error) {
+                        this.logger.Error({
+                            scope: this.LogScope,
+                            message: "Error when loading store data from file:",
+                            data: {error},
+                        });
+                        reject(error);
+                    } else {
+                        this.cache.clear();
+                        const json = JSON.parse(data.toString()) as T[];
+                        for (const user of json) {
+                            this.cache.set(user[this.primaryKey], user);
+                        }
+                        resolve();
                     }
-                    resolve();
-                }
+                });
             });
-        });
-        this.fileLock.release();
+
+        } finally {
+            this.fileLock.release();
+        }
     }
 
     public async update(id: T[this["primaryKey"]], data: T) {
@@ -117,9 +126,17 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
                 private writeFile = nodeWriteFile,
                 public logger = new LoggerCollection(),
     ) {
-        this.watcher = watch(this.fileName, {encoding: "buffer"},  (ev) => {
-            this.reloadData();
-        });
+        try {
+            this.watcher = watch(this.fileName, {encoding: "buffer"},  (ev) => {
+                this.reloadData();
+            });
+        } catch (error) {
+            this.logger.Warning({
+                scope: this.LogScope,
+                data: error,
+                message: `Error registering file watcher for store. External updates won't be updated.`,
+            });
+        }
     }
 
 }
