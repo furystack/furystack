@@ -1,8 +1,10 @@
-import { readFile as nodeReadFile, writeFile as nodeWriteFile } from "fs";
+import { readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from "fs";
+import Semaphore from "semaphore-async-await";
 import { LoggerCollection } from "./Loggers";
 import { IPhysicalStore } from "./Models/IPhysicalStore";
 
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+    private readonly watcher: import("fs").FSWatcher;
     public async remove(key: T[this["primaryKey"]]): Promise<void> {
         this.cache.delete(key);
         this.hasChanges = true;
@@ -11,11 +13,13 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     private cache: Map<T[this["primaryKey"]], T> = new Map();
     public tick = setInterval(() => this.saveChanges(), this.tickMs);
     private hasChanges: boolean = false;
-    private saveInProgress: boolean = false;
-
-    public get = async (key: T[this["primaryKey"]]) => this.cache.get(key);
+    public get = async (key: T[this["primaryKey"]]) => {
+        await this.fileLock.wait();
+        return this.cache.get(key);
+    }
 
     public async add(data: T) {
+        await this.fileLock.wait();
         if (this.cache.has(data[this.primaryKey])) {
             throw new Error("Item with the same key already exists");
         }
@@ -23,24 +27,29 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
         return data;
     }
 
-    public filter = async (filter: Partial<T>) => [...this.cache.values()].filter((item) => {
+    public filter = async (filter: Partial<T>) => {
+        await this.fileLock.wait();
+        return [...this.cache.values()].filter((item) => {
         for (const key in filter) {
             if (filter[key] !== (item as any)[key]) {
                 return false;
             }
         }
         return true;
-    })
+    });
+}
 
     public async count() {
+        await this.fileLock.wait();
         return this.cache.size;
     }
 
+    private fileLock = new Semaphore(1);
     private async saveChanges() {
-        if (this.saveInProgress || !this.hasChanges) {
+        if (!this.hasChanges) {
             return;
         }
-        this.saveInProgress = true;
+        await this.fileLock.acquire();
         const values: T[] = [];
         for (const key of this.cache.keys()) {
             values.push(this.cache.get(key) as T);
@@ -62,16 +71,18 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
             });
             this.hasChanges = false;
         } finally {
-            this.saveInProgress = false;
+            this.fileLock.release();
         }
     }
 
-    public dispose() {
-        this.saveChanges();
+    public async dispose() {
+        await this.saveChanges();
+        this.watcher.close();
         clearInterval(this.tick);
     }
 
     public async reloadData() {
+        await this.fileLock.acquire();
         await new Promise((resolve, reject) => {
             this.readFile(this.fileName, (error, data) => {
                 if (error) {
@@ -91,6 +102,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
                 }
             });
         });
+        this.fileLock.release();
     }
 
     public async update(id: T[this["primaryKey"]], data: T) {
@@ -105,7 +117,9 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
                 private writeFile = nodeWriteFile,
                 public logger = new LoggerCollection(),
     ) {
-
+        this.watcher = watch(this.fileName, {encoding: "buffer"},  (ev) => {
+            this.reloadData();
+        });
     }
 
 }
