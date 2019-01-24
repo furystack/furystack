@@ -34,8 +34,6 @@ import { Role } from "./Role";
             Fields: [
                 {FieldName: "Username", ReadOnly: true, Required: true},
                 {FieldName: "Roles", ReadOnly: true},
-                {FieldName: "Password", ReadOnly: true},
-
             ],
         },
     },

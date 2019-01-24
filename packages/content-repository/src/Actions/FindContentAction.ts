@@ -1,8 +1,8 @@
-import { Repository } from "@furystack/content-repository";
 import { IRequestAction } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { parse } from "url";
+import { Repository } from "../Repository";
 
 @Injectable()
 export class FindContent implements IRequestAction {

@@ -4,7 +4,7 @@ import { ILogger } from "./ILogger";
 export interface IPhysicalStore<
   T,
   K extends keyof T = keyof T,
-  TFilter = Partial<T>
+  TFilter = Partial<T> & {top?: number, skip?: number}
 > extends Disposable {
   readonly primaryKey: K;
   logger: ILogger;

@@ -1,9 +1,10 @@
-import { ContentDescriptorStore, Repository } from "@furystack/content-repository";
-import { ISavedContent } from "@furystack/content-repository/dist/models";
 import { IRequestAction, Utils } from "@furystack/http-api";
 import { Injectable } from "@furystack/inject";
 import { IncomingMessage, ServerResponse } from "http";
 import { parse } from "url";
+import { ContentDescriptorStore } from "../ContentDescriptorStore";
+import { ISavedContent } from "../models/Content";
+import { Repository } from "../Repository";
 
 @Injectable()
 export class ContentAction implements IRequestAction {
@@ -13,7 +14,7 @@ export class ContentAction implements IRequestAction {
         const parsedUrl = parse(this.incomingMessage.url as string, true);
         const contentId = parseInt(parsedUrl.query.contentId as string, 10);
         const aspectName = parsedUrl.query.aspectName as string || "Details";
-        const content = (await this.repository.Load({
+        const {Fields, ContentTypeRef, ...content} = (await this.repository.Load({
             ids: [contentId],
             aspectName,
         }))[0];
