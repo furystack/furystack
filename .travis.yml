@@ -2,17 +2,17 @@ language: node_js
 cache: yarn
 node_js:
   - '10'
-  - '8'  
+  - '8'
 before_install:
   # Insall yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
 before_script:
   - npm --v
-script: 
-  - npm run bootstrap
-  - npm run build
-  - npm test
+script:
+  - yarn
+  - yarn build
+  - yarn test
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 branches:
