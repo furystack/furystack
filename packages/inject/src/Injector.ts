@@ -1,91 +1,81 @@
-import { Disposable } from "@sensenet/client-utils";
-import { Constructable } from "./Types/Constructable";
+import { Disposable } from '@sensenet/client-utils'
+import { Constructable } from './Types/Constructable'
 
+/**
+ * Container for injectable instances
+ */
 export class Injector implements Disposable {
   public async dispose() {
     /** */
-    const singletons = Array.from(this.cachedSingletons.entries()).map(
-      (e) => e[1],
-    );
+    const singletons = Array.from(this.cachedSingletons.entries()).map(e => e[1])
     const disposeRequests = singletons
-      .filter((s) => s !== this)
-      .map(async (s) => {
+      .filter(s => s !== this)
+      .map(async s => {
         if (s.dispose) {
-          await s.dispose();
+          await s.dispose()
         }
-      });
-    await Promise.all(disposeRequests);
+      })
+    await Promise.all(disposeRequests)
   }
 
   public options: { parent: Injector; owner: any } = {
     parent: Injector.Default,
     owner: null,
-  };
+  }
 
-  public static Default: Injector = new Injector({ parent: undefined });
+  // tslint:disable-next-line: variable-name
+  public static Default: Injector = new Injector({ parent: undefined })
   public meta: Map<
     Constructable<any>,
     {
-      Dependencies: Array<Constructable<any>>;
-      Options: import("./Injectable").InjectableOptions;
+      Dependencies: Array<Constructable<any>>
+      Options: import('./Injectable').InjectableOptions
     }
-  > = new Map();
+  > = new Map()
 
-  private cachedSingletons: Map<Constructable<any>, any> = new Map();
+  private cachedSingletons: Map<Constructable<any>, any> = new Map()
 
-  public Remove = <T>(ctor: Constructable<T>) =>
-    this.cachedSingletons.delete(ctor)
+  // tslint:disable-next-line: variable-name
+  public Remove = <T>(ctor: Constructable<T>) => this.cachedSingletons.delete(ctor)
 
-  public GetInstance<T>(
-    ctor: Constructable<T>,
-    local: boolean = false,
-    dependencies: Array<Constructable<T>> = [],
-  ): T {
+  public GetInstance<T>(ctor: Constructable<T>, local: boolean = false, dependencies: Array<Constructable<T>> = []): T {
     if (ctor === this.constructor) {
-      return (this as any) as T;
+      return (this as any) as T
     }
     if (dependencies.includes(ctor)) {
-      throw Error(`Circular dependencies found.`);
+      throw Error(`Circular dependencies found.`)
     }
     if (this.cachedSingletons.has(ctor)) {
-      return this.cachedSingletons.get(ctor) as T;
+      return this.cachedSingletons.get(ctor) as T
     }
-    const fromParent =
-      !local && this.options.parent && this.options.parent.GetInstance(ctor);
+    const fromParent = !local && this.options.parent && this.options.parent.GetInstance(ctor)
     if (fromParent) {
-      return fromParent;
+      return fromParent
     }
-    const meta = Injector.Default.meta.get(ctor);
+    const meta = Injector.Default.meta.get(ctor)
     if (!meta) {
       throw Error(
         `No metadata found for '${ctor.name}'. Dependencies: ${dependencies
-          .map((d) => d.name)
-          .join(
-            ",",
-          )} Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
-      );
+          .map(d => d.name)
+          .join(',')} Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+      )
     }
     const deps = meta.Options.ResolveDependencies
-      ? meta.Dependencies.map((dep) =>
-          this.GetInstance(dep, false, [...dependencies, ctor]),
-        )
-      : [];
-    const newInstance = new ctor(...deps);
-    this.SetInstance(newInstance);
-    return newInstance;
+      ? meta.Dependencies.map(dep => this.GetInstance(dep, false, [...dependencies, ctor]))
+      : []
+    const newInstance = new ctor(...deps)
+    this.SetInstance(newInstance)
+    return newInstance
   }
 
   public SetInstance<T>(instance: T, key?: Constructable<any>) {
     if (instance.constructor === this.constructor) {
-      throw Error("Cannot set an injector instance as injectable");
+      throw Error('Cannot set an injector instance as injectable')
     }
-    this.cachedSingletons.set(
-      key || (instance.constructor as Constructable<T>),
-      instance,
-    );
+    this.cachedSingletons.set(key || (instance.constructor as Constructable<T>), instance)
   }
 
-  constructor(options?: Partial<Injector["options"]>) {
-    this.options = { ...this.options, ...options };
+  constructor(options?: Partial<Injector['options']>) {
+    this.options = { ...this.options, ...options }
   }
 }
