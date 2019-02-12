@@ -9,5 +9,7 @@ export * from "./DefaultAspects";
 export * from "./SystemContent";
 export * from "./Seeders";
 export * from "./ElevatedUserContext";
+export * from "./Actions/ContentAction";
+export * from "./Actions/FindContentAction";
 
 export { Models };
