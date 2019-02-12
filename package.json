@@ -20,8 +20,8 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --stream",
-    "lint": "lerna run lint --stream",
+    "build": "lerna run build",
+    "lint": "lerna run lint --parallel",
     "clean:packages": "lerna clean",
     "test": "jest",
     "start": "yarn workspace @furystack/example-repository run start"
