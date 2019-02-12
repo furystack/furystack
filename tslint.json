@@ -26,7 +26,7 @@
         "variables": { "visibilities": ["exported"] }
       }
     ],
-    "interface-name": [true, "never-prefix"],
+    "interface-name": [true],
     "no-console": [false, "log", "error"]
   },
   "rulesDirectory": []

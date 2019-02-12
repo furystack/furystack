@@ -1,6 +1,10 @@
-import { INamedEntity } from "./INamedEntity";
+import { INamedEntity } from './INamedEntity'
+
+/**
+ * Model that defines a permission type
+ */
 
 export interface IPermissionType extends INamedEntity {
-    Description: string;
-    Category: string;
+  Description: string
+  Category: string
 }
