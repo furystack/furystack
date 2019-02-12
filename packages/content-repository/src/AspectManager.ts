@@ -26,7 +26,7 @@ export class AspectManager {
     const { ...content } = { ...options.content }
     const createdObject: ISavedContent<T> = {
       ...JSON.parse(JSON.stringify(content)),
-    } as ISavedContent<T>
+    }
 
     for (const field of Object.values(options.aspect.Fields || [])) {
       const contentField = options.content.Fields.find(f => f.Name === field.FieldName)

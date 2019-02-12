@@ -25,7 +25,7 @@
         "variables": { "visibilities": ["exported"] }
       }
     ],
-    "interface-name": [true],
+    "interface-name": false,
     "no-console": [false, "log", "error"],
     "naming-convention": [
       true,
@@ -46,14 +46,14 @@
         "modifiers": ["const"],
         "format": ["camelCase"]
       },
-      { "type": "parameter", "modifiers": "unused", "leadingUnderscore": "require" },
+      { "type": "parameter", "modifiers": "unused", "leadingUnderscore": "allow" },
       { "type": "member", "modifiers": "private", "leadingUnderscore": "allow" },
       { "type": "member", "modifiers": "method", "format": ["PascalCase", "camelCase"] },
       { "type": "member", "modifiers": "protected", "leadingUnderscore": "allow" },
       { "type": "member", "modifiers": "public", "format": "PascalCase" },
       { "type": "property", "modifiers": ["public", "static", "const"], "format": "UPPER_CASE" },
       { "type": "type", "format": "PascalCase" },
-      { "type": "interface", "prefix": "I" },
+      { "type": "interface", "format": "PascalCase" },
       { "type": "genericTypeParameter", "format": "PascalCase" },
       { "type": "enumMember", "format": "PascalCase" }
     ],
