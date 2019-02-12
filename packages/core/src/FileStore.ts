@@ -3,6 +3,9 @@ import Semaphore from 'semaphore-async-await'
 import { LoggerCollection } from './Loggers'
 import { IPhysicalStore } from './Models/IPhysicalStore'
 
+/**
+ * Store implementation that stores info in a simple JSON file
+ */
 export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
   private readonly watcher?: FSWatcher
   public async remove(key: T[this['primaryKey']]): Promise<void> {
@@ -126,7 +129,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     public logger = new LoggerCollection(),
   ) {
     try {
-      this.watcher = watch(this.fileName, { encoding: 'buffer' }, ev => {
+      this.watcher = watch(this.fileName, { encoding: 'buffer' }, () => {
         this.reloadData()
       })
     } catch (error) {

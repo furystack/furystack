@@ -1,24 +1,27 @@
-import { Injectable } from "@furystack/inject";
-import { ConnectionOptions } from "typeorm";
-import * as Models from "./models";
+import { Injectable } from '@furystack/inject'
+import { ConnectionOptions } from 'typeorm'
+import * as Models from './models'
 
-@Injectable({ResolveDependencies: false})
+/**
+ * Configuration object for Content Repository
+ */
+@Injectable({ ResolveDependencies: false })
 export class ContentRepositoryConfiguration {
-    /**
-     * TypeORM Connection options for managing the Repository data
-     * Entities will be overwritten.
-     */
-    public connection: ConnectionOptions = {
-        name: "FuryStackContentReposiroty",
-        type: "sqlite",
-        database: ":memory:",
-        // database: "./db.sqlite",
-        synchronize: true,
-        // logging: true,
-    };
-    public models: typeof Models = Models;
+  /**
+   * TypeORM Connection options for managing the Repository data
+   * Entities will be overwritten.
+   */
+  public connection: ConnectionOptions = {
+    name: 'FuryStackContentReposiroty',
+    type: 'sqlite',
+    database: ':memory:',
+    // database: "./db.sqlite",
+    synchronize: true,
+    // logging: true,
+  }
+  public models: typeof Models = Models
 
-    constructor(options?: Partial<ContentRepositoryConfiguration>) {
-        Object.assign(this, options);
-    }
+  constructor(options?: Partial<ContentRepositoryConfiguration>) {
+    Object.assign(this, options)
+  }
 }

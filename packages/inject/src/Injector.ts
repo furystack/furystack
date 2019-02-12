@@ -29,7 +29,7 @@ export class Injector implements Disposable {
     Constructable<any>,
     {
       Dependencies: Array<Constructable<any>>
-      Options: import('./Injectable').InjectableOptions
+      Options: import('./Injectable').IInjectableOptions
     }
   > = new Map()
 

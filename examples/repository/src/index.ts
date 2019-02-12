@@ -1,14 +1,14 @@
 import {
+  ContentAction,
   ContentRepositoryConfiguration,
   ContentSeeder,
   ElevatedRepository,
   ElevatedUserContext,
+  FindContent,
   Repository,
   SchemaSeeder,
   SystemContent,
   User,
-  ContentAction,
-  FindContent,
 } from '@furystack/content-repository'
 import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from '@furystack/core'
 import {
@@ -21,7 +21,6 @@ import {
 } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
@@ -63,9 +62,8 @@ Injector.Default.SetInstance(
       },
     ],
     serverFactory: listener =>
-      createServer(
-        Injector.Default.GetInstance(CertificateManager).getCredentials(),
-        (req: IncomingMessage, resp: ServerResponse) => listener(req, resp),
+      createServer(Injector.Default.GetInstance(CertificateManager).getCredentials(), (req, resp) =>
+        listener(req, resp),
       ),
   }),
 )

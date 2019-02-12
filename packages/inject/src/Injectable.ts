@@ -5,7 +5,7 @@ import { Constructable } from './Types/Constructable'
 /**
  * Options for the injectable instance
  */
-export interface InjectableOptions {
+export interface IInjectableOptions {
   /**
    * Enables or disables resolving the dependencies from the constructor (true by default)
    */
@@ -15,7 +15,7 @@ export interface InjectableOptions {
 /**
  * The default options for the injectable classes
  */
-export const defaultInjectableOptions: InjectableOptions = {
+export const defaultInjectableOptions: IInjectableOptions = {
   ResolveDependencies: true,
 }
 
@@ -23,8 +23,7 @@ export const defaultInjectableOptions: InjectableOptions = {
  * Decorator method for tagging a class as injectable
  * @param options The options object
  */
-// tslint:disable-next-line: variable-name
-export const Injectable = (options?: Partial<InjectableOptions>) => {
+export const Injectable = (options?: Partial<IInjectableOptions>) => {
   return <T extends Constructable<any>>(ctor: T) => {
     const meta = Reflect.getMetadata('design:paramtypes', ctor)
     const metaValue = {

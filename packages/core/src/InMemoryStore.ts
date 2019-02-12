@@ -1,48 +1,46 @@
-import { LoggerCollection } from "./Loggers";
-import { IPhysicalStore } from "./Models/IPhysicalStore";
+import { LoggerCollection } from './Loggers'
+import { IPhysicalStore } from './Models/IPhysicalStore'
 
+/**
+ * Store implementation that stores data in an in-memory cache
+ */
 export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
-    public async remove(key: T[this["primaryKey"]]): Promise<void> {
-        this.cache.delete(key);
+  public async remove(key: T[this['primaryKey']]): Promise<void> {
+    this.cache.delete(key)
+  }
+
+  public async add(data: T): Promise<T> {
+    if (this.cache.has(data[this.primaryKey])) {
+      throw new Error('Item with the primary key already exists.')
     }
+    this.cache.set(data[this.primaryKey], data)
+    return data
+  }
 
-    public async add(data: T): Promise<T> {
-        if (this.cache.has(data[this.primaryKey])) {
-            throw new Error("Item with the primary key already exists.");
+  private cache: Map<T[this['primaryKey']], T> = new Map()
+  public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
+
+  public filter = async (filter: Partial<T>) =>
+    [...this.cache.values()].filter(item => {
+      for (const key in filter) {
+        if (filter[key] !== (item as any)[key]) {
+          return false
         }
-        this.cache.set(data[this.primaryKey], data);
-        return data;
-    }
-
-    private cache: Map<T[this["primaryKey"]], T> = new Map();
-    public get = async (key: T[this["primaryKey"]]) => this.cache.get(key);
-
-    public filter = async (filter: Partial<T>) => [...this.cache.values()].filter((item) => {
-        for (const key in filter) {
-            if (filter[key] !== (item as any)[key]) {
-                return false;
-            }
-        }
-        return true;
+      }
+      return true
     })
 
-    public async count() {
-        return this.cache.size;
-    }
+  public async count() {
+    return this.cache.size
+  }
 
-    public async update(id: T[this["primaryKey"]], data: T) {
-        this.cache.set(id, data);
-    }
+  public async update(id: T[this['primaryKey']], data: T) {
+    this.cache.set(id, data)
+  }
 
-    public dispose() {
-        /** */
-    }
+  public dispose() {
+    /** */
+  }
 
-    constructor(public readonly primaryKey: K,
-                public readonly tickMs = 10000,
-                public logger = new LoggerCollection(),
-    ) {
-
-    }
-
+  constructor(public readonly primaryKey: K, public readonly tickMs = 10000, public logger = new LoggerCollection()) {}
 }
