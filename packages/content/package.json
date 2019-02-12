@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/furystack/content",
   "devDependencies": {
-    "@types/jest": "^23.3.11",
+    "@types/jest": "^24.0.1",
     "@types/uuid": "^3.4.4",
     "jest": "^23.6.0",
     "rimraf": "^2.6.2",
