@@ -19,16 +19,16 @@ export interface ISeedEntry<T> {
  */
 @Injectable()
 export class SchemaSeeder {
-  public readonly LogScope = '@furystack/content-repository/seeder'
+  public readonly logScope = '@furystack/content-repository/seeder'
   private get logger(): LoggerCollection {
-    return this.injector.GetInstance(LoggerCollection)
+    return this.injector.getInstance(LoggerCollection)
   }
 
   private async update<T>(entry: ISeedEntry<T>, manager: EntityManager) {
     const found = await manager.findOne(entry.model, entry.findOption)
     if (!found) {
-      this.logger.Debug({
-        scope: this.LogScope,
+      this.logger.debug({
+        scope: this.logScope,
         message: `Entity '${JSON.stringify(entry.findOption)}' not found, creating...`,
         data: { instance: entry.instance },
       })
@@ -42,28 +42,28 @@ export class SchemaSeeder {
 
   constructor(private readonly repository: ElevatedRepository, private readonly injector: Injector) {}
 
-  public async SeedBuiltinEntries() {
+  public async seedBuiltinEntries() {
     await this.repository.activate()
     const log = <T>(message: string, data?: T) =>
-      this.logger.Debug({
-        scope: this.LogScope,
+      this.logger.debug({
+        scope: this.logScope,
         message,
         data,
       })
 
-    const store = Injector.Default.GetInstance(ContentDescriptorStore)
-    const manager = this.repository.GetManager()
+    const store = Injector.default.getInstance(ContentDescriptorStore)
+    const manager = this.repository.getManager()
     log('Seeding built-in entries...')
 
     await manager.transaction(async tm => {
-      const cts = store.ContentTypeDescriptors.entries()
+      const cts = store.contentTypeDescriptors.entries()
       for (const [, contentType] of cts) {
         await this.update(
           {
             model: ContentType,
             findOption: {
               where: {
-                Name: contentType.Name,
+                Name: contentType.name,
               },
             },
             instance: contentType,

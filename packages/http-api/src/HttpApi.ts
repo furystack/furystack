@@ -12,20 +12,20 @@ import { Utils } from './Utils'
  */
 @Injectable()
 export class HttpApi implements IApi {
-  public readonly LogScope = '@furystack/http-api/HttpApi'
+  public readonly logScope = '@furystack/http-api/HttpApi'
 
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
     await usingAsync(new Injector({ parent: this.injector, owner: IncomingMessage }), async injector => {
-      injector.SetInstance(incomingMessage)
-      injector.SetInstance(serverResponse)
-      injector.SetInstance(new Utils(incomingMessage, serverResponse))
-      injector.GetInstance(Utils).addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse)
+      injector.setInstance(incomingMessage)
+      injector.setInstance(serverResponse)
+      injector.setInstance(new Utils(incomingMessage, serverResponse))
+      injector.getInstance(Utils).addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse)
       const actionCtors = this.options.actions.map(a => a(incomingMessage)).filter(a => a !== undefined) as Array<
         Constructable<IRequestAction>
       >
       if (actionCtors.length > 1) {
-        this.logger.Error({
-          scope: this.LogScope,
+        this.logger.error({
+          scope: this.logScope,
           message: `Multiple HTTP actions found that can be execute the request`,
           data: {
             incomingMessage,
@@ -35,22 +35,22 @@ export class HttpApi implements IApi {
       }
       if (actionCtors.length === 1) {
         try {
-          this.options.PerRequestServices.map(s => {
-            const created = injector.GetInstance(s.value, true)
-            injector.SetInstance(created, s.key)
+          this.options.perRequestServices.map(s => {
+            const created = injector.getInstance(s.value, true)
+            injector.setInstance(created, s.key)
             return created
           })
           const actionCtor = actionCtors[0]
-          await usingAsync(injector.GetInstance(actionCtor, true), async action => {
+          await usingAsync(injector.getInstance(actionCtor, true), async action => {
             await action.exec()
           })
         } catch (error) {
-          await usingAsync(injector.GetInstance(this.options.errorAction, true), async e => {
+          await usingAsync(injector.getInstance(this.options.errorAction, true), async e => {
             await e.returnError(error)
           })
         }
       } else {
-        await usingAsync(injector.GetInstance(this.options.notFoundAction, true), async a => {
+        await usingAsync(injector.getInstance(this.options.notFoundAction, true), async a => {
           a.exec()
         })
       }

@@ -5,7 +5,7 @@ import { IncomingMessage } from 'http'
 import { parse } from 'url'
 import { Data, Server as WebSocketServer } from 'ws'
 import * as ws from 'ws'
-import { IWebSocketAction, IWebSocketActionStatic } from './models'
+import { IWebSocketAction, IWebSocketActionStatic } from './models/IWebSocketAction'
 import { WebSocketApiConfiguration } from './WebSocketApiConfiguration'
 
 /**
@@ -23,8 +23,8 @@ export class WebSocketApi implements IApi {
   private readonly injector: Injector
   private readonly logScope: string = '@furystack/websocket-api' + this.constructor.name
 
-  public Actions: Array<Constructable<IWebSocketAction> & IWebSocketActionStatic> = []
-  public Path: string = '/socket'
+  public actions: Array<Constructable<IWebSocketAction> & IWebSocketActionStatic> = []
+  public path: string = '/socket'
 
   constructor(
     private readonly logger: LoggerCollection,
@@ -34,7 +34,7 @@ export class WebSocketApi implements IApi {
     this.socket = new WebSocketServer({ noServer: true })
     this.injector = new Injector({ parent: parentInjector })
     this.socket.on('connection', (websocket, msg) => {
-      this.logger.Verbose({
+      this.logger.verbose({
         scope: this.logScope,
         message: 'Client connected to WebSocket',
         data: {
@@ -42,7 +42,7 @@ export class WebSocketApi implements IApi {
         },
       })
       websocket.on('message', message => {
-        this.logger.Verbose({
+        this.logger.verbose({
           scope: this.logScope,
           message: 'Client Message received',
           data: {
@@ -54,7 +54,7 @@ export class WebSocketApi implements IApi {
       })
 
       websocket.on('close', () => {
-        this.logger.Verbose({
+        this.logger.verbose({
           scope: this.logScope,
           message: 'Client disconnected',
           data: {
@@ -64,15 +64,15 @@ export class WebSocketApi implements IApi {
       })
     })
 
-    this.options.Server.on('upgrade', (request, socket, head) => {
+    this.options.server.on('upgrade', (request, socket, head) => {
       const pathname = parse(request.url).pathname
-      if (pathname === this.Path) {
+      if (pathname === this.path) {
         this.socket.handleUpgrade(request, socket, head, websocket => {
-          this.logger.Verbose({
+          this.logger.verbose({
             scope: this.logScope,
-            message: `Client connected to socket at '${this.Path}'.`,
+            message: `Client connected to socket at '${this.path}'.`,
             data: {
-              path: this.Path,
+              path: this.path,
             },
           })
           this.socket.emit('connection', websocket, request)
@@ -82,12 +82,12 @@ export class WebSocketApi implements IApi {
   }
 
   public execute(data: Data, msg: IncomingMessage, websocket: ws) {
-    const action = this.Actions.find(a => a.canExecute(data))
+    const action = this.actions.find(a => a.canExecute(data))
     if (action) {
       usingAsync(new Injector({ parent: this.injector }), async i => {
-        i.SetInstance(msg)
-        i.SetInstance(websocket)
-        const actionInstance = i.GetInstance<IWebSocketAction>(action)
+        i.setInstance(msg)
+        i.setInstance(websocket)
+        const actionInstance = i.getInstance<IWebSocketAction>(action)
         actionInstance.execute(data)
       })
     }

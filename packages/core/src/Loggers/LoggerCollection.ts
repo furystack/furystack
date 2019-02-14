@@ -8,8 +8,8 @@ import { AbstractLogger } from './AbstractLogger'
  */
 @Injectable()
 export class LoggerCollection extends AbstractLogger {
-  public async AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
-    const promises = this.loggers.filter(l => l.options.filter(entry)).map(l => l.AddEntry(entry))
+  public async addEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
+    const promises = this.loggers.filter(l => l.options.filter(entry)).map(l => l.addEntry(entry))
     await Promise.all(promises)
   }
 

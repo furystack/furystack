@@ -14,7 +14,7 @@ export class LogoutAction implements IRequestAction {
   }
 
   public async exec() {
-    await this.userContext.CookieLogout(this.incomingMessage, this.serverResponse)
+    await this.userContext.cookieLogout(this.incomingMessage, this.serverResponse)
     this.serverResponse.writeHead(200)
     this.serverResponse.end(JSON.stringify({ success: true }))
   }

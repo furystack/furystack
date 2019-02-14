@@ -12,7 +12,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     this.cache.delete(key)
     this.hasChanges = true
   }
-  public readonly LogScope: string = '@furystack/core/' + this.constructor.name
+  public readonly logScope: string = '@furystack/core/' + this.constructor.name
   private cache: Map<T[this['primaryKey']], T> = new Map()
   public tick = setInterval(() => this.saveChanges(), this.tickMs)
   private hasChanges: boolean = false
@@ -67,8 +67,8 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
           if (!error) {
             resolve()
           } else {
-            this.logger.Error({
-              scope: this.LogScope,
+            this.logger.error({
+              scope: this.logScope,
               message: 'Error when saving store data to file:',
               data: { error },
             })
@@ -94,8 +94,8 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
       await new Promise((resolve, reject) => {
         this.readFile(this.fileName, (error, data) => {
           if (error) {
-            this.logger.Error({
-              scope: this.LogScope,
+            this.logger.error({
+              scope: this.logScope,
               message: 'Error when loading store data from file:',
               data: { error },
             })
@@ -133,8 +133,8 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
         this.reloadData()
       })
     } catch (error) {
-      this.logger.Warning({
-        scope: this.LogScope,
+      this.logger.warning({
+        scope: this.logScope,
         data: error,
         message: `Error registering file watcher for store. External updates won't be updated.`,
       })

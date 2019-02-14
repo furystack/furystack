@@ -26,7 +26,7 @@ export class ElevatedRepository extends Repository {
       systemContent,
       injector,
       roleManager,
-      injector.GetInstance<ElevatedUserContext<ISavedContent<User>>>(ElevatedUserContext, true),
+      injector.getInstance<ElevatedUserContext<ISavedContent<User>>>(ElevatedUserContext, true),
     )
   }
 }

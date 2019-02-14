@@ -12,7 +12,7 @@ export class GetCurrentUser implements IRequestAction {
     /**  */
   }
   public async exec(): Promise<void> {
-    const user = await this.userContext.GetCurrentUser()
+    const user = await this.userContext.getCurrentUser()
     this.serverResponse.writeHead(200, {
       'Content-Type': 'application/json',
     })

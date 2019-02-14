@@ -21,28 +21,28 @@ export class Repository implements Disposable, IApi {
   public async dispose() {
     /** */
   }
-  public readonly DbEntities = Models
+  public readonly dbEntities = Models
 
-  public GetManager() {
+  public getManager() {
     return getManager(this.options.connection.name)
   }
 
-  public async Find<T>(options: {
+  public async find<T>(options: {
     data: Partial<T>
     contentType?: Constructable<T>
     aspectName: string
     top?: number
     skip?: number
   }): Promise<Array<ISavedContent<T>>> {
-    const currentUser = await this.userContext.GetCurrentUser()
-    let query = (this.GetManager() as EntityManager)
+    const currentUser = await this.userContext.getCurrentUser()
+    let query = (this.getManager() as EntityManager)
       .createQueryBuilder(ContentField, 'ContentField')
       .where(
         new Brackets(qb => {
           for (const key of Object.keys(options.data)) {
             qb = qb.where(
               new Brackets(fieldBracket =>
-                fieldBracket.where('ContentField.Name = :name', { name: key }).andWhere('ContentField.Value = :value', {
+                fieldBracket.where('ContentField.name = :name', { name: key }).andWhere('ContentField.value = :value', {
                   value: (options.data as any)[key] as string,
                 }),
               ),
@@ -51,15 +51,15 @@ export class Repository implements Disposable, IApi {
           return qb
         }),
       )
-      .innerJoinAndSelect('ContentField.Content', 'Content')
+      .innerJoinAndSelect('ContentField.content', 'content')
 
     if (options.contentType) {
-      query = query.innerJoin('Content.ContentTypeRef', 'contentType').andWhere('contentType.name = :contentTypeName', {
+      query = query.innerJoin('content.contentTypeRef', 'contentType').andWhere('contentType.name = :contentTypeName', {
         contentTypeName: options.contentType.name,
       })
     }
 
-    if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
+    if (!this.roleManager.hasRole(currentUser, this.systemContent.adminRole)) {
       /** ToDo: add permission checks for content and / or type */
     }
 
@@ -72,19 +72,18 @@ export class Repository implements Disposable, IApi {
     }
 
     const result = await query.groupBy('contentId').getMany()
-
-    const contentIds = result.filter(c => c.Content && c.Content.Id).map(c => c.Content.Id)
-    return await this.Load({ ids: contentIds, aspectName: options.aspectName })
+    const contentIds = result.filter(c => c.content && c.content.id).map(c => c.content.id)
+    return await this.load({ ids: contentIds, aspectName: options.aspectName })
   }
 
-  public async Create<T>(options: { contentType: Constructable<T>; data: T }): Promise<ISavedContent<T>> {
+  public async create<T>(options: { contentType: Constructable<T>; data: T }): Promise<ISavedContent<T>> {
     const contentTypeName = options.contentType.name
-    const currentUser = await this.userContext.GetCurrentUser()
-    return await this.GetManager().transaction(async tr => {
+    const currentUser = await this.userContext.getCurrentUser()
+    return await this.getManager().transaction(async tr => {
       const contentType = await tr.findOneOrFail(this.options.models.ContentType, { where: { Name: contentTypeName } })
-      if (!this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)) {
+      if (!this.roleManager.hasRole(currentUser, this.systemContent.adminRole)) {
         if (
-          !this.roleManager.HasPermissionForType({
+          !this.roleManager.hasPermissionForType({
             user: currentUser,
             contentType,
             permission: 'Create',
@@ -95,38 +94,38 @@ export class Repository implements Disposable, IApi {
       }
 
       const c = tr.create(Content, {
-        Type: contentType,
-        ContentTypeRef: contentType,
+        type: contentType,
+        contentTypeRef: contentType,
       })
 
       const savedContent = await tr.save(c)
       const fields = Object.keys(options.data).map(field => {
-        const fieldDef = contentType.Fields && contentType.Fields[field as keyof typeof contentType['Fields']]
-        if (fieldDef && fieldDef.Type !== 'Value') {
-          if (fieldDef.Type === 'Reference') {
+        const fieldDef = contentType.fields && contentType.fields[field as keyof typeof contentType['fields']]
+        if (fieldDef && fieldDef.type !== 'Value') {
+          if (fieldDef.type === 'Reference') {
             const fieldValue = (options.data as any)[field] as ISavedContent<{}>
-            ;(options.data as any)[field] = JSON.stringify(fieldValue.Id)
+            ;(options.data as any)[field] = JSON.stringify(fieldValue.id)
           }
-          if (fieldDef.Type === 'ReferenceList') {
+          if (fieldDef.type === 'ReferenceList') {
             const fieldValue = (options.data as any)[field] as Array<ISavedContent<{}>>
-            ;(options.data as any)[field] = JSON.stringify(fieldValue.map(f => f.Id))
+            ;(options.data as any)[field] = JSON.stringify(fieldValue.map(f => f.id))
           }
         }
         return tr.create(ContentField, {
-          Name: field,
-          Value: (options.data as any)[field],
-          Content: savedContent,
+          name: field,
+          value: (options.data as any)[field],
+          content: savedContent,
         }) as ContentField
       })
       const savedFields = await tr.save(fields)
       await tr
         .createQueryBuilder()
-        .relation(Content, 'Fields')
+        .relation(Content, 'fields')
         .of(savedContent)
         .add(savedFields)
-      const reloaded = await this.Load<T>({
+      const reloaded = await this.load<T>({
         contentType: options.contentType,
-        ids: [savedContent.Id],
+        ids: [savedContent.id],
         aspectName: DefaultAspects.Details,
         manager: tr,
       })
@@ -134,18 +133,18 @@ export class Repository implements Disposable, IApi {
     })
   }
 
-  public async Load<T>(options: {
+  public async load<T>(options: {
     contentType?: Constructable<T>
     ids: number[]
     aspectName: string
     manager?: EntityManager
   }): Promise<Array<ISavedContent<T>>> {
-    const currentUser = await this.userContext.GetCurrentUser()
+    const currentUser = await this.userContext.getCurrentUser()
     const isAdmin =
-      currentUser.Id === this.systemContent.AdminUser.Id ||
-      !this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)
+      currentUser.id === this.systemContent.adminUser.id ||
+      !this.roleManager.hasRole(currentUser, this.systemContent.adminRole)
 
-    const content = await (options.manager || this.GetManager()).find(Content, {
+    const content = await (options.manager || this.getManager()).find(Content, {
       where: {
         Id: In(options.ids),
       },
@@ -153,17 +152,17 @@ export class Repository implements Disposable, IApi {
     })
 
     const filtered = await content.filterAsync(async c => {
-      const contentPermission = await this.roleManager.HasPermissionForContent({
+      const contentPermission = await this.roleManager.hasPermissionForContent({
         user: currentUser,
         content: c,
         permission: 'Read',
       })
       const typePermission =
         (options.contentType &&
-          (await this.roleManager.HasPermissionForType({
+          (await this.roleManager.hasPermissionForType({
             user: currentUser,
             permission: 'Read',
-            contentType: c.ContentTypeRef,
+            contentType: c.contentTypeRef,
           }))) ||
         false
       return isAdmin || contentPermission || typePermission
@@ -171,18 +170,18 @@ export class Repository implements Disposable, IApi {
 
     return await Promise.all(
       filtered.map(async c =>
-        this.aspectManager.TransformPlainContent<T>({
+        this.aspectManager.transformPlainContent<T>({
           content: c,
-          aspect: this.aspectManager.GetAspectOrFail(c, options.aspectName),
-          loadRef: async ids => await this.Load({ ids, aspectName: DefaultAspects.Expanded }),
+          aspect: this.aspectManager.getAspectOrFail(c, options.aspectName),
+          loadRef: async ids => await this.load({ ids, aspectName: DefaultAspects.Expanded }),
         }),
       ),
     )
   }
 
   private async initConnection() {
-    this.logger.Verbose({
-      scope: this.LogScope,
+    this.logger.verbose({
+      scope: this.logScope,
       message: 'Initializing connection',
     })
     try {
@@ -196,46 +195,46 @@ export class Repository implements Disposable, IApi {
         })
       }
     } catch (error) {
-      this.logger.Fatal({
-        scope: this.LogScope,
+      this.logger.fatal({
+        scope: this.logScope,
         message: 'Failed to initialize repository DB connection.',
         data: { options: this.options.connection, error },
       })
       throw error
     }
   }
-  public readonly LogScope = '@furystack/content-repository/ContentRepository'
+  public readonly logScope = '@furystack/content-repository/ContentRepository'
 
-  public async Remove(...ids: number[]): Promise<void> {
-    return await this.GetManager().transaction(async tr => {
+  public async remove(...ids: number[]): Promise<void> {
+    return await this.getManager().transaction(async tr => {
       await tr.delete(Content, { Id: In(ids) })
     })
   }
 
-  public async Update<T>(options: { id: number; change: Partial<T>; aspectName?: string }): Promise<ISavedContent<T>> {
-    return await this.GetManager().transaction(async tm => {
+  public async update<T>(options: { id: number; change: Partial<T>; aspectName?: string }): Promise<ISavedContent<T>> {
+    return await this.getManager().transaction(async tm => {
       const aspectName = options.aspectName || DefaultAspects.Edit
       const existingContent = await tm.findOne(Content, options.id, {
         loadEagerRelations: true,
       })
 
-      const currentUser = await this.userContext.GetCurrentUser()
-      const isAdmin = await this.roleManager.HasRole(currentUser, this.systemContent.AdminRole)
+      const currentUser = await this.userContext.getCurrentUser()
+      const isAdmin = await this.roleManager.hasRole(currentUser, this.systemContent.adminRole)
 
       if (!isAdmin) {
         const contentPermission =
           existingContent &&
-          (await this.roleManager.HasPermissionForContent({
+          (await this.roleManager.hasPermissionForContent({
             user: currentUser,
             content: existingContent,
             permission: 'Write',
           }))
         const typePermission =
           existingContent &&
-          (await this.roleManager.HasPermissionForType({
+          (await this.roleManager.hasPermissionForType({
             user: currentUser,
             permission: 'Write',
-            contentType: existingContent.ContentTypeRef,
+            contentType: existingContent.contentTypeRef,
           }))
         if (!contentPermission && !typePermission) {
           throw Error(`No 'Write' permission for content :(`)
@@ -246,43 +245,43 @@ export class Repository implements Disposable, IApi {
         throw Error(`Content not found with id '${options.id}'`)
       }
 
-      const aspect = this.aspectManager.GetAspectOrFail(existingContent, aspectName)
-      const validationResult = this.aspectManager.Validate(existingContent, options.change, aspect)
+      const aspect = this.aspectManager.getAspectOrFail(existingContent, aspectName)
+      const validationResult = this.aspectManager.validate(existingContent, options.change, aspect)
       if (!validationResult.isValid) {
         throw Error(`Content update is not valid. Details: ${JSON.stringify(validationResult)}`)
       }
-      for (const field of existingContent.Fields) {
-        const changeValue = options.change[field.Name as keyof T]
-        if (changeValue !== field.Value) {
-          field.Value = (changeValue && changeValue.toString && changeValue.toString()) || (null as any)
+      for (const field of existingContent.fields) {
+        const changeValue = options.change[field.name as keyof T]
+        if (changeValue !== field.value) {
+          field.value = (changeValue && changeValue.toString && changeValue.toString()) || (null as any)
           await tm.save(field)
         }
       }
-      return (await this.Load({
-        ids: [existingContent.Id],
+      return (await this.load({
+        ids: [existingContent.id],
         aspectName: DefaultAspects.Edit,
       }))[0] as ISavedContent<T>
     })
   }
 
-  public GetPhysicalStoreForType = <TM extends ISavedContent<any>>(contentType: Constructable<TM>) =>
+  public getPhysicalStoreForType = <TM extends ISavedContent<any>>(contentType: Constructable<TM>) =>
     ({
       primaryKey: 'Id',
       logger: this.logger,
-      add: data => this.Create({ contentType, data }),
-      count: () => this.GetManager().count(contentType),
+      add: data => this.create({ contentType, data }),
+      count: () => this.getManager().count(contentType),
       dispose: () => undefined as any,
       update: async (id, change) => {
-        await this.Update({ id, change })
+        await this.update({ id, change })
       },
       get: async key =>
-        (await this.Load({
+        (await this.load({
           contentType,
           ids: [key],
           aspectName: DefaultAspects.List,
         }))[0],
-      remove: async id => await this.Remove(id),
-      filter: async (data, aspectName = DefaultAspects.Details) => await this.Find({ data, contentType, aspectName }),
+      remove: async id => await this.remove(id),
+      filter: async (data, aspectName = DefaultAspects.Details) => await this.find({ data, contentType, aspectName }),
     } as IPhysicalStore<TM>)
 
   public readonly options: ContentRepositoryConfiguration
@@ -294,6 +293,6 @@ export class Repository implements Disposable, IApi {
     protected readonly roleManager: RoleManager,
     protected readonly userContext: UserContext<ISavedContent<IUser>>,
   ) {
-    this.options = this.injector.GetInstance(ContentRepositoryConfiguration)
+    this.options = this.injector.getInstance(ContentRepositoryConfiguration)
   }
 }

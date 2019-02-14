@@ -7,11 +7,11 @@ import { Content } from './Content'
 @Entity()
 export class ContentField {
   @PrimaryGeneratedColumn()
-  public Id!: number
-  @ManyToOne(() => Content, c => c.Fields)
-  public Content!: Content
+  public id!: number
+  @ManyToOne(() => Content, c => c.fields)
+  public content!: Content
   @Column()
-  public Name!: string
+  public name!: string
   @Column({ nullable: true })
-  public Value?: string
+  public value?: string
 }

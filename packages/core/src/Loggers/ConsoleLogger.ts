@@ -1,5 +1,5 @@
-import { ILoggerOptions } from '../Models'
 import { ILeveledLogEntry, LogLevel } from '../Models/ILogEntries'
+import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
 
 /**
@@ -109,7 +109,7 @@ export class ConsoleLogger extends AbstractLogger<IConsoleLoggerOptions> {
     }
   }
 
-  public async AddEntry<T>(entry: ILeveledLogEntry<T>) {
+  public async addEntry<T>(entry: ILeveledLogEntry<T>) {
     const data = this.options.formatter(entry)
     // tslint:disable-next-line:no-console
     console.log(...data)

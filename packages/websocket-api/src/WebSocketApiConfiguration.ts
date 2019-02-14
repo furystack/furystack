@@ -8,7 +8,7 @@ import { Server } from 'net'
  */
 @Injectable()
 export class WebSocketApiConfiguration {
-  public Path: string = '/socket'
-  public Server: Server = createServer()
-  public PerActionServices: Array<Constructable<any>> = [HttpUserContext]
+  public path: string = '/socket'
+  public server: Server = createServer()
+  public perActionServices: Array<Constructable<any>> = [HttpUserContext]
 }

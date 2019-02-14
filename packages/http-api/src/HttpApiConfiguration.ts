@@ -22,7 +22,7 @@ export class HttpApiConfiguration {
   public actions: Array<(incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined> = []
   public port: number = 8080
   public protocol: 'http' | 'https' = 'http'
-  public PerRequestServices: Array<{ key: Constructable<any>; value: Constructable<any> }> = [
+  public perRequestServices: Array<{ key: Constructable<any>; value: Constructable<any> }> = [
     {
       key: UserContext,
       value: HttpUserContext,

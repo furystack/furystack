@@ -1,5 +1,5 @@
-import { ILoggerOptions } from '../Models'
 import { ILeveledLogEntry } from '../Models/ILogEntries'
+import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger } from './AbstractLogger'
 
 /**
@@ -12,7 +12,7 @@ export class TestLogger extends AbstractLogger {
   ) {
     super(options)
   }
-  public async AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
+  public async addEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
     await this.onAddEntry(entry)
   }
 }

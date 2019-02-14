@@ -16,7 +16,7 @@ export class FindContent implements IRequestAction {
     const parsedUrl = parse(this.incomingMessage.url as string, true)
     const data = JSON.parse(parsedUrl.query.data as string)
     const aspectName = parsedUrl.query.aspectName as string
-    const content = await this.repository.Find({
+    const content = await this.repository.find({
       data,
       aspectName,
     })

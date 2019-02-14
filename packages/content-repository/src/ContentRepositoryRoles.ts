@@ -4,21 +4,21 @@ import { IRole } from '@furystack/core'
  * keep in sync with client
  */
 export class ContentRepositoryRoles {
-  public static ManageContentTypes: IRole = {
-    Name: 'ManageContentTypes',
-    DisplayName: 'Manage content types',
-    Description: 'Allow the editing of content types, aspects and jobs',
+  public static manageContentTypes: IRole = {
+    name: 'ManageContentTypes',
+    displayName: 'Manage content types',
+    description: 'Allow the editing of content types, aspects and jobs',
   }
 
-  public static Console: IRole = {
-    Name: 'SystemConsole',
-    DisplayName: 'Access to the System Console',
-    Description: 'Allow the user to access the system console',
+  public static console: IRole = {
+    name: 'SystemConsole',
+    displayName: 'Access to the System Console',
+    description: 'Allow the user to access the system console',
   }
 
-  public static LowLevelData: IRole = {
-    Name: 'LowLevelDataAccess',
-    DisplayName: 'Low Level Data Access',
-    Description: 'Allow the user to access the low level data storage',
+  public static lowLevelData: IRole = {
+    name: 'LowLevelDataAccess',
+    displayName: 'Low Level Data Access',
+    description: 'Allow the user to access the low level data storage',
   }
 }

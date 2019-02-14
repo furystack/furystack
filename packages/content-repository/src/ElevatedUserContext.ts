@@ -17,20 +17,20 @@ export class ElevatedUserContext<TUser extends ISavedContent<IUser> = ISavedCont
     this.isDisposed = true
   }
 
-  public async GetCurrentUser(): Promise<TUser> {
+  public async getCurrentUser(): Promise<TUser> {
     if (!this.isDisposed) {
-      return (this.systemContent.AdminUser as any) as TUser
+      return (this.systemContent.adminUser as any) as TUser
     }
-    return (await this.injector.options.parent.GetInstance(UserContext).GetCurrentUser()) as TUser
+    return (await this.injector.options.parent.getInstance(UserContext).getCurrentUser()) as TUser
   }
   constructor(private readonly systemContent: SystemContent, private readonly injector: Injector) {}
 
-  public static Create<TUser extends ISavedContent<IUser> = ISavedContent<User>>(
+  public static create<TUser extends ISavedContent<IUser> = ISavedContent<User>>(
     injector: Injector,
   ): ElevatedUserContext<TUser> {
-    injector.Remove(ElevatedUserContext)
-    const instance = injector.GetInstance<ElevatedUserContext<TUser>>(ElevatedUserContext, true)
-    injector.SetInstance(instance, UserContext)
+    injector.remove(ElevatedUserContext)
+    const instance = injector.getInstance<ElevatedUserContext<TUser>>(ElevatedUserContext, true)
+    injector.setInstance(instance, UserContext)
     return instance
   }
 }

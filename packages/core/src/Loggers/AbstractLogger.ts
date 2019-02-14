@@ -25,15 +25,15 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
     } as TOptions
   }
 
-  public abstract AddEntry<T>(entry: ILeveledLogEntry<T>): Promise<void>
+  public abstract addEntry<T>(entry: ILeveledLogEntry<T>): Promise<void>
   private async addEntryInternal<T>(entry: ILeveledLogEntry<T>) {
     if (!this.options.filter(entry)) {
       return
     }
     try {
-      await this.AddEntry(entry)
+      await this.addEntry(entry)
     } catch (error) {
-      this.Error({
+      this.error({
         scope: AbstractLoggerScope,
         message: 'There was an error adding entry to the log',
         data: {
@@ -43,38 +43,38 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
       })
     }
   }
-  public async Verbose<T>(entry: ILogEntry<T>) {
+  public async verbose<T>(entry: ILogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Verbose,
     })
   }
-  public async Debug<T>(entry: ILogEntry<T>) {
+  public async debug<T>(entry: ILogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Debug,
     })
   }
-  public async Information<T>(entry: ILogEntry<T>) {
+  public async information<T>(entry: ILogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Information,
     })
   }
-  public async Warning<T>(entry: ILogEntry<T>) {
+  public async warning<T>(entry: ILogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Warning,
     })
   }
-  public async Error<T>(entry: ILogEntry<T>) {
+  public async error<T>(entry: ILogEntry<T>) {
     try {
-      await this.AddEntry({
+      await this.addEntry({
         ...entry,
         level: LogLevel.Error,
       })
     } catch (error) {
-      await this.Fatal({
+      await this.fatal({
         scope: AbstractLoggerScope,
         message:
           'There was an error persisting an Error event in the log and therefore the event was elevated to Fatal level.',
@@ -85,8 +85,8 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
       })
     }
   }
-  public async Fatal<T>(entry: ILogEntry<T>) {
-    await this.AddEntry({
+  public async fatal<T>(entry: ILogEntry<T>) {
+    await this.addEntry({
       ...entry,
       level: LogLevel.Fatal,
     })

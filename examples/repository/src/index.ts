@@ -25,7 +25,7 @@ import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 
-Injector.Default.SetInstance(
+Injector.default.setInstance(
   new ContentRepositoryConfiguration({
     connection: {
       name: '@furystack/example-repository',
@@ -37,7 +37,7 @@ Injector.Default.SetInstance(
   }),
 )
 
-Injector.Default.SetInstance(
+Injector.default.setInstance(
   new HttpApiConfiguration({
     protocol: 'https',
     port: 8443,
@@ -46,7 +46,7 @@ Injector.Default.SetInstance(
       origins: ['http://localhost:8080'],
     },
     defaultAction: NotFoundAction,
-    PerRequestServices: [{ key: UserContext, value: HttpUserContext }, { key: Repository, value: Repository }],
+    perRequestServices: [{ key: UserContext, value: HttpUserContext }, { key: Repository, value: Repository }],
     actions: [
       msg => {
         const urlPathName = parse(msg.url || '', true).pathname
@@ -62,7 +62,7 @@ Injector.Default.SetInstance(
       },
     ],
     serverFactory: listener =>
-      createServer(Injector.Default.GetInstance(CertificateManager).getCredentials(), (req, resp) =>
+      createServer(Injector.default.getInstance(CertificateManager).getCredentials(), (req, resp) =>
         listener(req, resp),
       ),
   }),
@@ -70,28 +70,28 @@ Injector.Default.SetInstance(
 
 const loggers = new LoggerCollection()
 loggers.attachLogger(new ConsoleLogger())
-Injector.Default.SetInstance(loggers)
+Injector.default.setInstance(loggers)
 
-Injector.Default.SetInstance(new CertificateManager())
+Injector.default.setInstance(new CertificateManager())
 
 const stack = new FuryStack({
   apis: [HttpApi],
-  injectorParent: Injector.Default,
+  injectorParent: Injector.default,
 })
 ;(async () => {
-  await usingAsync(new Injector({ parent: Injector.Default }), async i => {
-    await usingAsync(ElevatedUserContext.Create(i), async () => {
-      await i.GetInstance(SchemaSeeder, true).SeedBuiltinEntries()
-      await i.GetInstance(ContentSeeder, true).SeedSystemContent()
+  await usingAsync(new Injector({ parent: Injector.default }), async i => {
+    await usingAsync(ElevatedUserContext.create(i), async () => {
+      await i.getInstance(SchemaSeeder, true).seedBuiltinEntries()
+      await i.getInstance(ContentSeeder, true).seedSystemContent()
     })
   })
 
-  const repo = Injector.Default.GetInstance(ElevatedRepository)
-  const systemContent = Injector.Default.GetInstance(SystemContent)
-  Injector.Default.SetInstance(
+  const repo = Injector.default.getInstance(ElevatedRepository)
+  const systemContent = Injector.default.getInstance(SystemContent)
+  Injector.default.setInstance(
     new HttpAuthenticationSettings({
-      Users: repo.GetPhysicalStoreForType(User),
-      VisitorUser: systemContent.VisitorUser,
+      users: repo.getPhysicalStoreForType(User),
+      visitorUser: systemContent.visitorUser,
     }),
   )
 

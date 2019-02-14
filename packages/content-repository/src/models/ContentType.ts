@@ -13,34 +13,34 @@ import { JobTypePermission } from './JobTypePermission'
 @Entity()
 export class ContentType<T = {}> {
   @PrimaryColumn()
-  public Name!: string
+  public name!: string
 
   @PrimaryColumn()
-  public DisplayName?: string
+  public displayName?: string
 
   @Column({ nullable: true })
-  public Description?: string
+  public description?: string
   @Column({ nullable: true })
-  public Category?: string
+  public category?: string
   @Column({ nullable: true, type: 'simple-json' })
-  public Fields?: {
+  public fields?: {
     [K: string]: IValueType | IReferenceType
   }
   @Column({ nullable: true, type: 'simple-json' })
-  public Aspects?: {
+  public aspects?: {
     [K: string]: IAspect<T>
   }
   @Column({ nullable: true, type: 'simple-json' })
-  public Jobs?: {
+  public jobs?: {
     [K: string]: IJob
   }
 
-  @OneToMany(() => Content, c => c.ContentTypeRef)
-  public ContentInstances?: Content[]
+  @OneToMany(() => Content, c => c.contentTypeRef)
+  public contentInstances?: Content[]
 
-  @OneToMany(() => ContentTypePermission, ctp => ctp.ContentType, { eager: true, cascade: true })
-  public Permissions!: ContentTypePermission[]
+  @OneToMany(() => ContentTypePermission, ctp => ctp.contentType, { eager: true, cascade: true })
+  public permissions!: ContentTypePermission[]
 
-  @OneToMany(() => JobTypePermission, jtp => jtp.ContentType, { eager: true, cascade: true })
-  public JobTypePermissions!: JobTypePermission[]
+  @OneToMany(() => JobTypePermission, jtp => jtp.contentType, { eager: true, cascade: true })
+  public jobTypePermissions!: JobTypePermission[]
 }

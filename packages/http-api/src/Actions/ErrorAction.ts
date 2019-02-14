@@ -19,7 +19,7 @@ export class ErrorAction implements IRequestAction {
     this.serverResponse.end(
       JSON.stringify({ message: error.message, url: this.incomingMessage.url, stack: error.stack }),
     )
-    this.logger.Warning({
+    this.logger.warning({
       scope: '@furystack/http-api/ErrorAction',
       message: `An action returned 500 from '${this.incomingMessage.url}'.`,
       data: {

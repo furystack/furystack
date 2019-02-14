@@ -23,26 +23,26 @@ export type ISavedContent<T> = T & Content
 @Entity()
 export class Content {
   @PrimaryGeneratedColumn()
-  public Id!: number
+  public id!: number
 
   @CreateDateColumn()
-  public CreationDate!: Date
+  public creationDate!: Date
 
   @UpdateDateColumn()
-  public ModificationDate!: Date
+  public modificationDate!: Date
 
   @Column('simple-json')
-  public Type!: ContentType
+  public type!: ContentType
 
-  @ManyToOne(() => ContentType, ct => ct.ContentInstances, { eager: true })
-  public ContentTypeRef!: ContentType
+  @ManyToOne(() => ContentType, ct => ct.contentInstances, { eager: true })
+  public contentTypeRef!: ContentType
 
-  @OneToMany(() => ContentField, cf => cf.Content, { eager: true, cascade: true })
-  public Fields!: ContentField[]
+  @OneToMany(() => ContentField, cf => cf.content, { eager: true, cascade: true })
+  public fields!: ContentField[]
 
-  @OneToMany(() => ContentPermission, cp => cp.Content, { eager: true, cascade: true })
-  public Permissions!: ContentPermission[]
+  @OneToMany(() => ContentPermission, cp => cp.content, { eager: true, cascade: true })
+  public permissions!: ContentPermission[]
 
-  @OneToMany(() => JobPermission, jp => jp.Content, { eager: true, cascade: true })
-  public JobPermissions!: JobPermission[]
+  @OneToMany(() => JobPermission, jp => jp.content, { eager: true, cascade: true })
+  public jobPermissions!: JobPermission[]
 }

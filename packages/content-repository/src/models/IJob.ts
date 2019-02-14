@@ -2,10 +2,10 @@
  * Represents a job instance
  */
 export interface IJob {
-  DisplayName?: string
-  Description?: string
-  Category?: string
-  PrerequisiteJobNames?: string[]
-  Completed?: boolean
-  Repeatable?: boolean
+  displayName?: string
+  description?: string
+  category?: string
+  prerequisiteJobNames?: string[]
+  completed?: boolean
+  repeatable?: boolean
 }

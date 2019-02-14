@@ -7,14 +7,14 @@ import { Content } from './Content'
 @Entity()
 export class JobPermission {
   @PrimaryGeneratedColumn()
-  public Id!: number
+  public id!: number
   @ManyToOne(() => Content)
-  public Identity!: Content
+  public identity!: Content
 
-  @ManyToOne(() => Content, c => c.JobPermissions)
-  public Content!: Content
+  @ManyToOne(() => Content, c => c.jobPermissions)
+  public content!: Content
   @Column({ type: 'varchar' })
-  public Type!: 'Read' | 'Write' | 'Complete' | 'Reject'
+  public type!: 'Read' | 'Write' | 'Complete' | 'Reject'
   @Column()
-  public JobName!: string
+  public jobName!: string
 }

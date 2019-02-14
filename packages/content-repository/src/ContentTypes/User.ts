@@ -7,46 +7,46 @@ import { Role } from './Role'
  * Represents an application user
  */
 @ContentType<User>({
-  DisplayName: 'User',
-  Description: 'Represents an User content',
-  Category: 'System',
-  Aspects: {
+  displayName: 'User',
+  description: 'Represents an User content',
+  category: 'System',
+  aspects: {
     Create: {
-      Fields: [
-        { FieldName: 'Username', Required: true, ControlHint: 'UserName' },
-        { FieldName: 'Password', Required: true, ControlHint: 'Password' },
+      fields: [
+        { fieldName: 'username', required: true, controlHint: 'UserName' },
+        { fieldName: 'password', required: true, controlHint: 'Password' },
       ],
     },
     Edit: {
-      Fields: [
-        { FieldName: 'Username', Required: true, ControlHint: 'UserName' },
-        { FieldName: 'Password', Required: true, ControlHint: 'Password' },
+      fields: [
+        { fieldName: 'username', required: true, controlHint: 'UserName' },
+        { fieldName: 'password', required: true, controlHint: 'Password' },
       ],
     },
     List: {
-      Fields: [{ FieldName: 'Username', ReadOnly: true }],
+      fields: [{ fieldName: 'username', readOnly: true }],
     },
     Expanded: {
-      Fields: [{ FieldName: 'Username' }],
+      fields: [{ fieldName: 'username' }],
     },
     Details: {
-      Fields: [{ FieldName: 'Username', ReadOnly: true, Required: true }, { FieldName: 'Roles', ReadOnly: true }],
+      fields: [{ fieldName: 'username', readOnly: true, required: true }, { fieldName: 'roles', readOnly: true }],
     },
   },
 })
 export class User {
   @Field({
-    Description: 'The unique name for the user',
-    DisplayName: 'User Name',
-    Unique: true,
+    description: 'The unique name for the user',
+    displayName: 'User Name',
+    unique: true,
   })
-  public Username!: string
+  public username!: string
   @Reference({
-    AllowedTypeNames: ['Role'],
-    AllowMultiple: true,
+    allowedTypeNames: ['Role'],
+    allowMultiple: true,
   })
-  public Roles!: Role[]
+  public roles!: Role[]
 
   @Field()
-  public Password!: string
+  public password!: string
 }

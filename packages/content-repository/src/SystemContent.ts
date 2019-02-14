@@ -7,19 +7,19 @@ import { ISavedContent } from './models'
  */
 @Injectable()
 export class SystemContent {
-  public VisitorRole = { Id: 1, Name: 'Visitor', DisplayName: 'Visitor Role' } as ISavedContent<Role>
-  public AuthenticatedRole = { Id: 2, Name: 'Authenticated', DisplayName: 'Authenticated Role' } as ISavedContent<Role>
-  public AdminRole = { Id: 3, Name: 'Admin', DisplayName: 'Administrator Role' } as ISavedContent<Role>
-  public VisitorUser = ({
+  public visitorRole = { id: 1, name: 'Visitor', displayName: 'Visitor Role' } as ISavedContent<Role>
+  public authenticatedRole = { id: 2, name: 'Authenticated', displayName: 'Authenticated Role' } as ISavedContent<Role>
+  public adminRole = { id: 3, name: 'Admin', displayName: 'Administrator Role' } as ISavedContent<Role>
+  public visitorUser = ({
     Id: 4,
     Username: 'Visitor',
     Password: '',
-    Roles: [this.VisitorRole],
+    Roles: [this.visitorRole],
   } as any) as ISavedContent<User>
-  public AdminUser = ({
+  public adminUser = ({
     Id: 5,
     Username: 'Admin',
     Password: '',
-    Roles: [this.AuthenticatedRole, this.AdminRole],
+    Roles: [this.authenticatedRole, this.adminRole],
   } as any) as ISavedContent<User>
 }

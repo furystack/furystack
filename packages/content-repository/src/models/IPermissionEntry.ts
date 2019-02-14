@@ -3,6 +3,6 @@
  */
 export interface IPermissionEntry {
   Permissions: Array<{
-    Type: unknown
+    type: unknown
   }>
 }

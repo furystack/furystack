@@ -7,14 +7,14 @@ import { ContentType, ContentTypeDecoratorOptions } from './ContentType'
 /**
  * options for Field decorator
  */
-type DecoratorOptins = IValueType & { Injector: Injector }
+type DecoratorOptins = IValueType & { injector: Injector }
 
 /**
  * Default value of a Field decorator
  */
 export const defaultFieldDecoratorOptions: DecoratorOptins = {
-  Injector: Injector.Default,
-  Type: 'Value',
+  injector: Injector.default,
+  type: 'Value',
 }
 
 /**
@@ -24,20 +24,20 @@ export const defaultFieldDecoratorOptions: DecoratorOptins = {
 export const Field = (options?: Partial<DecoratorOptins>) => {
   return (target: any, propertyKey: string) => {
     const mergedOptions = { ...defaultFieldDecoratorOptions, ...options }
-    const store = mergedOptions.Injector.GetInstance(ContentDescriptorStore)
-    let contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor)
+    const store = mergedOptions.injector.getInstance(ContentDescriptorStore)
+    let contentTypeDescriptor = store.contentTypeDescriptors.get(target.constructor)
     if (!contentTypeDescriptor) {
-      ContentType({ Injector: mergedOptions.Injector })(target.constructor)
-      contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor) as ContentTypeDecoratorOptions<any>
+      ContentType({ injector: mergedOptions.injector })(target.constructor)
+      contentTypeDescriptor = store.contentTypeDescriptors.get(target.constructor) as ContentTypeDecoratorOptions<any>
     }
-    if (!contentTypeDescriptor.Fields) {
-      contentTypeDescriptor.Fields = {}
+    if (!contentTypeDescriptor.fields) {
+      contentTypeDescriptor.fields = {}
     }
 
-    if (contentTypeDescriptor && contentTypeDescriptor.Fields) {
-      delete mergedOptions.Injector
-      contentTypeDescriptor.Fields[propertyKey] = mergedOptions
+    if (contentTypeDescriptor && contentTypeDescriptor.fields) {
+      delete mergedOptions.injector
+      contentTypeDescriptor.fields[propertyKey] = mergedOptions
     }
-    store.ContentTypeDescriptors.set(target.constructor, contentTypeDescriptor)
+    store.contentTypeDescriptors.set(target.constructor, contentTypeDescriptor)
   }
 }

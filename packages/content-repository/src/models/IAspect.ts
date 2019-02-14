@@ -2,19 +2,19 @@
  * Represents an aspect field type
  */
 export interface IAspectFieldType<T> {
-  FieldName: keyof T
-  Required?: boolean
-  ReadOnly?: boolean
-  ControlHint?: string
+  fieldName: keyof T
+  required?: boolean
+  readOnly?: boolean
+  controlHint?: string
 }
 
 /**
  * Represents an aspect instance
  */
 export interface IAspect<T> {
-  DisplayName?: string
-  Description?: string
-  Fields?: {
+  displayName?: string
+  description?: string
+  fields?: {
     [K: number]: IAspectFieldType<T>
   }
 }

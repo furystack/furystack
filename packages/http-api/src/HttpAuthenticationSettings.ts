@@ -4,22 +4,22 @@ import { sha256 } from 'hash.js'
 /**
  * An user instance extended with a plain Password value
  */
-export type ILoginUser<T extends IUser> = T & { Password: string }
+export type ILoginUser<T extends IUser> = T & { password: string }
 
 /**
  * Authentication settings object for FuryStack HTTP Api
  */
 @Injectable({ ResolveDependencies: false })
 export class HttpAuthenticationSettings<TUser extends IUser> {
-  public Users: IPhysicalStore<ILoginUser<TUser>, any> = new InMemoryStore('Username')
-  public Sessions: IPhysicalStore<{ SessionId: string; Username: string }> = new InMemoryStore('SessionId')
-  public CookieName: string = 'fss'
-  public HashMethod = (plain: string) =>
+  public users: IPhysicalStore<ILoginUser<TUser>, any> = new InMemoryStore('username')
+  public sessions: IPhysicalStore<{ SessionId: string; Username: string }> = new InMemoryStore('SessionId')
+  public cookieName: string = 'fss'
+  public hashMethod = (plain: string) =>
     sha256()
       .update(plain)
       .digest('hex')
-  public VisitorUser = ({ Username: 'Visitor', Roles: [] } as unknown) as TUser
-  public Injector: Injector = Injector.Default
+  public visitorUser = ({ username: 'Visitor', roles: [] } as unknown) as TUser
+  public injector: Injector = Injector.default
   constructor(options?: Partial<HttpAuthenticationSettings<TUser>>) {
     Object.assign(this, options)
   }

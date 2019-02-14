@@ -19,70 +19,74 @@ export class ContentSeeder {
     private readonly authSettings: HttpAuthenticationSettings<IUser>,
   ) {}
 
-  public async EnsureContentExists<T>(contentType: Constructable<T>, findOptions: Partial<T>, instance: T) {
-    const existing = (await this.repository.Find<T>({ data: findOptions, contentType, aspectName: 'Create' }))[0]
-    if (!existing) {
-      return await this.repository.Create({ contentType, data: instance })
+  public async ensureContentExists<T>(contentType: Constructable<T>, findOptions: Partial<T>, instance: T) {
+    try {
+      const existing = (await this.repository.find<T>({ data: findOptions, contentType, aspectName: 'Create' }))[0]
+      if (!existing) {
+        return await this.repository.create({ contentType, data: instance })
+      }
+      const reloaded = (await this.repository.load<T>({ contentType, ids: [existing.id], aspectName: 'Create' }))[0]
+      return reloaded
+    } catch (error) {
+      throw error
     }
-    const reloaded = (await this.repository.Load<T>({ contentType, ids: [existing.Id], aspectName: 'Create' }))[0]
-    return reloaded
   }
 
-  public async SeedSystemContent() {
+  public async seedSystemContent() {
     await this.repository.activate()
-    const VisitorRole = await this.EnsureContentExists(
+    const visitorRole = await this.ensureContentExists(
       Role,
-      { Name: 'Visitor' },
+      { name: 'Visitor' },
       {
-        Name: 'Visitor',
-        DisplayName: 'Visitor Role',
-        Description: 'The user is not authenticated',
+        name: 'Visitor',
+        displayName: 'Visitor Role',
+        description: 'The user is not authenticated',
       },
     )
 
-    const AuthenticatedRole = await this.EnsureContentExists(
+    const authenticatedRole = await this.ensureContentExists(
       Role,
-      { Name: 'Authenticated' },
+      { name: 'Authenticated' },
       {
-        Name: 'Authenticated',
-        Description: 'The user is authenticated',
-        DisplayName: 'Authenticated',
+        name: 'Authenticated',
+        description: 'The user is authenticated',
+        displayName: 'Authenticated',
       },
     )
 
-    const AdminRole = await this.EnsureContentExists(
+    const adminRole = await this.ensureContentExists(
       Role,
-      { Name: 'Admin' },
+      { name: 'Admin' },
       {
-        Name: 'Admin',
-        DisplayName: 'Administrator',
-        Description: 'The user is a global administrator',
+        name: 'Admin',
+        displayName: 'Administrator',
+        description: 'The user is a global administrator',
       },
     )
 
-    const VisitorUser = await this.EnsureContentExists(
+    const visitorUser = await this.ensureContentExists(
       User,
-      { Username: 'Visitor' },
+      { username: 'Visitor' },
       {
-        Username: 'Visitor',
-        Password: this.authSettings.HashMethod('Visitor'),
-        Roles: [this.systemContent.VisitorRole],
+        username: 'Visitor',
+        password: this.authSettings.hashMethod('Visitor'),
+        roles: [this.systemContent.visitorRole],
       },
     )
-    const AdminUser = await this.EnsureContentExists(
+    const adminUser = await this.ensureContentExists(
       User,
-      { Username: 'Administrator' },
+      { username: 'Administrator' },
       {
-        Username: 'Administrator',
-        Password: this.authSettings.HashMethod('admin'),
-        Roles: [this.systemContent.AuthenticatedRole, this.systemContent.AdminRole],
+        username: 'Administrator',
+        password: this.authSettings.hashMethod('admin'),
+        roles: [this.systemContent.authenticatedRole, this.systemContent.adminRole],
       },
     )
 
-    this.systemContent.AdminRole = AdminRole
-    this.systemContent.AuthenticatedRole = AuthenticatedRole
-    this.systemContent.VisitorRole = VisitorRole
-    this.systemContent.VisitorUser = VisitorUser
-    this.systemContent.AdminUser = AdminUser
+    this.systemContent.adminRole = adminRole
+    this.systemContent.authenticatedRole = authenticatedRole
+    this.systemContent.visitorRole = visitorRole
+    this.systemContent.visitorUser = visitorUser
+    this.systemContent.adminUser = adminUser
   }
 }

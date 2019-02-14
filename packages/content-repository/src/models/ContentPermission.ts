@@ -7,12 +7,12 @@ import { Content } from './Content'
 @Entity()
 export class ContentPermission {
   @PrimaryGeneratedColumn()
-  public Id!: number
+  public id!: number
   @ManyToOne(() => Content)
-  public Identity!: Content
+  public identity!: Content
 
-  @ManyToOne(() => Content, c => c.Permissions)
-  public Content!: Content
+  @ManyToOne(() => Content, c => c.permissions)
+  public content!: Content
   @Column({ type: 'varchar' })
-  public Type!: 'Read' | 'Write' | 'ModifyJobs' | 'Delete'
+  public type!: 'Read' | 'Write' | 'ModifyJobs' | 'Delete'
 }

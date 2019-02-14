@@ -6,41 +6,41 @@ import { Field } from '../Decorators/Field'
  * Representation of an user role
  */
 @ContentType<Role>({
-  DisplayName: 'Role',
-  Description: 'Role for a specified user',
-  Aspects: {
+  displayName: 'Role',
+  description: 'Role for a specified user',
+  aspects: {
     Create: {
-      Fields: [{ FieldName: 'Name', Required: true }],
+      fields: [{ fieldName: 'name', required: true }],
     },
     Edit: {
-      Fields: [{ FieldName: 'Name', Required: true }],
+      fields: [{ fieldName: 'name', required: true }],
     },
     Modify: {
-      Fields: [{ FieldName: 'Name', ReadOnly: true }],
+      fields: [{ fieldName: 'name', readOnly: true }],
     },
     List: {
-      Fields: [{ FieldName: 'Name', ReadOnly: true }],
+      fields: [{ fieldName: 'name', readOnly: true }],
     },
     Expanded: {
-      Fields: [{ FieldName: 'DisplayName' }],
+      fields: [{ fieldName: 'displayName' }],
     },
     Details: {
-      Fields: [
-        { FieldName: 'Name', ReadOnly: true },
-        { FieldName: 'DisplayName', ReadOnly: true },
-        { FieldName: 'Description', ReadOnly: true },
+      fields: [
+        { fieldName: 'name', readOnly: true },
+        { fieldName: 'displayName', readOnly: true },
+        { fieldName: 'description', readOnly: true },
       ],
     },
   },
 })
 export class Role implements IRole {
   @Field()
-  public Description?: string
+  public description?: string
 
   @Field({
-    Unique: true,
+    unique: true,
   })
-  public Name!: string
+  public name!: string
   @Field()
-  public DisplayName!: string
+  public displayName!: string
 }

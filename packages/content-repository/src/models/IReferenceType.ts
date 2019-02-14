@@ -2,10 +2,10 @@
  * Represents a reference type
  */
 export interface IReferenceType {
-  DisplayName?: string
-  Description?: string
-  Category?: string
-  AllowMultiple?: boolean
-  AllowedTypeNames?: string[]
-  Type: 'Reference' | 'ReferenceList'
+  displayName?: string
+  description?: string
+  category?: string
+  allowMultiple?: boolean
+  allowedTypeNames?: string[]
+  type: 'Reference' | 'ReferenceList'
 }

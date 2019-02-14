@@ -1,5 +1,5 @@
-export const webSocketApiTests = describe("WebSocketApi", () => {
-    it("Should be built", () => {
-        /** */
-    });
-});
+describe('WebSocketApi', () => {
+  it('Should be built', () => {
+    /** */
+  })
+})

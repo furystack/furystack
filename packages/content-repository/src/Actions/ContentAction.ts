@@ -19,7 +19,8 @@ export class ContentAction implements IRequestAction {
     const parsedUrl = parse(this.incomingMessage.url as string, true)
     const contentId = parseInt(parsedUrl.query.contentId as string, 10)
     const aspectName = (parsedUrl.query.aspectName as string) || 'Details'
-    const { Fields, ContentTypeRef, ...content } = (await this.repository.Load({
+    // tslint:disable-next-line: naming-convention
+    const { fields, contentTypeRef, ...content } = (await this.repository.load({
       ids: [contentId],
       aspectName,
     }))[0]
@@ -36,9 +37,10 @@ export class ContentAction implements IRequestAction {
 
   private async postContent() {
     const payload = await this.utils.readPostBody<{ Type: string & {} }>(this.incomingMessage)
+    // tslint:disable-next-line: naming-convention
     const { Type, ...data } = payload
     const contentType = this.store.getByName(Type)
-    const content = await this.repository.Create({
+    const content = await this.repository.create({
       contentType,
       data,
     })
@@ -50,9 +52,9 @@ export class ContentAction implements IRequestAction {
 
   private async patchContent() {
     const payload = await this.utils.readPostBody<ISavedContent<{ aspectName: string }>>(this.incomingMessage)
-    const { Id, ContentTypeRef, CreationDate, ModificationDate, Type, Fields, aspectName, ...data } = payload
-    const content = await this.repository.Update({
-      id: Id,
+    const { id, contentTypeRef, creationDate, modificationDate, type, fields, aspectName, ...data } = payload
+    const content = await this.repository.update({
+      id,
       change: data,
       aspectName,
     })
@@ -64,7 +66,7 @@ export class ContentAction implements IRequestAction {
 
   private async deleteContent() {
     const payload = await this.utils.readPostBody<number[]>(this.incomingMessage)
-    await this.repository.Remove(...payload)
+    await this.repository.remove(...payload)
     this.serverResponse.writeHead(200, {
       'Content-Type': 'application/json',
     })

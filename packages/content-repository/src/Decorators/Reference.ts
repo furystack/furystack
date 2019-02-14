@@ -7,17 +7,17 @@ import { ContentType, ContentTypeDecoratorOptions } from './ContentType'
 /**
  * Options type for the Reference decorator
  */
-export type ReferenceDecoratorOptions = IReferenceType & { Injector: Injector }
+export type ReferenceDecoratorOptions = IReferenceType & { injector: Injector }
 
 /**
  * returns the default options for the Reference Field
  */
 export const getDefaultFieldDecoratorOptions = () =>
   ({
-    Injector: Injector.Default,
-    AllowMultiple: false,
-    AllowedTypeNames: [],
-    Type: 'Reference',
+    injector: Injector.default,
+    allowMultiple: false,
+    allowedTypeNames: [],
+    type: 'Reference',
   } as ReferenceDecoratorOptions)
 
 /**
@@ -30,21 +30,21 @@ export const Reference = (options?: Partial<ReferenceDecoratorOptions>) => {
     const mergedOptions: ReferenceDecoratorOptions = {
       ...defaultOptions,
       ...options,
-      Type: options && options.AllowMultiple ? 'ReferenceList' : 'Reference',
+      type: options && options.allowMultiple ? 'ReferenceList' : 'Reference',
     }
-    const store = mergedOptions.Injector.GetInstance(ContentDescriptorStore)
-    let contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor)
+    const store = mergedOptions.injector.getInstance(ContentDescriptorStore)
+    let contentTypeDescriptor = store.contentTypeDescriptors.get(target.constructor)
     if (!contentTypeDescriptor) {
-      ContentType({ Injector: mergedOptions.Injector })(target.constructor)
-      contentTypeDescriptor = store.ContentTypeDescriptors.get(target.constructor) as ContentTypeDecoratorOptions<any>
+      ContentType({ injector: mergedOptions.injector })(target.constructor)
+      contentTypeDescriptor = store.contentTypeDescriptors.get(target.constructor) as ContentTypeDecoratorOptions<any>
     }
-    if (!contentTypeDescriptor.Fields) {
-      contentTypeDescriptor.Fields = {}
+    if (!contentTypeDescriptor.fields) {
+      contentTypeDescriptor.fields = {}
     }
-    if (contentTypeDescriptor && contentTypeDescriptor.Fields) {
-      delete mergedOptions.Injector
-      contentTypeDescriptor.Fields[propertyKey] = mergedOptions
+    if (contentTypeDescriptor && contentTypeDescriptor.fields) {
+      delete mergedOptions.injector
+      contentTypeDescriptor.fields[propertyKey] = mergedOptions
     }
-    store.ContentTypeDescriptors.set(target.constructor, contentTypeDescriptor)
+    store.contentTypeDescriptors.set(target.constructor, contentTypeDescriptor)
   }
 }
