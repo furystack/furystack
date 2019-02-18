@@ -2,42 +2,32 @@ import { IUser, LoggerCollection, visitorUser } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
-import { HttpApiConfiguration, HttpAuthenticationSettings, HttpUserContext, IRequestAction } from '../src'
+import { HttpUserContext, IRequestAction } from '../src'
 import { HttpApi } from '../src/HttpApi'
 
 // tslint:disable:max-classes-per-file
 
 describe('HttpApi tests', () => {
   it('Can be constructed', async () => {
-    await usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
-      i.setInstance(new HttpApiConfiguration({ serverFactory: () => ({} as any) }))
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({}, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        expect(api).toBeInstanceOf(HttpApi)
-      })
+    await usingAsync(new Injector(), async i => {
+      expect(i.getInstance(HttpApi)).toBeInstanceOf(HttpApi)
     })
   })
 
   it('Can be activated', async () => {
-    await usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
-      i.setInstance(
-        new HttpApiConfiguration({
-          serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-        }),
-      )
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({}, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        await api.activate()
+    await usingAsync(new Injector(), async i => {
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance({}, ServerResponse)
+
+      const api = i.setupInstance(HttpApi, {
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       })
+      await api.activate()
     })
   })
 
   it('NotFound Action is executed when no other action is awailable', done => {
-    usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
+    usingAsync(new Injector(), async i => {
       @Injectable()
       class ExampleNotFoundAction implements IRequestAction {
         public async exec() {
@@ -47,24 +37,24 @@ describe('HttpApi tests', () => {
           /** */
         }
       }
-      i.setInstance(
-        new HttpApiConfiguration({
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance({}, ServerResponse)
+      i.setExplicitInstance(new LoggerCollection())
+      await usingAsync(
+        i.setupInstance(HttpApi, {
           notFoundAction: ExampleNotFoundAction as any,
           serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
         }),
+        async api => {
+          await api.activate()
+          api.mainRequestListener({} as any, {} as any)
+        },
       )
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({}, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        await api.activate()
-        api.mainRequestListener({} as any, {} as any)
-      })
     })
   })
 
   it('Action can be executed', done => {
-    usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
+    usingAsync(new Injector(), async i => {
       @Injectable()
       class ExampleAction implements IRequestAction {
         public async exec() {
@@ -85,25 +75,24 @@ describe('HttpApi tests', () => {
          */
         constructor(private userContext: HttpUserContext<IUser>, private perRequestInjector: Injector) {}
       }
-      i.setInstance(
-        new HttpApiConfiguration({
+      i.setExplicitInstance({ headers: {} }, IncomingMessage)
+      i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
+      i.setExplicitInstance(new LoggerCollection())
+      await usingAsync(
+        i.setupInstance(HttpApi, {
           actions: [() => ExampleAction],
           serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
         }),
+        async api => {
+          await api.activate()
+          api.mainRequestListener({} as any, {} as any)
+        },
       )
-      i.setInstance(new HttpAuthenticationSettings())
-      i.setInstance({ headers: {} }, IncomingMessage)
-      i.setInstance({ writeHead: () => null, end: () => null }, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        await api.activate()
-        api.mainRequestListener({} as any, {} as any)
-      })
     })
   })
 
   it('Should throw error if multiple actions are resolved for a request', done => {
-    usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
+    usingAsync(new Injector(), async i => {
       @Injectable()
       class ExampleAction implements IRequestAction {
         public async exec() {
@@ -113,29 +102,28 @@ describe('HttpApi tests', () => {
           /** */
         }
       }
-      i.setInstance(
-        new HttpApiConfiguration({
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance({}, ServerResponse)
+      await usingAsync(
+        i.setupInstance(HttpApi, {
           actions: [() => ExampleAction, () => ExampleAction],
           serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
         }),
+        async api => {
+          await api.activate()
+          try {
+            await api.mainRequestListener({} as any, {} as any)
+            done('Should throw error')
+          } catch (error) {
+            done()
+          }
+        },
       )
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({}, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        await api.activate()
-        try {
-          await api.mainRequestListener({} as any, {} as any)
-          done('Should throw error')
-        } catch (error) {
-          done()
-        }
-      })
     })
   })
 
   it('Error Action is executed on other action errors executed', done => {
-    usingAsync(new Injector({ parent: undefined, owner: 'Test' }), async i => {
+    usingAsync(new Injector(), async i => {
       @Injectable()
       class ExampleFailAction implements IRequestAction {
         public async exec() {
@@ -159,20 +147,20 @@ describe('HttpApi tests', () => {
         }
       }
 
-      i.setInstance(
-        new HttpApiConfiguration({
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance({}, ServerResponse)
+      i.setExplicitInstance(new LoggerCollection())
+      await usingAsync(
+        i.setupLocalInstance(HttpApi, {
           actions: [() => ExampleFailAction],
           errorAction: ExampleErrorAction as any,
           serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
         }),
+        async api => {
+          await api.activate()
+          api.mainRequestListener({} as any, {} as any)
+        },
       )
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({}, ServerResponse)
-      i.setInstance(new LoggerCollection())
-      await usingAsync(i.getInstance(HttpApi, true), async api => {
-        await api.activate()
-        api.mainRequestListener({} as any, {} as any)
-      })
     })
   })
 })

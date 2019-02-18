@@ -1,99 +1,54 @@
-import {
-  ContentAction,
-  ContentRepositoryConfiguration,
-  ContentSeeder,
-  ElevatedRepository,
-  ElevatedUserContext,
-  FindContent,
-  Repository,
-  SchemaSeeder,
-  SystemContent,
-  User,
-} from '@furystack/content-repository'
-import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from '@furystack/core'
+import { ConsoleLogger, FuryStack, InMemoryStore, IUser, LoggerCollection, UserContext } from '@furystack/core'
 import {
   GetCurrentUser,
   HttpApi,
-  HttpApiConfiguration,
+  HttpApiSettings,
+  HttpAuthentication,
   HttpAuthenticationSettings,
   HttpUserContext,
+  ILoginUser,
   NotFoundAction,
 } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@sensenet/client-utils'
 import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 
-Injector.default.setInstance(
-  new ContentRepositoryConfiguration({
-    connection: {
-      name: '@furystack/example-repository',
-      type: 'sqlite',
-      database: './db.sqlite',
-      synchronize: true,
-      logging: true,
+const defaultInjector = new Injector()
+defaultInjector.setupLocalInstance(HttpApi, {
+  protocol: 'https',
+  port: 8443,
+  corsOptions: {
+    credentials: true,
+    origins: ['http://localhost:8080'],
+  },
+  defaultAction: NotFoundAction,
+  perRequestServices: [{ key: UserContext, value: HttpUserContext }],
+  actions: [
+    msg => {
+      const urlPathName = parse(msg.url || '', true).pathname
+      switch (urlPathName) {
+        case '/currentUser':
+          return GetCurrentUser
+      }
+      return undefined
     },
-  }),
-)
-
-Injector.default.setInstance(
-  new HttpApiConfiguration({
-    protocol: 'https',
-    port: 8443,
-    corsOptions: {
-      credentials: true,
-      origins: ['http://localhost:8080'],
-    },
-    defaultAction: NotFoundAction,
-    perRequestServices: [{ key: UserContext, value: HttpUserContext }, { key: Repository, value: Repository }],
-    actions: [
-      msg => {
-        const urlPathName = parse(msg.url || '', true).pathname
-        switch (urlPathName) {
-          case '/content':
-            return ContentAction
-          case '/find':
-            return FindContent
-          case '/currentUser':
-            return GetCurrentUser
-        }
-        return undefined
-      },
-    ],
-    serverFactory: listener =>
-      createServer(Injector.default.getInstance(CertificateManager).getCredentials(), (req, resp) =>
-        listener(req, resp),
-      ),
-  }),
-)
+  ],
+  serverFactory: listener =>
+    createServer(defaultInjector.getInstance(CertificateManager).getCredentials(), (req, resp) => listener(req, resp)),
+} as Partial<HttpApiSettings>)
 
 const loggers = new LoggerCollection()
 loggers.attachLogger(new ConsoleLogger())
-Injector.default.setInstance(loggers)
+defaultInjector.setExplicitInstance(loggers)
 
-Injector.default.setInstance(new CertificateManager())
-
-const stack = new FuryStack({
+const stack = defaultInjector.setupLocalInstance(FuryStack, {
   apis: [HttpApi],
-  injectorParent: Injector.default,
+  injectorParent: defaultInjector,
 })
 ;(async () => {
-  await usingAsync(new Injector({ parent: Injector.default }), async i => {
-    await usingAsync(ElevatedUserContext.create(i), async () => {
-      await i.getInstance(SchemaSeeder, true).seedBuiltinEntries()
-      await i.getInstance(ContentSeeder, true).seedSystemContent()
-    })
-  })
-
-  const repo = Injector.default.getInstance(ElevatedRepository)
-  const systemContent = Injector.default.getInstance(SystemContent)
-  Injector.default.setInstance(
-    new HttpAuthenticationSettings({
-      users: repo.getPhysicalStoreForType(User),
-      visitorUser: systemContent.visitorUser,
-    }),
-  )
-
+  defaultInjector.setupLocalInstance(HttpAuthentication, {
+    users: new InMemoryStore<ILoginUser<IUser>>('username'),
+  } as Partial<HttpAuthenticationSettings>)
   await stack.start()
 })()

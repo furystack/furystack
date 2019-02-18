@@ -18,12 +18,6 @@
   },
   "references": [
     {
-      "path": "./packages/content"
-    },
-    {
-      "path": "./packages/content-repository"
-    },
-    {
       "path": "./packages/core"
     },
     {

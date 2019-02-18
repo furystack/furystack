@@ -6,7 +6,7 @@ import { parse } from 'url'
 import { Data, Server as WebSocketServer } from 'ws'
 import * as ws from 'ws'
 import { IWebSocketAction, IWebSocketActionStatic } from './models/IWebSocketAction'
-import { WebSocketApiConfiguration } from './WebSocketApiConfiguration'
+import { defaultWebSocketApiSettings, WebSocketApiSettings } from './WebSocketApiSettings'
 
 /**
  * A WebSocket API implementation for FuryStack
@@ -26,13 +26,15 @@ export class WebSocketApi implements IApi {
   public actions: Array<Constructable<IWebSocketAction> & IWebSocketActionStatic> = []
   public path: string = '/socket'
 
-  constructor(
-    private readonly logger: LoggerCollection,
-    private readonly options: WebSocketApiConfiguration,
-    parentInjector: Injector,
-  ) {
+  private settings: WebSocketApiSettings = defaultWebSocketApiSettings
+
+  public setup(settings: Partial<WebSocketApiSettings>) {
+    this.settings = { ...this.settings, ...settings }
+  }
+
+  constructor(private readonly logger: LoggerCollection, parentInjector: Injector) {
     this.socket = new WebSocketServer({ noServer: true })
-    this.injector = new Injector({ parent: parentInjector })
+    this.injector = parentInjector.createChild({ owner: this })
     this.socket.on('connection', (websocket, msg) => {
       this.logger.verbose({
         scope: this.logScope,
@@ -64,7 +66,7 @@ export class WebSocketApi implements IApi {
       })
     })
 
-    this.options.server.on('upgrade', (request, socket, head) => {
+    this.settings.server.on('upgrade', (request, socket, head) => {
       const pathname = parse(request.url).pathname
       if (pathname === this.path) {
         this.socket.handleUpgrade(request, socket, head, websocket => {
@@ -84,9 +86,9 @@ export class WebSocketApi implements IApi {
   public execute(data: Data, msg: IncomingMessage, websocket: ws) {
     const action = this.actions.find(a => a.canExecute(data))
     if (action) {
-      usingAsync(new Injector({ parent: this.injector }), async i => {
-        i.setInstance(msg)
-        i.setInstance(websocket)
+      usingAsync(this.injector.createChild({ owner: msg }), async i => {
+        i.setExplicitInstance(msg)
+        i.setExplicitInstance(websocket)
         const actionInstance = i.getInstance<IWebSocketAction>(action)
         actionInstance.execute(data)
       })

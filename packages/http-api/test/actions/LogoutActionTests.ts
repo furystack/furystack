@@ -7,8 +7,8 @@ import { LogoutAction } from '../../src/Actions/Logout'
 describe('LogoutAction', () => {
   it('exec', done => {
     let cookieLogoutCalled = false
-    usingAsync(new Injector({ parent: undefined }), async i => {
-      i.setInstance(
+    usingAsync(new Injector(), async i => {
+      i.setExplicitInstance(
         {
           cookieLogout: async () => {
             cookieLogoutCalled = true
@@ -16,8 +16,8 @@ describe('LogoutAction', () => {
         },
         HttpUserContext,
       )
-      i.setInstance({}, IncomingMessage)
-      i.setInstance(
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance(
         {
           writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation

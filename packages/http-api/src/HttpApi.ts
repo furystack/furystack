@@ -3,7 +3,7 @@ import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { Server } from 'net'
-import { HttpApiConfiguration } from './HttpApiConfiguration'
+import { defaultHttpApiSettings, HttpApiSettings } from './HttpApiSettings'
 import { IRequestAction } from './Models'
 import { Utils } from './Utils'
 
@@ -15,12 +15,14 @@ export class HttpApi implements IApi {
   public readonly logScope = '@furystack/http-api/HttpApi'
 
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
-    await usingAsync(new Injector({ parent: this.injector, owner: IncomingMessage }), async injector => {
-      injector.setInstance(incomingMessage)
-      injector.setInstance(serverResponse)
-      injector.setInstance(new Utils(incomingMessage, serverResponse))
-      injector.getInstance(Utils).addCorsHeaders(this.options.corsOptions, incomingMessage, serverResponse)
-      const actionCtors = this.options.actions.map(a => a(incomingMessage)).filter(a => a !== undefined) as Array<
+    await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
+      injector.setExplicitInstance(incomingMessage)
+      injector.setExplicitInstance(serverResponse)
+      injector.getInstance(Utils, true).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
+
+      /** ToDo: Check this */
+
+      const actionCtors = this.settings.actions.map(a => a(incomingMessage)).filter(a => a !== undefined) as Array<
         Constructable<IRequestAction>
       >
       if (actionCtors.length > 1) {
@@ -35,9 +37,9 @@ export class HttpApi implements IApi {
       }
       if (actionCtors.length === 1) {
         try {
-          this.options.perRequestServices.map(s => {
+          this.settings.perRequestServices.map(s => {
             const created = injector.getInstance(s.value, true)
-            injector.setInstance(created, s.key)
+            injector.setExplicitInstance(created, s.key)
             return created
           })
           const actionCtor = actionCtors[0]
@@ -45,12 +47,12 @@ export class HttpApi implements IApi {
             await action.exec()
           })
         } catch (error) {
-          await usingAsync(injector.getInstance(this.options.errorAction, true), async e => {
+          await usingAsync(injector.getInstance(this.settings.errorAction, true), async e => {
             await e.returnError(error)
           })
         }
       } else {
-        await usingAsync(injector.getInstance(this.options.notFoundAction, true), async a => {
+        await usingAsync(injector.getInstance(this.settings.notFoundAction, true), async a => {
           a.exec()
         })
       }
@@ -58,8 +60,8 @@ export class HttpApi implements IApi {
   }
 
   public async activate() {
-    this.server = this.options.serverFactory(this.mainRequestListener.bind(this))
-    this.server.listen(this.options.port, this.options.hostName, 8192)
+    this.server = this.settings.serverFactory(this.mainRequestListener.bind(this))
+    this.server.listen(this.settings.port, this.settings.hostName, 8192)
   }
   public async dispose() {
     if (this.server !== undefined) {
@@ -72,11 +74,13 @@ export class HttpApi implements IApi {
 
   public server?: Server
   private readonly injector: Injector
-  constructor(
-    parentInjector: Injector,
-    private readonly logger: LoggerCollection,
-    private readonly options: HttpApiConfiguration,
-  ) {
-    this.injector = new Injector({ parent: parentInjector })
+  private settings: HttpApiSettings = defaultHttpApiSettings
+
+  public setup(settings: Partial<HttpApiSettings>) {
+    this.settings = { ...this.settings, ...settings }
+  }
+
+  constructor(parentInjector: Injector, private readonly logger: LoggerCollection) {
+    this.injector = parentInjector.createChild({ owner: this })
   }
 }

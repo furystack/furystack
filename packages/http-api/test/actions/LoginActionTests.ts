@@ -7,11 +7,11 @@ describe('LoginAction', () => {
   /** */
   it('exec', done => {
     const testUser = { Name: 'Userke' }
-    usingAsync(new Injector({ parent: undefined }), async i => {
-      i.setInstance({ cookieLogin: async () => testUser }, HttpUserContext)
-      i.setInstance({}, IncomingMessage)
-      i.setInstance({ readPostBody: async () => ({}) }, Utils)
-      i.setInstance(
+    usingAsync(new Injector(), async i => {
+      i.setExplicitInstance({ cookieLogin: async () => testUser }, HttpUserContext)
+      i.setExplicitInstance({}, IncomingMessage)
+      i.setExplicitInstance({ readPostBody: async () => ({}) }, Utils)
+      i.setExplicitInstance(
         {
           writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation

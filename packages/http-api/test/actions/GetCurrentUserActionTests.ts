@@ -7,8 +7,8 @@ import { GetCurrentUser } from '../../src/Actions/GetCurrentUser'
 describe('getCurrentUser', () => {
   it('exec', done => {
     const testUser = { Name: 'Userke' }
-    usingAsync(new Injector({ parent: undefined }), async i => {
-      i.setInstance(
+    usingAsync(new Injector(), async i => {
+      i.setExplicitInstance(
         {
           writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation
@@ -19,7 +19,7 @@ describe('getCurrentUser', () => {
         },
         ServerResponse,
       )
-      i.setInstance({ getCurrentUser: async () => testUser }, UserContext)
+      i.setExplicitInstance({ getCurrentUser: async () => testUser }, UserContext)
       await usingAsync(i.getInstance(GetCurrentUser, true), async c => {
         await c.exec()
       })

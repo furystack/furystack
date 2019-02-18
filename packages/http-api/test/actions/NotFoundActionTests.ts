@@ -6,9 +6,9 @@ import { NotFoundAction } from '../../src'
 describe('NotFoundAction tests', () => {
   it('exec', done => {
     const notFoundResponse = { Error: 'Content not found', url: 'https://google.com' }
-    usingAsync(new Injector({ parent: undefined }), async i => {
-      i.setInstance({ url: 'https://google.com' }, IncomingMessage)
-      i.setInstance(
+    usingAsync(new Injector(), async i => {
+      i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
+      i.setExplicitInstance(
         {
           writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation

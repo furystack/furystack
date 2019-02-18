@@ -1,16 +1,16 @@
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
 import { FuryStack, IApi } from '../src'
 
 // tslint:disable:max-classes-per-file
 
 describe('StackBuilder', () => {
   it('Should be constructed without options', () => {
-    const sb = new FuryStack()
+    const sb = new Injector().setupInstance(FuryStack)
     expect(sb).toBeInstanceOf(FuryStack)
   })
 
   it('Should be constructed with options', () => {
-    const sb = new FuryStack({
+    const sb = new Injector().setupInstance(FuryStack, {
       apis: [],
     })
     expect(sb).toBeInstanceOf(FuryStack)
@@ -18,7 +18,7 @@ describe('StackBuilder', () => {
 
   describe('apis', () => {
     it('Should initialize with an empty API list', () => {
-      const sb = new FuryStack()
+      const sb = new Injector().setupInstance(FuryStack)
       expect(sb.apis.length).toBe(0)
     })
 
@@ -32,7 +32,7 @@ describe('StackBuilder', () => {
           /** */
         }
       }
-      const sb = new FuryStack({
+      const sb = new Injector().setupInstance(FuryStack, {
         apis: [Api1],
       })
       expect(sb.apis[0]).toBeInstanceOf(Api1)
@@ -48,7 +48,7 @@ describe('StackBuilder', () => {
           /** */
         }
       }
-      const sb = new FuryStack({
+      const sb = new Injector().setupInstance(FuryStack, {
         apis: [Api2],
       })
       sb.start()
@@ -64,7 +64,7 @@ describe('StackBuilder', () => {
           done()
         }
       }
-      const sb = new FuryStack({
+      const sb = new Injector().setupInstance(FuryStack, {
         apis: [Api],
       })
       sb.start().then(() => {

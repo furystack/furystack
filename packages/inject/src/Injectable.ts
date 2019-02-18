@@ -35,6 +35,6 @@ export const Injectable = (options?: Partial<IInjectableOptions>) => {
         [],
       Options: { ...defaultInjectableOptions, ...options },
     }
-    Injector.default.meta.set(ctor, metaValue)
+    Injector.meta.set(ctor, metaValue)
   }
 }

@@ -41,5 +41,9 @@ export class Utils {
     }
   }
 
+  public setup() {
+    /** */
+  }
+
   constructor(private incomingMessage: IncomingMessage, private serverResponse: ServerResponse) {}
 }

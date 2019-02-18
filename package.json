@@ -16,7 +16,8 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-consistent-codestyle": "1.15.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3",
+    "ts-node": "^8.0.2"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
@@ -24,7 +25,7 @@
     "lint": "lerna run lint --parallel",
     "clean:packages": "lerna clean",
     "test": "jest",
-    "start": "yarn workspace @furystack/example-repository run start"
+    "start": "ts-node examples/repository/src/index.ts"
   },
   "name": "furystack"
 }
