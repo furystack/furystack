@@ -1,5 +1,6 @@
 import { ConsoleLogger, FuryStack, InMemoryStore, IUser, LoggerCollection, UserContext } from '@furystack/core'
 import {
+  defaultHttpAuthenticationSettings,
   GetCurrentUser,
   HttpApi,
   HttpApiSettings,
@@ -7,6 +8,8 @@ import {
   HttpAuthenticationSettings,
   HttpUserContext,
   ILoginUser,
+  LoginAction,
+  LogoutAction,
   NotFoundAction,
 } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
@@ -30,6 +33,10 @@ defaultInjector.setupLocalInstance(HttpApi, {
       switch (urlPathName) {
         case '/currentUser':
           return GetCurrentUser
+        case '/login':
+          return LoginAction
+        case '/logout':
+          return LogoutAction
       }
       return undefined
     },
@@ -41,14 +48,21 @@ defaultInjector.setupLocalInstance(HttpApi, {
 const loggers = new LoggerCollection()
 loggers.attachLogger(new ConsoleLogger())
 defaultInjector.setExplicitInstance(loggers)
-
 const stack = defaultInjector.setupLocalInstance(FuryStack, {
   apis: [HttpApi],
   injectorParent: defaultInjector,
 })
+
+const userStore = new InMemoryStore<ILoginUser<IUser>>('username')
+
+defaultInjector.setupLocalInstance(HttpAuthentication, {
+  users: userStore,
+} as Partial<HttpAuthenticationSettings>)
 ;(async () => {
-  defaultInjector.setupLocalInstance(HttpAuthentication, {
-    users: new InMemoryStore<ILoginUser<IUser>>('username'),
-  } as Partial<HttpAuthenticationSettings>)
+  await userStore.add({
+    username: 'testuser',
+    password: defaultHttpAuthenticationSettings.hashMethod('password'),
+    roles: [],
+  })
   await stack.start()
 })()

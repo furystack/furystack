@@ -1,10 +1,11 @@
 import { IUser, LoggerCollection, UserContext } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { v1 } from 'uuid'
+import { HttpAuthentication } from './HttpAuthentication'
 import { ILoginUser } from './HttpAuthenticationSettings'
 import { IExternalLoginService } from './Models/IExternalLoginService'
-import { HttpAuthentication } from './HttpAuthentication'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -20,8 +21,13 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
       password: this.authentication.settings.hashMethod(password),
     } as Partial<ILoginUser<TUser>>)
     if (match.length === 1) {
+      // tslint:disable-next-line: no-string-literal
+      delete match['password' as any]
       return match[0]
     }
+
+    await sleepAsync(Math.random() * 5000)
+
     return this.authentication.settings.visitorUser as TUser
   }
 
