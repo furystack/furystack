@@ -1,4 +1,4 @@
-import { IUser, LoggerCollection, UserContext } from '@furystack/core'
+import { IUser, LoggerCollection, UserContext, IPhysicalStore } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
@@ -12,6 +12,7 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
  */
 @Injectable()
 export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> {
+  public users: IPhysicalStore<TUser, 'username'>
   public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
 
@@ -68,7 +69,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     if (sessionId) {
       const session = await this.authentication.settings.sessions.get(sessionId)
       return (
-        (session && (await this.authentication.settings.users.get(session.Username as any))) ||
+        (session && (await this.users.get(session.Username as any))) ||
         (this.authentication.settings.visitorUser as TUser)
       )
     }
@@ -103,8 +104,8 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     ...args: TArgs
   ): Promise<TUser> {
     try {
-      const instance = this.injector.getInstance(service)
-      const user = await instance.login(this, ...args)
+      const instance = this.injector.getInstance(service, true)
+      const user = await instance.login(...args)
       if (user.username !== this.authentication.settings.visitorUser.username) {
         const sessionId = v1()
         await this.authentication.settings.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
@@ -151,8 +152,10 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
   }
 
   constructor(
-    private incomingMessage: IncomingMessage,
-    private injector: Injector,
-    private authentication: HttpAuthentication<TUser>,
-  ) {}
+    private readonly incomingMessage: IncomingMessage,
+    private readonly injector: Injector,
+    public readonly authentication: HttpAuthentication<TUser>,
+  ) {
+    this.users = authentication.settings.users
+  }
 }

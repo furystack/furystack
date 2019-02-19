@@ -13,6 +13,7 @@ import {
 } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { TypeOrmStore } from '@furystack/typeorm-store'
+import { GoogleLoginAction } from '@furystack/auth-google'
 import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
@@ -37,6 +38,8 @@ import { User } from './Models/User'
             return GetCurrentUser
           case '/login':
             return LoginAction
+          case '/googleLogin':
+            return GoogleLoginAction
           case '/logout':
             return LogoutAction
         }

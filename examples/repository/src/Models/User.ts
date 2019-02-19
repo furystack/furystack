@@ -1,6 +1,7 @@
+import { IGoogleApiPayload } from '@furystack/auth-google'
 import { IRole, IUser } from '@furystack/core'
 import { ILoginUser } from '@furystack/http-api'
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 /**
  * Represents an user model
@@ -16,4 +17,10 @@ export class User implements ILoginUser<IUser> {
   public roles!: IRole[]
   @Column()
   public password!: string
+
+  @Column({ nullable: true })
+  public googleId?: number
+
+  @Column('simple-json', { nullable: true })
+  public googleProfileData?: IGoogleApiPayload
 }
