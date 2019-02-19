@@ -22,7 +22,7 @@ export class Injector implements Disposable {
   }
 
   /**
-   * Options object for an injetros instance
+   * Options object for an injector instance
    */
   public options: { parent?: Injector; owner?: any } = {}
 
@@ -119,6 +119,10 @@ export class Injector implements Disposable {
     return instance
   }
 
+  /**
+   * Creates a child injector instance
+   * @param options Additional injector options
+   */
   public createChild(options?: Partial<Injector['options']>) {
     const i = new Injector()
     i.options = i.options || options

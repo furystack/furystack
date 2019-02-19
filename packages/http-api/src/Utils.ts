@@ -7,6 +7,10 @@ import { ICorsOptions } from './Models/ICorsOptions'
  */
 @Injectable()
 export class Utils {
+  /**
+   * Reads the post's body and returns a promise with a parsed value
+   * @param incomingMessage The incoming message instance
+   */
   public async readPostBody<T>(incomingMessage: IncomingMessage = this.incomingMessage): Promise<T> {
     let body = ''
     await new Promise((resolve, reject) => {
@@ -26,6 +30,12 @@ export class Utils {
     return JSON.parse(body) as T
   }
 
+  /**
+   * Adds the specified CORS headers to the response
+   * @param options The CORS Options object
+   * @param incomingMessage The incoming message instance
+   * @param serverResponse The outgoing response instance
+   */
   public addCorsHeaders(
     options: ICorsOptions,
     incomingMessage: IncomingMessage = this.incomingMessage,
@@ -39,10 +49,6 @@ export class Utils {
       serverResponse.setHeader('Access-Control-Allow-Origin', incomingMessage.headers.origin as string)
       serverResponse.setHeader('Access-Control-Allow-Credentials', 'true')
     }
-  }
-
-  public setup() {
-    /** */
   }
 
   constructor(private incomingMessage: IncomingMessage, private serverResponse: ServerResponse) {}
