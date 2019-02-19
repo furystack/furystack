@@ -27,6 +27,9 @@
       "path": "./packages/inject"
     },
     {
+      "path": "./packages/typeorm-store"
+    },
+    {
       "path": "./packages/websocket-api"
     },
     {

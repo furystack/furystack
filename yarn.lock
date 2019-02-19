@@ -150,25 +150,6 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@furystack/content-repository@0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@furystack/content-repository/-/content-repository-0.1.7.tgz#b607e0c8937dbec38676c343879e517eb3d8cdcc"
-  integrity sha512-uv8wTbKqLxCU4VtquQa9mSzAhQ+BREti9yhB/uHpsxcR37sLmg8hQ0HJurqOuhs9IQ0v9b/gkdFeod3vwHHH/g==
-  dependencies:
-    "@furystack/content" "^0.1.16"
-    "@furystack/core" "^1.0.10"
-    "@furystack/http-api" "^0.5.6"
-    "@furystack/websocket-api" "^0.4.6"
-    "@sensenet/client-utils" "^1.4.0"
-    reflect-metadata "^0.1.12"
-    sqlite3 "^4.0.4"
-    typeorm "^0.2.10"
-
-"@furystack/content@^0.1.16":
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/@furystack/content/-/content-0.1.16.tgz#9318ccff2305a47b619d2780bac5e339e68a08e9"
-  integrity sha512-gTXDywzBrzs9rYCnRNCQnpR/ysDseegskAt+O7IiCoNc800lJxpkcwO04+Z7KEwHWfdL94Xu7WhlwfdkHIMaFg==
-
 "@lerna/add@3.11.0":
   version "3.11.0"
   resolved "https://registry.yarnpkg.com/@lerna/add/-/add-3.11.0.tgz#eb924d05457b5c46ce4836cf3a0a05055ae788aa"
@@ -842,7 +823,7 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@sensenet/client-utils@^1.2.1", "@sensenet/client-utils@^1.4.0":
+"@sensenet/client-utils@^1.2.1":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@sensenet/client-utils/-/client-utils-1.4.2.tgz#1094e4b1f3913ac0c2d455fbfdc0f2effc8c5721"
   integrity sha512-y+2AamauJRa57CtNoG/3YgCaZ+pQEcA2Qehdov/9S2nel16E3qWRpP1IRz81gv2A1T/+P2/58BJovCeapYpgEw==
@@ -6479,7 +6460,12 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sqlite3@^4.0.4:
+sql-template-strings@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/sql-template-strings/-/sql-template-strings-2.2.2.tgz#3f11508a25addfce217a3042a9d300c3193b96ff"
+  integrity sha1-PxFQiiWt384hejBCqdMAwxk7lv8=
+
+sqlite3@^4.0.0:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-4.0.6.tgz#e587b583b5acc6cb38d4437dedb2572359c080ad"
   integrity sha512-EqBXxHdKiwvNMRCgml86VTL5TK1i0IKiumnfxykX0gh6H6jaKijAXvE9O1N7+omfNSawR2fOmIyJZcfe8HYWpw==
@@ -6487,6 +6473,15 @@ sqlite3@^4.0.4:
     nan "~2.10.0"
     node-pre-gyp "^0.11.0"
     request "^2.87.0"
+
+sqlite@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/sqlite/-/sqlite-3.0.2.tgz#5589e980a070b39e0b8810d723485285a87b9f2c"
+  integrity sha512-catQuNRzqiLcMBLKM4oSM+Toim9yrHKhsrh2iOgIvyOvKVOqXmOmOZpH3gnAecGCkqQ+DjbPCJczpJNnFzYq6Q==
+  dependencies:
+    sqlite3 "^4.0.0"
+  optionalDependencies:
+    sql-template-strings "^2.2.2"
 
 sshpk@^1.7.0:
   version "1.16.1"
@@ -6972,7 +6967,7 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typeorm@^0.2.10:
+typeorm@^0.2.13:
   version "0.2.13"
   resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.13.tgz#d6d49cd83aba5709134b99cdaca0b0f1b5002543"
   integrity sha512-SfRHZt6un1rCsTtHpBSgG5kh2jWznzrBex1Dfxbnji0nlrrNQ+ET4uxIhq3herk0TE0ETx3R+UjU0MGv8DB/3g==
