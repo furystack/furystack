@@ -66,7 +66,7 @@ export class Injector implements Disposable {
       throw Error(
         `No metadata found for '${ctor.name}'. Dependencies: ${dependencies
           .map(d => d.name)
-          .join(',')} Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+          .join(',')}. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     }
     const deps = meta.Options.ResolveDependencies
@@ -99,7 +99,7 @@ export class Injector implements Disposable {
     ...args: TSetupArgs
   ) {
     const instance = this.getInstance(ctor)
-    instance.setup && instance.setup(...args)
+    instance.setup(...args)
     this.setExplicitInstance(instance)
     return instance
   }
@@ -114,7 +114,7 @@ export class Injector implements Disposable {
     ...args: TSetupArgs
   ) {
     const instance = this.getInstance(ctor, true)
-    instance.setup && instance.setup(...args)
+    instance.setup(...args)
     this.setExplicitInstance(instance)
     return instance
   }
