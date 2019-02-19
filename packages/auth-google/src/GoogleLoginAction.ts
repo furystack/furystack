@@ -23,5 +23,7 @@ export class GoogleLoginAction implements IRequestAction {
     this.response.write(JSON.stringify(user))
     this.response.end()
   }
-  public dispose() {}
+  public dispose() {
+    /** */
+  }
 }

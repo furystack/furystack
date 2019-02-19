@@ -1,3 +1,4 @@
+import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from '@furystack/core'
 import {
   defaultHttpAuthenticationSettings,
@@ -13,7 +14,6 @@ import {
 } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { TypeOrmStore } from '@furystack/typeorm-store'
-import { GoogleLoginAction } from '@furystack/auth-google'
 import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'

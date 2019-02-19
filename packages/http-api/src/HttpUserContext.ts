@@ -1,4 +1,4 @@
-import { IUser, LoggerCollection, UserContext, IPhysicalStore } from '@furystack/core'
+import { IPhysicalStore, IUser, LoggerCollection, UserContext } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
