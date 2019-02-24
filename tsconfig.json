@@ -33,6 +33,9 @@
       "path": "./packages/websocket-api"
     },
     {
+      "path": "./packages/repository"
+    },
+    {
       "path": "./examples/repository"
     }
   ]
