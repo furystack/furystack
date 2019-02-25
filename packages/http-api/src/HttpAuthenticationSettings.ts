@@ -1,5 +1,6 @@
 import { InMemoryStore, IPhysicalStore, IUser } from '@furystack/core'
 import { sha256 } from 'hash.js'
+import { Injectable } from '@furystack/inject'
 /**
  * An user instance extended with a plain Password value
  */
@@ -8,6 +9,7 @@ export type ILoginUser<T extends IUser> = T & { password: string }
 /**
  * Authentication settings object for FuryStack HTTP Api
  */
+@Injectable()
 export class HttpAuthenticationSettings<TUser extends IUser = IUser> {
   public users: IPhysicalStore<ILoginUser<TUser>, any> = new InMemoryStore('username')
   public sessions: IPhysicalStore<{ SessionId: string; Username: string }> = new InMemoryStore('SessionId')
