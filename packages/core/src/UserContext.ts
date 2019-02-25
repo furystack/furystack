@@ -1,6 +1,6 @@
 import { Injectable } from '@furystack/inject'
-import { IUser } from './Models/IUser'
 import { IPhysicalStore } from './Models/IPhysicalStore'
+import { IUser } from './Models/IUser'
 
 /**
  * Placeholder injectable class for the User context

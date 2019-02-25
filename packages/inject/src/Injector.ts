@@ -90,36 +90,6 @@ export class Injector implements Disposable {
   }
 
   /**
-   * Retrieves an instance and runs it's `setup()` method if available
-   * @param ctor The constructor of the resource
-   * @param args Arguments for the instance's setup() method
-   */
-  public setupInstance<T extends { setup: (...args: TSetupArgs) => void }, TSetupArgs extends any[]>(
-    ctor: new (...args: any[]) => T,
-    ...args: TSetupArgs
-  ) {
-    const instance = this.getInstance(ctor)
-    instance.setup(...args)
-    this.setExplicitInstance(instance)
-    return instance
-  }
-
-  /**
-   * Retrieves an instance and runs it's `setup()` method if available
-   * @param ctor The constructor of the resource
-   * @param args Arguments for the instance's setup() method
-   */
-  public setupLocalInstance<T extends { setup: (...args: TSetupArgs) => void }, TSetupArgs extends any[]>(
-    ctor: new (...args: any[]) => T,
-    ...args: TSetupArgs
-  ) {
-    const instance = this.getInstance(ctor, true)
-    instance.setup(...args)
-    this.setExplicitInstance(instance)
-    return instance
-  }
-
-  /**
    * Creates a child injector instance
    * @param options Additional injector options
    */

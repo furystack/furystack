@@ -3,8 +3,7 @@ import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { v1 } from 'uuid'
-import { HttpAuthentication } from './HttpAuthentication'
-import { ILoginUser } from './HttpAuthenticationSettings'
+import { HttpAuthenticationSettings, ILoginUser } from './HttpAuthenticationSettings'
 import { IExternalLoginService } from './Models/IExternalLoginService'
 
 /**
@@ -12,24 +11,24 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
  */
 @Injectable()
 export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> {
-  public users: IPhysicalStore<TUser, 'username'>
+  public users: IPhysicalStore<ILoginUser<TUser>, 'username'>
   public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
 
   public async authenticateUser(userName: string, password: string): Promise<TUser> {
-    const match = await this.authentication.settings.users.filter({
+    const match = await this.authentication.users.filter({
       username: userName,
-      password: this.authentication.settings.hashMethod(password),
+      password: this.authentication.hashMethod(password),
     } as Partial<ILoginUser<TUser>>)
     if (match.length === 1) {
-      // tslint:disable-next-line: no-string-literal
-      delete match['password' as any]
-      return match[0]
+      // tslint:disable-next-line: no-shadowed-variable
+      const { password, ...user } = match[0]
+      return (user as any) as TUser
     }
 
     await sleepAsync(Math.random() * 5000)
 
-    return this.authentication.settings.visitorUser as TUser
+    return this.authentication.visitorUser as TUser
   }
 
   public async getCurrentUser() {
@@ -48,7 +47,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
           const [name, value] = val.split('=')
           return { name: name.trim(), value: value.trim() }
         })
-      const sessionCookie = cookies.find(c => c.name === this.authentication.settings.cookieName)
+      const sessionCookie = cookies.find(c => c.name === this.authentication.cookieName)
       if (sessionCookie) {
         return sessionCookie.value
       }
@@ -67,25 +66,24 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
-      const session = await this.authentication.settings.sessions.get(sessionId)
-      return (
-        (session && (await this.users.get(session.Username as any))) ||
-        (this.authentication.settings.visitorUser as TUser)
-      )
+      const session = await this.authentication.sessions.get(sessionId)
+      const u =
+        (session &&
+          (await this.users.filter({ username: session.Username as string } as Partial<ILoginUser<TUser>>))[0]) ||
+        (this.authentication.visitorUser as TUser)
+      const { password, ...user } = u as TUser & { password: string }
+      return (user as any) as TUser
     }
 
-    return this.authentication.settings.visitorUser as TUser
+    return this.authentication.visitorUser as TUser
   }
 
   public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<TUser> {
     const user = await this.authenticateUser(username, password)
-    if (user !== this.authentication.settings.visitorUser) {
+    if (user !== this.authentication.visitorUser) {
       const sessionId = v1()
-      await this.authentication.settings.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
-      serverResponse.setHeader(
-        'Set-Cookie',
-        `${this.authentication.settings.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
-      )
+      await this.authentication.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
+      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`)
       this.injector.getInstance(LoggerCollection).information({
         scope: HttpUserContext.logScope,
         message: `User '${user.username}' logged in.`,
@@ -106,12 +104,12 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     try {
       const instance = this.injector.getInstance(service, true)
       const user = await instance.login(...args)
-      if (user.username !== this.authentication.settings.visitorUser.username) {
+      if (user.username !== this.authentication.visitorUser.username) {
         const sessionId = v1()
-        await this.authentication.settings.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
+        await this.authentication.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
         serverResponse.setHeader(
           'Set-Cookie',
-          `${this.authentication.settings.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
+          `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
         )
         this.injector.getInstance(LoggerCollection).information({
           scope: HttpUserContext.logScope,
@@ -131,15 +129,15 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
         data: { error },
       })
     }
-    return this.authentication.settings.visitorUser as TUser
+    return this.authentication.visitorUser as TUser
   }
 
   public async cookieLogout(req: IncomingMessage, serverResponse: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
       const user = await this.authenticateRequest(req)
-      await this.authentication.settings.sessions.remove(sessionId)
-      serverResponse.setHeader('Set-Cookie', `${this.authentication.settings.cookieName}=; Path=/; Secure; HttpOnly`)
+      await this.authentication.sessions.remove(sessionId)
+      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
       this.injector.getInstance(LoggerCollection).information({
         scope: HttpUserContext.logScope,
         message: `User '${user.username}' has been logged out.`,
@@ -154,8 +152,8 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
   constructor(
     private readonly incomingMessage: IncomingMessage,
     private readonly injector: Injector,
-    public readonly authentication: HttpAuthentication<TUser>,
+    public readonly authentication: HttpAuthenticationSettings<TUser>,
   ) {
-    this.users = authentication.settings.users
+    this.users = authentication.users
   }
 }

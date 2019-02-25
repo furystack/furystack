@@ -1,11 +1,8 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
-import { ConsoleLogger, FuryStack, LoggerCollection, UserContext } from '@furystack/core'
+import { ConsoleLogger, LoggerCollection, UserContext } from '@furystack/core'
 import {
-  defaultHttpAuthenticationSettings,
+  ErrorAction,
   GetCurrentUser,
-  HttpApi,
-  HttpApiSettings,
-  HttpAuthentication,
   HttpAuthenticationSettings,
   HttpUserContext,
   LoginAction,
@@ -21,58 +18,57 @@ import { getConnection } from './connection'
 import { User } from './Models/User'
 ;(async () => {
   const defaultInjector = new Injector()
-  defaultInjector.setupLocalInstance(HttpApi, {
-    protocol: 'https',
-    port: 8443,
-    corsOptions: {
-      credentials: true,
-      origins: ['http://localhost:8080'],
-    },
-    defaultAction: NotFoundAction,
-    perRequestServices: [{ key: UserContext, value: HttpUserContext }],
-    actions: [
-      msg => {
-        const urlPathName = parse(msg.url || '', true).pathname
-        switch (urlPathName) {
-          case '/currentUser':
-            return GetCurrentUser
-          case '/login':
-            return LoginAction
-          case '/googleLogin':
-            return GoogleLoginAction
-          case '/logout':
-            return LogoutAction
-        }
-        return undefined
-      },
-    ],
-    serverFactory: listener =>
-      createServer(defaultInjector.getInstance(CertificateManager).getCredentials(), (req, resp) =>
-        listener(req, resp),
-      ),
-  } as Partial<HttpApiSettings>)
 
   const loggers = new LoggerCollection()
   loggers.attachLogger(new ConsoleLogger())
   defaultInjector.setExplicitInstance(loggers)
-  const stack = defaultInjector.setupLocalInstance(FuryStack, {
-    apis: [HttpApi],
-    injectorParent: defaultInjector,
-  })
 
   const typeOrmConnection = await getConnection()
 
   const userStore = new TypeOrmStore(loggers, typeOrmConnection.getRepository(User)) // new InMemoryStore<ILoginUser<IUser>>('username')
 
-  defaultInjector.setupLocalInstance(HttpAuthentication, {
-    users: userStore,
-  } as Partial<HttpAuthenticationSettings>)
+  defaultInjector
+    .useHttpApi({
+      errorAction: ErrorAction,
+      hostName: 'localhost',
+      notFoundAction: NotFoundAction,
+      protocol: 'https',
+      port: 8443,
+      corsOptions: {
+        credentials: true,
+        origins: ['http://localhost:8080'],
+      },
+      defaultAction: NotFoundAction,
+      perRequestServices: [{ key: UserContext, value: HttpUserContext }],
+      actions: [
+        msg => {
+          const urlPathName = parse(msg.url || '', true).pathname
+          switch (urlPathName) {
+            case '/currentUser':
+              return GetCurrentUser
+            case '/login':
+              return LoginAction
+            case '/googleLogin':
+              return GoogleLoginAction
+            case '/logout':
+              return LogoutAction
+          }
+          return undefined
+        },
+      ],
+      serverFactory: listener =>
+        createServer(defaultInjector.getInstance(CertificateManager).getCredentials(), (req, resp) =>
+          listener(req, resp),
+        ),
+    })
+    .useHttpAuthentication<User>({
+      users: userStore,
+    })
   ;(async () => {
     await userStore.add({
       username: 'testuser',
-      password: defaultHttpAuthenticationSettings.hashMethod('password'),
+      password: new HttpAuthenticationSettings().hashMethod('password'),
       roles: [],
     })
-    await stack.start()
   })()
 })()

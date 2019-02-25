@@ -159,28 +159,4 @@ describe('Injector', () => {
       )
     })
   })
-
-  it('Setting up an instance should call its setup() method', () => {
-    const testSetup = jest.fn()
-    @Injectable()
-    class SetupTest {
-      public setup = testSetup
-    }
-    using(new Injector(), i => {
-      const instance = i.setupInstance(SetupTest)
-      expect(instance.setup).toBeCalled()
-    })
-  })
-
-  it('Setting up a local instance should call its setup() method', () => {
-    const testSetup = jest.fn()
-    @Injectable()
-    class SetupTest {
-      public setup = testSetup
-    }
-    using(new Injector(), i => {
-      const instance = i.setupLocalInstance(SetupTest)
-      expect(instance.setup).toBeCalled()
-    })
-  })
 })

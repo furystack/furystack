@@ -3,7 +3,7 @@ import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { Server } from 'net'
-import { defaultHttpApiSettings, HttpApiSettings } from './HttpApiSettings'
+import { HttpApiSettings } from './HttpApiSettings'
 import { IRequestAction } from './Models'
 import { Utils } from './Utils'
 
@@ -74,13 +74,12 @@ export class HttpApi implements IApi {
 
   public server?: Server
   private readonly injector: Injector
-  private settings: HttpApiSettings = defaultHttpApiSettings
-
-  public setup(settings: Partial<HttpApiSettings>) {
-    this.settings = { ...this.settings, ...settings }
-  }
-
-  constructor(parentInjector: Injector, private readonly logger: LoggerCollection) {
+  constructor(
+    parentInjector: Injector,
+    private readonly logger: LoggerCollection,
+    private readonly settings: HttpApiSettings,
+  ) {
     this.injector = parentInjector.createChild({ owner: this })
+    this.activate()
   }
 }

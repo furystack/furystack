@@ -8,24 +8,13 @@ export type ILoginUser<T extends IUser> = T & { password: string }
 /**
  * Authentication settings object for FuryStack HTTP Api
  */
-export interface HttpAuthenticationSettings<TUser extends IUser = IUser> {
-  users: IPhysicalStore<ILoginUser<TUser>, any> // = new InMemoryStore('username')
-  sessions: IPhysicalStore<{ SessionId: string; Username: string }> // = new InMemoryStore('SessionId')
-  cookieName: string // = 'fss'
-  hashMethod: (plain: string) => string
-  visitorUser: TUser // =
-}
-
-/**
- * Default HTTP authentication settings
- */
-export const defaultHttpAuthenticationSettings: HttpAuthenticationSettings = {
-  users: new InMemoryStore('username'),
-  sessions: new InMemoryStore('SessionId'),
-  cookieName: 'fss',
-  hashMethod: plain =>
+export class HttpAuthenticationSettings<TUser extends IUser = IUser> {
+  public users: IPhysicalStore<ILoginUser<TUser>, any> = new InMemoryStore('username')
+  public sessions: IPhysicalStore<{ SessionId: string; Username: string }> = new InMemoryStore('SessionId')
+  public cookieName: string = 'fss'
+  public hashMethod: (plain: string) => string = plain =>
     sha256()
       .update(plain)
-      .digest('hex'),
-  visitorUser: { username: 'Visitor', roles: [] },
+      .digest('hex')
+  public visitorUser: TUser = ({ username: 'Visitor', roles: [] } as any) as TUser
 }

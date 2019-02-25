@@ -18,11 +18,9 @@ describe('HttpApi tests', () => {
     await usingAsync(new Injector(), async i => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-
-      const api = i.setupInstance(HttpApi, {
+      i.useHttpApi({
         serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       })
-      await api.activate()
     })
   })
 
@@ -40,16 +38,11 @@ describe('HttpApi tests', () => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       i.setExplicitInstance(new LoggerCollection())
-      await usingAsync(
-        i.setupInstance(HttpApi, {
-          notFoundAction: ExampleNotFoundAction as any,
-          serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-        }),
-        async api => {
-          await api.activate()
-          api.mainRequestListener({} as any, {} as any)
-        },
-      )
+      i.useHttpApi({
+        notFoundAction: ExampleNotFoundAction as any,
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+      })
+      await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
   })
 
@@ -78,16 +71,11 @@ describe('HttpApi tests', () => {
       i.setExplicitInstance({ headers: {} }, IncomingMessage)
       i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
       i.setExplicitInstance(new LoggerCollection())
-      await usingAsync(
-        i.setupInstance(HttpApi, {
-          actions: [() => ExampleAction],
-          serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-        }),
-        async api => {
-          await api.activate()
-          api.mainRequestListener({} as any, {} as any)
-        },
-      )
+      i.useHttpApi({
+        actions: [() => ExampleAction],
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+      })
+      await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
   })
 
@@ -104,21 +92,16 @@ describe('HttpApi tests', () => {
       }
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      await usingAsync(
-        i.setupInstance(HttpApi, {
-          actions: [() => ExampleAction, () => ExampleAction],
-          serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-        }),
-        async api => {
-          await api.activate()
-          try {
-            await api.mainRequestListener({} as any, {} as any)
-            done('Should throw error')
-          } catch (error) {
-            done()
-          }
-        },
-      )
+      i.useHttpApi({
+        actions: [() => ExampleAction, () => ExampleAction],
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+      })
+      try {
+        await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+        done('Should throw error')
+      } catch (error) {
+        done()
+      }
     })
   })
 
@@ -150,17 +133,12 @@ describe('HttpApi tests', () => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       i.setExplicitInstance(new LoggerCollection())
-      await usingAsync(
-        i.setupLocalInstance(HttpApi, {
-          actions: [() => ExampleFailAction],
-          errorAction: ExampleErrorAction as any,
-          serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-        }),
-        async api => {
-          await api.activate()
-          api.mainRequestListener({} as any, {} as any)
-        },
-      )
+      i.useHttpApi({
+        actions: [() => ExampleFailAction],
+        errorAction: ExampleErrorAction as any,
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+      }),
+        i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
   })
 })
