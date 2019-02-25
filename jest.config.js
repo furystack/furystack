@@ -1,8 +1,10 @@
 module.exports = {
   roots: [
+    '<rootDir>/packages/auth-google/test',
     '<rootDir>/packages/core/test',
     '<rootDir>/packages/http-api/test',
     '<rootDir>/packages/inject/test',
+    '<rootDir>/packages/repository/test',
     '<rootDir>/packages/websocket-api/test',
   ],
   transform: {
@@ -13,4 +15,9 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.d.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
   coverageReporters: ['text', 'json', 'html'],
+  globals: {
+    'ts-jest': {
+      diagnostics: false,
+    },
+  },
 }

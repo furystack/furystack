@@ -10,6 +10,7 @@ import { HttpApi } from '../src/HttpApi'
 describe('HttpApi tests', () => {
   it('Can be constructed', async () => {
     await usingAsync(new Injector(), async i => {
+      i.useHttpApi({})
       expect(i.getInstance(HttpApi)).toBeInstanceOf(HttpApi)
     })
   })
@@ -37,7 +38,7 @@ describe('HttpApi tests', () => {
       }
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      i.setExplicitInstance(new LoggerCollection())
+      i.useLogging(new LoggerCollection())
       i.useHttpApi({
         notFoundAction: ExampleNotFoundAction as any,
         serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),

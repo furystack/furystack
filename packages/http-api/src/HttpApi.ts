@@ -15,6 +15,7 @@ export class HttpApi implements IApi {
   public readonly logScope = '@furystack/http-api/HttpApi'
 
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
+    await this.awaitActivation
     await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
       injector.setExplicitInstance(incomingMessage)
       injector.setExplicitInstance(serverResponse)
@@ -63,6 +64,8 @@ export class HttpApi implements IApi {
     this.server = this.settings.serverFactory(this.mainRequestListener.bind(this))
     this.server.listen(this.settings.port, this.settings.hostName, 8192)
   }
+
+  public awaitActivation: Promise<void>
   public async dispose() {
     if (this.server !== undefined) {
       await new Promise(resolve => {
@@ -80,6 +83,6 @@ export class HttpApi implements IApi {
     private readonly settings: HttpApiSettings,
   ) {
     this.injector = parentInjector.createChild({ owner: this })
-    this.activate()
+    this.awaitActivation = this.activate()
   }
 }

@@ -10,38 +10,24 @@ import { ICorsOptions } from './Models/ICorsOptions'
 /**
  * Configuration object for the FuryStack HTTP Api
  */
-export interface HttpApiSettings {
-  defaultAction: Constructable<IRequestAction>
-  errorAction: Constructable<ErrorAction>
-  hostName: string
-  serverFactory: (requestListener: (incomingMessage: IncomingMessage, serverResponse: ServerResponse) => void) => Server
-  notFoundAction: Constructable<NotFoundAction>
-  actions: Array<(incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined>
-  port: number
-  protocol: 'http' | 'https'
-  perRequestServices: Array<{ key: Constructable<any>; value: Constructable<any> }>
-  corsOptions: ICorsOptions
-}
-
-/**
- * Default settings for HTTP API
- */
-export const defaultHttpApiSettings: HttpApiSettings = {
-  defaultAction: NotFoundAction,
-  errorAction: ErrorAction,
-  hostName: 'localhost',
-  serverFactory: listener => new HttpServer(listener),
-  notFoundAction: NotFoundAction,
-  actions: [],
-  port: 8080,
-  protocol: 'http',
-  perRequestServices: [
+export class HttpApiSettings {
+  public defaultAction: Constructable<IRequestAction> = NotFoundAction
+  public errorAction: Constructable<ErrorAction> = ErrorAction
+  public hostName: string = 'localhost'
+  public serverFactory: (
+    requestListener: (incomingMessage: IncomingMessage, serverResponse: ServerResponse) => void,
+  ) => Server = listener => new HttpServer(listener)
+  public notFoundAction: Constructable<NotFoundAction> = NotFoundAction
+  public actions: Array<(incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined> = []
+  public port: number = 8080
+  public protocol: 'http' | 'https' = 'http'
+  public perRequestServices: Array<{ key: Constructable<any>; value: Constructable<any> }> = [
     {
       key: UserContext,
       value: HttpUserContext,
     },
-  ],
-  corsOptions: {
+  ]
+  public corsOptions: ICorsOptions = {
     origins: [],
-  },
+  }
 }

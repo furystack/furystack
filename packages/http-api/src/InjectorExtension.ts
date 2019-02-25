@@ -19,7 +19,7 @@ declare module '@furystack/inject/dist/Injector' {
 
 Injector.prototype.useHttpApi = function(settings) {
   const xi = this as HttpExtendedInjector
-  xi.setExplicitInstance(settings)
+  xi.setExplicitInstance({ ...new HttpApiSettings(), ...settings }, HttpApiSettings)
   xi.useHttpAuthentication = s => {
     xi.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...s }, HttpAuthenticationSettings)
   }
