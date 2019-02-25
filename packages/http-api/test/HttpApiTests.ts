@@ -52,13 +52,17 @@ describe('HttpApi tests', () => {
       @Injectable()
       class ExampleAction implements IRequestAction {
         public async exec() {
-          const currentUser = await this.userContext.getCurrentUser()
-          const currentUser2 = await this.userContext.getCurrentUser()
-          expect(currentUser.username).toEqual(visitorUser.username)
-          expect(currentUser2.username).toEqual(visitorUser.username)
-          // tslint:disable-next-line:no-string-literal
-          this.perRequestInjector['cachedSingletons'].has(this.userContext.constructor)
-          done()
+          try {
+            const currentUser = await this.userContext.getCurrentUser()
+            const currentUser2 = await this.userContext.getCurrentUser()
+            expect(currentUser.username).toEqual(visitorUser.username)
+            expect(currentUser2.username).toEqual(visitorUser.username)
+            // tslint:disable-next-line:no-string-literal
+            this.perRequestInjector['cachedSingletons'].has(this.userContext.constructor)
+            done()
+          } catch (error) {
+            done(error)
+          }
         }
         public dispose() {
           /** */
@@ -71,7 +75,6 @@ describe('HttpApi tests', () => {
       }
       i.setExplicitInstance({ headers: {} }, IncomingMessage)
       i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
-      i.setExplicitInstance(new LoggerCollection())
       i.useHttpApi({
         actions: [() => ExampleAction],
         serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
