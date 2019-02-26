@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject/dist/Injector'
-import { ILogger } from './models/ILogger'
+import { ILogger } from './Models/ILogger'
 
 // tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/Injector' {
