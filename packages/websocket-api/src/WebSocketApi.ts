@@ -15,13 +15,18 @@ import { WebSocketApiSettings } from './WebSocketApiSettings'
 export class WebSocketApi {
   private readonly socket: WebSocketServer
   private readonly injector: Injector
-  private readonly logScope: string = '@furystack/websocket-api' + this.constructor.name
+  private readonly logScope: string = '@furystack/websocket-api/' + this.constructor.name
   constructor(
     private readonly logger: LoggerCollection,
     private settings: WebSocketApiSettings,
     public serverManager: ServerManager,
     parentInjector: Injector,
   ) {
+    this.logger.verbose({
+      scope: this.logScope,
+      message: 'Initializating WebSocket API',
+      data: this.settings,
+    })
     this.socket = new WebSocketServer({ noServer: true })
     this.injector = parentInjector.createChild({ owner: this })
     this.socket.on('connection', (websocket, msg) => {
@@ -29,7 +34,8 @@ export class WebSocketApi {
         scope: this.logScope,
         message: 'Client connected to WebSocket',
         data: {
-          address: msg.connection.address,
+          url: msg.url,
+          remoteAddress: msg.socket.remoteAddress,
         },
       })
       websocket.on('message', message => {
@@ -37,8 +43,7 @@ export class WebSocketApi {
           scope: this.logScope,
           message: 'Client Message received',
           data: {
-            message: message.toString(),
-            address: msg.connection.address,
+            message,
           },
         })
         this.execute(message, msg, websocket)
@@ -63,9 +68,6 @@ export class WebSocketApi {
             this.logger.verbose({
               scope: this.logScope,
               message: `Client connected to socket at '${this.settings.path}'.`,
-              data: {
-                path: this.settings.path,
-              },
             })
             this.socket.emit('connection', websocket, request)
           })
@@ -81,7 +83,7 @@ export class WebSocketApi {
         i.setExplicitInstance(msg, IncomingMessage)
         i.setExplicitInstance(websocket, ws)
         this.settings.perActionServices.forEach(s => i.getInstance(s, true))
-        const actionInstance = i.getInstance<IWebSocketAction>(action)
+        const actionInstance = i.getInstance<IWebSocketAction>(action, true)
         actionInstance.execute(data)
       })
     }

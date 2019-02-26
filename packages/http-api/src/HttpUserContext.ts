@@ -1,4 +1,4 @@
-import { IPhysicalStore, IUser, LoggerCollection, UserContext } from '@furystack/core'
+import { IPhysicalStore, IUser, UserContext } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
@@ -85,7 +85,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
       const sessionId = v1()
       await this.authentication.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`)
-      this.injector.getInstance(LoggerCollection).information({
+      this.injector.logger.information({
         scope: HttpUserContext.logScope,
         message: `User '${user.username}' logged in.`,
         data: {
@@ -112,7 +112,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
           'Set-Cookie',
           `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
         )
-        this.injector.getInstance(LoggerCollection).information({
+        this.injector.logger.information({
           scope: HttpUserContext.logScope,
           message: `User '${user.username}' logged in with '${service.name}' external service.`,
           data: {
@@ -124,7 +124,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
       }
     } catch (error) {
       /** */
-      this.injector.getInstance(LoggerCollection).error({
+      this.injector.logger.error({
         scope: HttpUserContext.logScope,
         message: `Error during external login with '${service.name}': ${error.message}`,
         data: { error },
@@ -139,7 +139,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
       const user = await this.authenticateRequest(req)
       await this.authentication.sessions.remove(sessionId)
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
-      this.injector.getInstance(LoggerCollection).information({
+      this.injector.logger.information({
         scope: HttpUserContext.logScope,
         message: `User '${user.username}' has been logged out.`,
         data: {

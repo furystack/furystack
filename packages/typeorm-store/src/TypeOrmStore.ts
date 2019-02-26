@@ -9,6 +9,10 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
   public primaryKey!: keyof T
   private typeOrmRepo!: Repository<T>
   constructor(model: Constructable<T>, private readonly connection: Connection, public logger: ILogger) {
+    this.logger.verbose({
+      scope: '@furystack/typeorm-store/TypeOrmStore',
+      message: `Initializing TypeORM Store for ${model.name}...`,
+    })
     connection.awaitConnection().then(c => {
       this.typeOrmRepo = c.getRepository<T>(model)
       this.primaryKey = this.typeOrmRepo.metadata.primaryColumns[0].propertyName as keyof T

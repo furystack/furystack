@@ -6,7 +6,6 @@ import { Data } from 'ws'
  */
 export interface IWebSocketActionStatic {
   canExecute(data: Data): boolean
-  new: (...args: any[]) => IWebSocketAction
 }
 
 /**

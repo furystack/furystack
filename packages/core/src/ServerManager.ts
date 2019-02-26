@@ -13,7 +13,6 @@ export class ServerManager {
   }
 
   public set(server: Server) {
-    const address = server.address()
-    address && this.servers.add(server)
+    this.servers.add(server)
   }
 }

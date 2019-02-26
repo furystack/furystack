@@ -1,4 +1,3 @@
-import { LoggerCollection } from '@furystack/core'
 import { Injector } from '@furystack/inject/dist/Injector'
 import Semaphore from 'semaphore-async-await'
 import { Connection, ConnectionManager } from 'typeorm'
@@ -28,17 +27,29 @@ Connection.prototype.awaitConnection = async function() {
 }
 
 Injector.prototype.useTypeOrm = function(options) {
+  this.logger.verbose({
+    scope: '@furystack/typeorm-store/useTypeOrm',
+    message: 'Setting up TypeOrm...',
+    data: options,
+  })
+
   const cm = new ConnectionManager()
   this.setExplicitInstance(cm)
   const connection = cm.create(options)
   lock.acquire()
   connection
     .connect()
+    .then(() => {
+      this.logger.verbose({
+        scope: '@furystack/typeorm-store/useTypeOrm',
+        message: 'Connection estabilished to DB...',
+      })
+    })
     .catch(e => {
-      this.getInstance(LoggerCollection).fatal({
+      this.logger.fatal({
         data: { error: e, options },
         message: 'Error while connection to the database',
-        scope: 'TypeOrm',
+        scope: '@furystack/typeorm-store/useTypeOrm',
       })
     })
     .finally(() => lock.release())

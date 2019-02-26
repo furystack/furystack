@@ -1,12 +1,14 @@
 import { IUser } from '@furystack/core'
 import { HttpUserContext } from '@furystack/http-api'
+import { Injectable } from '@furystack/inject'
 import { Data } from 'ws'
-import { IWebSocketAction } from '../models/IWebSocketAction'
 import * as ws from 'ws'
+import { IWebSocketAction } from '../models/IWebSocketAction'
 
 /**
  * Example action that returns the current user instance
  */
+@Injectable()
 export class WhoAmI implements IWebSocketAction {
   public dispose() {
     /** */
@@ -17,7 +19,7 @@ export class WhoAmI implements IWebSocketAction {
 
   public async execute() {
     const currentUser = await this.httpUserContext.getCurrentUser()
-    this.ws.send(currentUser)
+    this.ws.send(JSON.stringify(currentUser))
   }
 
   constructor(private httpUserContext: HttpUserContext<IUser>, private ws: ws) {}

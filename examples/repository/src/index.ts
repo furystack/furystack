@@ -20,12 +20,12 @@ console.log(a)
   const defaultInjector = new Injector()
 
   defaultInjector
-    .useLogging(ConsoleLogger, ConsoleLogger)
+    .useLogging(ConsoleLogger)
     .useTypeOrm({
       name: 'UserDb',
       type: 'sqlite',
       database: join(__dirname, 'users.sqlite'),
-      logging: true,
+      // logging: true,
       entities: [User],
       synchronize: true,
     })

@@ -1,4 +1,4 @@
-import { LoggerCollection, StoreManager } from '@furystack/core'
+import { StoreManager } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { ConnectionManager } from 'typeorm'
 import { TypeOrmStore } from './TypeOrmStore'
@@ -15,7 +15,7 @@ declare module '@furystack/core/dist/StoreManager' {
 
 StoreManager.prototype.useTypeOrmStore = function(model, connectionName) {
   const connection = this.injector.getInstance(ConnectionManager).get(connectionName)
-  const store = new TypeOrmStore(model, connection, this.injector.getInstance(LoggerCollection))
+  const store = new TypeOrmStore(model, connection, this.injector.logger)
   this.addStore(model, store)
   return this
 }

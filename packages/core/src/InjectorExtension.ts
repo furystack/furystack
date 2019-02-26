@@ -12,6 +12,7 @@ declare module '@furystack/inject/dist/Injector' {
   interface Injector {
     useLogging: (...loggers: Array<Constructable<ILogger>>) => Injector
     setupStores: (builder: (storeManager: StoreManager) => void) => Injector
+    readonly logger: ILogger
   }
 }
 
@@ -28,3 +29,10 @@ Injector.prototype.setupStores = function(builder) {
   builder(this.getInstance(StoreManager))
   return this
 }
+
+Object.defineProperty(Injector.prototype, 'logger', {
+  // tslint:disable-next-line: object-literal-shorthand
+  get: function() {
+    return this.getInstance(LoggerCollection)
+  },
+})

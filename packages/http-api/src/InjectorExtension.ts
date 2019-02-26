@@ -29,6 +29,12 @@ declare module '@furystack/inject/dist/Injector' {
 }
 
 Injector.prototype.useHttpApi = function(settings) {
+  this.logger.verbose({
+    scope: '@furystack/http-api/useHttpApi',
+    message: 'Setting up HTTP API...',
+    data: settings,
+  })
+
   const xi = this as HttpExtendedInjector
   xi.setExplicitInstance({ ...new HttpApiSettings(), ...settings }, HttpApiSettings)
   xi.useHttpAuthentication = s => {
@@ -37,6 +43,13 @@ Injector.prototype.useHttpApi = function(settings) {
   }
 
   xi.listenHttp = options => {
+    this.logger.verbose({
+      scope: '@furystack/http-api/useHttpApi',
+      message: `Starting listener at http://${(options && options.hostName) || 'localhost'}:${(options &&
+        options.port) ||
+        80}`,
+    })
+
     const api = xi.getInstance(HttpApi)
     const s = createHttpServer(api.mainRequestListener.bind(api))
     s.listen(options && options.port, options && options.hostName)
@@ -45,6 +58,12 @@ Injector.prototype.useHttpApi = function(settings) {
   }
 
   xi.listenHttps = options => {
+    this.logger.verbose({
+      scope: '@furystack/http-api/useHttpApi',
+      message: `Starting listener at https://${(options && options.hostName) || 'localhost'}:${(options &&
+        options.port) ||
+        80}`,
+    })
     const api = xi.getInstance(HttpApi)
     const s = createHttpsServer(options.credentials, api.mainRequestListener.bind(api))
     s.listen(options.port, options.hostName)
