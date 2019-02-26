@@ -10,7 +10,9 @@ import { HttpApi } from '../src/HttpApi'
 describe('HttpApi tests', () => {
   it('Can be constructed', async () => {
     await usingAsync(new Injector(), async i => {
-      i.useHttpApi({})
+      i.useHttpApi({
+        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
+      })
       expect(i.getInstance(HttpApi)).toBeInstanceOf(HttpApi)
     })
   })
