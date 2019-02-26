@@ -10,20 +10,8 @@ import { HttpApi } from '../src/HttpApi'
 describe('HttpApi tests', () => {
   it('Can be constructed', async () => {
     await usingAsync(new Injector(), async i => {
-      i.useHttpApi({
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-      })
+      i.useHttpApi()
       expect(i.getInstance(HttpApi)).toBeInstanceOf(HttpApi)
-    })
-  })
-
-  it('Can be activated', async () => {
-    await usingAsync(new Injector(), async i => {
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({}, ServerResponse)
-      i.useHttpApi({
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
-      })
     })
   })
 
@@ -40,10 +28,9 @@ describe('HttpApi tests', () => {
       }
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      i.useLogging(new LoggerCollection())
+      i.useLogging(LoggerCollection)
       i.useHttpApi({
         notFoundAction: ExampleNotFoundAction as any,
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       })
       await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
@@ -79,7 +66,6 @@ describe('HttpApi tests', () => {
       i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
       i.useHttpApi({
         actions: [() => ExampleAction],
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       })
       await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
@@ -100,7 +86,6 @@ describe('HttpApi tests', () => {
       i.setExplicitInstance({}, ServerResponse)
       i.useHttpApi({
         actions: [() => ExampleAction, () => ExampleAction],
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       })
       try {
         await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
@@ -142,7 +127,6 @@ describe('HttpApi tests', () => {
       i.useHttpApi({
         actions: [() => ExampleFailAction],
         errorAction: ExampleErrorAction as any,
-        serverFactory: () => ({ on: (ev: string, callback: () => void) => callback(), listen: () => null } as any),
       }),
         i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })

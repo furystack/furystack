@@ -24,7 +24,7 @@ declare module '@furystack/inject/dist/Injector' {
    * Extended Injector with Http API related methods
    */
   export interface Injector {
-    useHttpApi: (settings: Partial<HttpApiSettings>) => HttpExtendedInjector
+    useHttpApi: (settings?: Partial<HttpApiSettings>) => HttpExtendedInjector
   }
 }
 

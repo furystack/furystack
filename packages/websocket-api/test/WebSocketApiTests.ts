@@ -1,18 +1,19 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@sensenet/client-utils'
-import { WebSocketApi } from '../src/WebSocketApi'
+import { WebSocketApi } from '../src'
 
 describe('WebSocketApi', () => {
   it('Should be built', () => {
-    const i = new Injector()
-    const instance = i.getInstance(WebSocketApi)
-    expect(instance).toBeInstanceOf(WebSocketApi)
+    using(new Injector(), i => {
+      i.useWebsockets()
+      expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
+    })
   })
 
-  it('Should be activated and disposed', () => {
+  it('Should be built with settings', () => {
     using(new Injector(), i => {
-      const instance = i.getInstance(WebSocketApi)
-      instance.activate()
+      i.useWebsockets({ path: '/web-socket' })
+      expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
 })

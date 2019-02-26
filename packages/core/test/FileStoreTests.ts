@@ -1,7 +1,5 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
 import { FileStore } from '../src/FileStore'
-import { TestLogger } from '../src/Loggers/TestLogger'
-import { LogLevel } from '../src/Models/ILogEntries'
 
 // tslint:disable:no-string-literal
 
@@ -106,36 +104,5 @@ describe('FileStore', () => {
       throw Error("Shouldn't be triggered on no change!")
     }) as any
     f['saveChanges']()
-  })
-
-  it('saveChanges fail should add a log event', async () => {
-    f['writeFile'] = ((_name: string, _value: any, callback: (err: any) => void) => {
-      callback('Error during file write')
-    }) as any
-    await new Promise(resolve => {
-      f.logger.attachLogger(
-        new TestLogger(async ev => {
-          expect(ev.level).toBe(LogLevel.Error)
-          resolve()
-        }),
-      )
-      f['hasChanges'] = true
-      f['saveChanges']()
-    })
-  })
-
-  it('reloadData fail should add a log event', async () => {
-    f['readFile'] = ((_name: string, callback: (err: any, data: string) => void) => {
-      callback('Error reading file', '')
-    }) as any
-    await new Promise((resolve, _reject) => {
-      f.logger.attachLogger(
-        new TestLogger(async ev => {
-          expect(ev.level).toBe(LogLevel.Error)
-          resolve()
-        }),
-      )
-      f['reloadData']()
-    })
   })
 })
