@@ -19,8 +19,8 @@ export class WhoAmI implements IWebSocketAction {
 
   public async execute() {
     const currentUser = await this.httpUserContext.getCurrentUser()
-    this.ws.send(JSON.stringify(currentUser))
+    this.websocket.send(JSON.stringify(currentUser))
   }
 
-  constructor(private httpUserContext: HttpUserContext<IUser>, private ws: ws) {}
+  constructor(private httpUserContext: HttpUserContext<IUser>, private websocket: ws) {}
 }
