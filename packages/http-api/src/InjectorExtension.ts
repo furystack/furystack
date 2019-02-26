@@ -1,12 +1,12 @@
 import { IUser } from '@furystack/core'
+import { ServerManager } from '@furystack/core'
 import { Injector } from '@furystack/inject/dist/Injector'
+import { createServer as createHttpServer } from 'http'
 import { ServerOptions } from 'https'
+import { createServer as createHttpsServer } from 'https'
 import { HttpAuthenticationSettings } from '.'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
-
-import { createServer as createHttpServer } from 'http'
-import { createServer as createHttpsServer } from 'https'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
@@ -40,6 +40,7 @@ Injector.prototype.useHttpApi = function(settings) {
     const api = xi.getInstance(HttpApi)
     const s = createHttpServer(api.mainRequestListener.bind(api))
     s.listen(options && options.port, options && options.hostName)
+    xi.getInstance(ServerManager).set(s)
     return xi
   }
 
@@ -47,6 +48,7 @@ Injector.prototype.useHttpApi = function(settings) {
     const api = xi.getInstance(HttpApi)
     const s = createHttpsServer(options.credentials, api.mainRequestListener.bind(api))
     s.listen(options.port, options.hostName)
+    xi.getInstance(ServerManager).set(s)
     return xi
   }
 

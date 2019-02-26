@@ -4,19 +4,23 @@ import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { GetCurrentUser, HttpAuthenticationSettings, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import '@furystack/typeorm-store'
+import '@furystack/websocket-api'
+import { join } from 'path'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 import { User } from './Models/User'
 
+const a = 1
+console.log(a)
+
 /**
  * Demo Application
  */
-import { join } from 'path'
 ;(async () => {
   const defaultInjector = new Injector()
 
   defaultInjector
-    .useLogging(ConsoleLogger)
+    .useLogging(ConsoleLogger, ConsoleLogger)
     .useTypeOrm({
       name: 'UserDb',
       type: 'sqlite',
@@ -48,11 +52,12 @@ import { join } from 'path'
         },
       ],
     })
-    .listenHttp({ port: 80 })
-    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials() })
+    .listenHttp({ port: 80, hostName: 'localhost' })
+    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
     .useHttpAuthentication<User>({
       getUserStore: sm => sm.getStoreFor(User),
     })
+    .useWebsockets()
   ;(async () => {
     await defaultInjector
       .getInstance(StoreManager)

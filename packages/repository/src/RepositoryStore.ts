@@ -1,4 +1,3 @@
-import { ILogger } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { RepositoryStoreSettings } from './RepositoryStoreSettings'
 
@@ -7,8 +6,6 @@ import { RepositoryStoreSettings } from './RepositoryStoreSettings'
  */
 export class RepositoryStore<T, TKey extends keyof T, TFilter> {
   public primaryKey: TKey = this.settings.physicalStore.primaryKey
-  public logger: ILogger = this.settings.physicalStore.logger
-
   public async add(injector: Injector, entity: T): Promise<T> {
     if (this.settings) {
       if (this.settings.authorizeAdd) {
