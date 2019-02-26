@@ -59,6 +59,7 @@
     "@furystack/http-api": "1.0.0",
     "@furystack/inject": "2.0.0",
     "@sensenet/client-utils": "1.4.2",
+    "semaphore-async-await": "1.5.1",
     "typeorm": "0.2.14"
   },
   "devDependencies": {

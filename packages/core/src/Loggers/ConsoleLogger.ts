@@ -1,6 +1,7 @@
 import { ILeveledLogEntry, LogLevel } from '../Models/ILogEntries'
 import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
+import { Injectable } from '@furystack/inject'
 
 /**
  * Resets the console color
@@ -76,7 +77,6 @@ export const defaultFormatter = <T>(entry: ILeveledLogEntry<T>) => {
  */
 export const verboseFormatter = <T>(entry: ILeveledLogEntry<T>) => {
   const fontColor = getLevelColor(entry.level)
-
   return entry.data
     ? [`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data]
     : [`${fontColor}%s${Reset}`, entry.scope, entry.message]
@@ -92,23 +92,15 @@ export interface IConsoleLoggerOptions extends ILoggerOptions {
 /**
  * A logger implementation that dumps log messages to the console
  */
+@Injectable()
 export class ConsoleLogger extends AbstractLogger<IConsoleLoggerOptions> {
-  public readonly options: IConsoleLoggerOptions
-
-  /**
-   *
-   */
-  constructor(options?: Partial<IConsoleLoggerOptions>) {
-    super(options)
-    this.options = {
-      ...defaultLoggerOptions,
-      ...{
-        formatter: defaultFormatter,
-      },
-      ...options,
-    }
+  public readonly options: IConsoleLoggerOptions = {
+    ...defaultLoggerOptions,
+    formatter: defaultFormatter,
   }
-
+  constructor() {
+    super()
+  }
   public async addEntry<T>(entry: ILeveledLogEntry<T>) {
     const data = this.options.formatter(entry)
     // tslint:disable-next-line:no-console

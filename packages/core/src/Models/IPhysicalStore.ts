@@ -1,5 +1,4 @@
 import { Disposable } from '@sensenet/client-utils'
-import { ILogger } from './ILogger'
 
 /**
  * Interface that defines a physical store implementation
@@ -7,7 +6,6 @@ import { ILogger } from './ILogger'
 export interface IPhysicalStore<T, K extends keyof T = keyof T, TFilter = Partial<T> & { top?: number; skip?: number }>
   extends Disposable {
   readonly primaryKey: K
-  logger: ILogger
   add(data: T): Promise<T>
   update(id: T[this['primaryKey']], data: T): Promise<void>
   count(): Promise<number>

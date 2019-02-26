@@ -11,5 +11,6 @@ export * from './Models/IUser'
 export * from './FileStore'
 export * from './InMemoryStore'
 export * from './UserContext'
+export * from './StoreManager'
 
 import './InjectorExtension'

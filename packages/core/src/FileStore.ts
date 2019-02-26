@@ -1,6 +1,5 @@
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
-import { LoggerCollection } from './Loggers'
 import { IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
@@ -67,11 +66,6 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
           if (!error) {
             resolve()
           } else {
-            this.logger.error({
-              scope: this.logScope,
-              message: 'Error when saving store data to file:',
-              data: { error },
-            })
             reject(error)
           }
         })
@@ -94,11 +88,6 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
       await new Promise((resolve, reject) => {
         this.readFile(this.fileName, (error, data) => {
           if (error) {
-            this.logger.error({
-              scope: this.logScope,
-              message: 'Error when loading store data from file:',
-              data: { error },
-            })
             reject(error)
           } else {
             this.cache.clear()
@@ -126,18 +115,13 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     public readonly tickMs = 10000,
     private readFile = nodeReadFile,
     private writeFile = nodeWriteFile,
-    public logger = new LoggerCollection(),
   ) {
     try {
       this.watcher = watch(this.fileName, { encoding: 'buffer' }, () => {
         this.reloadData()
       })
     } catch (error) {
-      this.logger.warning({
-        scope: this.logScope,
-        data: error,
-        message: `Error registering file watcher for store. External updates won't be updated.`,
-      })
+      // Error registering file watcher for store. External updates won't be updated.
     }
   }
 }

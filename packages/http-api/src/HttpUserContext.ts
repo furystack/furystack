@@ -1,4 +1,5 @@
 import { IPhysicalStore, IUser, LoggerCollection, UserContext } from '@furystack/core'
+import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
@@ -16,7 +17,7 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
   private user?: TUser
 
   public async authenticateUser(userName: string, password: string): Promise<TUser> {
-    const match = await this.authentication.users.filter({
+    const match = await this.users.filter({
       username: userName,
       password: this.authentication.hashMethod(password),
     } as Partial<ILoginUser<TUser>>)
@@ -153,7 +154,8 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     private readonly incomingMessage: IncomingMessage,
     private readonly injector: Injector,
     public readonly authentication: HttpAuthenticationSettings<TUser>,
+    storeManager: StoreManager,
   ) {
-    this.users = authentication.users
+    this.users = authentication.getUserStore(storeManager)
   }
 }

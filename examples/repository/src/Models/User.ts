@@ -10,7 +10,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 export class User implements ILoginUser<IUser> {
   @PrimaryGeneratedColumn()
   public id?: number
-  @Column()
+  @Column({ unique: true })
   public username!: string
 
   @Column('simple-json')

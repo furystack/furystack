@@ -1,4 +1,3 @@
-import { LoggerCollection } from './Loggers'
 import { IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
@@ -42,5 +41,5 @@ export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalS
     /** */
   }
 
-  constructor(public readonly primaryKey: K, public readonly tickMs = 10000, public logger = new LoggerCollection()) {}
+  constructor(public readonly primaryKey: K, public readonly tickMs = 10000) {}
 }
