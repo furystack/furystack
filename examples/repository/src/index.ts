@@ -4,7 +4,6 @@ import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { GetCurrentUser, HttpAuthenticationSettings, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import '@furystack/typeorm-store'
-import { createServer } from 'https'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 import { User } from './Models/User'
@@ -28,8 +27,6 @@ import { join } from 'path'
     })
     .setupStores(sm => sm.useTypeOrmStore(User, 'UserDb'))
     .useHttpApi({
-      protocol: 'https',
-      port: 8443,
       corsOptions: {
         credentials: true,
         origins: ['http://localhost:8080'],
@@ -50,11 +47,9 @@ import { join } from 'path'
           return undefined
         },
       ],
-      serverFactory: listener =>
-        createServer(defaultInjector.getInstance(CertificateManager).getCredentials(), (req, resp) =>
-          listener(req, resp),
-        ),
     })
+    .listenHttp({ port: 80 })
+    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials() })
     .useHttpAuthentication<User>({
       getUserStore: sm => sm.getStoreFor(User),
     })

@@ -1,7 +1,6 @@
 import { UserContext } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { IncomingMessage, Server as HttpServer, ServerResponse } from 'http'
-import { Server } from 'net'
+import { IncomingMessage } from 'http'
 import { ErrorAction } from './Actions/ErrorAction'
 import { NotFoundAction } from './Actions/NotFoundAction'
 import { HttpUserContext } from './HttpUserContext'
@@ -14,9 +13,6 @@ export class HttpApiSettings {
   public defaultAction: Constructable<IRequestAction> = NotFoundAction
   public errorAction: Constructable<ErrorAction> = ErrorAction
   public hostName: string = 'localhost'
-  public serverFactory: (
-    requestListener: (incomingMessage: IncomingMessage, serverResponse: ServerResponse) => void,
-  ) => Server = listener => new HttpServer(listener)
   public notFoundAction: Constructable<NotFoundAction> = NotFoundAction
   public actions: Array<(incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined> = []
   public port: number = 8080

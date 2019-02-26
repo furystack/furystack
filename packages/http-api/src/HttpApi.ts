@@ -1,8 +1,7 @@
-import { IApi, LoggerCollection } from '@furystack/core'
+import { LoggerCollection } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
-import { Server } from 'net'
 import { HttpApiSettings } from './HttpApiSettings'
 import { IRequestAction } from './Models'
 import { Utils } from './Utils'
@@ -11,11 +10,10 @@ import { Utils } from './Utils'
  * HTTP Rest API implementation for FuryStack
  */
 @Injectable()
-export class HttpApi implements IApi {
+export class HttpApi {
   public readonly logScope = '@furystack/http-api/HttpApi'
 
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
-    await this.awaitActivation
     await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
       injector.setExplicitInstance(incomingMessage)
       injector.setExplicitInstance(serverResponse)
@@ -60,22 +58,6 @@ export class HttpApi implements IApi {
     })
   }
 
-  public async activate() {
-    this.server = this.settings.serverFactory(this.mainRequestListener.bind(this))
-    this.server.listen(this.settings.port, this.settings.hostName, 8192)
-  }
-
-  public awaitActivation: Promise<void>
-  public async dispose() {
-    if (this.server !== undefined) {
-      await new Promise(resolve => {
-        ;(this.server as Server).on('close', () => resolve())
-        ;(this.server as Server).close()
-      })
-    }
-  }
-
-  public server?: Server
   private readonly injector: Injector
   constructor(
     parentInjector: Injector,
@@ -83,6 +65,5 @@ export class HttpApi implements IApi {
     private readonly settings: HttpApiSettings,
   ) {
     this.injector = parentInjector.createChild({ owner: this })
-    this.awaitActivation = this.activate()
   }
 }
