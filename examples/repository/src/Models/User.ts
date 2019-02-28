@@ -8,8 +8,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
  */
 @Entity()
 export class User implements ILoginUser<IUser> {
-  @PrimaryGeneratedColumn()
-  public id?: number
+  @PrimaryGeneratedColumn('uuid')
+  public id?: string
   @Column({ unique: true })
   public username!: string
 

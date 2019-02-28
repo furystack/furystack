@@ -29,12 +29,16 @@ Connection.prototype.awaitConnection = async function() {
 Injector.prototype.useTypeOrm = function(options) {
   this.logger.verbose({
     scope: '@furystack/typeorm-store/useTypeOrm',
-    message: 'Setting up TypeOrm...',
+    message: `Setting up TypeOrm ${options.name ? 'for connection ' + options.name + '...' : '...'}`,
     data: options,
   })
-
-  const cm = new ConnectionManager()
-  this.setExplicitInstance(cm)
+  let cm!: ConnectionManager
+  if (!this['cachedSingletons'].has(ConnectionManager)) {
+    cm = new ConnectionManager()
+    this.setExplicitInstance(cm)
+  } else {
+    cm = this.getInstance(ConnectionManager)
+  }
   const connection = cm.create(options)
   lock.acquire()
   connection

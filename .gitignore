@@ -60,5 +60,5 @@ typings/
 # next.js build output
 .next
 
-# test db
-db.sqlite
+# databasess dbs
+data

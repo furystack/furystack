@@ -1,17 +1,17 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger } from '@furystack/core'
-import { StoreManager } from '@furystack/core/dist/StoreManager'
-import { GetCurrentUser, HttpAuthenticationSettings, LoginAction, LogoutAction } from '@furystack/http-api'
+import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
 import { join } from 'path'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
+import { Task } from './Models/Task'
 import { User } from './Models/User'
+import { seed } from './seed'
 
-const a = 1
-console.log(a)
+console.log('Current working dir:', process.cwd())
 
 /**
  * Demo Application
@@ -21,15 +21,24 @@ console.log(a)
 
   defaultInjector
     .useLogging(ConsoleLogger)
+    /** DB 1 for Users */
     .useTypeOrm({
       name: 'UserDb',
       type: 'sqlite',
-      database: join(__dirname, 'users.sqlite'),
+      database: join(process.cwd(), 'data', 'users.sqlite'),
       // logging: true,
       entities: [User],
       synchronize: true,
     })
-    .setupStores(sm => sm.useTypeOrmStore(User, 'UserDb'))
+    /** DB 2 for Tasks */
+    .useTypeOrm({
+      name: 'TaskDb',
+      type: 'sqlite',
+      database: join(process.cwd(), 'data', 'tasks.sqlite'),
+      entities: [Task],
+      synchronize: true,
+    })
+    .setupStores(sm => sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb'))
     .useHttpApi({
       corsOptions: {
         credentials: true,
@@ -58,14 +67,5 @@ console.log(a)
       getUserStore: sm => sm.getStoreFor(User),
     })
     .useWebsockets()
-  ;(async () => {
-    await defaultInjector
-      .getInstance(StoreManager)
-      .getStoreFor(User)
-      .add({
-        username: 'testuser',
-        password: new HttpAuthenticationSettings().hashMethod('password'),
-        roles: [],
-      })
-  })()
+  await seed(defaultInjector)
 })()
