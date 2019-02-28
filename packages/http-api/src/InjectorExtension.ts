@@ -1,10 +1,12 @@
 import { IUser } from '@furystack/core'
 import { ServerManager } from '@furystack/core'
+import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
-import { createServer as createHttpServer } from 'http'
+import { createServer as createHttpServer, IncomingMessage } from 'http'
 import { ServerOptions } from 'https'
 import { createServer as createHttpsServer } from 'https'
-import { HttpAuthenticationSettings } from '.'
+import { parse } from 'url'
+import { GetCurrentUser, HttpAuthenticationSettings, IRequestAction, LoginAction, LogoutAction } from '.'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
 
@@ -15,6 +17,12 @@ export interface HttpExtendedInjector extends Injector {
   useHttpAuthentication: <TUser extends IUser = IUser>(
     settings: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
+  addHttpRouting: (
+    route: (incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined,
+  ) => HttpExtendedInjector
+
+  useDefaultLoginRoutes: () => HttpExtendedInjector
+
   listenHttp: (options?: { port?: number; hostName?: string }) => HttpExtendedInjector
   listenHttps: (options: { port?: number; hostName?: string; credentials: ServerOptions }) => HttpExtendedInjector
 }
@@ -70,6 +78,25 @@ Injector.prototype.useHttpApi = function(settings) {
     xi.getInstance(ServerManager).set(s)
     return xi
   }
+
+  xi.addHttpRouting = route => {
+    xi.getInstance(HttpApiSettings).actions.push(route)
+    return xi
+  }
+
+  xi.useDefaultLoginRoutes = () =>
+    xi.addHttpRouting(msg => {
+      const urlPathName = parse(msg.url || '', true).pathname
+      switch (urlPathName) {
+        case '/currentUser':
+          return GetCurrentUser
+        case '/login':
+          return LoginAction
+        case '/logout':
+          return LogoutAction
+      }
+      return undefined
+    })
 
   xi.getInstance(HttpApi)
   return xi

@@ -1,6 +1,5 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger } from '@furystack/core'
-import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
@@ -26,7 +25,6 @@ console.log('Current working dir:', process.cwd())
       name: 'UserDb',
       type: 'sqlite',
       database: join(process.cwd(), 'data', 'users.sqlite'),
-      // logging: true,
       entities: [User],
       synchronize: true,
     })
@@ -38,34 +36,27 @@ console.log('Current working dir:', process.cwd())
       entities: [Task],
       synchronize: true,
     })
-    .setupStores(sm => sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb'))
+    .setupStores(sm => {
+      sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
+    })
     .useHttpApi({
       corsOptions: {
         credentials: true,
         origins: ['http://localhost:8080'],
       },
-      actions: [
-        msg => {
-          const urlPathName = parse(msg.url || '', true).pathname
-          switch (urlPathName) {
-            case '/currentUser':
-              return GetCurrentUser
-            case '/login':
-              return LoginAction
-            case '/googleLogin':
-              return GoogleLoginAction
-            case '/logout':
-              return LogoutAction
-          }
-          return undefined
-        },
-      ],
     })
-    .listenHttp({ port: 80, hostName: 'localhost' })
-    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
+    .useDefaultLoginRoutes()
+    .addHttpRouting(msg => {
+      const urlPathName = parse(msg.url || '', true).pathname
+      if (urlPathName === '/currentUser') {
+        return GoogleLoginAction
+      }
+    })
     .useHttpAuthentication<User>({
       getUserStore: sm => sm.getStoreFor(User),
     })
+    .listenHttp({ port: 80, hostName: 'localhost' })
+    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
     .useWebsockets()
   await seed(defaultInjector)
 })()
