@@ -1,5 +1,8 @@
 import { Disposable } from '@sensenet/client-utils'
 
+/**
+ * Type for default filtering model
+ */
 export type DefaultFilter<T> = Partial<T> & { top?: number; skip?: number }
 
 /**

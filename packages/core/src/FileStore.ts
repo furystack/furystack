@@ -1,6 +1,6 @@
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
-import { IPhysicalStore, DefaultFilter } from './Models/IPhysicalStore'
+import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
