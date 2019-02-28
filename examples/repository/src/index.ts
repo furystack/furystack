@@ -47,7 +47,7 @@ defaultInjector
   .useDefaultLoginRoutes()
   .addHttpRouting(msg => {
     const urlPathName = parse(msg.url || '', true).pathname
-    if (urlPathName === '/currentUser') {
+    if (urlPathName === '/googleLogin') {
       return GoogleLoginAction
     }
   })
