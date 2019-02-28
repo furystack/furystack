@@ -1,11 +1,11 @@
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
-import { IPhysicalStore } from './Models/IPhysicalStore'
+import { IPhysicalStore, DefaultFilter } from './Models/IPhysicalStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<T, TFilter> {
   private readonly watcher?: FSWatcher
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
@@ -31,7 +31,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
     })
   }
 
-  public filter = async (filter: Partial<T>) => {
+  public filter = async (filter: TFilter) => {
     return await this.fileLock.execute(async () => {
       return [...this.cache.values()].filter(item => {
         for (const key in filter) {
@@ -111,7 +111,7 @@ export class FileStore<T, K extends keyof T = keyof T> implements IPhysicalStore
 
   constructor(
     private readonly fileName: string,
-    public readonly primaryKey: K,
+    public readonly primaryKey: keyof T,
     public readonly tickMs = 10000,
     private readFile = nodeReadFile,
     private writeFile = nodeWriteFile,

@@ -1,6 +1,7 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger } from '@furystack/core'
 import { Injector } from '@furystack/inject'
+import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
 import { join } from 'path'
@@ -37,6 +38,9 @@ defaultInjector
   })
   .setupStores(sm => {
     sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
+  })
+  .setupRepository(repo => {
+    repo.createDataSet(User).createDataSet(Task)
   })
   .useHttpApi({
     corsOptions: {

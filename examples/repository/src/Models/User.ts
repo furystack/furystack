@@ -1,13 +1,12 @@
 import { IGoogleApiPayload } from '@furystack/auth-google'
 import { IRole, IUser } from '@furystack/core'
-import { ILoginUser } from '@furystack/http-api'
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 /**
  * Represents an user model
  */
 @Entity()
-export class User implements ILoginUser<IUser> {
+export class User implements IUser {
   @PrimaryGeneratedColumn('uuid')
   public id?: string
   @Column({ unique: true })

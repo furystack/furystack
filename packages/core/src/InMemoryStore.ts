@@ -3,7 +3,7 @@ import { IPhysicalStore } from './Models/IPhysicalStore'
 /**
  * Store implementation that stores data in an in-memory cache
  */
-export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalStore<T, K> {
+export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
   }
@@ -41,5 +41,5 @@ export class InMemoryStore<T, K extends keyof T = keyof T> implements IPhysicalS
     /** */
   }
 
-  constructor(public readonly primaryKey: K, public readonly tickMs = 10000) {}
+  constructor(public readonly primaryKey: keyof T, public readonly tickMs = 10000) {}
 }

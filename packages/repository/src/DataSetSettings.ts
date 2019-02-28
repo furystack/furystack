@@ -18,11 +18,11 @@ export interface IAuthorizationResult {
 /**
  * Model for authorizers
  */
-export interface DataSetSettings<T, TKey extends keyof T, TFilterType> {
+export interface DataSetSettings<T, TFilterType> {
   /**
    * An instance of a physical store
    */
-  physicalStore: IPhysicalStore<T, TKey, TFilterType>
+  physicalStore: IPhysicalStore<T, TFilterType>
 
   /**
    * Authorizes the entity creation
@@ -61,7 +61,7 @@ export interface DataSetSettings<T, TKey extends keyof T, TFilterType> {
   /**
    * Callback that fires right after entity update
    */
-  onEntityUpdated?: (options: { injector: Injector; id: T[TKey]; change: Partial<T> }) => void
+  onEntityUpdated?: (options: { injector: Injector; id: T[keyof T]; change: Partial<T> }) => void
 
   /**
    * Authorizes entity removal (before the entity gets loaded from the store)

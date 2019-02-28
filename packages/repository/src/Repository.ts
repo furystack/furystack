@@ -1,33 +1,35 @@
-import { IPhysicalStore } from '@furystack/core'
+import { IPhysicalStore, StoreManager, DefaultFilter } from '@furystack/core'
+import { Constructable, Injectable } from '@furystack/inject'
 import { DataSet } from './DataSet'
 import { DataSetSettings } from './DataSetSettings'
 
 /**
- * A model that defines a collection of stores with a predefined name
- */
-export interface StoreCollection {
-  [key: string]: DataSet<any, any, any>
-}
-
-/**
- * Entry model for Physical Stores
- */
-export interface StoreEntry<T, K extends keyof T, TFilter> {
-  /**
-   * The store instance
-   */
-  store: IPhysicalStore<T, K, TFilter>
-  /**
-   * Name of the collection (falls back to store name)
-   */
-  name?: string
-
-  settings?: DataSetSettings<T, K, TFilter>
-}
-
-/**
  * Collection of authorized physical stores
  */
-export interface Repository {
-  stores: StoreCollection
+@Injectable({ lifetime: 'singleton' })
+export class Repository {
+  private dataSets: Map<Constructable<any>, DataSet<any, any>> = new Map()
+
+  public getDataSetFor<T, TFilter = DefaultFilter<T>>(model: Constructable<T>) {
+    const instance = this.dataSets.get(model)
+    if (!instance) {
+      throw Error(`No DataSet found for '${model.name}'`)
+    }
+    return instance as DataSet<T, TFilter>
+  }
+  public createDataSet<T, TFilter = DefaultFilter<T>>(
+    model: Constructable<T>,
+    settings?: Partial<DataSetSettings<T, TFilter>>,
+  ) {
+    const physicalStore =
+      (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as IPhysicalStore<T, TFilter>)
+    const instance = new DataSet({
+      ...settings,
+      physicalStore,
+    })
+    this.dataSets.set(model, instance)
+    return this
+  }
+
+  constructor(private readonly storeManager: StoreManager) {}
 }

@@ -21,8 +21,5 @@ export class StoreManager {
     return this
   }
 
-  /**
-   *
-   */
   constructor(public injector: Injector) {}
 }

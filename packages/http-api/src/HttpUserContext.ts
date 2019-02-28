@@ -4,15 +4,15 @@ import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { v1 } from 'uuid'
-import { HttpAuthenticationSettings, ILoginUser } from './HttpAuthenticationSettings'
+import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
 import { IExternalLoginService } from './Models/IExternalLoginService'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> {
-  public users: IPhysicalStore<ILoginUser<TUser>, 'username'>
+export class HttpUserContext<TUser extends IUser = IUser> implements UserContext<TUser> {
+  public users!: IPhysicalStore<TUser>
   public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
 
@@ -20,10 +20,10 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     const match = await this.users.filter({
       username: userName,
       password: this.authentication.hashMethod(password),
-    } as Partial<ILoginUser<TUser>>)
+    } as any)
     if (match.length === 1) {
       // tslint:disable-next-line: no-shadowed-variable
-      const { password, ...user } = match[0]
+      const { password, ...user } = match[0] as TUser & { password?: string }
       return (user as any) as TUser
     }
 
@@ -68,12 +68,16 @@ export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> 
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
       const session = await this.authentication.sessions.get(sessionId)
-      const u =
-        (session &&
-          (await this.users.filter({ username: session.Username as string } as Partial<ILoginUser<TUser>>))[0]) ||
-        (this.authentication.visitorUser as TUser)
-      const { password, ...user } = u as TUser & { password: string }
-      return (user as any) as TUser
+      if (session) {
+        const userResult = await this.users.filter({
+          username: session.Username,
+        } as Partial<TUser>)
+        if (userResult.length === 1) {
+          const { password, ...user } = userResult[0] as TUser & { password: string }
+          return (user as any) as TUser
+        }
+        return this.authentication.visitorUser as TUser
+      }
     }
 
     return this.authentication.visitorUser as TUser
