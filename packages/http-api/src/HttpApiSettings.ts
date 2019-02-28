@@ -1,5 +1,5 @@
 import { UserContext } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
+import { Constructable, Injectable } from '@furystack/inject'
 import { IncomingMessage } from 'http'
 import { ErrorAction } from './Actions/ErrorAction'
 import { NotFoundAction } from './Actions/NotFoundAction'
@@ -9,6 +9,7 @@ import { ICorsOptions } from './Models/ICorsOptions'
 /**
  * Configuration object for the FuryStack HTTP Api
  */
+@Injectable({ lifetime: 'singleton' })
 export class HttpApiSettings {
   public defaultAction: Constructable<IRequestAction> = NotFoundAction
   public errorAction: Constructable<ErrorAction> = ErrorAction

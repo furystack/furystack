@@ -7,7 +7,7 @@ import { IRequestAction } from '../Models'
 /**
  * Action that logs out the current user
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class LogoutAction implements IRequestAction {
   public dispose() {
     /**  */

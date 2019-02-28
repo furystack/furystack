@@ -10,7 +10,7 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
 /**
  * Injectable UserContext for FuryStack HTTP Api
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class HttpUserContext<TUser extends IUser> implements UserContext<TUser> {
   public users: IPhysicalStore<ILoginUser<TUser>, 'username'>
   public static logScope = '@furystack/http-api/HttpUserContext'

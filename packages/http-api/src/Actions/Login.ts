@@ -8,7 +8,7 @@ import { Utils } from '../Utils'
 /**
  * Action that logs in the current user
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class LoginAction implements IRequestAction {
   public dispose() {
     /**  */

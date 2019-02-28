@@ -6,7 +6,7 @@ import { GoogleLoginService } from './GoogleLoginService'
 /**
  * HTTP Request action for Google Logins
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class GoogleLoginAction implements IRequestAction {
   constructor(
     private readonly userContext: HttpUserContext<IUser>,

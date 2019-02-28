@@ -1,12 +1,12 @@
 import { IPhysicalStore } from '@furystack/core'
-import { RepositoryStore } from './RepositoryStore'
-import { RepositoryStoreSettings } from './RepositoryStoreSettings'
+import { DataSet } from './DataSet'
+import { DataSetSettings } from './DataSetSettings'
 
 /**
  * A model that defines a collection of stores with a predefined name
  */
 export interface StoreCollection {
-  [key: string]: RepositoryStore<any, any, any>
+  [key: string]: DataSet<any, any, any>
 }
 
 /**
@@ -22,7 +22,7 @@ export interface StoreEntry<T, K extends keyof T, TFilter> {
    */
   name?: string
 
-  settings?: RepositoryStoreSettings<T, K, TFilter>
+  settings?: DataSetSettings<T, K, TFilter>
 }
 
 /**

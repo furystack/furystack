@@ -26,7 +26,7 @@ export interface IGoogleApiPayload {
 /**
  * Service class for Google OAuth authentication
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class GoogleLoginService<TUser extends IUser & { googleId: number; googleProfileData: IGoogleApiPayload }>
   implements IExternalLoginService<TUser, [string]> {
   /**

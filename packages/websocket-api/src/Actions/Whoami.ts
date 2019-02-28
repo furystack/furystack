@@ -8,7 +8,7 @@ import { IWebSocketAction } from '../models/IWebSocketAction'
 /**
  * Example action that returns the current user instance
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class WhoAmI implements IWebSocketAction {
   public dispose() {
     /** */

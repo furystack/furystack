@@ -6,7 +6,7 @@ import { IRequestAction } from '../Models'
 /**
  * Action for unhandled (500) errors
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class ErrorAction implements IRequestAction {
   public dispose() {
     /** */

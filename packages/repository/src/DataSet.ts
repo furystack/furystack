@@ -1,10 +1,10 @@
 import { Injector } from '@furystack/inject'
-import { RepositoryStoreSettings } from './RepositoryStoreSettings'
+import { DataSetSettings } from './DataSetSettings'
 
 /**
  * An authorized Repository Store instance
  */
-export class RepositoryStore<T, TKey extends keyof T, TFilter> {
+export class DataSet<T, TKey extends keyof T, TFilter> {
   public primaryKey: TKey = this.settings.physicalStore.primaryKey
   public async add(injector: Injector, entity: T): Promise<T> {
     if (this.settings) {
@@ -99,5 +99,5 @@ export class RepositoryStore<T, TKey extends keyof T, TFilter> {
     /** */
   }
 
-  constructor(public readonly settings: RepositoryStoreSettings<T, TKey, TFilter>) {}
+  constructor(public readonly settings: DataSetSettings<T, TKey, TFilter>) {}
 }

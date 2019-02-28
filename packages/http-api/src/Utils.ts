@@ -5,7 +5,7 @@ import { ICorsOptions } from './Models/ICorsOptions'
 /**
  * A collection of various HTTP API related utilities
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class Utils {
   /**
    * Reads the post's body and returns a promise with a parsed value

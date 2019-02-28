@@ -1,5 +1,6 @@
 import { Disposable } from '@sensenet/client-utils'
 import { Constructable } from './Types/Constructable'
+import { defaultInjectableOptions } from './Injectable'
 
 /**
  * Container for injectable instances
@@ -32,8 +33,8 @@ export class Injector implements Disposable {
   public static meta: Map<
     Constructable<any>,
     {
-      Dependencies: Array<Constructable<any>>
-      Options: import('./Injectable').IInjectableOptions
+      dependencies: Array<Constructable<any>>
+      options: import('./Injectable').IInjectableOptions
     }
   > = new Map()
 
@@ -51,16 +52,6 @@ export class Injector implements Disposable {
     if (ctor === this.constructor) {
       return (this as any) as T
     }
-    if (dependencies.includes(ctor)) {
-      throw Error(`Circular dependencies found.`)
-    }
-    if (this.cachedSingletons.has(ctor)) {
-      return this.cachedSingletons.get(ctor) as T
-    }
-    const fromParent = !local && this.options.parent && this.options.parent.getInstance(ctor)
-    if (fromParent) {
-      return fromParent
-    }
     const meta = Injector.meta.get(ctor)
     if (!meta) {
       throw Error(
@@ -69,9 +60,43 @@ export class Injector implements Disposable {
           .join(',')}. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     }
-    const deps = meta.Options.ResolveDependencies
-      ? meta.Dependencies.map(dep => this.getInstance(dep, false, [...dependencies, ctor]))
-      : []
+    if (dependencies.includes(ctor)) {
+      throw Error(`Circular dependencies found.`)
+    }
+
+    if (meta.options.lifetime === 'singleton') {
+      const invalidDeps = meta.dependencies
+        .map(dep => ({ meta: Injector.meta.get(dep), dep }))
+        .filter(m => m.meta && (m.meta.options.lifetime === 'scoped' || m.meta.options.lifetime === 'transient'))
+        .map(i => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
+      if (invalidDeps.length) {
+        throw Error(
+          `Injector error: Singleton type '${ctor.name}' depends on non-singleton injectables: ${invalidDeps.join(
+            ',',
+          )}`,
+        )
+      }
+    } else if (meta.options.lifetime === 'scoped') {
+      const invalidDeps = meta.dependencies
+        .map(dep => ({ meta: Injector.meta.get(dep), dep }))
+        .filter(m => m.meta && m.meta.options.lifetime === 'transient')
+        .map(i => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
+      if (invalidDeps.length) {
+        throw Error(
+          `Injector error: Scoped type '${ctor.name}' depends on transient injectables: ${invalidDeps.join(',')}`,
+        )
+      }
+    }
+
+    if (meta.options.lifetime !== 'transient' && this.cachedSingletons.has(ctor)) {
+      return this.cachedSingletons.get(ctor) as T
+    }
+    const fromParent =
+      meta.options.lifetime === 'singleton' && this.options.parent && this.options.parent.getInstance(ctor)
+    if (fromParent) {
+      return fromParent
+    }
+    const deps = meta.dependencies.map(dep => this.getInstance(dep, false, [...dependencies, ctor]))
     const newInstance = new ctor(...deps)
     this.setExplicitInstance(newInstance)
     return newInstance
@@ -83,10 +108,23 @@ export class Injector implements Disposable {
    * @param key The class key to be persisted (optional, calls back to the instance's constructor)
    */
   public setExplicitInstance<T>(instance: T, key?: Constructable<any>) {
+    const ctor = key || (instance.constructor as Constructable<T>)
+    if (!Injector.meta.has(ctor)) {
+      const meta = Reflect.getMetadata('design:paramtypes', ctor)
+      Injector.meta.set(ctor, {
+        dependencies:
+          (meta &&
+            (meta as any[]).map(param => {
+              return param
+            })) ||
+          [],
+        options: { ...defaultInjectableOptions, lifetime: 'explicit' as any },
+      })
+    }
     if (instance.constructor === this.constructor) {
       throw Error('Cannot set an injector instance as injectable')
     }
-    this.cachedSingletons.set(key || (instance.constructor as Constructable<T>), instance)
+    this.cachedSingletons.set(ctor, instance)
   }
 
   /**

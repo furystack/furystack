@@ -5,7 +5,7 @@ import { IRequestAction } from '../Models'
 /**
  * Default fall back "Not Found" (404) action
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class NotFoundAction implements IRequestAction {
   public async dispose() {
     /**  */

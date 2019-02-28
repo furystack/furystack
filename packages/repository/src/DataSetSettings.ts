@@ -18,7 +18,7 @@ export interface IAuthorizationResult {
 /**
  * Model for authorizers
  */
-export interface RepositoryStoreSettings<T, TKey extends keyof T, TFilterType> {
+export interface DataSetSettings<T, TKey extends keyof T, TFilterType> {
   /**
    * An instance of a physical store
    */

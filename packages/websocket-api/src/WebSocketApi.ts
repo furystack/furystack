@@ -11,7 +11,7 @@ import { WebSocketApiSettings } from './WebSocketApiSettings'
 /**
  * A WebSocket API implementation for FuryStack
  */
-@Injectable()
+@Injectable({ lifetime: 'scoped' })
 export class WebSocketApi {
   private readonly socket: WebSocketServer
   private readonly injector: Injector

@@ -6,7 +6,7 @@ import { IRequestAction } from '../Models'
 /**
  * Action that returns the current authenticated user
  */
-@Injectable()
+@Injectable({ lifetime: 'transient' })
 export class GetCurrentUser implements IRequestAction {
   public dispose() {
     /**  */

@@ -1,3 +1,3 @@
 export * from './Repository'
-export * from './RepositoryStore'
-export * from './RepositoryStoreSettings'
+export * from './DataSet'
+export * from './DataSetSettings'

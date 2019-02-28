@@ -1,7 +1,7 @@
+import { Injectable } from '@furystack/inject'
 import { ILeveledLogEntry, LogLevel } from '../Models/ILogEntries'
 import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
-import { Injectable } from '@furystack/inject'
 
 /**
  * Resets the console color
@@ -92,7 +92,7 @@ export interface IConsoleLoggerOptions extends ILoggerOptions {
 /**
  * A logger implementation that dumps log messages to the console
  */
-@Injectable()
+@Injectable({ lifetime: 'scoped' })
 export class ConsoleLogger extends AbstractLogger<IConsoleLoggerOptions> {
   public readonly options: IConsoleLoggerOptions = {
     ...defaultLoggerOptions,

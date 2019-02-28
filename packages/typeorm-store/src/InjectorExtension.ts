@@ -33,6 +33,7 @@ Injector.prototype.useTypeOrm = function(options) {
     data: options,
   })
   let cm!: ConnectionManager
+  // tslint:disable-next-line: no-string-literal
   if (!this['cachedSingletons'].has(ConnectionManager)) {
     cm = new ConnectionManager()
     this.setExplicitInstance(cm)

@@ -4,7 +4,7 @@ import { Server } from 'net'
 /**
  * Manager class for server instances
  */
-@Injectable()
+@Injectable({ lifetime: 'scoped' })
 export class ServerManager {
   private readonly servers: Set<Server> = new Set()
 

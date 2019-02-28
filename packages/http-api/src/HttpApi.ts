@@ -9,7 +9,7 @@ import { Utils } from './Utils'
 /**
  * HTTP Rest API implementation for FuryStack
  */
-@Injectable()
+@Injectable({ lifetime: 'singleton' })
 export class HttpApi {
   public readonly logScope = '@furystack/http-api/HttpApi'
 

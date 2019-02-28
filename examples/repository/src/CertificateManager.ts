@@ -6,7 +6,7 @@ import { join } from 'path'
 /**
  * Manager class for https certificates
  */
-@Injectable()
+@Injectable({ lifetime: 'singleton' })
 export class CertificateManager {
   private fileExists = existsSync
   private readFile = readFileSync

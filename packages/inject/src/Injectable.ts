@@ -6,17 +6,14 @@ import { Constructable } from './Types/Constructable'
  * Options for the injectable instance
  */
 export interface IInjectableOptions {
-  /**
-   * Enables or disables resolving the dependencies from the constructor (true by default)
-   */
-  ResolveDependencies: boolean
+  lifetime: 'transient' | 'singleton' | 'scoped'
 }
 
 /**
  * The default options for the injectable classes
  */
 export const defaultInjectableOptions: IInjectableOptions = {
-  ResolveDependencies: true,
+  lifetime: 'transient',
 }
 
 /**
@@ -27,13 +24,13 @@ export const Injectable = (options?: Partial<IInjectableOptions>) => {
   return <T extends Constructable<any>>(ctor: T) => {
     const meta = Reflect.getMetadata('design:paramtypes', ctor)
     const metaValue = {
-      Dependencies:
+      dependencies:
         (meta &&
           (meta as any[]).map(param => {
             return param
           })) ||
         [],
-      Options: { ...defaultInjectableOptions, ...options },
+      options: { ...defaultInjectableOptions, ...options },
     }
     Injector.meta.set(ctor, metaValue)
   }

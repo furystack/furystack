@@ -13,50 +13,48 @@ import { seed } from './seed'
 console.log('Current working dir:', process.cwd())
 
 /**
- * Demo Application
+ * Demo app
  */
-;(async () => {
-  const defaultInjector = new Injector()
+const defaultInjector = new Injector()
 
-  defaultInjector
-    .useLogging(ConsoleLogger)
-    /** DB 1 for Users */
-    .useTypeOrm({
-      name: 'UserDb',
-      type: 'sqlite',
-      database: join(process.cwd(), 'data', 'users.sqlite'),
-      entities: [User],
-      synchronize: true,
-    })
-    /** DB 2 for Tasks */
-    .useTypeOrm({
-      name: 'TaskDb',
-      type: 'sqlite',
-      database: join(process.cwd(), 'data', 'tasks.sqlite'),
-      entities: [Task],
-      synchronize: true,
-    })
-    .setupStores(sm => {
-      sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
-    })
-    .useHttpApi({
-      corsOptions: {
-        credentials: true,
-        origins: ['http://localhost:8080'],
-      },
-    })
-    .useDefaultLoginRoutes()
-    .addHttpRouting(msg => {
-      const urlPathName = parse(msg.url || '', true).pathname
-      if (urlPathName === '/currentUser') {
-        return GoogleLoginAction
-      }
-    })
-    .useHttpAuthentication<User>({
-      getUserStore: sm => sm.getStoreFor(User),
-    })
-    .listenHttp({ port: 80, hostName: 'localhost' })
-    .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
-    .useWebsockets()
-  await seed(defaultInjector)
-})()
+defaultInjector
+  .useLogging(ConsoleLogger)
+  /** DB 1 for Users */
+  .useTypeOrm({
+    name: 'UserDb',
+    type: 'sqlite',
+    database: join(process.cwd(), 'data', 'users.sqlite'),
+    entities: [User],
+    synchronize: true,
+  })
+  /** DB 2 for Tasks */
+  .useTypeOrm({
+    name: 'TaskDb',
+    type: 'sqlite',
+    database: join(process.cwd(), 'data', 'tasks.sqlite'),
+    entities: [Task],
+    synchronize: true,
+  })
+  .setupStores(sm => {
+    sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
+  })
+  .useHttpApi({
+    corsOptions: {
+      credentials: true,
+      origins: ['http://localhost:8080'],
+    },
+  })
+  .useDefaultLoginRoutes()
+  .addHttpRouting(msg => {
+    const urlPathName = parse(msg.url || '', true).pathname
+    if (urlPathName === '/currentUser') {
+      return GoogleLoginAction
+    }
+  })
+  .listenHttp({ port: 80, hostName: 'localhost' })
+  .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
+  .useHttpAuthentication<User>({
+    getUserStore: sm => sm.getStoreFor(User),
+  })
+  .useWebsockets()
+seed(defaultInjector)

@@ -2,17 +2,9 @@ import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
- * User class
- */
-export class User {
-  public username: string = 'alma'
-}
-
-/**
  * Manager class for store instances
  */
-// tslint:disable-next-line: max-classes-per-file
-@Injectable()
+@Injectable({ lifetime: 'singleton' })
 export class StoreManager {
   private stores: Map<Constructable<any>, IPhysicalStore<any>> = new Map()
 
