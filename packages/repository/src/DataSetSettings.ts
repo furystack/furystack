@@ -20,6 +20,11 @@ export interface IAuthorizationResult {
  */
 export interface DataSetSettings<T, TFilterType> {
   /**
+   * The name of the dataset. Will fall back to the constructor's name
+   */
+  name: string
+
+  /**
    * An instance of a physical store
    */
   physicalStore: IPhysicalStore<T, TFilterType>

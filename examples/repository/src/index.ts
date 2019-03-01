@@ -1,6 +1,8 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger } from '@furystack/core'
 import { Injector } from '@furystack/inject'
+import '@furystack/odata'
+import { EdmType } from '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
@@ -40,7 +42,7 @@ defaultInjector
     sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
   })
   .setupRepository(repo => {
-    repo.createDataSet(User).createDataSet(Task)
+    repo.createDataSet(User, {}).createDataSet(Task)
   })
   .useHttpApi({
     corsOptions: {
@@ -61,4 +63,63 @@ defaultInjector
     getUserStore: sm => sm.getStoreFor(User),
   })
   .useWebsockets()
+  .useOdata('odata', builder =>
+    builder.addNameSpace('default', namespace =>
+      namespace
+        .setupEntities(entities =>
+          entities
+            .addEntity({
+              model: User,
+              primaryKey: 'id',
+              fields: [
+                {
+                  property: 'id',
+                  type: EdmType.String,
+                },
+                {
+                  property: 'username',
+                  type: EdmType.String,
+                },
+                {
+                  property: 'googleId',
+                  type: EdmType.Int64,
+                },
+              ],
+              relations: [],
+              actions: [],
+              functions: [],
+            })
+            .addEntity({
+              model: Task,
+              primaryKey: 'id',
+              fields: [{ property: 'id', type: EdmType.String }],
+              actions: [],
+              functions: [],
+              relations: [
+                {
+                  propertyName: 'user',
+                  foreignKey: 'userId',
+                  relatedModel: User,
+                },
+              ],
+            }),
+        )
+        .setupCollections(collections =>
+          collections
+            .addCollection({
+              name: 'users',
+              model: User,
+              actions: [],
+              functions: [],
+            })
+            .addCollection({
+              name: 'tasks',
+              model: Task,
+              actions: [],
+              functions: [],
+            }),
+        ),
+    ),
+  )
+
 seed(defaultInjector)

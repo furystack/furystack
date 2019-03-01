@@ -1,4 +1,4 @@
-import { IPhysicalStore, StoreManager, DefaultFilter } from '@furystack/core'
+import { DefaultFilter, IPhysicalStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable } from '@furystack/inject'
 import { DataSet } from './DataSet'
 import { DataSetSettings } from './DataSetSettings'
@@ -8,12 +8,13 @@ import { DataSetSettings } from './DataSetSettings'
  */
 @Injectable({ lifetime: 'singleton' })
 export class Repository {
-  private dataSets: Map<Constructable<any>, DataSet<any, any>> = new Map()
+  private dataSets: Map<string | Constructable<any>, DataSet<any, any>> = new Map()
 
-  public getDataSetFor<T, TFilter = DefaultFilter<T>>(model: Constructable<T>) {
-    const instance = this.dataSets.get(model)
+  public getDataSetFor<T, TFilter = DefaultFilter<T>>(model: Constructable<T> | string) {
+    const modelName = typeof model !== 'string' ? model.name : model
+    const instance = this.dataSets.get(modelName)
     if (!instance) {
-      throw Error(`No DataSet found for '${model.name}'`)
+      throw Error(`No DataSet found for '${modelName}'`)
     }
     return instance as DataSet<T, TFilter>
   }
@@ -23,11 +24,13 @@ export class Repository {
   ) {
     const physicalStore =
       (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as IPhysicalStore<T, TFilter>)
+    const name = (settings && settings.name) || model.name
     const instance = new DataSet({
       ...settings,
       physicalStore,
+      name,
     })
-    this.dataSets.set(model, instance)
+    this.dataSets.set((settings && settings.name) || model, instance)
     return this
   }
 
