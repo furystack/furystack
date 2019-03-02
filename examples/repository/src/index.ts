@@ -42,7 +42,7 @@ defaultInjector
     sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
   })
   .setupRepository(repo => {
-    repo.createDataSet(User, {}).createDataSet(Task)
+    repo.createDataSet(User, { name: 'users' }).createDataSet(Task, { name: 'tasks' })
   })
   .useHttpApi({
     corsOptions: {

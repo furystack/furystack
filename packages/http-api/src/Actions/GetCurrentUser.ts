@@ -1,6 +1,6 @@
-import { UserContext } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
 import { ServerResponse } from 'http'
+import { HttpUserContext } from '../HttpUserContext'
 import { IRequestAction } from '../Models'
 
 /**
@@ -21,5 +21,5 @@ export class GetCurrentUser implements IRequestAction {
   /**
    *
    */
-  constructor(private serverResponse: ServerResponse, private userContext: UserContext) {}
+  constructor(private serverResponse: ServerResponse, private userContext: HttpUserContext) {}
 }

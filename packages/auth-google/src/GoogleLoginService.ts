@@ -1,5 +1,5 @@
 import { IUser, visitorUser } from '@furystack/core'
-import { UserContext } from '@furystack/core'
+import { HttpUserContext } from '@furystack/http-api'
 import { IExternalLoginService } from '@furystack/http-api/dist/Models/IExternalLoginService'
 import { Utils } from '@furystack/http-api/dist/Utils'
 import { Injectable } from '@furystack/inject'
@@ -32,7 +32,7 @@ export class GoogleLoginService<TUser extends IUser & { googleId: number; google
   /**
    *
    */
-  constructor(private readonly userContext: UserContext<TUser>, private readonly utils: Utils) {}
+  constructor(private readonly userContext: HttpUserContext<TUser>, private readonly utils: Utils) {}
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
   public async login(token: string): Promise<TUser> {

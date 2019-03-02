@@ -82,8 +82,7 @@ export class WebSocketApi {
       usingAsync(this.injector.createChild({ owner: msg }), async i => {
         i.setExplicitInstance(msg, IncomingMessage)
         i.setExplicitInstance(websocket, ws)
-        this.settings.perActionServices.forEach(s => i.getInstance(s, true))
-        const actionInstance = i.getInstance<IWebSocketAction>(action, true)
+        const actionInstance = i.getInstance<IWebSocketAction>(action)
         actionInstance.execute(data)
       })
     }

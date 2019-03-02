@@ -1,6 +1,6 @@
 import { Disposable } from '@sensenet/client-utils'
-import { Constructable } from './Types/Constructable'
 import { defaultInjectableOptions } from './Injectable'
+import { Constructable } from './Types/Constructable'
 
 /**
  * Container for injectable instances
@@ -45,10 +45,9 @@ export class Injector implements Disposable {
   /**
    *
    * @param ctor The constructor object (e.g. IncomingMessage)
-   * @param local Flag that forbids parent walk if the instance is not available but the injector has a parent
    * @param dependencies Resolved dependencies
    */
-  public getInstance<T>(ctor: Constructable<T>, local: boolean = false, dependencies: Array<Constructable<T>> = []): T {
+  public getInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
     if (ctor === this.constructor) {
       return (this as any) as T
     }
@@ -96,7 +95,7 @@ export class Injector implements Disposable {
     if (fromParent) {
       return fromParent
     }
-    const deps = meta.dependencies.map(dep => this.getInstance(dep, false, [...dependencies, ctor]))
+    const deps = meta.dependencies.map(dep => this.getInstance(dep, [...dependencies, ctor]))
     const newInstance = new ctor(...deps)
     this.setExplicitInstance(newInstance)
     return newInstance

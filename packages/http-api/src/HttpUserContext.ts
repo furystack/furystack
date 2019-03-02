@@ -1,4 +1,4 @@
-import { IPhysicalStore, IUser, UserContext } from '@furystack/core'
+import { IPhysicalStore, IUser } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
@@ -11,7 +11,7 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext<TUser extends IUser = IUser> implements UserContext<TUser> {
+export class HttpUserContext<TUser extends IUser = IUser> {
   public users!: IPhysicalStore<TUser>
   public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
@@ -107,7 +107,7 @@ export class HttpUserContext<TUser extends IUser = IUser> implements UserContext
     ...args: TArgs
   ): Promise<TUser> {
     try {
-      const instance = this.injector.getInstance(service, true)
+      const instance = this.injector.getInstance(service)
       const user = await instance.login(...args)
       if (user.username !== this.authentication.visitorUser.username) {
         const sessionId = v1()

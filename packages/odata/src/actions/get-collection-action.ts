@@ -1,7 +1,8 @@
 import { IRequestAction } from '@furystack/http-api'
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
+import { Repository } from '@furystack/repository'
 import { IncomingMessage, ServerResponse } from 'http'
-import { ModelBuilder } from '../model-builder'
+import { OdataContext } from '../odata-context'
 
 /**
  * Root action for OData endpoints
@@ -13,7 +14,15 @@ export class GetCollectionAction implements IRequestAction {
   }
 
   public async exec() {
-    this.response.end(JSON.stringify({ name: 'GetCollection' }))
+    const dataSet = this.repo.getDataSetFor(this.context.collection.name)
+    const result = await dataSet.filter(this.injector, {})
+    this.response.end(JSON.stringify(result))
   }
-  constructor(public model: ModelBuilder, public incomingMessage: IncomingMessage, public response: ServerResponse) {}
+  constructor(
+    public repo: Repository,
+    public context: OdataContext<any>,
+    private injector: Injector,
+    public incomingMessage: IncomingMessage,
+    public response: ServerResponse,
+  ) {}
 }

@@ -17,13 +17,13 @@ export class HttpApi {
     await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
       injector.setExplicitInstance(incomingMessage)
       injector.setExplicitInstance(serverResponse)
-      injector.getInstance(Utils, true).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
+      injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
 
       /** ToDo: Check this */
 
-      const actionCtors = this.settings.actions.map(a => a(incomingMessage)).filter(a => a !== undefined) as Array<
-        Constructable<IRequestAction>
-      >
+      const actionCtors = this.settings.actions
+        .map(a => a(incomingMessage, injector))
+        .filter(a => a !== undefined) as Array<Constructable<IRequestAction>>
       if (actionCtors.length > 1) {
         this.logger.error({
           scope: this.logScope,
@@ -36,22 +36,17 @@ export class HttpApi {
       }
       if (actionCtors.length === 1) {
         try {
-          this.settings.perRequestServices.map(s => {
-            const created = injector.getInstance(s.value, true)
-            injector.setExplicitInstance(created, s.key)
-            return created
-          })
           const actionCtor = actionCtors[0]
-          await usingAsync(injector.getInstance(actionCtor, true), async action => {
+          await usingAsync(injector.getInstance(actionCtor), async action => {
             await action.exec()
           })
         } catch (error) {
-          await usingAsync(injector.getInstance(this.settings.errorAction, true), async e => {
+          await usingAsync(injector.getInstance(this.settings.errorAction), async e => {
             await e.returnError(error)
           })
         }
       } else {
-        await usingAsync(injector.getInstance(this.settings.notFoundAction, true), async a => {
+        await usingAsync(injector.getInstance(this.settings.notFoundAction), async a => {
           a.exec()
         })
       }
