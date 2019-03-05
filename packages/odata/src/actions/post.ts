@@ -1,7 +1,8 @@
-import { IRequestAction } from '@furystack/http-api'
-import { Injectable } from '@furystack/inject'
-import { IncomingMessage, ServerResponse } from 'http'
-import { ModelBuilder } from '../model-builder'
+import { IRequestAction, Utils } from '@furystack/http-api'
+import { Injectable, Injector } from '@furystack/inject'
+import { Repository } from '@furystack/repository'
+import { ServerResponse, IncomingMessage } from 'http'
+import { OdataContext } from '../odata-context'
 
 /**
  * Root action for OData endpoints
@@ -13,7 +14,25 @@ export class PostAction implements IRequestAction {
   }
 
   public async exec() {
-    this.response.end(JSON.stringify({ name: 'Post' }))
+    const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
+
+    const postBody = await this.utils.readPostBody(this.incomingMessage)
+
+    const entity = await dataSet.add(this.injector, postBody)
+    this.response.setHeader('content-type', 'application/json')
+    this.response.end(
+      JSON.stringify({
+        '@odata.context': 'ToDo',
+        ...entity,
+      }),
+    )
   }
-  constructor(public model: ModelBuilder, public incomingMessage: IncomingMessage, public response: ServerResponse) {}
+  constructor(
+    private incomingMessage: IncomingMessage,
+    private response: ServerResponse,
+    private context: OdataContext<any>,
+    private repo: Repository,
+    private injector: Injector,
+    private utils: Utils,
+  ) {}
 }

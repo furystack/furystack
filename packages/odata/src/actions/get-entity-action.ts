@@ -1,8 +1,7 @@
 import { IRequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { IncomingMessage, ServerResponse } from 'http'
-import { ModelBuilder } from '../model-builder'
+import { ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
@@ -26,11 +25,9 @@ export class GetEntityAction implements IRequestAction {
     )
   }
   constructor(
-    public model: ModelBuilder,
-    public incomingMessage: IncomingMessage,
-    public response: ServerResponse,
-    public context: OdataContext<any>,
-    public repo: Repository,
+    private response: ServerResponse,
+    private context: OdataContext<any>,
+    private repo: Repository,
     private injector: Injector,
   ) {}
 }
