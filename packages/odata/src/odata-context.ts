@@ -7,5 +7,5 @@ import { Collection } from './models'
 @Injectable({ lifetime: 'scoped' })
 export class OdataContext<T> {
   public collection!: Collection<T>
-  public entity?: T
+  public entityId?: number | string
 }

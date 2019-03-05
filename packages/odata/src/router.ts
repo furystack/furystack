@@ -31,25 +31,34 @@ export const createOdataRouter: (options: {
   return (msg, injector) => {
     const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
 
-    if (collectionsWithUrls.findIndex(curl => urlPathName.indexOf(curl.url) !== -1) !== -1) {
-      if (collectionsWithUrls.findIndex(c => c.url === urlPathName) !== -1) {
-        const value = collectionsWithUrls.find(c => c.url === urlPathName) as {
-          collection: Collection<any>
-          url: string
-        }
+    const collection = collectionsWithUrls.find(c => urlPathName.indexOf(c.url) !== -1)
+
+    if (collection) {
+      injector.setExplicitInstance(
+        {
+          ...injector.getInstance(OdataContext),
+          collection: collection.collection,
+        } as OdataContext<typeof collection.collection.model>,
+        OdataContext,
+      )
+      switch (msg.method) {
+        case 'GET':
+          return GetCollectionAction
+        case 'POST':
+          return PostAction
+      }
+
+      if (PathHelper.isItemPath(urlPathName)) {
+        const entityId = PathHelper.getSegments(urlPathName)
+          .filter(s => PathHelper.isItemSegment(s))[0]
+          .replace(`('`, '')
+          .replace(`)'`, '')
 
         injector.setExplicitInstance(
-          { collection: value.collection } as OdataContext<typeof value.collection.model>,
+          { ...injector.getInstance(OdataContext), entityId } as OdataContext<any>,
           OdataContext,
         )
-        switch (msg.method) {
-          case 'GET':
-            return GetCollectionAction
-          case 'POST':
-            return PostAction
-        }
-      }
-      if (PathHelper.isItemPath(urlPathName)) {
+
         switch (msg.method) {
           case 'GET':
             return GetEntityAction

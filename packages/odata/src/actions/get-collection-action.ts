@@ -15,8 +15,17 @@ export class GetCollectionAction implements IRequestAction {
 
   public async exec() {
     const dataSet = this.repo.getDataSetFor(this.context.collection.name)
-    const result = await dataSet.filter(this.injector, {})
-    this.response.end(JSON.stringify(result))
+    const value = await dataSet.filter(this.injector, {})
+    const count = await dataSet.count(this.injector)
+    this.response.setHeader('content-type', 'application/json')
+    this.response.end(
+      JSON.stringify({
+        '@odata.context': 'ToDo',
+        '@odata.count': count,
+        '@odata.nextLink': 'ToDo',
+        value,
+      }),
+    )
   }
   constructor(
     public repo: Repository,
