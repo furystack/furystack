@@ -59,7 +59,7 @@
     "@furystack/http-api": "1.0.0",
     "@furystack/inject": "2.0.0",
     "@sensenet/client-utils": "1.4.2",
-    "ws": "6.1.4"
+    "ws": "6.2.0"
   },
   "devDependencies": {
     "@types/jest": "24.0.9",
