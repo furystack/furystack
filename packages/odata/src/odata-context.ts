@@ -8,4 +8,5 @@ import { Collection } from './models'
 export class OdataContext<T> {
   public collection!: Collection<T>
   public entityId?: number | string
+  public context!: string
 }

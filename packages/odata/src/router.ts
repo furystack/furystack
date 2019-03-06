@@ -1,5 +1,6 @@
 import { IRouteModel } from '@furystack/http-api'
 import { PathHelper } from '@sensenet/client-utils'
+import { TLSSocket } from 'tls'
 import { parse } from 'url'
 import { DeleteAction } from './actions/delete'
 import { GetCollectionAction } from './actions/get-collection-action'
@@ -32,32 +33,36 @@ export const createOdataRouter: (options: {
     const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
 
     const collection = collectionsWithUrls.find(c => urlPathName.indexOf(c.url) !== -1)
+    const server = (msg.connection as TLSSocket).encrypted
+      ? `https://${msg.headers.host}/`
+      : `http://${msg.headers.host}/`
 
     if (collection) {
       injector.setExplicitInstance(
         {
           ...injector.getInstance(OdataContext),
           collection: collection.collection,
+          context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
         } as OdataContext<typeof collection.collection.model>,
         OdataContext,
       )
-      switch (msg.method) {
-        case 'GET':
-          return GetCollectionAction
-        case 'POST':
-          return PostAction
-      }
 
       if (PathHelper.isItemPath(urlPathName)) {
         const entityId = PathHelper.getSegments(urlPathName)
           .filter(s => PathHelper.isItemSegment(s))[0]
           .replace(`('`, '')
-          .replace(`)'`, '')
+          .replace(`')`, '')
 
         injector.setExplicitInstance(
-          { ...injector.getInstance(OdataContext), entityId } as OdataContext<any>,
+          {
+            ...injector.getInstance(OdataContext),
+            context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`, '$entity'),
+            entityId,
+          } as OdataContext<any>,
           OdataContext,
         )
+
+        // ToDo: Check for entity property getters, actions, functions here
 
         switch (msg.method) {
           case 'GET':
@@ -70,7 +75,18 @@ export const createOdataRouter: (options: {
             return DeleteAction
         }
       }
+
+      // ToDo: Check for collection actions here
+
+      switch (msg.method) {
+        case 'GET':
+          return GetCollectionAction
+        case 'POST':
+          return PostAction
+      }
     }
+
+    // ToDo: Check for global actions here
 
     if (msg.method === 'GET' && urlPathName === `${options.route}/$metadata`) {
       return MetadataAction

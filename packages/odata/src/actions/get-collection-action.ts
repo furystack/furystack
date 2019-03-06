@@ -20,7 +20,7 @@ export class GetCollectionAction implements IRequestAction {
     this.response.setHeader('content-type', 'application/json')
     this.response.end(
       JSON.stringify({
-        '@odata.context': 'ToDo',
+        '@odata.context': this.context.context,
         '@odata.count': count,
         '@odata.nextLink': 'ToDo',
         value,

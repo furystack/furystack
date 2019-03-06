@@ -1,7 +1,8 @@
 import { IRequestAction } from '@furystack/http-api'
-import { Injectable } from '@furystack/inject'
-import { IncomingMessage, ServerResponse } from 'http'
-import { ModelBuilder } from '../model-builder'
+import { Injectable, Injector } from '@furystack/inject'
+import { Repository } from '@furystack/repository'
+import { ServerResponse } from 'http'
+import { OdataContext } from '../odata-context'
 
 /**
  * Root action for OData endpoints
@@ -13,7 +14,15 @@ export class DeleteAction implements IRequestAction {
   }
 
   public async exec() {
-    this.response.end(JSON.stringify({ name: 'Delete' }))
+    const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
+    await dataSet.remove(this.injector, this.context.entityId)
+    this.response.writeHead(204, 'No Content')
+    this.response.end()
   }
-  constructor(public model: ModelBuilder, public incomingMessage: IncomingMessage, public response: ServerResponse) {}
+  constructor(
+    private injector: Injector,
+    public repo: Repository,
+    private context: OdataContext<any>,
+    public response: ServerResponse,
+  ) {}
 }

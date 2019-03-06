@@ -1,7 +1,7 @@
 import { IRequestAction, Utils } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { ServerResponse, IncomingMessage } from 'http'
+import { IncomingMessage, ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
@@ -19,10 +19,9 @@ export class PostAction implements IRequestAction {
     const postBody = await this.utils.readPostBody(this.incomingMessage)
 
     const entity = await dataSet.add(this.injector, postBody)
-    this.response.setHeader('content-type', 'application/json')
+    this.response.writeHead(201, 'Created', { 'content-type': 'application/json' })
     this.response.end(
       JSON.stringify({
-        '@odata.context': 'ToDo',
         ...entity,
       }),
     )

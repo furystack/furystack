@@ -17,9 +17,23 @@ export class GetEntityAction implements IRequestAction {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
     const entity = await dataSet.get(this.injector, this.context.entityId)
     this.response.setHeader('content-type', 'application/json')
+
+    if (!entity) {
+      this.response.writeHead(404, 'Not found')
+      this.response.end(
+        JSON.stringify({
+          error: {
+            code: '',
+            message: `Resource not found for the segment '${this.context.collection.name}'.`,
+          },
+        }),
+      )
+      return
+    }
+
     this.response.end(
       JSON.stringify({
-        '@odata.context': 'ToDo',
+        '@odata.context': this.context.context,
         ...entity,
       }),
     )
