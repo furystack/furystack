@@ -12,7 +12,7 @@
     "lerna": "3.13.0",
     "rimraf": "2.6.3",
     "ts-jest": "24.0.0",
-    "ts-node": "8.0.2",
+    "ts-node": "8.0.3",
     "tslint": "5.13.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "1.15.0",
