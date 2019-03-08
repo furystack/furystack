@@ -60,7 +60,7 @@
     "semaphore-async-await": "1.5.1"
   },
   "devDependencies": {
-    "@types/jest": "24.0.9",
+    "@types/jest": "24.0.10",
     "jest": "24.1.0",
     "rimraf": "2.6.3",
     "ts-jest": "24.0.0",
