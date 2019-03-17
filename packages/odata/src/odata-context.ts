@@ -9,4 +9,13 @@ export class OdataContext<T> {
   public collection!: Collection<T>
   public entityId?: number | string
   public context!: string
+  public queryParams!: {
+    count?: boolean
+    top?: number
+    skip?: number
+    filter?: string
+    select?: Array<keyof T>
+    expand?: Array<keyof T>
+    orderby?: string
+  }
 }
