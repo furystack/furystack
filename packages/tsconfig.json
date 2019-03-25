@@ -1,0 +1,27 @@
+{
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./core"
+    },
+    {
+      "path": "./http-api"
+    },
+    {
+      "path": "./inject"
+    },
+    {
+      "path": "./odata"
+    },
+    {
+      "path": "./typeorm-store"
+    },
+    {
+      "path": "./websocket-api"
+    },
+    {
+      "path": "./repository"
+    }
+  ]
+}

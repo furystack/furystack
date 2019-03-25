@@ -15,31 +15,5 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "declarationMap": true
-  },
-  "references": [
-    {
-      "path": "./packages/core"
-    },
-    {
-      "path": "./packages/http-api"
-    },
-    {
-      "path": "./packages/inject"
-    },
-    {
-      "path": "./packages/odata"
-    },
-    {
-      "path": "./packages/typeorm-store"
-    },
-    {
-      "path": "./packages/websocket-api"
-    },
-    {
-      "path": "./packages/repository"
-    },
-    {
-      "path": "./examples/repository"
-    }
-  ]
+  }
 }
