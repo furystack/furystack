@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
-import { HttpUserContext, Utils } from '../../src'
+import { HttpUserContext } from '../../src'
 import { LoginAction } from '../../src/Actions/Login'
 describe('LoginAction', () => {
   /** */
@@ -9,8 +9,11 @@ describe('LoginAction', () => {
     const testUser = { Name: 'Userke' }
     usingAsync(new Injector(), async i => {
       i.setExplicitInstance({ cookieLogin: async () => testUser }, HttpUserContext)
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({ readPostBody: async () => ({}) }, Utils)
+      i.setExplicitInstance(
+        // tslint:disable-next-line: no-unnecessary-type-annotation
+        { on: (name: string, callback: () => void) => callback(), read: () => '{}' },
+        IncomingMessage,
+      )
       i.setExplicitInstance(
         {
           writeHead: () => undefined,
@@ -22,7 +25,7 @@ describe('LoginAction', () => {
         },
         ServerResponse,
       )
-      await usingAsync(i.getInstance(LoginAction, true), async c => {
+      await usingAsync(i.getInstance(LoginAction), async c => {
         await c.exec()
       })
     })

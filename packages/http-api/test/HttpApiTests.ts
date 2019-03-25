@@ -62,12 +62,12 @@ describe('HttpApi tests', () => {
          */
         constructor(private userContext: HttpUserContext<IUser>, private perRequestInjector: Injector) {}
       }
-      i.setExplicitInstance({ headers: {} }, IncomingMessage)
-      i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
+      // i.setExplicitInstance({ headers: {} }, IncomingMessage)
+      // i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
       i.useHttpApi({
         actions: [() => ExampleAction],
       })
-      await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+      await i.getInstance(HttpApi).mainRequestListener({ headers: {} } as any, {} as any)
     })
   })
 

@@ -21,7 +21,8 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
+    "clean": "yarn workspaces run rimraf dist",
+    "build": "yarn tsc -b packages",
     "lint": "lerna run lint --parallel",
     "clean:packages": "lerna clean",
     "test": "jest",

@@ -29,7 +29,7 @@ describe('LogoutAction', () => {
         },
         ServerResponse,
       )
-      await usingAsync(i.getInstance(LogoutAction, true), async c => {
+      await usingAsync(i.getInstance(LogoutAction), async c => {
         await c.exec()
       })
     })

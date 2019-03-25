@@ -15,8 +15,8 @@ export class HttpApi {
 
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
     await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
-      injector.setExplicitInstance(incomingMessage)
-      injector.setExplicitInstance(serverResponse)
+      injector.setExplicitInstance(incomingMessage, IncomingMessage)
+      injector.setExplicitInstance(serverResponse, ServerResponse)
       injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
 
       /** ToDo: Check this */

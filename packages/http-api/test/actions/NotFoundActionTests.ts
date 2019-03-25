@@ -19,7 +19,7 @@ describe('NotFoundAction tests', () => {
         },
         ServerResponse,
       )
-      await usingAsync(i.getInstance(NotFoundAction, true), async c => {
+      await usingAsync(i.getInstance(NotFoundAction), async c => {
         await c.exec()
       })
     })

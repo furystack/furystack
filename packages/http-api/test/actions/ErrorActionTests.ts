@@ -8,7 +8,7 @@ describe('ErrorAction tests', () => {
     usingAsync(new Injector(), async i => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      await usingAsync(i.getInstance(ErrorAction, true), async e => {
+      await usingAsync(i.getInstance(ErrorAction), async e => {
         try {
           await e.exec()
           done('Should throw')
@@ -34,7 +34,7 @@ describe('ErrorAction tests', () => {
         },
         ServerResponse,
       )
-      await usingAsync(i.getInstance(ErrorAction, true), async c => {
+      await usingAsync(i.getInstance(ErrorAction), async c => {
         c.returnError(testError)
       })
     })

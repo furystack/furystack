@@ -28,7 +28,7 @@ describe('Injector', () => {
 
   it('Should set and return instance from cache', () => {
     const i = new Injector()
-    @Injectable()
+    @Injectable({ lifetime: 'scoped' })
     class InstanceClass {
       constructor() {
         /** */
@@ -48,7 +48,7 @@ describe('Injector', () => {
   it('Should return from a parent injector if available', () => {
     const parent = new Injector()
     const i = parent.createChild()
-    @Injectable()
+    @Injectable({ lifetime: 'singleton' })
     class InstanceClass {
       constructor() {
         /** */
@@ -64,7 +64,7 @@ describe('Injector', () => {
   it('Should create instance on a parent injector if not available', () => {
     const parent = new Injector()
     const i = parent.createChild()
-    @Injectable()
+    @Injectable({ lifetime: 'singleton' })
     class InstanceClass {
       constructor() {
         /** */
@@ -154,7 +154,7 @@ describe('Injector', () => {
   it('Requesting an undecorated instance should throw an error', () => {
     class UndecoratedTestClass {}
     using(new Injector(), i => {
-      expect(() => i.getInstance(UndecoratedTestClass, true, [Injector])).toThrowError(
+      expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
         `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     })
