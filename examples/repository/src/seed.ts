@@ -2,8 +2,8 @@ import { IPhysicalStore, StoreManager } from '@furystack/core'
 import { HttpAuthenticationSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { Task } from './Models/Task'
-import { User } from './Models/User'
 import { TestEntry } from './Models/TestEntry'
+import { User } from './Models/User'
 
 /**
  * gets an existing instance if exists or create and return if not. Throws error on multiple result

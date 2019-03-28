@@ -8,7 +8,11 @@ import { Connection, Repository } from 'typeorm'
 export class TypeOrmStore<T> implements IPhysicalStore<T> {
   public primaryKey!: keyof T
   private typeOrmRepo!: Repository<T>
-  constructor(model: Constructable<T>, private readonly connection: Connection, public logger: ILogger) {
+  constructor(
+    private readonly model: Constructable<T>,
+    private readonly connection: Connection,
+    public logger: ILogger,
+  ) {
     this.logger.verbose({
       scope: '@furystack/typeorm-store/TypeOrmStore',
       message: `Initializing TypeORM Store for ${model.name}...`,
@@ -47,7 +51,12 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
     await this.connection.awaitConnection()
     await this.typeOrmRepo.delete(key)
   }
-  public dispose() {
+  public async dispose() {
     /** */
+    this.logger.information({
+      scope: '@furystack/typeorm-store/TypeOrmStore',
+      message: `Disposing TypeORM Store for Entity Type ${this.model.name}`,
+    })
+    await this.typeOrmRepo.manager.connection.close()
   }
 }

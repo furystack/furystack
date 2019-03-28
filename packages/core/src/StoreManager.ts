@@ -17,6 +17,11 @@ export class StoreManager implements Disposable {
   public getStoreFor<T>(model: Constructable<T>) {
     const instance = this.stores.get(model)
     if (!instance) {
+      this.injector.logger.warning({
+        scope: '@furystack/core/StoreManager',
+        message: `Store not found for '${model.name}'`,
+      })
+
       throw Error(`Store not found for '${model.name}'`)
     }
     return instance as IPhysicalStore<T>
