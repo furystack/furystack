@@ -1,11 +1,17 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Disposable } from '@sensenet/client-utils'
 import { IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
  * Manager class for store instances
  */
 @Injectable({ lifetime: 'singleton' })
-export class StoreManager {
+export class StoreManager implements Disposable {
+  public async dispose() {
+    for (const store of this.stores.values()) {
+      await store.dispose()
+    }
+  }
   private stores: Map<Constructable<any>, IPhysicalStore<any>> = new Map()
 
   public getStoreFor<T>(model: Constructable<T>) {

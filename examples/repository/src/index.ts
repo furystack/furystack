@@ -1,5 +1,5 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
-import { ConsoleLogger } from '@furystack/core'
+import { ConsoleLogger, FileStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import '@furystack/odata'
 import { EdmType } from '@furystack/odata'
@@ -9,7 +9,9 @@ import '@furystack/websocket-api'
 import { join } from 'path'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
+import { registerExitHandler } from './ExitHandler'
 import { Task } from './Models/Task'
+import { TestEntry } from './Models/TestEntry'
 import { User } from './Models/User'
 import { seed } from './seed'
 
@@ -19,6 +21,8 @@ console.log('Current working dir:', process.cwd())
  * Demo app
  */
 const defaultInjector = new Injector()
+
+registerExitHandler(defaultInjector)
 
 defaultInjector
   .useLogging(ConsoleLogger)
@@ -39,10 +43,17 @@ defaultInjector
     synchronize: true,
   })
   .setupStores(sm => {
+    sm.addStore(
+      TestEntry,
+      new FileStore<TestEntry>(join(process.cwd(), 'data', 'testEntries.json'), 'id', 60000, sm.injector.logger),
+    )
     sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
   })
   .setupRepository(repo => {
-    repo.createDataSet(User, { name: 'users' }).createDataSet(Task, { name: 'tasks' })
+    repo
+      .createDataSet(User, { name: 'users' })
+      .createDataSet(Task, { name: 'tasks' })
+      .createDataSet(TestEntry, { name: 'testEntries' })
   })
   .useHttpApi({
     corsOptions: {
@@ -102,6 +113,14 @@ defaultInjector
                   relatedModel: User,
                 },
               ],
+            })
+            .addEntity({
+              model: TestEntry,
+              primaryKey: 'id',
+              fields: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
+              actions: [],
+              functions: [],
+              relations: [],
             }),
         )
         .setupCollections(collections =>
@@ -115,6 +134,12 @@ defaultInjector
             .addCollection({
               name: 'tasks',
               model: Task,
+              actions: [],
+              functions: [],
+            })
+            .addCollection({
+              name: 'testEntries',
+              model: TestEntry,
               actions: [],
               functions: [],
             }),

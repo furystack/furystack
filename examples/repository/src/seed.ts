@@ -3,6 +3,7 @@ import { HttpAuthenticationSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { Task } from './Models/Task'
 import { User } from './Models/User'
+import { TestEntry } from './Models/TestEntry'
 
 /**
  * gets an existing instance if exists or create and return if not. Throws error on multiple result
@@ -40,7 +41,7 @@ export const seed = async (injector: Injector) => {
 
   const taskStore = sm.getStoreFor(Task)
 
-  const exampleTask = await getOrCreate(
+  await getOrCreate(
     {
       name: 'testTask',
     },
@@ -53,5 +54,9 @@ export const seed = async (injector: Injector) => {
     taskStore,
   )
 
-  console.log('Seed completed', testUser, exampleTask)
+  const testEntryStore = sm.getStoreFor(TestEntry)
+  await getOrCreate({ id: 1 }, { id: 1, value: 'testEntry1' }, testEntryStore)
+  await getOrCreate({ id: 2 }, { id: 2, value: 'testEntry1' }, testEntryStore)
+
+  console.log('Seeding initial data completed.')
 }

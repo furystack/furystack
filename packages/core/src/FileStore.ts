@@ -1,5 +1,6 @@
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
+import { ILogger } from './Models/ILogger'
 import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
@@ -71,12 +72,27 @@ export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<
         })
       })
       this.hasChanges = false
+      this.logger.information({
+        scope: this.logScope,
+        message: `Store '${this.fileName}' has been updated with the latest changes.`,
+        data: { values },
+      })
+    } catch (e) {
+      this.logger.error({
+        scope: this.logScope,
+        message: `Error saving changed data to '${this.fileName}'.`,
+        data: { error: e },
+      })
     } finally {
       this.fileLock.release()
     }
   }
 
   public async dispose() {
+    this.logger.information({
+      scope: this.logScope,
+      message: `Disposing FileStore: '${this.fileName}'`,
+    })
     await this.saveChanges()
     this.watcher && this.watcher.close()
     clearInterval(this.tick)
@@ -99,6 +115,12 @@ export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<
           }
         })
       })
+    } catch (e) {
+      this.logger.error({
+        scope: this.logScope,
+        message: `Error loading data into store from '${this.fileName}'.`,
+        data: e,
+      })
     } finally {
       this.fileLock.release()
     }
@@ -113,11 +135,16 @@ export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<
     private readonly fileName: string,
     public readonly primaryKey: keyof T,
     public readonly tickMs = 10000,
+    private readonly logger: ILogger,
     private readFile = nodeReadFile,
     private writeFile = nodeWriteFile,
   ) {
     try {
       this.watcher = watch(this.fileName, { encoding: 'buffer' }, () => {
+        this.logger.verbose({
+          scope: this.logScope,
+          message: `The file '${this.fileName}' has been changed, reloading data...`,
+        })
         this.reloadData()
       })
     } catch (error) {
