@@ -78,6 +78,19 @@ export const createOdataRouter: (options: {
       }
 
       // ToDo: Check for collection actions here
+      const collectionFunction = Object.entries(collection.collection.functions).find(
+        a => urlPathName === `${collection.url}/${a[0]}`,
+      )
+      if (msg.method === 'GET' && collectionFunction) {
+        return collectionFunction[1].action
+      }
+
+      const collectionAction = Object.entries(collection.collection.actions).find(
+        a => urlPathName === `${collection.url}/${a[0]}`,
+      )
+      if (msg.method === 'GET' && collectionAction) {
+        return collectionAction[1].action
+      }
 
       switch (msg.method) {
         case 'GET':
