@@ -1647,130 +1647,37 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/core/dist/index.d.ts": [
-        "c:/development/furystack/packages/core/dist/systemroles.d.ts",
-        "c:/development/furystack/packages/core/dist/loggers/index.d.ts",
-        "c:/development/furystack/packages/core/dist/injectorextension.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
-        "c:/development/furystack/packages/core/dist/servermanager.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
-        "c:/development/furystack/packages/core/dist/models/irole.d.ts",
-        "c:/development/furystack/packages/core/dist/models/iuser.d.ts",
-        "c:/development/furystack/packages/core/dist/filestore.d.ts",
-        "c:/development/furystack/packages/core/dist/inmemorystore.d.ts",
-        "c:/development/furystack/packages/core/dist/storemanager.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/injectorextension.ts": [
-        "c:/development/furystack/packages/inject/dist/injector.d.ts",
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/index.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts",
-        "c:/development/furystack/packages/http-api/src/httpapisettings.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/index.ts": [
-        "c:/development/furystack/packages/http-api/src/actions/index.ts",
-        "c:/development/furystack/packages/http-api/src/actions/erroraction.ts",
-        "c:/development/furystack/packages/http-api/src/httpapi.ts",
-        "c:/development/furystack/packages/http-api/src/httpapisettings.ts",
-        "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts",
-        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
-        "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts",
-        "c:/development/furystack/packages/http-api/src/utils.ts",
-        "c:/development/furystack/packages/http-api/src/injectorextension.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/injectorextension.d.ts": [
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/core/dist/storemanager.d.ts",
-        "c:/development/furystack/packages/inject/dist/injector.d.ts",
-        "c:/development/furystack/packages/http-api/src/injectorextension.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/logout.ts": [
-        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/index.ts": [
-        "c:/development/furystack/packages/http-api/src/actions/getcurrentuser.ts",
-        "c:/development/furystack/packages/http-api/src/actions/login.ts",
-        "c:/development/furystack/packages/http-api/src/actions/logout.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/login.ts": [
-        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/utils.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/httpusercontext.ts": [
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts",
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/core/dist/storemanager.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/getcurrentuser.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts": [
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/core/dist/storemanager.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/httpapi.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/httpapisettings.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/erroraction.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/core/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/httpapisettings.ts": [
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts",
-        "c:/development/furystack/packages/http-api/src/actions/erroraction.ts",
-        "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts",
-        "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts",
-        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts": [
-        "c:/development/furystack/packages/core/dist/index.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/models/index.ts": [
-        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts",
-        "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts",
-        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts",
-        "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/index.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/models/iuser.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/irole.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
       "c:/development/furystack/packages/core/dist/systemroles.d.ts": [
         "c:/development/furystack/packages/core/dist/models/irole.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
       "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/models/ilogger.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/loggers/consolelogger.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/loggers/testlogger.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -1789,79 +1696,11 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/core/dist/loggers/testlogger.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/loggers/consolelogger.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/loggers/abstractlogger.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/models/ilogger.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/filestore.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts",
-        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
-        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
       "c:/development/furystack/node_modules/reflect-metadata/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
       "c:/development/furystack/packages/inject/dist/types/constructable.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/inject/dist/types/index.d.ts": [
-        "c:/development/furystack/packages/inject/dist/types/constructable.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/inject/dist/index.d.ts": [
-        "c:/development/furystack/packages/inject/dist/injectable.d.ts",
-        "c:/development/furystack/packages/inject/dist/injector.d.ts",
-        "c:/development/furystack/packages/inject/dist/types/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/utils.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts"
-      ],
-      "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/storemanager.d.ts": [
-        "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
-        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/inject/dist/injector.d.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
-        "c:/development/furystack/packages/inject/dist/types/constructable.d.ts",
-        "c:/development/furystack/packages/inject/dist/injectable.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -1875,42 +1714,11 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/filterasync.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/debounce.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/retrier.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/valueobserver.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/pathhelper.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/sleepasync.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/trace.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/tonumber.d.ts",
+      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/filterasync.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/src/models/irequestaction.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/core/dist/inmemorystore.d.ts": [
-        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/trace.d.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts": [
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
-        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/valueobserver.d.ts",
+      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/debounce.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -1920,11 +1728,9 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/filterasync.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/debounce.d.ts": [
+      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/valueobserver.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -1945,7 +1751,67 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
+      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/trace.d.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
       "c:/development/furystack/node_modules/@sensenet/client-utils/dist/tonumber.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/disposable.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/filterasync.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/debounce.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/observablevalue.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/retrier.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/valueobserver.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/pathhelper.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/sleepasync.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/trace.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/tonumber.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/inject/dist/injector.d.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
+        "c:/development/furystack/packages/inject/dist/types/constructable.d.ts",
+        "c:/development/furystack/packages/inject/dist/injectable.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/inject/dist/types/index.d.ts": [
+        "c:/development/furystack/packages/inject/dist/types/constructable.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/inject/dist/index.d.ts": [
+        "c:/development/furystack/packages/inject/dist/injectable.d.ts",
+        "c:/development/furystack/packages/inject/dist/injector.d.ts",
+        "c:/development/furystack/packages/inject/dist/types/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/storemanager.d.ts": [
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts",
+        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/injectorextension.d.ts": [
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/core/dist/storemanager.d.ts",
+        "c:/development/furystack/packages/inject/dist/injector.d.ts",
+        "c:/development/furystack/packages/http-api/src/injectorextension.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -1954,6 +1820,209 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
       "c:/development/furystack/packages/http-api/node_modules/@types/node/assert.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/async_hooks.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/buffer.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/node_modules/@types/events/index.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/child_process.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/cluster.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/child_process.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/console.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/constants.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/crypto.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/dgram.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/domain.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/http2.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/inspector.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/module.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/os.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/path.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/perf_hooks.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/async_hooks.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/process.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/punycode.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/querystring.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/readline.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/repl.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/readline.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/vm.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/string_decoder.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/timers.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/crypto.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/trace_events.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/tty.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/querystring.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/v8.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/vm.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/worker_threads.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/zlib.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -2000,19 +2069,105 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/zlib.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
+      "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts"
+      ],
       "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/base.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@types/ws/index.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts",
+      "c:/development/furystack/packages/core/dist/servermanager.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/models/iuser.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/irole.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/filestore.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/inmemorystore.d.ts": [
+        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/core/dist/index.d.ts": [
+        "c:/development/furystack/packages/core/dist/systemroles.d.ts",
+        "c:/development/furystack/packages/core/dist/loggers/index.d.ts",
+        "c:/development/furystack/packages/core/dist/injectorextension.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogentries.d.ts",
+        "c:/development/furystack/packages/core/dist/servermanager.d.ts",
+        "c:/development/furystack/packages/core/dist/models/ilogger.d.ts",
+        "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
+        "c:/development/furystack/packages/core/dist/models/irole.d.ts",
+        "c:/development/furystack/packages/core/dist/models/iuser.d.ts",
+        "c:/development/furystack/packages/core/dist/filestore.d.ts",
+        "c:/development/furystack/packages/core/dist/inmemorystore.d.ts",
+        "c:/development/furystack/packages/core/dist/storemanager.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/models/irequestaction.ts": [
+        "c:/development/furystack/node_modules/@sensenet/client-utils/dist/index.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts": [
+        "c:/development/furystack/packages/core/dist/index.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/models/index.ts": [
+        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts",
+        "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts",
+        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts",
+        "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/actions/erroraction.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/httpapisettings.ts": [
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/irequestaction.ts",
+        "c:/development/furystack/packages/http-api/src/actions/erroraction.ts",
+        "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts",
+        "c:/development/furystack/packages/http-api/src/models/iroutemodel.ts",
+        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/utils.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/icorsoptions.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/httpapi.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/httpapisettings.ts"
+      ],
+      "c:/development/furystack/node_modules/hash.js/lib/hash.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts": [
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/core/dist/storemanager.d.ts"
       ],
       "c:/development/furystack/node_modules/@types/uuid/interfaces.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
@@ -2024,235 +2179,80 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/core/dist/servermanager.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/async_hooks.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/perf_hooks.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/async_hooks.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/buffer.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/events/index.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/child_process.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/cluster.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/child_process.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/console.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/constants.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/crypto.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/crypto.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+      "c:/development/furystack/packages/http-api/src/httpusercontext.ts": [
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
+        "c:/development/furystack/packages/http-api/src/models/iexternalloginservice.ts",
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/core/dist/storemanager.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/http2.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/tls.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
+      "c:/development/furystack/packages/http-api/src/actions/getcurrentuser.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/actions/login.ts": [
+        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/src/utils.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/actions/logout.ts": [
+        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/actions/index.ts": [
+        "c:/development/furystack/packages/http-api/src/actions/getcurrentuser.ts",
+        "c:/development/furystack/packages/http-api/src/actions/login.ts",
+        "c:/development/furystack/packages/http-api/src/actions/logout.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/index.ts": [
+        "c:/development/furystack/packages/http-api/src/actions/index.ts",
+        "c:/development/furystack/packages/http-api/src/actions/erroraction.ts",
+        "c:/development/furystack/packages/http-api/src/httpapi.ts",
+        "c:/development/furystack/packages/http-api/src/httpapisettings.ts",
+        "c:/development/furystack/packages/http-api/src/actions/notfoundaction.ts",
+        "c:/development/furystack/packages/http-api/src/models/index.ts",
+        "c:/development/furystack/packages/http-api/src/httpusercontext.ts",
+        "c:/development/furystack/packages/http-api/src/httpauthenticationsettings.ts",
+        "c:/development/furystack/packages/http-api/src/utils.ts",
+        "c:/development/furystack/packages/http-api/src/injectorextension.ts"
+      ],
+      "c:/development/furystack/packages/http-api/src/injectorextension.ts": [
+        "c:/development/furystack/packages/inject/dist/injector.d.ts",
+        "c:/development/furystack/packages/core/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/src/index.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/inject/dist/index.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts",
+        "c:/development/furystack/packages/http-api/src/httpapisettings.ts"
+      ],
+      "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/dgram.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+      "c:/development/furystack/node_modules/@types/babel__generator/index.d.ts": [
+        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts": [
+      "c:/development/furystack/node_modules/@types/babel__traverse/index.d.ts": [
+        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/dns.d.ts",
+      "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts": [
+        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/tty.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/domain.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/worker_threads.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/zlib.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/readline.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/repl.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/readline.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/vm.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/fs.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/stream.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/inspector.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/module.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/os.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/path.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/process.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/punycode.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/querystring.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/url.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/querystring.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/string_decoder.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/timers.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/trace_events.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/yargs/index.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/stack-utils/index.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/jest/index.d.ts": [
-        "c:/development/furystack/node_modules/jest-diff/build/index.d.ts",
-        "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/jest-diff/build/index.d.ts": [
-        "c:/development/furystack/node_modules/jest-diff/build/types.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/jest-diff/build/types.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
-      ],
-      "c:/development/furystack/node_modules/@types/istanbul-lib-coverage/index.d.ts": [
+      "c:/development/furystack/node_modules/@types/babel__template/index.d.ts": [
+        "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts",
+        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
@@ -2265,43 +2265,43 @@
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@types/babel__template/index.d.ts": [
-        "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts",
-        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
+      "c:/development/furystack/node_modules/@types/istanbul-lib-coverage/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts": [
-        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
+      "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@types/babel__traverse/index.d.ts": [
-        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
+      "c:/development/furystack/node_modules/jest-diff/build/types.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@types/babel__generator/index.d.ts": [
-        "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
+      "c:/development/furystack/node_modules/jest-diff/build/index.d.ts": [
+        "c:/development/furystack/node_modules/jest-diff/build/types.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts": [
+      "c:/development/furystack/node_modules/@types/jest/index.d.ts": [
+        "c:/development/furystack/node_modules/jest-diff/build/index.d.ts",
+        "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/node_modules/hash.js/lib/hash.d.ts": [
+      "c:/development/furystack/node_modules/@types/stack-utils/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts": [
-        "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts"
-      ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/vm.d.ts": [
+      "c:/development/furystack/node_modules/@types/ws/index.d.ts": [
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/events.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/http.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/https.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/net.d.ts",
+        "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/index.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ],
-      "c:/development/furystack/packages/http-api/node_modules/@types/node/v8.d.ts": [
+      "c:/development/furystack/node_modules/@types/yargs/index.d.ts": [
         "c:/development/furystack/packages/http-api/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/packages/http-api/node_modules/@types/node/ts3.1/util.d.ts"
       ]

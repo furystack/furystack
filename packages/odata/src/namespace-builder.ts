@@ -1,9 +1,7 @@
-import { Constructable } from '@furystack/inject'
 import { CollectionBuilder } from './collection-builder'
 import { EntityBuilder } from './entity-builder'
 import { EdmType } from './models/edm-type'
-// import { EdmType } from './models'
-import { OdataGlobalAction } from './models/odata-global-action'
+import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
 import { XmlNode } from './xml-utils'
 
 /**
@@ -12,8 +10,8 @@ import { XmlNode } from './xml-utils'
 export class NamespaceBuilder {
   public entities = new EntityBuilder()
   public collections = new CollectionBuilder()
-  public actions: { [k: string]: Constructable<OdataGlobalAction<any, any>> } = {}
-  public functions: { [k: string]: Constructable<OdataGlobalAction<any, any>> } = {}
+  public actions: { [k: string]: FunctionDescriptor } = {}
+  public functions: { [k: string]: FunctionDescriptor } = {}
 
   public setupEntities(buildEntities: (e: EntityBuilder) => EntityBuilder) {
     this.entities = buildEntities(this.entities)
@@ -103,17 +101,51 @@ export class NamespaceBuilder {
                   },
                 } as XmlNode),
             ),
-            // Unbound functions
-            ...Object.entries(this.actions).map(
-              a =>
-                ({
-                  tagName: 'FunctionImport',
-                  attributes: {
-                    Name: a[0],
-                    Function: a[1].name.toString(),
-                  },
-                } as XmlNode),
-            ),
+            // Unbound functions and actions
+            ...Object.entries(this.actions).map(a => toXmlNode(a, 'Action')),
+            ...Object.entries(this.functions).map(f => toXmlNode(f, 'Function')),
+
+            // Collection bound functions and actions
+            ...Array.from(this.collections.collections).flatMap(c => [
+              ...Object.entries(c[1].actions).map(a =>
+                toXmlNode(
+                  [
+                    a[0],
+                    {
+                      ...a[1],
+                      ...{
+                        isBound: true,
+                        parameters: [
+                          ...(a[1].parameters || []),
+                          { name: 'bindingParameter', type: `Collection(${c[1].model.name})` },
+                        ],
+                      },
+                    },
+                  ],
+                  'Action',
+                ),
+              ),
+              ...Object.entries(c[1].functions).map(a =>
+                toXmlNode(
+                  [
+                    a[0],
+                    {
+                      ...a[1],
+                      ...{
+                        isBound: true,
+                        parameters: [
+                          ...(a[1].parameters || []),
+                          { name: 'bindingParameter', type: `Collection(${c[1].model.name})` },
+                        ],
+                      },
+                    },
+                  ],
+                  'Function',
+                ),
+              ),
+            ]),
+
+            // ToDo: Entity-bound functions and actions
           ],
         },
       ],

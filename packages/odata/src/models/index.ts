@@ -1,6 +1,3 @@
 export * from './collection'
 export * from './edm-type'
 export * from './entity'
-export * from './odata-collection-action'
-export * from './odata-entity-action'
-export * from './odata-global-action'

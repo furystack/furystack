@@ -1,5 +1,6 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
 import { ConsoleLogger, FileStore } from '@furystack/core'
+import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import '@furystack/odata'
 import { EdmType } from '@furystack/odata'
@@ -75,7 +76,7 @@ defaultInjector
   })
   .useWebsockets()
   .useOdata('odata', builder =>
-    builder.addNameSpace('default', namespace =>
+    builder.addNameSpace('default', namespace => {
       namespace
         .setupEntities(entities =>
           entities
@@ -128,23 +129,52 @@ defaultInjector
             .addCollection({
               name: 'users',
               model: User,
-              actions: [],
-              functions: [],
+              actions: {},
+              functions: {
+                current: {
+                  action: GetCurrentUser,
+                  returnType: User,
+                },
+              },
             })
             .addCollection({
               name: 'tasks',
               model: Task,
-              actions: [],
-              functions: [],
+              actions: {},
+              functions: {},
             })
             .addCollection({
               name: 'testEntries',
               model: TestEntry,
-              actions: [],
-              functions: [],
+              actions: {},
+              functions: {},
             }),
-        ),
-    ),
+        )
+
+      namespace.setupGlobalFunctions({
+        getCurrentUser: {
+          action: GetCurrentUser,
+          returnType: User,
+        },
+      })
+
+      namespace.setupGlobalActions({
+        login: {
+          parameters: [
+            { name: 'username', type: String.name, nullable: false },
+            { name: 'password', type: String.name, nullable: false },
+          ],
+          returnType: User,
+          action: LoginAction,
+        },
+        logout: {
+          returnType: User,
+          action: LogoutAction,
+        },
+      })
+
+      return namespace
+    }),
   )
 
 seed(defaultInjector)

@@ -1,4 +1,5 @@
-import { IRouteModel } from '@furystack/http-api'
+import { IRouteModel, IRequestAction } from '@furystack/http-api'
+import { Constructable } from '@furystack/inject'
 import { PathHelper } from '@sensenet/client-utils'
 import { TLSSocket } from 'tls'
 import { parse } from 'url'
@@ -10,7 +11,7 @@ import { PatchAction } from './actions/patch'
 import { PostAction } from './actions/post'
 import { PutAction } from './actions/put'
 import { RootAction } from './actions/root-action'
-import { Collection, Entity, OdataGlobalAction } from './models'
+import { Collection, Entity } from './models'
 import { OdataContext } from './odata-context'
 
 /**
@@ -21,8 +22,8 @@ export const createOdataRouter: (options: {
   route: string
   entities: Array<Entity<any>>
   collections: Array<Collection<any>>
-  globalActions: Array<OdataGlobalAction<any, any>>
-  globalFunctions: Array<OdataGlobalAction<any, any>>
+  globalActions: { [key: string]: Constructable<IRequestAction> }
+  globalFunctions: { [key: string]: Constructable<IRequestAction> }
 }) => IRouteModel = options => {
   const collectionsWithUrls = options.collections.map(c => ({
     collection: c,
@@ -87,6 +88,15 @@ export const createOdataRouter: (options: {
     }
 
     // ToDo: Check for global actions here
+    const globalFunction = Object.entries(options.globalFunctions).find(a => urlPathName === `${options.route}/${a[0]}`)
+    if (msg.method === 'GET' && globalFunction) {
+      return globalFunction[1]
+    }
+
+    const globalAction = Object.entries(options.globalActions).find(a => urlPathName === `${options.route}/${a[0]}`)
+    if (msg.method === 'POST' && globalAction) {
+      return globalAction[1]
+    }
 
     if (msg.method === 'GET' && urlPathName === `${options.route}/$metadata`) {
       return MetadataAction
