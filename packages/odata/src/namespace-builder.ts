@@ -146,8 +146,50 @@ export class NamespaceBuilder {
                 ),
               ),
             ]),
-
-            // ToDo: Entity-bound functions and actions
+            ...Array.from(this.entities.entities.values()).flatMap(entity => {
+              return [
+                ...(entity.actions
+                  ? Object.entries(entity.actions).map(e =>
+                      toXmlNode(
+                        [
+                          e[0],
+                          {
+                            ...e[1],
+                            ...{
+                              isBound: true,
+                              parameters: [
+                                ...(e[1].parameters || []),
+                                { name: 'bindingParameter', type: entity.model.name },
+                              ],
+                            },
+                          },
+                        ],
+                        'Action',
+                      ),
+                    )
+                  : []),
+                ...(entity.functions
+                  ? Object.entries(entity.functions).map(e =>
+                      toXmlNode(
+                        [
+                          e[0],
+                          {
+                            ...e[1],
+                            ...{
+                              isBound: true,
+                              parameters: [
+                                ...(e[1].parameters || []),
+                                { name: 'bindingParameter', type: entity.model.name },
+                              ],
+                            },
+                          },
+                        ],
+                        'Function',
+                      ),
+                    )
+                  : []),
+              ]
+            }),
           ],
         },
       ],
