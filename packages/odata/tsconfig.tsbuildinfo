@@ -562,16 +562,16 @@
         "signature": "befedece07c8aafe8b91662abdb415213fb587a31c8d2cf99d6e62f07b836dee"
       },
       "c:/development/furystack/packages/odata/src/models/entity.ts": {
-        "version": "f6f6941ac460e9af4aa68979486b8bd390b23f9efff21f3afc70be9a45fa3b01",
-        "signature": "a8e6ec6488969e70c4e2559c744863357e6423eb0f93079081ef53d1583e8f62"
+        "version": "5957c32f19bdebc375b2011d059daf7ba6fc0a2833686363e6024af8da9e2e16",
+        "signature": "2dd141942ecf2dced9c9ee827f232bb68036071821cfe9bd1aee7085d062c43e"
       },
       "c:/development/furystack/packages/odata/src/entity-builder.ts": {
         "version": "ce65f4584275bdc887caf7f5c1a9a1c39d20ace2b108b2754e832e15658dd04a",
         "signature": "5a7fd2dc9061113d515bd458259920bf512a84ac0f81869b8030acbcca3dbe46"
       },
       "c:/development/furystack/packages/odata/src/namespace-builder.ts": {
-        "version": "ed582f0d2cb11bf0c8cc8805cf63f0257ea9f7cc8a3b78f852c8bfa2ac955064",
-        "signature": "e644f96d15e2eb573d962793c35a31ce3330c3e92ecedffa609e114a1a17e176"
+        "version": "10572304cb6bf81cc042458c018b58be5844d480f56bd321bc6f7e07f3db5a35",
+        "signature": "8b15f25fc1fe5b3aa9aced7928a17f5b4aab5c40501011c3244fe640c40fe622"
       },
       "c:/development/furystack/packages/odata/src/model-builder.ts": {
         "version": "d4126d6d4a0652a91a3ba81cd4f5bcb8f8df87b828b084da076885bb94aeeba6",
@@ -602,8 +602,8 @@
         "signature": "fdf77a63715878c5a6ef6aafd19b53a54fe5d8aaf4ac663a482507dedc71a32d"
       },
       "c:/development/furystack/packages/odata/src/odata-context.ts": {
-        "version": "dc491bb435d70357e342c0baabf771b67a0d947cc6476be44e6d05c8f360d19c",
-        "signature": "3704c747de4d9cd73022badcfcda50c070bf475eae0ef23b081afe79463f9ccd"
+        "version": "cbbfefd513d2e3583c03d06aa345c76eac0bdb4f11fd60ae7fe83c7ae19a0f2b",
+        "signature": "3f1c37ca78a5362ee371f854fff15819cbb3b630a79c244daef11cbe0f667387"
       },
       "c:/development/furystack/packages/odata/src/actions/delete.ts": {
         "version": "fafe52181569c804cb569ee87f8a379fdcebc67cd65d542880d40c195e3133d4",
@@ -638,8 +638,8 @@
         "signature": "e39cb3240df7872ea14e36ed29c8d5a3ac0577fcc4d9fcd40bce36b875681344"
       },
       "c:/development/furystack/packages/odata/src/router.ts": {
-        "version": "66d7d3f46acbfcb77c661fc850bb76de46021cb7c5da62989fc36f27c897c663",
-        "signature": "23f5f59d1f0737cafed63f7608dd9c28c6728605349aa058db410f93c5c1dd4a"
+        "version": "2306db6ea3c080a61daf3bf7a36ce8e03e1a6565df0ca302928c5a314b95acbf",
+        "signature": "c8b35a470d20bb6f40c84f53640e26a13e25282116e4a942786990b00124f703"
       },
       "c:/development/furystack/packages/odata/src/injectorextension.ts": {
         "version": "5c8c5e68ec9480a45485e6fb59f470327d070bc35241474087cb9e4bb1f9272c",
@@ -1545,9 +1545,9 @@
         "c:/development/furystack/node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "c:/development/furystack/packages/odata/src/models/entity.ts": [
-        "c:/development/furystack/packages/http-api/dist/index.d.ts",
         "c:/development/furystack/packages/inject/dist/index.d.ts",
         "c:/development/furystack/packages/odata/src/models/edm-type.ts",
+        "c:/development/furystack/packages/odata/src/models/function-descriptor.ts",
         "c:/development/furystack/node_modules/@types/node/util.d.ts",
         "c:/development/furystack/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -2614,7 +2614,7 @@
       ],
       "c:/development/furystack/packages/odata/src/models/entity.ts": [
         "c:/development/furystack/packages/inject/dist/index.d.ts",
-        "c:/development/furystack/packages/http-api/dist/index.d.ts",
+        "c:/development/furystack/packages/odata/src/models/function-descriptor.ts",
         "c:/development/furystack/packages/odata/src/models/edm-type.ts"
       ],
       "c:/development/furystack/packages/odata/src/entity-builder.ts": [
@@ -2940,39 +2940,21 @@
       "c:/development/furystack/packages/inject/dist/index.d.ts",
       "c:/development/furystack/packages/core/dist/models/iphysicalstore.d.ts",
       "c:/development/furystack/packages/core/dist/storemanager.d.ts",
+      "c:/development/furystack/packages/core/dist/injectorextension.d.ts",
       "c:/development/furystack/packages/core/dist/servermanager.d.ts",
       "c:/development/furystack/packages/core/dist/models/iuser.d.ts",
       "c:/development/furystack/packages/core/dist/filestore.d.ts",
       "c:/development/furystack/packages/core/dist/inmemorystore.d.ts",
-      "c:/development/furystack/packages/http-api/dist/models/irequestaction.d.ts",
-      "c:/development/furystack/packages/http-api/dist/models/icorsoptions.d.ts",
-      "c:/development/furystack/packages/http-api/dist/models/iroutemodel.d.ts",
-      "c:/development/furystack/packages/http-api/dist/utils.d.ts",
-      "c:/development/furystack/packages/odata/src/xml-utils.ts",
-      "c:/development/furystack/packages/odata/src/models/edm-type.ts",
-      "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
-      "c:/development/furystack/node_modules/@types/babel__generator/index.d.ts",
-      "c:/development/furystack/node_modules/@types/babel__traverse/index.d.ts",
-      "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts",
-      "c:/development/furystack/node_modules/@types/babel__template/index.d.ts",
-      "c:/development/furystack/node_modules/@types/babel__core/index.d.ts",
-      "c:/development/furystack/node_modules/@types/istanbul-lib-coverage/index.d.ts",
-      "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts",
-      "c:/development/furystack/node_modules/jest-diff/build/types.d.ts",
-      "c:/development/furystack/node_modules/jest-diff/build/index.d.ts",
-      "c:/development/furystack/node_modules/@types/jest/index.d.ts",
-      "c:/development/furystack/node_modules/@types/stack-utils/index.d.ts",
-      "c:/development/furystack/node_modules/@types/uuid/interfaces.d.ts",
-      "c:/development/furystack/node_modules/@types/uuid/index.d.ts",
-      "c:/development/furystack/node_modules/@types/ws/index.d.ts",
-      "c:/development/furystack/node_modules/@types/yargs/index.d.ts",
-      "c:/development/furystack/packages/core/dist/injectorextension.d.ts",
       "c:/development/furystack/packages/core/dist/index.d.ts",
       "c:/development/furystack/packages/http-api/dist/httpauthenticationsettings.d.ts",
       "c:/development/furystack/packages/http-api/dist/models/iexternalloginservice.d.ts",
       "c:/development/furystack/packages/http-api/dist/httpusercontext.d.ts",
+      "c:/development/furystack/packages/http-api/dist/models/irequestaction.d.ts",
+      "c:/development/furystack/packages/http-api/dist/models/icorsoptions.d.ts",
+      "c:/development/furystack/packages/http-api/dist/models/iroutemodel.d.ts",
       "c:/development/furystack/packages/http-api/dist/models/index.d.ts",
       "c:/development/furystack/packages/http-api/dist/actions/getcurrentuser.d.ts",
+      "c:/development/furystack/packages/http-api/dist/utils.d.ts",
       "c:/development/furystack/packages/http-api/dist/actions/login.d.ts",
       "c:/development/furystack/packages/http-api/dist/actions/logout.d.ts",
       "c:/development/furystack/packages/http-api/dist/actions/index.d.ts",
@@ -2982,9 +2964,11 @@
       "c:/development/furystack/packages/http-api/dist/httpapi.d.ts",
       "c:/development/furystack/packages/http-api/dist/injectorextension.d.ts",
       "c:/development/furystack/packages/http-api/dist/index.d.ts",
+      "c:/development/furystack/packages/odata/src/xml-utils.ts",
       "c:/development/furystack/packages/odata/src/models/function-descriptor.ts",
       "c:/development/furystack/packages/odata/src/models/collection.ts",
       "c:/development/furystack/packages/odata/src/collection-builder.ts",
+      "c:/development/furystack/packages/odata/src/models/edm-type.ts",
       "c:/development/furystack/packages/odata/src/models/entity.ts",
       "c:/development/furystack/packages/odata/src/entity-builder.ts",
       "c:/development/furystack/packages/odata/src/namespace-builder.ts",
@@ -3004,9 +2988,25 @@
       "c:/development/furystack/packages/odata/src/actions/post.ts",
       "c:/development/furystack/packages/odata/src/actions/put.ts",
       "c:/development/furystack/packages/odata/src/actions/root-action.ts",
+      "c:/development/furystack/packages/odata/src/index.ts",
+      "c:/development/furystack/node_modules/@babel/types/lib/index.d.ts",
+      "c:/development/furystack/node_modules/@types/babel__generator/index.d.ts",
+      "c:/development/furystack/node_modules/@types/babel__traverse/index.d.ts",
+      "c:/development/furystack/node_modules/@babel/parser/typings/babel-parser.d.ts",
+      "c:/development/furystack/node_modules/@types/babel__template/index.d.ts",
+      "c:/development/furystack/node_modules/@types/babel__core/index.d.ts",
+      "c:/development/furystack/node_modules/@types/istanbul-lib-coverage/index.d.ts",
+      "c:/development/furystack/node_modules/@types/jest-diff/index.d.ts",
+      "c:/development/furystack/node_modules/jest-diff/build/types.d.ts",
+      "c:/development/furystack/node_modules/jest-diff/build/index.d.ts",
+      "c:/development/furystack/node_modules/@types/jest/index.d.ts",
+      "c:/development/furystack/node_modules/@types/stack-utils/index.d.ts",
+      "c:/development/furystack/node_modules/@types/uuid/interfaces.d.ts",
+      "c:/development/furystack/node_modules/@types/uuid/index.d.ts",
+      "c:/development/furystack/node_modules/@types/ws/index.d.ts",
+      "c:/development/furystack/node_modules/@types/yargs/index.d.ts",
       "c:/development/furystack/packages/odata/src/router.ts",
-      "c:/development/furystack/packages/odata/src/injectorextension.ts",
-      "c:/development/furystack/packages/odata/src/index.ts"
+      "c:/development/furystack/packages/odata/src/injectorextension.ts"
     ]
   },
   "version": "3.4.1"

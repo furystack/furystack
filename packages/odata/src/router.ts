@@ -1,4 +1,4 @@
-import { IRouteModel, IRequestAction } from '@furystack/http-api'
+import { IRequestAction, IRouteModel } from '@furystack/http-api'
 import { Constructable } from '@furystack/inject'
 import { PathHelper } from '@sensenet/client-utils'
 import { TLSSocket } from 'tls'
@@ -39,31 +39,59 @@ export const createOdataRouter: (options: {
       : `http://${msg.headers.host}/`
 
     if (collection) {
+      const entity = options.entities.find(e => e.model === collection.collection.model)
+
       injector.setExplicitInstance(
         {
           ...injector.getInstance(OdataContext),
           collection: collection.collection,
           context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
+          entity,
         } as OdataContext<typeof collection.collection.model>,
         OdataContext,
       )
 
       if (PathHelper.isItemPath(urlPathName)) {
-        const entityId = PathHelper.getSegments(urlPathName)
-          .filter(s => PathHelper.isItemSegment(s))[0]
+        const entitySegment = PathHelper.getSegments(urlPathName).filter(s => PathHelper.isItemSegment(s))[0]
+        const entityId = entitySegment
           .replace(`('`, '')
           .replace(`')`, '')
+          .replace('(', '')
+          .replace(')', '')
 
         injector.setExplicitInstance(
           {
             ...injector.getInstance(OdataContext),
-            context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`, '$entity'),
             entityId,
           } as OdataContext<any>,
           OdataContext,
         )
 
-        // ToDo: Check for entity property getters, actions, functions here
+        if (msg.method === 'POST') {
+          const currentAction =
+            entity &&
+            entity.actions &&
+            Object.entries(entity.actions).find(
+              a =>
+                PathHelper.joinPaths(collection.url + entitySegment, a[0]) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a[0]) === urlPathName,
+            )
+          if (currentAction) {
+            return currentAction[1].action
+          }
+        } else if (msg.method === 'GET') {
+          const currentFunction =
+            entity &&
+            entity.functions &&
+            Object.entries(entity.functions).find(
+              a =>
+                PathHelper.joinPaths(collection.url + entitySegment, a[0]) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a[0]) === urlPathName,
+            )
+          if (currentFunction) {
+            return currentFunction[1].action
+          }
+        }
 
         switch (msg.method) {
           case 'GET':
@@ -77,7 +105,7 @@ export const createOdataRouter: (options: {
         }
       }
 
-      // ToDo: Check for collection actions here
+      // Collection functions
       const collectionFunction = Object.entries(collection.collection.functions).find(
         a => urlPathName === `${collection.url}/${a[0]}`,
       )
@@ -100,12 +128,13 @@ export const createOdataRouter: (options: {
       }
     }
 
-    // ToDo: Check for global actions here
+    // Global functions
     const globalFunction = Object.entries(options.globalFunctions).find(a => urlPathName === `${options.route}/${a[0]}`)
     if (msg.method === 'GET' && globalFunction) {
       return globalFunction[1]
     }
 
+    // Global actions
     const globalAction = Object.entries(options.globalActions).find(a => urlPathName === `${options.route}/${a[0]}`)
     if (msg.method === 'POST' && globalAction) {
       return globalAction[1]

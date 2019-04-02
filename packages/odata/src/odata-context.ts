@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { Collection } from './models'
+import { Collection, Entity } from './models'
 
 /**
  * Context model for OData operations
@@ -9,6 +9,7 @@ export class OdataContext<T> {
   public collection!: Collection<T>
   public entityId?: number | string
   public context!: string
+  public entity!: Entity<T>
   public queryParams!: {
     count?: boolean
     top?: number

@@ -15,6 +15,7 @@ import { Task } from './Models/Task'
 import { TestEntry } from './Models/TestEntry'
 import { User } from './Models/User'
 import { seed } from './seed'
+import { MockAction } from './MockAction'
 
 console.log('Current working dir:', process.cwd())
 
@@ -98,15 +99,21 @@ defaultInjector
                 },
               ],
               relations: [],
-              actions: [],
-              functions: [],
+              actions: {
+                mock: {
+                  action: MockAction,
+                },
+              },
+              functions: {
+                mock: {
+                  action: MockAction,
+                },
+              },
             })
             .addEntity({
               model: Task,
               primaryKey: 'id',
               fields: [{ property: 'id', type: EdmType.String }],
-              actions: [],
-              functions: [],
               relations: [
                 {
                   propertyName: 'user',
@@ -119,8 +126,6 @@ defaultInjector
               model: TestEntry,
               primaryKey: 'id',
               fields: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
-              actions: [],
-              functions: [],
               relations: [],
             }),
         )

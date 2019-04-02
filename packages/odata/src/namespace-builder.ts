@@ -71,17 +71,19 @@ export class NamespaceBuilder {
                       },
                     } as XmlNode),
                 ),
-                ...entity.relations.map(
-                  relation =>
-                    ({
-                      tagName: 'NavigationProperty',
-                      attributes: {
-                        // ToDo: check this
-                        Name: relation.propertyName,
-                        Type: relation.relatedModel.name,
-                      },
-                    } as XmlNode),
-                ),
+                ...(entity.relations
+                  ? entity.relations.map(
+                      relation =>
+                        ({
+                          tagName: 'NavigationProperty',
+                          attributes: {
+                            // ToDo: check this
+                            Name: relation.propertyName,
+                            Type: relation.relatedModel.name,
+                          },
+                        } as XmlNode),
+                    )
+                  : []),
               ],
             } as XmlNode),
         ),

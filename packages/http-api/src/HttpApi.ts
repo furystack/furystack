@@ -18,9 +18,6 @@ export class HttpApi {
       injector.setExplicitInstance(incomingMessage, IncomingMessage)
       injector.setExplicitInstance(serverResponse, ServerResponse)
       injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
-
-      /** ToDo: Check this */
-
       const actionCtors = this.settings.actions
         .map(a => a(incomingMessage, injector))
         .filter(a => a !== undefined) as Array<Constructable<IRequestAction>>
