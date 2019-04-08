@@ -11,11 +11,11 @@ import { join } from 'path'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 import { registerExitHandler } from './ExitHandler'
+import { MockAction } from './MockAction'
 import { Task } from './Models/Task'
 import { TestEntry } from './Models/TestEntry'
 import { User } from './Models/User'
 import { seed } from './seed'
-import { MockAction } from './MockAction'
 
 console.log('Current working dir:', process.cwd())
 
@@ -98,7 +98,6 @@ defaultInjector
                   type: EdmType.Int64,
                 },
               ],
-              relations: [],
               actions: {
                 mock: {
                   action: MockAction,
@@ -134,7 +133,6 @@ defaultInjector
             .addCollection({
               name: 'users',
               model: User,
-              actions: {},
               functions: {
                 current: {
                   action: GetCurrentUser,
@@ -145,14 +143,10 @@ defaultInjector
             .addCollection({
               name: 'tasks',
               model: Task,
-              actions: {},
-              functions: {},
             })
             .addCollection({
               name: 'testEntries',
               model: TestEntry,
-              actions: {},
-              functions: {},
             }),
         )
 

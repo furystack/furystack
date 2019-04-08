@@ -109,7 +109,7 @@ export class NamespaceBuilder {
 
             // Collection bound functions and actions
             ...Array.from(this.collections.collections).flatMap(c => [
-              ...Object.entries(c[1].actions).map(a =>
+              ...Object.entries(c[1].actions || {}).map(a =>
                 toXmlNode(
                   [
                     a[0],
@@ -127,7 +127,7 @@ export class NamespaceBuilder {
                   'Action',
                 ),
               ),
-              ...Object.entries(c[1].functions).map(a =>
+              ...Object.entries(c[1].functions || {}).map(a =>
                 toXmlNode(
                   [
                     a[0],

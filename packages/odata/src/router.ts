@@ -106,16 +106,16 @@ export const createOdataRouter: (options: {
       }
 
       // Collection functions
-      const collectionFunction = Object.entries(collection.collection.functions).find(
-        a => urlPathName === `${collection.url}/${a[0]}`,
-      )
+      const collectionFunction =
+        collection.collection.functions &&
+        Object.entries(collection.collection.functions).find(a => urlPathName === `${collection.url}/${a[0]}`)
       if (msg.method === 'GET' && collectionFunction) {
         return collectionFunction[1].action
       }
 
-      const collectionAction = Object.entries(collection.collection.actions).find(
-        a => urlPathName === `${collection.url}/${a[0]}`,
-      )
+      const collectionAction =
+        collection.collection.actions &&
+        Object.entries(collection.collection.actions).find(a => urlPathName === `${collection.url}/${a[0]}`)
       if (msg.method === 'GET' && collectionAction) {
         return collectionAction[1].action
       }
