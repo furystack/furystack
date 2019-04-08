@@ -1,5 +1,6 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
 import { FileStore } from '../src/FileStore'
+import { LoggerCollection } from '../src/Loggers'
 
 // tslint:disable:no-string-literal
 
@@ -19,6 +20,7 @@ describe('FileStore', () => {
       'example.txt',
       'id',
       1000,
+      new LoggerCollection(),
       mockReadFile as any,
       mockWriteFile as any,
     )
@@ -29,9 +31,9 @@ describe('FileStore', () => {
   })
 
   it('should be constructed with default parameters', () => {
-    const f2 = new FileStore<{ id: number; value: string }>('example.txt', 'id')
+    const f2 = new FileStore<{ id: number; value: string }>('example.txt', 'id', 1000, new LoggerCollection())
     expect(f2).toBeInstanceOf(FileStore)
-    expect(f2['tickMs']).toBe(10000)
+    expect(f2['tickMs']).toBe(1000)
     expect(f2['readFile']).toBe(nodeReadFile)
     expect(f2['writeFile']).toBe(nodeWriteFile)
     clearInterval(f2['tick'])
