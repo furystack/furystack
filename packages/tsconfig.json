@@ -6,6 +6,9 @@
   },
   "references": [
     {
+      "path": "./auth-google"
+    },
+    {
       "path": "./logging"
     },
     {
@@ -19,6 +22,9 @@
     },
     {
       "path": "./odata"
+    },
+    {
+      "path": "./odata-fetchr"
     },
     {
       "path": "./typeorm-store"

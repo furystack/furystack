@@ -27,7 +27,8 @@
     "lint": "lerna run lint --parallel",
     "clean:packages": "lerna clean",
     "test": "jest",
-    "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js"
+    "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
+    "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
   },
   "name": "furystack"
 }
