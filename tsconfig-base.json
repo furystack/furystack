@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "pretty": true,
     "target": "esnext",
     "module": "commonjs",
     "declaration": true,
@@ -15,6 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "declarationMap": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "esModuleInterop": true
   }
 }

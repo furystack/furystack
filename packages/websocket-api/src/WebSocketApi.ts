@@ -4,7 +4,7 @@ import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage } from 'http'
 import { parse } from 'url'
 import { Data, Server as WebSocketServer } from 'ws'
-import * as ws from 'ws'
+import ws from 'ws'
 import { IWebSocketAction } from './models/IWebSocketAction'
 import { WebSocketApiSettings } from './WebSocketApiSettings'
 
