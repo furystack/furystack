@@ -1,6 +1,6 @@
-import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from '../src/Loggers'
-import { TestLogger } from '../src/Loggers/TestLogger'
-import { LogLevel } from '../src/Models/ILogEntries'
+import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from '../src'
+import { LogLevel } from '../src/ILogEntries'
+import { TestLogger } from '../src/TestLogger'
 
 describe('Loggers', () => {
   describe('LoggerCollection', () => {

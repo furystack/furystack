@@ -1,6 +1,6 @@
-import { ILeveledLogEntry } from '../Models/ILogEntries'
-import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger } from './AbstractLogger'
+import { ILeveledLogEntry } from './ILogEntries'
+import { ILoggerOptions } from './ILogger'
 
 /**
  * A test logger instance with a callback for added events

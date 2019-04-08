@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
-import { ILeveledLogEntry, LogLevel } from '../Models/ILogEntries'
-import { ILoggerOptions } from '../Models/ILogger'
 import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
+import { ILeveledLogEntry, LogLevel } from './ILogEntries'
+import { ILoggerOptions } from './ILogger'
 
 /**
  * Resets the console color

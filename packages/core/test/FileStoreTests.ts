@@ -1,6 +1,6 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
 import { FileStore } from '../src/FileStore'
-import { LoggerCollection } from '../src/Loggers'
+import { LoggerCollection } from '@furystack/logging'
 
 // tslint:disable:no-string-literal
 

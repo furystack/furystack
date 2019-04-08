@@ -1,5 +1,5 @@
-import { LoggerCollection } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
+import { LoggerCollection } from '@furystack/logging'
 import { IncomingMessage, ServerResponse } from 'http'
 import { IRequestAction } from '../Models'
 

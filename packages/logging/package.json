@@ -1,7 +1,7 @@
 {
-  "name": "@furystack/websocket-api",
-  "version": "2.0.0",
-  "description": "HTTP Api FuryStack package",
+  "name": "@furystack/logging",
+  "version": "0.1.0",
+  "description": "Logging API for FuryStack package",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -20,14 +20,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/furystack/core.git"
+    "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Logging"
   ],
   "publishConfig": {
     "access": "public"
@@ -35,7 +32,7 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/furystack/core.git"
+    "url": "https://github.com/furystack/furystack.git"
   },
   "nyc": {
     "exclude": [
@@ -53,18 +50,13 @@
       "json"
     ]
   },
-  "homepage": "https://github.com/furystack/core.git",
+  "homepage": "https://github.com/furystack/furystack.git",
   "dependencies": {
-    "@furystack/core": "^3.0.0",
-    "@furystack/http-api": "^2.0.0",
     "@furystack/inject": "^3.0.0",
-    "@furystack/logging": "^0.1.0",
-    "@sensenet/client-utils": "1.4.2",
     "ws": "6.1.4"
   },
   "devDependencies": {
     "@types/jest": "24.0.9",
-    "@types/ws": "6.0.1",
     "jest": "24.1.0",
     "rimraf": "2.6.3",
     "ts-jest": "24.0.0",

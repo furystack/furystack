@@ -4,6 +4,7 @@ module.exports = {
     '<rootDir>/packages/core/test',
     '<rootDir>/packages/http-api/test',
     '<rootDir>/packages/inject/test',
+    '<rootDir>/packages/logging/test',
     '<rootDir>/packages/odata/test',
     '<rootDir>/packages/repository/test',
     '<rootDir>/packages/typeorm-store/test',

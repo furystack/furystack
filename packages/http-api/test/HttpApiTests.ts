@@ -1,5 +1,6 @@
-import { IUser, LoggerCollection, visitorUser } from '@furystack/core'
+import { IUser, visitorUser } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
+import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { HttpUserContext, IRequestAction } from '../src'

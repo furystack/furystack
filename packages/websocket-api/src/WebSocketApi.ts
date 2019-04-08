@@ -1,5 +1,6 @@
-import { LoggerCollection, ServerManager } from '@furystack/core'
+import { ServerManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
+import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage } from 'http'
 import { parse } from 'url'

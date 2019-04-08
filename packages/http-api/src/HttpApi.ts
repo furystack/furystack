@@ -1,5 +1,5 @@
-import { LoggerCollection } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { HttpApiSettings } from './HttpApiSettings'

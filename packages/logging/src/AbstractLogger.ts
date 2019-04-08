@@ -1,5 +1,5 @@
-import { ILeveledLogEntry, ILogEntry, LogLevel } from '../Models/ILogEntries'
-import { ILogger, ILoggerOptions } from '../Models/ILogger'
+import { ILeveledLogEntry, ILogEntry, LogLevel } from './ILogEntries'
+import { ILogger, ILoggerOptions } from './ILogger'
 
 /**
  * Default scope key for the Abstract Logger

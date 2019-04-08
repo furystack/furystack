@@ -1,6 +1,6 @@
+import { ILogger } from '@furystack/logging'
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
-import { ILogger } from './Models/ILogger'
 import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 
 /**

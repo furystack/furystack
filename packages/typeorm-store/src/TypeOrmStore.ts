@@ -1,5 +1,6 @@
-import { ILogger, IPhysicalStore } from '@furystack/core'
+import { IPhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
+import { ILogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
 
 /**
