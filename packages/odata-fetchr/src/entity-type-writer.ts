@@ -15,7 +15,20 @@ export class EntityTypeWriter {
     })
   }
 
+  private getNavigationPropertyType(entityTypeNames: string[], typeName: string) {
+    if (entityTypeNames.includes(typeName)) {
+      return `import('./${typeName}').${typeName}`
+    }
+    if (typeName.startsWith('Collection(')) {
+      typeName = typeName.replace('Collection(', '').replace(')', '')
+      return `import('./${typeName}').${typeName}`
+    }
+
+    return `any // Original was: '${typeName}'`
+  }
+
   public writeEntityTypes(types: EntityType[]) {
+    const typeNames = types.map(t => t.name)
     for (const entityType of types) {
       this.logVerbose(`Writing Entity Type '${entityType.name}'...`)
       let properties = ''
@@ -29,11 +42,35 @@ export class EntityTypeWriter {
         }
       }
 
+      let navigationProperties = ''
+      if (entityType.navigationProperties) {
+        for (const property of entityType.navigationProperties) {
+          const propertyType = this.getNavigationPropertyType(typeNames, property.type)
+          navigationProperties += this.config.entityPropertyTemplate
+            .replace(/\$\{name\}/g, property.name)
+            .replace(/\$\{type\}/g, propertyType)
+            .replace(/\$\{nullable\}/g, property.nullable ? '?' : '!')
+        }
+      }
+
       const output =
         '' +
-        this.config.entityTypeTemplate.replace(/\$\{name\}/g, entityType.name).replace(/\$\{properties\}/g, properties)
-      writeFileSync(join(process.cwd(), this.config.outputPath, 'entity-types', `${entityType.name}.ts`), output)
+        this.config.entityTypeTemplate
+          .replace(/\$\{name\}/g, entityType.name)
+          .replace(/\$\{properties\}/g, properties)
+          .replace(/\$\{navigationProperties\}/g, navigationProperties)
+          .replace(/\$\{key\}/g, entityType.key)
+      writeFileSync(
+        join(process.cwd(), this.config.outputPath, this.config.entityTypePath, `${entityType.name}.ts`),
+        output,
+      )
     }
+
+    this.logVerbose('Writing barrel file...')
+    writeFileSync(
+      join(process.cwd(), this.config.outputPath, this.config.entityTypePath, `index.ts`),
+      types.map(t => `export * from './${t.name}'\r\n`).join(''),
+    )
   }
 
   constructor(private injector: Injector, private readonly config: Configuration) {

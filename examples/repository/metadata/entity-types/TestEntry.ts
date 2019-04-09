@@ -1,13 +1,13 @@
 
 /**
  * Model for Entity Type TestEntry
+ * Primary key: 'id'
  */
 export class TestEntry {
+
     
-    // Entity Property
+
+    
     public id!: number;
-
-    // Entity Property
     public value!: string;
-
 }

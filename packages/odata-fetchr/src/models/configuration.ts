@@ -42,6 +42,7 @@ export class Configuration {
 
   /**
    * Returns a meaningful type from an EDM Type string
+   * @param edmType the plain EDM Type string
    */
   public resolveEdmType(edmType: string) {
     switch (edmType) {

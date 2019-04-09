@@ -1,10 +1,13 @@
 
 /**
  * Model for Entity Type Task
+ * Primary key: 'id'
  */
 export class Task {
-    
-    // Entity Property
-    public id!: string;
 
+    
+    public user!: import('./User').User;
+
+    
+    public id!: string;
 }

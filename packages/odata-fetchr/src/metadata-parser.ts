@@ -41,12 +41,16 @@ export class MetadataParser {
     return Array.from(xml.querySelectorAll('EntityType').values()).map(e => {
       const key = e.querySelector('Key>PropertyRef')
       return {
-        name: e.getAttribute('Name') || '',
-        key: (key && key.getAttribute('Name')) || '',
+        name: e.getAttribute('Name'),
+        key: key && key.getAttribute('Name'),
         properties: Array.from(e.querySelectorAll('Property')).map(prop => ({
-          name: prop.getAttribute('Name') || '',
-          nullable: prop.getAttribute('Nullable') || false,
-          type: prop.getAttribute('Type') || '',
+          name: prop.getAttribute('Name'),
+          nullable: Boolean(prop.getAttribute('Nullable')),
+          type: prop.getAttribute('Type'),
+        })),
+        navigationProperties: Array.from(e.querySelectorAll('NavigationProperty')).map(prop => ({
+          name: prop.getAttribute('Name'),
+          type: prop.getAttribute('Type'),
         })),
       } as EntityType
     })

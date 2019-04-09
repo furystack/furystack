@@ -22,5 +22,5 @@ export interface EntityType {
   /**
    * Navigation property definitions
    */
-  navigationProperties?: Array<{ type: string }>
+  navigationProperties?: EntityProperty[]
 }

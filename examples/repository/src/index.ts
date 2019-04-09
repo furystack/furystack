@@ -126,7 +126,6 @@ defaultInjector
               model: TestEntry,
               primaryKey: 'id',
               fields: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
-              relations: [],
             }),
         )
         .setupCollections(collections =>
