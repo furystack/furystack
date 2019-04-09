@@ -3,6 +3,7 @@ import { EntityBuilder } from './entity-builder'
 import { EdmType } from './models/edm-type'
 import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
 import { XmlNode } from './xml-utils'
+import { NavigationPropertyCollection } from './models'
 
 /**
  * Model builder for OData endpoints
@@ -60,7 +61,7 @@ export class NamespaceBuilder {
                     },
                   ],
                 },
-                ...entity.fields.map(
+                ...entity.properties.map(
                   field =>
                     ({
                       tagName: 'Property',
@@ -71,15 +72,17 @@ export class NamespaceBuilder {
                       },
                     } as XmlNode),
                 ),
-                ...(entity.relations
-                  ? entity.relations.map(
+                ...(entity.navigationProperties
+                  ? entity.navigationProperties.map(
                       relation =>
                         ({
                           tagName: 'NavigationProperty',
                           attributes: {
                             // ToDo: check this
                             Name: relation.propertyName,
-                            Type: relation.relatedModel.name,
+                            Type: (relation as NavigationPropertyCollection<any>).getRelatedEntities
+                              ? `Collection(${relation.relatedModel.name})`
+                              : relation.relatedModel.name,
                           },
                         } as XmlNode),
                     )

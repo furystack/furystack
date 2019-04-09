@@ -21,7 +21,7 @@ export class EntityTypeWriter {
     }
     if (typeName.startsWith('Collection(')) {
       typeName = typeName.replace('Collection(', '').replace(')', '')
-      return `import('./${typeName}').${typeName}`
+      return `Array<import('./${typeName}').${typeName}>`
     }
 
     return `any // Original was: '${typeName}'`

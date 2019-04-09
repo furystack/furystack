@@ -5,6 +5,7 @@ import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
 import { EdmType } from '@furystack/odata'
 import '@furystack/odata'
+import { NavigationProperty } from '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
@@ -85,7 +86,7 @@ defaultInjector
             .addEntity({
               model: User,
               primaryKey: 'id',
-              fields: [
+              properties: [
                 {
                   property: 'id',
                   type: EdmType.String,
@@ -113,19 +114,29 @@ defaultInjector
             .addEntity({
               model: Task,
               primaryKey: 'id',
-              fields: [{ property: 'id', type: EdmType.String }],
-              relations: [
+              properties: [{ property: 'id', type: EdmType.String }],
+              navigationProperties: [
                 {
                   propertyName: 'user',
-                  foreignKey: 'userId',
                   relatedModel: User,
+                  getRelatedEntity: async (dataSet, injector) => {
+                    const result = (await dataSet.filter(injector, { top: 1 }))[0]
+                    return result
+                  },
+                } as NavigationProperty<User>,
+                {
+                  propertyName: 'users',
+                  relatedModel: User,
+                  getRelatedEntities: async (dataSet, injector) => {
+                    return await dataSet.filter(injector, {})
+                  },
                 },
               ],
             })
             .addEntity({
               model: TestEntry,
               primaryKey: 'id',
-              fields: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
+              properties: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
             }),
         )
         .setupCollections(collections =>

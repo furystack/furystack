@@ -7,6 +7,7 @@ export class Task {
 
     
     public user!: import('./User').User;
+    public users!: Array<import('./User').User>;
 
     
     public id!: string;
