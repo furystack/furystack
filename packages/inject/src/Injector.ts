@@ -20,6 +20,7 @@ export class Injector implements Disposable {
         }
       })
     await Promise.all(disposeRequests)
+    this.cachedSingletons.clear()
   }
 
   /**

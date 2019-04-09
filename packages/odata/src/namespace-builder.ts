@@ -67,7 +67,7 @@ export class NamespaceBuilder {
                       attributes: {
                         // ToDo: min, max, etc...
                         Name: field.property,
-                        Type: EdmType[field.type],
+                        Type: `Edm.${EdmType[field.type]}`,
                       },
                     } as XmlNode),
                 ),
