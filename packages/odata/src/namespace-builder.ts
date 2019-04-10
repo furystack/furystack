@@ -1,9 +1,9 @@
 import { CollectionBuilder } from './collection-builder'
 import { EntityBuilder } from './entity-builder'
+import { NavigationPropertyCollection } from './models'
 import { EdmType } from './models/edm-type'
 import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
 import { XmlNode } from './xml-utils'
-import { NavigationPropertyCollection } from './models'
 
 /**
  * Model builder for OData endpoints
