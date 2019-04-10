@@ -1,9 +1,8 @@
 import { IRequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { IncomingMessage, ServerResponse } from 'http'
+import { ServerResponse } from 'http'
 import { expand } from '../expand'
-import { getOdataParams } from '../getOdataParams'
 import { OdataContext } from '../odata-context'
 
 /**
@@ -33,12 +32,10 @@ export class GetEntityAction implements IRequestAction {
       return
     }
 
-    const odataParams = getOdataParams(this.request)
-
     const expandedEntity = await expand({
       entity,
       entityType: this.context.entity,
-      fieldNames: odataParams.expand,
+      fieldNames: this.context.queryParams.expand,
       injector: this.injector,
       repo: this.repo,
     })
@@ -55,6 +52,5 @@ export class GetEntityAction implements IRequestAction {
     private context: OdataContext<any>,
     private repo: Repository,
     private injector: Injector,
-    private request: IncomingMessage,
   ) {}
 }

@@ -2,9 +2,8 @@ import { IRequestAction, Utils } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { IncomingMessage, ServerResponse } from 'http'
-import { OdataContext } from '../odata-context'
 import { expand } from '../expand'
-import { getOdataParams } from '../getOdataParams'
+import { OdataContext } from '../odata-context'
 
 /**
  * Root action for OData endpoints
@@ -25,7 +24,7 @@ export class PostAction implements IRequestAction {
     const expanded = await expand({
       entity,
       entityType: this.context.entity,
-      fieldNames: getOdataParams(this.incomingMessage).expand,
+      fieldNames: this.context.queryParams.expand,
       injector: this.injector,
       repo: this.repo,
     })

@@ -6,7 +6,7 @@ import { Disposable } from '@sensenet/client-utils'
 export type DefaultFilter<T> = Partial<T> & {
   top?: number
   skip?: number
-  order?: Array<[keyof T, 'asc' | 'desc']>
+  order?: Array<[keyof T, 'asc' | 'desc']> | [keyof T, 'asc' | 'desc']
   select?: Array<keyof T>
 }
 
