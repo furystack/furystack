@@ -14,7 +14,12 @@ export class User implements IUser {
 
   @Column('simple-json')
   public roles!: IRole[]
-  @Column()
+  @Column({
+    transformer: {
+      to: v => v,
+      from: () => '- Encrypted value...:P -',
+    },
+  })
   public password!: string
 
   @Column({ nullable: true })
