@@ -13,6 +13,7 @@ import { PutAction } from './actions/put'
 import { RootAction } from './actions/root-action'
 import { Collection, Entity } from './models'
 import { OdataContext } from './odata-context'
+import { getOdataParams } from './getOdataParams'
 
 /**
  * Factory methods that creates an OData Route based on the provided parameters
@@ -47,6 +48,7 @@ export const createOdataRouter: (options: {
           collection: collection.collection,
           context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
           entity,
+          queryParams: entity && getOdataParams(msg, entity.model),
         } as OdataContext<typeof collection.collection.model>,
         OdataContext,
       )
