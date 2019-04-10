@@ -21,7 +21,7 @@ export class PatchAction implements IRequestAction {
     this.response.writeHead(204, 'No content', {
       'content-type': 'application/json',
     })
-    this.response.end(JSON.stringify({ name: 'Patch' }))
+    this.response.end()
   }
   constructor(
     private repo: Repository,

@@ -3,7 +3,12 @@ import { Disposable } from '@sensenet/client-utils'
 /**
  * Type for default filtering model
  */
-export type DefaultFilter<T> = Partial<T> & { top?: number; skip?: number }
+export type DefaultFilter<T> = Partial<T> & {
+  top?: number
+  skip?: number
+  order?: Array<[keyof T, 'asc' | 'desc']>
+  select?: Array<keyof T>
+}
 
 /**
  * Interface that defines a physical store implementation

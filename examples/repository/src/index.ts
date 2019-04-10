@@ -119,7 +119,8 @@ defaultInjector
                 {
                   propertyName: 'user',
                   relatedModel: User,
-                  getRelatedEntity: async (dataSet, injector) => {
+                  dataSet: 'users',
+                  getRelatedEntity: async (_entity, dataSet, injector) => {
                     const result = (await dataSet.filter(injector, { top: 1 }))[0]
                     return result
                   },
@@ -127,7 +128,8 @@ defaultInjector
                 {
                   propertyName: 'users',
                   relatedModel: User,
-                  getRelatedEntities: async (dataSet, injector) => {
+                  dataSet: 'users',
+                  getRelatedEntities: async (_entity, dataSet, injector) => {
                     return await dataSet.filter(injector, {})
                   },
                 },

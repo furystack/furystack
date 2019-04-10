@@ -8,7 +8,8 @@ import { DataSet } from '@furystack/repository'
 export interface NavigationProperty<T> {
   propertyName: string
   relatedModel: Constructable<T>
-  getRelatedEntity: (dataSet: DataSet<T, DefaultFilter<T>>, injector: Injector) => Promise<T>
+  dataSet?: string
+  getRelatedEntity: (entity: T, dataSet: DataSet<T, DefaultFilter<T>>, injector: Injector) => Promise<T>
 }
 
 /**
@@ -17,5 +18,6 @@ export interface NavigationProperty<T> {
 export interface NavigationPropertyCollection<T> {
   propertyName: string
   relatedModel: Constructable<T>
-  getRelatedEntities: (dataSet: DataSet<T, DefaultFilter<T>>, injector: Injector) => Promise<T[]>
+  dataSet?: string
+  getRelatedEntities: (entity: T, dataSet: DataSet<T, DefaultFilter<T>>, injector: Injector) => Promise<T[]>
 }
