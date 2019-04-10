@@ -22,10 +22,9 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "clean": "yarn workspaces run rimraf dist",
     "build": "yarn tsc -b packages",
     "lint": "lerna run lint --parallel",
-    "clean:packages": "lerna clean",
+    "clean": "yarn workspaces run rimraf dist && yarn workspaces run rimraf tsconfig.tsbuildinfo && yarn run rimraf packages/tsconfig.tsbuildinfo",
     "test": "jest",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
     "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
