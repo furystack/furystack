@@ -1,4 +1,4 @@
-import { IPhysicalStore } from '@furystack/core'
+import { DefaultFilter, IPhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { ILogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
@@ -35,13 +35,15 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
     await this.connection.awaitConnection()
     return await this.typeOrmRepo.count()
   }
-  public async filter(filter: Partial<T> & { top?: number | undefined; skip?: number | undefined }): Promise<T[]> {
+  public async filter(filter: DefaultFilter<T>): Promise<T[]> {
     await this.connection.awaitConnection()
-    const { top, skip, ...where } = filter
+    const { top, skip, order, ...where } = filter
+
     return await this.typeOrmRepo.find({
       where,
       take: top,
       skip,
+      order,
     })
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {

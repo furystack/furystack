@@ -6,19 +6,24 @@ import { parse } from 'url'
  * Returns the possible OData params from a request
  * @param request The incoming request message
  */
-export const getOdataParams = <T>(request: IncomingMessage, model: Constructable<T>) => {
-  const getOrderByValue = (value: string): Array<[keyof T, string]> => {
+export const getOdataParams = <T>(request: IncomingMessage, _model: Constructable<T>) => {
+  type OrderType = { [key in keyof T]?: 'ASC' | 'DESC' }
+
+  const order = {} as OrderType
+
+  const getOrderByValue = (value: string): OrderType => {
     value = value.trim()
     if (value.indexOf(',') !== -1) {
-      return value
-        .split(',')
-        .map(v => getOrderByValue(v))
-        .flat(1)
+      const other = Object.assign({}, ...value.split(',').map(v => getOrderByValue(v)))
+      return other
     }
     if (value.indexOf(' ') !== -1) {
-      return [value.split(' ') as [keyof T, string]]
+      const [field, direction] = value.split(' ')
+      order[field as keyof T] = direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+      return order
     }
-    return [[value as keyof T, 'asc']]
+    order[value as keyof T] = 'ASC'
+    return order
   }
 
   const params = (request.url && parse(request.url, true).query) || {}

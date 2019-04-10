@@ -11,9 +11,9 @@ import { PatchAction } from './actions/patch'
 import { PostAction } from './actions/post'
 import { PutAction } from './actions/put'
 import { RootAction } from './actions/root-action'
+import { getOdataParams } from './getOdataParams'
 import { Collection, Entity } from './models'
 import { OdataContext } from './odata-context'
-import { getOdataParams } from './getOdataParams'
 
 /**
  * Factory methods that creates an OData Route based on the provided parameters
