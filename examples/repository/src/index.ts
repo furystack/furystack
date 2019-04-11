@@ -198,6 +198,10 @@ defaultInjector
             .addCollection({
               name: 'testEntries',
               model: TestEntry,
+            })
+            .addCollection({
+              name: 'sessions',
+              model: Session,
             }),
         )
 
