@@ -71,6 +71,7 @@ export class NamespaceBuilder {
                         Type: `Edm.${EdmType[field.type]}`,
                         // ToDo: add nullable to others
                         ...(field.property === entity.primaryKey ? { Nullable: 'false' } : {}),
+                        ...(field.nullable !== undefined ? { Nullable: field.nullable.toString() } : {}),
                       },
                     } as XmlNode),
                 ),

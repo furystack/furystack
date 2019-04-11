@@ -12,6 +12,6 @@ export interface Entity<T> {
   actions?: { [k: string]: FunctionDescriptor }
   functions?: { [k: string]: FunctionDescriptor }
   primaryKey: keyof T
-  properties: Array<{ property: keyof T; type: EdmType }>
+  properties: Array<{ property: keyof T; type: EdmType; nullable?: boolean }>
   navigationProperties?: Array<NavigationProperty<any> | NavigationPropertyCollection<any>>
 }

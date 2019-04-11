@@ -127,6 +127,7 @@ defaultInjector
                 {
                   property: 'googleId',
                   type: EdmType.Int64,
+                  nullable: true,
                 },
               ],
               navigationProperties: [

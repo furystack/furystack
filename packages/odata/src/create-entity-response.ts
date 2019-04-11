@@ -54,6 +54,7 @@ export const createEntityResponse = async <T>(options: {
           options.entity,
           dataSet,
           options.injector,
+          {},
         )
         expandedEntity[navProperty.propertyName] = expanded
       } else if ((navProperty as NavigationPropertyCollection<any>).getRelatedEntities) {
@@ -62,6 +63,7 @@ export const createEntityResponse = async <T>(options: {
             options.entity,
             dataSet,
             options.injector,
+            {},
           )).map(async expanded => {
             const initial = navExpression.expandExpression.split('(')
             initial.shift()

@@ -8,12 +8,14 @@ import { DeleteAction } from './actions/delete'
 import { GetCollectionAction } from './actions/get-collection-action'
 import { GetEntityAction } from './actions/get-entity-action'
 import { MetadataAction } from './actions/metadata-action'
+import { NavigationPropertyAction } from './actions/navigation-property'
 import { PatchAction } from './actions/patch'
 import { PostAction } from './actions/post'
 import { PutAction } from './actions/put'
 import { RootAction } from './actions/root-action'
 import { getOdataParams } from './getOdataParams'
-import { Collection, Entity } from './models'
+import { ModelBuilder } from './model-builder'
+import { Collection, Entity, NavigationProperty } from './models'
 import { OdataContext } from './odata-context'
 
 /**
@@ -104,6 +106,37 @@ export const createOdataRouter: (options: {
             )
           if (currentFunction) {
             return currentFunction[1].action
+          }
+
+          const navigationProperty =
+            entity &&
+            entity.navigationProperties &&
+            entity.navigationProperties.find(
+              a =>
+                PathHelper.joinPaths(collection.url + entitySegment, a.propertyName) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a.propertyName) === urlPathName,
+            )
+
+          if (navigationProperty) {
+            injector.setExplicitInstance(
+              {
+                ...injector.getInstance(OdataContext),
+                context: PathHelper.joinPaths(
+                  server,
+                  options.route,
+                  `$metadata#${
+                    (navigationProperty as NavigationProperty<any>).getRelatedEntity
+                      ? `${Array.from(injector.getInstance(ModelBuilder).namespaces.values())[0].name}.${
+                          navigationProperty.relatedModel.name
+                        }`
+                      : navigationProperty.dataSet
+                  }`,
+                ),
+                navigationProperty,
+              } as OdataContext<any>,
+              OdataContext,
+            )
+            return NavigationPropertyAction
           }
         }
 
