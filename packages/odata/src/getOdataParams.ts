@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http'
 import { parse } from 'url'
 import { Entity } from './models'
 
@@ -6,7 +5,7 @@ import { Entity } from './models'
  * Returns the possible OData params from a request
  * @param request The incoming request message
  */
-export const getOdataParams = <T>(request: IncomingMessage, entity: Entity<T>) => {
+export const getOdataParams = <T>(url: string | undefined, entity: Entity<T>) => {
   type OrderType = { [key in keyof T]?: 'ASC' | 'DESC' }
 
   const order = {} as OrderType
@@ -26,7 +25,7 @@ export const getOdataParams = <T>(request: IncomingMessage, entity: Entity<T>) =
     return order
   }
 
-  const params = (request.url && parse(request.url, true).query) || {}
+  const params = (url && parse(url, true).query) || {}
   const orderBy = (params.$orderby && getOrderByValue(params.$orderby.toString())) || undefined
 
   return {

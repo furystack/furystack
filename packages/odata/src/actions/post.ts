@@ -23,6 +23,7 @@ export class PostAction implements IRequestAction {
 
     const expanded = await createEntityResponse({
       entity,
+      entityTypes: this.context.entities,
       entityType: this.context.entity,
       odataParams: this.context.queryParams,
       injector: this.injector,

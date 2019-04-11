@@ -11,6 +11,7 @@ export const createEntityResponse = async <T>(options: {
   injector: Injector
   entity: T
   entityType: Entity<T>
+  entityTypes: Array<Entity<any>>
   odataParams: ReturnType<typeof getOdataParams>
   repo: Repository
 }) => {
@@ -24,24 +25,29 @@ export const createEntityResponse = async <T>(options: {
     return returnEntity
   }
 
-  const navProperties: Array<
-    NavigationProperty<any> | NavigationPropertyCollection<any>
-  > = options.odataParams.expand
+  const navExpressions: Array<{
+    expandExpression: string
+    navProperty: NavigationProperty<any> | NavigationPropertyCollection<any>
+  }> = options.odataParams.expand
     .map(
       fieldName =>
-        (options.entityType.navigationProperties &&
-          options.entityType.navigationProperties.find(np => np.propertyName === fieldName)) ||
-        (undefined as any),
+        ({
+          expandExpression: fieldName,
+          navProperty:
+            options.entityType.navigationProperties &&
+            options.entityType.navigationProperties.find(np => np.propertyName === (fieldName as string).split('(')[0]),
+        } as any),
     )
-    .filter(np => np !== undefined)
+    .filter(np => np.navProperty !== undefined)
 
-  if (!navProperties.length) {
+  if (!navExpressions.length) {
     return returnEntity
   }
 
   const expandedEntity = { ...returnEntity } as T & { [key: string]: any }
   await Promise.all(
-    navProperties.map(async navProperty => {
+    navExpressions.map(async navExpression => {
+      const navProperty = navExpression.navProperty
       const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
       if ((navProperty as NavigationProperty<any>).getRelatedEntity) {
         const expanded = await (navProperty as NavigationProperty<any>).getRelatedEntity(
@@ -51,12 +57,37 @@ export const createEntityResponse = async <T>(options: {
         )
         expandedEntity[navProperty.propertyName] = expanded
       } else if ((navProperty as NavigationPropertyCollection<any>).getRelatedEntities) {
-        const expanded = await (navProperty as NavigationPropertyCollection<any>).getRelatedEntities(
-          options.entity,
-          dataSet,
-          options.injector,
+        const expandedEntities = await Promise.all(
+          (await (navProperty as NavigationPropertyCollection<any>).getRelatedEntities(
+            options.entity,
+            dataSet,
+            options.injector,
+          )).map(async expanded => {
+            const initial = navExpression.expandExpression.split('(')
+            initial.shift()
+            const withoutPrefix = initial.join('(').split(')')
+            withoutPrefix.pop()
+            const withoutPostfix = withoutPrefix.join(')')
+
+            const withFirstSegment = withoutPostfix.split('(')
+            withFirstSegment[0] = withFirstSegment[0].replace(/;/g, '&')
+            const final = withFirstSegment.join('(')
+
+            const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
+              typeof navProperty.relatedModel
+            >
+            return await createEntityResponse({
+              entity: expanded,
+              injector: options.injector,
+              entityType,
+              entityTypes: options.entityTypes,
+              odataParams: getOdataParams(`?${final}`, entityType),
+              repo: options.repo,
+            })
+          }),
         )
-        expandedEntity[navProperty.propertyName] = expanded
+
+        expandedEntity[navProperty.propertyName] = expandedEntities
       }
     }),
   )

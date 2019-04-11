@@ -28,6 +28,7 @@ export class GetCollectionAction implements IRequestAction {
         async entity =>
           await createEntityResponse({
             entity,
+            entityTypes: this.context.entities,
             entityType: this.context.entity,
             odataParams: this.context.queryParams,
             injector: this.injector,

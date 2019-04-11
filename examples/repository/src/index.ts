@@ -1,9 +1,9 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
-import { FileStore } from '@furystack/core'
+import { FileStore, InMemoryStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
-import { EdmType } from '@furystack/odata'
+import { EdmType, NavigationPropertyCollection } from '@furystack/odata'
 import '@furystack/odata'
 import { NavigationProperty } from '@furystack/odata'
 import '@furystack/repository'
@@ -14,6 +14,7 @@ import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 import { registerExitHandler } from './ExitHandler'
 import { MockAction } from './MockAction'
+import { Session } from './Models/Session'
 import { Task } from './Models/Task'
 import { TestEntry } from './Models/TestEntry'
 import { User } from './Models/User'
@@ -51,6 +52,7 @@ defaultInjector
       TestEntry,
       new FileStore<TestEntry>(join(process.cwd(), 'data', 'testEntries.json'), 'id', 60000, sm.injector.logger),
     )
+    sm.addStore(Session, new InMemoryStore('sessionId'))
     sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
   })
   .setupRepository(repo => {
@@ -58,6 +60,7 @@ defaultInjector
       .createDataSet(User, { name: 'users' })
       .createDataSet(Task, { name: 'tasks' })
       .createDataSet(TestEntry, { name: 'testEntries' })
+      .createDataSet(Session, { name: 'sessions' })
   })
   .useHttpApi({
     corsOptions: {
@@ -76,6 +79,7 @@ defaultInjector
   .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
   .useHttpAuthentication<User>({
     getUserStore: sm => sm.getStoreFor(User),
+    getSessionStore: sm => sm.getStoreFor(Session),
   })
   .useWebsockets()
   .useOdata('odata', builder =>
@@ -83,6 +87,27 @@ defaultInjector
       namespace
         .setupEntities(entities =>
           entities
+            .addEntity({
+              model: Session,
+              name: 'sessions',
+              primaryKey: 'sessionId',
+              properties: [
+                {
+                  property: 'username',
+                  type: EdmType.String,
+                },
+              ],
+              navigationProperties: [
+                {
+                  dataSet: 'users',
+                  propertyName: 'user',
+                  relatedModel: User,
+                  getRelatedEntity: async (entity, dataSet, injector) => {
+                    return (await dataSet.filter(injector, { username: entity.username }))[0] as User
+                  },
+                } as NavigationProperty<User>,
+              ],
+            })
             .addEntity({
               model: User,
               primaryKey: 'id',
@@ -99,6 +124,17 @@ defaultInjector
                   property: 'googleId',
                   type: EdmType.Int64,
                 },
+              ],
+              navigationProperties: [
+                {
+                  dataSet: 'sessions',
+                  propertyName: 'sessions',
+                  relatedModel: Session,
+                  getRelatedEntities: async (entity, dataSet, injector) => {
+                    const sessions = await dataSet.filter(injector, { username: entity.username })
+                    return sessions
+                  },
+                } as NavigationPropertyCollection<Session>,
               ],
               actions: {
                 mock: {

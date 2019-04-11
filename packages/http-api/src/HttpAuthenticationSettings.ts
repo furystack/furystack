@@ -10,7 +10,9 @@ import { sha256 } from 'hash.js'
 export class HttpAuthenticationSettings<TUser extends IUser = IUser> {
   public getUserStore: (storeManager: StoreManager) => IPhysicalStore<TUser> = () =>
     new InMemoryStore<TUser>('username')
-  public sessions: IPhysicalStore<{ SessionId: string; Username: string }> = new InMemoryStore('SessionId')
+  public getSessionStore: (
+    storeManager: StoreManager,
+  ) => IPhysicalStore<{ sessionId: string; username: string }> = () => new InMemoryStore('sessionId')
   public cookieName: string = 'fss'
   public hashMethod: (plain: string) => string = plain =>
     sha256()

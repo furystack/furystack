@@ -13,6 +13,12 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
 @Injectable({ lifetime: 'scoped' })
 export class HttpUserContext<TUser extends IUser = IUser> {
   public users!: IPhysicalStore<TUser>
+
+  public sessions!: IPhysicalStore<{
+    sessionId: string
+    username: string
+  }>
+
   public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
 
@@ -67,10 +73,10 @@ export class HttpUserContext<TUser extends IUser = IUser> {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
-      const session = await this.authentication.sessions.get(sessionId)
+      const session = await this.sessions.get(sessionId)
       if (session) {
         const userResult = await this.users.filter({
-          username: session.Username,
+          username: session.username,
         } as Partial<TUser>)
         if (userResult.length === 1) {
           const { password, ...user } = userResult[0] as TUser & { password: string }
@@ -87,7 +93,7 @@ export class HttpUserContext<TUser extends IUser = IUser> {
     const user = await this.authenticateUser(username, password)
     if (user !== this.authentication.visitorUser) {
       const sessionId = v1()
-      await this.authentication.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
+      await this.sessions.update(sessionId, { sessionId, username: user.username })
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`)
       this.injector.logger.information({
         scope: HttpUserContext.logScope,
@@ -111,7 +117,7 @@ export class HttpUserContext<TUser extends IUser = IUser> {
       const user = await instance.login(...args)
       if (user.username !== this.authentication.visitorUser.username) {
         const sessionId = v1()
-        await this.authentication.sessions.update(sessionId, { SessionId: sessionId, Username: user.username })
+        await this.sessions.update(sessionId, { sessionId, username: user.username })
         serverResponse.setHeader(
           'Set-Cookie',
           `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
@@ -141,7 +147,7 @@ export class HttpUserContext<TUser extends IUser = IUser> {
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
       const user = await this.authenticateRequest(req)
-      await this.authentication.sessions.remove(sessionId)
+      await this.sessions.remove(sessionId)
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
       this.injector.logger.information({
         scope: HttpUserContext.logScope,
@@ -161,5 +167,6 @@ export class HttpUserContext<TUser extends IUser = IUser> {
     storeManager: StoreManager,
   ) {
     this.users = authentication.getUserStore(storeManager)
+    this.sessions = authentication.getSessionStore(storeManager)
   }
 }

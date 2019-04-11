@@ -60,7 +60,7 @@ export const createOdataRouter: (options: {
           collection: collection.collection,
           context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
           entity,
-          queryParams: entity && getOdataParams(msg, entity),
+          queryParams: entity && getOdataParams(msg.url, entity),
         } as OdataContext<typeof collection.collection.model>,
         OdataContext,
       )
