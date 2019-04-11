@@ -93,6 +93,10 @@ defaultInjector
               primaryKey: 'sessionId',
               properties: [
                 {
+                  property: 'sessionId',
+                  type: EdmType.String,
+                },
+                {
                   property: 'username',
                   type: EdmType.String,
                 },

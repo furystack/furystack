@@ -1,4 +1,4 @@
-import { IPhysicalStore } from './Models/IPhysicalStore'
+import { IPhysicalStore, DefaultFilter } from './Models/IPhysicalStore'
 
 /**
  * Store implementation that stores data in an in-memory cache
@@ -19,15 +19,17 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   private cache: Map<T[this['primaryKey']], T> = new Map()
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
-  public filter = async (filter: Partial<T>) =>
-    [...this.cache.values()].filter(item => {
-      for (const key in filter) {
-        if (filter[key] !== (item as any)[key]) {
+  public filter = async (filter: DefaultFilter<T>) => {
+    const { order, select, skip, top, ...filterFields } = filter
+    return [...this.cache.values()].filter(item => {
+      for (const key in filterFields) {
+        if ((filterFields as any)[key] !== (item as any)[key]) {
           return false
         }
       }
       return true
     })
+  }
 
   public async count() {
     return this.cache.size
