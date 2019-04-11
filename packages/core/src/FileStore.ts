@@ -6,7 +6,7 @@ import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<T, TFilter> {
+export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   private readonly watcher?: FSWatcher
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
@@ -32,11 +32,12 @@ export class FileStore<T, TFilter = DefaultFilter<T>> implements IPhysicalStore<
     })
   }
 
-  public filter = async (filter: TFilter) => {
+  public filter = async (filter: DefaultFilter<T>) => {
+    const { order, select, skip, top, ...filterFields } = filter
     return await this.fileLock.execute(async () => {
       return [...this.cache.values()].filter(item => {
-        for (const key in filter) {
-          if (filter[key] !== (item as any)[key]) {
+        for (const key in filterFields) {
+          if ((filterFields as any)[key] !== (item as any)[key]) {
             return false
           }
         }
