@@ -80,7 +80,6 @@ export class NamespaceBuilder {
                         ({
                           tagName: 'NavigationProperty',
                           attributes: {
-                            // ToDo: check this
                             Name: relation.propertyName,
                             Type: (relation as NavigationPropertyCollection<any>).getRelatedEntities
                               ? `Collection(${this.name}.${relation.relatedModel.name})`

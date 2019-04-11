@@ -48,7 +48,7 @@ export const toXmlNode = (f: [string, FunctionDescriptor], namespace: string, ty
           attributes: {
             Type: (f[1].returnType as Constructable<any>).name
               ? `${namespace}.${(f[1].returnType as Constructable<any>).name}`
-              : `Edm.${EdmType[f[1].returnType as EdmType]}`, // ToDo: add full namespace
+              : `Edm.${EdmType[f[1].returnType as EdmType]}`,
           },
         },
         ...[

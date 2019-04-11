@@ -2,7 +2,7 @@ import { IRequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { ServerResponse } from 'http'
-import { expand } from '../expand'
+import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
 
 /**
@@ -26,10 +26,10 @@ export class GetCollectionAction implements IRequestAction {
     const value = await Promise.all(
       plainValue.map(
         async entity =>
-          await expand({
+          await createEntityResponse({
             entity,
             entityType: this.context.entity,
-            fieldNames: this.context.queryParams.expand,
+            odataParams: this.context.queryParams,
             injector: this.injector,
             repo: this.repo,
           }),
@@ -42,7 +42,7 @@ export class GetCollectionAction implements IRequestAction {
       JSON.stringify({
         '@odata.context': this.context.context,
         '@odata.count': count,
-        '@odata.nextLink': 'ToDo',
+        // '@odata.nextLink': 'ToDo',
         value,
       }),
     )

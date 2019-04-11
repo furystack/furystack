@@ -1,6 +1,7 @@
 import { IRequestAction, IRouteModel } from '@furystack/http-api'
 import { Constructable } from '@furystack/inject'
 import { PathHelper } from '@sensenet/client-utils'
+import { ServerResponse } from 'http'
 import { TLSSocket } from 'tls'
 import { parse } from 'url'
 import { DeleteAction } from './actions/delete'
@@ -14,7 +15,6 @@ import { RootAction } from './actions/root-action'
 import { getOdataParams } from './getOdataParams'
 import { Collection, Entity } from './models'
 import { OdataContext } from './odata-context'
-import { ServerResponse } from 'http'
 
 /**
  * Factory methods that creates an OData Route based on the provided parameters
@@ -60,7 +60,7 @@ export const createOdataRouter: (options: {
           collection: collection.collection,
           context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
           entity,
-          queryParams: entity && getOdataParams(msg, entity.model),
+          queryParams: entity && getOdataParams(msg, entity),
         } as OdataContext<typeof collection.collection.model>,
         OdataContext,
       )

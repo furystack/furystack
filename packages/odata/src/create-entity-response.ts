@@ -1,23 +1,32 @@
 import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
+import { getOdataParams } from './getOdataParams'
 import { Entity, NavigationProperty, NavigationPropertyCollection } from './models'
 
 /**
  * Method that adds expanded fields to an entity model
  * @param options The options to be provided
  */
-export const expand = async <T>(options: {
+export const createEntityResponse = async <T>(options: {
   injector: Injector
   entity: T
   entityType: Entity<T>
-  fieldNames?: Array<keyof T>
+  odataParams: ReturnType<typeof getOdataParams>
   repo: Repository
 }) => {
-  if (!options.fieldNames || options.fieldNames.length === 0) {
-    return options.entity
+  const returnEntity = {}
+
+  for (const selectField of options.odataParams.select) {
+    returnEntity[selectField] = options.entity[selectField]
   }
 
-  const navProperties: Array<NavigationProperty<any> | NavigationPropertyCollection<any>> = options.fieldNames
+  if (options.odataParams.expand.length === 0) {
+    return returnEntity
+  }
+
+  const navProperties: Array<
+    NavigationProperty<any> | NavigationPropertyCollection<any>
+  > = options.odataParams.expand
     .map(
       fieldName =>
         (options.entityType.navigationProperties &&
@@ -27,10 +36,10 @@ export const expand = async <T>(options: {
     .filter(np => np !== undefined)
 
   if (!navProperties.length) {
-    return options.entity
+    return returnEntity
   }
 
-  const expandedEntity = { ...options.entity } as T & { [key: string]: any }
+  const expandedEntity = { ...returnEntity } as T & { [key: string]: any }
   await Promise.all(
     navProperties.map(async navProperty => {
       const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
