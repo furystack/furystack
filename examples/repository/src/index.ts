@@ -103,11 +103,13 @@ defaultInjector
               actions: {
                 mock: {
                   action: MockAction,
+                  returnType: EdmType.String,
                 },
               },
               functions: {
-                mock: {
+                mockFunc: {
                   action: MockAction,
+                  returnType: EdmType.String,
                 },
               },
             })
@@ -173,8 +175,8 @@ defaultInjector
       namespace.setupGlobalActions({
         login: {
           parameters: [
-            { name: 'username', type: String.name, nullable: false },
-            { name: 'password', type: String.name, nullable: false },
+            { name: 'username', type: EdmType.String, nullable: false },
+            { name: 'password', type: EdmType.String, nullable: false },
           ],
           returnType: User,
           action: LoginAction,

@@ -15,8 +15,9 @@ export class MetadataAction implements IRequestAction {
 
   public async exec() {
     const xml = xmlToString(this.model.toXmlNode())
-    this.response.setHeader('content-type', 'application/xml')
-    this.response.end(xml)
+    this.response.setHeader('Content-Type', 'application/xml;charset=utf-8')
+    this.response.setHeader('Cache-Control', 'no-cache')
+    this.response.end(`<?xml version="1.0" encoding="utf-8"?>${xml}`)
   }
   constructor(private model: ModelBuilder, public incomingMessage: IncomingMessage, public response: ServerResponse) {}
 }

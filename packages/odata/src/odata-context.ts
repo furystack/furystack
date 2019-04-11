@@ -7,6 +7,9 @@ import { Collection, Entity } from './models'
  */
 @Injectable({ lifetime: 'scoped' })
 export class OdataContext<T> {
+  public server!: string
+  public entities!: Array<Entity<any>>
+  public collections!: Array<Collection<any>>
   public collection!: Collection<T>
   public entityId?: number | string
   public context!: string

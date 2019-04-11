@@ -20,8 +20,8 @@ export class ModelBuilder {
     const value: XmlNode = {
       tagName: 'edmx:Edmx',
       attributes: {
-        'xmlns:edmx': 'http://docs.oasis-open.org/odata/ns/edmx',
         Version: '4.0',
+        'xmlns:edmx': 'http://docs.oasis-open.org/odata/ns/edmx',
       },
       children: [
         {

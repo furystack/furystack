@@ -29,7 +29,7 @@ export class PostAction implements IRequestAction {
       repo: this.repo,
     })
 
-    this.response.writeHead(201, 'Created', { 'content-type': 'application/json' })
+    this.response.writeHead(201, 'Created', { 'content-type': 'application/json', 'odata.metadata': 'minimal' })
     this.response.end(
       JSON.stringify({
         ...expanded,

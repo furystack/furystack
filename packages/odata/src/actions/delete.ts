@@ -17,6 +17,8 @@ export class DeleteAction implements IRequestAction {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
     await dataSet.remove(this.injector, this.context.entityId)
     this.response.writeHead(204, 'No Content')
+    this.response.setHeader('odata.metadata', 'none')
+
     this.response.end()
   }
   constructor(

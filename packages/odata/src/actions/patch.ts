@@ -20,6 +20,7 @@ export class PatchAction implements IRequestAction {
     await dataSet.update(this.injector, this.context.entityId, postBody)
     this.response.writeHead(204, 'No content', {
       'content-type': 'application/json',
+      'odata.metadata': 'none',
     })
     this.response.end()
   }

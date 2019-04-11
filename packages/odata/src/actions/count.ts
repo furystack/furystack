@@ -17,6 +17,8 @@ export class OdataCount implements IRequestAction {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
     const count = await dataSet.count(this.injector)
     this.response.setHeader('content-type', 'application/json')
+    this.response.setHeader('odata.metadata', 'none')
+
     this.response.end(count.toString() || '0')
   }
   constructor(

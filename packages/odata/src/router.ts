@@ -14,6 +14,7 @@ import { RootAction } from './actions/root-action'
 import { getOdataParams } from './getOdataParams'
 import { Collection, Entity } from './models'
 import { OdataContext } from './odata-context'
+import { ServerResponse } from 'http'
 
 /**
  * Factory methods that creates an OData Route based on the provided parameters
@@ -34,10 +35,21 @@ export const createOdataRouter: (options: {
   return (msg, injector) => {
     const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
 
+    injector.getInstance(ServerResponse).setHeader('OData-Version', '4.0')
+
     const collection = collectionsWithUrls.find(c => urlPathName.indexOf(c.url) !== -1)
     const server = (msg.connection as TLSSocket).encrypted
       ? `https://${msg.headers.host}/`
       : `http://${msg.headers.host}/`
+
+    injector.setExplicitInstance(
+      {
+        server,
+        entities: options.entities,
+        collections: options.collections,
+      },
+      OdataContext,
+    )
 
     if (collection) {
       const entity = options.entities.find(e => e.model === collection.collection.model)

@@ -37,6 +37,7 @@ export class GetCollectionAction implements IRequestAction {
     )
 
     this.response.setHeader('content-type', 'application/json')
+    this.response.setHeader('odata.metadata', 'minimal')
     this.response.end(
       JSON.stringify({
         '@odata.context': this.context.context,

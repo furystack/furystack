@@ -69,6 +69,8 @@ export class NamespaceBuilder {
                         // ToDo: min, max, etc...
                         Name: field.property,
                         Type: `Edm.${EdmType[field.type]}`,
+                        // ToDo: add nullable to others
+                        ...(field.property === entity.primaryKey ? { Nullable: 'false' } : {}),
                       },
                     } as XmlNode),
                 ),
@@ -81,8 +83,8 @@ export class NamespaceBuilder {
                             // ToDo: check this
                             Name: relation.propertyName,
                             Type: (relation as NavigationPropertyCollection<any>).getRelatedEntities
-                              ? `Collection(${relation.relatedModel.name})`
-                              : relation.relatedModel.name,
+                              ? `Collection(${this.name}.${relation.relatedModel.name})`
+                              : `${this.name}.${relation.relatedModel.name}`,
                           },
                         } as XmlNode),
                     )
@@ -93,7 +95,9 @@ export class NamespaceBuilder {
         {
           tagName: 'EntityContainer',
           attributes: {
-            Name: this.name, // ???
+            Name: 'DefaultContainer',
+            // 'xmlns:p4': 'http://schemas.microsoft.com/ado/2009/02/edm/annotation',
+            // 'p4:LazyLoadingEnabled': 'true',
           },
           children: [
             ...Array.from(this.collections.collections.values()).map(
@@ -102,99 +106,103 @@ export class NamespaceBuilder {
                   tagName: 'EntitySet',
                   attributes: {
                     Name: collection.name,
-                    EntityType: collection.model.name,
+                    EntityType: `${this.name}.${collection.model.name}`,
                   },
                 } as XmlNode),
             ),
-            // Unbound functions and actions
-            ...Object.entries(this.actions).map(a => toXmlNode(a, 'Action')),
-            ...Object.entries(this.functions).map(f => toXmlNode(f, 'Function')),
-
-            // Collection bound functions and actions
-            ...Array.from(this.collections.collections).flatMap(c => [
-              ...Object.entries(c[1].actions || {}).map(a =>
-                toXmlNode(
-                  [
-                    a[0],
-                    {
-                      ...a[1],
-                      ...{
-                        isBound: true,
-                        parameters: [
-                          ...(a[1].parameters || []),
-                          { name: 'bindingParameter', type: `Collection(${c[1].model.name})` },
-                        ],
-                      },
-                    },
-                  ],
-                  'Action',
-                ),
-              ),
-              ...Object.entries(c[1].functions || {}).map(a =>
-                toXmlNode(
-                  [
-                    a[0],
-                    {
-                      ...a[1],
-                      ...{
-                        isBound: true,
-                        parameters: [
-                          ...(a[1].parameters || []),
-                          { name: 'bindingParameter', type: `Collection(${c[1].model.name})` },
-                        ],
-                      },
-                    },
-                  ],
-                  'Function',
-                ),
-              ),
-            ]),
-            ...Array.from(this.entities.entities.values()).flatMap(entity => {
-              return [
-                ...(entity.actions
-                  ? Object.entries(entity.actions).map(e =>
-                      toXmlNode(
-                        [
-                          e[0],
-                          {
-                            ...e[1],
-                            ...{
-                              isBound: true,
-                              parameters: [
-                                ...(e[1].parameters || []),
-                                { name: 'bindingParameter', type: entity.model.name },
-                              ],
-                            },
-                          },
-                        ],
-                        'Action',
-                      ),
-                    )
-                  : []),
-                ...(entity.functions
-                  ? Object.entries(entity.functions).map(e =>
-                      toXmlNode(
-                        [
-                          e[0],
-                          {
-                            ...e[1],
-                            ...{
-                              isBound: true,
-                              parameters: [
-                                ...(e[1].parameters || []),
-                                { name: 'bindingParameter', type: entity.model.name },
-                              ],
-                            },
-                          },
-                        ],
-                        'Function',
-                      ),
-                    )
-                  : []),
-              ]
-            }),
           ],
         },
+        // Unbound functions and actions
+        ...Object.entries(this.actions).map(a => toXmlNode(a, this.name, 'Action')),
+        ...Object.entries(this.functions).map(f => toXmlNode(f, this.name, 'Function')),
+
+        // Collection bound functions and actions
+        ...Array.from(this.collections.collections).flatMap(c => [
+          ...Object.entries(c[1].actions || {}).map(a =>
+            toXmlNode(
+              [
+                a[0],
+                {
+                  ...a[1],
+                  ...{
+                    isBound: true,
+                    parameters: [
+                      ...(a[1].parameters || []),
+                      { name: 'bindingParameter', type: `Collection(${this.name}.${c[1].model.name})` },
+                    ],
+                  },
+                },
+              ],
+              this.name,
+              'Action',
+            ),
+          ),
+          ...Object.entries(c[1].functions || {}).map(a =>
+            toXmlNode(
+              [
+                a[0],
+                {
+                  ...a[1],
+                  ...{
+                    isBound: true,
+                    parameters: [
+                      ...(a[1].parameters || []),
+                      { name: 'bindingParameter', type: `Collection(${this.name}.${c[1].model.name})` },
+                    ],
+                  },
+                },
+              ],
+              this.name,
+              'Function',
+            ),
+          ),
+        ]),
+        ...Array.from(this.entities.entities.values()).flatMap(entity => {
+          return [
+            ...(entity.actions
+              ? Object.entries(entity.actions).map(e =>
+                  toXmlNode(
+                    [
+                      e[0],
+                      {
+                        ...e[1],
+                        ...{
+                          isBound: true,
+                          parameters: [
+                            ...(e[1].parameters || []),
+                            { name: 'bindingParameter', type: `${this.name}.${entity.model.name}` },
+                          ],
+                        },
+                      },
+                    ],
+                    this.name,
+                    'Action',
+                  ),
+                )
+              : []),
+            ...(entity.functions
+              ? Object.entries(entity.functions).map(e =>
+                  toXmlNode(
+                    [
+                      e[0],
+                      {
+                        ...e[1],
+                        ...{
+                          isBound: true,
+                          parameters: [
+                            ...(e[1].parameters || []),
+                            { name: 'bindingParameter', type: `${this.name}.${entity.model.name}` },
+                          ],
+                        },
+                      },
+                    ],
+                    this.name,
+                    'Function',
+                  ),
+                )
+              : []),
+          ]
+        }),
       ],
     }
     return value

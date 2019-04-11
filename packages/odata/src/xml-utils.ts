@@ -4,7 +4,7 @@
 export interface XmlNode {
   tagName: string
   attributes?: { [a: string]: string }
-  children?: XmlNode[]
+  children?: Array<XmlNode | string>
 }
 
 /**
@@ -12,7 +12,10 @@ export interface XmlNode {
  * @param n The node to be converted
  */
 // tslint:disable-next-line: no-unnecessary-type-annotation
-export const xmlToString: (n: XmlNode) => string = n => {
+export const xmlToString: (n: XmlNode | string) => string = n => {
+  if (typeof n === 'string') {
+    return n
+  }
   const attrs = n.attributes
     ? Object.keys(n.attributes)
         .map(a => `${a}="${n.attributes && n.attributes[a]}"`)

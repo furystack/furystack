@@ -18,6 +18,7 @@ export class GetEntityAction implements IRequestAction {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
     const entity = await dataSet.get(this.injector, this.context.entityId)
     this.response.setHeader('content-type', 'application/json')
+    this.response.setHeader('odata.metadata', 'minimal')
 
     if (!entity) {
       this.response.writeHead(404, 'Not found')
