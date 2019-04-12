@@ -49,11 +49,22 @@ defaultInjector
   })
   .setupStores(sm => {
     sm.addStore(
-      TestEntry,
-      new FileStore<TestEntry>(join(process.cwd(), 'data', 'testEntries.json'), 'id', 60000, sm.injector.logger),
+      new FileStore({
+        model: TestEntry,
+        fileName: join(process.cwd(), 'data', 'testEntries.json'),
+        primaryKey: 'id',
+        tickMs: 60000,
+        logger: sm.injector.logger,
+      }),
     )
-    sm.addStore(Session, new InMemoryStore('sessionId'))
-    sm.useTypeOrmStore(User, 'UserDb').useTypeOrmStore(Task, 'TaskDb')
+      .addStore(
+        new InMemoryStore({
+          model: Session,
+          primaryKey: 'sessionId',
+        }),
+      )
+      .useTypeOrmStore(User, 'UserDb')
+      .useTypeOrmStore(Task, 'TaskDb')
   })
   .setupRepository(repo => {
     repo
@@ -68,6 +79,7 @@ defaultInjector
       origins: ['http://localhost:8080'],
     },
   })
+  // Add API endpoints for '/login', '/logout' and '/currentUser'
   .useDefaultLoginRoutes()
   .addHttpRouting(msg => {
     const urlPathName = parse(msg.url || '', true).pathname
@@ -75,18 +87,26 @@ defaultInjector
       return GoogleLoginAction
     }
   })
+  // Start HTTP Listener at :80
   .listenHttp({ port: 80, hostName: 'localhost' })
+  // Start HTTPS Listener at :8443
   .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
-  .useHttpAuthentication<User>({
+  // Setup authentication with the specific stores
+  .useHttpAuthentication({
+    model: User,
     getUserStore: sm => sm.getStoreFor(User),
     getSessionStore: sm => sm.getStoreFor(Session),
   })
+  // Use Web Socket Endpoint
   .useWebsockets()
+  // Setup Odata at '/odata'
   .useOdata('odata', builder =>
+    // create default namespace
     builder.addNameSpace('default', namespace => {
       namespace
-        .setupEntities(entities =>
-          entities
+        // Configure Entities
+        .setupEntities(entityBuilder =>
+          entityBuilder
             .addEntity({
               model: Session,
               name: 'sessions',
@@ -184,6 +204,7 @@ defaultInjector
               properties: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
             }),
         )
+        // Configure entity sets
         .setupCollections(collections =>
           collections
             .addCollection({
@@ -217,6 +238,7 @@ defaultInjector
         },
       })
 
+      // Add login and logout actions to global scope (standard Http Actions)
       namespace.setupGlobalActions({
         login: {
           parameters: [
@@ -236,4 +258,5 @@ defaultInjector
     }),
   )
 
+// Seed default entries
 seed(defaultInjector)

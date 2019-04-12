@@ -1,4 +1,5 @@
-import { IPhysicalStore, DefaultFilter } from './Models/IPhysicalStore'
+import { Constructable } from '@furystack/inject'
+import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
  * Store implementation that stores data in an in-memory cache
@@ -43,5 +44,13 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
     /** */
   }
 
-  constructor(public readonly primaryKey: keyof T, public readonly tickMs = 10000) {}
+  public readonly primaryKey: keyof T
+  public tickMs = 10000
+  public readonly model: Constructable<T>
+
+  constructor(options: { primaryKey: keyof T; tickMs?: number; model: Constructable<T> }) {
+    this.primaryKey = options.primaryKey
+    options.tickMs && (this.tickMs = options.tickMs)
+    this.model = options.model
+  }
 }

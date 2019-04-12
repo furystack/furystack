@@ -35,6 +35,11 @@ export const createOdataRouter: (options: {
   }))
 
   return (msg, injector) => {
+    injector.logger.verbose({
+      scope: 'OData Router',
+      message: `Incoming message: ${msg.url}`,
+    })
+
     const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
 
     injector.getInstance(ServerResponse).setHeader('OData-Version', '4.0')

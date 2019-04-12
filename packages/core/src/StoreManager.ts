@@ -1,6 +1,6 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { Disposable } from '@sensenet/client-utils'
-import { IPhysicalStore } from './Models/IPhysicalStore'
+import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
 
 /**
  * Manager class for store instances
@@ -27,8 +27,8 @@ export class StoreManager implements Disposable {
     return instance as IPhysicalStore<T>
   }
 
-  public addStore<T>(model: Constructable<T>, store: IPhysicalStore<T>) {
-    this.stores.set(model, store)
+  public addStore<T>(store: IPhysicalStore<T, DefaultFilter<T>>) {
+    this.stores.set(store.model, store)
     return this
   }
 

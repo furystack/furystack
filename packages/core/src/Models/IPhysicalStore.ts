@@ -1,3 +1,4 @@
+import { Constructable } from '@furystack/inject'
 import { Disposable } from '@sensenet/client-utils'
 
 /**
@@ -15,6 +16,7 @@ export type DefaultFilter<T> = Partial<T> & {
  */
 export interface IPhysicalStore<T, TFilter = DefaultFilter<T>> extends Disposable {
   readonly primaryKey: keyof T
+  readonly model: Constructable<T>
   add(data: T): Promise<T>
   update(id: T[this['primaryKey']], data: T): Promise<void>
   count(): Promise<number>

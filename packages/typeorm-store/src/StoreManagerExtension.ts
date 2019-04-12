@@ -15,7 +15,7 @@ declare module '@furystack/core/dist/StoreManager' {
 
 StoreManager.prototype.useTypeOrmStore = function(model, connectionName) {
   const connection = this.injector.getInstance(ConnectionManager).get(connectionName)
-  const store = new TypeOrmStore(model, connection, this.injector.logger)
-  this.addStore(model, store)
+  const store = new TypeOrmStore({ model, connection, logger: this.injector.logger })
+  this.addStore(store)
   return this
 }

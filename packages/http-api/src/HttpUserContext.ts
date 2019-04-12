@@ -1,4 +1,4 @@
-import { IPhysicalStore, IUser } from '@furystack/core'
+import { IPhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
@@ -11,7 +11,7 @@ import { IExternalLoginService } from './Models/IExternalLoginService'
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext<TUser extends IUser = IUser> {
+export class HttpUserContext<TUser extends User = User> {
   public users!: IPhysicalStore<TUser>
 
   public sessions!: IPhysicalStore<{

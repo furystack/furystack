@@ -25,6 +25,10 @@ export class NavigationPropertyAction implements IRequestAction {
       e => e.model === (this.context.navigationProperty as NavigationProperty<any>).relatedModel,
     )
 
+    if (!relatedEntity) {
+      throw Error('No related entity found for navigation property')
+    }
+
     const filter = this.request.url && relatedEntity ? getOdataParams(this.request.url, relatedEntity) : {}
 
     const plainValue = await (((this.context.navigationProperty as NavigationProperty<{}>).getRelatedEntity &&
@@ -48,7 +52,7 @@ export class NavigationPropertyAction implements IRequestAction {
                 await createEntityResponse({
                   entity,
                   entityTypes: this.context.entities,
-                  entityType: this.context.entity,
+                  entityType: relatedEntity || this.context.entity,
                   odataParams: filter as any,
                   injector: this.injector,
                   repo: this.repo,
@@ -58,7 +62,7 @@ export class NavigationPropertyAction implements IRequestAction {
         : await createEntityResponse({
             entity: plainValue,
             entityTypes: this.context.entities,
-            entityType: this.context.entity,
+            entityType: relatedEntity || this.context.entity,
             odataParams: filter as any,
             injector: this.injector,
             repo: this.repo,

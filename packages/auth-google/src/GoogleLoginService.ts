@@ -1,4 +1,4 @@
-import { IUser, visitorUser } from '@furystack/core'
+import { User, visitorUser } from '@furystack/core'
 import { HttpUserContext } from '@furystack/http-api'
 import { IExternalLoginService } from '@furystack/http-api/dist/Models/IExternalLoginService'
 import { Utils } from '@furystack/http-api/dist/Utils'
@@ -27,7 +27,7 @@ export interface IGoogleApiPayload {
  * Service class for Google OAuth authentication
  */
 @Injectable({ lifetime: 'transient' })
-export class GoogleLoginService<TUser extends IUser & { googleId: number; googleProfileData: IGoogleApiPayload }>
+export class GoogleLoginService<TUser extends User & { googleId: number; googleProfileData: IGoogleApiPayload }>
   implements IExternalLoginService<TUser, [string]> {
   /**
    *

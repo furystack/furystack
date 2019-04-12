@@ -11,13 +11,18 @@ import { User } from './Models/User'
  * @param instance The instance to be created if there is no instance present
  * @param store The physical store to use
  */
-export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPhysicalStore<T>) => {
+export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPhysicalStore<T>, injector: Injector) => {
   const result = await store.filter(filter)
   if (result.length === 1) {
     return result[0]
   } else if (result.length === 0) {
+    injector.logger.verbose({
+      scope: 'seeder',
+      message: `Entity of type '${store.constructor.name}' not exists, adding: '${JSON.stringify(filter)}'`,
+    })
     return await store.add(instance)
   } else {
+    injector.logger.warning({ scope: 'seeder', message: `` })
     throw Error(`Seed filter contains multiple results`)
   }
 }
@@ -27,6 +32,7 @@ export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPh
  * @param injector The injector instance
  */
 export const seed = async (injector: Injector) => {
+  injector.logger.verbose({ scope: 'seeder', message: 'Seeding data...' })
   const sm = injector.getInstance(StoreManager)
   const userStore = sm.getStoreFor(User)
   const testUser = await getOrCreate(
@@ -37,6 +43,7 @@ export const seed = async (injector: Injector) => {
       roles: [],
     },
     userStore,
+    injector,
   )
 
   const taskStore = sm.getStoreFor(Task)
@@ -52,11 +59,12 @@ export const seed = async (injector: Injector) => {
       completed: false,
     },
     taskStore,
+    injector,
   )
 
   const testEntryStore = sm.getStoreFor(TestEntry)
-  await getOrCreate({ id: 1 }, { id: 1, value: 'testEntry1' }, testEntryStore)
-  await getOrCreate({ id: 2 }, { id: 2, value: 'testEntry1' }, testEntryStore)
+  await getOrCreate({ id: 1 }, { id: 1, value: 'testEntry1' }, testEntryStore, injector)
+  await getOrCreate({ id: 2 }, { id: 2, value: 'testEntry1' }, testEntryStore, injector)
 
-  console.log('Seeding initial data completed.')
+  injector.logger.verbose({ scope: 'seed', message: 'Seeding data completed.' })
 }

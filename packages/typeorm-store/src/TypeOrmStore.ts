@@ -9,34 +9,40 @@ import { Connection, Repository } from 'typeorm'
 export class TypeOrmStore<T> implements IPhysicalStore<T> {
   public primaryKey!: keyof T
   private typeOrmRepo!: Repository<T>
+
+  public readonly model: Constructable<T>
+
   constructor(
-    private readonly model: Constructable<T>,
-    private readonly connection: Connection,
-    public logger: ILogger,
+    private readonly options: {
+      model: Constructable<T>
+      connection: Connection
+      logger: ILogger
+    },
   ) {
-    this.logger.verbose({
+    this.model = options.model
+    this.options.logger.verbose({
       scope: '@furystack/typeorm-store/TypeOrmStore',
-      message: `Initializing TypeORM Store for ${model.name}...`,
+      message: `Initializing TypeORM Store for ${this.model.name}...`,
     })
-    connection.awaitConnection().then(c => {
-      this.typeOrmRepo = c.getRepository<T>(model)
+    options.connection.awaitConnection().then(c => {
+      this.typeOrmRepo = c.getRepository<T>(options.model)
       this.primaryKey = this.typeOrmRepo.metadata.primaryColumns[0].propertyName as keyof T
     })
   }
   public async add(data: T): Promise<T> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     return await this.typeOrmRepo.save(data)
   }
   public async update(id: T[this['primaryKey']], data: T): Promise<void> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     await this.typeOrmRepo.update(id, data)
   }
   public async count(): Promise<number> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     return await this.typeOrmRepo.count()
   }
   public async filter(filter: DefaultFilter<T>): Promise<T[]> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     const { top, skip, order, ...where } = filter
 
     return await this.typeOrmRepo.find({
@@ -47,16 +53,16 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
     })
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     return await this.typeOrmRepo.findOne(key)
   }
   public async remove(key: T[this['primaryKey']]): Promise<void> {
-    await this.connection.awaitConnection()
+    await this.options.connection.awaitConnection()
     await this.typeOrmRepo.delete(key)
   }
   public async dispose() {
     /** */
-    this.logger.information({
+    this.options.logger.information({
       scope: '@furystack/typeorm-store/TypeOrmStore',
       message: `Disposing TypeORM Store for Entity Type ${this.model.name}`,
     })

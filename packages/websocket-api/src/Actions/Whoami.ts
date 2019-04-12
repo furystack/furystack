@@ -1,4 +1,4 @@
-import { IUser } from '@furystack/core'
+import { User } from '@furystack/core'
 import { HttpUserContext } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
 import { Data } from 'ws'
@@ -22,5 +22,5 @@ export class WhoAmI implements IWebSocketAction {
     this.websocket.send(JSON.stringify(currentUser))
   }
 
-  constructor(private httpUserContext: HttpUserContext<IUser>, private websocket: ws) {}
+  constructor(private httpUserContext: HttpUserContext<User>, private websocket: ws) {}
 }

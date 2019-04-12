@@ -1,4 +1,3 @@
-import { IUser } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
 import { HttpUserContext } from '../HttpUserContext'
@@ -23,7 +22,7 @@ export class LoginAction implements IRequestAction {
     this.serverResponse.end(JSON.stringify(user))
   }
   constructor(
-    private readonly userContext: HttpUserContext<IUser>,
+    private readonly userContext: HttpUserContext,
     private incomingMessage: IncomingMessage,
     private serverResponse: ServerResponse,
     private utils: Utils,

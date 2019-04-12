@@ -1,4 +1,3 @@
-import { IUser } from '@furystack/core'
 import { HttpUserContext, IRequestAction, Utils } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
@@ -9,7 +8,7 @@ import { GoogleLoginService } from './GoogleLoginService'
 @Injectable({ lifetime: 'transient' })
 export class GoogleLoginAction implements IRequestAction {
   constructor(
-    private readonly userContext: HttpUserContext<IUser>,
+    private readonly userContext: HttpUserContext,
     private incomingMessage: IncomingMessage,
     private response: ServerResponse,
     private utils: Utils,

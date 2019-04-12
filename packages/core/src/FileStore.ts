@@ -1,3 +1,4 @@
+import { Constructable } from '@furystack/inject'
 import { ILogger } from '@furystack/logging'
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
@@ -8,13 +9,17 @@ import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
  */
 export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   private readonly watcher?: FSWatcher
+
+  public readonly model: Constructable<T>
+
+  public readonly primaryKey: keyof T
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
     this.hasChanges = true
   }
   public readonly logScope: string = '@furystack/core/' + this.constructor.name
   private cache: Map<T[this['primaryKey']], T> = new Map()
-  public tick = setInterval(() => this.saveChanges(), this.tickMs)
+  public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 5000)
   private hasChanges: boolean = false
   public get = async (key: T[this['primaryKey']]) => {
     return await this.fileLock.execute(async () => {
@@ -64,7 +69,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
         values.push(this.cache.get(key) as T)
       }
       await new Promise((resolve, reject) => {
-        this.writeFile(this.fileName, JSON.stringify(values), error => {
+        this.writeFile(this.options.fileName, JSON.stringify(values), error => {
           if (!error) {
             resolve()
           } else {
@@ -73,15 +78,15 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
         })
       })
       this.hasChanges = false
-      this.logger.information({
+      this.options.logger.information({
         scope: this.logScope,
-        message: `Store '${this.fileName}' has been updated with the latest changes.`,
+        message: `Store '${this.options.fileName}' has been updated with the latest changes.`,
         data: { values },
       })
     } catch (e) {
-      this.logger.error({
+      this.options.logger.error({
         scope: this.logScope,
-        message: `Error saving changed data to '${this.fileName}'.`,
+        message: `Error saving changed data to '${this.options.fileName}'.`,
         data: { error: e },
       })
     } finally {
@@ -90,9 +95,9 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   }
 
   public async dispose() {
-    this.logger.information({
+    this.options.logger.information({
       scope: this.logScope,
-      message: `Disposing FileStore: '${this.fileName}'`,
+      message: `Disposing FileStore: '${this.options.fileName}'`,
     })
     await this.saveChanges()
     this.watcher && this.watcher.close()
@@ -103,7 +108,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
     try {
       await this.fileLock.acquire()
       await new Promise((resolve, reject) => {
-        this.readFile(this.fileName, (error, data) => {
+        this.readFile(this.options.fileName, (error, data) => {
           if (error) {
             reject(error)
           } else {
@@ -117,9 +122,9 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
         })
       })
     } catch (e) {
-      this.logger.error({
+      this.options.logger.error({
         scope: this.logScope,
-        message: `Error loading data into store from '${this.fileName}'.`,
+        message: `Error loading data into store from '${this.options.fileName}'.`,
         data: e,
       })
     } finally {
@@ -132,19 +137,30 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
     this.hasChanges = true
   }
 
+  private readFile = nodeReadFile
+  private writeFile = nodeWriteFile
+
   constructor(
-    private readonly fileName: string,
-    public readonly primaryKey: keyof T,
-    public readonly tickMs = 10000,
-    private readonly logger: ILogger,
-    private readFile = nodeReadFile,
-    private writeFile = nodeWriteFile,
+    private readonly options: {
+      fileName: string
+      primaryKey: keyof T
+      tickMs?: number
+      logger: ILogger
+      model: Constructable<T>
+      readFile?: typeof nodeReadFile
+      writeFile?: typeof nodeWriteFile
+    },
   ) {
+    this.primaryKey = options.primaryKey
+    this.model = options.model
+    options.readFile && (this.readFile = options.readFile)
+    options.writeFile && (this.writeFile = options.writeFile)
+
     try {
-      this.watcher = watch(this.fileName, { encoding: 'buffer' }, () => {
-        this.logger.verbose({
+      this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
+        this.options.logger.verbose({
           scope: this.logScope,
-          message: `The file '${this.fileName}' has been changed, reloading data...`,
+          message: `The file '${this.options.fileName}' has been changed, reloading data...`,
         })
         this.reloadData()
       })

@@ -1,5 +1,4 @@
-import { IUser } from '@furystack/core'
-import { ServerManager } from '@furystack/core'
+import { ServerManager, User } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { createServer as createHttpServer, IncomingMessage } from 'http'
@@ -14,7 +13,7 @@ import { HttpApiSettings } from './HttpApiSettings'
  * Injector instance extended with HTTP Api specified stuff
  */
 export interface HttpExtendedInjector extends Injector {
-  useHttpAuthentication: <TUser extends IUser = IUser>(
+  useHttpAuthentication: <TUser extends User>(
     settings: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
   addHttpRouting: (
