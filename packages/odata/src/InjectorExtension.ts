@@ -26,9 +26,9 @@ Injector.prototype.useOdata = function(route, buildModel) {
     .map(c => Array.from(c))
     .flat()
 
-  const globalActions = Object.assign({}, ...Array.from(instance.namespaces.values()).map(ns => ns.actions))
+  const globalActions = [...Array.from(instance.namespaces.values()).map(ns => ns.actions)].flat()
 
-  const globalFunctions = Object.assign({}, ...Array.from(instance.namespaces.values()).map(ns => ns.functions))
+  const globalFunctions = [...Array.from(instance.namespaces.values()).map(ns => ns.functions)].flat()
 
   this.getInstance(HttpApiSettings).actions.push(
     createOdataRouter({

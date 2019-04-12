@@ -1,5 +1,4 @@
-import { IRequestAction, IRouteModel } from '@furystack/http-api'
-import { Constructable } from '@furystack/inject'
+import { IRouteModel } from '@furystack/http-api'
 import { PathHelper } from '@sensenet/client-utils'
 import { ServerResponse } from 'http'
 import { TLSSocket } from 'tls'
@@ -16,6 +15,7 @@ import { RootAction } from './actions/root-action'
 import { getOdataParams } from './getOdataParams'
 import { ModelBuilder } from './model-builder'
 import { Collection, Entity, NavigationProperty } from './models'
+import { FunctionDescriptor } from './models/function-descriptor'
 import { OdataContext } from './odata-context'
 
 /**
@@ -26,8 +26,8 @@ export const createOdataRouter: (options: {
   route: string
   entities: Array<Entity<any>>
   collections: Array<Collection<any>>
-  globalActions: { [key: string]: Constructable<IRequestAction> }
-  globalFunctions: { [key: string]: Constructable<IRequestAction> }
+  globalActions: FunctionDescriptor[]
+  globalFunctions: FunctionDescriptor[]
 }) => IRouteModel = options => {
   const collectionsWithUrls = options.collections.map(c => ({
     collection: c,
@@ -52,6 +52,7 @@ export const createOdataRouter: (options: {
     injector.setExplicitInstance(
       {
         server,
+        odataRoute: options.route,
         entities: options.entities,
         collections: options.collections,
       },
@@ -92,25 +93,25 @@ export const createOdataRouter: (options: {
           const currentAction =
             entity &&
             entity.actions &&
-            Object.entries(entity.actions).find(
+            entity.actions.find(
               a =>
-                PathHelper.joinPaths(collection.url + entitySegment, a[0]) === urlPathName ||
-                PathHelper.joinPaths(collection.url, entitySegment, a[0]) === urlPathName,
+                PathHelper.joinPaths(collection.url + entitySegment, a.name) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a.name) === urlPathName,
             )
           if (currentAction) {
-            return currentAction[1].action
+            return currentAction.action
           }
         } else if (msg.method === 'GET') {
           const currentFunction =
             entity &&
             entity.functions &&
-            Object.entries(entity.functions).find(
+            entity.functions.find(
               a =>
-                PathHelper.joinPaths(collection.url + entitySegment, a[0]) === urlPathName ||
-                PathHelper.joinPaths(collection.url, entitySegment, a[0]) === urlPathName,
+                PathHelper.joinPaths(collection.url + entitySegment, a.name) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a.name) === urlPathName,
             )
           if (currentFunction) {
-            return currentFunction[1].action
+            return currentFunction.action
           }
 
           const navigationProperty =
@@ -160,16 +161,16 @@ export const createOdataRouter: (options: {
       // Collection functions
       const collectionFunction =
         collection.collection.functions &&
-        Object.entries(collection.collection.functions).find(a => urlPathName === `${collection.url}/${a[0]}`)
+        collection.collection.functions.find(a => urlPathName === `${collection.url}/${a.name}`)
       if (msg.method === 'GET' && collectionFunction) {
-        return collectionFunction[1].action
+        return collectionFunction.action
       }
 
       const collectionAction =
         collection.collection.actions &&
-        Object.entries(collection.collection.actions).find(a => urlPathName === `${collection.url}/${a[0]}`)
+        collection.collection.actions.find(a => urlPathName === `${collection.url}/${a.name}`)
       if (msg.method === 'GET' && collectionAction) {
-        return collectionAction[1].action
+        return collectionAction.action
       }
 
       switch (msg.method) {
@@ -181,22 +182,22 @@ export const createOdataRouter: (options: {
     }
 
     // Global functions
-    const globalFunction = Object.entries(options.globalFunctions).find(a => urlPathName === `${options.route}/${a[0]}`)
+    const globalFunction = options.globalFunctions.find(a => urlPathName === `${options.route}/${a.name}`)
     if (msg.method === 'GET' && globalFunction) {
-      return globalFunction[1]
+      return globalFunction.action
     }
 
     // Global actions
-    const globalAction = Object.entries(options.globalActions).find(a => urlPathName === `${options.route}/${a[0]}`)
+    const globalAction = options.globalActions.find(a => urlPathName === `${options.route}/${a.name}`)
     if (msg.method === 'POST' && globalAction) {
-      return globalAction[1]
+      return globalAction.action
     }
 
     if (msg.method === 'GET' && urlPathName === `${options.route}/$metadata`) {
       return MetadataAction
     }
 
-    if (urlPathName.indexOf(options.route) === 0) {
+    if (urlPathName === options.route) {
       return RootAction
     }
   }

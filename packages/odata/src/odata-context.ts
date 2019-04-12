@@ -8,6 +8,7 @@ import { Collection, Entity, NavigationProperty, NavigationPropertyCollection } 
 @Injectable({ lifetime: 'scoped' })
 export class OdataContext<T> {
   public server!: string
+  public odataRoute!: string
   public entities!: Array<Entity<any>>
   public collections!: Array<Collection<any>>
   public collection!: Collection<T>

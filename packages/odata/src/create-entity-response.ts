@@ -1,7 +1,9 @@
 import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
+import { PathHelper } from '@sensenet/client-utils'
 import { getOdataParams } from './getOdataParams'
 import { Entity, NavigationProperty, NavigationPropertyCollection } from './models'
+import { OdataContext } from './odata-context'
 
 /**
  * Method that adds expanded fields to an entity model
@@ -14,12 +16,23 @@ export const createEntityResponse = async <T>(options: {
   entityTypes: Array<Entity<any>>
   odataParams: ReturnType<typeof getOdataParams>
   repo: Repository
+  odataContext: OdataContext<T>
 }) => {
-  const returnEntity = {}
+  const returnEntity: any = {}
 
   for (const selectField of options.odataParams.select) {
     returnEntity[selectField] = options.entity[selectField]
   }
+
+  const entityId = options.entity[options.entityType.primaryKey]
+
+  returnEntity['@odata.id'] = PathHelper.joinPaths(
+    options.odataContext.server,
+    options.odataContext.odataRoute,
+    (options.odataContext.navigationProperty && options.odataContext.navigationProperty.dataSet) ||
+      options.odataContext.collection.name,
+    typeof entityId === 'number' ? `(${entityId.toString()})` : `('${entityId}')`,
+  )
 
   if (options.odataParams.expand.length === 0) {
     return returnEntity
@@ -85,10 +98,10 @@ export const createEntityResponse = async <T>(options: {
               entityTypes: options.entityTypes,
               odataParams: getOdataParams(`?${final}`, entityType),
               repo: options.repo,
+              odataContext: options.odataContext,
             })
           }),
         )
-
         expandedEntity[navProperty.propertyName] = expandedEntities
       }
     }),

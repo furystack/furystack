@@ -28,6 +28,7 @@ export class PostAction implements IRequestAction {
       odataParams: this.context.queryParams,
       injector: this.injector,
       repo: this.repo,
+      odataContext: this.context,
     })
 
     this.response.writeHead(201, 'Created', { 'content-type': 'application/json', 'odata.metadata': 'minimal' })

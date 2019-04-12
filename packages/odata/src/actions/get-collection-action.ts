@@ -34,6 +34,7 @@ export class GetCollectionAction implements IRequestAction {
             odataParams: this.context.queryParams,
             injector: this.injector,
             repo: this.repo,
+            odataContext: this.context,
           }),
       ),
     )

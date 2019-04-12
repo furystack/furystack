@@ -40,6 +40,7 @@ export class GetEntityAction implements IRequestAction {
       odataParams: this.context.queryParams,
       injector: this.injector,
       repo: this.repo,
+      odataContext: this.context,
     })
 
     this.response.end(

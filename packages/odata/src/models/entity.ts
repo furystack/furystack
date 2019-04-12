@@ -9,8 +9,8 @@ import { NavigationProperty, NavigationPropertyCollection } from './navigation-p
 export interface Entity<T> {
   model: Constructable<T>
   name?: string
-  actions?: { [k: string]: FunctionDescriptor }
-  functions?: { [k: string]: FunctionDescriptor }
+  actions?: FunctionDescriptor[]
+  functions?: FunctionDescriptor[]
   primaryKey: keyof T
   properties: Array<{ property: keyof T; type: EdmType; nullable?: boolean }>
   navigationProperties?: Array<NavigationProperty<any> | NavigationPropertyCollection<any>>

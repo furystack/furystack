@@ -169,18 +169,20 @@ defaultInjector
                   },
                 } as NavigationPropertyCollection<Session>,
               ],
-              actions: {
-                mock: {
+              actions: [
+                {
+                  name: 'mock',
                   action: MockAction,
                   returnType: EdmType.String,
                 },
-              },
-              functions: {
-                mockFunc: {
+              ],
+              functions: [
+                {
+                  name: 'mockFunc',
                   action: MockAction,
                   returnType: EdmType.String,
                 },
-              },
+              ],
             })
             .addEntity({
               model: Task,
@@ -218,12 +220,13 @@ defaultInjector
             .addCollection({
               name: 'users',
               model: User,
-              functions: {
-                current: {
+              functions: [
+                {
+                  name: 'current',
                   action: GetCurrentUser,
                   returnType: User,
                 },
-              },
+              ],
             })
             .addCollection({
               name: 'tasks',
@@ -239,16 +242,18 @@ defaultInjector
             }),
         )
 
-      namespace.setupGlobalFunctions({
-        getCurrentUser: {
+      namespace.setupGlobalFunctions([
+        {
+          name: 'getCurrentuser',
           action: GetCurrentUser,
           returnType: User,
         },
-      })
+      ])
 
       // Add login and logout actions to global scope (standard Http Actions)
-      namespace.setupGlobalActions({
-        login: {
+      namespace.setupGlobalActions([
+        {
+          name: 'login',
           parameters: [
             { name: 'username', type: EdmType.String, nullable: false },
             { name: 'password', type: EdmType.String, nullable: false },
@@ -256,11 +261,12 @@ defaultInjector
           returnType: User,
           action: LoginAction,
         },
-        logout: {
+        {
+          name: 'logout',
           returnType: User,
           action: LogoutAction,
         },
-      })
+      ])
 
       return namespace
     }),

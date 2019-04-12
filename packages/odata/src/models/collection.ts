@@ -7,6 +7,6 @@ import { FunctionDescriptor } from './function-descriptor'
 export interface Collection<T> {
   name: string
   model: Constructable<T>
-  actions?: { [k: string]: FunctionDescriptor }
-  functions?: { [k: string]: FunctionDescriptor }
+  actions?: FunctionDescriptor[]
+  functions?: FunctionDescriptor[]
 }

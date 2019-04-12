@@ -8,6 +8,11 @@ import { EdmType } from './edm-type'
  */
 export interface FunctionDescriptor {
   /**
+   * Unique name for the action.
+   */
+  name: string
+
+  /**
    * The HTTP Request action to be called
    */
   action: Constructable<IRequestAction>
@@ -33,27 +38,27 @@ export interface FunctionDescriptor {
  * @param f The descriptor to be converted
  * @param type Type (action / function)
  */
-export const toXmlNode = (f: [string, FunctionDescriptor], namespace: string, type: 'Action' | 'Function') => {
+export const toXmlNode = (descriptor: FunctionDescriptor, namespace: string, type: 'Action' | 'Function') => {
   return {
     tagName: type,
     attributes: {
-      Name: f[0],
+      Name: descriptor.name,
       // Function: f[1].action.name.toString(),
-      ...(Object.assign({}, f[1].isBound ? { IsBound: true } : {}) as any),
+      ...(Object.assign({}, descriptor.isBound ? { IsBound: true } : {}) as any),
     },
     children: [
       ...[
-        f[1].returnType && {
+        descriptor.returnType && {
           tagName: 'ReturnType',
           attributes: {
-            Type: (f[1].returnType as Constructable<any>).name
-              ? `${namespace}.${(f[1].returnType as Constructable<any>).name}`
-              : `Edm.${EdmType[f[1].returnType as EdmType]}`,
+            Type: (descriptor.returnType as Constructable<any>).name
+              ? `${namespace}.${(descriptor.returnType as Constructable<any>).name}`
+              : `Edm.${EdmType[descriptor.returnType as EdmType]}`,
           },
         },
         ...[
-          ...(f[1].parameters
-            ? f[1].parameters.map(
+          ...(descriptor.parameters
+            ? descriptor.parameters.map(
                 p =>
                   ({
                     tagName: 'Parameter',

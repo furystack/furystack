@@ -29,7 +29,9 @@ export class NavigationPropertyAction implements IRequestAction {
     const baseEntity = await baseDataSet.get(this.injector, this.context.entityId as never)
 
     if (!baseEntity) {
-      throw Error('Failed to load base entity')
+      this.response.writeHead(404, 'not found')
+      this.response.end()
+      return
     }
 
     if (!relatedEntityType) {
@@ -63,6 +65,7 @@ export class NavigationPropertyAction implements IRequestAction {
                   odataParams: filter as any,
                   injector: this.injector,
                   repo: this.repo,
+                  odataContext: this.context,
                 }),
             ),
           )
@@ -73,6 +76,7 @@ export class NavigationPropertyAction implements IRequestAction {
             odataParams: filter as any,
             injector: this.injector,
             repo: this.repo,
+            odataContext: this.context,
           })
 
     this.response.setHeader('content-type', 'application/json')
@@ -80,7 +84,7 @@ export class NavigationPropertyAction implements IRequestAction {
     this.response.end(
       JSON.stringify({
         '@odata.context': this.context.context,
-        ...(value instanceof Array ? { value } : value),
+        ...(value instanceof Array ? { '@odata.count': value.length, value } : value),
       }),
     )
   }
