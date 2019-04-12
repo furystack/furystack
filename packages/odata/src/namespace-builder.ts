@@ -108,7 +108,6 @@ export class NamespaceBuilder {
                     Name: collection.name,
                     EntityType: `${this.name}.${collection.model.name}`,
                   },
-                  // ToDo: Navigation property binding
                 } as XmlNode),
             ),
           ],
@@ -120,7 +119,7 @@ export class NamespaceBuilder {
         // Collection bound functions and actions
         ...Array.from(this.collections.collections).flatMap(c => [
           ...Object.entries(c[1].actions || {}).map(a => {
-            const descriptor = a[1]
+            const descriptor = { ...a[1] }
             descriptor.isBound = true
             descriptor.parameters = [
               ...(descriptor.parameters || []),
@@ -129,7 +128,7 @@ export class NamespaceBuilder {
             return toXmlNode(descriptor, this.name, 'Action')
           }),
           ...Object.entries(c[1].functions || {}).map(a => {
-            const descriptor = a[1]
+            const descriptor = { ...a[1] }
             descriptor.isBound = true
             descriptor.parameters = [
               ...(descriptor.parameters || []),
@@ -142,7 +141,7 @@ export class NamespaceBuilder {
           return [
             ...(entity.actions
               ? entity.actions.map(e => {
-                  const descriptor = e
+                  const descriptor = { ...e }
                   descriptor.isBound = true
                   descriptor.parameters = [
                     ...(descriptor.parameters || []),
@@ -153,7 +152,7 @@ export class NamespaceBuilder {
               : []),
             ...(entity.functions
               ? entity.functions.map(e => {
-                  const descriptor = e
+                  const descriptor = { ...e }
                   descriptor.isBound = true
                   descriptor.parameters = [
                     ...(descriptor.parameters || []),
