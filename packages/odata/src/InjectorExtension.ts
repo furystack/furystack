@@ -15,28 +15,28 @@ declare module '@furystack/inject/dist/Injector' {
 Injector.prototype.useOdata = function(route, buildModel) {
   const instance = buildModel(new ModelBuilder())
   this.setExplicitInstance(instance)
-  // const entities = Array.from(instance.namespaces.values())
-  //   .map(ns => ns.entities.entities.values())
-  //   .map(e => Array.from(e))
-  //   .flat()
 
-  // const collections = Array.from(instance.namespaces.values())
-  //   .map(ns => ns.collections.collections.values())
-  //   .map(c => Array.from(c))
-  //   .flat()
+  const entities = Array.from(instance.namespaces.values())
+    .map(ns => ns.entities.entities.values())
+    .map(e => Array.from(e))
+    .flat()
 
-  // const globalActions = [...Array.from(instance.namespaces.values()).map(ns => ns.actions)].flat()
+  const collections = Array.from(instance.namespaces.values())
+    .map(ns => ns.collections.collections.values())
+    .map(c => Array.from(c))
+    .flat()
 
-  // const globalFunctions = [...Array.from(instance.namespaces.values()).map(ns => ns.functions)].flat()
+  const globalActions = [...Array.from(instance.namespaces.values()).map(ns => ns.actions)].flat()
+
+  const globalFunctions = [...Array.from(instance.namespaces.values()).map(ns => ns.functions)].flat()
 
   this.getInstance(HttpApiSettings).actions.push(
     createOdataRouter({
       route,
-      namespaces: Array.from(instance.namespaces.values()),
-      // entities,
-      // collections,
-      // globalActions,
-      // globalFunctions,
+      entities,
+      collections,
+      globalActions,
+      globalFunctions,
     }),
   )
   return this

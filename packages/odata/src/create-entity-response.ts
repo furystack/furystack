@@ -16,7 +16,7 @@ export const createEntityResponse = async <T>(options: {
   entityTypes: Array<Entity<any>>
   odataParams: ReturnType<typeof getOdataParams>
   repo: Repository
-  odataContext: OdataContext<any>
+  odataContext: OdataContext<T>
 }) => {
   const returnEntity: any = {}
 
@@ -40,7 +40,7 @@ export const createEntityResponse = async <T>(options: {
 
   const navExpressions: Array<{
     expandExpression: string
-    navProperty: NavigationProperty<any, any> | NavigationPropertyCollection<any, any>
+    navProperty: NavigationProperty<any> | NavigationPropertyCollection<any>
   }> = options.odataParams.expand
     .map(
       fieldName =>
@@ -62,17 +62,17 @@ export const createEntityResponse = async <T>(options: {
     navExpressions.map(async navExpression => {
       const navProperty = navExpression.navProperty
       const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
-      if ((navProperty as NavigationProperty<any, any>).getRelatedEntity) {
-        const expanded = await (navProperty as NavigationProperty<any, any>).getRelatedEntity(
+      if ((navProperty as NavigationProperty<any>).getRelatedEntity) {
+        const expanded = await (navProperty as NavigationProperty<any>).getRelatedEntity(
           options.entity,
           dataSet,
           options.injector,
           {},
         )
         expandedEntity[navProperty.propertyName] = expanded
-      } else if ((navProperty as NavigationPropertyCollection<any, any>).getRelatedEntities) {
+      } else if ((navProperty as NavigationPropertyCollection<any>).getRelatedEntities) {
         const expandedEntities = await Promise.all(
-          (await (navProperty as NavigationPropertyCollection<any, any>).getRelatedEntities(
+          (await (navProperty as NavigationPropertyCollection<any>).getRelatedEntities(
             options.entity,
             dataSet,
             options.injector,
@@ -96,7 +96,7 @@ export const createEntityResponse = async <T>(options: {
               injector: options.injector,
               entityType,
               entityTypes: options.entityTypes,
-              odataParams: getOdataParams(`?${final}`, entityType) as any,
+              odataParams: getOdataParams(`?${final}`, entityType),
               repo: options.repo,
               odataContext: options.odataContext,
             })

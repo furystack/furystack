@@ -9,16 +9,16 @@ import { GoogleLoginService } from './GoogleLoginService'
 export class GoogleLoginAction implements IRequestAction {
   constructor(
     private readonly userContext: HttpUserContext,
-    private request: IncomingMessage,
+    private incomingMessage: IncomingMessage,
     private response: ServerResponse,
     private utils: Utils,
   ) {}
 
   public async exec(): Promise<void> {
-    const loginData = await this.utils.readPostBody<{ token: string }>(this.request)
+    const loginData = await this.utils.readPostBody<{ token: string }>(this.incomingMessage)
     this.response.statusCode = 200
     this.response.setHeader('Content-Type', 'application/json')
-    const user = await this.userContext.externalLogin(GoogleLoginService, this.request, this.response, loginData.token)
+    const user = await this.userContext.externalLogin(GoogleLoginService, this.response, loginData.token)
     this.response.write(JSON.stringify(user))
     this.response.end()
   }

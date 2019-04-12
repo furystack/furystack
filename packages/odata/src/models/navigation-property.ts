@@ -5,32 +5,29 @@ import { DataSet } from '@furystack/repository'
 /**
  * Model that defines a navigation property that returns a
  */
-export class NavigationProperty<T, TRelated> {
-  public propertyName!: string
-  public model!: Constructable<T>
-  public relatedModel!: Constructable<TRelated>
-  public dataSet!: string
-  public getRelatedEntity!: (
+export interface NavigationProperty<T> {
+  propertyName: string
+  relatedModel: Constructable<T>
+  dataSet: string
+  getRelatedEntity: (
     entity: T,
-    dataSet: DataSet<TRelated, DefaultFilter<TRelated>>,
+    dataSet: DataSet<T, DefaultFilter<T>>,
     injector: Injector,
-    filter: DefaultFilter<TRelated>,
-  ) => Promise<TRelated>
+    filter: DefaultFilter<T>,
+  ) => Promise<T>
 }
 
 /**
  * Model that defines a navigation property that returns a collection
  */
-// tslint:disable-next-line: max-classes-per-file
-export class NavigationPropertyCollection<T, TRelated> {
-  public propertyName!: string
-  public model!: Constructable<T>
-  public relatedModel!: Constructable<TRelated>
-  public dataSet!: string
-  public getRelatedEntities!: (
+export interface NavigationPropertyCollection<T> {
+  propertyName: string
+  relatedModel: Constructable<T>
+  dataSet: string
+  getRelatedEntities: (
     entity: T,
-    dataSet: DataSet<TRelated, DefaultFilter<TRelated>>,
+    dataSet: DataSet<T, DefaultFilter<T>>,
     injector: Injector,
-    filter: DefaultFilter<TRelated>,
-  ) => Promise<TRelated[]>
+    filter: DefaultFilter<T>,
+  ) => Promise<T[]>
 }
