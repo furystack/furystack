@@ -18,4 +18,12 @@ export class Task {
 
   @Column({ default: false })
   public completed!: boolean
+
+  @Column({ type: 'string', nullable: true })
+  public assigneeId!: string | null
+
+  @Column({
+    type: 'simple-array',
+  })
+  public reviewerIds!: string[]
 }

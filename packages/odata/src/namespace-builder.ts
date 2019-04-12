@@ -1,6 +1,5 @@
 import { CollectionBuilder } from './collection-builder'
-import { EntityBuilder } from './entity-builder'
-import { NavigationPropertyCollection } from './models'
+import { EntityTypeBuilder } from './entity-type-builder'
 import { EdmType } from './models/edm-type'
 import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
 import { XmlNode } from './xml-utils'
@@ -9,12 +8,12 @@ import { XmlNode } from './xml-utils'
  * Model builder for OData endpoints
  */
 export class NamespaceBuilder {
-  public entities = new EntityBuilder()
+  public entities = new EntityTypeBuilder()
   public collections = new CollectionBuilder()
   public actions: FunctionDescriptor[] = []
   public functions: FunctionDescriptor[] = []
 
-  public setupEntities(buildEntities: (e: EntityBuilder) => EntityBuilder) {
+  public setupEntities(buildEntities: (e: EntityTypeBuilder) => EntityTypeBuilder) {
     this.entities = buildEntities(this.entities)
     return this
   }
@@ -82,9 +81,19 @@ export class NamespaceBuilder {
                           tagName: 'NavigationProperty',
                           attributes: {
                             Name: relation.propertyName,
-                            Type: (relation as NavigationPropertyCollection<any>).getRelatedEntities
-                              ? `Collection(${this.name}.${relation.relatedModel.name})`
-                              : `${this.name}.${relation.relatedModel.name}`,
+                            Type: `${this.name}.${relation.relatedModel.name}`,
+                          },
+                        } as XmlNode),
+                    )
+                  : []),
+                ...(entity.navigationPropertyCollection
+                  ? entity.navigationPropertyCollection.map(
+                      relation =>
+                        ({
+                          tagName: 'NavigationProperty',
+                          attributes: {
+                            Name: relation.propertyName,
+                            Type: `Collection(${this.name}.${relation.relatedModel.name})`,
                           },
                         } as XmlNode),
                     )

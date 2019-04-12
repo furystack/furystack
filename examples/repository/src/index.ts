@@ -3,8 +3,7 @@ import { FileStore, InMemoryStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
-import { EdmType, NavigationPropertyCollection } from '@furystack/odata'
-import { NavigationProperty } from '@furystack/odata'
+import { EdmType, NavigationProperty, NavigationPropertyCollection } from '@furystack/odata'
 import '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
@@ -94,7 +93,17 @@ defaultInjector
   .listenHttps({ port: 8443, credentials: new CertificateManager().getCredentials(), hostName: 'localhost' })
   // Setup authentication with the specific stores
   .useHttpAuthentication({
-    model: User,
+    userModel: User,
+    sessionModel: Session,
+    getSession: async (msg, session) => {
+      const s: Session = {
+        ...session,
+        userAgent: msg.headers['user-agent'] as string,
+        ip: msg.connection.remoteAddress || 'unknown',
+        loginDate: new Date(),
+      }
+      return s
+    },
     getUserStore: sm => sm.getStoreFor(User),
     getSessionStore: sm => sm.getStoreFor(Session),
   })
@@ -120,11 +129,24 @@ defaultInjector
                   property: 'username',
                   type: EdmType.String,
                 },
+                {
+                  property: 'ip',
+                  type: EdmType.String,
+                },
+                {
+                  property: 'userAgent',
+                  type: EdmType.String,
+                },
+                {
+                  property: 'loginDate',
+                  type: EdmType.DateTime,
+                },
               ],
               navigationProperties: [
                 {
                   dataSet: 'users',
                   propertyName: 'user',
+                  model: Session,
                   relatedModel: User,
                   getRelatedEntity: async (entity, dataSet, injector, filter) => {
                     return (await dataSet.filter(
@@ -134,7 +156,7 @@ defaultInjector
                       }),
                     ))[0] as User
                   },
-                } as NavigationProperty<User>,
+                } as NavigationProperty<Session, User>,
               ],
             })
             .addEntity({
@@ -155,7 +177,7 @@ defaultInjector
                   nullable: true,
                 },
               ],
-              navigationProperties: [
+              navigationPropertyCollection: [
                 {
                   dataSet: 'sessions',
                   propertyName: 'sessions',
@@ -167,7 +189,7 @@ defaultInjector
                     )
                     return sessions
                   },
-                } as NavigationPropertyCollection<Session>,
+                } as NavigationPropertyCollection<User, Session>,
               ],
               actions: [
                 {
@@ -187,25 +209,38 @@ defaultInjector
             .addEntity({
               model: Task,
               primaryKey: 'id',
-              properties: [{ property: 'id', type: EdmType.String }],
+              properties: [
+                { property: 'id', type: EdmType.String },
+                { property: 'name', type: EdmType.String },
+                { property: 'completed', type: EdmType.Boolean },
+                { property: 'description', type: EdmType.String },
+              ],
               navigationProperties: [
                 {
-                  propertyName: 'user',
+                  propertyName: 'assignee',
                   relatedModel: User,
                   dataSet: 'users',
-                  getRelatedEntity: async (_entity, dataSet, injector, filter) => {
-                    const result = (await dataSet.filter(injector, filter))[0]
+                  getRelatedEntity: async (entity, dataSet, injector, filter) => {
+                    if (!entity.assigneeId) {
+                      return []
+                    }
+                    const result = (await dataSet.filter(
+                      injector,
+                      deepMerge(filter, { filter: { id: entity.assigneeId } }),
+                    ))[0]
                     return result
                   },
-                } as NavigationProperty<User>,
+                } as NavigationProperty<Task, User>,
+              ],
+              navigationPropertyCollection: [
                 {
-                  propertyName: 'users',
+                  propertyName: 'reviewers',
                   relatedModel: User,
                   dataSet: 'users',
                   getRelatedEntities: async (_entity, dataSet, injector, filter) => {
-                    return await dataSet.filter(injector, filter)
+                    return await dataSet.filter(injector, deepMerge(filter, { filter: {} }))
                   },
-                },
+                } as NavigationPropertyCollection<Task, User>,
               ],
             })
             .addEntity({

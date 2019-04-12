@@ -1,6 +1,6 @@
 import { IRequestAction } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
-import { IncomingMessage, ServerResponse } from 'http'
+import { ServerResponse } from 'http'
 
 /**
  * Example mock action
@@ -8,25 +8,15 @@ import { IncomingMessage, ServerResponse } from 'http'
 @Injectable({ lifetime: 'transient' })
 export class MockAction implements IRequestAction {
   public async exec() {
-    
     this.response.writeHead(200, {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
     })
-    this.response.end(
-      JSON.stringify({
-        success: true,
-        incoming: {
-          url: this.incomingMessage.url,
-          headers: this.incomingMessage.headers,
-          method: this.incomingMessage.method,
-        },
-      }),
-    )
+    this.response.end('MockResponse')
   }
 
   public dispose() {
     /** */
   }
 
-  constructor(private incomingMessage: IncomingMessage, private response: ServerResponse) {}
+  constructor(private response: ServerResponse) {}
 }

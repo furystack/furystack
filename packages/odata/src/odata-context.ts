@@ -16,5 +16,6 @@ export class OdataContext<T> {
   public context!: string
   public entity!: Entity<T>
   public queryParams!: ReturnType<typeof getOdataParams>
-  public navigationProperty?: NavigationProperty<T> | NavigationPropertyCollection<T>
+  public navigationProperty?: NavigationProperty<T, any>
+  public navigationPropertyCollection?: NavigationPropertyCollection<T, any>
 }

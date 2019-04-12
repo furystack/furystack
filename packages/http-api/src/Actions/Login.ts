@@ -15,7 +15,12 @@ export class LoginAction implements IRequestAction {
 
   public async exec() {
     const loginData = await this.utils.readPostBody<{ username: string; password: string }>(this.incomingMessage)
-    const user = await this.userContext.cookieLogin(loginData.username, loginData.password, this.serverResponse)
+    const user = await this.userContext.cookieLogin({
+      username: loginData.username,
+      password: loginData.password,
+      response: this.serverResponse,
+      request: this.incomingMessage,
+    })
     this.serverResponse.writeHead(200, {
       'Content-Type': 'application/json',
     })

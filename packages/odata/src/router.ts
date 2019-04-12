@@ -14,8 +14,7 @@ import { PutAction } from './actions/put'
 import { RootAction } from './actions/root-action'
 import { getOdataParams } from './getOdataParams'
 import { ModelBuilder } from './model-builder'
-import { Collection, Entity, NavigationProperty } from './models'
-import { FunctionDescriptor } from './models/function-descriptor'
+import { NamespaceBuilder } from './namespace-builder'
 import { OdataContext } from './odata-context'
 
 /**
@@ -24,26 +23,20 @@ import { OdataContext } from './odata-context'
  */
 export const createOdataRouter: (options: {
   route: string
-  entities: Array<Entity<any>>
-  collections: Array<Collection<any>>
-  globalActions: FunctionDescriptor[]
-  globalFunctions: FunctionDescriptor[]
+  namespaces: NamespaceBuilder[]
 }) => IRouteModel = options => {
-  const collectionsWithUrls = options.collections.map(c => ({
-    collection: c,
-    url: PathHelper.trimSlashes(`${options.route}/${c.name}`),
-  }))
+  const collectionsWithUrls = options.namespaces
+    .flatMap(ns => Array.from(ns.collections.collections.values()))
+    .flatMap(c => ({
+      collection: c,
+      url: PathHelper.trimSlashes(`${options.route}/${c.name}`),
+    }))
+
+  const entities = options.namespaces.flatMap(ns => Array.from(ns.entities.entities.values()))
 
   return (msg, injector) => {
-    injector.logger.verbose({
-      scope: 'OData Router',
-      message: `Incoming message: ${msg.url}`,
-    })
-
     const urlPathName = PathHelper.trimSlashes(parse(msg.url || '', true).pathname || '')
-
     injector.getInstance(ServerResponse).setHeader('OData-Version', '4.0')
-
     const collection = collectionsWithUrls.find(c => urlPathName.indexOf(c.url) !== -1)
     const server = (msg.connection as TLSSocket).encrypted
       ? `https://${msg.headers.host}/`
@@ -53,14 +46,14 @@ export const createOdataRouter: (options: {
       {
         server,
         odataRoute: options.route,
-        entities: options.entities,
-        collections: options.collections,
+        entities,
+        collections: collectionsWithUrls,
       },
       OdataContext,
     )
 
     if (collection) {
-      const entity = options.entities.find(e => e.model === collection.collection.model)
+      const entity = entities.find(e => e.model === collection.collection.model)
 
       injector.setExplicitInstance(
         {
@@ -131,7 +124,7 @@ export const createOdataRouter: (options: {
                   server,
                   options.route,
                   `$metadata#${
-                    (navigationProperty as NavigationProperty<any>).getRelatedEntity
+                    navigationProperty.getRelatedEntity
                       ? `${Array.from(injector.getInstance(ModelBuilder).namespaces.values())[0].name}.${
                           navigationProperty.relatedModel.name
                         }`
@@ -139,6 +132,30 @@ export const createOdataRouter: (options: {
                   }`,
                 ),
                 navigationProperty,
+              },
+              OdataContext,
+            )
+            return NavigationPropertyAction
+          }
+          const navigationPropertyCollection =
+            entity &&
+            entity.navigationPropertyCollection &&
+            entity.navigationPropertyCollection.find(
+              a =>
+                PathHelper.joinPaths(collection.url + entitySegment, a.propertyName) === urlPathName ||
+                PathHelper.joinPaths(collection.url, entitySegment, a.propertyName) === urlPathName,
+            )
+
+          if (navigationPropertyCollection) {
+            injector.setExplicitInstance(
+              {
+                ...injector.getInstance(OdataContext),
+                context: PathHelper.joinPaths(
+                  server,
+                  options.route,
+                  `$metadata#${navigationPropertyCollection.dataSet}`,
+                ),
+                navigationPropertyCollection,
               } as OdataContext<any>,
               OdataContext,
             )
@@ -182,13 +199,17 @@ export const createOdataRouter: (options: {
     }
 
     // Global functions
-    const globalFunction = options.globalFunctions.find(a => urlPathName === `${options.route}/${a.name}`)
+    const globalFunction = options.namespaces
+      .flatMap(ns => ns.functions.map(f => ({ ...f, namespace: ns.name })))
+      .find(a => urlPathName === `${options.route}/${a.namespace}.${a.name}`)
     if (msg.method === 'GET' && globalFunction) {
       return globalFunction.action
     }
 
     // Global actions
-    const globalAction = options.globalActions.find(a => urlPathName === `${options.route}/${a.name}`)
+    const globalAction = options.namespaces
+      .flatMap(ns => ns.actions.map(a => ({ ...a, namespace: ns.name })))
+      .find(a => urlPathName === `${options.route}/${a.namespace}.${a.name}`)
     if (msg.method === 'POST' && globalAction) {
       return globalAction.action
     }

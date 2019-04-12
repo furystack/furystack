@@ -8,13 +8,14 @@ import { parse } from 'url'
 import { GetCurrentUser, HttpAuthenticationSettings, IRequestAction, LoginAction, LogoutAction } from '.'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
+import { DefaultSession } from './Models/DefaultSession'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
  */
 export interface HttpExtendedInjector extends Injector {
-  useHttpAuthentication: <TUser extends User>(
-    settings: Partial<HttpAuthenticationSettings<TUser>>,
+  useHttpAuthentication: <TUser extends User, TSession extends DefaultSession>(
+    settings: Partial<HttpAuthenticationSettings<TUser, TSession>>,
   ) => HttpExtendedInjector
   addHttpRouting: (
     route: (incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined,
