@@ -4,11 +4,12 @@ import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
 import { EdmType, NavigationPropertyCollection } from '@furystack/odata'
-import '@furystack/odata'
 import { NavigationProperty } from '@furystack/odata'
+import '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
+import { deepMerge } from '@sensenet/client-utils'
 import { join } from 'path'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
@@ -109,7 +110,6 @@ defaultInjector
           entityBuilder
             .addEntity({
               model: Session,
-              name: 'sessions',
               primaryKey: 'sessionId',
               properties: [
                 {
@@ -126,8 +126,13 @@ defaultInjector
                   dataSet: 'users',
                   propertyName: 'user',
                   relatedModel: User,
-                  getRelatedEntity: async (entity, dataSet, injector) => {
-                    return (await dataSet.filter(injector, { username: entity.username }))[0] as User
+                  getRelatedEntity: async (entity, dataSet, injector, filter) => {
+                    return (await dataSet.filter(
+                      injector,
+                      deepMerge(filter, {
+                        filter: { username: entity.username },
+                      }),
+                    ))[0] as User
                   },
                 } as NavigationProperty<User>,
               ],
@@ -155,8 +160,11 @@ defaultInjector
                   dataSet: 'sessions',
                   propertyName: 'sessions',
                   relatedModel: Session,
-                  getRelatedEntities: async (entity, dataSet, injector) => {
-                    const sessions = await dataSet.filter(injector, { username: entity.username })
+                  getRelatedEntities: async (entity, dataSet, injector, filter) => {
+                    const sessions = await dataSet.filter(
+                      injector,
+                      deepMerge(filter, { filter: { username: entity.username } }),
+                    )
                     return sessions
                   },
                 } as NavigationPropertyCollection<Session>,
@@ -183,8 +191,8 @@ defaultInjector
                   propertyName: 'user',
                   relatedModel: User,
                   dataSet: 'users',
-                  getRelatedEntity: async (_entity, dataSet, injector) => {
-                    const result = (await dataSet.filter(injector, { top: 1 }))[0]
+                  getRelatedEntity: async (_entity, dataSet, injector, filter) => {
+                    const result = (await dataSet.filter(injector, filter))[0]
                     return result
                   },
                 } as NavigationProperty<User>,
@@ -192,8 +200,8 @@ defaultInjector
                   propertyName: 'users',
                   relatedModel: User,
                   dataSet: 'users',
-                  getRelatedEntities: async (_entity, dataSet, injector) => {
-                    return await dataSet.filter(injector, {})
+                  getRelatedEntities: async (_entity, dataSet, injector, filter) => {
+                    return await dataSet.filter(injector, filter)
                   },
                 },
               ],

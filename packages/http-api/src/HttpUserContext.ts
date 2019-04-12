@@ -76,8 +76,10 @@ export class HttpUserContext<TUser extends User = User> {
       const session = await this.sessions.get(sessionId)
       if (session) {
         const userResult = await this.users.filter({
-          username: session.username,
-        } as Partial<TUser>)
+          filter: {
+            username: session.username,
+          } as Partial<TUser>,
+        })
         if (userResult.length === 1) {
           const { password, ...user } = userResult[0] as TUser & { password: string }
           return (user as any) as TUser

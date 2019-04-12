@@ -21,10 +21,9 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
   public filter = async (filter: DefaultFilter<T>) => {
-    const { order, select, skip, top, ...filterFields } = filter
     return [...this.cache.values()].filter(item => {
-      for (const key in filterFields) {
-        if ((filterFields as any)[key] !== (item as any)[key]) {
+      for (const key in filter.filter) {
+        if ((filter.filter as any)[key] !== (item as any)[key]) {
           return false
         }
       }

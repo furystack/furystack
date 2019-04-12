@@ -38,16 +38,13 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   }
 
   public filter = async (filter: DefaultFilter<T>) => {
-    const { order, select, skip, top, ...filterFields } = filter
-    return await this.fileLock.execute(async () => {
-      return [...this.cache.values()].filter(item => {
-        for (const key in filterFields) {
-          if ((filterFields as any)[key] !== (item as any)[key]) {
-            return false
-          }
+    return [...this.cache.values()].filter(item => {
+      for (const key in filter.filter) {
+        if ((filter.filter as any)[key] !== (item as any)[key]) {
+          return false
         }
-        return true
-      })
+      }
+      return true
     })
   }
 

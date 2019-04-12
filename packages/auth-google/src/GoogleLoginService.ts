@@ -42,8 +42,10 @@ export class GoogleLoginService<TUser extends User & { googleId: number; googleP
           if (response.statusCode && response.statusCode < 400) {
             const body = await this.utils.readPostBody<IGoogleApiPayload>(response)
             const users = await this.userContext.users.filter({
-              googleId: body.sub,
-            } as Partial<TUser>)
+              filter: {
+                googleId: body.sub,
+              } as Partial<TUser>,
+            })
 
             if (users.length === 0) {
               // User not found, let's create it...

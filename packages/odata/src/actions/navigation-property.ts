@@ -21,25 +21,32 @@ export class NavigationPropertyAction implements IRequestAction {
       throw Error(`No navigation property`)
     }
     const dataSet = this.repo.getDataSetFor(this.context.navigationProperty.dataSet)
-    const relatedEntity = this.context.entities.find(
+    const relatedEntityType = this.context.entities.find(
       e => e.model === (this.context.navigationProperty as NavigationProperty<any>).relatedModel,
     )
 
-    if (!relatedEntity) {
+    const baseDataSet = this.repo.getDataSetFor(this.context.collection.name)
+    const baseEntity = await baseDataSet.get(this.injector, this.context.entityId as never)
+
+    if (!baseEntity) {
+      throw Error('Failed to load base entity')
+    }
+
+    if (!relatedEntityType) {
       throw Error('No related entity found for navigation property')
     }
 
-    const filter = this.request.url && relatedEntity ? getOdataParams(this.request.url, relatedEntity) : {}
+    const filter = this.request.url && relatedEntityType ? getOdataParams(this.request.url, relatedEntityType) : {}
 
     const plainValue = await (((this.context.navigationProperty as NavigationProperty<{}>).getRelatedEntity &&
       (this.context.navigationProperty as NavigationProperty<{}>).getRelatedEntity(
-        this.context.entity,
+        baseEntity, // this.context.entity,
         dataSet,
         this.injector,
         filter,
       )) ||
       (this.context.navigationProperty as NavigationPropertyCollection<{}>).getRelatedEntities(
-        this.context.entity,
+        baseEntity, // this.context.entity,
         dataSet,
         this.injector,
         filter,
@@ -52,7 +59,7 @@ export class NavigationPropertyAction implements IRequestAction {
                 await createEntityResponse({
                   entity,
                   entityTypes: this.context.entities,
-                  entityType: relatedEntity || this.context.entity,
+                  entityType: relatedEntityType || this.context.entity,
                   odataParams: filter as any,
                   injector: this.injector,
                   repo: this.repo,
@@ -62,7 +69,7 @@ export class NavigationPropertyAction implements IRequestAction {
         : await createEntityResponse({
             entity: plainValue,
             entityTypes: this.context.entities,
-            entityType: relatedEntity || this.context.entity,
+            entityType: relatedEntityType || this.context.entity,
             odataParams: filter as any,
             injector: this.injector,
             repo: this.repo,

@@ -40,7 +40,7 @@ export const createOdataRouter: (options: {
       message: `Incoming message: ${msg.url}`,
     })
 
-    const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
+    const urlPathName = PathHelper.trimSlashes(parse(msg.url || '', true).pathname || '')
 
     injector.getInstance(ServerResponse).setHeader('OData-Version', '4.0')
 

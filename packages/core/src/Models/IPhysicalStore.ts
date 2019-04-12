@@ -4,11 +4,12 @@ import { Disposable } from '@sensenet/client-utils'
 /**
  * Type for default filtering model
  */
-export type DefaultFilter<T> = Partial<T> & {
+export interface DefaultFilter<T> {
   top?: number
   skip?: number
   order?: { [P in keyof T]?: 'ASC' | 'DESC' }
   select?: Array<keyof T>
+  filter?: Partial<T>
 }
 
 /**
