@@ -972,10 +972,10 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@sensenet/client-utils@1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@sensenet/client-utils/-/client-utils-1.4.2.tgz#1094e4b1f3913ac0c2d455fbfdc0f2effc8c5721"
-  integrity sha512-y+2AamauJRa57CtNoG/3YgCaZ+pQEcA2Qehdov/9S2nel16E3qWRpP1IRz81gv2A1T/+P2/58BJovCeapYpgEw==
+"@sensenet/client-utils@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@sensenet/client-utils/-/client-utils-1.5.1.tgz#a00d89003d95d513bad7ec1351040f120759e219"
+  integrity sha512-C6OUNFGgQny/SN5a+ot9rQAZnW+PdnqEhd2rZ8T3wvQA0t5W7vZaeiB7PM7W2tQrdNI5aoD1Frtr9xAXlYYUKg==
 
 "@types/babel__core@^7.1.0":
   version "7.1.0"
