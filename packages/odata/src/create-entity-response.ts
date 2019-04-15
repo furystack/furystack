@@ -1,9 +1,10 @@
 import { Injector } from '@furystack/inject'
-import { Repository } from '@furystack/repository'
+import { Repository, DataSet } from '@furystack/repository'
 import { PathHelper } from '@sensenet/client-utils'
 import { getOdataParams } from './getOdataParams'
 import { Entity, NavigationProperty } from './models'
 import { OdataContext } from './odata-context'
+import { DefaultFilter } from '@furystack/core'
 
 /**
  * Removes the most outer level from the expand expression
@@ -117,14 +118,14 @@ export const createEntityResponse = async <T>(options: {
         const expandedEntities = await Promise.all(
           (await navPropertyCollection.getRelatedEntities(
             options.entity,
-            dataSet,
+            dataSet as DataSet<any, DefaultFilter<any>>,
             options.injector,
             options.odataParams,
           )).map(async expanded => {
             return await createEntityResponse({
               entity: expanded,
               injector: options.injector,
-              entityType,
+              entityType: entityType as any,
               entityTypes: options.entityTypes,
               odataParams: {
                 ...options.odataParams,
@@ -136,7 +137,7 @@ export const createEntityResponse = async <T>(options: {
                   : {}),
               },
               repo: options.repo,
-              odataContext: options.odataContext,
+              odataContext: options.odataContext as any,
             })
           }),
         )

@@ -3,7 +3,7 @@ import { FileStore, InMemoryStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
-import { EdmType, NavigationProperty, NavigationPropertyCollection } from '@furystack/odata'
+import { EdmType } from '@furystack/odata'
 import '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
@@ -133,7 +133,7 @@ defaultInjector
                       }),
                     ))[0] as User
                   },
-                } as NavigationProperty<Session, User>,
+                },
               ],
             })
             .addEntityType({
@@ -166,7 +166,7 @@ defaultInjector
                     )
                     return sessions
                   },
-                } as NavigationPropertyCollection<User, Session>,
+                },
               ],
               actions: [
                 {
