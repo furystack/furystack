@@ -1,6 +1,11 @@
+import { LoggerCollection } from '@furystack/logging'
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
 import { FileStore } from '../src/FileStore'
-import { LoggerCollection } from '@furystack/logging'
+
+class MockClass {
+  public id!: number
+  public value!: string
+}
 
 // tslint:disable:no-string-literal
 
@@ -13,17 +18,17 @@ const mockWriteFile: (name: string, value: any, done: (err?: any) => void) => vo
 }
 
 describe('FileStore', () => {
-  let f!: FileStore<{ id: number; value: string }>
+  let f!: FileStore<MockClass>
 
   beforeEach(() => {
-    f = new FileStore<{ id: number; value: string }>(
-      'example.txt',
-      'id',
-      1000,
-      new LoggerCollection(),
-      mockReadFile as any,
-      mockWriteFile as any,
-    )
+    f = new FileStore({
+      fileName: 'example.txt',
+      primaryKey: 'id',
+      logger: new LoggerCollection(),
+      model: MockClass,
+      readFile: mockReadFile as any,
+      writeFile: mockWriteFile as any,
+    })
   })
 
   afterEach(() => {
@@ -31,9 +36,13 @@ describe('FileStore', () => {
   })
 
   it('should be constructed with default parameters', () => {
-    const f2 = new FileStore<{ id: number; value: string }>('example.txt', 'id', 1000, new LoggerCollection())
+    const f2 = new FileStore({
+      fileName: 'alma.txt',
+      logger: new LoggerCollection(),
+      model: MockClass,
+      primaryKey: 'id',
+    })
     expect(f2).toBeInstanceOf(FileStore)
-    expect(f2['tickMs']).toBe(1000)
     expect(f2['readFile']).toBe(nodeReadFile)
     expect(f2['writeFile']).toBe(nodeWriteFile)
     clearInterval(f2['tick'])
@@ -84,7 +93,7 @@ describe('FileStore', () => {
     f.update(2, { id: 2, value: 'def' })
     f.update(3, { id: 3, value: 'def' })
 
-    const result = await f.filter({ value: 'def' })
+    const result = await f.filter({ filter: { value: 'def' } })
     expect(result.length).toBe(2)
   })
 

@@ -1,16 +1,19 @@
 import { InMemoryStore } from '../src/InMemoryStore'
 
-// tslint:disable:no-string-literal
+class MockClass {
+  public id!: number
+  public value!: string
+}
 
 describe('InMemoryStore', () => {
-  let f!: InMemoryStore<{ id: number; value: string }>
+  let f!: InMemoryStore<MockClass>
 
   beforeEach(() => {
-    f = new InMemoryStore<{ id: number; value: string }>('id', 1000)
+    f = new InMemoryStore({ model: MockClass, primaryKey: 'id' })
   })
 
   it('should be constructed with default parameters', () => {
-    const f2 = new InMemoryStore<{ id: number; value: string }>('id')
+    const f2 = new InMemoryStore({ model: MockClass, primaryKey: 'id' })
     expect(f2).toBeInstanceOf(InMemoryStore)
   })
 
@@ -27,7 +30,7 @@ describe('InMemoryStore', () => {
     f.update(2, { id: 2, value: 'def' })
     f.update(3, { id: 3, value: 'def' })
 
-    const result = await f.filter({ value: 'def' })
+    const result = await f.filter({ filter: { value: 'def' } })
     expect(result.length).toBe(2)
   })
 })
