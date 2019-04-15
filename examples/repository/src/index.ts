@@ -108,7 +108,7 @@ defaultInjector
         // Configure Entities
         .setupEntities(entityBuilder =>
           entityBuilder
-            .addEntity({
+            .addEntityType({
               model: Session,
               primaryKey: 'sessionId',
               properties: [
@@ -137,7 +137,7 @@ defaultInjector
                 } as NavigationProperty<User>,
               ],
             })
-            .addEntity({
+            .addEntityType({
               model: User,
               primaryKey: 'id',
               properties: [
@@ -184,7 +184,7 @@ defaultInjector
                 },
               ],
             })
-            .addEntity({
+            .addEntityType({
               model: Task,
               primaryKey: 'id',
               properties: [{ property: 'id', type: EdmType.String }],
@@ -208,7 +208,7 @@ defaultInjector
                 },
               ],
             })
-            .addEntity({
+            .addEntityType({
               model: TestEntry,
               primaryKey: 'id',
               properties: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],

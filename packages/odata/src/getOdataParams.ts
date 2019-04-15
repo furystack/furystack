@@ -43,7 +43,8 @@ export const getOdataParams = <T>(url: string | undefined, entity: Entity<T>) =>
     select:
       (params.$select && ((params.$select as string).split(',') as Array<keyof T>)) ||
       entity.properties.map(p => p.property),
-    expand: (params.$expand && ((params.$expand as string).split(',') as Array<keyof T>)) || [],
+    expand: (params.$expand && ((params.$expand as string).split('(')[0].split(',') as Array<keyof T>)) || [],
     orderBy,
+    expandExpression: params.$expand as string,
   }
 }

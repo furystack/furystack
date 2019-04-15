@@ -6,6 +6,24 @@ import { Entity, NavigationProperty, NavigationPropertyCollection } from './mode
 import { OdataContext } from './odata-context'
 
 /**
+ * Removes the most outer level from the expand expression
+ * @param expand The Expand expression
+ * @param entityType The type of the entity
+ */
+export const popExpandLevel = (expand: string) => {
+  const initial = expand.split('(')
+  initial.shift()
+  const withoutPrefix = initial.join('(').split(')')
+  withoutPrefix.pop()
+  const withoutPostfix = withoutPrefix.join(')')
+
+  const withFirstSegment = withoutPostfix.split('(')
+  withFirstSegment[0] = withFirstSegment[0].replace(/;/g, '&')
+  const final = withFirstSegment.join('(')
+  return final
+}
+
+/**
  * Method that adds expanded fields to an entity model
  * @param options The options to be provided
  */
@@ -62,41 +80,57 @@ export const createEntityResponse = async <T>(options: {
     navExpressions.map(async navExpression => {
       const navProperty = navExpression.navProperty
       const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
+      const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
+        typeof navProperty.relatedModel
+      >
+      const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+
       if ((navProperty as NavigationProperty<any>).getRelatedEntity) {
         const expanded = await (navProperty as NavigationProperty<any>).getRelatedEntity(
           options.entity,
           dataSet,
           options.injector,
-          {},
+          options.odataParams,
         )
-        expandedEntity[navProperty.propertyName] = expanded
+        expandedEntity[navProperty.propertyName] = await createEntityResponse({
+          entity: expanded,
+          injector: options.injector,
+          entityType,
+          entityTypes: options.entityTypes,
+          odataParams: {
+            ...options.odataParams,
+            ...(options.odataParams.expandExpression
+              ? {
+                  expandExpression: poppedExpandLevel,
+                  expand: getOdataParams(`?${poppedExpandLevel}`, entityType).expand,
+                }
+              : {}),
+          },
+          repo: options.repo,
+          odataContext: options.odataContext,
+        })
       } else if ((navProperty as NavigationPropertyCollection<any>).getRelatedEntities) {
         const expandedEntities = await Promise.all(
           (await (navProperty as NavigationPropertyCollection<any>).getRelatedEntities(
             options.entity,
             dataSet,
             options.injector,
-            {},
+            options.odataParams,
           )).map(async expanded => {
-            const initial = navExpression.expandExpression.split('(')
-            initial.shift()
-            const withoutPrefix = initial.join('(').split(')')
-            withoutPrefix.pop()
-            const withoutPostfix = withoutPrefix.join(')')
-
-            const withFirstSegment = withoutPostfix.split('(')
-            withFirstSegment[0] = withFirstSegment[0].replace(/;/g, '&')
-            const final = withFirstSegment.join('(')
-
-            const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
-              typeof navProperty.relatedModel
-            >
             return await createEntityResponse({
               entity: expanded,
               injector: options.injector,
               entityType,
               entityTypes: options.entityTypes,
-              odataParams: getOdataParams(`?${final}`, entityType),
+              odataParams: {
+                ...options.odataParams,
+                ...(options.odataParams.expandExpression
+                  ? {
+                      expandExpression: poppedExpandLevel,
+                      expand: getOdataParams(`?${poppedExpandLevel}`, entityType).expand,
+                    }
+                  : {}),
+              },
               repo: options.repo,
               odataContext: options.odataContext,
             })

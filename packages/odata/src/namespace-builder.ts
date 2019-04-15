@@ -1,5 +1,5 @@
 import { CollectionBuilder } from './collection-builder'
-import { EntityBuilder } from './entity-builder'
+import { EntityTypeBuilder } from './entity-type-builder'
 import { NavigationPropertyCollection } from './models'
 import { EdmType } from './models/edm-type'
 import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
@@ -9,12 +9,12 @@ import { XmlNode } from './xml-utils'
  * Model builder for OData endpoints
  */
 export class NamespaceBuilder {
-  public entities = new EntityBuilder()
+  public entities = new EntityTypeBuilder()
   public collections = new CollectionBuilder()
   public actions: FunctionDescriptor[] = []
   public functions: FunctionDescriptor[] = []
 
-  public setupEntities(buildEntities: (e: EntityBuilder) => EntityBuilder) {
+  public setupEntities(buildEntities: (e: EntityTypeBuilder) => EntityTypeBuilder) {
     this.entities = buildEntities(this.entities)
     return this
   }
@@ -69,7 +69,6 @@ export class NamespaceBuilder {
                         // ToDo: min, max, etc...
                         Name: field.property,
                         Type: `Edm.${EdmType[field.type]}`,
-                        // ToDo: add nullable to others
                         ...(field.property === entity.primaryKey ? { Nullable: 'false' } : {}),
                         ...(field.nullable !== undefined ? { Nullable: field.nullable.toString() } : {}),
                       },
