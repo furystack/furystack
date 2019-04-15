@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { PathHelper } from '@sensenet/client-utils'
 import { getOdataParams } from './getOdataParams'
-import { Entity, NavigationProperty, NavigationPropertyCollection } from './models'
+import { Entity, NavigationProperty } from './models'
 import { OdataContext } from './odata-context'
 
 /**
@@ -56,20 +56,17 @@ export const createEntityResponse = async <T>(options: {
     return returnEntity
   }
 
-  const navExpressions: Array<{
-    expandExpression: string
-    navProperty: NavigationProperty<any> | NavigationPropertyCollection<any>
-  }> = options.odataParams.expand
-    .map(
-      fieldName =>
-        ({
-          expandExpression: fieldName,
-          navProperty:
-            options.entityType.navigationProperties &&
-            options.entityType.navigationProperties.find(np => np.propertyName === (fieldName as string).split('(')[0]),
-        } as any),
-    )
-    .filter(np => np.navProperty !== undefined)
+  const navExpressions = options.odataParams.expand.map(fieldName => ({
+    expandExpression: fieldName,
+    navProperty:
+      options.entityType.navigationProperties &&
+      options.entityType.navigationProperties.find(np => np.propertyName === (fieldName as string).split('(')[0]),
+    navPropertyCollection:
+      options.entityType.navigationPropertyCollections &&
+      options.entityType.navigationPropertyCollections.find(
+        np => np.propertyName === (fieldName as string).split('(')[0],
+      ),
+  }))
 
   if (!navExpressions.length) {
     return returnEntity
@@ -79,14 +76,15 @@ export const createEntityResponse = async <T>(options: {
   await Promise.all(
     navExpressions.map(async navExpression => {
       const navProperty = navExpression.navProperty
-      const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
-      const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
-        typeof navProperty.relatedModel
-      >
-      const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+      const navPropertyCollection = navExpression.navPropertyCollection
 
-      if ((navProperty as NavigationProperty<any>).getRelatedEntity) {
-        const expanded = await (navProperty as NavigationProperty<any>).getRelatedEntity(
+      if (navProperty) {
+        const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)
+        const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
+          typeof navProperty.relatedModel
+        >
+        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+        const expanded = await (navProperty as NavigationProperty<T, any>).getRelatedEntity(
           options.entity,
           dataSet,
           options.injector,
@@ -109,9 +107,15 @@ export const createEntityResponse = async <T>(options: {
           repo: options.repo,
           odataContext: options.odataContext,
         })
-      } else if ((navProperty as NavigationPropertyCollection<any>).getRelatedEntities) {
+      } else if (navPropertyCollection) {
+        const dataSet = options.repo.getDataSetFor(navPropertyCollection.dataSet || navPropertyCollection.relatedModel)
+        const entityType = options.entityTypes.find(t => t.model === navPropertyCollection.relatedModel) as Entity<
+          typeof navPropertyCollection.relatedModel
+        >
+        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+
         const expandedEntities = await Promise.all(
-          (await (navProperty as NavigationPropertyCollection<any>).getRelatedEntities(
+          (await navPropertyCollection.getRelatedEntities(
             options.entity,
             dataSet,
             options.injector,
@@ -136,7 +140,7 @@ export const createEntityResponse = async <T>(options: {
             })
           }),
         )
-        expandedEntity[navProperty.propertyName] = expandedEntities
+        expandedEntity[navPropertyCollection.propertyName] = expandedEntities
       }
     }),
   )

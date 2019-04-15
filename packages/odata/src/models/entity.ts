@@ -13,5 +13,6 @@ export interface Entity<T> {
   functions?: FunctionDescriptor[]
   primaryKey: keyof T
   properties: Array<{ property: keyof T; type: EdmType; nullable?: boolean }>
-  navigationProperties?: Array<NavigationProperty<any> | NavigationPropertyCollection<any>>
+  navigationProperties?: Array<NavigationProperty<T, any>>
+  navigationPropertyCollections?: Array<NavigationPropertyCollection<T, any>>
 }

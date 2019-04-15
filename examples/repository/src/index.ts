@@ -3,8 +3,7 @@ import { FileStore, InMemoryStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
-import { EdmType, NavigationPropertyCollection } from '@furystack/odata'
-import { NavigationProperty } from '@furystack/odata'
+import { EdmType, NavigationProperty, NavigationPropertyCollection } from '@furystack/odata'
 import '@furystack/odata'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
@@ -134,7 +133,7 @@ defaultInjector
                       }),
                     ))[0] as User
                   },
-                } as NavigationProperty<User>,
+                } as NavigationProperty<Session, User>,
               ],
             })
             .addEntityType({
@@ -155,7 +154,7 @@ defaultInjector
                   nullable: true,
                 },
               ],
-              navigationProperties: [
+              navigationPropertyCollections: [
                 {
                   dataSet: 'sessions',
                   propertyName: 'sessions',
@@ -167,7 +166,7 @@ defaultInjector
                     )
                     return sessions
                   },
-                } as NavigationPropertyCollection<Session>,
+                } as NavigationPropertyCollection<User, Session>,
               ],
               actions: [
                 {
@@ -197,7 +196,9 @@ defaultInjector
                     const result = (await dataSet.filter(injector, filter))[0]
                     return result
                   },
-                } as NavigationProperty<User>,
+                },
+              ],
+              navigationPropertyCollections: [
                 {
                   propertyName: 'users',
                   relatedModel: User,

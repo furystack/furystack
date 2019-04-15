@@ -1,6 +1,5 @@
 import { CollectionBuilder } from './collection-builder'
 import { EntityTypeBuilder } from './entity-type-builder'
-import { NavigationPropertyCollection } from './models'
 import { EdmType } from './models/edm-type'
 import { FunctionDescriptor, toXmlNode } from './models/function-descriptor'
 import { XmlNode } from './xml-utils'
@@ -81,9 +80,19 @@ export class NamespaceBuilder {
                           tagName: 'NavigationProperty',
                           attributes: {
                             Name: relation.propertyName,
-                            Type: (relation as NavigationPropertyCollection<any>).getRelatedEntities
-                              ? `Collection(${this.name}.${relation.relatedModel.name})`
-                              : `${this.name}.${relation.relatedModel.name}`,
+                            Type: `${this.name}.${relation.relatedModel.name}`,
+                          },
+                        } as XmlNode),
+                    )
+                  : []),
+                ...(entity.navigationPropertyCollections
+                  ? entity.navigationPropertyCollections.map(
+                      relation =>
+                        ({
+                          tagName: 'NavigationProperty',
+                          attributes: {
+                            Name: relation.propertyName,
+                            Type: `Collection(${this.name}.${relation.relatedModel.name})`,
                           },
                         } as XmlNode),
                     )

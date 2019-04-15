@@ -1,7 +1,7 @@
 import { HttpApiSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { ModelBuilder } from './model-builder'
-import { createOdataRouter } from './router'
+import { createOdataRouter } from './routing'
 
 declare module '@furystack/inject/dist/Injector' {
   /**

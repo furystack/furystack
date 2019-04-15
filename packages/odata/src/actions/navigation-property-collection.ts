@@ -10,16 +10,18 @@ import { OdataContext } from '../odata-context'
  * Root action for OData endpoints
  */
 @Injectable({ lifetime: 'transient' })
-export class NavigationPropertyAction implements IRequestAction {
+export class NavigationPropertyCollectionAction implements IRequestAction {
   public dispose() {
     /** */
   }
 
   public async exec() {
-    if (!this.context.navigationProperty) {
+    if (!this.context.navigationPropertyCollection) {
       throw Error(`No navigation property`)
     }
-    const navProp = this.context.navigationProperty
+
+    const navProp = this.context.navigationPropertyCollection
+
     const dataSet = this.repo.getDataSetFor(navProp.dataSet)
     const relatedEntityType = this.context.entities.find(e => e.model === navProp.relatedModel)
 
@@ -38,16 +40,21 @@ export class NavigationPropertyAction implements IRequestAction {
 
     const filter = this.request.url && relatedEntityType ? getOdataParams(this.request.url, relatedEntityType) : {}
 
-    const plainValue = await navProp.getRelatedEntity(baseEntity, dataSet, this.injector, filter)
-    const value = await createEntityResponse({
-      entity: plainValue,
-      entityTypes: this.context.entities,
-      entityType: relatedEntityType || this.context.entity,
-      odataParams: filter as any,
-      injector: this.injector,
-      repo: this.repo,
-      odataContext: this.context,
-    })
+    const plainValue = await navProp.getRelatedEntities(baseEntity, dataSet, this.injector, filter)
+    const value = await Promise.all(
+      plainValue.map(
+        async entity =>
+          await createEntityResponse({
+            entity,
+            entityTypes: this.context.entities,
+            entityType: relatedEntityType || this.context.entity,
+            odataParams: filter as any,
+            injector: this.injector,
+            repo: this.repo,
+            odataContext: this.context,
+          }),
+      ),
+    )
 
     this.response.setHeader('content-type', 'application/json')
     this.response.setHeader('odata.metadata', 'minimal')

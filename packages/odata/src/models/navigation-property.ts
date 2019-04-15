@@ -5,29 +5,29 @@ import { DataSet } from '@furystack/repository'
 /**
  * Model that defines a navigation property that returns a
  */
-export interface NavigationProperty<T> {
+export interface NavigationProperty<TBaseModel, TRelatedModel> {
   propertyName: string
-  relatedModel: Constructable<T>
+  relatedModel: Constructable<TRelatedModel>
   dataSet: string
   getRelatedEntity: (
-    entity: T,
-    dataSet: DataSet<T, DefaultFilter<T>>,
+    entity: TBaseModel,
+    dataSet: DataSet<TRelatedModel, DefaultFilter<TRelatedModel>>,
     injector: Injector,
-    filter: DefaultFilter<T>,
-  ) => Promise<T>
+    filter: DefaultFilter<TRelatedModel>,
+  ) => Promise<TRelatedModel>
 }
 
 /**
  * Model that defines a navigation property that returns a collection
  */
-export interface NavigationPropertyCollection<T> {
+export interface NavigationPropertyCollection<TBaseModel, TRelatedModel> {
   propertyName: string
-  relatedModel: Constructable<T>
+  relatedModel: Constructable<TRelatedModel>
   dataSet: string
   getRelatedEntities: (
-    entity: T,
-    dataSet: DataSet<T, DefaultFilter<T>>,
+    entity: TBaseModel,
+    dataSet: DataSet<TRelatedModel, DefaultFilter<TRelatedModel>>,
     injector: Injector,
-    filter: DefaultFilter<T>,
-  ) => Promise<T[]>
+    filter: DefaultFilter<TRelatedModel>,
+  ) => Promise<TRelatedModel[]>
 }
