@@ -1,6 +1,6 @@
 import { DefaultFilter, IPhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { ILogger } from '@furystack/logging'
+import { ILogger, ScopedLogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
 
 /**
@@ -11,6 +11,7 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
   private typeOrmRepo!: Repository<T>
 
   public readonly model: Constructable<T>
+  private readonly logger: ScopedLogger
 
   constructor(
     private readonly options: {
@@ -19,9 +20,10 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
       logger: ILogger
     },
   ) {
+    this.logger = this.options.logger.withScope('@furystack/typeorm-store/' + this.constructor.name)
+
     this.model = options.model
-    this.options.logger.verbose({
-      scope: '@furystack/typeorm-store/TypeOrmStore',
+    this.logger.verbose({
       message: `Initializing TypeORM Store for ${this.model.name}...`,
     })
     options.connection.awaitConnection().then(c => {
@@ -62,8 +64,7 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
   }
   public async dispose() {
     /** */
-    this.options.logger.information({
-      scope: '@furystack/typeorm-store/TypeOrmStore',
+    this.logger.information({
       message: `Disposing TypeORM Store for Entity Type ${this.model.name}`,
     })
     await this.typeOrmRepo.manager.connection.close()

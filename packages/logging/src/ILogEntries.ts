@@ -36,7 +36,7 @@ export enum LogLevel {
  * Interface that defines a log entry representation
  */
 export interface ILogEntry<TData> {
-  scope: string
+  scope?: string
   message: string
   data?: TData
 }

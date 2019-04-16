@@ -7,12 +7,11 @@ import { join } from 'path'
 import { EntityTypeWriter } from './entity-type-writer'
 import { MetadataParser } from './metadata-parser'
 import { Configuration } from './models/configuration'
-
-const logScope = '@furystack/odata-fetchr'
 ;(async () => {
   await usingAsync(new Injector(), async injector => {
     injector.useLogging(ConsoleLogger)
-    const logVerbose = (message: string) => injector.logger.verbose({ scope: logScope, message })
+    const logger = injector.logger.withScope('@furystack/odata-fetchr/')
+    const logVerbose = (message: string) => logger.verbose({ message })
 
     const ensureDirectoryExists = (dir: string) => {
       if (!existsSync(dir)) {

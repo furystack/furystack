@@ -27,8 +27,9 @@ Connection.prototype.awaitConnection = async function() {
 }
 
 Injector.prototype.useTypeOrm = function(options) {
-  this.logger.verbose({
-    scope: '@furystack/typeorm-store/useTypeOrm',
+  const logger = this.logger.withScope('@furystack/typeorm-store/useTypeOrm')
+
+  logger.verbose({
     message: `Setting up TypeOrm${options.name ? ' for connection ' + options.name : ''}...`,
     data: options,
   })
@@ -45,16 +46,14 @@ Injector.prototype.useTypeOrm = function(options) {
   connection
     .connect()
     .then(() => {
-      this.logger.verbose({
-        scope: '@furystack/typeorm-store/useTypeOrm',
+      logger.verbose({
         message: `Connection estabilished to DB${options.name ? ' for connection ' + options.name : ''}...`,
       })
     })
     .catch(e => {
-      this.logger.fatal({
+      logger.fatal({
         data: { error: e, options },
         message: `Error while connection to the database${options.name ? ' for connection ' + options.name : ''}...`,
-        scope: '@furystack/typeorm-store/useTypeOrm',
       })
     })
     .finally(() => lock.release())

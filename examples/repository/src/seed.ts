@@ -13,17 +13,18 @@ import { User } from './Models/User'
  */
 export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPhysicalStore<T>, injector: Injector) => {
   const result = await store.filter(filter)
+  const logger = injector.logger.withScope('Seeder')
   if (result.length === 1) {
     return result[0]
   } else if (result.length === 0) {
-    injector.logger.verbose({
-      scope: 'seeder',
+    logger.verbose({
       message: `Entity of type '${store.constructor.name}' not exists, adding: '${JSON.stringify(filter)}'`,
     })
     return await store.add(instance)
   } else {
-    injector.logger.warning({ scope: 'seeder', message: `` })
-    throw Error(`Seed filter contains multiple results`)
+    const message = `Seed filter contains multiple results`
+    logger.warning({ message })
+    throw Error(message)
   }
 }
 
@@ -32,7 +33,8 @@ export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPh
  * @param injector The injector instance
  */
 export const seed = async (injector: Injector) => {
-  injector.logger.verbose({ scope: 'seeder', message: 'Seeding data...' })
+  const logger = injector.logger.withScope('seeder')
+  logger.verbose({ message: 'Seeding data...' })
   const sm = injector.getInstance(StoreManager)
   const userStore = sm.getStoreFor(User)
   const testUser = await getOrCreate(
@@ -66,5 +68,5 @@ export const seed = async (injector: Injector) => {
   await getOrCreate({ id: 1 }, { id: 1, value: 'testEntry1' }, testEntryStore, injector)
   await getOrCreate({ id: 2 }, { id: 2, value: 'testEntry1' }, testEntryStore, injector)
 
-  injector.logger.verbose({ scope: 'seed', message: 'Seeding data completed.' })
+  logger.verbose({ message: 'Seeding data completed.' })
 }

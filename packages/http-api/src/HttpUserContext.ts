@@ -1,6 +1,7 @@
 import { IPhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { v1 } from 'uuid'
@@ -19,7 +20,6 @@ export class HttpUserContext<TUser extends User = User> {
     username: string
   }>
 
-  public static logScope = '@furystack/http-api/HttpUserContext'
   private user?: TUser
 
   public async authenticateUser(userName: string, password: string): Promise<TUser> {
@@ -97,8 +97,7 @@ export class HttpUserContext<TUser extends User = User> {
       const sessionId = v1()
       await this.sessions.update(sessionId, { sessionId, username: user.username })
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`)
-      this.injector.logger.information({
-        scope: HttpUserContext.logScope,
+      this.logger.information({
         message: `User '${user.username}' logged in.`,
         data: {
           user,
@@ -124,8 +123,7 @@ export class HttpUserContext<TUser extends User = User> {
           'Set-Cookie',
           `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
         )
-        this.injector.logger.information({
-          scope: HttpUserContext.logScope,
+        this.logger.information({
           message: `User '${user.username}' logged in with '${service.name}' external service.`,
           data: {
             user,
@@ -136,8 +134,7 @@ export class HttpUserContext<TUser extends User = User> {
       }
     } catch (error) {
       /** */
-      this.injector.logger.error({
-        scope: HttpUserContext.logScope,
+      this.logger.error({
         message: `Error during external login with '${service.name}': ${error.message}`,
         data: { error },
       })
@@ -151,8 +148,7 @@ export class HttpUserContext<TUser extends User = User> {
       const user = await this.authenticateRequest(req)
       await this.sessions.remove(sessionId)
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
-      this.injector.logger.information({
-        scope: HttpUserContext.logScope,
+      this.logger.information({
         message: `User '${user.username}' has been logged out.`,
         data: {
           user,
@@ -162,6 +158,8 @@ export class HttpUserContext<TUser extends User = User> {
     }
   }
 
+  private readonly logger: ScopedLogger
+
   constructor(
     private readonly incomingMessage: IncomingMessage,
     private readonly injector: Injector,
@@ -170,5 +168,6 @@ export class HttpUserContext<TUser extends User = User> {
   ) {
     this.users = authentication.getUserStore(storeManager)
     this.sessions = authentication.getSessionStore(storeManager)
+    this.logger = injector.logger.withScope('@furystack/http-api/' + this.constructor.name)
   }
 }

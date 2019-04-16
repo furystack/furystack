@@ -1,6 +1,7 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { Disposable } from '@sensenet/client-utils'
 import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
+import { ScopedLogger } from '../../logging/dist'
 
 /**
  * Manager class for store instances
@@ -17,8 +18,7 @@ export class StoreManager implements Disposable {
   public getStoreFor<T>(model: Constructable<T>) {
     const instance = this.stores.get(model)
     if (!instance) {
-      this.injector.logger.warning({
-        scope: '@furystack/core/StoreManager',
+      this.logger.warning({
         message: `Store not found for '${model.name}'`,
       })
 
@@ -32,5 +32,9 @@ export class StoreManager implements Disposable {
     return this
   }
 
-  constructor(public injector: Injector) {}
+  private logger: ScopedLogger
+
+  constructor(public injector: Injector) {
+    this.logger = injector.logger.withScope('@furystack/core/' + this.constructor.name)
+  }
 }

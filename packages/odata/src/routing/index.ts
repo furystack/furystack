@@ -25,8 +25,9 @@ export const createOdataRouter: (options: RouterOptions) => IRouteModel = option
   }))
 
   return (msg, injector) => {
-    injector.logger.verbose({
-      scope: 'OData Router',
+    const logger = injector.logger.withScope('@furystack/odata/routing')
+
+    logger.verbose({
       message: `Incoming message: ${msg.url}`,
     })
 

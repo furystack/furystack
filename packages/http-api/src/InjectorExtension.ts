@@ -36,8 +36,8 @@ declare module '@furystack/inject/dist/Injector' {
 }
 
 Injector.prototype.useHttpApi = function(settings) {
-  this.logger.verbose({
-    scope: '@furystack/http-api/useHttpApi',
+  const logger = this.logger.withScope('@furystack/http-api/useHttpApi')
+  logger.verbose({
     message: 'Setting up HTTP API...',
     data: settings,
   })
@@ -50,8 +50,7 @@ Injector.prototype.useHttpApi = function(settings) {
   }
 
   xi.listenHttp = options => {
-    this.logger.verbose({
-      scope: '@furystack/http-api/useHttpApi',
+    logger.verbose({
       message: `Starting listener at http://${(options && options.hostName) || 'localhost'}:${(options &&
         options.port) ||
         80}`,
@@ -65,8 +64,7 @@ Injector.prototype.useHttpApi = function(settings) {
   }
 
   xi.listenHttps = options => {
-    this.logger.verbose({
-      scope: '@furystack/http-api/useHttpApi',
+    logger.verbose({
       message: `Starting listener at https://${(options && options.hostName) || 'localhost'}:${(options &&
         options.port) ||
         80}`,

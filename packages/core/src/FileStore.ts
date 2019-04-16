@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { ILogger } from '@furystack/logging'
+import { ILogger, ScopedLogger } from '@furystack/logging'
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
 import Semaphore from 'semaphore-async-await'
 import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
@@ -17,7 +17,6 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
     this.cache.delete(key)
     this.hasChanges = true
   }
-  public readonly logScope: string = '@furystack/core/' + this.constructor.name
   private cache: Map<T[this['primaryKey']], T> = new Map()
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 5000)
   private hasChanges: boolean = false
@@ -75,14 +74,12 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
         })
       })
       this.hasChanges = false
-      this.options.logger.information({
-        scope: this.logScope,
+      this.logger.information({
         message: `Store '${this.options.fileName}' has been updated with the latest changes.`,
         data: { values },
       })
     } catch (e) {
-      this.options.logger.error({
-        scope: this.logScope,
+      this.logger.error({
         message: `Error saving changed data to '${this.options.fileName}'.`,
         data: { error: e },
       })
@@ -92,8 +89,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   }
 
   public async dispose() {
-    this.options.logger.information({
-      scope: this.logScope,
+    this.logger.information({
       message: `Disposing FileStore: '${this.options.fileName}'`,
     })
     await this.saveChanges()
@@ -119,8 +115,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
         })
       })
     } catch (e) {
-      this.options.logger.error({
-        scope: this.logScope,
+      this.logger.error({
         message: `Error loading data into store from '${this.options.fileName}'.`,
         data: e,
       })
@@ -137,6 +132,8 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   private readFile = nodeReadFile
   private writeFile = nodeWriteFile
 
+  private logger: ScopedLogger
+
   constructor(
     private readonly options: {
       fileName: string
@@ -150,13 +147,13 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
+    this.logger = options.logger.withScope('@furystack/core/' + this.constructor.name)
     options.readFile && (this.readFile = options.readFile)
     options.writeFile && (this.writeFile = options.writeFile)
 
     try {
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-        this.options.logger.verbose({
-          scope: this.logScope,
+        this.logger.verbose({
           message: `The file '${this.options.fileName}' has been changed, reloading data...`,
         })
         this.reloadData()

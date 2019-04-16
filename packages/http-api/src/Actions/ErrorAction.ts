@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { LoggerCollection } from '@furystack/logging'
+import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { IncomingMessage, ServerResponse } from 'http'
 import { IRequestAction } from '../Models'
 
@@ -20,7 +20,6 @@ export class ErrorAction implements IRequestAction {
       JSON.stringify({ message: error.message, url: this.incomingMessage.url, stack: error.stack }),
     )
     this.logger.warning({
-      scope: '@furystack/http-api/ErrorAction',
       message: `An action returned 500 from '${this.incomingMessage.url}'.`,
       data: {
         error,
@@ -28,9 +27,13 @@ export class ErrorAction implements IRequestAction {
     })
   }
 
+  private readonly logger: ScopedLogger
+
   constructor(
     private incomingMessage: IncomingMessage,
     private serverResponse: ServerResponse,
-    private logger: LoggerCollection,
-  ) {}
+    logger: LoggerCollection,
+  ) {
+    this.logger = logger.withScope('@furystack/http-api/' + this.constructor.name)
+  }
 }

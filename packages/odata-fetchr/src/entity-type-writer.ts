@@ -1,4 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { Configuration, EntityType } from './models'
@@ -9,9 +10,8 @@ import { Configuration, EntityType } from './models'
 @Injectable({ lifetime: 'transient' })
 export class EntityTypeWriter {
   private logVerbose(message: string) {
-    this.injector.logger.verbose({
+    this.logger.verbose({
       message,
-      scope: `@furystack/odata-fetchr/${this.constructor.name}`,
     })
   }
 
@@ -73,7 +73,10 @@ export class EntityTypeWriter {
     )
   }
 
+  private logger: ScopedLogger
+
   constructor(private injector: Injector, private readonly config: Configuration) {
     this.logVerbose('Starting EntityTypeWriter...')
+    this.logger = this.injector.logger.withScope('@furystack/odata-fetchr/' + this.constructor.name)
   }
 }

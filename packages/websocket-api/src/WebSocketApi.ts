@@ -1,6 +1,6 @@
 import { ServerManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
-import { LoggerCollection } from '@furystack/logging'
+import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage } from 'http'
 import { parse } from 'url'
@@ -16,15 +16,15 @@ import { WebSocketApiSettings } from './WebSocketApiSettings'
 export class WebSocketApi {
   private readonly socket: WebSocketServer
   private readonly injector: Injector
-  private readonly logScope: string = '@furystack/websocket-api/' + this.constructor.name
+  private readonly logger: ScopedLogger
   constructor(
-    private readonly logger: LoggerCollection,
+    logger: LoggerCollection,
     private settings: WebSocketApiSettings,
     public serverManager: ServerManager,
     parentInjector: Injector,
   ) {
+    this.logger = logger.withScope('@furystack/websocket-api/' + this.constructor.name)
     this.logger.verbose({
-      scope: this.logScope,
       message: 'Initializating WebSocket API',
       data: this.settings,
     })
@@ -32,7 +32,6 @@ export class WebSocketApi {
     this.injector = parentInjector.createChild({ owner: this })
     this.socket.on('connection', (websocket, msg) => {
       this.logger.verbose({
-        scope: this.logScope,
         message: 'Client connected to WebSocket',
         data: {
           url: msg.url,
@@ -41,7 +40,6 @@ export class WebSocketApi {
       })
       websocket.on('message', message => {
         this.logger.verbose({
-          scope: this.logScope,
           message: 'Client Message received',
           data: {
             message,
@@ -52,7 +50,6 @@ export class WebSocketApi {
 
       websocket.on('close', () => {
         this.logger.verbose({
-          scope: this.logScope,
           message: 'Client disconnected',
           data: {
             address: msg.connection.address,
@@ -67,7 +64,6 @@ export class WebSocketApi {
         if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, websocket => {
             this.logger.verbose({
-              scope: this.logScope,
               message: `Client connected to socket at '${this.settings.path}'.`,
             })
             this.socket.emit('connection', websocket, request)

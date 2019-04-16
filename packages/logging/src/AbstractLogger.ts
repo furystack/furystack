@@ -1,5 +1,5 @@
 import { ILeveledLogEntry, ILogEntry, LogLevel } from './ILogEntries'
-import { ILogger, ILoggerOptions } from './ILogger'
+import { ILogger, ILoggerOptions, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './ILogger'
 
 /**
  * Default scope key for the Abstract Logger
@@ -91,4 +91,14 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
       level: LogLevel.Fatal,
     })
   }
+
+  public withScope = (scope: string) => ({
+    addEntry: <T>(entry: LeveledLogEntryWithoutScope<T>) => this.addEntry<T>({ scope, ...entry }),
+    verbose: <T>(entry: LogEntryWithoutScope<T>) => this.verbose({ scope, ...entry }),
+    debug: <T>(entry: LogEntryWithoutScope<T>) => this.debug({ scope, ...entry }),
+    information: <T>(entry: LogEntryWithoutScope<T>) => this.information({ scope, ...entry }),
+    warning: <T>(entry: LogEntryWithoutScope<T>) => this.warning({ scope, ...entry }),
+    error: <T>(entry: LogEntryWithoutScope<T>) => this.error({ scope, ...entry }),
+    fatal: <T>(entry: LogEntryWithoutScope<T>) => this.fatal({ scope, ...entry }),
+  })
 }

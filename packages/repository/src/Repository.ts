@@ -1,5 +1,6 @@
 import { DefaultFilter, IPhysicalStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { DataSet } from './DataSet'
 import { DataSetSettings } from './DataSetSettings'
 
@@ -14,8 +15,7 @@ export class Repository {
     const modelName = typeof model !== 'string' ? model.name : model
     const instance = this.dataSets.get(modelName)
     if (!instance) {
-      this.injector.logger.error({
-        scope: '@furystack/repository/Repository',
+      this.logger.error({
         message: `No DataSet found for '${modelName}'`,
       })
       throw Error(`No DataSet found for '${modelName}'`)
@@ -38,5 +38,9 @@ export class Repository {
     return this
   }
 
-  constructor(private readonly storeManager: StoreManager, private readonly injector: Injector) {}
+  private logger: ScopedLogger
+
+  constructor(private readonly storeManager: StoreManager, private readonly injector: Injector) {
+    this.logger = this.injector.logger.withScope('@furystack/repository/' + this.constructor.name)
+  }
 }

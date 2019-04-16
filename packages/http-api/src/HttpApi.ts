@@ -1,5 +1,5 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
-import { LoggerCollection } from '@furystack/logging'
+import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { IncomingMessage, ServerResponse } from 'http'
 import { HttpApiSettings } from './HttpApiSettings'
@@ -11,8 +11,6 @@ import { Utils } from './Utils'
  */
 @Injectable({ lifetime: 'singleton' })
 export class HttpApi {
-  public readonly logScope = '@furystack/http-api/HttpApi'
-
   public async mainRequestListener(incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
     await usingAsync(this.injector.createChild({ owner: IncomingMessage }), async injector => {
       injector.setExplicitInstance(incomingMessage, IncomingMessage)
@@ -23,7 +21,6 @@ export class HttpApi {
         .filter(a => a !== undefined) as Array<Constructable<IRequestAction>>
       if (actionCtors.length > 1) {
         this.logger.error({
-          scope: this.logScope,
           message: `Multiple HTTP actions found that can be execute the request`,
           data: {
             incomingMessage,
@@ -50,12 +47,11 @@ export class HttpApi {
     })
   }
 
+  private readonly logger: ScopedLogger
+
   private readonly injector: Injector
-  constructor(
-    parentInjector: Injector,
-    private readonly logger: LoggerCollection,
-    private readonly settings: HttpApiSettings,
-  ) {
+  constructor(parentInjector: Injector, logger: LoggerCollection, private readonly settings: HttpApiSettings) {
     this.injector = parentInjector.createChild({ owner: this })
+    this.logger = logger.withScope('@furystack/http-api/' + this.constructor.name)
   }
 }
