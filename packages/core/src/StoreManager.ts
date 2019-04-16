@@ -1,7 +1,7 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@sensenet/client-utils'
 import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
-import { ScopedLogger } from '../../logging/dist'
 
 /**
  * Manager class for store instances
