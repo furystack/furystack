@@ -1,6 +1,6 @@
 {
   "name": "@furystack/odata-fetchr",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "OData v4 Endpoint fetcher",
   "main": "dist/index.js",
   "files": [
