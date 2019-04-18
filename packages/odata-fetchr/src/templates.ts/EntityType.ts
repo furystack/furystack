@@ -5,9 +5,7 @@ export const entityTypeTemplate = `
  * Primary key: '\${key}'
  */
 export class \${name} {
-
     \${navigationProperties}
-
     \${properties}
 }
 `

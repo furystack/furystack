@@ -4,6 +4,7 @@
   "description": "OData v4 Endpoint fetcher",
   "main": "dist/index.js",
   "files": [
+    "bin",
     "dist",
     "src"
   ],
