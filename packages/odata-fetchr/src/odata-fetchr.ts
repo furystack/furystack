@@ -35,9 +35,9 @@ import { EntityCollectionWriter } from './entity-collection-writer'
       logVerbose(`Config file has been found at '${localConfigPath}'. Starting to evaluate config.`)
       const userConfig: Configuration = (await import(join(process.cwd(), 'odata-fetchr.config.js'))).default
 
-      const localCfg = { ...new Configuration(), ...userConfig }
+      const localCfg = Object.assign(new Configuration(), userConfig) // { ...new Configuration(), ...userConfig }
 
-      injector.setExplicitInstance(localCfg)
+      injector.setExplicitInstance(localCfg, Configuration)
 
       logVerbose('Getting metadata...')
       const xmlString = await localCfg.getMetadataXml()

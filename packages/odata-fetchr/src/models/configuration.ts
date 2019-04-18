@@ -30,7 +30,7 @@ export class Configuration {
   /**
    * A relative path to a current working director (e.g.: './metadata')
    */
-  public outputPath: string = './metadata'
+  public outputPath: string = './odata-metadata'
 
   /**
    * A relative path (to outputPath) to store entity types
