@@ -76,7 +76,7 @@ export class EntityTypeWriter {
   private logger: ScopedLogger
 
   constructor(private injector: Injector, private readonly config: Configuration) {
-    this.logVerbose('Starting EntityTypeWriter...')
     this.logger = this.injector.logger.withScope('@furystack/odata-fetchr/' + this.constructor.name)
+    this.logVerbose('Starting EntityTypeWriter...')
   }
 }
