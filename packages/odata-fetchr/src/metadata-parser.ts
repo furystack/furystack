@@ -65,8 +65,9 @@ export class MetadataParser {
     })
   }
 
-  public parseMetadataXml(xml: Document) {
+  public parseMetadataXml(xml: Document, path: string) {
     return {
+      path,
       entityTypes: this.parseEntityTypes(xml),
       entitySets: this.parseEntitySets(xml),
       actions: this.parseActions(xml),

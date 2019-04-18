@@ -7,6 +7,8 @@ import { join } from 'path'
 import { EntityTypeWriter } from './entity-type-writer'
 import { MetadataParser } from './metadata-parser'
 import { Configuration } from './models/configuration'
+import { OdataContextWriter } from './odata-context-writer'
+import { EntityCollectionWriter } from './entity-collection-writer'
 ;(async () => {
   await usingAsync(new Injector(), async injector => {
     injector.useLogging(ConsoleLogger)
@@ -40,12 +42,15 @@ import { Configuration } from './models/configuration'
       logVerbose('Getting metadata...')
       const xmlString = await localCfg.getMetadataXml()
       logVerbose('Parsing metadata...')
-      const endpoint = injector.getInstance(MetadataParser).parseMetadataXml(new JSDOM(xmlString).window.document)
+      const endpoint = injector
+        .getInstance(MetadataParser)
+        .parseMetadataXml(new JSDOM(xmlString).window.document, localCfg.path)
       logVerbose('Parsing finished.')
 
       logVerbose('Creating required directories...')
       ensureDirectoryExists(join(process.cwd(), localCfg.outputPath))
       ensureDirectoryExists(join(process.cwd(), localCfg.outputPath, localCfg.entityTypePath))
+      ensureDirectoryExists(join(process.cwd(), localCfg.outputPath, localCfg.entityCollectionServicesPath))
 
       if (localCfg.writeDump) {
         const dumpPath = join(process.cwd(), localCfg.outputPath, 'dump.json')
@@ -53,7 +58,10 @@ import { Configuration } from './models/configuration'
         writeFileSync(dumpPath, JSON.stringify(endpoint))
       }
 
+      injector.getInstance(OdataContextWriter).writeContext(endpoint)
+
       injector.getInstance(EntityTypeWriter).writeEntityTypes(endpoint.entityTypes)
+      injector.getInstance(EntityCollectionWriter).writeEntityCollections(endpoint.entitySets)
     } else {
       logVerbose('Local config not found. Falling back to CLI mode')
     }

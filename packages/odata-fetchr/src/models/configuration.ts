@@ -1,12 +1,19 @@
 import { Injectable } from '@furystack/inject'
 import { entityPropertyTemplate } from '../templates.ts/EntityProperty'
 import { entityTypeTemplate } from '../templates.ts/EntityType'
+import { odataContext } from '../templates.ts/odata-context'
+import { odataCollectionService } from '../templates.ts/collection-service'
 
 /**
  * Model for configuring custom fetch behavior
  */
 @Injectable({ lifetime: 'singleton' })
 export class Configuration {
+  /**
+   * The Odata endpoint path
+   */
+  public path: string = 'http://localhost/odata'
+
   /**
    * Async method that returns the Metadata XML in a plain String format
    *
@@ -31,6 +38,11 @@ export class Configuration {
   public entityTypePath: string = './entity-types'
 
   /**
+   * A relative path (to outputPath) to store entity collection services
+   */
+  public entityCollectionServicesPath: string = './entity-collections'
+
+  /**
    * The template for Entity Types
    */
   public entityTypeTemplate: string = entityTypeTemplate
@@ -39,6 +51,16 @@ export class Configuration {
    * The template for Entity Properties
    */
   public entityPropertyTemplate: string = entityPropertyTemplate
+
+  /**
+   * The template for the Odata Context Model
+   */
+  public odataContextTemplate: string = odataContext
+
+  /**
+   * Template for entity collection services
+   */
+  public odataCollectionServiceTemplate: string = odataCollectionService
 
   /**
    * Returns a meaningful type from an EDM Type string
