@@ -125,7 +125,10 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   }
 
   public async update(id: T[this['primaryKey']], data: T) {
-    this.cache.set(id, data)
+    this.cache.set(id, {
+      ...this.cache.get(id),
+      ...data,
+    })
     this.hasChanges = true
   }
 

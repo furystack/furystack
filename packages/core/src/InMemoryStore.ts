@@ -36,7 +36,10 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   }
 
   public async update(id: T[this['primaryKey']], data: T) {
-    this.cache.set(id, data)
+    this.cache.set(id, {
+      ...this.cache.get(id),
+      ...data,
+    })
   }
 
   public dispose() {
