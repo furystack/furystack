@@ -22,11 +22,12 @@ export const getEntityRoute = <T>(
   collectionUrl: string,
 ) => {
   const entitySegment = PathHelper.getSegments(urlPathName).filter(s => PathHelper.isItemSegment(s))[0]
-  const entityId = entitySegment
+  const trimmedSegment = entitySegment
     .replace(`('`, '')
     .replace(`')`, '')
     .replace('(', '')
     .replace(')', '')
+  const entityId = isNaN(parseInt(trimmedSegment, 10)) ? trimmedSegment : parseInt(trimmedSegment, 10)
 
   updateContext(injector, {
     entityId,

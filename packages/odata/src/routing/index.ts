@@ -14,6 +14,25 @@ import { getEntityRoute } from './get-entity-route'
 import { RouterOptions } from './router-options'
 import { updateContext } from './update-context'
 
+// TempHacks before Sn-client update, can be removed after next release
+PathHelper.isItemSegment = segment => {
+  return RegExp(/^\('+[\s\S]+'\)$/).test(segment) || RegExp(/^\(+\d+\)$/).test(segment)
+}
+
+PathHelper.getSegments = path => {
+  return path
+    .split(/\/|[(][']|[(]/g)
+    .filter(segment => segment && segment.length)
+    .map(segment => {
+      if (segment.endsWith("')")) {
+        segment = `('${segment}`
+      } else if (segment.endsWith(')')) {
+        segment = `(${segment}`
+      }
+      return segment
+    })
+}
+
 /**
  * Factory methods that creates an OData Route based on the provided parameters
  * @param options The provided Options object
