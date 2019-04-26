@@ -18,7 +18,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
     this.hasChanges = true
   }
   private cache: Map<T[this['primaryKey']], T> = new Map()
-  public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 5000)
+  public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
   private hasChanges: boolean = false
   public get = async (key: T[this['primaryKey']]) => {
     return await this.fileLock.execute(async () => {
