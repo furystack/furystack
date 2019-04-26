@@ -62,18 +62,17 @@
     "@furystack/inject": "^3.0.2",
     "@furystack/logging": "^1.1.1",
     "@sensenet/client-utils": "^1.5.1",
-    "jsdom": "^14.0.0",
-    "typeorm": "0.2.14"
+    "jsdom": "^14.0.0"
   },
   "devDependencies": {
-    "@types/jest": "24.0.9",
+    "@types/jest": "^24.0.11",
     "@types/jsdom": "^12.2.3",
-    "jest": "24.1.0",
-    "rimraf": "2.6.3",
-    "ts-jest": "24.0.0",
-    "ts-node": "^8.0.3",
-    "tslint": "5.13.0",
-    "typescript": "^3.4.3"
+    "jest": "^24.7.1",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   },
   "config": {
     "commitizen": {

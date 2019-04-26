@@ -59,18 +59,18 @@
     "@furystack/inject": "^3.0.2",
     "@furystack/logging": "^1.1.1",
     "@sensenet/client-utils": "^1.5.1",
-    "@types/node": "11.9.5",
-    "hash.js": "1.1.7",
-    "uuid": "3.3.2"
+    "@types/node": "^11.13.7",
+    "hash.js": "^1.1.7",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/jest": "24.0.9",
-    "@types/uuid": "3.4.4",
-    "jest": "24.1.0",
-    "rimraf": "2.6.3",
-    "ts-jest": "24.0.0",
-    "tslint": "5.13.0",
-    "typescript": "^3.4.3"
+    "@types/jest": "^24.0.11",
+    "@types/uuid": "^3.4.4",
+    "jest": "^24.7.1",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   },
   "config": {
     "commitizen": {
