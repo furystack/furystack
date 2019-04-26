@@ -1,6 +1,6 @@
 # @furystack/odata
 
-odata v4 implementation for FuryStack
+odata v4 implementation for FuryStack. This package is in an early and experimental state. More info coming soon...
 
 ### Usage example
 
