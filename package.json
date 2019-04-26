@@ -16,9 +16,9 @@
     "tslint": "5.13.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "1.15.0",
-    "typescript-tslint-plugin": "^0.3.1",
     "tslint-react": "3.6.0",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.1",
+    "typescript-tslint-plugin": "^0.3.1"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
