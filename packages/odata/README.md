@@ -1,4 +1,34 @@
-# repository
+# @furystack/odata
 
-[![Build Status](https://travis-ci.org/furystack/websocket-api.svg?branch=master)](https://travis-ci.org/furystack/websocket-api)
-[![codecov](https://codecov.io/gh/furystack/websocket-api/branch/master/graph/badge.svg)](https://codecov.io/gh/furystack/websocket-api) [![Greenkeeper badge](https://badges.greenkeeper.io/furystack/websocket-api.svg)](https://greenkeeper.io/)
+odata v4 implementation for FuryStack
+
+### Usage example
+
+You can use OData in a similar way:
+
+```ts
+class MyEntityType {
+  public id!: number
+  public value!: string
+}
+
+const myInjector = new Injector()
+
+myInjector
+  .useLogging()
+  .useHttpApi()
+  .useOdata('odata.svc', model =>
+    model.addNameSpace('default', namespace =>
+      namespace
+        .setupEntities(e =>
+          e.addEntityType({
+            model: MyEntityType,
+            primaryKey: 'id',
+            properties: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
+          }),
+        )
+        .setupCollections(collections => collections.addCollection({ model: MyEntityType, name: 'MyEntities' })),
+    ),
+  )
+  .listenHttp()
+```

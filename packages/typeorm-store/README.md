@@ -1,4 +1,36 @@
 # typeorm-store
 
-[![Build Status](https://travis-ci.org/furystack/websocket-api.svg?branch=master)](https://travis-ci.org/furystack/websocket-api)
-[![codecov](https://codecov.io/gh/furystack/websocket-api/branch/master/graph/badge.svg)](https://codecov.io/gh/furystack/websocket-api) [![Greenkeeper badge](https://badges.greenkeeper.io/furystack/websocket-api.svg)](https://greenkeeper.io/)
+TypeORM Physical Store implementation for FuryStack. You can use TypeORM stores as IPhysicalStores for FuryStack
+
+An usage example:
+
+```ts
+import { join } from 'path'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Injector } from '@furystack/inject'
+import '@furystack/typeorm-store'
+import { IPhysicalStore, StoreManager } from '@furystack/core'
+
+@Entity()
+class MyModel {
+  @PrimaryGeneratedColumn()
+  public id!: number
+
+  @Column()
+  public value!: string
+}
+
+const myInjector = new Injector()
+myInjector
+  .useLogging()
+  .useTypeOrm({
+    name: 'ExampleDb',
+    type: 'sqlite', // you have to install the sqlite package as well
+    database: join(process.cwd(), 'data', 'users.sqlite'),
+    entities: [MyModel],
+    synchronize: true,
+  })
+  .setupStores(stores => stores.useTypeOrmStore(MyModel))
+
+const myStore: IPhysicalStore<MyModel> = myInjector.getInstance(StoreManager).getStoreFor(MyModel)
+```

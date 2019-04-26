@@ -1,5 +1,18 @@
-# http-api
-REST
+# @furystack/http-api
 
-[![Build Status](https://travis-ci.org/furystack/http-api.svg?branch=master)](https://travis-ci.org/furystack/http-api)
-[![codecov](https://codecov.io/gh/furystack/http-api/branch/master/graph/badge.svg)](https://codecov.io/gh/furystack/http-api) [![Greenkeeper badge](https://badges.greenkeeper.io/furystack/http-api.svg)](https://greenkeeper.io/)
+## Usage example
+
+```ts
+const i = new Injector()
+i.useHttpApi({
+  /** custom http settings */
+})
+  .useHttpAuthentication({
+    /** custom auth settings */
+  })
+  .addHttpRouting(req => {
+    /** custom logic to resolve action(s) from the incoming request */
+  })
+  .useDefaultLoginRoutes() // register '/login', '/currentUser' and '/logout' actions
+  .listenHttp() // start listening
+```

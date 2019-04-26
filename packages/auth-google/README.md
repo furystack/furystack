@@ -1,4 +1,19 @@
-# typeorm-store
+# @furystack/auth-google
 
-[![Build Status](https://travis-ci.org/furystack/websocket-api.svg?branch=master)](https://travis-ci.org/furystack/websocket-api)
-[![codecov](https://codecov.io/gh/furystack/websocket-api/branch/master/graph/badge.svg)](https://codecov.io/gh/furystack/websocket-api) [![Greenkeeper badge](https://badges.greenkeeper.io/furystack/websocket-api.svg)](https://greenkeeper.io/)
+Google Authentication for FuryStack
+
+Usage example:
+
+```ts
+const myInjector = new Injector()
+myInjector.useHttpApi().addHttpRouting(msg => {
+  const urlPathName = parse(msg.url || '', true).pathname
+  if (urlPathName === '/googleLogin') {
+    return GoogleLoginAction
+  }
+})
+```
+
+A POST request with a {'token': 'google-id-token-value'} body will log in the user with Google Oauth
+
+The GoogleLoginService will add the user to the default User store, if not exists.
