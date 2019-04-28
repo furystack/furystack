@@ -17,9 +17,11 @@ export class RedisStore<T> implements IPhysicalStore<T> {
       model: Constructable<T>
       client: RedisClient
       logger: ILogger
+      primaryKey: keyof T
     },
   ) {
     this.logger = this.options.logger.withScope('@furystack/redis-store/' + this.constructor.name)
+    this.primaryKey = options.primaryKey
 
     this.model = options.model
     this.logger.verbose({
@@ -42,10 +44,10 @@ export class RedisStore<T> implements IPhysicalStore<T> {
     )
   }
   public async count(): Promise<number> {
-    throw Error('Not implemented :(')
+    throw Error('Not supported :(')
   }
   public async filter(filter: DefaultFilter<T>): Promise<T[]> {
-    throw Error('Not implemented :(')
+    throw Error('Not supported :(')
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     return await new Promise((resolve, reject) =>
@@ -68,6 +70,6 @@ export class RedisStore<T> implements IPhysicalStore<T> {
     )
   }
   public async dispose() {
-    throw Error('Not implemented :(')
+    /** */
   }
 }

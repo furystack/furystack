@@ -1,15 +1,17 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
-import { FileStore, InMemoryStore } from '@furystack/core'
+import { FileStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
 import { EdmType } from '@furystack/odata'
 import '@furystack/odata'
+import '@furystack/redis-store'
 import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
 import { deepMerge } from '@sensenet/client-utils'
 import { join } from 'path'
+import { createClient } from 'redis'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
 import { registerExitHandler } from './ExitHandler'
@@ -57,12 +59,13 @@ defaultInjector
         logger: sm.injector.logger,
       }),
     )
-      .addStore(
-        new InMemoryStore({
-          model: Session,
-          primaryKey: 'sessionId',
-        }),
-      )
+      .useRedis(Session, 'sessionId', createClient())
+      // .addStore(
+      //   new InMemoryStore({
+      //     model: Session,
+      //     primaryKey: 'sessionId',
+      //   }),
+      // )
       .useTypeOrmStore(User, 'UserDb')
       .useTypeOrmStore(Task, 'TaskDb')
   })

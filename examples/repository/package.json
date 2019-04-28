@@ -45,6 +45,7 @@
     "@furystack/core": "^4.0.2",
     "@furystack/http-api": "^3.0.2",
     "@furystack/odata": "^0.0.5",
+    "@furystack/redis-store": "^0.0.1",
     "@furystack/typeorm-store": "^1.0.4",
     "@furystack/websocket-api": "^2.0.3",
     "sqlite": "3.0.2"

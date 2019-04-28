@@ -1,5 +1,4 @@
 export * from './RedisStore'
-export * from './InjectorExtension'
 export * from './StoreManagerExtension'
 import './InjectorExtension'
 import './StoreManagerExtension'
