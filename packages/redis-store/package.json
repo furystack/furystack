@@ -1,0 +1,82 @@
+{
+  "name": "@furystack/redis-store",
+  "version": "1.0.4",
+  "description": "Redis Store implementation for FuryStack",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "precommit": "npm run test",
+    "commit": "git-cz",
+    "test": "rimraf coverage && jest",
+    "lint": "tslint --project tsconfig.json",
+    "clean": "rimraf dist && rimraf coverage",
+    "build": "tsc -b",
+    "prepublishOnly": "npm run build",
+    "publish:development": "npm run build && npm t && npm run typedoc && npm publish --tag development",
+    "typedoc": "typedoc --mode file --out documentation src --tsconfig tsconfig.json --theme c:/Users/%USERNAME%/AppData/Roaming/npm/node_modules/@sensenet/typedoc-theme/sn-theme"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/core.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "HTTP",
+    "REST",
+    "API",
+    "Actions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/core.git"
+  },
+  "nyc": {
+    "exclude": [
+      "temp/test/**/*.*",
+      "temp/src/**/I*.js",
+      "**/index.js"
+    ],
+    "include": "temp/src/**/*.*",
+    "check-coverage": false,
+    "cache": true,
+    "all": true,
+    "reporter": [
+      "lcov",
+      "text-summary",
+      "json"
+    ]
+  },
+  "homepage": "https://github.com/furystack/core.git",
+  "dependencies": {
+    "@furystack/core": "^4.0.2",
+    "@furystack/http-api": "^3.0.2",
+    "@furystack/inject": "^3.0.2",
+    "@furystack/logging": "^1.1.1",
+    "@sensenet/client-utils": "^1.5.1",
+    "semaphore-async-await": "^1.5.1",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@types/redis": "^2.8.12",
+    "jest": "^24.7.1",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "sensenet-kfi-cz-conventional-changelog"
+    }
+  },
+  "typings": "./dist/index.d.ts",
+  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+}
