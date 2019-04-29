@@ -1,4 +1,4 @@
-# typeorm-store
+# redis-store
 
 Redis Physical Store implementation for FuryStack. `filter()` and `count()` is not supported at the moment.
 
