@@ -43,7 +43,7 @@ export const seed = async (injector: Injector) => {
       username: 'testuser',
       password: injector.getInstance(HttpAuthenticationSettings).hashMethod('password'),
       roles: [],
-    },
+    } as any,
     userStore,
     injector,
   )
@@ -55,7 +55,7 @@ export const seed = async (injector: Injector) => {
       name: 'testTask',
     },
     {
-      id: undefined,
+      _id: 'undefined',
       name: 'testTask',
       userId: testUser.id as string,
       completed: false,
@@ -65,8 +65,8 @@ export const seed = async (injector: Injector) => {
   )
 
   const testEntryStore = sm.getStoreFor(TestEntry)
-  await getOrCreate({ id: 1 }, { id: 1, value: 'testEntry1' }, testEntryStore, injector)
-  await getOrCreate({ id: 2 }, { id: 2, value: 'testEntry1' }, testEntryStore, injector)
+  await getOrCreate({ _id: '1' }, { _id: '1', value: 'testEntry1' }, testEntryStore, injector)
+  await getOrCreate({ _id: '2' }, { _id: '2', value: 'testEntry1' }, testEntryStore, injector)
 
   logger.verbose({ message: 'Seeding data completed.' })
 }

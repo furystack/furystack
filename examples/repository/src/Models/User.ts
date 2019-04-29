@@ -8,7 +8,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 @Entity()
 export class User implements FsUser {
   @PrimaryGeneratedColumn('uuid')
-  public id?: string
+  // tslint:disable-next-line: naming-convention
+  public _id!: string
   @Column({ unique: true })
   public username!: string
 

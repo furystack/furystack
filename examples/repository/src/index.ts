@@ -1,8 +1,8 @@
 import { GoogleLoginAction } from '@furystack/auth-google'
-import { FileStore } from '@furystack/core'
 import { GetCurrentUser, LoginAction, LogoutAction } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger } from '@furystack/logging'
+import '@furystack/mongodb-store'
 import { EdmType } from '@furystack/odata'
 import '@furystack/odata'
 import '@furystack/redis-store'
@@ -10,7 +10,6 @@ import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
 import { deepMerge } from '@sensenet/client-utils'
-import { join } from 'path'
 import { createClient } from 'redis'
 import { parse } from 'url'
 import { CertificateManager } from './CertificateManager'
@@ -33,41 +32,11 @@ registerExitHandler(defaultInjector)
 
 defaultInjector
   .useLogging(ConsoleLogger)
-  /** DB 1 for Users */
-  .useTypeOrm({
-    name: 'UserDb',
-    type: 'sqlite',
-    database: join(process.cwd(), 'data', 'users.sqlite'),
-    entities: [User],
-    synchronize: true,
-  })
-  /** DB 2 for Tasks */
-  .useTypeOrm({
-    name: 'TaskDb',
-    type: 'sqlite',
-    database: join(process.cwd(), 'data', 'tasks.sqlite'),
-    entities: [Task],
-    synchronize: true,
-  })
   .setupStores(sm => {
-    sm.addStore(
-      new FileStore({
-        model: TestEntry,
-        fileName: join(process.cwd(), 'data', 'testEntries.json'),
-        primaryKey: 'id',
-        tickMs: 60000,
-        logger: sm.injector.logger,
-      }),
-    )
+    sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
       .useRedis(Session, 'sessionId', createClient())
-      // .addStore(
-      //   new InMemoryStore({
-      //     model: Session,
-      //     primaryKey: 'sessionId',
-      //   }),
-      // )
-      .useTypeOrmStore(User, 'UserDb')
-      .useTypeOrmStore(Task, 'TaskDb')
+      .useMongoDb(User, 'mongodb://localhost:27017', 'test', 'users')
+      .useMongoDb(Task, 'mongodb://localhost:27017', 'test', 'tasks')
   })
   .setupRepository(repo => {
     repo
@@ -141,10 +110,10 @@ defaultInjector
             })
             .addEntityType({
               model: User,
-              primaryKey: 'id',
+              primaryKey: '_id',
               properties: [
                 {
-                  property: 'id',
+                  property: '_id',
                   type: EdmType.String,
                 },
                 {
@@ -188,8 +157,8 @@ defaultInjector
             })
             .addEntityType({
               model: Task,
-              primaryKey: 'id',
-              properties: [{ property: 'id', type: EdmType.String }],
+              primaryKey: '_id',
+              properties: [{ property: '_id', type: EdmType.String }],
               navigationProperties: [
                 {
                   propertyName: 'user',
@@ -214,8 +183,8 @@ defaultInjector
             })
             .addEntityType({
               model: TestEntry,
-              primaryKey: 'id',
-              properties: [{ property: 'id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
+              primaryKey: '_id',
+              properties: [{ property: '_id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
             }),
         )
         // Configure entity sets
