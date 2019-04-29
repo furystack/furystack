@@ -21,7 +21,7 @@ export class GetCollectionAction implements IRequestAction {
       skip: this.context.queryParams.skip,
       top: this.context.queryParams.top,
       select: this.context.queryParams.select,
-      ...this.context.queryParams.filter,
+      filter: this.context.queryParams.filter,
     })
     const count = await dataSet.count(this.injector)
     const value = await Promise.all(

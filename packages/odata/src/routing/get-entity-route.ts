@@ -27,7 +27,7 @@ export const getEntityRoute = <T>(
     .replace(`')`, '')
     .replace('(', '')
     .replace(')', '')
-  const entityId = isNaN(parseInt(trimmedSegment, 10)) ? trimmedSegment : parseInt(trimmedSegment, 10)
+  const entityId = isNaN(trimmedSegment as any) ? trimmedSegment : parseInt(trimmedSegment, 10)
 
   updateContext(injector, {
     entityId,

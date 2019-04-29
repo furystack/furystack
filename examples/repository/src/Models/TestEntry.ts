@@ -2,6 +2,7 @@
  * A test entry model
  */
 export class TestEntry {
-  public id!: number
+  // tslint:disable-next-line: naming-convention
+  public _id!: string
   public value!: string
 }
