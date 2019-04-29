@@ -7,6 +7,18 @@ declare module '@furystack/inject/dist/Injector' {
    * Defines an extended Injector instance
    */
   interface Injector {
+    /**
+     * Registers a store instance to the StoreManager.
+     *
+     * Usage example:
+     * ````ts
+     * myInjector.setupStores(sm => sm.addStore(new InMemoryStore({ model: TestEntry, primaryKey: "_id" })))
+     * ````
+     * You can get the store later from the StoreManager:
+     * ````ts
+     * const myStore: IPhysicalStore<TestEntry> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
+     * ````
+     */
     setupStores: (builder: (storeManager: StoreManager) => void) => Injector
   }
 }
