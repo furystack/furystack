@@ -1,7 +1,7 @@
 import { DefaultFilter, IPhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { ILogger, ScopedLogger } from '@furystack/logging'
-import { Collection, MongoClient } from 'mongodb'
+import { Collection, MongoClient, ObjectId } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -57,7 +57,7 @@ export class MongodbStore<T extends { _id: string }> implements IPhysicalStore<T
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     const collection = await this.getCollection()
-    const result = await collection.findOne({ _id: key })
+    const result = await collection.findOne({ _id: new ObjectId(key) })
     return result || undefined
   }
   public async remove(key: T[this['primaryKey']]): Promise<void> {
