@@ -6,7 +6,7 @@ import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
 
 /**
- * Root action for OData endpoints
+ * Odata Get Entity action
  */
 @Injectable({ lifetime: 'transient' })
 export class GetEntityAction implements IRequestAction {

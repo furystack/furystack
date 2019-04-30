@@ -8,6 +8,16 @@ declare module '@furystack/inject/dist/Injector' {
    * Defines an extended Injector instance
    */
   interface Injector {
+    /**
+     * registers an OData endpoint to the injector.
+     * Usage example:
+     * ````ts
+     * myInjector
+     *  .useOdata('odata', builder =>
+     *    builder.addNamespace('myNamespace', namespaceBuilder => ... ))
+     * ````
+     *
+     */
     useOdata: (route: string, buildModel: (builder: ModelBuilder) => ModelBuilder) => this
   }
 }

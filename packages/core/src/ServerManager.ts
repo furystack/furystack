@@ -8,10 +8,17 @@ import { Server } from 'net'
 export class ServerManager {
   private readonly servers: Set<Server> = new Set()
 
+  /**
+   * Returns a collection of servers
+   */
   public getServers() {
     return this.servers.values()
   }
 
+  /**
+   * Adds a new server to a set
+   * @param server The server to add
+   */
   public set(server: Server) {
     this.servers.add(server)
   }

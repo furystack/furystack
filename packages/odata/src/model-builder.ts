@@ -9,12 +9,27 @@ import { XmlNode } from './xml-utils'
 export class ModelBuilder {
   public namespaces: Map<string, NamespaceBuilder> = new Map()
 
+  /**
+   * Adds a new Namespace to the OData Endpoint
+   * Usage example:
+   * ````ts
+   * myInjector
+   *  .useOdata('odata', builder =>
+   *    builder.addNamespace('myNamespace', namespaceBuilder =>
+   *      namespaceBuilder.setupEntities(...) ))
+   * ````
+   * @param name Name of the namespace
+   * @param buildNamespace The Namespace Builder factory method
+   */
   public addNameSpace(name: string, buildNamespace: (n: NamespaceBuilder) => NamespaceBuilder) {
     const ns = new NamespaceBuilder(name)
     this.namespaces.set(name, buildNamespace(ns))
     return this
   }
 
+  /**
+   * Returns the current builder data in XML format
+   */
   public toXmlNode() {
     const children = Array.from(this.namespaces.values()).map(v => v.toXmlNode())
     const value: XmlNode = {
