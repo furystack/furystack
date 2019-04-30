@@ -10,7 +10,27 @@ declare module '@furystack/inject/dist/Injector' {
    * Defines an extended Injector instance
    */
   interface Injector {
+    /**
+     * Sets up a Repository on an injector
+     * usage example:
+     * ````ts
+     * injector
+     * .useLogging(ConsoleLogger)
+     * .setupStores(sm => {
+     *   sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+     *     .useMongoDb(User, 'mongodb://localhost:27017', 'test', 'users')
+     * })
+     * .setupRepository(repo => {
+     *   repo.createDataSet(User, { name: 'users', onEntityAdded: (ev) => console.log('New user added', ev.entity) })
+     * })
+     *
+     * const userDataSet = injector.getDataSetFor(User)
+     * ````
+     */
     setupRepository: (builder: (repository: Repository) => void) => Injector
+    /**
+     * Returns a DataSet for a specific model
+     */
     getDataSetFor: <T, TFilter = DefaultFilter<T>>(model: Constructable<T>) => DataSet<T, TFilter>
   }
 }
