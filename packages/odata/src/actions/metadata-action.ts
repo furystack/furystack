@@ -5,7 +5,7 @@ import { ModelBuilder } from '../model-builder'
 import { xmlToString } from '../xml-utils'
 
 /**
- * Root action for OData endpoints
+ * OData Metadata action
  */
 @Injectable({ lifetime: 'transient' })
 export class MetadataAction implements IRequestAction {

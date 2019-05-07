@@ -13,26 +13,58 @@ export class NamespaceBuilder {
   public actions: FunctionDescriptor[] = []
   public functions: FunctionDescriptor[] = []
 
+  /**
+   * Sets up the entities within a namespace
+   * Usage example:
+   * ````ts
+   *  namespace.setupEntities(entityBuilder =>
+   *    entityBuilder.addEntityType(...))
+   * ````
+   * @param buildEntities the entity builder factory method
+   */
   public setupEntities(buildEntities: (e: EntityTypeBuilder) => EntityTypeBuilder) {
     this.entities = buildEntities(this.entities)
     return this
   }
 
+  /**
+   * Sets up the collections within the current namespace
+   * ````ts
+   *  namespace.setupCollections(collections =>
+   *    .addCollection(...))
+   * ````
+   * @param buildCollection the collection builder factory method
+   */
   public setupCollections<T>(buildCollection: (builder: CollectionBuilder) => CollectionBuilder) {
     this.collections = buildCollection(this.collections)
     return this
   }
 
+  /**
+   * Sets up the global Action definitions.
+   * Global Actions can be called with a POST method on the OData endpoint
+   * (e.g. POST '/odata/login')
+   * @param actions The Action definitions
+   */
   public setupGlobalActions(actions: this['actions']) {
     return (this.actions = actions)
   }
 
+  /**
+   * Sets up the global Function definitions.
+   * Global Functions can be called with a GET method on the OData endpoint
+   * (e.g. GET '/odata/currentUser')
+   * @param actions The Function definitions
+   */
   public setupGlobalFunctions(functions: this['functions']) {
     return (this.functions = functions)
   }
 
   constructor(public readonly name: string) {}
 
+  /**
+   * Returns the NamespaceBuilder in an XML format
+   */
   public toXmlNode(): XmlNode {
     const value: XmlNode = {
       tagName: 'Schema',

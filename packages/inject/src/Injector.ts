@@ -45,8 +45,8 @@ export class Injector implements Disposable {
 
   /**
    *
-   * @param ctor The constructor object (e.g. IncomingMessage)
-   * @param dependencies Resolved dependencies
+   * @param ctor The constructor object (e.g. MyClass)
+   * @param dependencies Resolved dependencies (usually provided by the framework)
    */
   public getInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
     if (ctor === this.constructor) {

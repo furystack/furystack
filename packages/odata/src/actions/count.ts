@@ -5,7 +5,7 @@ import { ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
- * Root action for OData endpoints
+ * OData Count action
  */
 @Injectable({ lifetime: 'transient' })
 export class OdataCount implements IRequestAction {

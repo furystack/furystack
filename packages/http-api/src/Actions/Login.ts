@@ -6,6 +6,8 @@ import { Utils } from '../Utils'
 
 /**
  * Action that logs in the current user
+ * Should be called with a JSON Post body with ``username`` and ``password`` fields.
+ * Returns the current user instance
  */
 @Injectable({ lifetime: 'transient' })
 export class LoginAction implements IRequestAction {

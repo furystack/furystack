@@ -9,10 +9,25 @@ declare module '@furystack/core/dist/StoreManager' {
    * Defines an extended Injector instance
    */
   interface StoreManager {
+    /**
+     * Registers a MongoDb store to the StoreManager instance with the provided model.
+     */
     useMongoDb: <T extends { _id: string }>(
+      /**
+       * The constructable model class
+       */
       model: Constructable<T>,
+      /**
+       * Url of the MongoDb repository
+       */
       url: string,
+      /**
+       * MongoDb Database name
+       */
       db: string,
+      /**
+       * MongoDb Collection name
+       */
       collection: string,
     ) => StoreManager
   }

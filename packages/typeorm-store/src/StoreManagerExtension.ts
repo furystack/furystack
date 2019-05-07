@@ -9,6 +9,21 @@ declare module '@furystack/core/dist/StoreManager' {
    * Defines an extended Injector instance
    */
   interface StoreManager {
+    /**
+     * Sets up a TypeOrm store for a specified model.
+     * Usage example:
+     * ````ts
+     * defaultInjector
+     *  .useLogging(ConsoleLogger)
+     *  .useTypeOrm({
+     *    type: 'sqlite',
+     *    database: 'data.sqlite',
+     *    entities: [User]
+     *  })
+     *  .setupStores(sm =>
+     *    sm.useTypeOrmStore(User))
+     * ````
+     */
     useTypeOrmStore: <T>(model: Constructable<T>, connectionName?: string) => StoreManager
   }
 }

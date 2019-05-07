@@ -5,6 +5,7 @@ import { IRequestAction } from '../Models'
 
 /**
  * Action for unhandled (500) errors
+ * Returns a serialized error instance in JSON format.
  */
 @Injectable({ lifetime: 'transient' })
 export class ErrorAction implements IRequestAction {

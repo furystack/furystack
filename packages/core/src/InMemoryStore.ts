@@ -47,12 +47,23 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   }
 
   public readonly primaryKey: keyof T
-  public tickMs = 10000
   public readonly model: Constructable<T>
 
-  constructor(options: { primaryKey: keyof T; tickMs?: number; model: Constructable<T> }) {
+  /**
+   * Creates an InMemoryStore that can be used for testing purposes.
+   * @param options Options for the In Memory Store
+   */
+  constructor(options: {
+    /**
+     * The name of the Primary Key property
+     */
+    primaryKey: keyof T
+    /**
+     * The model constructor
+     */
+    model: Constructable<T>
+  }) {
     this.primaryKey = options.primaryKey
-    options.tickMs && (this.tickMs = options.tickMs)
     this.model = options.model
   }
 }

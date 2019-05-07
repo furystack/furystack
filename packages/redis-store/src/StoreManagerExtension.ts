@@ -9,6 +9,18 @@ declare module '@furystack/core/dist/StoreManager' {
    * Defines an extended Injector instance
    */
   interface StoreManager {
+    /**
+     * Registers a Redis-store for the provided model in the StoreManager
+     * usage example:
+     * ````ts
+     * import { createClient } from 'redis'
+     * import '@furystack/redis-store'
+     *
+     * defaultInjector
+     *    .useLogging(ConsoleLogger)
+     *    .setupStores(sm => sm.useRedis(SessionModel, 'sessionId', createClient())
+     * ````
+     */
     useRedis: <T>(model: Constructable<T>, primaryKey: keyof T, client: RedisClient) => StoreManager
   }
 }

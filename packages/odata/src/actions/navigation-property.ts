@@ -7,7 +7,7 @@ import { getOdataParams } from '../getOdataParams'
 import { OdataContext } from '../odata-context'
 
 /**
- * Root action for OData endpoints
+ * OData Navigation Property action
  */
 @Injectable({ lifetime: 'transient' })
 export class NavigationPropertyAction implements IRequestAction {
