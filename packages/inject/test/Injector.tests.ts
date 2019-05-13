@@ -159,4 +159,52 @@ describe('Injector', () => {
       )
     })
   })
+
+  it('Singleton with transient dependencies should throw an error', () => {
+    @Injectable({ lifetime: 'transient' })
+    class Trs1 {}
+
+    @Injectable({ lifetime: 'singleton' })
+    class St1 {
+      constructor(public lt: Trs1) {}
+    }
+
+    using(new Injector(), i => {
+      expect(() => i.getInstance(St1)).toThrowError(
+        `Injector error: Singleton type 'St1' depends on non-singleton injectables: Trs1:transient`,
+      )
+    })
+  })
+
+  it('Singleton with transient dependencies should throw an error', () => {
+    @Injectable({ lifetime: 'scoped' })
+    class Sc1 {}
+
+    @Injectable({ lifetime: 'singleton' })
+    class St2 {
+      constructor(public sc: Sc1) {}
+    }
+
+    using(new Injector(), i => {
+      expect(() => i.getInstance(St2)).toThrowError(
+        `Injector error: Singleton type 'St2' depends on non-singleton injectables: Sc1:scoped`,
+      )
+    })
+  })
+
+  it('Scoped with transient dependencies should throw an error', () => {
+    @Injectable({ lifetime: 'transient' })
+    class Tr2 {}
+
+    @Injectable({ lifetime: 'scoped' })
+    class Sc2 {
+      constructor(public sc: Tr2) {}
+    }
+
+    using(new Injector(), i => {
+      expect(() => i.getInstance(Sc2)).toThrowError(
+        `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
+      )
+    })
+  })
 })
