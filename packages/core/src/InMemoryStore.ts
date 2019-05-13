@@ -43,7 +43,7 @@ export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
   }
 
   public dispose() {
-    /** */
+    this.cache.clear()
   }
 
   public readonly primaryKey: keyof T
