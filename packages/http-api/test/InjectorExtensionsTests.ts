@@ -11,7 +11,6 @@ describe('Injector extensions', () => {
       i.useHttpApi()
         .useHttpAuthentication()
         .useDefaultLoginRoutes()
-        .listenHttp()
       expect(i['cachedSingletons'].has(HttpApiSettings))
     })
   })
