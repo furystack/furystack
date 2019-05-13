@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http'
-import { LoginAction, LogoutAction, GetCurrentUser } from '../src'
+import { GetCurrentUser, LoginAction, LogoutAction } from '../src'
 import { defaultLoginRoutes } from '../src/default-login-routes'
 
 describe('Default login routes', () => {
