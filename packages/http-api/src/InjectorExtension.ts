@@ -14,7 +14,7 @@ import { HttpApiSettings } from './HttpApiSettings'
  */
 export interface HttpExtendedInjector extends Injector {
   useHttpAuthentication: <TUser extends User>(
-    settings: Partial<HttpAuthenticationSettings<TUser>>,
+    settings?: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
   addHttpRouting: (
     route: (incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined,
