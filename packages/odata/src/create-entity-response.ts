@@ -1,10 +1,10 @@
+import { DefaultFilter } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { Repository, DataSet } from '@furystack/repository'
+import { DataSet, Repository } from '@furystack/repository'
 import { PathHelper } from '@sensenet/client-utils'
 import { getOdataParams } from './getOdataParams'
 import { Entity, NavigationProperty } from './models'
 import { OdataContext } from './odata-context'
-import { DefaultFilter } from '@furystack/core'
 
 /**
  * Removes the most outer level from the expand expression

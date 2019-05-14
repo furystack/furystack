@@ -6,7 +6,7 @@ import { OdataContext } from '../odata-context'
 // import { XmlNode, xmlToString } from '../xml-utils'
 
 /**
- * Root action for OData endpoints
+ * OData Root action
  */
 @Injectable({ lifetime: 'transient' })
 export class RootAction implements IRequestAction {

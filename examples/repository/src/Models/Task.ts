@@ -6,7 +6,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn('uuid')
-  public id?: string
+  // tslint:disable-next-line: naming-convention
+  public _id!: string
 
   @Column()
   public userId!: string

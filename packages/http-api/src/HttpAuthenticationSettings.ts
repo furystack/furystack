@@ -1,4 +1,4 @@
-import { InMemoryStore, IPhysicalStore, User } from '@furystack/core'
+import { IPhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable } from '@furystack/inject'
 import { sha256 } from 'hash.js'
@@ -11,10 +11,12 @@ import { DefaultSession } from './Models/DefaultSession'
 export class HttpAuthenticationSettings<TUser extends User> {
   public model: Constructable<TUser> = User as Constructable<TUser>
 
-  public getUserStore: (storeManager: StoreManager) => IPhysicalStore<TUser> = () =>
-    new InMemoryStore<TUser>({ model: this.model, primaryKey: 'username' })
-  public getSessionStore: (storeManager: StoreManager) => IPhysicalStore<DefaultSession> = () =>
-    new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })
+  public getUserStore: (storeManager: StoreManager) => IPhysicalStore<TUser> = sm =>
+    sm.getStoreFor<TUser>(User as Constructable<TUser>)
+
+  public getSessionStore: (storeManager: StoreManager) => IPhysicalStore<DefaultSession> = sm =>
+    sm.getStoreFor(DefaultSession)
+
   public cookieName: string = 'fss'
   public hashMethod: (plain: string) => string = plain =>
     sha256()

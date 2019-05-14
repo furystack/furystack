@@ -35,6 +35,10 @@ export class GoogleLoginService<TUser extends User & { googleId: number; googleP
   constructor(private readonly userContext: HttpUserContext<TUser>, private readonly utils: Utils) {}
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
+  /**
+   * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
+   * @param token The IdToken to authenticate
+   */
   public async login(token: string): Promise<TUser> {
     try {
       return await new Promise<TUser>((resolve, reject) =>

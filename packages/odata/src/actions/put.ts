@@ -4,7 +4,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { ModelBuilder } from '../model-builder'
 
 /**
- * Root action for OData endpoints
+ * OData Put action
  */
 @Injectable({ lifetime: 'transient' })
 export class PutAction implements IRequestAction {

@@ -6,7 +6,7 @@ import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
 
 /**
- * Root action for OData endpoints
+ * OData Get Collection action
  */
 @Injectable({ lifetime: 'transient' })
 export class GetCollectionAction implements IRequestAction {
@@ -21,7 +21,7 @@ export class GetCollectionAction implements IRequestAction {
       skip: this.context.queryParams.skip,
       top: this.context.queryParams.top,
       select: this.context.queryParams.select,
-      ...this.context.queryParams.filter,
+      filter: this.context.queryParams.filter,
     })
     const count = await dataSet.count(this.injector)
     const value = await Promise.all(

@@ -1,20 +1,21 @@
-import { ServerManager, User } from '@furystack/core'
+import { ServerManager, User, InMemoryStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { createServer as createHttpServer, IncomingMessage } from 'http'
 import { ServerOptions } from 'https'
 import { createServer as createHttpsServer } from 'https'
-import { parse } from 'url'
-import { GetCurrentUser, HttpAuthenticationSettings, IRequestAction, LoginAction, LogoutAction } from '.'
+import { HttpAuthenticationSettings, IRequestAction } from '.'
+import { defaultLoginRoutes } from './default-login-routes'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
+import { DefaultSession } from './Models/DefaultSession'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
  */
 export interface HttpExtendedInjector extends Injector {
   useHttpAuthentication: <TUser extends User>(
-    settings: Partial<HttpAuthenticationSettings<TUser>>,
+    settings?: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
   addHttpRouting: (
     route: (incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined,
@@ -43,6 +44,14 @@ Injector.prototype.useHttpApi = function(settings) {
   })
 
   const xi = this as HttpExtendedInjector
+
+  // Setup default in memory stores for Users and Sessions
+  xi.setupStores(sm =>
+    sm
+      .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+  )
+
   xi.setExplicitInstance({ ...new HttpApiSettings(), ...settings }, HttpApiSettings)
   xi.useHttpAuthentication = s => {
     xi.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...s }, HttpAuthenticationSettings)
@@ -81,19 +90,7 @@ Injector.prototype.useHttpApi = function(settings) {
     return xi
   }
 
-  xi.useDefaultLoginRoutes = () =>
-    xi.addHttpRouting(msg => {
-      const urlPathName = parse(msg.url || '', true).pathname
-      switch (urlPathName) {
-        case '/currentUser':
-          return GetCurrentUser
-        case '/login':
-          return LoginAction
-        case '/logout':
-          return LogoutAction
-      }
-      return undefined
-    })
+  xi.useDefaultLoginRoutes = () => xi.addHttpRouting(defaultLoginRoutes)
 
   xi.getInstance(HttpApi)
   return xi

@@ -9,7 +9,14 @@ declare module '@furystack/inject/dist/Injector' {
    * Defines an extended Injector instance
    */
   interface Injector {
+    /**
+     * Registers a Logger service to the injector container with the provided loggers.
+     */
     useLogging: (...loggers: Array<Constructable<ILogger>>) => Injector
+
+    /**
+     * Returns the registered Logger instance
+     */
     readonly logger: ILogger
   }
 }

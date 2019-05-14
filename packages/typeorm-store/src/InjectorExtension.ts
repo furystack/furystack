@@ -8,6 +8,16 @@ declare module '@furystack/inject/dist/Injector' {
    * Extended Injector type with TypeOrm methods
    */
   export interface Injector {
+    /**
+     * Sets up a TypeORM Connection on an injector instance.
+     * Usage example:
+     * ````ts
+     * myInjector.useTypeOrm({
+     *    type: 'sqlite',
+     *    database: 'data.sqlite'
+     * })
+     * ````
+     */
     useTypeOrm: (connectionOptions: ConnectionOptions) => Injector
   }
 }

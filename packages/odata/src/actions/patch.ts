@@ -5,7 +5,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
- * Root action for OData endpoints
+ * OData Patch action
  */
 @Injectable({ lifetime: 'transient' })
 export class PatchAction implements IRequestAction {

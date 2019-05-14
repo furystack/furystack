@@ -64,6 +64,13 @@ describe('FileStore', () => {
     expect(persisted).toEqual({ id: 1, value: 'asd' })
   })
 
+  it('Remove should remove a value', async () => {
+    await f.add({ id: 1, value: 'asd' })
+    await f.remove(1)
+    const count = await f.count()
+    expect(count).toBe(0)
+  })
+
   it('Adding an item that already exists should throw an error', async () => {
     await f.add({ id: 1, value: 'asd' })
 

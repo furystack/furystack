@@ -6,7 +6,16 @@ import { DataSetSettings } from './DataSetSettings'
  */
 @Injectable({ lifetime: 'transient' })
 export class DataSet<T, TFilter> {
+  /**
+   * Primary key of the contained entity
+   */
   public primaryKey: keyof T = this.settings.physicalStore.primaryKey
+
+  /**
+   * Adds an entity to the DataSet
+   * @param injector The injector from the context
+   * @param entity The entity to add
+   */
   public async add(injector: Injector, entity: T): Promise<T> {
     if (this.settings) {
       if (this.settings.authorizeAdd) {
@@ -22,6 +31,13 @@ export class DataSet<T, TFilter> {
     this.settings && this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity: created })
     return created
   }
+
+  /**
+   * Updates an entity in the store
+   * @param injector The injector from the context
+   * @param id The identifier of the entity
+   * @param change The update
+   */
   public async update(injector: Injector, id: T[this['primaryKey']], change: T): Promise<void> {
     if (this.settings) {
       if (this.settings.authorizeUpdate) {
@@ -43,6 +59,11 @@ export class DataSet<T, TFilter> {
     await this.settings.physicalStore.update(id, change)
     this.settings && this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change, id })
   }
+
+  /**
+   * Returns a Promise with the entity count
+   * @param injector The Injector from the context
+   */
   public async count(injector: Injector): Promise<number> {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
@@ -52,6 +73,12 @@ export class DataSet<T, TFilter> {
     }
     return await this.settings.physicalStore.count()
   }
+
+  /**
+   * Returns a filtered subset of the entity
+   * @param injector The Injector from the context
+   * @param filter The Filter definition
+   */
   public async filter(injector: Injector, filter: TFilter) {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
@@ -63,6 +90,12 @@ export class DataSet<T, TFilter> {
       this.settings && this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
     return this.settings.physicalStore.filter(parsedFilter)
   }
+
+  /**
+   * Returns an entity based on its primary key
+   * @param injector The injector from the context
+   * @param key The identifier of the entity
+   */
   public async get(injector: Injector, key: T[this['primaryKey']]) {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
@@ -79,6 +112,12 @@ export class DataSet<T, TFilter> {
     }
     return instance
   }
+
+  /**
+   * Removes an entity based on its primary key
+   * @param injector The Injector from the context
+   * @param key The primary key
+   */
   public async remove(injector: Injector, key: T[this['primaryKey']]): Promise<void> {
     if (this.settings && this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
