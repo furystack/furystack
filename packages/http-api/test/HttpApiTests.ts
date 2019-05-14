@@ -1,4 +1,4 @@
-import { IUser, visitorUser } from '@furystack/core'
+import { User, visitorUser } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
@@ -61,7 +61,7 @@ describe('HttpApi tests', () => {
         /**
          *
          */
-        constructor(private userContext: HttpUserContext<IUser>, private perRequestInjector: Injector) {}
+        constructor(private userContext: HttpUserContext<User>, private perRequestInjector: Injector) {}
       }
       // i.setExplicitInstance({ headers: {} }, IncomingMessage)
       // i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)

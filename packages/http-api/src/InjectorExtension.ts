@@ -1,4 +1,4 @@
-import { ServerManager, User } from '@furystack/core'
+import { ServerManager, User, InMemoryStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { createServer as createHttpServer, IncomingMessage } from 'http'
@@ -8,6 +8,7 @@ import { HttpAuthenticationSettings, IRequestAction } from '.'
 import { defaultLoginRoutes } from './default-login-routes'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
+import { DefaultSession } from './Models/DefaultSession'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
@@ -43,6 +44,14 @@ Injector.prototype.useHttpApi = function(settings) {
   })
 
   const xi = this as HttpExtendedInjector
+
+  // Setup default in memory stores for Users and Sessions
+  xi.setupStores(sm =>
+    sm
+      .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+  )
+
   xi.setExplicitInstance({ ...new HttpApiSettings(), ...settings }, HttpApiSettings)
   xi.useHttpAuthentication = s => {
     xi.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...s }, HttpAuthenticationSettings)
