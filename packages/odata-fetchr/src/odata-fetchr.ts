@@ -4,11 +4,11 @@ import { usingAsync } from '@sensenet/client-utils'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { JSDOM } from 'jsdom'
 import { join } from 'path'
+import { EntityCollectionWriter } from './entity-collection-writer'
 import { EntityTypeWriter } from './entity-type-writer'
 import { MetadataParser } from './metadata-parser'
 import { Configuration } from './models/configuration'
 import { OdataContextWriter } from './odata-context-writer'
-import { EntityCollectionWriter } from './entity-collection-writer'
 ;(async () => {
   await usingAsync(new Injector(), async injector => {
     injector.useLogging(ConsoleLogger)

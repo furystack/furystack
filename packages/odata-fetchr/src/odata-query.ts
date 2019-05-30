@@ -1,7 +1,7 @@
 import { ODataFilterBuilder } from './odata-filter-builder'
+import { ODataFilterExpression } from './odata-filter-expression'
 import { ODataOperation } from './odata-operation'
 import { ODataQueryResult } from './odata-query-result'
-import { ODataFilterExpression } from './odata-filter-expression'
 
 /**
  * Model for Odata Query operation

@@ -1,8 +1,8 @@
 import { Injectable } from '@furystack/inject'
+import { odataCollectionService } from '../templates.ts/collection-service'
 import { entityPropertyTemplate } from '../templates.ts/EntityProperty'
 import { entityTypeTemplate } from '../templates.ts/EntityType'
 import { odataContext } from '../templates.ts/odata-context'
-import { odataCollectionService } from '../templates.ts/collection-service'
 
 /**
  * Model for configuring custom fetch behavior

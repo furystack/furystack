@@ -24,7 +24,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "tsc -b packages",
-    "lint": "lerna run lint --parallel",
+    "lint": "tslint packages/**/src/**/*.ts",
     "clean": "yarn workspaces run rimraf dist && yarn workspaces run rimraf tsconfig.tsbuildinfo && yarn run rimraf packages/tsconfig.tsbuildinfo",
     "test": "jest",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
