@@ -1,4 +1,4 @@
-import { ServerManager, User, InMemoryStore } from '@furystack/core'
+import { InMemoryStore, ServerManager, User } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { createServer as createHttpServer, IncomingMessage } from 'http'
