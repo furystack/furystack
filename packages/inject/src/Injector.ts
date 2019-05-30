@@ -107,7 +107,7 @@ export class Injector implements Disposable {
    * @param instance The created instance
    * @param key The class key to be persisted (optional, calls back to the instance's constructor)
    */
-  public setExplicitInstance<T>(instance: T, key?: Constructable<any>) {
+  public setExplicitInstance<T extends object>(instance: T, key?: Constructable<any>) {
     const ctor = key || (instance.constructor as Constructable<T>)
     if (!Injector.meta.has(ctor)) {
       const meta = Reflect.getMetadata('design:paramtypes', ctor)
