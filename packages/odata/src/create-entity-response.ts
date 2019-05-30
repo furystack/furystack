@@ -91,7 +91,7 @@ export const createEntityResponse = async <T>(options: {
           options.injector,
           options.odataParams,
         )
-        expandedEntity[navProperty.propertyName] = await createEntityResponse({
+        expandedEntity[navProperty.propertyName as keyof typeof expandedEntity] = await createEntityResponse({
           entity: expanded,
           injector: options.injector,
           entityType,
@@ -141,7 +141,7 @@ export const createEntityResponse = async <T>(options: {
             })
           }),
         )
-        expandedEntity[navPropertyCollection.propertyName] = expandedEntities
+        expandedEntity[navPropertyCollection.propertyName as keyof typeof expandedEntity] = expandedEntities
       }
     }),
   )
