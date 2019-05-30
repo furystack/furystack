@@ -64,13 +64,7 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.11",
-    "@types/mongodb": "^3.1.25",
-    "jest": "^24.7.1",
-    "rimraf": "^2.6.3",
-    "ts-jest": "^24.0.2",
-    "tslint": "^5.16.0",
-    "typescript": "^3.4.5"
+    "@types/mongodb": "^3.1.25"
   },
   "config": {
     "commitizen": {
