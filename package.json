@@ -22,7 +22,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "yarn tsc -b packages",
+    "build": "tsc -b packages",
     "lint": "lerna run lint --parallel",
     "clean": "yarn workspaces run rimraf dist && yarn workspaces run rimraf tsconfig.tsbuildinfo && yarn run rimraf packages/tsconfig.tsbuildinfo",
     "test": "jest",
