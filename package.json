@@ -9,8 +9,11 @@
     "nohoist": []
   },
   "devDependencies": {
+    "husky": "^2.3.0",
     "jest": "^24.8.0",
     "lerna": "^3.13.4",
+    "lint-staged": "^8.1.7",
+    "prettier": "^1.17.1",
     "rimraf": "^2.6.3",
     "ts-jest": "^24.0.2",
     "tslib": "^1.9.3",
@@ -29,6 +32,27 @@
     "test": "jest",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
     "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.{ts,tsx}": [
+        "tslint --fix",
+        "prettier --write",
+        "git add"
+      ],
+      "*.{js,jsx}": [
+        "prettier --write",
+        "git add"
+      ]
+    },
+    "ignore": [
+      "*.d.ts"
+    ]
   },
   "name": "furystack"
 }
