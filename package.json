@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "1.0.0-2019-05-30",
   "workspaces": {
     "packages": [
       "packages/*",
@@ -23,8 +24,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "tsc -b packages",
-    "lint": "lerna run lint --parallel",
-    "clean": "yarn workspaces run rimraf dist && yarn workspaces run rimraf tsconfig.tsbuildinfo && yarn run rimraf packages/tsconfig.tsbuildinfo",
+    "lint": "tslint packages/**/src/**/*.ts",
+    "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
     "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
