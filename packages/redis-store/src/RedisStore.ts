@@ -6,8 +6,8 @@ import { RedisClient } from 'redis'
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class RedisStore<T> implements IPhysicalStore<T> {
-  public primaryKey!: keyof T
+export class RedisStore<T, K extends keyof T, KeyType extends T[K] & {toString:()=>string}> implements IPhysicalStore<T> {
+  public primaryKey!: K
 
   public readonly model: Constructable<T>
   private readonly logger: ScopedLogger
@@ -17,7 +17,7 @@ export class RedisStore<T> implements IPhysicalStore<T> {
       model: Constructable<T>
       client: RedisClient
       logger: ILogger
-      primaryKey: keyof T
+      primaryKey: K
     },
   ) {
     this.logger = this.options.logger.withScope('@furystack/redis-store/' + this.constructor.name)
@@ -29,14 +29,14 @@ export class RedisStore<T> implements IPhysicalStore<T> {
     })
   }
   public async add(data: T): Promise<T> {
-    const key = data[this.primaryKey]
+    const key = data[this.primaryKey] as KeyType
     return await new Promise((resolve, reject) =>
       this.options.client.set(key.toString(), JSON.stringify(data), err => {
         err ? reject(err) : resolve(data)
       }),
     )
   }
-  public async update(id: T[this['primaryKey']], data: T): Promise<void> {
+  public async update(id: KeyType, data: T): Promise<void> {
     return await new Promise((resolve, reject) =>
       this.options.client.set(id.toString(), JSON.stringify(data), err => {
         err ? reject(err) : resolve()
@@ -49,7 +49,7 @@ export class RedisStore<T> implements IPhysicalStore<T> {
   public async filter(filter: DefaultFilter<T>): Promise<T[]> {
     throw Error('Not supported :(')
   }
-  public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
+  public async get(key: KeyType): Promise<T | undefined> {
     return await new Promise((resolve, reject) =>
       this.options.client.get(key.toString(), (err, val) => {
         if (err) {
@@ -59,7 +59,7 @@ export class RedisStore<T> implements IPhysicalStore<T> {
       }),
     )
   }
-  public async remove(key: T[this['primaryKey']]): Promise<void> {
+  public async remove(key: KeyType): Promise<void> {
     return await new Promise((resolve, reject) =>
       this.options.client.del(key.toString(), [], (err, val) => {
         if (err) {
