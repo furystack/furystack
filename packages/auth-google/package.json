@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-google",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -55,12 +55,10 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^4.0.4",
-    "@furystack/http-api": "^3.1.0",
-    "@furystack/inject": "^3.0.4",
+    "@furystack/core": "^4.0.5",
+    "@furystack/http-api": "^3.1.1",
+    "@furystack/inject": "^3.0.5",
     "@sensenet/client-utils": "^1.5.1"
-  },
-  "devDependencies": {
   },
   "config": {
     "commitizen": {
