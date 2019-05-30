@@ -7,12 +7,7 @@
     "dist",
     "src"
   ],
-  "scripts": {
-    "test": "jest",
-    "lint": "tslint --project tsconfig.json",
-    "clean": "rimraf dist && rimraf coverage",
-    "build": "tsc -b"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/core.git"

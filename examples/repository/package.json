@@ -9,8 +9,6 @@
     "src"
   ],
   "scripts": {
-    "lint": "tslint --project tsconfig.json",
-    "clean": "rimraf dist && rimraf coverage",
     "build": "tsc -b",
     "start": "node ./dist/index.js"
   },
