@@ -7,18 +7,18 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
 stages:
-  - compile
   - test
 jobs:
   include:
-    - stage: compile
-      name: 'tsc build'
-      script: 'yarn build'
+    # - stage: compile
+    #   name: 'tsc build'
+    #   script: 'yarn build'
 
-    - name: 'tslint'
-      script: 'yarn lint'
+    # - name: 'tslint'
+    #   script: 'yarn lint'
 
-    - name: 'Jest tests'
-      before_script: yarn build
+    - stage: test
+      name: 'Jest tests'
+      before_script: yarn lint && yarn build
       script: 'yarn test'
       after_success: bash <(curl -s https://codecov.io/bash)
