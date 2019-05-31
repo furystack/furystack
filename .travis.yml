@@ -9,12 +9,12 @@ before_install:
 jobs:
   include:
     - stage: 'Lint & Build'
-      name: 'Typescript build'
+      name: 'tsc build'
       script: 'yarn build'
 
-      name: 'tslint'
+    - name: 'tslint'
       script: 'yarn lint'
-    
+
     - stage: 'Tests'
       name: 'Jest tests'
       script: 'yarn test'
