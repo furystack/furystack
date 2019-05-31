@@ -1,5 +1,4 @@
 language: node_js
-cache: yarn
 node_js:
   - '12'
 cacne:
@@ -8,14 +7,15 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
 jobs:
-  - stage: 'Lint & Build'
-    name: 'Typescript build'
-    script: 'yarn build'
+  include:
+    - stage: 'Lint & Build'
+      name: 'Typescript build'
+      script: 'yarn build'
 
-    name: 'tslint'
-    script: 'yarn lint'
-  
-  - stage: 'Tests'
-    name: 'Jest tests'
-    script: 'yarn test'
-    after_success: bash <(curl -s https://codecov.io/bash)
+      name: 'tslint'
+      script: 'yarn lint'
+    
+    - stage: 'Tests'
+      name: 'Jest tests'
+      script: 'yarn test'
+      after_success: bash <(curl -s https://codecov.io/bash)
