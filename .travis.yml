@@ -18,8 +18,7 @@ jobs:
     - name: 'tslint'
       script: 'yarn lint'
 
-    - stage: test
-      name: 'Jest tests'
-
+    - name: 'Jest tests'
+      before_script: yarn build
       script: 'yarn test'
       after_success: bash <(curl -s https://codecov.io/bash)
