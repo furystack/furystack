@@ -6,16 +6,20 @@ cacne:
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
+stages:
+  - compile
+  - test
 jobs:
   include:
-    - stage: 'Lint & Build'
+    - stage: compile
       name: 'tsc build'
       script: 'yarn build'
 
     - name: 'tslint'
       script: 'yarn lint'
 
-    - stage: 'Tests'
+    - stage: test
       name: 'Jest tests'
+
       script: 'yarn test'
       after_success: bash <(curl -s https://codecov.io/bash)
