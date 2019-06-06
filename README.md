@@ -47,4 +47,4 @@ Logging is a powerful library that allows you to create log entries with scopes,
 
 ### @furystack/inject
 
-Inject is a DI / IOC utility that allows you to handle your dependencies easily. In short terms - Just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them.
+Inject is a DI / IOC utility that allows you to handle your dependencies easily. In short terms - Just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them...
