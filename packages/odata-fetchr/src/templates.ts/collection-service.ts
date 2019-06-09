@@ -2,13 +2,13 @@
  * Template for OData Collection Service
  */
 export const odataCollectionService = `import { OdataService } from '@furystack/odata-fetchr/dist/odata-service'
-import {\${entitySetModel}} from '../entity-types/\${entitySetModel}'
+import {\${entitySetModelName}} from '../entity-types/\${entitySetModelFile}'
 
 
 /**
- * Service class for collection \${entitySet}
+ * Service class for collection \${entitySetName}
  */
-export class \${entitySet}Service extends OdataService<\${entitySetModel}> {
+export class \${collectionServiceClassName} extends OdataService<\${entitySetModelName}> {
   protected entitySetUrl: string = '\${entitySetName}';
   
 }

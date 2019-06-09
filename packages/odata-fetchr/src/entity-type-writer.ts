@@ -61,7 +61,12 @@ export class EntityTypeWriter {
           .replace(/\$\{navigationProperties\}/g, navigationProperties)
           .replace(/\$\{key\}/g, entityType.key)
       writeFileSync(
-        join(process.cwd(), this.config.outputPath, this.config.entityTypePath, `${entityType.name}.ts`),
+        join(
+          process.cwd(),
+          this.config.outputPath,
+          this.config.entityTypePath,
+          `${this.config.getModelFileName(entityType.name)}.ts`,
+        ),
         output,
       )
     }
@@ -69,7 +74,7 @@ export class EntityTypeWriter {
     this.logVerbose('Writing barrel file...')
     writeFileSync(
       join(process.cwd(), this.config.outputPath, this.config.entityTypePath, `index.ts`),
-      types.map(t => `export * from './${t.name}'\r\n`).join(''),
+      types.map(t => `export * from './${this.config.getModelFileName(t.name)}'\r\n`).join(''),
     )
   }
 
