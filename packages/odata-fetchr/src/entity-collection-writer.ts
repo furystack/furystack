@@ -16,10 +16,17 @@ export class EntityCollectionWriter {
       const output =
         '' +
         this.config.odataCollectionServiceTemplate
-          .replace(/\$\{entitySet\}/g, collection.name)
-          .replace(/\$\{entitySetModel\}/g, collection.entityType)
+          .replace(/\$\{collectionServiceClassName\}/g, this.config.getServiceClassName(collection.name))
+          .replace(/\$\{entitySetModelFile\}/g, this.config.getModelFileName(collection.entityType))
+          .replace(/\$\{entitySetModelName\}/g, this.config.getModelName(collection.entityType))
+          .replace(/\$\{entitySetName\}/g, collection.name)
       writeFileSync(
-        join(process.cwd(), this.config.outputPath, this.config.entityCollectionServicesPath, `${collection.name}.ts`),
+        join(
+          process.cwd(),
+          this.config.outputPath,
+          this.config.entityCollectionServicesPath,
+          `${this.config.getServiceFileName(collection.name)}.ts`,
+        ),
         output,
       )
     }
@@ -27,7 +34,7 @@ export class EntityCollectionWriter {
     this.logger.verbose({ message: 'Writing barrel file...' })
     writeFileSync(
       join(process.cwd(), this.config.outputPath, this.config.entityCollectionServicesPath, `index.ts`),
-      collections.map(t => `export * from './${t.name}'\r\n`).join(''),
+      collections.map(t => `export * from './${this.config.getServiceFileName(t.name)}'\r\n`).join(''),
     )
   }
 
