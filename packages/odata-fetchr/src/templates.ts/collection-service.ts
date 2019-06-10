@@ -4,6 +4,7 @@
 export const odataCollectionService = `import { OdataService } from '@furystack/odata-fetchr/dist/odata-service'
 import {\${entitySetModelName}} from '../entity-types/\${entitySetModelFile}'
 
+
 /**
  * Service class for collection \${entitySetName}
  */
