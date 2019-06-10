@@ -6,6 +6,9 @@
 
 trigger:
 - master
+- develop
+- feature/*
+- release/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -28,12 +31,14 @@ steps:
   displayName: 'Yarn test'
 
 - task: PublishCodeCoverageResults@1
+  displayName: "Publish test coverage results"
   inputs:
     codeCoverageTool: Cobertura
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
     reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
 
 - task: PublishTestResults@2
+  displayName: Publish test results
   condition: succeededOrFailed()
   inputs:
     testRunner: JUnit
