@@ -18,6 +18,7 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.d.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
   coverageReporters: ['text', 'json', 'html', 'cobertura'],
+  reporters: ['jest-junit'],
   globals: {
     'ts-jest': {
       diagnostics: false,
