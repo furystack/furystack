@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.d.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
-  coverageReporters: ['text', 'json', 'html'],
+  coverageReporters: ['text', 'json', 'html', 'cobertura'],
   globals: {
     'ts-jest': {
       diagnostics: false,

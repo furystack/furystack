@@ -88,4 +88,43 @@ export class Configuration {
       }
     }
   }
+
+  /**
+   * Generates the entity type model name (with namespace). By default, trims the namespace and returns the lower case entity name.
+   * @param entityName The plain entity type name
+   */
+
+  public getModelFileName(entityName: string) {
+    return entityName.split('.')[entityName.split('.').length - 1].toLowerCase()
+  }
+
+  /**
+   * Generates the model name that will be used as a class / interface name. By default it trims the namespace, sanitizes the name and returns it capitalized.
+   * @param entityName The plain entity name (with namespace)
+   */
+  public getModelName(entityName: string) {
+    const sanitized = entityName.split('.')[entityName.split('.').length - 1].replace(/[^a-zA-Z0-9.-]/g, () => '_')
+    return sanitized[0].toUpperCase() + sanitized.slice(1)
+  }
+
+  /**
+   * Returns the service file's name (without the .ts extension) from the service, defaults to the collection name in lower case
+   */
+  public getServiceFileName(collectionName: string) {
+    return collectionName.toLowerCase()
+  }
+
+  /**
+   * Returns a class name from the collection name that will be used as the collection's name. By default, it trims namespaces and returns the capitalized class name.
+   * @param collectionName The plain collection name with namespaces
+   */
+  public getServiceClassName(collectionName: string) {
+    return (
+      collectionName[0].toUpperCase() +
+      collectionName
+        .split('.')
+        [collectionName.split('.').length - 1].toLowerCase()
+        .slice(1)
+    )
+  }
 }
