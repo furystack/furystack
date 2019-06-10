@@ -15,8 +15,13 @@ steps:
     versionSpec: '12.x'
   displayName: 'Install Node.js'
 
-- script: |
+- script:
     yarn install
+  displayName: 'Yarn install'
+- script:
     yarn build
+  displayName: 'Yarn build'
+
+- script: 
     yarn test
-  displayName: 'Yarn install and build'
+  displayName: 'Yarn test'
