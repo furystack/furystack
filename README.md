@@ -1,7 +1,6 @@
 # furystack
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/furystack/furystack.svg)](https://greenkeeper.io/)
-[![Build Status](https://travis-ci.org/furystack/furystack.svg?branch=master)](https://travis-ci.org/furystack/furystack)
+[![Build Status](https://dev.azure.com/furystack/FuryStack/_apis/build/status/furystack.furystack?branchName=master)](https://dev.azure.com/furystack/FuryStack/_build/latest?definitionId=1&branchName=master)
 
 FuryStack is a flexible framework that allows you to build complex services fast and easily.
 
