@@ -11,6 +11,7 @@
   "devDependencies": {
     "husky": "^2.3.0",
     "jest": "^24.8.0",
+    "jest-junit": "^6.4.0",
     "lerna": "^3.13.4",
     "lint-staged": "^8.1.7",
     "prettier": "^1.17.1",
@@ -55,5 +56,9 @@
       "*.d.ts"
     ]
   },
-  "name": "furystack"
+  "name": "furystack",
+  "jest-junit": {
+    "suiteName": "FuryStack Jest tests",
+    "outputDirectory": "./coverage"
+  }
 }
