@@ -5,41 +5,40 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- master
-- develop
-- feature/*
-- release/*
+  - master
+  - develop
+  - feature/*
+  - release/*
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '12.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '12.x'
+    displayName: 'Install Node.js'
 
-- script:
-    yarn install
-  displayName: 'Yarn install'
-- script:
-    yarn build
-  displayName: 'Yarn build'
+  - script: yarn install
+    displayName: 'Yarn install'
+  - script: yarn build
+    displayName: 'Yarn build'
 
-- script: 
-    yarn test
-  displayName: 'Yarn test'
+  - script: yarn test
+    displayName: 'Yarn test'
+  - script: bash <(curl -s https://codecov.io/bash)
+    displayName: 'Publish test results to Codecov'
 
-- task: PublishCodeCoverageResults@1
-  displayName: "Publish test coverage results"
-  inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
-    reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish test coverage results'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
 
-- task: PublishTestResults@2
-  displayName: Publish test results
-  condition: succeededOrFailed()
-  inputs:
-    testRunner: JUnit
-    testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
