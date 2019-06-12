@@ -1,1 +1,1 @@
-export * from "./Constructable";
+export * from './Constructable'

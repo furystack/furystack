@@ -9,9 +9,9 @@ export const odataContext = {
     /**
      * The root of the odata service endpoint, e.g.: http://my-site/odata/
      */
-    odataRootPath: '$\{odataRootPath\}',
+    odataRootPath: '\${odataRootPath}',
     /**
      * Metadata creation date
      */
-    creationDate: '$\{creationDate\}',
+    creationDate: '\${creationDate}',
 }`

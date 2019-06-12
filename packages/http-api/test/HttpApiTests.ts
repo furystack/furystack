@@ -128,8 +128,8 @@ describe('HttpApi tests', () => {
       i.useHttpApi({
         actions: [() => ExampleFailAction],
         errorAction: ExampleErrorAction as any,
-      }),
-        i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+      })
+      i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
   })
 })

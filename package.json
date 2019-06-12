@@ -9,26 +9,29 @@
     "nohoist": []
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
+    "@types/jest": "^24.0.13",
     "husky": "^2.3.0",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
     "lerna": "^3.13.4",
     "lint-staged": "^8.1.7",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-cypress": "^2.2.1",
+    "eslint-plugin-prettier": "^3.1.0",
     "prettier": "^1.17.1",
     "rimraf": "^2.6.3",
     "ts-jest": "^24.0.2",
     "tslib": "^1.9.3",
-    "tslint": "^5.16.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-consistent-codestyle": "^1.15.1",
-    "tslint-react": "^4.0.0",
     "typescript": "^3.5.1",
     "typescript-tslint-plugin": "^0.4.0"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "tsc -b packages",
-    "lint": "tslint packages/**/src/**/*.ts",
+    "lint": "eslint . --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest",
@@ -43,7 +46,7 @@
   "lint-staged": {
     "linters": {
       "*.{ts,tsx}": [
-        "tslint --fix",
+        "eslint --fix",
         "prettier --write",
         "git add"
       ],

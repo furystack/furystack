@@ -8,7 +8,6 @@ import { IncomingMessage, ServerResponse } from 'http'
 @Injectable({ lifetime: 'transient' })
 export class MockAction implements IRequestAction {
   public async exec() {
-    
     this.response.writeHead(200, {
       'Content-Type': 'application/json',
     })
