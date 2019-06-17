@@ -1,4 +1,7 @@
 {
-    "jest.pathToJest": "yarn test",
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+  "eslint.validate": [
+    { "language": "typescript", "autoFix": true },
+    { "language": "typescriptreact", "autoFix": true }
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
