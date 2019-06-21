@@ -35,11 +35,11 @@ export class Injector implements Disposable {
     Constructable<any>,
     {
       dependencies: Array<Constructable<any>>
-      options: import('./Injectable').IInjectableOptions
+      options: import('./Injectable').InjectableOptions
     }
   > = new Map()
 
-  private cachedSingletons: Map<Constructable<any>, any> = new Map()
+  public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
 
   public remove = <T>(ctor: Constructable<T>) => this.cachedSingletons.delete(ctor)
 

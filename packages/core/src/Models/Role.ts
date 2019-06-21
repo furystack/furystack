@@ -1,7 +1,7 @@
 /**
  * Representation of an application role
  */
-export interface IRole {
+export interface Role {
   /**
    * Name of the role
    */

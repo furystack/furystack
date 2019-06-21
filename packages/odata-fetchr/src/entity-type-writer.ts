@@ -1,7 +1,7 @@
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { Configuration, EntityType } from './models'
 
 /**
@@ -35,7 +35,7 @@ export class EntityTypeWriter {
       if (entityType.properties) {
         for (const property of entityType.properties) {
           const propertyType = this.config.resolveEdmType(property.type)
-          properties += ('' + this.config.entityPropertyTemplate)
+          properties += `${this.config.entityPropertyTemplate}`
             .replace(/\$\{name\}/g, property.name)
             .replace(/\$\{type\}/g, propertyType)
             .replace(/\$\{nullable\}/g, property.nullable ? '?' : '!')
@@ -53,13 +53,11 @@ export class EntityTypeWriter {
         }
       }
 
-      const output =
-        '' +
-        this.config.entityTypeTemplate
-          .replace(/\$\{name\}/g, entityType.name)
-          .replace(/\$\{properties\}/g, properties)
-          .replace(/\$\{navigationProperties\}/g, navigationProperties)
-          .replace(/\$\{key\}/g, entityType.key)
+      const output = `${this.config.entityTypeTemplate
+        .replace(/\$\{name\}/g, entityType.name)
+        .replace(/\$\{properties\}/g, properties)
+        .replace(/\$\{navigationProperties\}/g, navigationProperties)
+        .replace(/\$\{key\}/g, entityType.key)}`
       writeFileSync(
         join(
           process.cwd(),
@@ -81,7 +79,7 @@ export class EntityTypeWriter {
   private logger: ScopedLogger
 
   constructor(private injector: Injector, private readonly config: Configuration) {
-    this.logger = this.injector.logger.withScope('@furystack/odata-fetchr/' + this.constructor.name)
+    this.logger = this.injector.logger.withScope(`@furystack/odata-fetchr/${this.constructor.name}`)
     this.logVerbose('Starting EntityTypeWriter...')
   }
 }

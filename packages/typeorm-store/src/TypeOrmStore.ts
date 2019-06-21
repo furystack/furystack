@@ -1,12 +1,12 @@
-import { DefaultFilter, IPhysicalStore } from '@furystack/core'
+import { DefaultFilter, PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { ILogger, ScopedLogger } from '@furystack/logging'
+import { Logger, ScopedLogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class TypeOrmStore<T> implements IPhysicalStore<T> {
+export class TypeOrmStore<T> implements PhysicalStore<T> {
   public primaryKey!: keyof T
   private typeOrmRepo!: Repository<T>
 
@@ -17,10 +17,10 @@ export class TypeOrmStore<T> implements IPhysicalStore<T> {
     private readonly options: {
       model: Constructable<T>
       connection: Connection
-      logger: ILogger
+      logger: Logger
     },
   ) {
-    this.logger = this.options.logger.withScope('@furystack/typeorm-store/' + this.constructor.name)
+    this.logger = this.options.logger.withScope(`@furystack/typeorm-store/${this.constructor.name}`)
 
     this.model = options.model
     this.logger.verbose({

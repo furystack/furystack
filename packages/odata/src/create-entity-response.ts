@@ -73,11 +73,11 @@ export const createEntityResponse = async <T>(options: {
     return returnEntity
   }
 
-  const expandedEntity = { ...returnEntity } as T & { [key: string]: any }
+  const expandedEntity = { ...returnEntity }
   await Promise.all(
     navExpressions.map(async navExpression => {
-      const navProperty = navExpression.navProperty
-      const navPropertyCollection = navExpression.navPropertyCollection
+      const { navProperty } = navExpression
+      const { navPropertyCollection } = navExpression
 
       if (navProperty) {
         const dataSet = options.repo.getDataSetFor(navProperty.dataSet || navProperty.relatedModel)

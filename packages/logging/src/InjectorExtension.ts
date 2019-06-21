@@ -1,6 +1,6 @@
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
-import { ILogger } from './ILogger'
+import { Logger } from './Logger'
 import { LoggerCollection } from './LoggerCollection'
 
 // tslint:disable-next-line: no-unused-expression
@@ -12,12 +12,12 @@ declare module '@furystack/inject/dist/Injector' {
     /**
      * Registers a Logger service to the injector container with the provided loggers.
      */
-    useLogging: (...loggers: Array<Constructable<ILogger>>) => Injector
+    useLogging: (...loggers: Array<Constructable<Logger>>) => Injector
 
     /**
      * Returns the registered Logger instance
      */
-    readonly logger: ILogger
+    readonly logger: Logger
   }
 }
 
@@ -31,7 +31,7 @@ Injector.prototype.useLogging = function(...loggers) {
 
 Object.defineProperty(Injector.prototype, 'logger', {
   // tslint:disable-next-line: object-literal-shorthand
-  get: function() {
+  get() {
     return this.getInstance(LoggerCollection)
   },
 })

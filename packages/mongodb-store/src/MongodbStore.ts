@@ -1,12 +1,12 @@
-import { DefaultFilter, IPhysicalStore } from '@furystack/core'
+import { DefaultFilter, PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { ILogger, ScopedLogger } from '@furystack/logging'
+import { Logger, ScopedLogger } from '@furystack/logging'
 import { Collection, MongoClient, ObjectId } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class MongodbStore<T extends { _id: string }> implements IPhysicalStore<T> {
+export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T> {
   public readonly primaryKey = '_id'
 
   public readonly model: Constructable<T>
@@ -22,11 +22,11 @@ export class MongodbStore<T extends { _id: string }> implements IPhysicalStore<T
       model: Constructable<T>
       db: string
       collection: string
-      logger: ILogger
+      logger: Logger
       mongoClient: () => Promise<MongoClient>
     },
   ) {
-    this.logger = this.options.logger.withScope('@furystack/mongodb-store/' + this.constructor.name)
+    this.logger = this.options.logger.withScope(`@furystack/mongodb-store/${this.constructor.name}`)
 
     this.model = options.model
     this.logger.verbose({

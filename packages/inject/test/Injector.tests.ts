@@ -29,11 +29,7 @@ describe('Injector', () => {
   it('Should set and return instance from cache', () => {
     const i = new Injector()
     @Injectable({ lifetime: 'scoped' })
-    class InstanceClass {
-      constructor() {
-        /** */
-      }
-    }
+    class InstanceClass {}
     const instance = new InstanceClass()
     i.setExplicitInstance(instance)
     expect(i.getInstance(InstanceClass)).toBe(instance)
@@ -49,11 +45,7 @@ describe('Injector', () => {
     const parent = new Injector()
     const i = parent.createChild()
     @Injectable({ lifetime: 'singleton' })
-    class InstanceClass {
-      constructor() {
-        /** */
-      }
-    }
+    class InstanceClass {}
     const instance = new InstanceClass()
     parent.setExplicitInstance(instance)
     expect(i.getInstance(InstanceClass)).toBe(instance)
@@ -65,11 +57,7 @@ describe('Injector', () => {
     const parent = new Injector()
     const i = parent.createChild()
     @Injectable({ lifetime: 'singleton' })
-    class InstanceClass {
-      constructor() {
-        /** */
-      }
-    }
+    class InstanceClass {}
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(
       // tslint:disable-next-line:no-string-literal

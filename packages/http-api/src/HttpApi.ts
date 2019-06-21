@@ -1,9 +1,9 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { HttpApiSettings } from './HttpApiSettings'
-import { IRequestAction } from './Models'
+import { RequestAction } from './Models'
 import { Utils } from './Utils'
 
 /**
@@ -18,7 +18,7 @@ export class HttpApi {
       injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
       const actionCtors = this.settings.actions
         .map(a => a(incomingMessage, injector))
-        .filter(a => a !== undefined) as Array<Constructable<IRequestAction>>
+        .filter(a => a !== undefined) as Array<Constructable<RequestAction>>
       if (actionCtors.length > 1) {
         this.logger.error({
           message: `Multiple HTTP actions found that can be execute the request`,
@@ -52,6 +52,6 @@ export class HttpApi {
   private readonly injector: Injector
   constructor(parentInjector: Injector, logger: LoggerCollection, private readonly settings: HttpApiSettings) {
     this.injector = parentInjector.createChild({ owner: this })
-    this.logger = logger.withScope('@furystack/http-api/' + this.constructor.name)
+    this.logger = logger.withScope(`@furystack/http-api/${this.constructor.name}`)
   }
 }

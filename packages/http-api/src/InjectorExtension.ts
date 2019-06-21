@@ -1,14 +1,14 @@
-import { InMemoryStore, ServerManager, User } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject/dist/Injector'
 import { createServer as createHttpServer, IncomingMessage } from 'http'
-import { ServerOptions } from 'https'
-import { createServer as createHttpsServer } from 'https'
-import { HttpAuthenticationSettings, IRequestAction } from '.'
+import { ServerOptions, createServer as createHttpsServer } from 'https'
+
+import { Injector } from '@furystack/inject/dist/Injector'
+import { Constructable } from '@furystack/inject'
+import { InMemoryStore, ServerManager, User } from '@furystack/core'
 import { defaultLoginRoutes } from './default-login-routes'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
 import { DefaultSession } from './Models/DefaultSession'
+import { HttpAuthenticationSettings, RequestAction } from '.'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
@@ -18,7 +18,7 @@ export interface HttpExtendedInjector extends Injector {
     settings?: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
   addHttpRouting: (
-    route: (incomingMessage: IncomingMessage) => Constructable<IRequestAction> | undefined,
+    route: (incomingMessage: IncomingMessage) => Constructable<RequestAction> | undefined,
   ) => HttpExtendedInjector
 
   useDefaultLoginRoutes: () => HttpExtendedInjector

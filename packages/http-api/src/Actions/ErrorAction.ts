@@ -1,14 +1,14 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { Injectable } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
-import { IncomingMessage, ServerResponse } from 'http'
-import { IRequestAction } from '../Models'
+import { RequestAction } from '../Models'
 
 /**
  * Action for unhandled (500) errors
  * Returns a serialized error instance in JSON format.
  */
 @Injectable({ lifetime: 'transient' })
-export class ErrorAction implements IRequestAction {
+export class ErrorAction implements RequestAction {
   public dispose() {
     /** */
   }
@@ -35,6 +35,6 @@ export class ErrorAction implements IRequestAction {
     private serverResponse: ServerResponse,
     logger: LoggerCollection,
   ) {
-    this.logger = logger.withScope('@furystack/http-api/' + this.constructor.name)
+    this.logger = logger.withScope(`@furystack/http-api/${this.constructor.name}`)
   }
 }

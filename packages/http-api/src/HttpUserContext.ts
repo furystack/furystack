@@ -1,21 +1,21 @@
-import { IPhysicalStore, User } from '@furystack/core'
+import { IncomingMessage, ServerResponse } from 'http'
+import { PhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core/dist/StoreManager'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
-import { IExternalLoginService } from './Models/IExternalLoginService'
+import { ExternalLoginService } from './Models/ExternalLoginService'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
 export class HttpUserContext<TUser extends User = User> {
-  public users!: IPhysicalStore<TUser>
+  public users!: PhysicalStore<TUser>
 
-  public sessions!: IPhysicalStore<{
+  public sessions!: PhysicalStore<{
     sessionId: string
     username: string
   }>
@@ -28,7 +28,7 @@ export class HttpUserContext<TUser extends User = User> {
       password: this.authentication.hashMethod(password),
     } as any)
     if (match.length === 1) {
-      // tslint:disable-next-line: no-shadowed-variable
+      // eslint-disable-next-line no-shadow
       const { password, ...user } = match[0] as TUser & { password?: string }
       return (user as any) as TUser
     }
@@ -76,6 +76,7 @@ export class HttpUserContext<TUser extends User = User> {
       const session = await this.sessions.get(sessionId)
       if (session) {
         const userResult = await this.users.filter({
+          // eslint-disable-next-line @typescript-eslint/no-object-literal-type-assertion
           filter: {
             username: session.username,
           } as Partial<TUser>,
@@ -108,7 +109,7 @@ export class HttpUserContext<TUser extends User = User> {
     return user
   }
 
-  public async externalLogin<T extends IExternalLoginService<TUser, TArgs>, TArgs extends any[]>(
+  public async externalLogin<T extends ExternalLoginService<TUser, TArgs>, TArgs extends any[]>(
     service: Constructable<T>,
     serverResponse: ServerResponse,
     ...args: TArgs
@@ -168,6 +169,6 @@ export class HttpUserContext<TUser extends User = User> {
   ) {
     this.users = authentication.getUserStore(storeManager)
     this.sessions = authentication.getSessionStore(storeManager)
-    this.logger = injector.logger.withScope('@furystack/http-api/' + this.constructor.name)
+    this.logger = injector.logger.withScope(`@furystack/http-api/${this.constructor.name}`)
   }
 }

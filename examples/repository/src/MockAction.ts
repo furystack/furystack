@@ -1,6 +1,6 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { IRequestAction } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
-import { IncomingMessage, ServerResponse } from 'http'
 
 /**
  * Example mock action

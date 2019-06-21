@@ -1,5 +1,5 @@
-import { ILeveledLogEntry, ILogEntry, LogLevel } from './ILogEntries'
-import { ILogger, ILoggerOptions, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './ILogger'
+import { LeveledLogEntry, LogEntry, LogLevel } from './LogEntries'
+import { Logger, LoggerOptions, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './Logger'
 
 /**
  * Default scope key for the Abstract Logger
@@ -9,28 +9,22 @@ export const AbstractLoggerScope = '@furystack/core/AbstractLogger'
 /**
  * default options for a logger instance
  */
-export const defaultLoggerOptions: ILoggerOptions = {
+export const defaultLoggerOptions: LoggerOptions = {
   filter: () => true,
 }
 
 /**
  * Abstract logger instance
  */
-export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOptions> implements ILogger {
-  public readonly options: TOptions
-  constructor(options?: Partial<ILoggerOptions>) {
-    this.options = {
-      ...defaultLoggerOptions,
-      ...options,
-    } as TOptions
-  }
+export abstract class AbstractLogger<TOptions extends LoggerOptions = LoggerOptions> implements Logger {
+  constructor(public readonly options: TOptions) {}
 
   /**
    * Adds a new log entry to the logger
    * @param entry The Log entry object
    */
-  public abstract addEntry<T>(entry: ILeveledLogEntry<T>): Promise<void>
-  private async addEntryInternal<T>(entry: ILeveledLogEntry<T>) {
+  public abstract addEntry<T>(entry: LeveledLogEntry<T>): Promise<void>
+  private async addEntryInternal<T>(entry: LeveledLogEntry<T>) {
     if (!this.options.filter(entry)) {
       return
     }
@@ -52,7 +46,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds a Verbose level log entry. Verbose is the noisiest level, rarely (if ever) enabled for a production app.
    * @param entry The Log entry
    */
-  public async verbose<T>(entry: ILogEntry<T>) {
+  public async verbose<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Verbose,
@@ -63,7 +57,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds a Debug level log entry. Debug is used for internal system events that are not necessarily observable from the outside, but useful when determining how something happened.
    * @param entry  The Log entry
    */
-  public async debug<T>(entry: ILogEntry<T>) {
+  public async debug<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Debug,
@@ -74,7 +68,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds an Information level log entry. Information events describe things happening in the system that correspond to its responsibilities and functions. Generally these are the observable actions the system can perform.
    * @param entry  The Log entry
    */
-  public async information<T>(entry: ILogEntry<T>) {
+  public async information<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Information,
@@ -85,7 +79,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds a Warning level log entry. When service is degraded, endangered, or may be behaving outside of its expected parameters, Warning level events are used.
    * @param entry  The Log entry
    */
-  public async warning<T>(entry: ILogEntry<T>) {
+  public async warning<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
       level: LogLevel.Warning,
@@ -96,7 +90,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds an Error level log entry. When functionality is unavailable or expectations broken, an Error event is used.
    * @param entry  The Log entry
    */
-  public async error<T>(entry: ILogEntry<T>) {
+  public async error<T>(entry: LogEntry<T>) {
     try {
       await this.addEntry({
         ...entry,
@@ -119,7 +113,7 @@ export abstract class AbstractLogger<TOptions extends ILoggerOptions = ILoggerOp
    * Adds a Fatal level log entry. The most critical level, Fatal events demand immediate attention.
    * @param entry  The Log entry
    */
-  public async fatal<T>(entry: ILogEntry<T>) {
+  public async fatal<T>(entry: LogEntry<T>) {
     await this.addEntry({
       ...entry,
       level: LogLevel.Fatal,

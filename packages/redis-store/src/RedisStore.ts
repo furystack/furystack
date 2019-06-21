@@ -1,13 +1,13 @@
-import { DefaultFilter, IPhysicalStore } from '@furystack/core'
+import { DefaultFilter, PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { ILogger, ScopedLogger } from '@furystack/logging'
+import { Logger, ScopedLogger } from '@furystack/logging'
 import { RedisClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
 export class RedisStore<T, K extends keyof T, KeyType extends T[K] & { toString: () => string }>
-  implements IPhysicalStore<T> {
+  implements PhysicalStore<T> {
   public primaryKey!: K
 
   public readonly model: Constructable<T>
@@ -17,11 +17,11 @@ export class RedisStore<T, K extends keyof T, KeyType extends T[K] & { toString:
     private readonly options: {
       model: Constructable<T>
       client: RedisClient
-      logger: ILogger
+      logger: Logger
       primaryKey: K
     },
   ) {
-    this.logger = this.options.logger.withScope('@furystack/redis-store/' + this.constructor.name)
+    this.logger = this.options.logger.withScope(`@furystack/redis-store/${this.constructor.name}`)
     this.primaryKey = options.primaryKey
 
     this.model = options.model

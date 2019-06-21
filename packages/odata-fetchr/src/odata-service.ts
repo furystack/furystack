@@ -81,7 +81,7 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    */
   public query(): ODataQuery<T> {
     const evaluateQuery = async (queryString: string): Promise<ODataQueryResult<T>> => {
-      const url = this.entitySetUrl + '/' + queryString
+      const url = `${this.entitySetUrl}/${queryString}`
       return this.extractResponse<ODataQueryResult<T>>(url)
     }
 
@@ -104,7 +104,7 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
     entityId: any,
     postData?: TData,
   ): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(this.getUriForEntity(entityId) + `/${actionName}`, {
+    return await this.extractResponse<TReturns>(`${this.getUriForEntity(entityId)}/${actionName}`, {
       method: 'POST',
       body: JSON.stringify(postData),
     })
@@ -134,7 +134,7 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    * @returns An awaitable promise
    */
   protected async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(this.getUriForEntity(entityId) + `/${fucntionName}`)
+    return await this.extractResponse<TReturns>(`${this.getUriForEntity(entityId)}/${fucntionName}`)
   }
 
   /**

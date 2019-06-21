@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
-import { ILeveledLogEntry, LogLevel } from './ILogEntries'
-import { ILoggerOptions } from './ILogger'
+import { LeveledLogEntry, LogLevel } from './LogEntries'
+import { LoggerOptions } from './Logger'
 
 /**
  * Resets the console color
@@ -57,7 +57,7 @@ export const getLevelColor = (level: LogLevel) => {
     case LogLevel.Warning:
       return FgYellow
     case LogLevel.Error:
-    case LogLevel.Fatal:
+    default:
       return FgRed
   }
 }
@@ -66,7 +66,7 @@ export const getLevelColor = (level: LogLevel) => {
  * The default formatter for the Console logger
  * @param entry the log entry to be formatted
  */
-export const defaultFormatter = <T>(entry: ILeveledLogEntry<T>) => {
+export const defaultFormatter = <T>(entry: LeveledLogEntry<T>) => {
   const fontColor = getLevelColor(entry.level)
   return [`${fontColor}%s${Reset}`, entry.scope, entry.message]
 }
@@ -75,7 +75,7 @@ export const defaultFormatter = <T>(entry: ILeveledLogEntry<T>) => {
  * Formatter for a verbose message
  * @param entry the log entry
  */
-export const verboseFormatter = <T>(entry: ILeveledLogEntry<T>) => {
+export const verboseFormatter = <T>(entry: LeveledLogEntry<T>) => {
   const fontColor = getLevelColor(entry.level)
   return entry.data
     ? [`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data]
@@ -85,23 +85,20 @@ export const verboseFormatter = <T>(entry: ILeveledLogEntry<T>) => {
 /**
  * Options for a Console Logger instance
  */
-export interface IConsoleLoggerOptions extends ILoggerOptions {
-  formatter: <T>(entry: ILeveledLogEntry<T>) => any[]
+export interface ConsoleLoggerOptions extends LoggerOptions {
+  formatter: <T>(entry: LeveledLogEntry<T>) => any[]
 }
 
 /**
  * A logger implementation that dumps log messages to the console
  */
 @Injectable({ lifetime: 'scoped' })
-export class ConsoleLogger extends AbstractLogger<IConsoleLoggerOptions> {
-  public readonly options: IConsoleLoggerOptions = {
+export class ConsoleLogger extends AbstractLogger<ConsoleLoggerOptions> {
+  public readonly options: ConsoleLoggerOptions = {
     ...defaultLoggerOptions,
     formatter: defaultFormatter,
   }
-  constructor() {
-    super()
-  }
-  public async addEntry<T>(entry: ILeveledLogEntry<T>) {
+  public async addEntry<T>(entry: LeveledLogEntry<T>) {
     const data = this.options.formatter(entry)
     // tslint:disable-next-line:no-console
     console.log(...data)

@@ -1,5 +1,5 @@
-import { Injectable } from '@furystack/inject'
 import { Server } from 'net'
+import { Injectable } from '@furystack/inject'
 
 /**
  * Manager class for server instances

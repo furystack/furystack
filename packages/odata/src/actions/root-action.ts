@@ -1,7 +1,7 @@
-import { IRequestAction } from '@furystack/http-api'
+import { IncomingMessage, ServerResponse } from 'http'
+import { RequestAction } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
 import { PathHelper } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 // import { XmlNode, xmlToString } from '../xml-utils'
 
@@ -9,7 +9,7 @@ import { OdataContext } from '../odata-context'
  * OData Root action
  */
 @Injectable({ lifetime: 'transient' })
-export class RootAction implements IRequestAction {
+export class RootAction implements RequestAction {
   public dispose() {
     /** */
   }

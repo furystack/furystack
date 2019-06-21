@@ -1,4 +1,4 @@
-import { DefaultFilter, IPhysicalStore, StoreManager } from '@furystack/core'
+import { DefaultFilter, PhysicalStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { DataSet } from './DataSet'
@@ -27,7 +27,7 @@ export class Repository {
     settings?: Partial<DataSetSettings<T, TFilter>>,
   ) {
     const physicalStore =
-      (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as IPhysicalStore<T, TFilter>)
+      (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as PhysicalStore<T, TFilter>)
     const name = (settings && settings.name) || model.name
     const instance = new DataSet({
       ...settings,
@@ -41,6 +41,6 @@ export class Repository {
   private logger: ScopedLogger
 
   constructor(private readonly storeManager: StoreManager, private readonly injector: Injector) {
-    this.logger = this.injector.logger.withScope('@furystack/repository/' + this.constructor.name)
+    this.logger = this.injector.logger.withScope(`@furystack/repository/${this.constructor.name}`)
   }
 }

@@ -1,7 +1,7 @@
-import { Injectable } from '@furystack/inject'
 import { existsSync, readFileSync } from 'fs'
 import { ServerOptions } from 'https'
 import { join } from 'path'
+import { Injectable } from '@furystack/inject'
 
 /**
  * Manager class for https certificates

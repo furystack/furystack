@@ -1,14 +1,14 @@
-import { IRequestAction } from '@furystack/http-api'
+import { ServerResponse } from 'http'
+import { RequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
  * OData Delete action
  */
 @Injectable({ lifetime: 'transient' })
-export class DeleteAction implements IRequestAction {
+export class DeleteAction implements RequestAction {
   public dispose() {
     /** */
   }

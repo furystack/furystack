@@ -1,12 +1,11 @@
+import { parse } from 'url'
+import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage } from 'http'
-import { parse } from 'url'
-import { Data, Server as WebSocketServer } from 'ws'
-import ws from 'ws'
-import { IWebSocketAction } from './models/IWebSocketAction'
+import ws, { Data, Server as WebSocketServer } from 'ws'
+import { WebSocketAction } from './models'
 import { WebSocketApiSettings } from './WebSocketApiSettings'
 
 /**
@@ -23,7 +22,7 @@ export class WebSocketApi {
     public serverManager: ServerManager,
     parentInjector: Injector,
   ) {
-    this.logger = logger.withScope('@furystack/websocket-api/' + this.constructor.name)
+    this.logger = logger.withScope(`@furystack/websocket-api/${this.constructor.name}`)
     this.logger.verbose({
       message: 'Initializating WebSocket API',
       data: this.settings,
@@ -60,7 +59,7 @@ export class WebSocketApi {
 
     for (const server of this.serverManager.getServers()) {
       server.on('upgrade', (request, socket, head) => {
-        const pathname = parse(request.url).pathname
+        const { pathname } = parse(request.url)
         if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, websocket => {
             this.logger.verbose({
@@ -79,7 +78,7 @@ export class WebSocketApi {
       usingAsync(this.injector.createChild({ owner: msg }), async i => {
         i.setExplicitInstance(msg, IncomingMessage)
         i.setExplicitInstance(websocket, ws)
-        const actionInstance = i.getInstance<IWebSocketAction>(action)
+        const actionInstance = i.getInstance<WebSocketAction>(action)
         actionInstance.execute(data)
       })
     }

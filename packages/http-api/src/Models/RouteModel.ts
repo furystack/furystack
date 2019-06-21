@@ -1,11 +1,11 @@
-import { Constructable, Injector } from '@furystack/inject'
 import { IncomingMessage } from 'http'
-import { IRequestAction } from './IRequestAction'
+import { Constructable, Injector } from '@furystack/inject'
+import { RequestAction } from './RequestAction'
 
 /**
  * Strategy for resolving actions from a route
  */
-export type IRouteModel = (
+export type RouteModel = (
   /**
    * The incoming request message
    */
@@ -15,4 +15,4 @@ export type IRouteModel = (
    * The injector instance
    */
   injector: Injector,
-) => Constructable<IRequestAction> | undefined
+) => Constructable<RequestAction> | undefined

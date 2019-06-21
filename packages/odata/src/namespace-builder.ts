@@ -73,65 +73,53 @@ export class NamespaceBuilder {
         Namespace: this.name,
       },
       children: [
-        ...Array.from(this.entities.entities.values()).map(
-          entity =>
-            ({
-              tagName: 'EntityType',
-              attributes: {
-                Name: entity.name || entity.model.name,
-              },
+        ...Array.from(this.entities.entities.values()).map(entity => ({
+          tagName: 'EntityType',
+          attributes: {
+            Name: entity.name || entity.model.name,
+          },
+          children: [
+            {
+              tagName: 'Key',
               children: [
                 {
-                  tagName: 'Key',
-                  children: [
-                    {
-                      tagName: 'PropertyRef',
-                      attributes: {
-                        Name: entity.primaryKey.toString(),
-                      },
-                    },
-                  ],
+                  tagName: 'PropertyRef',
+                  attributes: {
+                    Name: entity.primaryKey.toString(),
+                  },
                 },
-                ...entity.properties.map(
-                  field =>
-                    ({
-                      tagName: 'Property',
-                      attributes: {
-                        // ToDo: min, max, etc...
-                        Name: field.property,
-                        Type: `Edm.${EdmType[field.type]}`,
-                        ...(field.property === entity.primaryKey ? { Nullable: 'false' } : {}),
-                        ...(field.nullable !== undefined ? { Nullable: field.nullable.toString() } : {}),
-                      },
-                    } as XmlNode),
-                ),
-                ...(entity.navigationProperties
-                  ? entity.navigationProperties.map(
-                      relation =>
-                        ({
-                          tagName: 'NavigationProperty',
-                          attributes: {
-                            Name: relation.propertyName,
-                            Type: `${this.name}.${relation.relatedModel.name}`,
-                          },
-                        } as XmlNode),
-                    )
-                  : []),
-                ...(entity.navigationPropertyCollections
-                  ? entity.navigationPropertyCollections.map(
-                      relation =>
-                        ({
-                          tagName: 'NavigationProperty',
-                          attributes: {
-                            Name: relation.propertyName,
-                            Type: `Collection(${this.name}.${relation.relatedModel.name})`,
-                          },
-                        } as XmlNode),
-                    )
-                  : []),
               ],
-            } as XmlNode),
-        ),
+            },
+            ...entity.properties.map(field => ({
+              tagName: 'Property',
+              attributes: {
+                // ToDo: min, max, etc...
+                Name: field.property,
+                Type: `Edm.${EdmType[field.type]}`,
+                ...(field.property === entity.primaryKey ? { Nullable: 'false' } : {}),
+                ...(field.nullable !== undefined ? { Nullable: field.nullable.toString() } : {}),
+              },
+            })),
+            ...(entity.navigationProperties
+              ? entity.navigationProperties.map(relation => ({
+                  tagName: 'NavigationProperty',
+                  attributes: {
+                    Name: relation.propertyName,
+                    Type: `${this.name}.${relation.relatedModel.name}`,
+                  },
+                }))
+              : []),
+            ...(entity.navigationPropertyCollections
+              ? entity.navigationPropertyCollections.map(relation => ({
+                  tagName: 'NavigationProperty',
+                  attributes: {
+                    Name: relation.propertyName,
+                    Type: `Collection(${this.name}.${relation.relatedModel.name})`,
+                  },
+                }))
+              : []),
+          ],
+        })),
         {
           tagName: 'EntityContainer',
           attributes: {
@@ -140,16 +128,13 @@ export class NamespaceBuilder {
             // 'p4:LazyLoadingEnabled': 'true',
           },
           children: [
-            ...Array.from(this.collections.collections.values()).map(
-              collection =>
-                ({
-                  tagName: 'EntitySet',
-                  attributes: {
-                    Name: collection.name,
-                    EntityType: `${this.name}.${collection.model.name}`,
-                  },
-                } as XmlNode),
-            ),
+            ...Array.from(this.collections.collections.values()).map(collection => ({
+              tagName: 'EntitySet',
+              attributes: {
+                Name: collection.name,
+                EntityType: `${this.name}.${collection.model.name}`,
+              },
+            })),
           ],
         },
         // Unbound functions and actions
@@ -203,7 +188,7 @@ export class NamespaceBuilder {
               : []),
           ]
         }),
-      ],
+      ] as XmlNode[],
     }
     return value
   }

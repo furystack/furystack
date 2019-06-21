@@ -1,6 +1,6 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { NotFoundAction } from '../../src'
 
 describe('NotFoundAction tests', () => {

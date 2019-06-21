@@ -1,1 +1,1 @@
-export * from './IWebSocketAction'
+export * from './WebSocketAction'

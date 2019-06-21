@@ -1,5 +1,3 @@
 export * from './WebSocketApi'
 export * from './models'
-export * from './WebSocketApi'
-export * from './InjectorExtension'
 import './InjectorExtension'

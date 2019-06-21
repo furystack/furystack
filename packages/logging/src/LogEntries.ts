@@ -35,7 +35,7 @@ export enum LogLevel {
 /**
  * A log entry representation
  */
-export interface ILogEntry<TData> {
+export interface LogEntry<TData> {
   /**
    * A well-defined scope for grouping entries, e.g. a component or service name.
    */
@@ -55,7 +55,7 @@ export interface ILogEntry<TData> {
 /**
  * Interface that represents a log entry with a specific level
  */
-export interface ILeveledLogEntry<T> extends ILogEntry<T> {
+export interface LeveledLogEntry<T> extends LogEntry<T> {
   /**
    * The verbosity level of the log entry
    */

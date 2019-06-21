@@ -1,7 +1,7 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@sensenet/client-utils'
-import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
+import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
 
 /**
  * Manager class for store instances
@@ -16,7 +16,7 @@ export class StoreManager implements Disposable {
       await store.dispose()
     }
   }
-  private stores: Map<Constructable<any>, IPhysicalStore<any>> = new Map()
+  private stores: Map<Constructable<any>, PhysicalStore<any>> = new Map()
 
   /**
    * Returns a store model for a constructable object.
@@ -33,7 +33,7 @@ export class StoreManager implements Disposable {
 
       throw Error(message)
     }
-    return instance as IPhysicalStore<T>
+    return instance as PhysicalStore<T>
   }
 
   /**
@@ -41,7 +41,7 @@ export class StoreManager implements Disposable {
    * @param store The store to add
    * @returns {this} the StoreManager instance
    */
-  public addStore<T>(store: IPhysicalStore<T, DefaultFilter<T>>) {
+  public addStore<T>(store: PhysicalStore<T, DefaultFilter<T>>) {
     this.stores.set(store.model, store)
     return this
   }
@@ -49,6 +49,6 @@ export class StoreManager implements Disposable {
   private logger: ScopedLogger
 
   constructor(public injector: Injector) {
-    this.logger = injector.logger.withScope('@furystack/core/' + this.constructor.name)
+    this.logger = injector.logger.withScope(`@furystack/core/${this.constructor.name}`)
   }
 }
