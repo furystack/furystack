@@ -1,7 +1,6 @@
 import { Injectable } from '@furystack/inject'
-import { AbstractLogger, defaultLoggerOptions } from './AbstractLogger'
+import { AbstractLogger } from './AbstractLogger'
 import { LeveledLogEntry, LogLevel } from './LogEntries'
-import { LoggerOptions } from './Logger'
 
 /**
  * Resets the console color
@@ -83,32 +82,20 @@ export const verboseFormatter = <T>(entry: LeveledLogEntry<T>) => {
 }
 
 /**
- * Options for a Console Logger instance
- */
-export interface ConsoleLoggerOptions extends LoggerOptions {
-  formatter: <T>(entry: LeveledLogEntry<T>) => any[]
-}
-
-/**
  * A logger implementation that dumps log messages to the console
  */
 @Injectable({ lifetime: 'scoped' })
-export class ConsoleLogger extends AbstractLogger<ConsoleLoggerOptions> {
+export class ConsoleLogger extends AbstractLogger {
   public async addEntry<T>(entry: LeveledLogEntry<T>) {
-    const data = this.options.formatter(entry)
-    // tslint:disable-next-line:no-console
+    const data = defaultFormatter(entry)
     console.log(...data)
   }
+}
 
-  /**
-   *
-   */
-  constructor(
-    public readonly options: ConsoleLoggerOptions = {
-      ...(defaultLoggerOptions as ConsoleLoggerOptions),
-      formatter: defaultFormatter,
-    },
-  ) {
-    super(options)
+@Injectable({ lifetime: 'scoped' })
+export class VerboseConsoleLogger extends AbstractLogger {
+  public async addEntry<T>(entry: LeveledLogEntry<T>) {
+    const data = verboseFormatter(entry)
+    console.log(...data)
   }
 }

@@ -1,5 +1,5 @@
 import { LeveledLogEntry, LogEntry, LogLevel } from './LogEntries'
-import { Logger, LoggerOptions, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './Logger'
+import { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './Logger'
 
 /**
  * Default scope key for the Abstract Logger
@@ -7,27 +7,15 @@ import { Logger, LoggerOptions, LeveledLogEntryWithoutScope, LogEntryWithoutScop
 export const AbstractLoggerScope = '@furystack/core/AbstractLogger'
 
 /**
- * default options for a logger instance
- */
-export const defaultLoggerOptions: LoggerOptions = {
-  filter: () => true,
-}
-
-/**
  * Abstract logger instance
  */
-export abstract class AbstractLogger<TOptions extends LoggerOptions = LoggerOptions> implements Logger {
-  constructor(public readonly options: TOptions) {}
-
+export abstract class AbstractLogger implements Logger {
   /**
    * Adds a new log entry to the logger
    * @param entry The Log entry object
    */
   public abstract addEntry<T>(entry: LeveledLogEntry<T>): Promise<void>
   private async addEntryInternal<T>(entry: LeveledLogEntry<T>) {
-    if (!this.options.filter(entry)) {
-      return
-    }
     try {
       await this.addEntry(entry)
     } catch (error) {

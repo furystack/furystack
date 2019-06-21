@@ -1,4 +1,4 @@
-import { IPhysicalStore, StoreManager } from '@furystack/core'
+import { PhysicalStore, StoreManager, DefaultFilter } from '@furystack/core'
 import { HttpAuthenticationSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { Task } from './Models/Task'
@@ -11,7 +11,12 @@ import { User } from './Models/User'
  * @param instance The instance to be created if there is no instance present
  * @param store The physical store to use
  */
-export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPhysicalStore<T>, injector: Injector) => {
+export const getOrCreate = async <T>(
+  filter: DefaultFilter<T>,
+  instance: T,
+  store: PhysicalStore<T>,
+  injector: Injector,
+) => {
   const result = await store.filter(filter)
   const logger = injector.logger.withScope('Seeder')
   if (result.length === 1) {
@@ -22,7 +27,7 @@ export const getOrCreate = async <T>(filter: Partial<T>, instance: T, store: IPh
     })
     return await store.add(instance)
   } else {
-    const message = `Seed filter contains multiple results`
+    const message = `Seed filter contains '${result.length}' results for ${JSON.stringify(filter)}`
     logger.warning({ message })
     throw Error(message)
   }
@@ -38,7 +43,7 @@ export const seed = async (injector: Injector) => {
   const sm = injector.getInstance(StoreManager)
   const userStore = sm.getStoreFor(User)
   const testUser = await getOrCreate(
-    { username: 'testuser' },
+    { filter: { username: 'testuser' } },
     {
       username: 'testuser',
       password: injector.getInstance(HttpAuthenticationSettings).hashMethod('password'),
@@ -52,7 +57,9 @@ export const seed = async (injector: Injector) => {
 
   await getOrCreate(
     {
-      name: 'testTask',
+      filter: {
+        name: 'testTask',
+      },
     },
     {
       _id: 'undefined',
@@ -65,8 +72,8 @@ export const seed = async (injector: Injector) => {
   )
 
   const testEntryStore = sm.getStoreFor(TestEntry)
-  await getOrCreate({ _id: '1' }, { _id: '1', value: 'testEntry1' }, testEntryStore, injector)
-  await getOrCreate({ _id: '2' }, { _id: '2', value: 'testEntry1' }, testEntryStore, injector)
+  await getOrCreate({ filter: { _id: '1' } }, { _id: '1', value: 'testEntry1' }, testEntryStore, injector)
+  await getOrCreate({ filter: { _id: '2' } }, { _id: '2', value: 'testEntry1' }, testEntryStore, injector)
 
   logger.verbose({ message: 'Seeding data completed.' })
 }

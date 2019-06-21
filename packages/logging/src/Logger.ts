@@ -51,16 +51,6 @@ export interface ScopedLogger {
 }
 
 /**
- * Options type for a Logger instance
- */
-export interface LoggerOptions {
-  /**
-   * Callback that returns a boolean value that indicates if the current entry should be filtered
-   */
-  filter: <T>(entry: LeveledLogEntry<T>) => boolean
-}
-
-/**
  * Interface that defines a Logger implementation
  */
 export interface Logger {
@@ -99,11 +89,6 @@ export interface Logger {
    * Adds a Fatal log entry. The most critical level, Fatal events demand immediate attention.
    */
   fatal: <T>(entry: LogEntry<T>) => Promise<void>
-
-  /**
-   * Additional options for the Logger instance
-   */
-  options: LoggerOptions
 
   /**
    * Returns an object that contains shortcuts to the original logger that contains the provided scope.

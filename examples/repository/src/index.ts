@@ -10,7 +10,7 @@ import '@furystack/repository'
 import '@furystack/typeorm-store'
 import '@furystack/websocket-api'
 import { deepMerge } from '@sensenet/client-utils'
-import { createClient } from 'redis'
+import { InMemoryStore } from '@furystack/core'
 import { CertificateManager } from './CertificateManager'
 import { registerExitHandler } from './ExitHandler'
 import { MockAction } from './MockAction'
@@ -33,7 +33,7 @@ defaultInjector
   .useLogging(ConsoleLogger)
   .setupStores(sm => {
     sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
-      .useRedis(Session, 'sessionId', createClient())
+      .addStore(new InMemoryStore({ model: Session, primaryKey: 'sessionId' }))
       .useMongoDb(User, 'mongodb://localhost:27017', 'test', 'users')
       .useMongoDb(Task, 'mongodb://localhost:27017', 'test', 'tasks')
   })
