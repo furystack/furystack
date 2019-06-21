@@ -1,6 +1,6 @@
 {
   "name": "@furystack/repository",
-  "version": "0.0.11",
+  "version": "1.0.0",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -45,9 +45,9 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^4.0.8",
-    "@furystack/http-api": "^3.1.4",
-    "@furystack/inject": "^3.0.8",
+    "@furystack/core": "^5.0.0",
+    "@furystack/http-api": "^4.0.0",
+    "@furystack/inject": "^4.0.0",
     "@sensenet/client-utils": "^1.5.1"
   },
   "config": {
