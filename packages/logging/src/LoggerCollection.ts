@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import { AbstractLogger } from './AbstractLogger'
 import { LeveledLogEntry } from './LogEntries'
-import { Logger, LoggerOptions } from './Logger'
+import { Logger } from './Logger'
 
 /**
  * A specific logger that forwards its messages to a collection of loggers
@@ -18,7 +18,7 @@ export class LoggerCollection extends AbstractLogger {
     this.loggers.push(...loggers)
   }
 
-  constructor(options?: LoggerOptions) {
-    super(options || { filter: () => true })
+  constructor() {
+    super({ filter: () => true })
   }
 }

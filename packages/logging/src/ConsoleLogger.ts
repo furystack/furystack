@@ -94,13 +94,21 @@ export interface ConsoleLoggerOptions extends LoggerOptions {
  */
 @Injectable({ lifetime: 'scoped' })
 export class ConsoleLogger extends AbstractLogger<ConsoleLoggerOptions> {
-  public readonly options: ConsoleLoggerOptions = {
-    ...defaultLoggerOptions,
-    formatter: defaultFormatter,
-  }
   public async addEntry<T>(entry: LeveledLogEntry<T>) {
     const data = this.options.formatter(entry)
     // tslint:disable-next-line:no-console
     console.log(...data)
+  }
+
+  /**
+   *
+   */
+  constructor(
+    public readonly options: ConsoleLoggerOptions = {
+      ...(defaultLoggerOptions as ConsoleLoggerOptions),
+      formatter: defaultFormatter,
+    },
+  ) {
+    super(options)
   }
 }
