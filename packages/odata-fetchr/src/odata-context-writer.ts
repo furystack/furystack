@@ -1,7 +1,7 @@
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { Configuration, OdataEndpoint } from './models'
 
 /**
@@ -18,7 +18,7 @@ export class OdataContextWriter {
   }
 
   constructor(private injector: Injector, private readonly config: Configuration) {
-    this.logger = this.injector.logger.withScope('@furystack/odata-fetchr/' + this.constructor.name)
+    this.logger = this.injector.logger.withScope(`@furystack/odata-fetchr/${this.constructor.name}`)
     this.logger.verbose({ message: 'Starting Odata Context Writer...' })
   }
 }

@@ -1,7 +1,7 @@
-import { IRequestAction, Utils } from '@furystack/http-api'
+import { IncomingMessage, ServerResponse } from 'http'
+import { RequestAction, Utils } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { IncomingMessage, ServerResponse } from 'http'
 import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
 
@@ -9,7 +9,7 @@ import { OdataContext } from '../odata-context'
  * OData Post action
  */
 @Injectable({ lifetime: 'transient' })
-export class PostAction implements IRequestAction {
+export class PostAction implements RequestAction {
   public dispose() {
     /** */
   }

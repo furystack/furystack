@@ -1,6 +1,6 @@
-import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
-import { ICorsOptions } from './Models/ICorsOptions'
+import { Injectable } from '@furystack/inject'
+import { CorsOptions } from './Models/CorsOptions'
 
 /**
  * A collection of various HTTP API related utilities
@@ -37,7 +37,7 @@ export class Utils {
    * @param serverResponse The outgoing response instance
    */
   public addCorsHeaders(
-    options: ICorsOptions,
+    options: CorsOptions,
     incomingMessage: IncomingMessage = this.incomingMessage,
     serverResponse: ServerResponse = this.serverResponse,
   ) {

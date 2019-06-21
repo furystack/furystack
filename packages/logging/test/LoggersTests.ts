@@ -1,5 +1,5 @@
 import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from '../src'
-import { LogLevel } from '../src/ILogEntries'
+import { LogLevel } from '../src/LogEntries'
 import { TestLogger } from '../src/TestLogger'
 
 describe('Loggers', () => {

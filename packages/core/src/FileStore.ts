@@ -1,13 +1,13 @@
-import { Constructable } from '@furystack/inject'
-import { ILogger, ScopedLogger } from '@furystack/logging'
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
+import { Constructable } from '@furystack/inject'
+import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
-import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
+import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
+export class FileStore<T> implements PhysicalStore<T, DefaultFilter<T>> {
   private readonly watcher?: FSWatcher
 
   public readonly model: Constructable<T>
@@ -142,7 +142,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
       fileName: string
       primaryKey: keyof T
       tickMs?: number
-      logger: ILogger
+      logger: Logger
       model: Constructable<T>
       readFile?: typeof nodeReadFile
       writeFile?: typeof nodeWriteFile
@@ -150,7 +150,7 @@ export class FileStore<T> implements IPhysicalStore<T, DefaultFilter<T>> {
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
-    this.logger = options.logger.withScope('@furystack/core/' + this.constructor.name)
+    this.logger = options.logger.withScope(`@furystack/core/${this.constructor.name}`)
     options.readFile && (this.readFile = options.readFile)
     options.writeFile && (this.writeFile = options.writeFile)
 

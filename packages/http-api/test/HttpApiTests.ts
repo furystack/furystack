@@ -1,9 +1,9 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { User, visitorUser } from '@furystack/core'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
-import { HttpUserContext, IRequestAction } from '../src'
+import { HttpUserContext, RequestAction } from '../src'
 import { HttpApi } from '../src/HttpApi'
 
 // tslint:disable:max-classes-per-file
@@ -19,7 +19,7 @@ describe('HttpApi tests', () => {
   it('NotFound Action is executed when no other action is awailable', done => {
     usingAsync(new Injector(), async i => {
       @Injectable()
-      class ExampleNotFoundAction implements IRequestAction {
+      class ExampleNotFoundAction implements RequestAction {
         public async exec() {
           done()
         }
@@ -40,7 +40,7 @@ describe('HttpApi tests', () => {
   it('Action can be executed', done => {
     usingAsync(new Injector(), async i => {
       @Injectable()
-      class ExampleAction implements IRequestAction {
+      class ExampleAction implements RequestAction {
         public async exec() {
           try {
             const currentUser = await this.userContext.getCurrentUser()
@@ -48,7 +48,7 @@ describe('HttpApi tests', () => {
             expect(currentUser.username).toEqual(visitorUser.username)
             expect(currentUser2.username).toEqual(visitorUser.username)
             // tslint:disable-next-line:no-string-literal
-            this.perRequestInjector['cachedSingletons'].has(this.userContext.constructor)
+            this.perRequestInjector['cachedSingletons'].has(this.userContext.constructor as Constructable<any>)
             done()
           } catch (error) {
             done(error)
@@ -75,7 +75,7 @@ describe('HttpApi tests', () => {
   it('Should throw error if multiple actions are resolved for a request', done => {
     usingAsync(new Injector(), async i => {
       @Injectable()
-      class ExampleAction implements IRequestAction {
+      class ExampleAction implements RequestAction {
         public async exec() {
           done()
         }
@@ -100,7 +100,7 @@ describe('HttpApi tests', () => {
   it('Error Action is executed on other action errors executed', done => {
     usingAsync(new Injector(), async i => {
       @Injectable()
-      class ExampleFailAction implements IRequestAction {
+      class ExampleFailAction implements RequestAction {
         public async exec() {
           throw Error(':(')
         }
@@ -110,7 +110,7 @@ describe('HttpApi tests', () => {
       }
 
       @Injectable()
-      class ExampleErrorAction implements IRequestAction {
+      class ExampleErrorAction implements RequestAction {
         public async returnError(error: any) {
           done()
         }
@@ -128,8 +128,8 @@ describe('HttpApi tests', () => {
       i.useHttpApi({
         actions: [() => ExampleFailAction],
         errorAction: ExampleErrorAction as any,
-      }),
-        i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+      })
+      i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
   })
 })

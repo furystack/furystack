@@ -34,7 +34,7 @@ export interface DefaultFilter<T> {
 /**
  * Interface that defines a physical store implementation
  */
-export interface IPhysicalStore<T, TFilter = DefaultFilter<T>> extends Disposable {
+export interface PhysicalStore<T, TFilter = DefaultFilter<T>> extends Disposable {
   /**
    * The Primary key field name
    */

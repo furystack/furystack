@@ -1,7 +1,7 @@
-import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
+import { Injectable } from '@furystack/inject'
 import { HttpUserContext } from '../HttpUserContext'
-import { IRequestAction } from '../Models'
+import { RequestAction } from '../Models'
 import { Utils } from '../Utils'
 
 /**
@@ -10,7 +10,7 @@ import { Utils } from '../Utils'
  * Returns the current user instance
  */
 @Injectable({ lifetime: 'transient' })
-export class LoginAction implements IRequestAction {
+export class LoginAction implements RequestAction {
   public dispose() {
     /**  */
   }

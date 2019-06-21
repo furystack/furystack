@@ -18,10 +18,13 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.d.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
   coverageReporters: ['text', 'json', 'html', 'cobertura'],
-  reporters: ['jest-junit'],
+  reporters: ['default', 'jest-junit'],
   globals: {
     'ts-jest': {
-      diagnostics: false,
+      diagnostics: {
+        warnOnly: true,
+      },
+      isolatedModules: true,
       tsConfig: './tsconfig-base.json',
     },
   },

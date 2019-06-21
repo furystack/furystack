@@ -1,6 +1,6 @@
+import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { PathHelper } from '@sensenet/client-utils'
-import { IncomingMessage } from 'http'
 import { DeleteAction } from '../actions/delete'
 import { GetEntityAction } from '../actions/get-entity-action'
 import { NavigationPropertyAction } from '../actions/navigation-property'
@@ -98,13 +98,13 @@ export const getEntityRoute = <T>(
   }
 
   switch (msg.method) {
-    case 'GET':
-      return GetEntityAction
     case 'PUT':
       return PutAction
     case 'PATCH':
       return PatchAction
     case 'DELETE':
       return DeleteAction
+    default:
+      return GetEntityAction
   }
 }

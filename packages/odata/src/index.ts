@@ -1,4 +1,3 @@
-export * from './InjectorExtension'
 export * from './model-builder'
 export * from './namespace-builder'
 export * from './models'

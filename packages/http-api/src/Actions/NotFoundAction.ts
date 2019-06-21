@@ -1,12 +1,12 @@
-import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
-import { IRequestAction } from '../Models'
+import { Injectable } from '@furystack/inject'
+import { RequestAction } from '../Models'
 
 /**
  * Default fall back "Not Found" (404) action
  */
 @Injectable({ lifetime: 'transient' })
-export class NotFoundAction implements IRequestAction {
+export class NotFoundAction implements RequestAction {
   public async dispose() {
     /**  */
   }

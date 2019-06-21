@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { EntitySet, EntityType, OdataAction, OdataEndpoint, OdataFunction, OdataParameter } from './models'
+import { EntitySet, EntityType, OdataAction, OdataEndpoint, OdataFunction } from './models'
 
 /**
  * method that parses an OData XML to an Endpoint model
@@ -10,68 +10,74 @@ export class MetadataParser {
   public parseActions(xml: Document) {
     return Array.from(xml.querySelectorAll('Action').values()).map(a => {
       const returnType = a.querySelector('ReturnType')
-      return {
-        name: a.getAttribute('Name'),
-        function: a.getAttribute('Function'),
-        isBound: Boolean(a.getAttribute('IsBound')),
-        parameters: Array.from(a.querySelectorAll('Parameter')).map(
-          param => ({ type: param.getAttribute('Type'), name: param.getAttribute('Name') } as OdataParameter),
-        ),
-        ...(returnType ? { returnType: returnType.getAttribute('Type') } : {}),
-      } as OdataAction
+      const value: OdataAction = {
+        name: a.getAttribute('Name') || 'UnknownAction',
+        function: a.getAttribute('Function') || 'UnknownAction',
+        isBound: Boolean(a.getAttribute('IsBound') || true),
+        parameters: Array.from(a.querySelectorAll('Parameter')).map(param => ({
+          type: param.getAttribute('Type') || 'UnknownType',
+          name: param.getAttribute('Name') || 'UnknownName',
+        })),
+        ...(returnType ? { returnType: returnType.getAttribute('Type') || 'Unknown' } : {}),
+      }
+      return value
     })
   }
 
   public parseFunctions(xml: Document) {
     return Array.from(xml.querySelectorAll('Function').values()).map(a => {
       const returnType = a.querySelector('ReturnType')
-      return {
-        name: a.getAttribute('Name'),
-        function: a.getAttribute('Function'),
+      const value: OdataFunction = {
+        name: a.getAttribute('Name') || 'UnknownName',
+        function: a.getAttribute('Function') || 'UnknownFunction',
         isBound: Boolean(a.getAttribute('IsBound')),
-        parameters: Array.from(a.querySelectorAll('Parameter')).map(
-          param => ({ type: param.getAttribute('Type'), name: param.getAttribute('Name') } as OdataParameter),
-        ),
-        ...(returnType ? { returnType: returnType.getAttribute('Type') } : {}),
-      } as OdataFunction
+        parameters: Array.from(a.querySelectorAll('Parameter')).map(param => ({
+          type: param.getAttribute('Type') || 'UnknownType',
+          name: param.getAttribute('Name') || 'UnknownName',
+        })),
+        ...(returnType ? { returnType: returnType.getAttribute('Type') || 'Uknown' } : { returnType: 'Unknown' }),
+      }
+      return value
     })
   }
 
   public parseEntityTypes(xml: Document) {
     return Array.from(xml.querySelectorAll('EntityType').values()).map(e => {
       const key = e.querySelector('Key>PropertyRef')
-      return {
-        name: e.getAttribute('Name'),
-        key: key && key.getAttribute('Name'),
+      const value: EntityType = {
+        name: e.getAttribute('Name') || 'UnknownName',
+        key: (key && key.getAttribute('Name')) || 'UnknownKey',
         properties: Array.from(e.querySelectorAll('Property')).map(prop => ({
-          name: prop.getAttribute('Name'),
+          name: prop.getAttribute('Name') || 'UnknownName',
           nullable: Boolean(prop.getAttribute('Nullable')),
-          type: prop.getAttribute('Type'),
+          type: prop.getAttribute('Type') || 'UnknownType',
         })),
         navigationProperties: Array.from(e.querySelectorAll('NavigationProperty')).map(prop => ({
-          name: prop.getAttribute('Name'),
-          type: prop.getAttribute('Type'),
+          name: prop.getAttribute('Name') || 'UnknownName',
+          type: prop.getAttribute('Type') || 'UnknownType',
         })),
-      } as EntityType
+      }
+      return value
     })
   }
 
   public parseEntitySets(xml: Document) {
     return Array.from(xml.querySelectorAll('EntitySet')).map(e => {
-      return {
-        name: e.getAttribute('Name'),
-        entityType: e.getAttribute('EntityType'),
-      } as EntitySet
+      const value: EntitySet = {
+        name: e.getAttribute('Name') || 'UnknownName',
+        entityType: e.getAttribute('EntityType') || 'UnknownType',
+      }
+      return value
     })
   }
 
-  public parseMetadataXml(xml: Document, path: string) {
+  public parseMetadataXml(xml: Document, path: string): OdataEndpoint {
     return {
       path,
       entityTypes: this.parseEntityTypes(xml),
       entitySets: this.parseEntitySets(xml),
       actions: this.parseActions(xml),
       functions: this.parseFunctions(xml),
-    } as OdataEndpoint
+    }
   }
 }

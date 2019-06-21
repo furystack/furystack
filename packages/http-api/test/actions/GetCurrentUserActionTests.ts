@@ -1,6 +1,6 @@
+import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { IncomingMessage, ServerResponse } from 'http'
 import { HttpUserContext } from '../../src'
 import { GetCurrentUser } from '../../src/Actions/GetCurrentUser'
 

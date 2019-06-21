@@ -1,15 +1,14 @@
 import { User } from '@furystack/core'
 import { HttpUserContext } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
-import { Data } from 'ws'
-import * as ws from 'ws'
-import { IWebSocketAction } from '../models/IWebSocketAction'
+import ws, { Data } from 'ws'
+import { WebSocketAction } from '../models/WebSocketAction'
 
 /**
  * Example action that returns the current user instance
  */
 @Injectable({ lifetime: 'transient' })
-export class WhoAmI implements IWebSocketAction {
+export class WhoAmI implements WebSocketAction {
   public dispose() {
     /** */
   }

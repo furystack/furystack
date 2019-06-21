@@ -1,6 +1,6 @@
-import { IRequestAction } from '@furystack/http-api'
-import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
+import { RequestAction } from '@furystack/http-api'
+import { Injectable } from '@furystack/inject'
 import { ModelBuilder } from '../model-builder'
 import { xmlToString } from '../xml-utils'
 
@@ -8,7 +8,7 @@ import { xmlToString } from '../xml-utils'
  * OData Metadata action
  */
 @Injectable({ lifetime: 'transient' })
-export class MetadataAction implements IRequestAction {
+export class MetadataAction implements RequestAction {
   public dispose() {
     /** */
   }

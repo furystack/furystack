@@ -1,13 +1,13 @@
-import { Injectable } from '@furystack/inject'
 import { IncomingMessage, ServerResponse } from 'http'
+import { Injectable } from '@furystack/inject'
 import { HttpUserContext } from '../HttpUserContext'
-import { IRequestAction } from '../Models'
+import { RequestAction } from '../Models'
 
 /**
  * Action that logs out the current user
  */
 @Injectable({ lifetime: 'transient' })
-export class LogoutAction implements IRequestAction {
+export class LogoutAction implements RequestAction {
   public dispose() {
     /**  */
   }

@@ -40,12 +40,12 @@ Injector.prototype.useTypeOrm = function(options) {
   const logger = this.logger.withScope('@furystack/typeorm-store/useTypeOrm')
 
   logger.verbose({
-    message: `Setting up TypeOrm${options.name ? ' for connection ' + options.name : ''}...`,
+    message: `Setting up TypeOrm${options.name ? ` for connection ${options.name}` : ''}...`,
     data: options,
   })
   let cm!: ConnectionManager
   // tslint:disable-next-line: no-string-literal
-  if (!this['cachedSingletons'].has(ConnectionManager)) {
+  if (!this.cachedSingletons.has(ConnectionManager)) {
     cm = new ConnectionManager()
     this.setExplicitInstance(cm)
   } else {
@@ -57,13 +57,13 @@ Injector.prototype.useTypeOrm = function(options) {
     .connect()
     .then(() => {
       logger.verbose({
-        message: `Connection estabilished to DB${options.name ? ' for connection ' + options.name : ''}...`,
+        message: `Connection estabilished to DB${options.name ? ` for connection ${options.name}` : ''}...`,
       })
     })
     .catch(e => {
       logger.fatal({
         data: { error: e, options },
-        message: `Error while connection to the database${options.name ? ' for connection ' + options.name : ''}...`,
+        message: `Error while connection to the database${options.name ? ` for connection ${options.name}` : ''}...`,
       })
     })
     .finally(() => lock.release())

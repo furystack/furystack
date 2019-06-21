@@ -1,7 +1,7 @@
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { Configuration, EntitySet } from './models'
 
 /**
@@ -13,13 +13,11 @@ export class EntityCollectionWriter {
     for (const collection of collections) {
       this.logger.verbose({ message: `Writing EntitySet '${collection.name}'...` })
 
-      const output =
-        '' +
-        this.config.odataCollectionServiceTemplate
-          .replace(/\$\{collectionServiceClassName\}/g, this.config.getServiceClassName(collection.name))
-          .replace(/\$\{entitySetModelFile\}/g, this.config.getModelFileName(collection.entityType))
-          .replace(/\$\{entitySetModelName\}/g, this.config.getModelName(collection.entityType))
-          .replace(/\$\{entitySetName\}/g, collection.name)
+      const output = `${this.config.odataCollectionServiceTemplate
+        .replace(/\$\{collectionServiceClassName\}/g, this.config.getServiceClassName(collection.name))
+        .replace(/\$\{entitySetModelFile\}/g, this.config.getModelFileName(collection.entityType))
+        .replace(/\$\{entitySetModelName\}/g, this.config.getModelName(collection.entityType))
+        .replace(/\$\{entitySetName\}/g, collection.name)}`
       writeFileSync(
         join(
           process.cwd(),
@@ -41,7 +39,7 @@ export class EntityCollectionWriter {
   private logger: ScopedLogger
 
   constructor(private injector: Injector, private readonly config: Configuration) {
-    this.logger = this.injector.logger.withScope('@furystack/odata-fetchr/' + this.constructor.name)
+    this.logger = this.injector.logger.withScope(`@furystack/odata-fetchr/${this.constructor.name}`)
     this.logger.verbose({ message: 'Starting EntityTypeWriter...' })
   }
 }

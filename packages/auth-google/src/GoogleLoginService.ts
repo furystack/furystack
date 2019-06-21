@@ -1,14 +1,13 @@
+import { get } from 'https'
 import { User, visitorUser } from '@furystack/core'
-import { HttpUserContext } from '@furystack/http-api'
-import { IExternalLoginService } from '@furystack/http-api/dist/Models/IExternalLoginService'
+import { ExternalLoginService, HttpUserContext } from '@furystack/http-api'
 import { Utils } from '@furystack/http-api/dist/Utils'
 import { Injectable } from '@furystack/inject'
-import { get } from 'https'
 
 /**
  * Payload model from Google
  */
-export interface IGoogleApiPayload {
+export interface GoogleApiPayload {
   // issuer
   iss: string
   // Unique Google Identifier
@@ -27,8 +26,8 @@ export interface IGoogleApiPayload {
  * Service class for Google OAuth authentication
  */
 @Injectable({ lifetime: 'transient' })
-export class GoogleLoginService<TUser extends User & { googleId: number; googleProfileData: IGoogleApiPayload }>
-  implements IExternalLoginService<TUser, [string]> {
+export class GoogleLoginService<TUser extends User & { googleId: number; googleProfileData: GoogleApiPayload }>
+  implements ExternalLoginService<TUser, [string]> {
   /**
    *
    */
@@ -44,8 +43,9 @@ export class GoogleLoginService<TUser extends User & { googleId: number; googleP
       return await new Promise<TUser>((resolve, reject) =>
         get(`${this.googleApiEndpoint}${token}`, async response => {
           if (response.statusCode && response.statusCode < 400) {
-            const body = await this.utils.readPostBody<IGoogleApiPayload>(response)
+            const body = await this.utils.readPostBody<GoogleApiPayload>(response)
             const users = await this.userContext.users.filter({
+              // eslint-disable-next-line @typescript-eslint/no-object-literal-type-assertion
               filter: {
                 googleId: body.sub,
               } as Partial<TUser>,

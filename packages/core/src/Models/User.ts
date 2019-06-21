@@ -1,5 +1,5 @@
 import { SystemRoles } from '../SystemRoles'
-import { IRole } from './IRole'
+import { Role } from './Role'
 
 /**
  * The default unauthenticated user
@@ -21,5 +21,5 @@ export class User {
   /**
    * List of roles
    */
-  public roles!: IRole[]
+  public roles!: Role[]
 }

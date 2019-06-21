@@ -1,5 +1,5 @@
-import { IGoogleApiPayload } from '@furystack/auth-google'
-import { IRole, User as FsUser } from '@furystack/core'
+import { GoogleApiPayload } from '@furystack/auth-google'
+import { Role, User as FsUser } from '@furystack/core'
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 /**
@@ -14,7 +14,7 @@ export class User implements FsUser {
   public username!: string
 
   @Column('simple-json')
-  public roles!: IRole[]
+  public roles!: Role[]
   @Column({
     transformer: {
       to: v => v,
@@ -27,5 +27,5 @@ export class User implements FsUser {
   public googleId?: number
 
   @Column('simple-json', { nullable: true })
-  public googleProfileData?: IGoogleApiPayload
+  public googleProfileData?: GoogleApiPayload
 }

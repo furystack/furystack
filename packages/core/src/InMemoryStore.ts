@@ -1,10 +1,10 @@
 import { Constructable } from '@furystack/inject'
-import { DefaultFilter, IPhysicalStore } from './Models/IPhysicalStore'
+import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
 
 /**
  * Store implementation that stores data in an in-memory cache
  */
-export class InMemoryStore<T> implements IPhysicalStore<T, Partial<T>> {
+export class InMemoryStore<T> implements PhysicalStore<T, Partial<T>> {
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
   }

@@ -1,13 +1,13 @@
-import { Injectable } from '@furystack/inject'
 import { ServerResponse } from 'http'
+import { Injectable } from '@furystack/inject'
 import { HttpUserContext } from '../HttpUserContext'
-import { IRequestAction } from '../Models'
+import { RequestAction } from '../Models'
 
 /**
  * Action that returns the current authenticated user
  */
 @Injectable({ lifetime: 'scoped' })
-export class GetCurrentUser implements IRequestAction {
+export class GetCurrentUser implements RequestAction {
   public dispose() {
     /**  */
   }

@@ -1,14 +1,14 @@
-import { IRequestAction } from '@furystack/http-api'
+import { ServerResponse } from 'http'
+import { RequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
-import { ServerResponse } from 'http'
 import { OdataContext } from '../odata-context'
 
 /**
  * OData Count action
  */
 @Injectable({ lifetime: 'transient' })
-export class OdataCount implements IRequestAction {
+export class OdataCount implements RequestAction {
   public dispose() {
     /** */
   }

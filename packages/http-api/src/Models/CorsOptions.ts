@@ -1,7 +1,7 @@
 /**
  * CORS settings
  */
-export interface ICorsOptions {
+export interface CorsOptions {
   /**
    * List of allowed origins
    */

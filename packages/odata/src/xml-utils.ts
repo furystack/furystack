@@ -3,7 +3,7 @@
  */
 export interface XmlNode {
   tagName: string
-  attributes?: { [a: string]: string }
+  attributes?: { [a: string]: string | number | boolean }
   children?: Array<XmlNode | string>
 }
 

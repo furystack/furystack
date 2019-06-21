@@ -1,4 +1,4 @@
-import { IRequestAction } from '@furystack/http-api'
+import { RequestAction } from '@furystack/http-api'
 import { Constructable } from '@furystack/inject'
 import { XmlNode } from '../xml-utils'
 import { EdmType } from './edm-type'
@@ -15,7 +15,7 @@ export interface FunctionDescriptor {
   /**
    * The HTTP Request action to be called
    */
-  action: Constructable<IRequestAction>
+  action: Constructable<RequestAction>
 
   /**
    * The type of the return object (for building meaningful metadata)
@@ -39,12 +39,12 @@ export interface FunctionDescriptor {
  * @param type Type (action / function)
  */
 export const toXmlNode = (descriptor: FunctionDescriptor, namespace: string, type: 'Action' | 'Function') => {
-  return {
+  const value: XmlNode = {
     tagName: type,
     attributes: {
       Name: descriptor.name,
       // Function: f[1].action.name.toString(),
-      ...(Object.assign({}, descriptor.isBound ? { IsBound: true } : {}) as any),
+      ...(descriptor.isBound ? { IsBound: true } : {}),
     },
     children: [
       ...[
@@ -53,25 +53,23 @@ export const toXmlNode = (descriptor: FunctionDescriptor, namespace: string, typ
           attributes: {
             Type: (descriptor.returnType as Constructable<any>).name
               ? `${namespace}.${(descriptor.returnType as Constructable<any>).name}`
-              : `Edm.${EdmType[descriptor.returnType as EdmType]}`,
+              : `Edm.${EdmType[descriptor.returnType as any]}`,
           },
         },
         ...[
           ...(descriptor.parameters
-            ? descriptor.parameters.map(
-                p =>
-                  ({
-                    tagName: 'Parameter',
-                    attributes: {
-                      Name: p.name,
-                      Type: typeof p.type === 'string' ? p.type : `Edm.${EdmType[p.type]}`,
-                      ...(p.nullable ? { Nullable: p.nullable.toString() } : {}),
-                    },
-                  } as XmlNode),
-              )
+            ? descriptor.parameters.map(p => ({
+                tagName: 'Parameter',
+                attributes: {
+                  Name: p.name,
+                  Type: typeof p.type === 'string' ? p.type : `Edm.${EdmType[p.type]}`,
+                  ...(p.nullable ? { Nullable: p.nullable.toString() } : {}),
+                },
+              }))
             : []),
         ],
       ],
-    ].filter(el => el !== undefined),
-  } as XmlNode
+    ].filter(el => el !== undefined) as XmlNode[],
+  }
+  return value
 }
