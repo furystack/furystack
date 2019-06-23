@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -45,8 +45,8 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/inject": "^4.0.0",
-    "@furystack/logging": "^2.0.0",
+    "@furystack/inject": "^4.0.1",
+    "@furystack/logging": "^2.0.1",
     "@sensenet/client-utils": "^1.5.1",
     "semaphore-async-await": "^1.5.1"
   },

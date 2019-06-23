@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Logging API for FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/furystack/furystack.git",
   "dependencies": {
-    "@furystack/inject": "^4.0.0"
+    "@furystack/inject": "^4.0.1"
   },
   "config": {
     "commitizen": {
