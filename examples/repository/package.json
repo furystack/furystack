@@ -44,7 +44,8 @@
     "sqlite": "^3.0.3"
   },
   "devDependencies": {
-    "@types/uuid": "^3.4.4"
+    "@types/uuid": "^3.4.4",
+    "ts-node": "^8.3.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "053ececc7dfe5a1ccc5f06c510b78b9999e1f4f0"

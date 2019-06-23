@@ -10,7 +10,7 @@ process.stdin.resume() // so the program will not close instantly
 export const registerExitHandler = (...disposables: Disposable[]) => {
   const cleanupLock = new Semaphore(1)
 
-  const exitHandler = async (options: { cleanup?: boolean }, exitCode: any) => {
+  const exitHandler = (async (options: { cleanup?: boolean }, exitCode: any) => {
     try {
       await cleanupLock.acquire()
       if (options.cleanup) {
@@ -30,18 +30,26 @@ export const registerExitHandler = (...disposables: Disposable[]) => {
     } finally {
       cleanupLock.release()
     }
-  }
+  }).bind(null, { cleanup: true })
 
   // do something when app is closing
-  process.on('exit', exitHandler.bind(null, { cleanup: true }))
+  process.on('exit', exitHandler)
 
   // catches ctrl+c event
-  process.on('SIGINT', exitHandler.bind(null, { cleanup: true }))
+  process.on('SIGINT', exitHandler)
 
   // catches "kill pid" (for example: nodemon restart)
-  process.on('SIGUSR1', exitHandler.bind(null, { cleanup: true }))
-  process.on('SIGUSR2', exitHandler.bind(null, { cleanup: true }))
+  process.on('SIGUSR1', exitHandler)
+  process.on('SIGUSR2', exitHandler)
 
   // catches uncaught exceptions
-  process.on('uncaughtException', exitHandler.bind(null, { cleanup: true }))
+  process.on('uncaughtException', exitHandler)
+
+  return () => {
+    process.off('exit', exitHandler)
+    process.off('SIGINT', exitHandler)
+    process.off('SIGUSR1', exitHandler)
+    process.off('SIGUSR2', exitHandler)
+    process.off('uncaughtException', exitHandler)
+  }
 }

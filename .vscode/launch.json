@@ -11,7 +11,7 @@
       "args": ["${workspaceFolder}/examples/repository/src/index.ts"],
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
+      "cwd": "${workspaceRoot}/examples/repository",
       "protocol": "inspector"
     },
     {

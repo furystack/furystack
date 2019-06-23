@@ -1,3 +1,4 @@
+import { Disposable } from '@sensenet/client-utils'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { connect, MongoClient, MongoClientOptions } from 'mongodb'
@@ -7,8 +8,15 @@ import Semaphore from 'semaphore-async-await'
  * Factory for instantiating MongoDb clients
  */
 @Injectable({ lifetime: 'singleton' })
-export class MongoClientFactory {
+export class MongoClientFactory implements Disposable {
   private connections: Map<string, { client: MongoClient; lock: Semaphore }> = new Map()
+
+  public dispose() {
+    for (const connection of this.connections.values()) {
+      connection.client.close()
+    }
+    this.connections.clear()
+  }
 
   public async getClientFor(url: string, options?: MongoClientOptions) {
     const existing = this.connections.get(url)

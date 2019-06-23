@@ -12,8 +12,13 @@ export class StoreManager implements Disposable {
    * Disposes the StoreManager and all store instances
    */
   public async dispose() {
-    for (const store of this.stores.values()) {
-      await store.dispose()
+    for (const [model, store] of this.stores.entries()) {
+      try {
+        await store.dispose()
+        this.logger.information({ message: `Store for '${model.name}' disposed.` })
+      } catch (error) {
+        this.logger.error({ message: `Error disposing store for '${model.name}'.` })
+      }
     }
   }
   private stores: Map<Constructable<any>, PhysicalStore<any>> = new Map()
