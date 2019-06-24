@@ -1,4 +1,4 @@
-import { DefaultFilter } from '@furystack/core'
+import { SearchOptions } from '@furystack/core'
 import { Constructable, Injector } from '@furystack/inject'
 import { DataSet } from '@furystack/repository'
 
@@ -24,7 +24,7 @@ export interface NavigationProperty<TBaseModel, TRelatedModel> {
   /**
    * Async method implementation that returns an entity with the related model
    */
-  getRelatedEntity: (
+  getRelatedEntity: <TFields extends Array<keyof TRelatedModel>>(
     /**
      * The base model
      */
@@ -32,7 +32,7 @@ export interface NavigationProperty<TBaseModel, TRelatedModel> {
     /**
      * DataSet of the related model
      */
-    dataSet: DataSet<TRelatedModel, DefaultFilter<TRelatedModel>>,
+    dataSet: DataSet<TRelatedModel>,
     /**
      * An injector instance from the context
      */
@@ -40,7 +40,7 @@ export interface NavigationProperty<TBaseModel, TRelatedModel> {
     /**
      * An optional filter definition
      */
-    filter: DefaultFilter<TRelatedModel>,
+    filter: SearchOptions<TRelatedModel, TFields>,
   ) => Promise<TRelatedModel>
 }
 
@@ -64,7 +64,7 @@ export interface NavigationPropertyCollection<TBaseModel, TRelatedModel> {
   /**
    * Async method implementation that returns an array of the related models
    */
-  getRelatedEntities: (
+  getRelatedEntities: <TFields extends Array<keyof TRelatedModel>>(
     /**
      * The base model instance
      */
@@ -72,7 +72,7 @@ export interface NavigationPropertyCollection<TBaseModel, TRelatedModel> {
     /**
      * DataSet for the related entity data
      */
-    dataSet: DataSet<TRelatedModel, DefaultFilter<TRelatedModel>>,
+    dataSet: DataSet<TRelatedModel>,
 
     /**
      * An injector instance from the context
@@ -82,6 +82,6 @@ export interface NavigationPropertyCollection<TBaseModel, TRelatedModel> {
     /**
      * An optional filter definition
      */
-    filter: DefaultFilter<TRelatedModel>,
+    filter: SearchOptions<TRelatedModel, TFields>,
   ) => Promise<TRelatedModel[]>
 }

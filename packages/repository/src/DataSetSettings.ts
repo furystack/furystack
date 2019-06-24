@@ -1,4 +1,4 @@
-import { PhysicalStore } from '@furystack/core'
+import { PhysicalStore, SearchOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 
 /**
@@ -18,7 +18,7 @@ export interface AuthorizationResult {
 /**
  * Model for authorizers
  */
-export interface DataSetSettings<T, TFilterType> {
+export interface DataSetSettings<T> {
   /**
    * The name of the dataset. Will fall back to the constructor's name
    */
@@ -27,7 +27,7 @@ export interface DataSetSettings<T, TFilterType> {
   /**
    * An instance of a physical store
    */
-  physicalStore: PhysicalStore<T, TFilterType>
+  physicalStore: PhysicalStore<T>
 
   /**
    * Authorizes the entity creation
@@ -96,5 +96,8 @@ export interface DataSetSettings<T, TFilterType> {
   /**
    * Additional filter parsing to be appended per filter / query
    */
-  addFilter?: (options: { injector: Injector; filter: TFilterType }) => Promise<TFilterType>
+  addFilter?: <TFields extends Array<keyof T>>(options: {
+    injector: Injector
+    filter: SearchOptions<T, TFields>
+  }) => Promise<SearchOptions<T, TFields>>
 }

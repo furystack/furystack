@@ -4,7 +4,7 @@ import { Disposable } from '@sensenet/client-utils'
 /**
  * Type for default filtering model
  */
-export interface DefaultFilter<T> {
+export interface SearchOptions<T, TSelect extends Array<keyof T>> {
   /**
    * Limits the hits
    */
@@ -23,7 +23,7 @@ export interface DefaultFilter<T> {
   /**
    * The result set will be limited to these fields
    */
-  select?: Array<keyof T>
+  select?: TSelect
 
   /**
    * The fields should match this filter
@@ -31,10 +31,23 @@ export interface DefaultFilter<T> {
   filter?: Partial<T>
 }
 
+export type PartialResult<T, TFields extends keyof T> = { [K in TFields]: T[K] }
+
+export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
+  const returnValue: PartialResult<T, TField[number]> = {} as any
+  Object.keys(entry).map(key => {
+    const field: TField[number] = key as TField[number]
+    if (fields.includes(field)) {
+      returnValue[field] = entry[field]
+    }
+  })
+  return returnValue
+}
+
 /**
  * Interface that defines a physical store implementation
  */
-export interface PhysicalStore<T, TFilter = DefaultFilter<T>> extends Disposable {
+export interface PhysicalStore<T> extends Disposable {
   /**
    * The Primary key field name
    */
@@ -67,7 +80,9 @@ export interface PhysicalStore<T, TFilter = DefaultFilter<T>> extends Disposable
    * Returns a promise that will be resolved with an array of elements that matches the filter
    * @param filter The Filter value
    */
-  filter(filter: TFilter): Promise<T[]>
+  search<TSelect extends Array<keyof T>>(
+    filter: SearchOptions<T, TSelect>,
+  ): Promise<Array<PartialResult<T, TSelect[number]>>>
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined

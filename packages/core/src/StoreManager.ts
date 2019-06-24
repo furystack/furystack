@@ -1,7 +1,7 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@sensenet/client-utils'
-import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
+import { PhysicalStore } from './Models/PhysicalStore'
 
 /**
  * Manager class for store instances
@@ -46,7 +46,7 @@ export class StoreManager implements Disposable {
    * @param store The store to add
    * @returns {this} the StoreManager instance
    */
-  public addStore<T>(store: PhysicalStore<T, DefaultFilter<T>>) {
+  public addStore<T>(store: PhysicalStore<T>) {
     this.stores.set(store.model, store)
     return this
   }

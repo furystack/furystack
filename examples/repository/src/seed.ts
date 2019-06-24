@@ -1,4 +1,4 @@
-import { PhysicalStore, StoreManager, DefaultFilter } from '@furystack/core'
+import { PhysicalStore, StoreManager, SearchOptions } from '@furystack/core'
 import { HttpAuthenticationSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject'
 import { Task } from './Models/Task'
@@ -12,12 +12,12 @@ import { User } from './Models/User'
  * @param store The physical store to use
  */
 export const getOrCreate = async <T>(
-  filter: DefaultFilter<T>,
+  filter: SearchOptions<T, Array<keyof T>>,
   instance: T,
   store: PhysicalStore<T>,
   injector: Injector,
 ) => {
-  const result = await store.filter(filter)
+  const result = await store.search(filter)
   const logger = injector.logger.withScope('Seeder')
   if (result.length === 1) {
     return result[0]

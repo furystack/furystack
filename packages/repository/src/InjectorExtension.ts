@@ -1,4 +1,3 @@
-import { DefaultFilter } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
 import { DataSet } from './DataSet'
@@ -31,7 +30,7 @@ declare module '@furystack/inject/dist/Injector' {
     /**
      * Returns a DataSet for a specific model
      */
-    getDataSetFor: <T, TFilter = DefaultFilter<T>>(model: Constructable<T>) => DataSet<T, TFilter>
+    getDataSetFor: <T>(model: Constructable<T>) => DataSet<T>
   }
 }
 
@@ -41,6 +40,6 @@ Injector.prototype.setupRepository = function(builder) {
 }
 
 // tslint:disable-next-line: no-unnecessary-type-annotation
-Injector.prototype.getDataSetFor = function<T, TFilter = DefaultFilter<T>>(model: Constructable<T>) {
-  return this.getInstance(Repository).getDataSetFor<T, TFilter>(model)
+Injector.prototype.getDataSetFor = function<T>(model: Constructable<T>) {
+  return this.getInstance(Repository).getDataSetFor<T>(model)
 }

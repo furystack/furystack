@@ -1,6 +1,5 @@
-import { DefaultFilter } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { DataSet, Repository } from '@furystack/repository'
+import { Repository } from '@furystack/repository'
 import { PathHelper } from '@sensenet/client-utils'
 import { getOdataParams } from './getOdataParams'
 import { Entity, NavigationProperty } from './models'
@@ -118,7 +117,7 @@ export const createEntityResponse = async <T>(options: {
         const expandedEntities = await Promise.all(
           (await navPropertyCollection.getRelatedEntities(
             options.entity,
-            dataSet as DataSet<any, DefaultFilter<any>>,
+            dataSet as any,
             options.injector,
             options.odataParams,
           )).map(async expanded => {

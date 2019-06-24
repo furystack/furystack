@@ -1,6 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { PhysicalStore, User } from '@furystack/core'
-import { StoreManager } from '@furystack/core/dist/StoreManager'
+import { PhysicalStore, User, InMemoryStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@sensenet/client-utils'
@@ -12,30 +11,34 @@ import { ExternalLoginService } from './Models/ExternalLoginService'
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext<TUser extends User = User> {
-  public users!: PhysicalStore<TUser>
+export class HttpUserContext {
+  public users: PhysicalStore<User & { password: string }>
 
   public sessions!: PhysicalStore<{
     sessionId: string
     username: string
   }>
 
-  private user?: TUser
+  private user?: User
 
-  public async authenticateUser(userName: string, password: string): Promise<TUser> {
-    const match = await this.users.filter({
-      username: userName,
-      password: this.authentication.hashMethod(password),
-    } as any)
+  public async authenticateUser(userName: string, password: string): Promise<User> {
+    const match =
+      (password &&
+        password.length &&
+        (await this.users.search({
+          filter: {
+            username: userName,
+            password: this.authentication.hashMethod(password),
+          },
+        }))) ||
+      []
     if (match.length === 1) {
       // eslint-disable-next-line no-shadow
-      const { password, ...user } = match[0] as TUser & { password?: string }
-      return (user as any) as TUser
+      const { password, ...user } = match[0]
+      return user
     }
-
     await sleepAsync(Math.random() * 5000)
-
-    return this.authentication.visitorUser as TUser
+    return this.authentication.visitorUser
   }
 
   public async getCurrentUser() {
@@ -62,7 +65,7 @@ export class HttpUserContext<TUser extends User = User> {
     return null
   }
 
-  public async authenticateRequest(req: IncomingMessage): Promise<TUser> {
+  public async authenticateRequest(req: IncomingMessage): Promise<User> {
     // Basic auth
     if (req.headers.authorization) {
       const authData = Buffer.from(req.headers.authorization.toString().split(' ')[1], 'base64')
@@ -75,24 +78,23 @@ export class HttpUserContext<TUser extends User = User> {
     if (sessionId) {
       const session = await this.sessions.get(sessionId)
       if (session) {
-        const userResult = await this.users.filter({
-          // eslint-disable-next-line @typescript-eslint/no-object-literal-type-assertion
+        const userResult = await this.users.search({
           filter: {
             username: session.username,
-          } as Partial<TUser>,
+          },
         })
         if (userResult.length === 1) {
-          const { password, ...user } = userResult[0] as TUser & { password: string }
-          return (user as any) as TUser
+          const { password, ...user } = userResult[0]
+          return user
         }
-        return this.authentication.visitorUser as TUser
+        return this.authentication.visitorUser as User
       }
     }
 
-    return this.authentication.visitorUser as TUser
+    return this.authentication.visitorUser as User
   }
 
-  public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<TUser> {
+  public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<User> {
     const user = await this.authenticateUser(username, password)
     if (user !== this.authentication.visitorUser) {
       const sessionId = v1()
@@ -109,11 +111,11 @@ export class HttpUserContext<TUser extends User = User> {
     return user
   }
 
-  public async externalLogin<T extends ExternalLoginService<TUser, TArgs>, TArgs extends any[]>(
+  public async externalLogin<T extends ExternalLoginService, TArgs extends any[]>(
     service: Constructable<T>,
     serverResponse: ServerResponse,
     ...args: TArgs
-  ): Promise<TUser> {
+  ): Promise<User> {
     try {
       const instance = this.injector.getInstance(service)
       const user = await instance.login(...args)
@@ -140,7 +142,7 @@ export class HttpUserContext<TUser extends User = User> {
         data: { error },
       })
     }
-    return this.authentication.visitorUser as TUser
+    return this.authentication.visitorUser as User
   }
 
   public async cookieLogout(req: IncomingMessage, serverResponse: ServerResponse) {
@@ -164,7 +166,7 @@ export class HttpUserContext<TUser extends User = User> {
   constructor(
     private readonly incomingMessage: IncomingMessage,
     private readonly injector: Injector,
-    public readonly authentication: HttpAuthenticationSettings<TUser>,
+    public readonly authentication: HttpAuthenticationSettings<User>,
     storeManager: StoreManager,
   ) {
     this.users = authentication.getUserStore(storeManager)
@@ -172,3 +174,17 @@ export class HttpUserContext<TUser extends User = User> {
     this.logger = injector.logger.withScope(`@furystack/http-api/${this.constructor.name}`)
   }
 }
+
+class Model {
+  public a: number = 1
+  public b: string = ''
+  public c: object = {}
+}
+const s = new InMemoryStore({ model: Model, primaryKey: 'a' })
+
+s.search({
+  filter: {
+    a: 2,
+    c: { a: 3 },
+  },
+})

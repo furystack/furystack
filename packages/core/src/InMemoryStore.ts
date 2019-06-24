@@ -1,10 +1,10 @@
 import { Constructable } from '@furystack/inject'
-import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
+import { PhysicalStore, SearchOptions, selectFields, PartialResult } from './Models/PhysicalStore'
 
 /**
  * Store implementation that stores data in an in-memory cache
  */
-export class InMemoryStore<T> implements PhysicalStore<T, Partial<T>> {
+export class InMemoryStore<T> implements PhysicalStore<T> {
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
   }
@@ -20,8 +20,8 @@ export class InMemoryStore<T> implements PhysicalStore<T, Partial<T>> {
   private cache: Map<T[this['primaryKey']], T> = new Map()
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
-  public filter = async (filter: DefaultFilter<T>) => {
-    return [...this.cache.values()].filter(item => {
+  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
+    let value: Array<PartialResult<T, TFields[number]>> = [...this.cache.values()].filter(item => {
       for (const key in filter.filter) {
         if ((filter.filter as any)[key] !== (item as any)[key]) {
           return false
@@ -29,6 +29,22 @@ export class InMemoryStore<T> implements PhysicalStore<T, Partial<T>> {
       }
       return true
     })
+
+    if (filter.order) {
+      // ToDo
+    }
+
+    if (filter.top || filter.skip) {
+      value = value.slice(filter.skip, (filter.skip || 0) + (filter.top || 0))
+    }
+
+    if (filter.select !== undefined) {
+      value = value.map(item => {
+        return selectFields(item, ...(filter.select as Array<keyof T>))
+      })
+    }
+
+    return value
   }
 
   public async count() {
