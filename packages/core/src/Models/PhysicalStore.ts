@@ -82,7 +82,7 @@ export interface PhysicalStore<T> extends Disposable {
    */
   search<TSelect extends Array<keyof T>>(
     filter: SearchOptions<T, TSelect>,
-  ): Promise<Array<T | PartialResult<T, TSelect[number]>>>
+  ): Promise<Array<PartialResult<T, TSelect[number]>>>
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined

@@ -1,4 +1,6 @@
+import { usingAsync } from '@sensenet/client-utils'
 import { InMemoryStore } from '../src/InMemoryStore'
+import { PhysicalStore } from '../src/Models/PhysicalStore'
 
 class MockClass {
   public id!: number
@@ -59,6 +61,28 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: 'def' } })
     expect(result.length).toBe(2)
+  })
+
+  it('Should return partial and full result', async () => {
+    class ExampleClass {
+      public id: number = 1
+      public value: string = ''
+      public notNeeded: boolean = false
+    }
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async i => {
+      await i.add({ id: 1, value: 'alma', notNeeded: true })
+
+      const partialResult = await i.search({
+        filter: { id: 1 },
+        select: ['id', 'value'],
+      })
+      // Type check should also warn!
+      expect(partialResult[0].id).toBeTruthy()
+      expect((partialResult[0] as any)['notNeeded']).toBeUndefined()
+
+      const fullResult = await i.search({ filter: { id: 1 } })
+      expect(fullResult[0].notNeeded).toBeTruthy()
+    })
   })
 
   it('dispose should empty the cache', async () => {

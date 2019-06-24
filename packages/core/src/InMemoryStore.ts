@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { PhysicalStore, SearchOptions, selectFields } from './Models/PhysicalStore'
+import { PhysicalStore, SearchOptions, selectFields, PartialResult } from './Models/PhysicalStore'
 
 /**
  * Store implementation that stores data in an in-memory cache
@@ -21,7 +21,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
   public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
-    let value = [...this.cache.values()].filter(item => {
+    let value: Array<PartialResult<T, TFields[number]>> = [...this.cache.values()].filter(item => {
       for (const key in filter.filter) {
         if ((filter.filter as any)[key] !== (item as any)[key]) {
           return false
