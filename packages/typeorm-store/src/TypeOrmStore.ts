@@ -1,4 +1,4 @@
-import { DefaultFilter, PhysicalStore } from '@furystack/core'
+import { SearchOptions, PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
@@ -43,7 +43,7 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
     await this.options.connection.awaitConnection()
     return await this.typeOrmRepo.count()
   }
-  public async filter(filter: DefaultFilter<T>): Promise<T[]> {
+  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>): Promise<T[]> {
     await this.options.connection.awaitConnection()
     const { top, skip, order, ...where } = filter
 

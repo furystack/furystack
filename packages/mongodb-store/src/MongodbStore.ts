@@ -1,4 +1,4 @@
-import { DefaultFilter, PhysicalStore } from '@furystack/core'
+import { SearchOptions, PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { Collection, MongoClient, ObjectId } from 'mongodb'
@@ -46,7 +46,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
     return await collection.countDocuments()
   }
-  public async filter(filter: DefaultFilter<T>): Promise<T[]> {
+  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>): Promise<T[]> {
     const collection = await this.getCollection()
     const result = await collection
       .find(filter.filter)

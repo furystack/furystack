@@ -1,4 +1,4 @@
-import { DefaultFilter, PhysicalStore } from '@furystack/core'
+import { PhysicalStore } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { RedisClient } from 'redis'
@@ -47,7 +47,7 @@ export class RedisStore<T, K extends keyof T, KeyType extends T[K] & { toString:
   public async count(): Promise<number> {
     throw Error('Not supported :(')
   }
-  public async filter(filter: DefaultFilter<T>): Promise<T[]> {
+  public async search(): Promise<T[]> {
     throw Error('Not supported :(')
   }
   public async get(key: KeyType): Promise<T | undefined> {

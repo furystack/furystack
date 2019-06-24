@@ -57,7 +57,7 @@ describe('InMemoryStore', () => {
     f.update(2, { id: 2, value: 'def' })
     f.update(3, { id: 3, value: 'def' })
 
-    const result = await f.filter({ filter: { value: 'def' } })
+    const result = await f.search({ filter: { value: 'def' } })
     expect(result.length).toBe(2)
   })
 

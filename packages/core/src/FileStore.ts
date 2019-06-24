@@ -2,12 +2,12 @@ import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile 
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
-import { DefaultFilter, PhysicalStore } from './Models/PhysicalStore'
+import { PhysicalStore, SearchOptions } from './Models/PhysicalStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileStore<T> implements PhysicalStore<T, DefaultFilter<T>> {
+export class FileStore<T> implements PhysicalStore<T> {
   private readonly watcher?: FSWatcher
 
   public readonly model: Constructable<T>
@@ -36,7 +36,8 @@ export class FileStore<T> implements PhysicalStore<T, DefaultFilter<T>> {
     })
   }
 
-  public filter = async (filter: DefaultFilter<T>) => {
+  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
+    // ToDo: Top, skip, order (from InMemoryStore)
     return [...this.cache.values()].filter(item => {
       for (const key in filter.filter) {
         if ((filter.filter as any)[key] !== (item as any)[key]) {

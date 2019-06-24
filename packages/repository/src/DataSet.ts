@@ -1,11 +1,12 @@
 import { Injectable, Injector } from '@furystack/inject'
+import { SearchOptions } from '@furystack/core'
 import { DataSetSettings } from './DataSetSettings'
 
 /**
  * An authorized Repository Store instance
  */
 @Injectable({ lifetime: 'transient' })
-export class DataSet<T, TFilter> {
+export class DataSet<T> {
   /**
    * Primary key of the contained entity
    */
@@ -79,7 +80,7 @@ export class DataSet<T, TFilter> {
    * @param injector The Injector from the context
    * @param filter The Filter definition
    */
-  public async filter(injector: Injector, filter: TFilter) {
+  public async filter<TFields extends Array<keyof T>>(injector: Injector, filter: SearchOptions<T, TFields>) {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
@@ -88,7 +89,7 @@ export class DataSet<T, TFilter> {
     }
     const parsedFilter =
       this.settings && this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
-    return this.settings.physicalStore.filter(parsedFilter)
+    return this.settings.physicalStore.search(parsedFilter)
   }
 
   /**
@@ -139,5 +140,5 @@ export class DataSet<T, TFilter> {
     /** */
   }
 
-  constructor(public readonly settings: DataSetSettings<T, TFilter>) {}
+  constructor(public readonly settings: DataSetSettings<T>) {}
 }
