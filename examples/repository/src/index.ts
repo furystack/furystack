@@ -27,7 +27,7 @@ console.log('Current working dir:', process.cwd())
  */
 const defaultInjector = new Injector()
 
-const disposeExitHandler = registerExitHandler(defaultInjector)
+registerExitHandler(defaultInjector)
 
 defaultInjector
   .useLogging(ConsoleLogger)
@@ -246,9 +246,3 @@ defaultInjector
 
 // Seed default entries
 seed(defaultInjector)
-
-setTimeout(async () => {
-  defaultInjector.logger.information({ scope: 'system', message: "Shuttin' down..." })
-  disposeExitHandler()
-  await defaultInjector.dispose()
-}, 1000 * 5)
