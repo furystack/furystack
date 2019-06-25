@@ -3,6 +3,7 @@ import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
 import { PhysicalStore, SearchOptions } from './Models/PhysicalStore'
+import { InMemoryStore } from './InMemoryStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -13,17 +14,23 @@ export class FileStore<T> implements PhysicalStore<T> {
   public readonly model: Constructable<T>
 
   public readonly primaryKey: keyof T
+
+  private readonly inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
+
+  private get cache() {
+    // eslint-disable-next-line dot-notation
+    return this.inMemoryStore['cache']
+  }
+
   public async remove(key: T[this['primaryKey']]): Promise<void> {
-    this.cache.delete(key)
+    await this.inMemoryStore.remove(key)
     this.hasChanges = true
   }
-  private cache: Map<T[this['primaryKey']], T> = new Map()
+
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
   private hasChanges: boolean = false
-  public get = async (key: T[this['primaryKey']]) => {
-    return await this.fileLock.execute(async () => {
-      return this.cache.get(key)
-    })
+  public async get(key: T[this['primaryKey']]) {
+    return await this.inMemoryStore.get(key)
   }
 
   public async add(data: T) {
@@ -37,20 +44,12 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
-    // ToDo: Top, skip, order (from InMemoryStore)
-    return [...this.cache.values()].filter(item => {
-      for (const key in filter.filter) {
-        if ((filter.filter as any)[key] !== (item as any)[key]) {
-          return false
-        }
-      }
-      return true
-    })
+    return this.inMemoryStore.search(filter)
   }
 
   public async count() {
     return await this.fileLock.execute(async () => {
-      return this.cache.size
+      return this.inMemoryStore.count()
     })
   }
 
