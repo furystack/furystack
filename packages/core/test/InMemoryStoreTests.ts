@@ -1,6 +1,5 @@
 import { usingAsync } from '@sensenet/client-utils'
 import { InMemoryStore } from '../src/InMemoryStore'
-import { PhysicalStore } from '../src/Models/PhysicalStore'
 
 class MockClass {
   public id!: number
@@ -82,6 +81,38 @@ describe('InMemoryStore', () => {
 
       const fullResult = await i.search({ filter: { id: 1 } })
       expect(fullResult[0].notNeeded).toBeTruthy()
+    })
+  })
+
+  it('Should order values', async () => {
+    class ExampleClass {
+      public id: number = 1
+      public orderableValue1: number = 1
+      public orderableValue2: number = 1
+    }
+
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {
+      for (let i = 0; i < 10; i++) {
+        await store.add({ id: i, orderableValue1: Math.random(), orderableValue2: Math.random() })
+      }
+
+      const orderByValue1Asc = await store.search({ order: { orderableValue1: 'ASC' } })
+      let min = 0
+      for (const currentValue of orderByValue1Asc) {
+        if (min > currentValue.orderableValue1) {
+          throw Error('Order failed!')
+        }
+        min = currentValue.orderableValue1
+      }
+
+      const orderByValue1Desc = await store.search({ order: { orderableValue1: 'DESC' } })
+      let max = Number.MAX_SAFE_INTEGER
+      for (const currentValue of orderByValue1Desc) {
+        if (max < currentValue.orderableValue1) {
+          throw Error('Order failed!')
+        }
+        max = currentValue.orderableValue1
+      }
     })
   })
 

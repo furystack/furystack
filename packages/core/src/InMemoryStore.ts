@@ -31,16 +31,23 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     })
 
     if (filter.order) {
-      // ToDo
+      for (const fieldName of Object.keys(filter.order) as Array<keyof T>) {
+        value = value.sort((a, b) => {
+          const order = (filter.order as any)[fieldName] as 'ASC' | 'DESC'
+          if (a[fieldName] < b[fieldName]) return order === 'ASC' ? -1 : 1
+          if (a[fieldName] > b[fieldName]) return order === 'ASC' ? 1 : -1
+          return 0
+        })
+      }
     }
 
     if (filter.top || filter.skip) {
       value = value.slice(filter.skip, (filter.skip || 0) + (filter.top || 0))
     }
 
-    if (filter.select !== undefined) {
+    if (filter.select) {
       value = value.map(item => {
-        return selectFields(item, ...(filter.select as Array<keyof T>))
+        return selectFields(item, ...(filter.select as TFields))
       })
     }
 
