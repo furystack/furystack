@@ -50,10 +50,16 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     filter: SearchOptions<T, TFields>,
   ): Promise<Array<PartialResult<T, TFields[number]>>> {
     const collection = await this.getCollection()
+
+    const sort = filter.order
+      ? [...Object.keys(filter.order).map(key => [key, (filter.order as any)[key] === 'ASC' ? 1 : -1])]
+      : []
+
     const result = await collection
       .find(filter.filter)
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
+      .sort(sort)
       .toArray()
     return result.map(entry => (filter.select ? selectFields(entry, ...filter.select) : entry))
   }
