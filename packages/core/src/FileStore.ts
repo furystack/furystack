@@ -15,7 +15,7 @@ export class FileStore<T> implements PhysicalStore<T> {
 
   public readonly primaryKey: keyof T
 
-  private readonly inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
+  private readonly inMemoryStore: InMemoryStore<T>
 
   private get cache() {
     // eslint-disable-next-line dot-notation
@@ -23,28 +23,30 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public async remove(key: T[this['primaryKey']]): Promise<void> {
-    await this.inMemoryStore.remove(key)
+    await this.fileLock.execute(async () => {
+      await this.inMemoryStore.remove(key)
+    })
     this.hasChanges = true
   }
 
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
   private hasChanges: boolean = false
   public async get(key: T[this['primaryKey']]) {
-    return await this.inMemoryStore.get(key)
+    return await this.fileLock.execute(async () => {
+      return await this.inMemoryStore.get(key)
+    })
   }
 
   public async add(data: T) {
     return await this.fileLock.execute(async () => {
-      if (this.cache.has(data[this.primaryKey])) {
-        throw new Error('Item with the same key already exists')
-      }
-      this.update(data[this.primaryKey], data)
-      return data
+      return await this.inMemoryStore.add(data)
     })
   }
 
   public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
-    return this.inMemoryStore.search(filter)
+    return await this.fileLock.execute(async () => {
+      return this.inMemoryStore.search(filter)
+    })
   }
 
   public async count() {
@@ -125,9 +127,8 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public async update(id: T[this['primaryKey']], data: T) {
-    this.cache.set(id, {
-      ...this.cache.get(id),
-      ...data,
+    await this.fileLock.execute(async () => {
+      return this.inMemoryStore.update(id, data)
     })
     this.hasChanges = true
   }
@@ -153,6 +154,7 @@ export class FileStore<T> implements PhysicalStore<T> {
     this.logger = options.logger.withScope(`@furystack/core/${this.constructor.name}`)
     options.readFile && (this.readFile = options.readFile)
     options.writeFile && (this.writeFile = options.writeFile)
+    this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
     try {
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
