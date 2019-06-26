@@ -3,6 +3,7 @@ import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
 import { PhysicalStore, SearchOptions } from './Models/PhysicalStore'
+import { InMemoryStore } from './InMemoryStore'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -13,44 +14,44 @@ export class FileStore<T> implements PhysicalStore<T> {
   public readonly model: Constructable<T>
 
   public readonly primaryKey: keyof T
+
+  private readonly inMemoryStore: InMemoryStore<T>
+
+  private get cache() {
+    // eslint-disable-next-line dot-notation
+    return this.inMemoryStore['cache']
+  }
+
   public async remove(key: T[this['primaryKey']]): Promise<void> {
-    this.cache.delete(key)
+    await this.fileLock.execute(async () => {
+      await this.inMemoryStore.remove(key)
+    })
     this.hasChanges = true
   }
-  private cache: Map<T[this['primaryKey']], T> = new Map()
+
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
   private hasChanges: boolean = false
-  public get = async (key: T[this['primaryKey']]) => {
+  public async get(key: T[this['primaryKey']]) {
     return await this.fileLock.execute(async () => {
-      return this.cache.get(key)
+      return await this.inMemoryStore.get(key)
     })
   }
 
   public async add(data: T) {
     return await this.fileLock.execute(async () => {
-      if (this.cache.has(data[this.primaryKey])) {
-        throw new Error('Item with the same key already exists')
-      }
-      this.update(data[this.primaryKey], data)
-      return data
+      return await this.inMemoryStore.add(data)
     })
   }
 
   public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
-    // ToDo: Top, skip, order (from InMemoryStore)
-    return [...this.cache.values()].filter(item => {
-      for (const key in filter.filter) {
-        if ((filter.filter as any)[key] !== (item as any)[key]) {
-          return false
-        }
-      }
-      return true
+    return await this.fileLock.execute(async () => {
+      return this.inMemoryStore.search(filter)
     })
   }
 
   public async count() {
     return await this.fileLock.execute(async () => {
-      return this.cache.size
+      return this.inMemoryStore.count()
     })
   }
 
@@ -126,9 +127,8 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public async update(id: T[this['primaryKey']], data: T) {
-    this.cache.set(id, {
-      ...this.cache.get(id),
-      ...data,
+    await this.fileLock.execute(async () => {
+      return this.inMemoryStore.update(id, data)
     })
     this.hasChanges = true
   }
@@ -154,6 +154,7 @@ export class FileStore<T> implements PhysicalStore<T> {
     this.logger = options.logger.withScope(`@furystack/core/${this.constructor.name}`)
     options.readFile && (this.readFile = options.readFile)
     options.writeFile && (this.writeFile = options.writeFile)
+    this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
     try {
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {

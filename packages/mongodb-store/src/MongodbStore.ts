@@ -1,4 +1,4 @@
-import { SearchOptions, PhysicalStore } from '@furystack/core'
+import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { Collection, MongoClient, ObjectId } from 'mongodb'
@@ -46,14 +46,22 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
     return await collection.countDocuments()
   }
-  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>): Promise<T[]> {
+  public async search<TFields extends Array<keyof T>>(
+    filter: SearchOptions<T, TFields>,
+  ): Promise<Array<PartialResult<T, TFields[number]>>> {
     const collection = await this.getCollection()
+
+    const sort = filter.order
+      ? [...Object.keys(filter.order).map(key => [key, (filter.order as any)[key] === 'ASC' ? 1 : -1])]
+      : []
+
     const result = await collection
       .find(filter.filter)
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
+      .sort(sort)
       .toArray()
-    return result
+    return result.map(entry => (filter.select ? selectFields(entry, ...filter.select) : entry))
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     const collection = await this.getCollection()
