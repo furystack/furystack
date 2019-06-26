@@ -49,9 +49,9 @@ export class FileStore<T> implements PhysicalStore<T> {
     })
   }
 
-  public async count() {
+  public async count(filter?: Partial<T>) {
     return await this.fileLock.execute(async () => {
-      return this.inMemoryStore.count()
+      return this.inMemoryStore.count(filter)
     })
   }
 

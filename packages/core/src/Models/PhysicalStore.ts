@@ -74,7 +74,7 @@ export interface PhysicalStore<T> extends Disposable {
   /**
    * Returns a promise that will be resolved with the count of the elements
    */
-  count(): Promise<number>
+  count(filter?: Partial<T>): Promise<number>
 
   /**
    * Returns a promise that will be resolved with an array of elements that matches the filter

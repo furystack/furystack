@@ -39,9 +39,9 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
     await this.options.connection.awaitConnection()
     await this.typeOrmRepo.update(id, data)
   }
-  public async count(): Promise<number> {
+  public async count(filter: Partial<T>): Promise<number> {
     await this.options.connection.awaitConnection()
-    return await this.typeOrmRepo.count()
+    return await this.typeOrmRepo.count({ where: filter })
   }
   public async search<TFields extends Array<keyof T>>(
     filter: SearchOptions<T, TFields>,

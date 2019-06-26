@@ -20,15 +20,22 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   private cache: Map<T[this['primaryKey']], T> = new Map()
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
-  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
-    let value: Array<PartialResult<T, TFields[number]>> = [...this.cache.values()].filter(item => {
-      for (const key in filter.filter) {
-        if ((filter.filter as any)[key] !== (item as any)[key]) {
+  private filterInternal(values: T[], filter?: Partial<T>): T[] {
+    if (!filter) {
+      return values
+    }
+    return values.filter(item => {
+      for (const key in filter) {
+        if ((filter as any)[key] !== (item as any)[key]) {
           return false
         }
       }
       return true
     })
+  }
+
+  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
+    let value: Array<PartialResult<T, TFields[number]>> = this.filterInternal([...this.cache.values()], filter.filter)
 
     if (filter.order) {
       for (const fieldName of Object.keys(filter.order) as Array<keyof T>) {
@@ -54,8 +61,8 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     return value
   }
 
-  public async count() {
-    return this.cache.size
+  public async count(filter?: Partial<T>) {
+    return this.filterInternal([...this.cache.values()], filter).length
   }
 
   public async update(id: T[this['primaryKey']], data: T) {

@@ -42,9 +42,9 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
     await collection.update({ _id: id }, data)
   }
-  public async count(): Promise<number> {
+  public async count(filter: Partial<T>): Promise<number> {
     const collection = await this.getCollection()
-    return await collection.countDocuments()
+    return await collection.countDocuments(filter) // ToDo: Test
   }
   public async search<TFields extends Array<keyof T>>(
     filter: SearchOptions<T, TFields>,

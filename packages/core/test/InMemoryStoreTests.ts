@@ -53,6 +53,21 @@ describe('InMemoryStore', () => {
     expect(persisted).toEqual({ id: 1, value: 'asd' })
   })
 
+  it('Should restrict hits with the Count value', async () => {
+    await f.add({ id: 1, value: 'asd' })
+    await f.add({ id: 2, value: 'asd' })
+    await f.add({ id: 3, value: 'alma' })
+
+    const asdCount = await f.count({ value: 'asd' })
+    expect(asdCount).toBe(2)
+
+    const almaCount = await f.count({ value: 'alma' })
+    expect(almaCount).toBe(1)
+
+    const nullCount = await f.count({ value: 'null' })
+    expect(nullCount).toBe(0)
+  })
+
   it('filter should return the corresponding entries', async () => {
     f.update(1, { id: 1, value: 'asd' })
     f.update(2, { id: 2, value: 'def' })
