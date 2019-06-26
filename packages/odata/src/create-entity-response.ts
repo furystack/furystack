@@ -90,6 +90,7 @@ export const createEntityResponse = async <T>(options: {
           options.injector,
           options.odataParams,
         )
+        // eslint-disable-next-line require-atomic-updates
         expandedEntity[navProperty.propertyName as keyof typeof expandedEntity] = await createEntityResponse({
           entity: expanded,
           injector: options.injector,
