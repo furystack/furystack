@@ -21,15 +21,15 @@ export class GetEntityAction implements RequestAction {
     this.response.setHeader('odata.metadata', 'minimal')
 
     if (!entity) {
-      this.response.writeHead(404, 'Not found')
-      this.response.end(
-        JSON.stringify({
+      this.response.sendJson({
+        statusCode: 404,
+        json: {
           error: {
             code: '',
             message: `Resource not found for the segment '${this.context.collection.name}'.`,
           },
-        }),
-      )
+        },
+      })
       return
     }
 
@@ -43,12 +43,12 @@ export class GetEntityAction implements RequestAction {
       odataContext: this.context,
     })
 
-    this.response.end(
-      JSON.stringify({
+    this.response.sendJson({
+      json: {
         '@odata.context': this.context.context,
         ...expandedEntity,
-      }),
-    )
+      },
+    })
   }
   constructor(
     private response: ServerResponse,

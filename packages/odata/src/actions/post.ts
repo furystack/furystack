@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { RequestAction, Utils } from '@furystack/http-api'
+import { RequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { createEntityResponse } from '../create-entity-response'
@@ -17,7 +17,7 @@ export class PostAction implements RequestAction {
   public async exec() {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
 
-    const postBody = await this.utils.readPostBody(this.incomingMessage)
+    const postBody = await this.incomingMessage.readPostBody()
 
     const entity = await dataSet.add(this.injector, postBody)
 
@@ -31,12 +31,15 @@ export class PostAction implements RequestAction {
       odataContext: this.context,
     })
 
-    this.response.writeHead(201, 'Created', { 'content-type': 'application/json', 'odata.metadata': 'minimal' })
-    this.response.end(
-      JSON.stringify({
+    this.response.sendJson({
+      statusCode: 201,
+      json: {
         ...expanded,
-      }),
-    )
+      },
+      headers: {
+        'odata.metadata': 'minimal',
+      },
+    })
   }
   constructor(
     private incomingMessage: IncomingMessage,
@@ -44,6 +47,5 @@ export class PostAction implements RequestAction {
     private context: OdataContext<any>,
     private repo: Repository,
     private injector: Injector,
-    private utils: Utils,
   ) {}
 }

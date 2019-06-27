@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { User, visitorUser } from '@furystack/core'
+import { visitorUser } from '@furystack/core'
 import { Injectable, Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
@@ -61,7 +61,7 @@ describe('HttpApi tests', () => {
         /**
          *
          */
-        constructor(private userContext: HttpUserContext<User>, private perRequestInjector: Injector) {}
+        constructor(private userContext: HttpUserContext, private perRequestInjector: Injector) {}
       }
       // i.setExplicitInstance({ headers: {} }, IncomingMessage)
       // i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)

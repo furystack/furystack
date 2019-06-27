@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { HttpUserContext, RequestAction, Utils } from '@furystack/http-api'
+import { HttpUserContext, RequestAction } from '@furystack/http-api'
 import { Injectable } from '@furystack/inject'
 import { GoogleLoginService } from './GoogleLoginService'
 /**
@@ -11,16 +11,12 @@ export class GoogleLoginAction implements RequestAction {
     private readonly userContext: HttpUserContext,
     private incomingMessage: IncomingMessage,
     private response: ServerResponse,
-    private utils: Utils,
   ) {}
 
   public async exec(): Promise<void> {
-    const loginData = await this.utils.readPostBody<{ token: string }>(this.incomingMessage)
-    this.response.statusCode = 200
-    this.response.setHeader('Content-Type', 'application/json')
+    const loginData = await this.incomingMessage.readPostBody<{ token: string }>()
     const user = await this.userContext.externalLogin(GoogleLoginService, this.response, loginData.token)
-    this.response.write(JSON.stringify(user))
-    this.response.end()
+    this.response.sendJson({ json: user })
   }
   public dispose() {
     /** */

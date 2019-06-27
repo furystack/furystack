@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpUserContext } from '../../src'
 import { GetCurrentUser } from '../../src/Actions/GetCurrentUser'
+import { SendJsonOptions } from '../../src/ServerResponseExtensiont'
 
 describe('getCurrentUser', () => {
   it('exec', done => {
@@ -11,10 +12,9 @@ describe('getCurrentUser', () => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance(
         {
-          writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation
-          end: (result: string) => {
-            expect(result).toEqual(JSON.stringify(testUser))
+          sendJson: (options: SendJsonOptions<any>) => {
+            expect(options.json).toEqual(testUser)
             done()
           },
         },

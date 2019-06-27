@@ -13,10 +13,9 @@ export class GetCurrentUser implements RequestAction {
   }
   public async exec(): Promise<void> {
     const user = await this.userContext.getCurrentUser()
-    this.serverResponse.writeHead(200, {
-      'Content-Type': 'application/json',
+    this.serverResponse.sendJson({
+      json: user,
     })
-    this.serverResponse.end(JSON.stringify(user))
   }
   /**
    *

@@ -2,7 +2,6 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { Injectable } from '@furystack/inject'
 import { HttpUserContext } from '../HttpUserContext'
 import { RequestAction } from '../Models'
-import { Utils } from '../Utils'
 
 /**
  * Action that logs in the current user
@@ -16,17 +15,13 @@ export class LoginAction implements RequestAction {
   }
 
   public async exec() {
-    const loginData = await this.utils.readPostBody<{ username: string; password: string }>(this.incomingMessage)
+    const loginData = await this.incomingMessage.readPostBody<{ username: string; password: string }>()
     const user = await this.userContext.cookieLogin(loginData.username, loginData.password, this.serverResponse)
-    this.serverResponse.writeHead(200, {
-      'Content-Type': 'application/json',
-    })
-    this.serverResponse.end(JSON.stringify(user))
+    this.serverResponse.sendJson({ json: user })
   }
   constructor(
     private readonly userContext: HttpUserContext,
     private incomingMessage: IncomingMessage,
     private serverResponse: ServerResponse,
-    private utils: Utils,
   ) {}
 }

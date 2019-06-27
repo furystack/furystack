@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpUserContext } from '../../src'
 import { LogoutAction } from '../../src/Actions/Logout'
+import { SendJsonOptions } from '../../src/ServerResponseExtensiont'
 
 describe('LogoutAction', () => {
   it('exec', done => {
@@ -19,10 +20,8 @@ describe('LogoutAction', () => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance(
         {
-          writeHead: () => undefined,
-          // tslint:disable-next-line: no-unnecessary-type-annotation
-          end: (result: string) => {
-            expect(result).toEqual(JSON.stringify({ success: true }))
+          sendJson: (options: SendJsonOptions<any>) => {
+            expect(options.json).toEqual({ success: true })
             expect(cookieLogoutCalled).toEqual(true)
             done()
           },
