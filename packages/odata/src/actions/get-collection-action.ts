@@ -39,16 +39,17 @@ export class GetCollectionAction implements RequestAction {
       ),
     )
 
-    this.response.setHeader('content-type', 'application/json')
-    this.response.setHeader('odata.metadata', 'minimal')
-    this.response.end(
-      JSON.stringify({
+    this.response.sendJson({
+      json: {
         '@odata.context': this.context.context,
         '@odata.count': count,
         // '@odata.nextLink': 'ToDo',
         value,
-      }),
-    )
+      },
+      headers: {
+        'odata.metadata': 'minimal',
+      },
+    })
   }
   constructor(
     private repo: Repository,

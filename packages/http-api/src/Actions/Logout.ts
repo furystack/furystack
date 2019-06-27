@@ -14,8 +14,7 @@ export class LogoutAction implements RequestAction {
 
   public async exec() {
     await this.userContext.cookieLogout(this.incomingMessage, this.serverResponse)
-    this.serverResponse.writeHead(200)
-    this.serverResponse.end(JSON.stringify({ success: true }))
+    this.serverResponse.sendJson({ json: { success: true } })
   }
   constructor(
     private readonly userContext: HttpUserContext,

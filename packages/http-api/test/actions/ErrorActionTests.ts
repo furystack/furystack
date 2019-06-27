@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { ErrorAction } from '../../src'
+import { SendJsonOptions } from '../../src/ServerResponseExtensiont'
 
 describe('ErrorAction tests', () => {
   it('exec', done => {
@@ -25,10 +26,10 @@ describe('ErrorAction tests', () => {
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance(
         {
-          writeHead: () => undefined,
           // tslint:disable-next-line: no-unnecessary-type-annotation
-          end: (result: string) => {
-            expect(result).toEqual(JSON.stringify(testError))
+          sendJson: (options: SendJsonOptions<any>) => {
+            expect(options.json).toEqual(testError)
+            expect(options.statusCode).toBe(500)
             done()
           },
         },

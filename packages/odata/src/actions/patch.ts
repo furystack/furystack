@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { RequestAction, Utils } from '@furystack/http-api'
+import { RequestAction } from '@furystack/http-api'
 import { Injectable, Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { OdataContext } from '../odata-context'
@@ -15,7 +15,7 @@ export class PatchAction implements RequestAction {
 
   public async exec() {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
-    const postBody = await this.utils.readPostBody(this.incomingMessage)
+    const postBody = await this.incomingMessage.readPostBody()
 
     await dataSet.update(this.injector, this.context.entityId, postBody)
     this.response.writeHead(204, 'No content', {
@@ -29,7 +29,6 @@ export class PatchAction implements RequestAction {
     private context: OdataContext<any>,
     private response: ServerResponse,
     private injector: Injector,
-    private utils: Utils,
     private incomingMessage: IncomingMessage,
   ) {}
 }

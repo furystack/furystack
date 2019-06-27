@@ -8,19 +8,16 @@ import { Injectable } from '@furystack/inject'
 @Injectable({ lifetime: 'transient' })
 export class MockAction implements RequestAction {
   public async exec() {
-    this.response.writeHead(200, {
-      'Content-Type': 'application/json',
-    })
-    this.response.end(
-      JSON.stringify({
+    this.response.sendJson({
+      json: {
         success: true,
         incoming: {
           url: this.incomingMessage.url,
           headers: this.incomingMessage.headers,
           method: this.incomingMessage.method,
         },
-      }),
-    )
+      },
+    })
   }
 
   public dispose() {

@@ -16,10 +16,11 @@ export class OdataCount implements RequestAction {
   public async exec() {
     const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
     const count = await dataSet.count(this.injector)
-    this.response.setHeader('content-type', 'application/json')
-    this.response.setHeader('odata.metadata', 'none')
 
-    this.response.end(count.toString() || '0')
+    this.response.sendPlainText({
+      text: count.toString() || '0',
+      headers: { 'odata.metadata': 'none' },
+    })
   }
   constructor(
     private response: ServerResponse,

@@ -11,8 +11,10 @@ export class NotFoundAction implements RequestAction {
     /**  */
   }
   public async exec(): Promise<void> {
-    this.serverResponse.writeHead(404, 'NOT FOUND :(')
-    this.serverResponse.end(JSON.stringify({ Error: 'Content not found', url: this.incomingMessage.url }))
+    this.serverResponse.sendJson({
+      statusCode: 404,
+      json: { Error: 'Content not found', url: this.incomingMessage.url },
+    })
   }
 
   constructor(private incomingMessage: IncomingMessage, private serverResponse: ServerResponse) {}

@@ -18,7 +18,6 @@ export class DeleteAction implements RequestAction {
     await dataSet.remove(this.injector, this.context.entityId)
     this.response.writeHead(204, 'No Content')
     this.response.setHeader('odata.metadata', 'none')
-
     this.response.end()
   }
   constructor(

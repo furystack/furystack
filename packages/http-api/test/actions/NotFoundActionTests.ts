@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { NotFoundAction } from '../../src'
+import { SendJsonOptions } from '../../src/ServerResponseExtensiont'
 
 describe('NotFoundAction tests', () => {
   it('exec', done => {
@@ -10,10 +11,8 @@ describe('NotFoundAction tests', () => {
       i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
       i.setExplicitInstance(
         {
-          writeHead: () => undefined,
-          // tslint:disable-next-line: no-unnecessary-type-annotation
-          end: (result: string) => {
-            expect(result).toEqual(JSON.stringify(notFoundResponse))
+          sendJson: (options: SendJsonOptions<any>) => {
+            expect(options.json).toEqual(notFoundResponse)
             done()
           },
         },

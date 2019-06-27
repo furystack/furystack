@@ -13,7 +13,7 @@ export class PutAction implements RequestAction {
   }
 
   public async exec() {
-    this.response.end(JSON.stringify({ name: 'Put' }))
+    this.response.sendJson({ json: { name: 'Put' } })
   }
   constructor(public model: ModelBuilder, public incomingMessage: IncomingMessage, public response: ServerResponse) {}
 }

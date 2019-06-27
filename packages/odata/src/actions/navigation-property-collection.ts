@@ -55,15 +55,15 @@ export class NavigationPropertyCollectionAction implements RequestAction {
           }),
       ),
     )
-
-    this.response.setHeader('content-type', 'application/json')
-    this.response.setHeader('odata.metadata', 'minimal')
-    this.response.end(
-      JSON.stringify({
+    this.response.sendJson({
+      json: {
         '@odata.context': this.context.context,
         ...(value instanceof Array ? { '@odata.count': value.length, value } : value),
-      }),
-    )
+      },
+      headers: {
+        'odata.metadata': 'minimal',
+      },
+    })
   }
   constructor(
     private repo: Repository,

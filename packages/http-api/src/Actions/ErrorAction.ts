@@ -16,10 +16,11 @@ export class ErrorAction implements RequestAction {
     throw new Error('Invalid Error action call.')
   }
   public async returnError(error: any): Promise<void> {
-    this.serverResponse.writeHead(500, 'Server error', { 'Content-Type': 'application/json' })
-    this.serverResponse.end(
-      JSON.stringify({ message: error.message, url: this.incomingMessage.url, stack: error.stack }),
-    )
+    this.serverResponse.sendJson({
+      statusCode: 500,
+      json: { message: error.message, url: this.incomingMessage.url, stack: error.stack },
+    })
+
     this.logger.warning({
       message: `An action returned 500 from '${this.incomingMessage.url}'.`,
       data: {
