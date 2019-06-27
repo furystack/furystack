@@ -17,6 +17,12 @@ export class LoginAction implements RequestAction {
   public async exec() {
     const loginData = await this.incomingMessage.readPostBody<{ username: string; password: string }>()
     const user = await this.userContext.cookieLogin(loginData.username, loginData.password, this.serverResponse)
+    if (user === this.userContext.authentication.visitorUser) {
+      this.serverResponse.sendJson({
+        statusCode: 400,
+        json: { message: 'Login failed' },
+      })
+    }
     this.serverResponse.sendJson({ json: user })
   }
   constructor(
