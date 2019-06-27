@@ -46,7 +46,6 @@
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
     "@furystack/core": "^5.1.0",
-    "@furystack/http-api": "^4.2.0",
     "@furystack/inject": "^4.0.1",
     "@furystack/logging": "^2.0.1",
     "@sensenet/client-utils": "^1.5.1",
