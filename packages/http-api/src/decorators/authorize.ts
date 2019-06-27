@@ -25,7 +25,7 @@ export const Authorize = (...roles: Role[]) => <T extends Constructable<RequestA
           message: `User '${currentUser.username}' has been tried to access to action '${request.url}' without the required roles.`,
           data: {
             user: currentUser,
-            roles,
+            requiredRoles: roles,
           },
         })
         return
