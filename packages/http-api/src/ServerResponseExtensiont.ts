@@ -31,5 +31,5 @@ http.ServerResponse.prototype.sendPlainText = function(options: SendPlainTextOpt
     'Content-Type': 'plain/text',
     ...options.headers,
   })
-  this.end(JSON.stringify(options.text))
+  this.end(options.text)
 }
