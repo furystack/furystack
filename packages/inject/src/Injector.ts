@@ -16,7 +16,6 @@ export class Injector implements Disposable {
       .filter(s => s !== this)
       .map(async s => {
         if (s.dispose) {
-          console.log(`Disposing ${s.constructor.name}...`)
           return s.dispose() || Promise.resolve()
         }
       })
