@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { PhysicalStore, User, InMemoryStore, Role, StoreManager } from '@furystack/core'
+import { PhysicalStore, User, InMemoryStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@sensenet/client-utils'
@@ -26,10 +26,10 @@ export class HttpUserContext {
     return currentUser !== this.authentication.visitorUser
   }
 
-  public async isAuthorized(...roles: Role[]): Promise<boolean> {
+  public async isAuthorized(...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser()
     for (const role of roles) {
-      if (!currentUser.roles.some(c => c.name === role.name)) {
+      if (!currentUser.roles.some(c => c === role)) {
         return false
       }
     }

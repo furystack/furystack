@@ -1,11 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { Injector, Constructable } from '@furystack/inject'
-import { Role } from '@furystack/core'
 import { sleepAsync } from '@sensenet/client-utils'
 import { RequestAction } from '../Models/RequestAction'
 import { HttpUserContext } from '../HttpUserContext'
 
-export const Authorize = (...roles: Role[]) => <T extends Constructable<RequestAction & { injector: Injector }>>(
+export const Authorize = (...roles: string[]) => <T extends Constructable<RequestAction & { injector: Injector }>>(
   constructor: T,
 ) => {
   return class extends constructor {

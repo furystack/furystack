@@ -1,12 +1,9 @@
-import { SystemRoles } from '../SystemRoles'
-import { Role } from './Role'
-
 /**
  * The default unauthenticated user
  */
 export const visitorUser: User = {
   username: 'Visitor',
-  roles: [SystemRoles.visitors],
+  roles: ['Visitor'],
 }
 
 /**
@@ -21,5 +18,5 @@ export class User {
   /**
    * List of roles
    */
-  public roles!: Role[]
+  public roles!: string[]
 }
