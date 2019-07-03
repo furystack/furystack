@@ -157,6 +157,7 @@ export class FileStore<T> implements PhysicalStore<T> {
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
     try {
+      this.reloadData()
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
         this.logger.verbose({
           message: `The file '${this.options.fileName}' has been changed, reloading data...`,
