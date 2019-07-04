@@ -28,7 +28,7 @@ export class StoreManager implements Disposable {
    * Throws error if no store is registered
    * @param model The Constructable object
    */
-  public getStoreFor<T>(model: Constructable<T>) {
+  public getStoreFor<T, TType extends PhysicalStore<T> = PhysicalStore<T>>(model: Constructable<T>) {
     const instance = this.stores.get(model)
     if (!instance) {
       const message = `Store not found for '${model.name}'`
@@ -38,7 +38,7 @@ export class StoreManager implements Disposable {
 
       throw Error(message)
     }
-    return instance as PhysicalStore<T>
+    return instance as TType
   }
 
   /**
