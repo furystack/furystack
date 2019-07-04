@@ -15,5 +15,5 @@ export const ErrorAction: RequestAction = async injector => {
       error,
     },
   })
-  return JsonResult({ chunk: { message: error.message, url: msg.url, stack: error.stack } })
+  return JsonResult({ chunk: { message: error.message, url: msg.url, stack: error.stack } }, 500)
 }
