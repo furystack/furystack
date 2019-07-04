@@ -45,6 +45,11 @@ export const EmptyResult = (statusCode = 200, headers?: { [K: string]: string })
     },
   } as ActionResult<undefined>)
 
+export const BypassResult = () =>
+  ({
+    chunk: 'BypassResult',
+  } as ActionResult<'BypassResult'>)
+
 /**
  * Interface for a HTTP Request action
  */

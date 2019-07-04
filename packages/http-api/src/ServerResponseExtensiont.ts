@@ -19,6 +19,9 @@ declare module 'http' {
 }
 
 http.ServerResponse.prototype.sendActionResult = function<T>(options: ActionResult<T>) {
+  if (typeof options.chunk === 'string' && options.chunk === 'BypassResult') {
+    return
+  }
   this.writeHead(options.statusCode, options.headers)
   this.end(options.chunk)
 }
