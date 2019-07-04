@@ -1,34 +1,22 @@
-import { IncomingMessage, ServerResponse } from 'http'
-import { RequestAction } from '@furystack/http-api'
-import { Injectable, Injector } from '@furystack/inject'
+import { RequestAction, JsonResult } from '@furystack/http-api'
 import { Repository } from '@furystack/repository'
 import { OdataContext } from '../odata-context'
 
 /**
  * OData Patch action
  */
-@Injectable({ lifetime: 'transient' })
-export class PatchAction implements RequestAction {
-  public dispose() {
-    /** */
-  }
+export const PatchAction: RequestAction = async injector => {
+  const repo = injector.getInstance(Repository)
+  const context = injector.getInstance(OdataContext)
+  const incomingMessage = injector.getRequest()
 
-  public async exec() {
-    const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
-    const postBody = await this.incomingMessage.readPostBody()
+  const dataSet = repo.getDataSetFor<any>(context.collection.name)
+  const postBody = await incomingMessage.readPostBody()
 
-    await dataSet.update(this.injector, this.context.entityId, postBody)
-    this.response.writeHead(204, 'No content', {
-      'content-type': 'application/json',
-      'odata.metadata': 'none',
-    })
-    this.response.end()
-  }
-  constructor(
-    private repo: Repository,
-    private context: OdataContext<any>,
-    private response: ServerResponse,
-    private injector: Injector,
-    private incomingMessage: IncomingMessage,
-  ) {}
+  await dataSet.update(injector, context.entityId, postBody)
+
+  return JsonResult({}, 204, {
+    'content-type': 'application/json',
+    'odata.metadata': 'none',
+  })
 }

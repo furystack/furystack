@@ -52,8 +52,8 @@ defaultInjector
   })
   // Add API endpoints for '/login', '/logout' and '/currentUser'
   .useDefaultLoginRoutes()
-  .addHttpRouting(msg => {
-    const urlPathName = parse(msg.url || '', true).pathname
+  .addHttpRouting(injector => {
+    const urlPathName = parse(injector.getRequest().url || '', true).pathname
     if (urlPathName === '/googleLogin') {
       return GoogleLoginAction
     }

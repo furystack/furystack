@@ -49,7 +49,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     }
 
     if (filter.top || filter.skip) {
-      value = value.slice(filter.skip, (filter.skip || 0) + (filter.top || 0))
+      value = value.slice(filter.skip, (filter.skip || 0) + (filter.top || this.cache.size))
     }
 
     if (filter.select) {

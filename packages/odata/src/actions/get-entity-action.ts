@@ -1,6 +1,4 @@
-import { ServerResponse } from 'http'
-import { RequestAction } from '@furystack/http-api'
-import { Injectable, Injector } from '@furystack/inject'
+import { RequestAction, NotFoundAction, JsonResult } from '@furystack/http-api'
 import { Repository } from '@furystack/repository'
 import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
@@ -8,52 +6,33 @@ import { OdataContext } from '../odata-context'
 /**
  * Odata Get Entity action
  */
-@Injectable({ lifetime: 'transient' })
-export class GetEntityAction implements RequestAction {
-  public dispose() {
-    /** */
+export const GetEntityAction: RequestAction = async injector => {
+  const context = injector.getInstance(OdataContext)
+  const repo = injector.getInstance(Repository)
+
+  const dataSet = repo.getDataSetFor<any>(context.collection.name)
+  const entity = await dataSet.get(injector, context.entityId)
+
+  if (!entity) {
+    return await NotFoundAction(injector)
   }
 
-  public async exec() {
-    const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
-    const entity = await dataSet.get(this.injector, this.context.entityId)
-    this.response.setHeader('content-type', 'application/json')
-    this.response.setHeader('odata.metadata', 'minimal')
+  const expandedEntity = await createEntityResponse({
+    entity,
+    entityTypes: context.entities,
+    entityType: context.entity,
+    odataParams: context.queryParams,
+    injector,
+    repo,
+    odataContext: context,
+  })
 
-    if (!entity) {
-      this.response.sendJson({
-        statusCode: 404,
-        json: {
-          error: {
-            code: '',
-            message: `Resource not found for the segment '${this.context.collection.name}'.`,
-          },
-        },
-      })
-      return
-    }
-
-    const expandedEntity = await createEntityResponse({
-      entity,
-      entityTypes: this.context.entities,
-      entityType: this.context.entity,
-      odataParams: this.context.queryParams,
-      injector: this.injector,
-      repo: this.repo,
-      odataContext: this.context,
-    })
-
-    this.response.sendJson({
-      json: {
-        '@odata.context': this.context.context,
-        ...expandedEntity,
-      },
-    })
-  }
-  constructor(
-    private response: ServerResponse,
-    private context: OdataContext<any>,
-    private repo: Repository,
-    private injector: Injector,
-  ) {}
+  return JsonResult(
+    {
+      '@odata.context': context.context,
+      ...expandedEntity,
+    },
+    undefined,
+    { 'content-type': 'application/json', 'odata.metadata': 'minimal' },
+  )
 }

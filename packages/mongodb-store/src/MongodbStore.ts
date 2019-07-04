@@ -12,7 +12,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   public readonly model: Constructable<T>
   private readonly logger: ScopedLogger
 
-  private async getCollection() {
+  public async getCollection() {
     const client = await this.options.mongoClient()
     return client.db(this.options.db).collection(this.options.collection) as Collection<T>
   }

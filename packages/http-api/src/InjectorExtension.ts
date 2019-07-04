@@ -1,14 +1,13 @@
-import { createServer as createHttpServer, IncomingMessage } from 'http'
+import { IncomingMessage, ServerResponse, createServer as createHttpServer } from 'http'
 import { ServerOptions, createServer as createHttpsServer } from 'https'
-
 import { Injector } from '@furystack/inject/dist/Injector'
-import { Constructable } from '@furystack/inject'
 import { InMemoryStore, ServerManager, User } from '@furystack/core'
 import { defaultLoginRoutes } from './default-login-routes'
 import { HttpApi } from './HttpApi'
 import { HttpApiSettings } from './HttpApiSettings'
 import { DefaultSession } from './Models/DefaultSession'
-import { HttpAuthenticationSettings, RequestAction } from '.'
+import { RouteModel } from './Models'
+import { HttpAuthenticationSettings } from '.'
 
 /**
  * Injector instance extended with HTTP Api specified stuff
@@ -17,9 +16,7 @@ export interface HttpExtendedInjector extends Injector {
   useHttpAuthentication: <TUser extends User>(
     settings?: Partial<HttpAuthenticationSettings<TUser>>,
   ) => HttpExtendedInjector
-  addHttpRouting: (
-    route: (incomingMessage: IncomingMessage) => Constructable<RequestAction> | undefined,
-  ) => HttpExtendedInjector
+  addHttpRouting: (route: RouteModel) => HttpExtendedInjector
 
   useDefaultLoginRoutes: () => HttpExtendedInjector
 
@@ -33,7 +30,17 @@ declare module '@furystack/inject/dist/Injector' {
    */
   export interface Injector {
     useHttpApi: (settings?: Partial<HttpApiSettings>) => HttpExtendedInjector
+    getRequest: () => IncomingMessage
+    getResponse: () => ServerResponse
   }
+}
+
+Injector.prototype.getRequest = function() {
+  return this.getInstance(IncomingMessage)
+}
+
+Injector.prototype.getResponse = function() {
+  return this.getInstance(ServerResponse)
 }
 
 Injector.prototype.useHttpApi = function(settings) {
