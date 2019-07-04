@@ -3,47 +3,30 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpUserContext } from '../../src'
 import { LoginAction } from '../../src/Actions/Login'
-import { SendJsonOptions } from '../../src/ServerResponseExtensiont'
+
 describe('LoginAction', () => {
   /** */
-  it('exec', done => {
+  it('Returns the provided user with 200 on success', async () => {
     const testUser = { Name: 'Userke' }
-    usingAsync(new Injector(), async i => {
-      i.setExplicitInstance({ cookieLogin: async () => testUser, authentication: { visitorUser: {} } }, HttpUserContext)
+    await usingAsync(new Injector(), async i => {
+      i.setExplicitInstance({ cookieLogin: jest.fn(async () => testUser), authentication: {} }, HttpUserContext)
       i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
-      i.setExplicitInstance(
-        {
-          sendJson: (options: SendJsonOptions<any>) => {
-            expect(options.json).toEqual(testUser)
-            done()
-          },
-        },
-        ServerResponse,
-      )
-      await usingAsync(i.getInstance(LoginAction), async c => {
-        await c.exec()
-      })
+      i.setExplicitInstance({}, ServerResponse)
+      const result = await LoginAction(i)
+      expect(result.chunk).toBe(JSON.stringify(testUser))
+      expect(result.statusCode).toBe(200)
     })
   })
 
-  it('exec', done => {
+  it('Returns visitor with 400 on fail', async () => {
     const visitorUser = { Name: 'Visitorka' }
-    usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async i => {
       i.setExplicitInstance({ cookieLogin: async () => visitorUser, authentication: { visitorUser } }, HttpUserContext)
       i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
-      i.setExplicitInstance(
-        {
-          sendJson: (options: SendJsonOptions<any>) => {
-            expect(options.statusCode).toBe(400)
-            expect(options.json).toEqual({ message: 'Login failed' })
-            done()
-          },
-        },
-        ServerResponse,
-      )
-      await usingAsync(i.getInstance(LoginAction), async c => {
-        await c.exec()
-      })
+      i.setExplicitInstance({}, ServerResponse)
+      const result = await LoginAction(i)
+      expect(result.statusCode).toBe(400)
+      expect(result.chunk).toBe(JSON.stringify({ message: 'Login failed' }))
     })
   })
 })

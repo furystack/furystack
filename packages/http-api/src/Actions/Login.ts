@@ -14,10 +14,12 @@ export const LoginAction: RequestAction = async injector => {
   const loginData = await msg.readPostBody<{ username: string; password: string }>()
   const user = await userContext.cookieLogin(loginData.username, loginData.password, response)
   if (user === userContext.authentication.visitorUser) {
-    return JsonResult({
-      statusCode: 400,
-      json: { message: 'Login failed' },
-    })
+    return JsonResult(
+      {
+        message: 'Login failed',
+      },
+      400,
+    )
   }
   return JsonResult(user)
 }
