@@ -91,11 +91,11 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(req)
     if (sessionId) {
-      const session = await this.sessions.search({ filter: { sessionId }, top: 2 })
-      if (session && session.length === 1) {
+      const session = await this.sessions.get(sessionId)
+      if (session) {
         const userResult = await this.users.search({
           filter: {
-            username: session[0].username,
+            username: session.username,
           },
         })
         if (userResult.length === 1) {

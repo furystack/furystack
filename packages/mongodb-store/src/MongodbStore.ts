@@ -40,7 +40,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   }
   public async update(id: T[this['primaryKey']], data: T): Promise<void> {
     const collection = await this.getCollection()
-    await collection.update({ _id: id }, data)
+    await collection.updateOne({ _id: id }, data)
   }
   public async count(filter: Partial<T>): Promise<number> {
     const collection = await this.getCollection()
