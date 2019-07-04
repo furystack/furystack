@@ -22,6 +22,7 @@ export class LoginAction implements RequestAction {
         statusCode: 400,
         json: { message: 'Login failed' },
       })
+      return
     }
     this.serverResponse.sendJson({ json: user })
   }
