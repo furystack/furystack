@@ -82,7 +82,7 @@ export class HttpUserContext {
 
   public async authenticateRequest(req: IncomingMessage): Promise<User> {
     // Basic auth
-    if (req.headers.authorization) {
+    if (this.authentication.enableBasicAuth && req.headers.authorization) {
       const authData = Buffer.from(req.headers.authorization.toString().split(' ')[1], 'base64')
       const [userName, password] = authData.toString().split(':')
       return await this.authenticateUser(userName, password)

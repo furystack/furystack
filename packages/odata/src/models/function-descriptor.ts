@@ -15,7 +15,7 @@ export interface FunctionDescriptor {
   /**
    * The HTTP Request action to be called
    */
-  action: Constructable<RequestAction>
+  action: RequestAction
 
   /**
    * The type of the return object (for building meaningful metadata)

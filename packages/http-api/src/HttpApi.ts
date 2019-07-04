@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpApiSettings } from './HttpApiSettings'
-import { RequestAction } from './Models'
 import { Utils } from './Utils'
+import { RequestAction } from './Models'
 
 /**
  * HTTP Rest API implementation for FuryStack
@@ -16,10 +16,8 @@ export class HttpApi {
       injector.setExplicitInstance(incomingMessage, IncomingMessage)
       injector.setExplicitInstance(serverResponse, ServerResponse)
       injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
-      const actionCtors = this.settings.actions
-        .map(a => a(incomingMessage, injector))
-        .filter(a => a !== undefined) as Array<Constructable<RequestAction>>
-      if (actionCtors.length > 1) {
+      const actionMethods = this.settings.actions.map(a => a(injector)).filter(a => a !== undefined)
+      if (actionMethods.length > 1) {
         this.logger.error({
           message: `Multiple HTTP actions found that can be execute the request`,
           data: {
@@ -28,21 +26,18 @@ export class HttpApi {
         })
         throw Error(`Multiple HTTP actions found that can be execute the request`)
       }
-      if (actionCtors.length === 1) {
+      if (actionMethods.length === 1) {
         try {
-          const actionCtor = actionCtors[0]
-          await usingAsync(injector.getInstance(actionCtor), async action => {
-            await action.exec()
-          })
+          const result = await (actionMethods[0] as RequestAction)(injector)
+          serverResponse.sendActionResult(result)
         } catch (error) {
-          await usingAsync(injector.getInstance(this.settings.errorAction), async e => {
-            await e.returnError(error)
-          })
+          injector.setExplicitInstance(error, Error)
+          const errorResult = await this.settings.errorAction(injector)
+          serverResponse.sendActionResult(errorResult)
         }
       } else {
-        await usingAsync(injector.getInstance(this.settings.notFoundAction), async a => {
-          a.exec()
-        })
+        const notFoundResult = await this.settings.notFoundAction(injector)
+        serverResponse.sendActionResult(notFoundResult)
       }
     })
   }
