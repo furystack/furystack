@@ -6,5 +6,5 @@ import { HttpUserContext } from '../HttpUserContext'
  */
 export const GetCurrentUser: RequestAction = async injector => {
   const user = await injector.getInstance(HttpUserContext).getCurrentUser()
-  return JsonResult({ user })
+  return JsonResult(user)
 }
