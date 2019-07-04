@@ -37,6 +37,14 @@ export const XmlResult = (text: string, statusCode = 200, headers?: { [K: string
     },
   } as ActionResult<string>)
 
+export const EmptyResult = (statusCode = 200, headers?: { [K: string]: string }) =>
+  ({
+    statusCode,
+    headers: {
+      ...headers,
+    },
+  } as ActionResult<undefined>)
+
 /**
  * Interface for a HTTP Request action
  */
