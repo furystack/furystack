@@ -111,6 +111,10 @@ describe('InMemoryStore', () => {
         await store.add({ id: i, orderableValue1: Math.random(), orderableValue2: Math.random() })
       }
 
+      // For equality
+      await store.add({ id: 20, orderableValue1: 0, orderableValue2: 0 })
+      await store.add({ id: 21, orderableValue1: 0, orderableValue2: 0 })
+
       const orderByValue1Asc = await store.search({ order: { orderableValue1: 'ASC' } })
       let min = 0
       for (const currentValue of orderByValue1Asc) {
@@ -128,6 +132,26 @@ describe('InMemoryStore', () => {
         }
         max = currentValue.orderableValue1
       }
+    })
+  })
+
+  it('Should respect top and skip', async () => {
+    class ExampleClass {
+      public id: number = 1
+    }
+
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {
+      for (let i = 0; i < 10; i++) {
+        await store.add({ id: i })
+      }
+      const zeroToThree = await store.search({ top: 4 })
+      expect(zeroToThree).toEqual([{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }])
+
+      const fiveToEight = await store.search({ skip: 5, top: 4 })
+      expect(fiveToEight).toEqual([{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }])
+
+      const eightNine = await store.search({ skip: 8 })
+      expect(eightNine).toEqual([{ id: 8 }, { id: 9 }])
     })
   })
 
