@@ -1,5 +1,4 @@
-import { IncomingMessage } from 'http'
-import { Constructable, Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject'
 import { RequestAction } from './RequestAction'
 
 /**
@@ -7,12 +6,7 @@ import { RequestAction } from './RequestAction'
  */
 export type RouteModel = (
   /**
-   * The incoming request message
-   */
-  incomingMessage: IncomingMessage,
-
-  /**
    * The injector instance
    */
   injector: Injector,
-) => Constructable<RequestAction> | undefined
+) => RequestAction | undefined

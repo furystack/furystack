@@ -42,8 +42,9 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
     url: PathHelper.trimSlashes(`${options.route}/${c.name}`),
   }))
 
-  return (msg, injector) => {
+  return injector => {
     const logger = injector.logger.withScope('@furystack/odata/routing')
+    const msg = injector.getRequest()
 
     logger.verbose({
       message: `Incoming message: ${msg.url}`,

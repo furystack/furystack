@@ -1,16 +1,15 @@
-import { IncomingMessage } from 'http'
 import { parse } from 'url'
-import { Constructable } from '@furystack/inject'
 import { GetCurrentUser } from './Actions/GetCurrentUser'
 import { LoginAction } from './Actions/Login'
 import { LogoutAction } from './Actions/Logout'
-import { RequestAction } from './Models'
+import { RouteModel } from './Models'
 
 /**
  * Default routes for /login, /logout and /getCurrentUser
  * @param msg The incoming HTTP Message
  */
-export const defaultLoginRoutes: (msg: IncomingMessage) => Constructable<RequestAction> | undefined = msg => {
+export const defaultLoginRoutes: RouteModel = injector => {
+  const msg = injector.getRequest()
   const urlPathName = parse(msg.url || '', true).pathname
   switch (urlPathName) {
     case '/currentUser':

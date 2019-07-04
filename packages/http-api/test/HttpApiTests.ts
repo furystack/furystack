@@ -1,9 +1,9 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { visitorUser } from '@furystack/core'
-import { Injectable, Injector, Constructable } from '@furystack/inject'
+import { Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext, RequestAction } from '../src'
+import { HttpUserContext, RequestAction, EmptyResult } from '../src'
 import { HttpApi } from '../src/HttpApi'
 
 // tslint:disable:max-classes-per-file
@@ -18,20 +18,15 @@ describe('HttpApi tests', () => {
 
   it('NotFound Action is executed when no other action is awailable', done => {
     usingAsync(new Injector(), async i => {
-      @Injectable()
-      class ExampleNotFoundAction implements RequestAction {
-        public async exec() {
-          done()
-        }
-        public dispose() {
-          /** */
-        }
+      const ExampleNotFoundAction: RequestAction = async injector => {
+        done()
+        return EmptyResult()
       }
       i.setExplicitInstance({}, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       i.useLogging(LoggerCollection)
       i.useHttpApi({
-        notFoundAction: ExampleNotFoundAction as any,
+        notFoundAction: ExampleNotFoundAction,
       })
       await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
     })
@@ -39,32 +34,22 @@ describe('HttpApi tests', () => {
 
   it('Action can be executed', done => {
     usingAsync(new Injector(), async i => {
-      @Injectable()
-      class ExampleAction implements RequestAction {
-        public async exec() {
-          try {
-            const currentUser = await this.userContext.getCurrentUser()
-            const currentUser2 = await this.userContext.getCurrentUser()
-            expect(currentUser.username).toEqual(visitorUser.username)
-            expect(currentUser2.username).toEqual(visitorUser.username)
-            // tslint:disable-next-line:no-string-literal
-            this.perRequestInjector['cachedSingletons'].has(this.userContext.constructor as Constructable<any>)
-            done()
-          } catch (error) {
-            done(error)
-          }
+      const ExampleAction: RequestAction = async injector => {
+        try {
+          const userContext = injector.getInstance(HttpUserContext)
+          const currentUser = await userContext.getCurrentUser()
+          const currentUser2 = await userContext.getCurrentUser()
+          expect(currentUser.username).toEqual(visitorUser.username)
+          expect(currentUser2.username).toEqual(visitorUser.username)
+          // tslint:disable-next-line:no-string-literal
+          injector['cachedSingletons'].has(userContext.constructor as Constructable<any>)
+          done()
+        } catch (error) {
+          done(error)
         }
-        public dispose() {
-          /** */
-        }
-
-        /**
-         *
-         */
-        constructor(private userContext: HttpUserContext, private perRequestInjector: Injector) {}
+        return EmptyResult()
       }
-      // i.setExplicitInstance({ headers: {} }, IncomingMessage)
-      // i.setExplicitInstance({ writeHead: () => null, end: () => null }, ServerResponse)
+
       i.useHttpApi({
         actions: [() => ExampleAction],
       })
@@ -74,17 +59,10 @@ describe('HttpApi tests', () => {
 
   it('Should throw error if multiple actions are resolved for a request', done => {
     usingAsync(new Injector(), async i => {
-      @Injectable()
-      class ExampleAction implements RequestAction {
-        public async exec() {
-          done()
-        }
-        public dispose() {
-          /** */
-        }
+      const ExampleAction: RequestAction = async injector => {
+        done()
+        return EmptyResult()
       }
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({}, ServerResponse)
       i.useHttpApi({
         actions: [() => ExampleAction, () => ExampleAction],
       })
@@ -99,27 +77,13 @@ describe('HttpApi tests', () => {
 
   it('Error Action is executed on other action errors executed', done => {
     usingAsync(new Injector(), async i => {
-      @Injectable()
-      class ExampleFailAction implements RequestAction {
-        public async exec() {
-          throw Error(':(')
-        }
-        public dispose() {
-          /** */
-        }
+      const ExampleFailAction: RequestAction = async () => {
+        throw Error(':(')
       }
 
-      @Injectable()
-      class ExampleErrorAction implements RequestAction {
-        public async returnError(error: any) {
-          done()
-        }
-        public async exec() {
-          /**  */
-        }
-        public dispose() {
-          /** */
-        }
+      const ExampleErrorAction: RequestAction = async injector => {
+        done()
+        return EmptyResult()
       }
 
       i.setExplicitInstance({}, IncomingMessage)

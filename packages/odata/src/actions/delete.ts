@@ -1,29 +1,14 @@
-import { ServerResponse } from 'http'
-import { RequestAction } from '@furystack/http-api'
-import { Injectable, Injector } from '@furystack/inject'
+import { RequestAction, JsonResult } from '@furystack/http-api'
 import { Repository } from '@furystack/repository'
 import { OdataContext } from '../odata-context'
 
 /**
  * OData Delete action
  */
-@Injectable({ lifetime: 'transient' })
-export class DeleteAction implements RequestAction {
-  public dispose() {
-    /** */
-  }
-
-  public async exec() {
-    const dataSet = this.repo.getDataSetFor<any>(this.context.collection.name)
-    await dataSet.remove(this.injector, this.context.entityId)
-    this.response.writeHead(204, 'No Content')
-    this.response.setHeader('odata.metadata', 'none')
-    this.response.end()
-  }
-  constructor(
-    private injector: Injector,
-    public repo: Repository,
-    private context: OdataContext<any>,
-    public response: ServerResponse,
-  ) {}
+export const DeleteAction: RequestAction = async injector => {
+  const repo = injector.getInstance(Repository)
+  const context = injector.getInstance(OdataContext)
+  const dataSet = repo.getDataSetFor<any>(context.collection.name)
+  await dataSet.remove(injector, context.entityId)
+  return JsonResult({}, 204, { 'odata.metadata': 'none' })
 }

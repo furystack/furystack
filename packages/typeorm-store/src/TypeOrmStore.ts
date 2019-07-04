@@ -31,6 +31,12 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
       this.primaryKey = this.typeOrmRepo.metadata.primaryColumns[0].propertyName as keyof T
     })
   }
+
+  public async getTypeormRepository() {
+    await this.options.connection.awaitConnection()
+    return this.typeOrmRepo
+  }
+
   public async add(data: T): Promise<T> {
     await this.options.connection.awaitConnection()
     return await this.typeOrmRepo.save(data)
