@@ -1,8 +1,8 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { PhysicalStore, User, InMemoryStore, StoreManager } from '@furystack/core'
+import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { sleepAsync } from '@sensenet/client-utils'
+import { sleepAsync, filterAsync } from '@sensenet/client-utils'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
 import { ExternalLoginService } from './Models/ExternalLoginService'
@@ -21,11 +21,18 @@ export class HttpUserContext {
 
   private user?: User
 
+  /**
+   * Returns if the current user is authenticated (e.g. is NOT a visitor)
+   */
   public async isAuthenticated() {
     const currentUser = await this.getCurrentUser()
     return currentUser !== this.authentication.visitorUser
   }
 
+  /**
+   * Returns if the current user can be authorized with ALL of the specified roles
+   * @param roles The list of roles to authorize
+   */
   public async isAuthorized(...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser()
     for (const role of roles) {
@@ -36,6 +43,9 @@ export class HttpUserContext {
     return true
   }
 
+  /**
+   * Checks if the system contains a user with the provided name and password, returns the Visitor user othervise
+   */
   public async authenticateUser(userName: string, password: string): Promise<User> {
     const match =
       (password &&
@@ -52,22 +62,23 @@ export class HttpUserContext {
       const { password, ...user } = match[0]
       return user
     }
-    await sleepAsync(Math.random() * 5000)
+    await sleepAsync(Math.random() * 1000)
     return this.authentication.visitorUser
   }
 
   public async getCurrentUser() {
     if (!this.user) {
-      this.user = await this.authenticateRequest(this.incomingMessage)
+      this.user = await this.authenticateRequest()
     }
     return this.user
   }
 
-  private getSessionIdFromRequest(req: IncomingMessage): string | null {
-    if (req.headers.cookie) {
-      const cookies = req.headers.cookie
+  private getSessionIdFromRequest(): string | null {
+    if (this.incomingMessage.headers.cookie) {
+      const cookies = this.incomingMessage.headers.cookie
         .toString()
         .split(';')
+        .filter(val => val.length > 0)
         .map(val => {
           const [name, value] = val.split('=')
           return { name: name.trim(), value: value.trim() }
@@ -80,16 +91,16 @@ export class HttpUserContext {
     return null
   }
 
-  public async authenticateRequest(req: IncomingMessage): Promise<User> {
+  public async authenticateRequest(): Promise<User> {
     // Basic auth
-    if (this.authentication.enableBasicAuth && req.headers.authorization) {
-      const authData = Buffer.from(req.headers.authorization.toString().split(' ')[1], 'base64')
+    if (this.authentication.enableBasicAuth && this.incomingMessage.headers.authorization) {
+      const authData = Buffer.from(this.incomingMessage.headers.authorization.toString().split(' ')[1], 'base64')
       const [userName, password] = authData.toString().split(':')
       return await this.authenticateUser(userName, password)
     }
 
     // Cookie auth
-    const sessionId = this.getSessionIdFromRequest(req)
+    const sessionId = this.getSessionIdFromRequest()
     if (sessionId) {
       const session = await this.sessions.get(sessionId)
       if (session) {
@@ -160,12 +171,12 @@ export class HttpUserContext {
     return this.authentication.visitorUser as User
   }
 
-  public async cookieLogout(req: IncomingMessage, serverResponse: ServerResponse) {
-    const sessionId = this.getSessionIdFromRequest(req)
+  public async cookieLogout() {
+    const sessionId = this.getSessionIdFromRequest()
     if (sessionId) {
-      const user = await this.authenticateRequest(req)
+      const user = await this.authenticateRequest()
       await this.sessions.remove(sessionId)
-      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
+      this.serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
       this.logger.information({
         message: `User '${user.username}' has been logged out.`,
         data: {
@@ -180,6 +191,7 @@ export class HttpUserContext {
 
   constructor(
     private readonly incomingMessage: IncomingMessage,
+    private readonly serverResponse: ServerResponse,
     private readonly injector: Injector,
     public readonly authentication: HttpAuthenticationSettings<User>,
     storeManager: StoreManager,
@@ -189,17 +201,3 @@ export class HttpUserContext {
     this.logger = injector.logger.withScope(`@furystack/http-api/${this.constructor.name}`)
   }
 }
-
-class Model {
-  public a: number = 1
-  public b: string = ''
-  public c: object = {}
-}
-const s = new InMemoryStore({ model: Model, primaryKey: 'a' })
-
-s.search({
-  filter: {
-    a: 2,
-    c: { a: 3 },
-  },
-})

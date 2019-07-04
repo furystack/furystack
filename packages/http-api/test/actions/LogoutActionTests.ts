@@ -1,4 +1,3 @@
-import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpUserContext } from '../../src'
@@ -14,8 +13,6 @@ describe('LogoutAction', () => {
         },
         HttpUserContext,
       )
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({}, ServerResponse)
 
       const result = await LogoutAction(i)
       expect(result.statusCode).toBe(200)
