@@ -2,12 +2,10 @@ import '@furystack/logging/dist/InjectorExtension'
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@sensenet/client-utils'
-import { ActionResult, JsonResult, RequestAction } from '../Models'
-import { HttpUserContext } from '../HttpUserContext'
+import { JsonResult, RequestAction } from './Models'
+import { HttpUserContext } from './HttpUserContext'
 
-export const Authorize = <T extends (i: Injector) => Promise<ActionResult<any>>>(...roles: string[]) => (
-  action: RequestAction,
-) => {
+export const Authorize = (...roles: string[]) => (action: RequestAction) => {
   return async (i: Injector) => {
     const userContext = i.getInstance(HttpUserContext)
     const currentUser = await userContext.getCurrentUser()
