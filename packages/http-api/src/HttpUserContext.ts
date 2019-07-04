@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { sleepAsync, filterAsync } from '@sensenet/client-utils'
+import { sleepAsync } from '@sensenet/client-utils'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
 import { ExternalLoginService } from './Models/ExternalLoginService'
@@ -148,10 +148,7 @@ export class HttpUserContext {
       if (user.username !== this.authentication.visitorUser.username) {
         const sessionId = v1()
         await this.sessions.update(sessionId, { sessionId, username: user.username })
-        serverResponse.setHeader(
-          'Set-Cookie',
-          `${this.authentication.cookieName}=${sessionId}; Path=/; Secure; HttpOnly`,
-        )
+        serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
         this.logger.information({
           message: `User '${user.username}' logged in with '${service.name}' external service.`,
           data: {
@@ -176,7 +173,7 @@ export class HttpUserContext {
     if (sessionId) {
       const user = await this.authenticateRequest()
       await this.sessions.remove(sessionId)
-      this.serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; Secure; HttpOnly`)
+      this.serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
       this.logger.information({
         message: `User '${user.username}' has been logged out.`,
         data: {
