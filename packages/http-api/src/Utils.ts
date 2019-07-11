@@ -48,6 +48,12 @@ export class Utils {
     ) {
       serverResponse.setHeader('Access-Control-Allow-Origin', incomingMessage.headers.origin as string)
       serverResponse.setHeader('Access-Control-Allow-Credentials', 'true')
+      if (options.headers && options.headers.length) {
+        serverResponse.setHeader('Access-Control-Allow-Headers', options.headers.join(', '))
+      }
+      if (options.methods && options.methods.length) {
+        serverResponse.setHeader('Access-Control-Allow-Methods', options.methods.join(', '))
+      }
     }
   }
 
