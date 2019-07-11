@@ -16,6 +16,13 @@ export class HttpApi {
       injector.setExplicitInstance(incomingMessage, IncomingMessage)
       injector.setExplicitInstance(serverResponse, ServerResponse)
       injector.getInstance(Utils).addCorsHeaders(this.settings.corsOptions, incomingMessage, serverResponse)
+
+      if (incomingMessage.method === 'OPTIONS') {
+        serverResponse.writeHead(200)
+        serverResponse.end()
+        return
+      }
+
       const actionMethods = this.settings.actions.map(a => a(injector)).filter(a => a !== undefined)
       if (actionMethods.length > 1) {
         this.logger.error({
