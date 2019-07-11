@@ -124,7 +124,7 @@ export class HttpUserContext {
     const user = await this.authenticateUser(username, password)
     if (user !== this.authentication.visitorUser) {
       const sessionId = v1()
-      await this.sessions.update(sessionId, { sessionId, username: user.username })
+      await this.sessions.add({ sessionId, username: user.username })
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
       this.logger.information({
         message: `User '${user.username}' logged in.`,
