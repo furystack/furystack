@@ -1,5 +1,6 @@
 import { PhysicalStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Disposable } from '@sensenet/client-utils'
 import { ScopedLogger } from '@furystack/logging'
 import { DataSet } from './DataSet'
 import { DataSetSettings } from './DataSetSettings'
@@ -8,7 +9,11 @@ import { DataSetSettings } from './DataSetSettings'
  * Collection of authorized physical stores
  */
 @Injectable({ lifetime: 'singleton' })
-export class Repository {
+export class Repository implements Disposable {
+  public dispose() {
+    this.dataSets.clear()
+  }
+
   private dataSets: Map<string, DataSet<any>> = new Map()
 
   public getDataSetFor<T>(model: Constructable<T> | string) {
