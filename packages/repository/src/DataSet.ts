@@ -132,7 +132,7 @@ export class DataSet<T> {
           if (!removeResult.isAllowed) {
             throw Error(removeResult.message ? removeResult.message : 'Cannot remove entity instance')
           } else {
-            await this.remove(injector, key)
+            await this.settings.physicalStore.remove(key)
           }
         }
       }
