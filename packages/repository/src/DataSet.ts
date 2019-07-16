@@ -131,6 +131,8 @@ export class DataSet<T> {
           const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
           if (!removeResult.isAllowed) {
             throw Error(removeResult.message ? removeResult.message : 'Cannot remove entity instance')
+          } else {
+            await this.remove(injector, key)
           }
         }
       }
