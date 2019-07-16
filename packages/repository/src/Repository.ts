@@ -9,7 +9,7 @@ import { DataSetSettings } from './DataSetSettings'
  */
 @Injectable({ lifetime: 'singleton' })
 export class Repository {
-  private dataSets: Map<string | Constructable<any>, DataSet<any>> = new Map()
+  private dataSets: Map<string, DataSet<any>> = new Map()
 
   public getDataSetFor<T>(model: Constructable<T> | string) {
     const modelName = typeof model !== 'string' ? model.name : model
@@ -31,7 +31,7 @@ export class Repository {
       physicalStore,
       name,
     })
-    this.dataSets.set((settings && settings.name) || model, instance)
+    this.dataSets.set((settings && settings.name) || model.name, instance)
     return this
   }
 
