@@ -12,7 +12,7 @@ export class Configuration {
   /**
    * The Odata endpoint path
    */
-  public path: string = 'http://localhost/odata'
+  public path = 'http://localhost/odata'
 
   /**
    * Async method that returns the Metadata XML in a plain String format
@@ -25,22 +25,22 @@ export class Configuration {
   /**
    * Dumps the endpoint to a "dump.json" file
    */
-  public writeDump?: boolean = true
+  public writeDump? = true
 
   /**
    * A relative path to a current working director (e.g.: './metadata')
    */
-  public outputPath: string = './odata-metadata'
+  public outputPath = './odata-metadata'
 
   /**
    * A relative path (to outputPath) to store entity types
    */
-  public entityTypePath: string = './entity-types'
+  public entityTypePath = './entity-types'
 
   /**
    * A relative path (to outputPath) to store entity collection services
    */
-  public entityCollectionServicesPath: string = './entity-collections'
+  public entityCollectionServicesPath = './entity-collections'
 
   /**
    * The template for Entity Types

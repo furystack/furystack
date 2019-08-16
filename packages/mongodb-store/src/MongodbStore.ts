@@ -1,7 +1,7 @@
 import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { Collection, MongoClient, ObjectId } from 'mongodb'
+import { Collection, MongoClient } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -40,7 +40,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   }
   public async update(id: T[this['primaryKey']], data: T): Promise<void> {
     const collection = await this.getCollection()
-    await collection.updateOne({ _id: id }, data)
+    await collection.updateOne({ _id: id } as any, data)
   }
   public async count(filter: Partial<T>): Promise<number> {
     const collection = await this.getCollection()
@@ -65,7 +65,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     const collection = await this.getCollection()
-    const result = await collection.findOne({ _id: new ObjectId(key) })
+    const result = await collection.findOne({ _id: key } as any)
     return result || undefined
   }
   public async remove(key: T[this['primaryKey']]): Promise<void> {

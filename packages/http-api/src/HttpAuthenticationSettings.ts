@@ -16,12 +16,12 @@ export class HttpAuthenticationSettings<TUser extends User> {
   public getSessionStore: (storeManager: StoreManager) => PhysicalStore<DefaultSession> = sm =>
     sm.getStoreFor(DefaultSession)
 
-  public cookieName: string = 'fss'
+  public cookieName = 'fss'
   public hashMethod: (plain: string) => string = plain =>
     sha256()
       .update(plain)
       .digest('hex')
   public visitorUser: TUser = ({ username: 'Visitor', roles: [] } as any) as TUser
 
-  public enableBasicAuth: boolean = true
+  public enableBasicAuth = true
 }

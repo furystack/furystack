@@ -30,7 +30,7 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
-  private hasChanges: boolean = false
+  private hasChanges = false
   public async get(key: T[this['primaryKey']]) {
     return await this.fileLock.execute(async () => {
       return await this.inMemoryStore.get(key)
