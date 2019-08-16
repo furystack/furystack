@@ -12,10 +12,10 @@ import { RouteModel } from './Models/RouteModel'
 export class HttpApiSettings {
   public defaultAction: RequestAction = NotFoundAction
   public errorAction: RequestAction = ErrorAction
-  public hostName: string = 'localhost'
+  public hostName = 'localhost'
   public notFoundAction: RequestAction = NotFoundAction
   public actions: RouteModel[] = []
-  public port: number = 8080
+  public port = 8080
   public protocol: 'http' | 'https' = 'http'
   public corsOptions: CorsOptions = {
     origins: [],

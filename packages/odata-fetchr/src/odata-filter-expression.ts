@@ -5,7 +5,7 @@ import { ODataFilterConnection } from './odata-filter-connection'
  * OData Filter Expression class
  */
 export class ODataFilterExpression<T> {
-  private value: string = ''
+  private value = ''
 
   private getFilterValueSegment(value: any): string {
     const castedValue = value.toString()

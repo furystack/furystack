@@ -79,9 +79,9 @@ describe('InMemoryStore', () => {
 
   it('Should return partial and full result', async () => {
     class ExampleClass {
-      public id: number = 1
-      public value: string = ''
-      public notNeeded: boolean = false
+      public id = 1
+      public value = ''
+      public notNeeded = false
     }
     await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async i => {
       await i.add({ id: 1, value: 'alma', notNeeded: true })
@@ -101,9 +101,9 @@ describe('InMemoryStore', () => {
 
   it('Should order values', async () => {
     class ExampleClass {
-      public id: number = 1
-      public orderableValue1: number = 1
-      public orderableValue2: number = 1
+      public id = 1
+      public orderableValue1 = 1
+      public orderableValue2 = 1
     }
 
     await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {
@@ -137,7 +137,7 @@ describe('InMemoryStore', () => {
 
   it('Should respect top and skip', async () => {
     class ExampleClass {
-      public id: number = 1
+      public id = 1
     }
 
     await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {

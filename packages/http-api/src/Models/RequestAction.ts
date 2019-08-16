@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-object-literal-type-assertion */
 import { Injector } from '@furystack/inject'
 
 export interface ActionResult<T> {
