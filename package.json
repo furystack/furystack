@@ -21,7 +21,7 @@
     "jest": "^24.8.0",
     "jest-junit": "^7.0.0",
     "lerna": "^3.13.4",
-    "lint-staged": "^8.1.7",
+    "lint-staged": "^9.2.1",
     "prettier": "^1.17.1",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
@@ -44,19 +44,14 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "*.{ts,tsx}": [
-        "eslint --fix",
-        "prettier --write",
-        "git add"
-      ],
-      "*.{js,jsx}": [
-        "prettier --write",
-        "git add"
-      ]
-    },
-    "ignore": [
-      "*.d.ts"
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "*.{js,jsx}": [
+      "prettier --write",
+      "git add"
     ]
   },
   "name": "furystack",
