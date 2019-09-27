@@ -56,7 +56,8 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
     const { top, skip, order, ...where } = filter
 
     return await this.typeOrmRepo.find({
-      where,
+      where: where.filter,
+      select: where.select,
       take: top,
       skip,
       order,
