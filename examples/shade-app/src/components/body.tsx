@@ -1,4 +1,5 @@
-import { createComponent, ShadeComponent, Shade } from '@furystack/shades'
+import { createComponent, ShadeComponent, Shade, LazyLoad } from '@furystack/shades'
+import { sleepAsync } from '@sensenet/client-utils'
 
 export interface CounterProps {
   defaultValue: number
@@ -100,6 +101,21 @@ export const Body: ShadeComponent = () => {
         height: '100%',
         overflow: 'hidden',
       }}>
+      <LazyLoad
+        loader={<div>Loading...</div>}
+        component={async () => {
+          await sleepAsync(1000)
+          return <div>done e</div>
+        }}
+      />
+      <LazyLoad
+        loader={<div>Loading...</div>}
+        component={async () => {
+          await sleepAsync(2000)
+          throw Error('sírsz')
+        }}
+        error={e => <div style={{ color: 'red' }}>{e.toString()}</div>}
+      />
       <CounterContainer />
     </div>
   )
