@@ -11,6 +11,12 @@ export interface CounterState {
 export const Counter = Shade<CounterProps, CounterState>({
   shadowDomName: 'custom-alma',
   initialState: { value: 0 },
+  onAttach: () => {
+    console.log('Counter Attached')
+  },
+  onDetach: () => {
+    console.log('Counter Detached')
+  },
   construct: ({ props, updateState }) => {
     updateState({ value: props.defaultValue })
   },
@@ -54,14 +60,25 @@ const CounterContainer = Shade({
   initialState: { arr: [] as number[] },
   construct: ({ updateState }) => {
     const arr = []
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 1000; i++) {
       arr[i] = Math.round(Math.random() * 100)
     }
     updateState({ arr })
   },
-  render: ({ getState }) => {
+  render: ({ getState, updateState }) => {
     return (
       <div style={{ overflow: 'auto', width: '100%', height: '100%' }}>
+        <button
+          onclick={() => {
+            const arr = []
+            for (let i = 0; i < 1000; i++) {
+              arr[i] = Math.round(Math.random() * 100)
+            }
+            updateState({ arr })
+          }}>
+          randomize
+        </button>
+        <hr />
         {getState().arr.map(v => (
           <Counter defaultValue={v} />
         ))}

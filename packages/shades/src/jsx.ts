@@ -1,5 +1,5 @@
 import { DeepPartial, ObservableValue } from '@sensenet/client-utils'
-import { ChildrenList } from './shade-component'
+import { ChildrenList } from './models/children-list'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -32,6 +32,7 @@ declare global {
       ol: DeepPartial<HTMLOListElement>
       li: DeepPartial<HTMLElement>
       button: DeepPartial<HTMLButtonElement>
+      hr: DeepPartial<HTMLHRElement>
     }
   }
 }
