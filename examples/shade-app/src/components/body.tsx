@@ -105,14 +105,14 @@ export const Body: ShadeComponent = () => {
         loader={<div>Loading...</div>}
         component={async () => {
           await sleepAsync(1000)
-          return <div>done e</div>
+          return <div>Loaded succesfully.</div>
         }}
       />
       <LazyLoad
         loader={<div>Loading...</div>}
         component={async () => {
           await sleepAsync(2000)
-          throw Error('sírsz')
+          throw Error('something bad happened :(')
         }}
         error={e => <div style={{ color: 'red' }}>{e.toString()}</div>}
       />
