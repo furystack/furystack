@@ -1,8 +1,8 @@
-import { createComponent, ShadeComponentWithoutProps } from '@furystack/shades'
+import { createComponent, ShadeComponent } from '@furystack/shades'
 import { Body } from './body'
 import { Header } from './header'
 
-export const Layout: ShadeComponentWithoutProps = () => {
+export const Layout: ShadeComponent = () => {
   return (
     <div
       id="Layout"

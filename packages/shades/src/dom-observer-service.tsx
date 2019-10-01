@@ -1,4 +1,5 @@
 import { Injectable } from '@furystack/inject'
+import { isJsxElement } from './jsx'
 
 /**
  * Service that observes the DOM and triggers callbacks (like attached / detached)
@@ -24,24 +25,26 @@ export class DomObserverService {
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(n => {
         const children = (n as HTMLElement).querySelectorAll('*')
-        children.forEach(child => this.attachJsxElement(child))
-        this.attachJsxElement(n)
+        children.forEach(child => this.attachJsxElement(child as any))
+        this.attachJsxElement(n as any)
       })
       mutation.removedNodes.forEach(n => {
         const children = (n as HTMLElement).querySelectorAll('*')
-        children.forEach(child => this.detachJsxElement(child))
-        this.detachJsxElement(n)
+        children.forEach(child => this.detachJsxElement(child as any))
+        this.detachJsxElement(n as any)
       })
     })
   })
 
-  private attachJsxElement(n: Node) {
-    const jsxElement: JSX.Element = n as JSX.Element
-    jsxElement.onAttached && jsxElement.onAttached()
+  private attachJsxElement(n: HTMLElement | JSX.Element) {
+    if (isJsxElement(n)) {
+      n.onAttached.setValue(Math.random() as any)
+    }
   }
 
-  private detachJsxElement(n: Node) {
-    const jsxElement: JSX.Element = n as JSX.Element
-    jsxElement.onDetached && jsxElement.onDetached()
+  private detachJsxElement(n: HTMLElement | JSX.Element) {
+    if (isJsxElement(n)) {
+      n.onDetached.setValue(Math.random() as any)
+    }
   }
 }

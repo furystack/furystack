@@ -1,11 +1,11 @@
-import { createComponent, ShadeComponentWithProps } from '@furystack/shades'
+import { createComponent, ShadeComponent } from '@furystack/shades'
 
 export interface HeaderProps {
   title: string
   links: Array<{ name: string; url: string }>
 }
 
-export const Header: ShadeComponentWithProps<HeaderProps> = props => {
+export const Header: ShadeComponent<HeaderProps> = props => {
   return (
     <div
       id="header"
@@ -18,6 +18,11 @@ export const Header: ShadeComponentWithProps<HeaderProps> = props => {
         justifyContent: 'flex-start',
         alignItems: 'center',
         boxShadow: '0 0 3px rgba(0,0,0,0.6)',
+        animationName: 'glow',
+        animationDuration: '3s',
+        animationIterationCount: 'infinite',
+        animationTimingFunction: 'linear',
+        animationDirection: 'alternate',
       }}>
       <h3 style={{ margin: '0 2em', cursor: 'pointer' }}>
         <a title={props.title} href="/" />

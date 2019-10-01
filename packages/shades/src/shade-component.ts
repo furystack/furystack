@@ -1,19 +1,11 @@
 import { Injector } from '@furystack/inject'
 import { DomObserverService } from './dom-observer-service'
+// import { isJsxElement } from './jsx'
 
-/**
- * Type definition for Shade components with defined props
- */
-export type ShadeComponentWithProps<TProps> = (arg: TProps) => JSX.Element
-
-/**
- * Type definition for Shade components without props
- */
-export type ShadeComponentWithoutProps<_TProps = undefined> = () => JSX.Element
 /**
  * Type definition for a Shade component
  */
-export type ShadeComponent<TProps> = (arg: TProps) => JSX.Element
+export type ShadeComponent<TProps = {}> = (arg: TProps, children?: ChildrenList) => JSX.Element
 
 /**
  * Type definition for an element type that can be a string or a Shade component
@@ -25,7 +17,7 @@ export type ElementType<TProps = any> = string | ShadeComponent<TProps>
  * @param el the root element
  * @param children array of items to append
  */
-export const appendChild = (el: HTMLElement, children: Array<string | HTMLElement | any[]>) => {
+export const appendChild = (el: HTMLElement, children: ChildrenList) => {
   for (const child of children) {
     if (typeof child === 'string') {
       el.innerText += child
@@ -47,6 +39,8 @@ export const isShadeComponent = (obj: any): obj is ShadeComponent<any> => {
   return typeof obj === 'function'
 }
 
+export type ChildrenList = Array<string | HTMLElement | JSX.Element | string[] | HTMLElement[] | JSX.Element[]>
+
 /**
  * static injector instance for Shade
  */
@@ -58,11 +52,7 @@ export const shadeInjector = new Injector()
  * @param props The props for the component
  * @param children additional rest parameters will be parsed as children objects
  */
-export const createComponent = <TProps>(
-  elementType: ElementType<TProps>,
-  props: TProps,
-  ...children: Array<string | HTMLElement>
-) => {
+export const createComponent = <TProps>(elementType: ElementType<TProps>, props: TProps, ...children: ChildrenList) => {
   shadeInjector.getInstance(DomObserverService).EnsureStarted()
 
   let el!: HTMLElement | JSX.Element
@@ -76,16 +66,11 @@ export const createComponent = <TProps>(
         el.style[styleName as any] = style[styleName]
       }
     }
-  } else if (isShadeComponent(elementType)) {
-    if (props) {
-      el = (elementType as ShadeComponentWithProps<TProps>)(props)
-    } else {
-      el = (elementType as ShadeComponentWithoutProps<TProps>)()
+    if (children) {
+      appendChild(el, children)
     }
-  }
-
-  if (children) {
-    appendChild(el, children)
+  } else if (isShadeComponent(elementType)) {
+    el = (elementType as ShadeComponent<TProps>)(props, children)
   }
   return el
 }

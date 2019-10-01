@@ -1,43 +1,88 @@
 import { Injector } from '@furystack/inject'
 import { DeepPartial, ObservableValue } from '@sensenet/client-utils'
-import { shadeInjector } from '.'
+import { v4 } from 'uuid'
+import { shadeInjector, ChildrenList } from '.'
 
-export interface ShadeOptions<TProps, TState = undefined> {
+export interface RenderOptions<TProps, TState> {
+  props: TProps
+  getState: () => TState
+  updateState: (newState: DeepPartial<TState>) => void
+  injector: Injector
+  children: ChildrenList
+}
+
+export interface ShadeOptions<TProps, TState> {
   initialState: TState
-  defaultProps: TProps
-  render: (options: {
-    props: TProps
-    state: TState
-    updateState: (newState: DeepPartial<TState>) => void
-    injector: Injector
-  }) => JSX.Element
+  shadowDomName?: string
+  render: (options: RenderOptions<TProps, TState>) => JSX.Element
+  construct?: (options: RenderOptions<TProps, TState>) => void
 }
 
 export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
-  return function ShadeCreator(props: TProps) {
-    const state = new ObservableValue({ ...o.initialState })
-    const createJsx = () => {
-      const newJsx = o.render({
-        injector: shadeInjector,
-        props,
-        state: state.getValue(),
-        updateState: (newState: DeepPartial<TState>) => {
-          state.setValue({ ...state.getValue(), ...newState })
-        },
-      })
-      const observer = state.subscribe(() => {
-        newJsx.onStateChanged && newJsx.onStateChanged()
-      })
-      newJsx.onDetached = () => observer.dispose()
-      return newJsx
-    }
-    const jsx = createJsx()
-    return jsx
+  // register shadow-dom element
+  const customElementName = o.shadowDomName || `shade-${v4()}`
+
+  const existing = customElements.get(customElementName)
+  if (!existing) {
+    customElements.define(
+      customElementName,
+      class extends HTMLElement {
+        public onAttached = new ObservableValue<void>()
+
+        public onDetached = new ObservableValue<void>()
+
+        public props: ObservableValue<TProps & { children?: JSX.Element[] }>
+
+        public onUpdated = new ObservableValue<JSX.Element>()
+
+        public state = new ObservableValue(o.initialState)
+
+        public shadeChildren = new ObservableValue<ChildrenList>([])
+
+        public render = (options: RenderOptions<TProps, TState>) => o.render(options)
+
+        private getRenderOptions(): RenderOptions<TProps, TState> {
+          const props = this.props.getValue()
+          const getState = () => this.state.getValue()
+          return {
+            props,
+            getState,
+            injector: shadeInjector,
+            updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
+            children: this.shadeChildren.getValue(),
+          }
+        }
+
+        public updateComponent() {
+          const newJsx = this.render(this.getRenderOptions())
+          this.innerHTML = ''
+          this.append(newJsx)
+          this.onUpdated.setValue(newJsx)
+          return newJsx
+        }
+
+        public callConstruct() {
+          o.construct && o.construct(this.getRenderOptions())
+          this.props.subscribe(props => this.updateComponent())
+        }
+
+        constructor(_props: TProps) {
+          super()
+          this.props = new ObservableValue()
+          this.state.subscribe(() => this.updateComponent())
+          this.shadeChildren.subscribe(() => this.updateComponent())
+        }
+      },
+    )
   }
-}
 
-export type ShadeReturnValue<TProps, TState> = ReturnType<typeof Shade>
-
-export const isAdvancedShadeComponent = <TProps, TState>(obj: any): obj is ShadeReturnValue<TProps, TState> => {
-  return typeof obj === 'function' && obj.name === 'ShadeCreator'
+  return (props: TProps, children: ChildrenList) => {
+    const el = document.createElement(customElementName, {
+      ...props,
+    }) as JSX.Element<TProps, TState>
+    el.props.setValue(props)
+    el.shadeChildren.setValue(children)
+    el.callConstruct()
+    return el as JSX.Element
+  }
 }
