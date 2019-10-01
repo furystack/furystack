@@ -1,4 +1,4 @@
-export * from './dom-observer-service'
+export * from './services'
 import './jsx'
 export * from './shade-component'
 export * from './shade'

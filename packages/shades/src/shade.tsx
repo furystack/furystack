@@ -1,8 +1,7 @@
 import { ObservableValue } from '@sensenet/client-utils'
 import { v4 } from 'uuid'
 import { shadeInjector } from './shade-component'
-import { RenderOptions } from './models/render-options'
-import { ChildrenList } from './models/children-list'
+import { ChildrenList, RenderOptions } from './models'
 
 export interface ShadeOptions<TProps, TState> {
   /**

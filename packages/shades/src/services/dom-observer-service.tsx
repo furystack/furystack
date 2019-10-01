@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { isJsxElement } from './jsx'
+import { isJsxElement } from '../jsx'
 
 /**
  * Service that observes the DOM and triggers callbacks (like attached / detached)

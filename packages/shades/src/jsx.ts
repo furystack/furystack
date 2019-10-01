@@ -1,5 +1,5 @@
 import { DeepPartial, ObservableValue } from '@sensenet/client-utils'
-import { ChildrenList } from './models/children-list'
+import { ChildrenList } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
