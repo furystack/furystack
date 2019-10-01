@@ -3,7 +3,6 @@ import { Injector } from '@furystack/inject/dist/Injector'
 import { Logger } from './Logger'
 import { LoggerCollection } from './LoggerCollection'
 
-// tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/Injector' {
   /**
    * Defines an extended Injector instance

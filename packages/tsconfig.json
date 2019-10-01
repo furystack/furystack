@@ -40,6 +40,10 @@
     },
     {
       "path": "./mongodb-store"
+    },
+    {
+      "path": "./shades"
     }
+
   ]
 }
