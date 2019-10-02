@@ -1,9 +1,10 @@
 /** ToDo: Main entry point */
+import { LocationService, shadeInjector } from '@furystack/shades'
 import { Layout } from './components/layout'
-;(async () => {
-  await new Promise(resolve => setTimeout(() => resolve()))
-  const root: HTMLDivElement = document.getElementById('root') as HTMLDivElement
-  const component = Layout({})
-  root.innerHTML = ''
-  root.appendChild(component)
-})()
+
+shadeInjector.getInstance(LocationService).onLocationChanged.subscribe(l => console.log(l))
+
+const root: HTMLDivElement = document.getElementById('root') as HTMLDivElement
+const component = Layout({})
+root.innerHTML = ''
+root.appendChild(component)
