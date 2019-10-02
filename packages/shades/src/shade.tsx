@@ -20,7 +20,9 @@ export interface ShadeOptions<TProps, TState> {
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
    */
-  construct?: (options: RenderOptions<TProps, TState>) => void
+  construct?: (
+    options: RenderOptions<TProps, TState>,
+  ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
 
   /**
    * Will be executed when the element is attached to the DOM.
@@ -105,9 +107,16 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstruct() {
-          o.construct && o.construct(this.getRenderOptions())
+          const cleanupResult = o.construct && o.construct(this.getRenderOptions())
+          if (cleanupResult instanceof Promise) {
+            cleanupResult.then(cleanup => (this.cleanup = cleanup))
+          } else {
+            this.cleanup = this.cleanup
+          }
           this.props.subscribe(() => this.updateComponent())
         }
+
+        private cleanup: void | (() => void) = undefined
 
         constructor(_props: TProps) {
           super()
@@ -124,6 +133,7 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
             this.shadeChildren.dispose()
             this.onAttached.dispose()
             this.onDetached.dispose()
+            this.cleanup && this.cleanup()
           })
         }
       },

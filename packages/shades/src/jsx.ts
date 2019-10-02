@@ -33,6 +33,7 @@ declare global {
       li: DeepPartial<HTMLElement>
       button: DeepPartial<HTMLButtonElement>
       hr: DeepPartial<HTMLHRElement>
+      strong: DeepPartial<HTMLElement>
     }
   }
 }

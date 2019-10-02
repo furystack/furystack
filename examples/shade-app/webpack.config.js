@@ -13,6 +13,9 @@ module.exports = {
     publicPath: '/',
     path: path.resolve(__dirname + '/bundle'),
   },
+  devServer: {
+    historyApiFallback: true,
+  },
   optimization: {
     splitChunks: {
       chunks: 'all',

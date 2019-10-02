@@ -10,7 +10,7 @@ import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 export const appendChild = (el: HTMLElement, children: ChildrenList) => {
   for (const child of children) {
     if (typeof child === 'string') {
-      el.innerText += child
+      el.appendChild(document.createTextNode(child))
     } else {
       if (child instanceof HTMLElement) {
         el.appendChild(child)
