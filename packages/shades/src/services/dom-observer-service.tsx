@@ -24,14 +24,18 @@ export class DomObserverService {
   private mutationObserver = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(n => {
-        const children = (n as HTMLElement).querySelectorAll('*')
-        children.forEach(child => this.attachJsxElement(child as any))
-        this.attachJsxElement(n as any)
+        if (n instanceof HTMLElement) {
+          const children = n.querySelectorAll('*')
+          children.forEach(child => this.attachJsxElement(child as any))
+          this.attachJsxElement(n as any)
+        }
       })
       mutation.removedNodes.forEach(n => {
-        const children = (n as HTMLElement).querySelectorAll('*')
-        children.forEach(child => this.detachJsxElement(child as any))
-        this.detachJsxElement(n as any)
+        if (n instanceof HTMLElement) {
+          const children = (n as HTMLElement).querySelectorAll('*')
+          children.forEach(child => this.detachJsxElement(child as any))
+          this.detachJsxElement(n as any)
+        }
       })
     })
   })
