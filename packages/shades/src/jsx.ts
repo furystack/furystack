@@ -37,7 +37,7 @@ declare global {
   }
 }
 
-export const isJsxElement = (obj: HTMLElement | JSX.Element): obj is JSX.Element => {
+export const isJsxElement = (obj: any): obj is JSX.Element => {
   const casted = obj as JSX.Element
   return (
     casted.props !== undefined &&
