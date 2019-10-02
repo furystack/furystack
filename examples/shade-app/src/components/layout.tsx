@@ -19,11 +19,16 @@ export const Layout = Shade({
           display: 'flex',
           flexDirection: 'column',
           fontFamily: 'Arial, Helvetica, sans-serif',
+          lineHeight: '1.6',
         }}
         className="eee">
         <Header
           title="🦇 Shades Demo"
-          links={[{ name: '⏳ Lazy Load Demo', url: '/lazy-load' }, { name: '🧮 Counter Demo', url: '/counter-demo' }]}
+          links={[
+            { name: '✅ TodoApp', url: '/todo-app' },
+            { name: '⏳ Lazy Load Demo', url: '/lazy-load' },
+            { name: '🧮 Counter Demo', url: '/counter-demo' },
+          ]}
         />
         <Body />
       </div>

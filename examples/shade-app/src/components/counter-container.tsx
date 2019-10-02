@@ -2,7 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { Counter } from './counter'
 
 export const CounterContainer = Shade({
-  shadowDomName: 'counter-container',
+  shadowDomName: 'shade-app-counter-container',
   initialState: { arr: [] as number[] },
   construct: ({ updateState }) => {
     const arr = []

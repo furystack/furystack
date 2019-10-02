@@ -22,6 +22,18 @@ export const Body = Shade({
           routes={[
             { url: '/', component: () => <HomePage /> },
             {
+              url: '/todo-app',
+              component: () => (
+                <LazyLoad
+                  loader={<div>loading...</div>}
+                  component={async () => {
+                    const Todo = (await import(/* webpackChunkName: "todo-app" */ '../pages/todo-app')).TodoApp
+                    return <Todo />
+                  }}
+                />
+              ),
+            },
+            {
               url: '/lazy-load',
               component: () => (
                 <LazyLoad

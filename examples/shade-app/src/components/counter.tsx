@@ -9,7 +9,7 @@ export interface CounterState {
 }
 
 export const Counter = Shade<CounterProps, CounterState>({
-  shadowDomName: 'counter',
+  shadowDomName: 'shade-app-counter',
   initialState: { value: 0 },
   onAttach: () => {
     console.log('Counter Attached')
