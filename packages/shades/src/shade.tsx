@@ -47,7 +47,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
   if (!existing) {
     customElements.define(
       customElementName,
-      class extends HTMLElement {
+      class extends HTMLElement implements JSX.Element {
         /**
          * Will be triggered when the element is attached to the DOM
          */
@@ -81,7 +81,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         /**
          * Returns values for the current render options
          */
-        private getRenderOptions(): RenderOptions<TProps, TState> {
+        private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
           return {
@@ -90,7 +90,8 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             injector: shadeInjector,
             updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
             children: this.shadeChildren.getValue(),
-          }
+            element: this,
+          } as RenderOptions<TProps, TState>
         }
 
         /**

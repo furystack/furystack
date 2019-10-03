@@ -4,26 +4,35 @@ import { TodoService } from '../services/todo-service'
 export const AddTodo = Shade({
   shadowDomName: 'add-todo',
   initialState: { value: '' },
-  render: ({ injector, updateState, getState }) => {
+  render: ({ injector, updateState, getState, element }) => {
+    setTimeout(() => {
+      ;(element.querySelector('input') as any).focus()
+    })
     return (
       <div>
-        <form
-          onsubmit={(ev: Event) => {
-            ev.preventDefault()
-            const todoService = injector.getInstance(TodoService)
-            todoService.todos.setValue([...todoService.todos.getValue(), { done: false, text: getState().value }])
-            updateState({ value: '' })
-          }}>
-          <input
-            type="text"
-            value={getState().value}
-            placeholder="New TodoItem name"
-            onchange={(ev: InputEvent) =>
-              updateState({ value: (ev.target && (ev.target as HTMLInputElement).value) || '' })
+        <style>{`::placeholder { color: #bbb; font-style: italic; } input:focus { outline: none;}`}</style>
+        <input
+          style={{
+            padding: '16px',
+            boxShadow: 'inset 0 -2px 1px rgba(0,0,0,0.03)',
+            border: 'none',
+            background: 'rgba(0, 0, 0, 0.003)',
+            fontSize: '24px',
+          }}
+          type="text"
+          value={getState().value}
+          placeholder="What needs to be done?"
+          onkeyup={(ev: KeyboardEvent) => {
+            if (ev.key === 'Enter') {
+              const todoService = injector.getInstance(TodoService)
+              todoService.todos.setValue([
+                ...todoService.todos.getValue(),
+                { done: false, text: (ev.target as any).value },
+              ])
+              updateState({ value: '' })
             }
-          />
-          <input type="submit" value="add" />
-        </form>
+          }}
+        />
       </div>
     )
   },

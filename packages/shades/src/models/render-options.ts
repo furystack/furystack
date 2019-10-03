@@ -8,4 +8,5 @@ export interface RenderOptions<TProps, TState> {
   updateState: (newState: DeepPartial<TState>) => void
   injector: Injector
   children: ChildrenList
+  element: JSX.Element<TProps, TState>
 }

@@ -7,21 +7,58 @@ export const TodoItemComponent = Shade<{ item: TodoItem }>({
   render: ({ props, injector }) => {
     const todoService = injector.getInstance(TodoService)
     return (
-      <div>
-        <input
-          checked={props.item.done}
-          type="checkbox"
-          onchange={() => {
-            props.item.done = !props.item.done
+      <div
+        className="todo-container"
+        style={{
+          display: 'flex',
+          alignItems: 'space-between',
+        }}>
+        <style>{`
+      .todo-container .remove-todo {
+        display: none !important;
+      }
+      
+      .todo-container:hover .remove-todo {
+        display: flex !important;
+      }
+      `}</style>
+
+        <div style={{ flexGrow: '1', display: 'flex', alignItems: 'center' }}>
+          <input
+            style={{
+              height: '40px',
+              borderRadius: '50%',
+            }}
+            checked={props.item.done}
+            type="checkbox"
+            onchange={() => {
+              props.item.done = !props.item.done
+              todoService.todos.setValue([...todoService.todos.getValue()])
+            }}
+          />
+          <label
+            style={{
+              textDecoration: props.item.done ? 'line-through' : 'none',
+            }}>
+            {props.item.text}
+          </label>
+        </div>
+        <div
+          className="remove-todo"
+          style={{
+            display: 'inherits',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'rgba(192,0,0,1)',
+            minWidth: '48px',
+            cursor: 'pointer',
+            fontSize: '24px',
           }}
-        />
-        {props.item.text}
-        <button
           onclick={() => {
             todoService.todos.setValue(todoService.todos.getValue().filter(v => v !== props.item))
           }}>
-          🚮
-        </button>
+          ×
+        </div>
       </div>
     )
   },

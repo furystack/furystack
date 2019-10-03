@@ -10,7 +10,6 @@ declare global {
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
       updateComponent: () => JSX.Element
-      onUpdated: ObservableValue<JSX.Element>
       shadeChildren: ObservableValue<ChildrenList>
       callConstruct: () => void
     }
@@ -34,6 +33,7 @@ declare global {
       button: DeepPartial<HTMLButtonElement>
       hr: DeepPartial<HTMLHRElement>
       strong: DeepPartial<HTMLElement>
+      label: DeepPartial<HTMLLabelElement>
       form: DeepPartial<HTMLElement> & { submit?: (ev: Event) => void | undefined | boolean }
     }
   }
