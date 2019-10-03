@@ -2,7 +2,6 @@ import { createComponent, Router, LazyLoad, Shade } from '@furystack/shades'
 import { HomePage } from '../pages/home'
 
 export const Body = Shade({
-  initialState: '',
   shadowDomName: 'shade-app-body',
   render: () => {
     return (

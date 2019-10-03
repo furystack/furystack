@@ -1,7 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
 
 export const HomePage = Shade({
-  initialState: undefined,
   shadowDomName: 'shade-app-home-page',
   render: () => {
     return (

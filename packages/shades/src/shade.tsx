@@ -7,7 +7,7 @@ export interface ShadeOptions<TProps, TState> {
   /**
    * The initial state of the component
    */
-  initialState: TState
+  initialState?: TState
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -39,7 +39,7 @@ export interface ShadeOptions<TProps, TState> {
  * Factory method for creating Shade components
  * @param o Options for component creation
  */
-export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
+export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState>) => {
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 

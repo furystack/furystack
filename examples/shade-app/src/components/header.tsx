@@ -10,8 +10,7 @@ const urlStyle: Partial<CSSStyleDeclaration> = {
   textDecoration: 'none',
 }
 
-export const Header = Shade<HeaderProps, undefined>({
-  initialState: undefined,
+export const Header = Shade<HeaderProps>({
   shadowDomName: 'shade-app-header',
   render: ({ props }) => {
     return (

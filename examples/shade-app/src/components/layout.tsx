@@ -3,7 +3,6 @@ import { Body } from './body'
 import { Header } from './header'
 
 export const Layout = Shade({
-  initialState: '',
   shadowDomName: 'shade-app-layout',
   render: () => {
     return (

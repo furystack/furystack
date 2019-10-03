@@ -2,9 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { TodoItem } from '../models/todo-item'
 import { TodoService } from '../services/todo-service'
 
-export const TodoItemComponent = Shade<{ item: TodoItem }, undefined>({
+export const TodoItemComponent = Shade<{ item: TodoItem }>({
   shadowDomName: 'todo-item',
-  initialState: undefined,
   render: ({ props, injector }) => {
     const todoService = injector.getInstance(TodoService)
     return (
