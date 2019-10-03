@@ -23,18 +23,19 @@ export const TodoItemComponent = Shade<{ item: TodoItem }>({
       }
       `}</style>
 
-        <div style={{ flexGrow: '1', display: 'flex', alignItems: 'center' }}>
+        <div
+          style={{ flexGrow: '1', display: 'flex', alignItems: 'center' }}
+          onclick={() => {
+            props.item.done = !props.item.done
+            todoService.todos.setValue([...todoService.todos.getValue()])
+          }}>
           <input
             style={{
               height: '40px',
-              borderRadius: '50%',
+              margin: '0 10px',
             }}
             checked={props.item.done}
             type="checkbox"
-            onchange={() => {
-              props.item.done = !props.item.done
-              todoService.todos.setValue([...todoService.todos.getValue()])
-            }}
           />
           <label
             style={{
