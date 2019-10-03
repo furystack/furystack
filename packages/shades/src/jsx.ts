@@ -34,6 +34,7 @@ declare global {
       button: DeepPartial<HTMLButtonElement>
       hr: DeepPartial<HTMLHRElement>
       strong: DeepPartial<HTMLElement>
+      form: DeepPartial<HTMLElement> & { submit?: (ev: Event) => void | undefined | boolean }
     }
   }
 }
