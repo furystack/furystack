@@ -24,7 +24,6 @@ export const TodoApp = Shade({
     return () => observers.map(o => o.dispose())
   },
   render: ({ getState, injector }) => {
-    const todos = injector.getInstance(TodoService).todos.getValue()
     return (
       <div
         style={{
