@@ -99,8 +99,11 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
          */
         public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
-          this.innerHTML = ''
-          this.append(newJsx)
+          if (this.hasChildNodes()) {
+            this.replaceChild(newJsx, this.firstChild as Node)
+          } else {
+            this.append(newJsx)
+          }
           return newJsx
         }
 
