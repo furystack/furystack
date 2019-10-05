@@ -1,5 +1,5 @@
 import { DeepPartial, ObservableValue } from '@sensenet/client-utils'
-import { ChildrenList } from './models/children-list'
+import { ChildrenList } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -10,7 +10,6 @@ declare global {
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
       updateComponent: () => JSX.Element
-      onUpdated: ObservableValue<JSX.Element>
       shadeChildren: ObservableValue<ChildrenList>
       callConstruct: () => void
     }
@@ -33,11 +32,14 @@ declare global {
       li: DeepPartial<HTMLElement>
       button: DeepPartial<HTMLButtonElement>
       hr: DeepPartial<HTMLHRElement>
+      strong: DeepPartial<HTMLElement>
+      label: DeepPartial<HTMLLabelElement>
+      form: DeepPartial<HTMLElement> & { submit?: (ev: Event) => void | undefined | boolean }
     }
   }
 }
 
-export const isJsxElement = (obj: HTMLElement | JSX.Element): obj is JSX.Element => {
+export const isJsxElement = (obj: any): obj is JSX.Element => {
   const casted = obj as JSX.Element
   return (
     casted.props !== undefined &&

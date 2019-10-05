@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { DomObserverService } from './dom-observer-service'
-import { ChildrenList } from './models/children-list'
-import { ShadeComponent, isShadeComponent } from './models/shade-component'
+import { DomObserverService } from './services'
+import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 
 /**
  * Appends a list of items to a HTML element
@@ -11,7 +10,7 @@ import { ShadeComponent, isShadeComponent } from './models/shade-component'
 export const appendChild = (el: HTMLElement, children: ChildrenList) => {
   for (const child of children) {
     if (typeof child === 'string') {
-      el.innerText += child
+      el.appendChild(document.createTextNode(child))
     } else {
       if (child instanceof HTMLElement) {
         el.appendChild(child)

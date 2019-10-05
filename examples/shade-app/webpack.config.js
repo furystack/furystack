@@ -13,6 +13,9 @@ module.exports = {
     publicPath: '/',
     path: path.resolve(__dirname + '/bundle'),
   },
+  devServer: {
+    historyApiFallback: true,
+  },
   optimization: {
     splitChunks: {
       chunks: 'all',
@@ -22,9 +25,10 @@ module.exports = {
           name: 'vendors',
           chunks: 'all',
         },
-        monaco: {
-          test: /[\\/]node_modules[\\/]monaco-editor[\\/]/,
-          name: 'monaco',
+        furystack: {
+          test: /([\\/]node_modules[\\/]@furystack[\\/]|[\\/]furystack[\\/]packages[\\/])/gm,
+          name: 'furystack',
+          chunks: 'all',
         },
       },
     },
@@ -37,7 +41,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.json'],
   },
   plugins: [
-    // new BundleAnalyzerPlugin({ analyzerPort: 8745 }),
+    //new BundleAnalyzerPlugin({ analyzerPort: 8745 }),
     new TsConfigWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './index.html',

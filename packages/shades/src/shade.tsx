@@ -1,14 +1,13 @@
 import { ObservableValue } from '@sensenet/client-utils'
 import { v4 } from 'uuid'
 import { shadeInjector } from './shade-component'
-import { RenderOptions } from './models/render-options'
-import { ChildrenList } from './models/children-list'
+import { ChildrenList, RenderOptions } from './models'
 
 export interface ShadeOptions<TProps, TState> {
   /**
    * The initial state of the component
    */
-  initialState: TState
+  initialState?: TState
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -21,7 +20,9 @@ export interface ShadeOptions<TProps, TState> {
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
    */
-  construct?: (options: RenderOptions<TProps, TState>) => void
+  construct?: (
+    options: RenderOptions<TProps, TState>,
+  ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
 
   /**
    * Will be executed when the element is attached to the DOM.
@@ -38,7 +39,7 @@ export interface ShadeOptions<TProps, TState> {
  * Factory method for creating Shade components
  * @param o Options for component creation
  */
-export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
+export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState>) => {
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
@@ -46,7 +47,7 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
   if (!existing) {
     customElements.define(
       customElementName,
-      class extends HTMLElement {
+      class extends HTMLElement implements JSX.Element {
         /**
          * Will be triggered when the element is attached to the DOM
          */
@@ -80,7 +81,7 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
         /**
          * Returns values for the current render options
          */
-        private getRenderOptions(): RenderOptions<TProps, TState> {
+        private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
           return {
@@ -89,7 +90,8 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
             injector: shadeInjector,
             updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
             children: this.shadeChildren.getValue(),
-          }
+            element: this,
+          } as RenderOptions<TProps, TState>
         }
 
         /**
@@ -97,8 +99,11 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
          */
         public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
-          this.innerHTML = ''
-          this.append(newJsx)
+          if (this.hasChildNodes()) {
+            this.replaceChild(newJsx, this.firstChild as Node)
+          } else {
+            this.append(newJsx)
+          }
           return newJsx
         }
 
@@ -106,9 +111,16 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstruct() {
-          o.construct && o.construct(this.getRenderOptions())
+          const cleanupResult = o.construct && o.construct(this.getRenderOptions())
+          if (cleanupResult instanceof Promise) {
+            cleanupResult.then(cleanup => (this.cleanup = cleanup))
+          } else {
+            this.cleanup = this.cleanup
+          }
           this.props.subscribe(() => this.updateComponent())
         }
+
+        private cleanup: void | (() => void) = undefined
 
         constructor(_props: TProps) {
           super()
@@ -125,6 +137,7 @@ export const Shade = <TProps, TState>(o: ShadeOptions<TProps, TState>) => {
             this.shadeChildren.dispose()
             this.onAttached.dispose()
             this.onDetached.dispose()
+            this.cleanup && this.cleanup()
           })
         }
       },
