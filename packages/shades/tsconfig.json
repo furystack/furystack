@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "composite": true,
+    "rootDir": "./src",
+    "jsx": "react",
+    "jsxFactory": "createComponent"
+  },
+  "include": ["src"],
+  "references": [{ "path": "../core" }, { "path": "../http-api" }, { "path": "../inject" }]
+}

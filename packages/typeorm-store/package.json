@@ -1,6 +1,6 @@
 {
   "name": "@furystack/typeorm-store",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "TypeORM Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -45,9 +45,9 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^6.0.1",
+    "@furystack/core": "^6.0.2",
     "@furystack/inject": "^4.0.2",
-    "@furystack/logging": "^2.0.3",
+    "@furystack/logging": "^2.0.4",
     "@sensenet/client-utils": "^1.5.1",
     "semaphore-async-await": "^1.5.1",
     "typeorm": "^0.2.16"
