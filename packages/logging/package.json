@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Logging API for FuryStack package",
   "main": "dist/index.js",
   "files": [
