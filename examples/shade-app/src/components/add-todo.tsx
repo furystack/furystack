@@ -22,7 +22,7 @@ export const AddTodo = Shade({
           type="text"
           value={getState().value}
           placeholder="What needs to be done?"
-          onkeyup={(ev: KeyboardEvent) => {
+          onkeyup={ev => {
             if (ev.key === 'Enter') {
               const todoService = injector.getInstance(TodoService)
               todoService.todos.setValue([
