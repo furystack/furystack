@@ -1,9 +1,5 @@
 import { ObservableValue } from '@sensenet/client-utils'
-import { ChildrenList } from './models'
-
-export type PartialElement<T> = {
-  [K in keyof T]?: T[K] extends (((...args: any[]) => any) | null | undefined) ? T[K] : PartialElement<T[K]>
-}
+import { ChildrenList, PartialElement } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

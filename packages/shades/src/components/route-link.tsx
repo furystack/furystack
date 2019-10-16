@@ -1,5 +1,5 @@
 import { Shade } from '../shade'
-import { PartialElement } from '../jsx'
+import { PartialElement } from '../models'
 import { createComponent } from '..'
 
 export const RouteLink = Shade<PartialElement<HTMLAnchorElement>>({

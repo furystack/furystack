@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { PartialElement } from '../jsx'
+import { PartialElement } from './partial-element'
 import { ChildrenList } from './children-list'
 
 export interface RenderOptions<TProps, TState> {
