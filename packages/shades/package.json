@@ -48,6 +48,7 @@
     "@furystack/core": "^6.0.3",
     "@furystack/http-api": "^5.2.3",
     "@furystack/inject": "^4.0.2",
+    "@furystack/logging": "2.0.2",
     "@sensenet/client-utils": "^1.5.1"
   },
   "config": {

@@ -43,8 +43,11 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
+  const logger = shadeInjector.logger.withScope(`<${customElementName}>`)
+
   const existing = customElements.get(customElementName)
   if (!existing) {
+    logger.verbose({ message: `Registering Shade...`, data: { options: o } })
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
@@ -91,6 +94,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
             children: this.shadeChildren.getValue(),
             element: this,
+            logger,
           } as RenderOptions<TProps, TState>
         }
 
@@ -117,7 +121,14 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           } else {
             this.cleanup = this.cleanup
           }
+          this.state.subscribe(() => this.updateComponent())
+          this.shadeChildren.subscribe(() => this.updateComponent())
           this.props.subscribe(() => this.updateComponent())
+          logger.verbose({
+            message: `Creating...`,
+            data: this,
+          })
+          this.updateComponent()
         }
 
         private cleanup: void | (() => void) = undefined
@@ -125,13 +136,11 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         constructor(_props: TProps) {
           super()
           this.props = new ObservableValue()
-          this.state.subscribe(() => this.updateComponent())
-          this.shadeChildren.subscribe(() => this.updateComponent())
-
           o.onAttach && this.onAttached.subscribe(() => o.onAttach && o.onAttach(this.getRenderOptions()))
           o.onDetach && this.onDetached.subscribe(() => o.onDetach && o.onDetach(this.getRenderOptions()))
 
           this.onDetached.subscribe(() => {
+            logger.verbose({ message: 'Detaching...', data: this })
             this.props.dispose()
             this.state.dispose()
             this.shadeChildren.dispose()

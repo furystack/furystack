@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
+import { ScopedLogger } from '@furystack/logging'
 import { isJsxElement } from '../jsx'
 
 /**
@@ -6,11 +7,17 @@ import { isJsxElement } from '../jsx'
  */
 @Injectable({ lifetime: 'singleton' })
 export class DomObserverService {
+  private readonly logger: ScopedLogger
+  constructor(injector: Injector) {
+    this.logger = injector.logger.withScope(this.constructor.name)
+  }
+
   /**
    * Ensures that the service is up and running
    */
   public EnsureStarted() {
     if (!this._isRunning) {
+      this.logger.verbose({ message: `Starting ${this.constructor.name}...` })
       this.mutationObserver.observe(document.documentElement, {
         childList: true,
         subtree: true,

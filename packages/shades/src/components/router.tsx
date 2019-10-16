@@ -27,6 +27,25 @@ export const Router = Shade<RouterProps, RouterState>({
   render: options => {
     const currentUrl = options.getState().url
     const routeMatch = options.props.routes.find(r => options.props.routeMatcher(currentUrl, r.url))
-    return (routeMatch && routeMatch.component()) || (options.props.notFound && options.props.notFound()) || <div></div>
+    if (routeMatch) {
+      const match = routeMatch.component()
+      options.logger.information({
+        message: `Route matched for '${currentUrl}'`,
+        data: { match },
+      })
+      return match
+    }
+    if (options.props.notFound) {
+      const notFound = options.props.notFound()
+      options.logger.information({
+        message: `Route not found for '${currentUrl}', falling back to the 'notFound' element...`,
+        data: { notFound },
+      })
+      return notFound
+    }
+    options.logger.warning({
+      message: `Route not found for '${currentUrl}' and no 'notFound' element was provided. Falling back to an empty element...`,
+    })
+    return <div></div>
   },
 })

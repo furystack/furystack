@@ -1,4 +1,5 @@
 import { Injector } from '@furystack/inject'
+import { VerboseConsoleLogger } from '@furystack/logging'
 import { DomObserverService } from './services'
 import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 
@@ -25,6 +26,7 @@ export const appendChild = (el: HTMLElement, children: ChildrenList) => {
  * static injector instance for Shade
  */
 export const shadeInjector = new Injector()
+shadeInjector.useLogging(VerboseConsoleLogger)
 
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
