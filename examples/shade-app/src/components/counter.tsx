@@ -31,7 +31,7 @@ export const Counter = Shade<CounterProps, CounterState>({
           justifyContent: 'space-between',
         }}>
         <button
-          onclick={(ev: MouseEvent) => {
+          onclick={ev => {
             ev.stopPropagation()
             updateState({ value: getState().value + 1 })
           }}>
@@ -44,7 +44,7 @@ export const Counter = Shade<CounterProps, CounterState>({
           {getState().value.toString()}{' '}
         </span>
         <button
-          onclick={(ev: MouseEvent) => {
+          onclick={ev => {
             ev.stopPropagation()
             updateState({ value: getState().value - 1 })
           }}>

@@ -1,8 +1,8 @@
-import { DeepPartial } from '@sensenet/client-utils'
 import { Shade } from '../shade'
+import { PartialElement } from '../jsx'
 import { createComponent } from '..'
 
-export const RouteLink = Shade<DeepPartial<HTMLAnchorElement>>({
+export const RouteLink = Shade<PartialElement<HTMLAnchorElement>>({
   shadowDomName: 'route-link',
   render: ({ children, props }) => {
     return (
