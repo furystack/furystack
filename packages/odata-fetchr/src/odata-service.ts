@@ -121,7 +121,7 @@ export class OdataService<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomAction<TReturns, TData = {}>(
+  public async execCustomAction<TReturns, TData = {}>(
     actionName: string,
     entityId: any,
     postData?: TData,
@@ -138,11 +138,11 @@ export class OdataService<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomCollectionAction<TReturns, TData = {}>(
+  public async execCustomCollectionAction<TReturns, TData = {}>(
     actionName: string,
     postData?: TData,
   ): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(actionName, {
+    return await this.extractResponse<TReturns>(PathHelper.joinPaths(this.entitySetUrl, actionName), {
       method: 'POST',
       body: JSON.stringify(postData),
     })
@@ -155,7 +155,7 @@ export class OdataService<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
+  public async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
     return await this.extractResponse<TReturns>(`${this.getUriForEntity(entityId)}/${fucntionName}`)
   }
 
@@ -165,8 +165,8 @@ export class OdataService<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomCollectionFunction<TReturns>(functionName: string): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(functionName)
+  public async execCustomCollectionFunction<TReturns>(functionName: string): Promise<TReturns> {
+    return await this.extractResponse<TReturns>(PathHelper.joinPaths(this.entitySetUrl, functionName))
   }
 
   private async extractResponse<TResponse>(input: Request | string, init?: RequestInit): Promise<TResponse> {

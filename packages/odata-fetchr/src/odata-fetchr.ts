@@ -61,7 +61,7 @@ import { OdataContextWriter } from './odata-context-writer'
       injector.getInstance(OdataContextWriter).writeContext(endpoint)
 
       injector.getInstance(EntityTypeWriter).writeEntityTypes(endpoint.entityTypes)
-      injector.getInstance(EntityCollectionWriter).writeEntityCollections(endpoint.entitySets)
+      injector.getInstance(EntityCollectionWriter).writeEntityCollections(endpoint)
     } else {
       logVerbose('Local config not found. Falling back to CLI mode')
     }

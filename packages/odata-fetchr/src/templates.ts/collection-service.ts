@@ -11,6 +11,10 @@ import { \${entitySetModelName} } from "../entity-types/\${entitySetModelFile}";
  */
 @Injectable({ lifetime: "transient" })
 export class \${collectionServiceClassName} {
+\${customActions}
+\${customFunctions}
+\${customCollectionActions}
+\${customCollectionFunctions}
   public readonly entitySetUrl = "\${entitySetName}";
   public getService = () => this.injector.getOdataServiceFor(\${entitySetModelName}, "\${entitySetName}");
   constructor(private injector: Injector) {}
