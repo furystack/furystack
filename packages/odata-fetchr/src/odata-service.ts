@@ -1,14 +1,27 @@
-// import { ODataContext } from './ODataContext'
+import { Injectable, Constructable } from '@furystack/inject'
+import { PathHelper } from '@sensenet/client-utils'
 import { ODataError } from './odata-error'
 import { ODataGetOperation } from './odata-get-operation'
 import { ODataQuery } from './odata-query'
 import { ODataQueryResult } from './odata-query-result'
-import { ODataServiceAbstract } from './odata-service-abstract'
+
+@Injectable({ lifetime: 'scoped' })
+export class ODataServiceOptions {
+  public serviceEndpoint = 'http://localhost:9090/odata'
+  public defaultInit: RequestInit = {
+    credentials: 'include',
+  }
+  public model: Constructable<any> = Object
+  public modelName = ''
+}
 
 /**
- * Abstract OData service class
+ * OData service class
  */
-export abstract class OdataService<T> extends ODataServiceAbstract<T> {
+@Injectable({ lifetime: 'transient' })
+export class OdataService<T> {
+  constructor(private readonly options: ODataServiceOptions) {}
+  protected entitySetUrl = PathHelper.joinPaths(this.options.serviceEndpoint, this.options.modelName)
   private defaultInit: RequestInit = {
     credentials: 'include',
   }
@@ -86,6 +99,15 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
     }
 
     return new ODataQuery(evaluateQuery)
+  }
+
+  protected getEntityUriSegment(entityKey: any): string {
+    entityKey = entityKey.toString()
+    if (!/^[0-9]*$/.test(entityKey)) {
+      return `('${entityKey}')`
+    }
+
+    return `(${entityKey})`
   }
 
   protected getUriForEntity(id: any): string {

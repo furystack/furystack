@@ -32,7 +32,7 @@ export class EntityCollectionWriter {
     this.logger.verbose({ message: 'Writing barrel file...' })
     writeFileSync(
       join(process.cwd(), this.config.outputPath, this.config.entityCollectionServicesPath, `index.ts`),
-      collections.map(t => `export * from './${this.config.getServiceFileName(t.name)}'\r\n`).join(''),
+      collections.map(t => `export * from "./${this.config.getServiceFileName(t.name)}";\r\n`).join(''),
     )
   }
 

@@ -72,7 +72,7 @@ export class EntityTypeWriter {
     this.logVerbose('Writing barrel file...')
     writeFileSync(
       join(process.cwd(), this.config.outputPath, this.config.entityTypePath, `index.ts`),
-      types.map(t => `export * from './${this.config.getModelFileName(t.name)}'\r\n`).join(''),
+      types.map(t => `export * from "./${this.config.getModelFileName(t.name)}";\r\n`).join(''),
     )
   }
 
