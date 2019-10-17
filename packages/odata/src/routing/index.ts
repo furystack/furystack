@@ -88,15 +88,15 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
       // Collection functions
       const collectionFunction =
         collection.collection.functions &&
-        collection.collection.functions.find(a => urlPathName === `${collection.url}/${a.name}`)
+        collection.collection.functions.find(a => urlPathName === PathHelper.joinPaths(collection.url, a.name))
       if (msg.method === 'GET' && collectionFunction) {
         return collectionFunction.action
       }
 
       const collectionAction =
         collection.collection.actions &&
-        collection.collection.actions.find(a => urlPathName === `${collection.url}/${a.name}`)
-      if (msg.method === 'GET' && collectionAction) {
+        collection.collection.actions.find(a => urlPathName === PathHelper.joinPaths(collection.url, a.name))
+      if (msg.method === 'POST' && collectionAction) {
         return collectionAction.action
       }
 
@@ -109,13 +109,15 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
     }
 
     // Global functions
-    const globalFunction = options.globalFunctions.find(a => urlPathName === `${options.route}/${a.name}`)
+    const globalFunction = options.globalFunctions.find(
+      a => urlPathName === PathHelper.joinPaths(options.route, a.name),
+    )
     if (msg.method === 'GET' && globalFunction) {
       return globalFunction.action
     }
 
     // Global actions
-    const globalAction = options.globalActions.find(a => urlPathName === `${options.route}/${a.name}`)
+    const globalAction = options.globalActions.find(a => urlPathName === PathHelper.joinPaths(options.route, a.name))
     if (msg.method === 'POST' && globalAction) {
       return globalAction.action
     }
