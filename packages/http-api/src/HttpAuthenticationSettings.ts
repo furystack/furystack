@@ -21,7 +21,5 @@ export class HttpAuthenticationSettings<TUser extends User> {
     sha256()
       .update(plain)
       .digest('hex')
-  public visitorUser: TUser = ({ username: 'Visitor', roles: [] } as any) as TUser
-
   public enableBasicAuth = true
 }

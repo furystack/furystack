@@ -1,12 +1,4 @@
 /**
- * The default unauthenticated user
- */
-export const visitorUser: User = {
-  username: 'Visitor',
-  roles: ['Visitor'],
-}
-
-/**
  * Class model that represents an application user
  */
 export class User {

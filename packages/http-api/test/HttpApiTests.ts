@@ -1,10 +1,9 @@
-import { IncomingMessage, ServerResponse } from 'http'
-import { visitorUser } from '@furystack/core'
 import { Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { HttpUserContext, RequestAction, EmptyResult } from '../src'
 import { HttpApi } from '../src/HttpApi'
+import '../src/InjectorExtension'
 
 // tslint:disable:max-classes-per-file
 
@@ -18,17 +17,15 @@ describe('HttpApi tests', () => {
 
   it('NotFound Action is executed when no other action is awailable', done => {
     usingAsync(new Injector(), async i => {
-      const ExampleNotFoundAction: RequestAction = async injector => {
+      const ExampleNotFoundAction: RequestAction = async () => {
         done()
         return EmptyResult()
       }
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({}, ServerResponse)
       i.useLogging(LoggerCollection)
       i.useHttpApi({
         notFoundAction: ExampleNotFoundAction,
       })
-      await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+      await i.getInstance(HttpApi).mainRequestListener({} as any, { sendActionResult: () => undefined } as any)
     })
   })
 
@@ -37,11 +34,6 @@ describe('HttpApi tests', () => {
       const ExampleAction: RequestAction = async injector => {
         try {
           const userContext = injector.getInstance(HttpUserContext)
-          const currentUser = await userContext.getCurrentUser()
-          const currentUser2 = await userContext.getCurrentUser()
-          expect(currentUser.username).toEqual(visitorUser.username)
-          expect(currentUser2.username).toEqual(visitorUser.username)
-          // tslint:disable-next-line:no-string-literal
           injector['cachedSingletons'].has(userContext.constructor as Constructable<any>)
           done()
         } catch (error) {
@@ -53,7 +45,9 @@ describe('HttpApi tests', () => {
       i.useHttpApi({
         actions: [() => ExampleAction],
       })
-      await i.getInstance(HttpApi).mainRequestListener({ headers: {} } as any, {} as any)
+      await i
+        .getInstance(HttpApi)
+        .mainRequestListener({ headers: {} } as any, { sendActionResult: () => undefined } as any)
     })
   })
 
@@ -67,7 +61,7 @@ describe('HttpApi tests', () => {
         actions: [() => ExampleAction, () => ExampleAction],
       })
       try {
-        await i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+        await i.getInstance(HttpApi).mainRequestListener({} as any, { sendActionResult: () => undefined } as any)
         done('Should throw error')
       } catch (error) {
         done()
@@ -85,15 +79,12 @@ describe('HttpApi tests', () => {
         done()
         return EmptyResult()
       }
-
-      i.setExplicitInstance({}, IncomingMessage)
-      i.setExplicitInstance({}, ServerResponse)
       i.setExplicitInstance(new LoggerCollection())
       i.useHttpApi({
         actions: [() => ExampleFailAction],
         errorAction: ExampleErrorAction as any,
       })
-      i.getInstance(HttpApi).mainRequestListener({} as any, {} as any)
+      await i.getInstance(HttpApi).mainRequestListener({} as any, { sendActionResult: () => undefined } as any)
     })
   })
 })

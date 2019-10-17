@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { visitorUser } from '@furystack/core'
+import '../src/InjectorExtension'
 import { Authenticate, EmptyResult, HttpUserContext } from '../src'
 
 describe('Authenticate', () => {
@@ -12,7 +12,7 @@ describe('Authenticate', () => {
       i.setExplicitInstance(
         {
           isAuthenticated: isAuthenticatedAction,
-          getCurrentUser: async () => visitorUser,
+          getCurrentUser: async () => Promise.reject(':('),
           authentication: { enableBasicAuth: false },
         },
         HttpUserContext,
@@ -35,7 +35,7 @@ describe('Authenticate', () => {
       i.setExplicitInstance(
         {
           isAuthenticated: isAuthenticatedAction,
-          getCurrentUser: async () => visitorUser,
+          getCurrentUser: async () => Promise.reject(':('),
           authentication: { enableBasicAuth: true },
         },
         HttpUserContext,
@@ -56,7 +56,7 @@ describe('Authenticate', () => {
       const isAuthenticatedAction = jest.fn(async () => true)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => visitorUser },
+        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
         HttpUserContext,
       )
       const exampleAuthenticatedAction = jest.fn(async (_i: Injector) => EmptyResult())

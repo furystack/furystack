@@ -18,10 +18,9 @@ describe('LoginAction', () => {
     })
   })
 
-  it('Returns visitor with 400 on fail', async () => {
-    const visitorUser = { Name: 'Visitorka' }
+  it('Returns error with 400 on fail', async () => {
     await usingAsync(new Injector(), async i => {
-      i.setExplicitInstance({ cookieLogin: async () => visitorUser, authentication: { visitorUser } }, HttpUserContext)
+      i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
       i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction(i)

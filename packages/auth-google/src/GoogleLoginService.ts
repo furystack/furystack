@@ -1,5 +1,5 @@
 import { get } from 'https'
-import { User, visitorUser, StoreManager } from '@furystack/core'
+import { User, StoreManager } from '@furystack/core'
 import { ExternalLoginService } from '@furystack/http-api'
 import { Utils } from '@furystack/http-api/dist/Utils'
 import { Injectable, Injector } from '@furystack/inject'
@@ -64,22 +64,16 @@ export class GoogleLoginService implements ExternalLoginService {
    * @param token The IdToken to authenticate
    */
   public async login(token: string): Promise<User> {
-    try {
-      return await new Promise<User>((resolve, reject) =>
-        get(`${this.googleApiEndpoint}${token}`, async response => {
-          if (response.statusCode && response.statusCode < 400) {
-            const body = await this.utils.readPostBody<GoogleApiPayload>(response)
-            const user = await this.settings.getUserFromGooglePayload(body, this.injector)
-            resolve(user || visitorUser)
-          } else {
-            reject({ ...response })
-          }
-        }),
-      )
-    } catch (error) {
-      /** */
-    }
-
-    return visitorUser
+    return await new Promise<User>((resolve, reject) =>
+      get(`${this.googleApiEndpoint}${token}`, async response => {
+        if (response.statusCode && response.statusCode < 400) {
+          const body = await this.utils.readPostBody<GoogleApiPayload>(response)
+          const user = await this.settings.getUserFromGooglePayload(body, this.injector)
+          user ? resolve(user) : reject('Error: User not found.')
+        } else {
+          reject({ ...response })
+        }
+      }),
+    )
   }
 }

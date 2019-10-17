@@ -2,7 +2,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { using, usingAsync } from '@sensenet/client-utils'
 import { Injector } from '@furystack/inject'
-import { User, visitorUser, StoreManager } from '@furystack/core'
+import { User, StoreManager } from '@furystack/core'
 import { HttpUserContext } from '../src'
 
 export const prepareInjector = (i: Injector) => {
@@ -34,13 +34,14 @@ describe('HttpUserContext', () => {
       })
     })
 
-    it('Should return false for visitor users', async () => {
+    it('Should fail for unauthenticated users', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.getCurrentUser = jest.fn(async () => visitorUser)
-        const value = await ctx.isAuthenticated()
-        expect(value).toBe(true)
+        ctx.getCurrentUser = jest.fn(async () => {
+          throw Error(':(')
+        })
+        await expect(ctx.isAuthenticated()).rejects.toThrow(':(')
         expect(ctx.getCurrentUser).toBeCalled()
       })
     })
@@ -71,48 +72,44 @@ describe('HttpUserContext', () => {
   })
 
   describe('authenticateUser', () => {
-    it('Should return the Visitor when the store is empty', async () => {
+    it('Should fail when the store is empty', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const value = await ctx.authenticateUser('user', 'password')
-        expect(value).toBe(ctx.authentication.visitorUser)
+        await expect(ctx.authenticateUser('user', 'password')).rejects.toThrow('')
       })
     })
 
-    it('Should return the Visitor when the password not equals', async () => {
+    it('Should fail when the password not equals', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
           .add({ username: 'user', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        const value = await ctx.authenticateUser('user', 'pass321')
-        expect(value).toBe(ctx.authentication.visitorUser)
+        await expect(ctx.authenticateUser('user', 'pass321')).rejects.toThrow('')
       })
     })
 
-    it('Should return the Visitor when the username not equals', async () => {
+    it('Should fail when the username not equals', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
           .add({ username: 'otherUser', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        const value = await ctx.authenticateUser('user', 'pass123')
-        expect(value).toBe(ctx.authentication.visitorUser)
+        expect(ctx.authenticateUser('user', 'pass123')).rejects.toThrow('')
       })
     })
 
-    it('Should return the Visitor when password not provided', async () => {
+    it('Should fail when password not provided', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
           .add({ username: 'otherUser', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        const value = await ctx.authenticateUser('user', '')
-        expect(value).toBe(ctx.authentication.visitorUser)
+        await expect(ctx.authenticateUser('user', '')).rejects.toThrow('')
       })
     })
 
@@ -180,9 +177,8 @@ describe('HttpUserContext', () => {
         ctx.authentication.enableBasicAuth = false
         i.getInstance(IncomingMessage).headers = { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` }
         ctx.authenticateUser = jest.fn(async () => testUser)
-        const result = await ctx.authenticateRequest()
+        await expect(ctx.authenticateRequest()).rejects.toThrow('')
         expect(ctx.authenticateUser).not.toBeCalled()
-        expect(result).toBe(ctx.authentication.visitorUser)
       })
     })
 
@@ -191,8 +187,8 @@ describe('HttpUserContext', () => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
-        const result = await ctx.authenticateRequest()
-        expect(result).toEqual(ctx.authentication.visitorUser)
+
+        await expect(ctx.authenticateRequest()).rejects.toThrow('')
       })
     })
 
@@ -204,10 +200,7 @@ describe('HttpUserContext', () => {
         ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
-
-        const result = await ctx.authenticateRequest()
-
-        expect(result).toEqual(ctx.authentication.visitorUser)
+        await expect(ctx.authenticateRequest()).rejects.toThrow('')
       })
     })
 

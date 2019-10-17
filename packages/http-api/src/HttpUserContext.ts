@@ -22,11 +22,11 @@ export class HttpUserContext {
   private user?: User
 
   /**
-   * Returns if the current user is authenticated (e.g. is NOT a visitor)
+   * Returns if the current user is authenticated
    */
   public async isAuthenticated() {
     const currentUser = await this.getCurrentUser()
-    return currentUser !== this.authentication.visitorUser
+    return currentUser !== null
   }
 
   /**
@@ -36,7 +36,7 @@ export class HttpUserContext {
   public async isAuthorized(...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser()
     for (const role of roles) {
-      if (!currentUser.roles.some(c => c === role)) {
+      if (!currentUser || !currentUser.roles.some(c => c === role)) {
         return false
       }
     }
@@ -44,9 +44,9 @@ export class HttpUserContext {
   }
 
   /**
-   * Checks if the system contains a user with the provided name and password, returns the Visitor user othervise
+   * Checks if the system contains a user with the provided name and password, throws an error otherwise
    */
-  public async authenticateUser(userName: string, password: string): Promise<User> {
+  public async authenticateUser(userName: string, password: string) {
     const match =
       (password &&
         password.length &&
@@ -63,12 +63,13 @@ export class HttpUserContext {
       return user
     }
     await sleepAsync(Math.random() * 1000)
-    return this.authentication.visitorUser
+    throw Error('Failed to authenticate.')
   }
 
   public async getCurrentUser() {
     if (!this.user) {
       this.user = await this.authenticateRequest()
+      return this.user
     }
     return this.user
   }
@@ -113,16 +114,16 @@ export class HttpUserContext {
           const { password, ...user } = userResult[0]
           return user
         }
-        return this.authentication.visitorUser as User
+        throw Error('Inconsistent session result')
       }
     }
 
-    return this.authentication.visitorUser as User
+    throw Error('Failed to authenticate request')
   }
 
   public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<User> {
     const user = await this.authenticateUser(username, password)
-    if (user !== this.authentication.visitorUser) {
+    if (user !== null) {
       const sessionId = v1()
       await this.sessions.add({ sessionId, username: user.username })
       serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
@@ -145,27 +146,25 @@ export class HttpUserContext {
     try {
       const instance = this.injector.getInstance(service)
       const user = await instance.login(...args)
-      if (user.username !== this.authentication.visitorUser.username) {
-        const sessionId = v1()
-        await this.sessions.update(sessionId, { sessionId, username: user.username })
-        serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-        this.logger.information({
-          message: `User '${user.username}' logged in with '${service.name}' external service.`,
-          data: {
-            user,
-            sessionId,
-          },
-        })
-        return user
-      }
+      const sessionId = v1()
+      await this.sessions.update(sessionId, { sessionId, username: user.username })
+      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
+      this.logger.information({
+        message: `User '${user.username}' logged in with '${service.name}' external service.`,
+        data: {
+          user,
+          sessionId,
+        },
+      })
+      return user
     } catch (error) {
       /** */
       this.logger.error({
         message: `Error during external login with '${service.name}': ${error.message}`,
         data: { error },
       })
+      throw error
     }
-    return this.authentication.visitorUser as User
   }
 
   public async cookieLogout() {

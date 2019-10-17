@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { visitorUser } from '@furystack/core'
+import { User } from '@furystack/core'
 import { Authorize, EmptyResult, HttpUserContext } from '../src'
 
 describe('Authorize', () => {
@@ -10,7 +10,7 @@ describe('Authorize', () => {
       const isAuthorizedAction = jest.fn(async () => false)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
-        { isAuthorized: isAuthorizedAction, getCurrentUser: async () => visitorUser },
+        { isAuthorized: isAuthorizedAction, getCurrentUser: () => Promise.reject(':(') },
         HttpUserContext,
       )
       const exampleAuthorizedAction = jest.fn(async (_i: Injector) => EmptyResult())
@@ -28,7 +28,10 @@ describe('Authorize', () => {
       const isAuthorizedAction = jest.fn(async () => true)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
-        { isAuthorized: isAuthorizedAction, getCurrentUser: async () => visitorUser },
+        {
+          isAuthorized: isAuthorizedAction,
+          getCurrentUser: async () => Promise.resolve<User>({ username: 'a', roles: ['Role1'] }),
+        },
         HttpUserContext,
       )
       const exampleAuthorizedAction = jest.fn(async (_i: Injector) => EmptyResult())

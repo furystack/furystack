@@ -5,6 +5,7 @@ import { usingAsync } from '@sensenet/client-utils'
 import { HttpApiSettings } from './HttpApiSettings'
 import { Utils } from './Utils'
 import { RequestAction } from './Models'
+import './InjectorExtension'
 
 /**
  * HTTP Rest API implementation for FuryStack

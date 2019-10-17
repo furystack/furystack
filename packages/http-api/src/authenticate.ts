@@ -14,7 +14,7 @@ export const Authenticate = () => (action: RequestAction) => {
       await sleepAsync(Math.random() * 1000)
       i.logger.warning({
         scope: '@furystack/http-api/@Authenticate()',
-        message: `A Visitor user has been tried to access to action '${url}' without authentication.`,
+        message: `An unauthenticated user has been tried to access to action '${url}' without authentication.`,
         data: {
           url,
         },
