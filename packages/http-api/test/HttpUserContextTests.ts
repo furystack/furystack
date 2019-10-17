@@ -221,4 +221,36 @@ describe('HttpUserContext', () => {
       })
     })
   })
+
+  describe('getCurrentUser', () => {
+    it('Should return the current user from authenticateRequest() once per request', async () => {
+      await usingAsync(new Injector(), async i => {
+        prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        ctx.authenticateRequest = jest.fn(async () => testUser)
+        const result = await ctx.getCurrentUser()
+        const result2 = await ctx.getCurrentUser()
+        expect(ctx.authenticateRequest).toBeCalledTimes(1)
+        expect(result).toBe(testUser)
+        expect(result2).toBe(testUser)
+      })
+    })
+  })
+
+  describe('cookieLogin', () => {
+    it('Should return the current user from authenticateRequest() once per request', async () => {
+      await usingAsync(new Injector(), async i => {
+        prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const setHeader = jest.fn()
+        ctx.sessions.add = jest.fn(async s => s)
+        ctx.authenticateUser = jest.fn(async () => testUser)
+        const authResult = await ctx.cookieLogin('username', 'password', { setHeader } as any)
+        expect(authResult).toBe(testUser)
+        expect(setHeader).toBeCalled()
+        expect(ctx.authenticateUser).toBeCalled()
+        expect(ctx.sessions.add).toBeCalled()
+      })
+    })
+  })
 })

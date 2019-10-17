@@ -123,18 +123,16 @@ export class HttpUserContext {
 
   public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<User> {
     const user = await this.authenticateUser(username, password)
-    if (user !== null) {
-      const sessionId = v1()
-      await this.sessions.add({ sessionId, username: user.username })
-      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-      this.logger.information({
-        message: `User '${user.username}' logged in.`,
-        data: {
-          user,
-          sessionId,
-        },
-      })
-    }
+    const sessionId = v1()
+    await this.sessions.add({ sessionId, username: user.username })
+    serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
+    this.logger.information({
+      message: `User '${user.username}' logged in.`,
+      data: {
+        user,
+        sessionId,
+      },
+    })
     return user
   }
 
