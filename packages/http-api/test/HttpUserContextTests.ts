@@ -34,14 +34,14 @@ describe('HttpUserContext', () => {
       })
     })
 
-    it('Should fail for unauthenticated users', async () => {
+    it('Should return false for unauthenticated users', async () => {
       await usingAsync(new Injector(), async i => {
         prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => {
           throw Error(':(')
         })
-        await expect(ctx.isAuthenticated()).rejects.toThrow(':(')
+        await expect(ctx.isAuthenticated()).resolves.toEqual(false)
         expect(ctx.getCurrentUser).toBeCalled()
       })
     })

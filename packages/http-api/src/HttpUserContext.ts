@@ -25,8 +25,12 @@ export class HttpUserContext {
    * Returns if the current user is authenticated
    */
   public async isAuthenticated() {
-    const currentUser = await this.getCurrentUser()
-    return currentUser !== null
+    try {
+      const currentUser = await this.getCurrentUser()
+      return currentUser !== null
+    } catch (error) {
+      return false
+    }
   }
 
   /**
