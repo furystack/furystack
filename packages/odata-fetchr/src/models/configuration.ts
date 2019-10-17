@@ -1,6 +1,12 @@
 import { Injectable } from '@furystack/inject'
 import { odataCollectionService } from '../templates.ts/collection-service'
 import { entityPropertyTemplate } from '../templates.ts/EntityProperty'
+import {
+  odataCustomActionTemplate,
+  odataCustomCollectionActionTemplate,
+  odataCustomFunctionTemplate,
+  odataCustomCollectionFunctionTemplate,
+} from '../templates.ts/custom-actions-functions'
 import { entityTypeTemplate } from '../templates.ts/EntityType'
 import { odataContext } from '../templates.ts/odata-context'
 
@@ -61,6 +67,26 @@ export class Configuration {
    * Template for entity collection services
    */
   public odataCollectionServiceTemplate: string = odataCollectionService
+
+  /**
+   * Template for entity custom actions
+   */
+  public customActionTemplate = odataCustomActionTemplate
+
+  /**
+   * Template for collection-bound custom actions
+   */
+  public customCollectionActionsTemplate = odataCustomCollectionActionTemplate
+
+  /**
+   * Template for entity-related custom functions
+   */
+  public customFunctionTempalte = odataCustomFunctionTemplate
+
+  /**
+   * Template for collection-bound custom function
+   */
+  public customCollectionFunctionTemplate = odataCustomCollectionFunctionTemplate
 
   /**
    * Returns a meaningful type from an EDM Type string

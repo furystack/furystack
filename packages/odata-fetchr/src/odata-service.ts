@@ -1,14 +1,27 @@
-// import { ODataContext } from './ODataContext'
+import { Injectable, Constructable } from '@furystack/inject'
+import { PathHelper } from '@sensenet/client-utils'
 import { ODataError } from './odata-error'
 import { ODataGetOperation } from './odata-get-operation'
 import { ODataQuery } from './odata-query'
 import { ODataQueryResult } from './odata-query-result'
-import { ODataServiceAbstract } from './odata-service-abstract'
+
+@Injectable({ lifetime: 'scoped' })
+export class ODataServiceOptions {
+  public serviceEndpoint = 'http://localhost:9090/odata'
+  public defaultInit: RequestInit = {
+    credentials: 'include',
+  }
+  public model: Constructable<any> = Object
+  public modelName = ''
+}
 
 /**
- * Abstract OData service class
+ * OData service class
  */
-export abstract class OdataService<T> extends ODataServiceAbstract<T> {
+@Injectable({ lifetime: 'transient' })
+export class OdataService<T> {
+  constructor(private readonly options: ODataServiceOptions) {}
+  protected entitySetUrl = PathHelper.joinPaths(this.options.serviceEndpoint, this.options.modelName)
   private defaultInit: RequestInit = {
     credentials: 'include',
   }
@@ -88,6 +101,15 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
     return new ODataQuery(evaluateQuery)
   }
 
+  protected getEntityUriSegment(entityKey: any): string {
+    entityKey = entityKey.toString()
+    if (!/^[0-9]*$/.test(entityKey)) {
+      return `('${entityKey}')`
+    }
+
+    return `(${entityKey})`
+  }
+
   protected getUriForEntity(id: any): string {
     return this.entitySetUrl + this.getEntityUriSegment(id)
   }
@@ -99,7 +121,7 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomAction<TReturns, TData = {}>(
+  public async execCustomAction<TReturns, TData = {}>(
     actionName: string,
     entityId: any,
     postData?: TData,
@@ -116,11 +138,11 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomCollectionAction<TReturns, TData = {}>(
+  public async execCustomCollectionAction<TReturns, TData = {}>(
     actionName: string,
     postData?: TData,
   ): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(actionName, {
+    return await this.extractResponse<TReturns>(PathHelper.joinPaths(this.entitySetUrl, actionName), {
       method: 'POST',
       body: JSON.stringify(postData),
     })
@@ -133,7 +155,7 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
+  public async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
     return await this.extractResponse<TReturns>(`${this.getUriForEntity(entityId)}/${fucntionName}`)
   }
 
@@ -143,8 +165,8 @@ export abstract class OdataService<T> extends ODataServiceAbstract<T> {
    * @param ...args The other optional arguments
    * @returns An awaitable promise
    */
-  protected async execCustomCollectionFunction<TReturns>(functionName: string): Promise<TReturns> {
-    return await this.extractResponse<TReturns>(functionName)
+  public async execCustomCollectionFunction<TReturns>(functionName: string): Promise<TReturns> {
+    return await this.extractResponse<TReturns>(PathHelper.joinPaths(this.entitySetUrl, functionName))
   }
 
   private async extractResponse<TResponse>(input: Request | string, init?: RequestInit): Promise<TResponse> {
