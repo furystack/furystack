@@ -38,9 +38,9 @@ describe('Authorize', () => {
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
 
       const result = await authorized(i)
-      expect(result.statusCode).toBe(200)
-      expect(result.chunk).toBe(undefined)
-      expect(exampleAuthorizedAction).toBeCalledWith(i)
+      expect(result.statusCode).toBe(403)
+      expect(result.chunk).toBe(JSON.stringify({ error: 'forbidden' }))
+      expect(exampleAuthorizedAction).not.toBeCalled()
     })
   })
 
