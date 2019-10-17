@@ -1,7 +1,9 @@
 import { HttpApiSettings } from '@furystack/http-api'
 import { Injector } from '@furystack/inject/dist/Injector'
+import { DataSet } from '@furystack/repository'
 import { ModelBuilder } from './model-builder'
 import { createOdataRouter } from './routing'
+import { OdataContext } from './odata-context'
 
 declare module '@furystack/inject/dist/Injector' {
   /**
@@ -19,6 +21,10 @@ declare module '@furystack/inject/dist/Injector' {
      *
      */
     useOdata: (route: string, buildModel: (builder: ModelBuilder) => ModelBuilder) => this
+    getOdataContext: <T>() => OdataContext<T> & {
+      getCurrentDataSet: () => DataSet<T>
+      getCurrentEntity: () => Promise<T | undefined>
+    }
   }
 }
 
@@ -50,4 +56,13 @@ Injector.prototype.useOdata = function(route, buildModel) {
     }),
   )
   return this
+}
+
+Injector.prototype.getOdataContext = function<T>() {
+  const context = this.getInstance(OdataContext) as OdataContext<T>
+  return {
+    ...context,
+    getCurrentDataSet: () => this.getDataSetFor<T>(context.collection.name) as DataSet<T>,
+    getCurrentEntity: () => this.getDataSetFor<T>(context.collection.name).get(this, context.entityId as any),
+  }
 }
