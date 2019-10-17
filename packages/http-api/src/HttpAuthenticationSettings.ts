@@ -1,7 +1,7 @@
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Constructable, Injectable } from '@furystack/inject'
 import { sha256 } from 'hash.js'
-import { DefaultSession } from './Models/DefaultSession'
+import { DefaultSession } from './Models'
 
 /**
  * Authentication settings object for FuryStack HTTP Api
@@ -21,7 +21,5 @@ export class HttpAuthenticationSettings<TUser extends User> {
     sha256()
       .update(plain)
       .digest('hex')
-  public visitorUser: TUser = ({ username: 'Visitor', roles: [] } as any) as TUser
-
   public enableBasicAuth = true
 }

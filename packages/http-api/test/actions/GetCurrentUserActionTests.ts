@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext } from '../../src'
-import { GetCurrentUser } from '../../src/Actions/GetCurrentUser'
+import { HttpUserContext, GetCurrentUser } from '../../src'
 
 describe('getCurrentUser', () => {
   it('exec', async () => {

@@ -1,8 +1,7 @@
 import { IncomingMessage } from 'http'
 import { using } from '@sensenet/client-utils'
 import { Injector } from '@furystack/inject'
-import { GetCurrentUser, LoginAction, LogoutAction } from '../src'
-import { defaultLoginRoutes } from '../src/default-login-routes'
+import { GetCurrentUser, LoginAction, LogoutAction, defaultLoginRoutes } from '../src'
 
 describe('Default login routes', () => {
   it('/login should resolve Login action', () => {

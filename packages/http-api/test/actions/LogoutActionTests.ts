@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext } from '../../src'
-import { LogoutAction } from '../../src/Actions/Logout'
+import { HttpUserContext, LogoutAction } from '../../src'
 
 describe('LogoutAction', () => {
   it('exec', async () => {

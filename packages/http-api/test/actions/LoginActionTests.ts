@@ -1,8 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext } from '../../src'
-import { LoginAction } from '../../src/Actions/Login'
+import { HttpUserContext, LoginAction } from '../../src'
 
 describe('LoginAction', () => {
   /** */
@@ -18,10 +17,9 @@ describe('LoginAction', () => {
     })
   })
 
-  it('Returns visitor with 400 on fail', async () => {
-    const visitorUser = { Name: 'Visitorka' }
+  it('Returns error with 400 on fail', async () => {
     await usingAsync(new Injector(), async i => {
-      i.setExplicitInstance({ cookieLogin: async () => visitorUser, authentication: { visitorUser } }, HttpUserContext)
+      i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
       i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction(i)
