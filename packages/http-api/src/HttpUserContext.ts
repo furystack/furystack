@@ -5,7 +5,7 @@ import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@sensenet/client-utils'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
-import { ExternalLoginService } from './Models/ExternalLoginService'
+import { ExternalLoginService } from './Models'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api

@@ -1,9 +1,7 @@
 import { Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext, RequestAction, EmptyResult } from '../src'
-import { HttpApi } from '../src/HttpApi'
-import '../src/InjectorExtension'
+import { HttpUserContext, RequestAction, EmptyResult, HttpApi } from '../src'
 
 // tslint:disable:max-classes-per-file
 

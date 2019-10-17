@@ -1,8 +1,6 @@
 import { parse } from 'url'
-import { GetCurrentUser } from './Actions/GetCurrentUser'
-import { LoginAction } from './Actions/Login'
-import { LogoutAction } from './Actions/Logout'
 import { RouteModel } from './Models'
+import { IsAuthenticated, GetCurrentUser, LoginAction, LogoutAction } from './Actions'
 
 /**
  * Default routes for /login, /logout and /getCurrentUser
@@ -12,6 +10,8 @@ export const defaultLoginRoutes: RouteModel = injector => {
   const msg = injector.getRequest()
   const urlPathName = parse(msg.url || '', true).pathname
   switch (urlPathName) {
+    case '/isAuthenticated':
+      return IsAuthenticated
     case '/currentUser':
       return GetCurrentUser
     case '/login':

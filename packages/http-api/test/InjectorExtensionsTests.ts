@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@sensenet/client-utils'
 import { HttpApiSettings } from '../src'
-import '../src/InjectorExtension'
 
 // tslint:disable: no-string-literal
 

@@ -1,7 +1,7 @@
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Constructable, Injectable } from '@furystack/inject'
 import { sha256 } from 'hash.js'
-import { DefaultSession } from './Models/DefaultSession'
+import { DefaultSession } from './Models'
 
 /**
  * Authentication settings object for FuryStack HTTP Api

@@ -1,7 +1,6 @@
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@sensenet/client-utils'
-import '../src/InjectorExtension'
 import { Authenticate, EmptyResult, HttpUserContext } from '../src'
 
 describe('Authenticate', () => {
