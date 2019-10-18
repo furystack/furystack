@@ -5,8 +5,6 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace JSX {
     interface Element<TProps = any, TState = any> extends HTMLElement {
-      onAttached: ObservableValue<void>
-      onDetached: ObservableValue<void>
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
       updateComponent: () => JSX.Element
@@ -524,10 +522,5 @@ declare global {
 
 export const isJsxElement = (obj: any): obj is JSX.Element => {
   const casted = obj as JSX.Element
-  return (
-    casted.props !== undefined &&
-    casted.state !== undefined &&
-    casted.onAttached !== undefined &&
-    casted.onDetached !== undefined
-  )
+  return casted.props !== undefined && casted.state !== undefined
 }
