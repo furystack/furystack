@@ -1,6 +1,5 @@
 import { Injector } from '@furystack/inject'
 import { VerboseConsoleLogger } from '@furystack/logging'
-import { DomObserverService } from './services'
 import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 
 /**
@@ -39,8 +38,6 @@ export const createComponent = <TProps>(
   props: TProps,
   ...children: ChildrenList
 ) => {
-  shadeInjector.getInstance(DomObserverService).EnsureStarted()
-
   let el!: HTMLElement | JSX.Element
   if (typeof elementType === 'string') {
     el = document.createElement(elementType)

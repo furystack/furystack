@@ -51,15 +51,18 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
-        /**
-         * Will be triggered when the element is attached to the DOM
-         */
-        public onAttached = new ObservableValue<void>()
+        public connectedCallback() {
+          o.onAttach && o.onAttach(this.getRenderOptions())
+        }
 
-        /**
-         * Will be triggered when the element is detached from the DOM
-         */
-        public onDetached = new ObservableValue<void>()
+        public disconnectedCallback() {
+          o.onDetach && o.onDetach(this.getRenderOptions())
+          logger.verbose({ message: 'Detaching...', data: this })
+          this.props.dispose()
+          this.state.dispose()
+          this.shadeChildren.dispose()
+          this.cleanup && this.cleanup()
+        }
 
         /**
          * Will be triggered when updating the external props object
@@ -136,18 +139,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         constructor(_props: TProps) {
           super()
           this.props = new ObservableValue()
-          o.onAttach && this.onAttached.subscribe(() => o.onAttach && o.onAttach(this.getRenderOptions()))
-          o.onDetach && this.onDetached.subscribe(() => o.onDetach && o.onDetach(this.getRenderOptions()))
-
-          this.onDetached.subscribe(() => {
-            logger.verbose({ message: 'Detaching...', data: this })
-            this.props.dispose()
-            this.state.dispose()
-            this.shadeChildren.dispose()
-            this.onAttached.dispose()
-            this.onDetached.dispose()
-            this.cleanup && this.cleanup()
-          })
         }
       },
     )
