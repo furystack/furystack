@@ -3,6 +3,8 @@ import { v4 } from 'uuid'
 import { shadeInjector } from './shade-component'
 import { ChildrenList, RenderOptions } from './models'
 
+const shadowRoots = new WeakMap()
+
 export interface ShadeOptions<TProps, TState> {
   /**
    * The initial state of the component
@@ -90,13 +92,14 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
+          const shadowRoot = shadowRoots.get(this)
           return {
             props,
             getState,
             injector: shadeInjector,
             updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
             children: this.shadeChildren.getValue(),
-            element: this,
+            element: shadowRoot,
             logger,
           } as RenderOptions<TProps, TState>
         }
@@ -106,10 +109,11 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
          */
         public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
-          if (this.hasChildNodes()) {
-            this.replaceChild(newJsx, this.firstChild as Node)
+          const shadowRoot = shadowRoots.get(this)
+          if (shadowRoot.hasChildNodes()) {
+            shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
           } else {
-            this.append(newJsx)
+            shadowRoot.append(newJsx)
           }
           return newJsx
         }
@@ -138,6 +142,8 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
 
         constructor(_props: TProps) {
           super()
+          const shadowRoot = this.attachShadow({ mode: 'closed' })
+          shadowRoots.set(this, shadowRoot)
           this.props = new ObservableValue()
         }
       },

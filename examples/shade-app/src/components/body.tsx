@@ -14,6 +14,7 @@ export const Body = Shade({
           height: '100%',
           overflow: 'hidden',
         }}>
+        <style>{`div { border: 1px solid black; }`}</style>
         <Router
           routeMatcher={(current, component) => current.pathname === component}
           routes={[
