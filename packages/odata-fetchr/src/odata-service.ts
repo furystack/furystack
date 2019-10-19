@@ -176,7 +176,7 @@ export class OdataService<T> {
     })
     const body: TResponse = await response.json()
     if (response.status < 200 || response.status >= 300) {
-      throw new ODataError(response)
+      throw new ODataError(response, body)
     }
     return body
   }
