@@ -2,8 +2,9 @@ import { ObservableValue } from '@sensenet/client-utils'
 import { v4 } from 'uuid'
 import { shadeInjector } from './shade-component'
 import { ChildrenList, RenderOptions } from './models'
+import { getPath, getElementFromPath } from './dom-path'
 
-const shadowRoots = new WeakMap()
+const shadowRoots = new WeakMap<any, ShadowRoot>()
 
 export interface ShadeOptions<TProps, TState> {
   /**
@@ -92,7 +93,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
-          const shadowRoot = shadowRoots.get(this)
+          const shadowRoot = shadowRoots.get(this) as ShadowRoot
           return {
             props,
             getState,
@@ -102,7 +103,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
               !skipRender && this.updateComponent()
             },
             children: this.shadeChildren.getValue(),
-            element: shadowRoot,
+            element: shadowRoot as any,
             logger,
           } as RenderOptions<TProps, TState>
         }
@@ -111,14 +112,26 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
          * Updates the component in the DOM.
          */
         public updateComponent() {
-          const newJsx = this.render(this.getRenderOptions())
-          const shadowRoot = shadowRoots.get(this)
-          if (shadowRoot.hasChildNodes()) {
-            shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
-          } else {
-            shadowRoot.append(newJsx)
-          }
-          return newJsx
+          requestAnimationFrame(() => {
+            const newJsx = this.render(this.getRenderOptions())
+            const shadowRoot = shadowRoots.get(this) as ShadowRoot
+            let path: number[] = []
+
+            if (shadowRoot.activeElement) {
+              path = [...getPath(shadowRoot, shadowRoot.activeElement)]
+            }
+
+            if (shadowRoot.hasChildNodes()) {
+              shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
+
+              if (path.length) {
+                const newFocusedElement = getElementFromPath(shadowRoot.firstChild as HTMLElement, path)
+                newFocusedElement && newFocusedElement.focus()
+              }
+            } else {
+              shadowRoot.append(newJsx)
+            }
+          })
         }
 
         /**
