@@ -97,7 +97,10 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             props,
             getState,
             injector: shadeInjector,
-            updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
+            updateState: (newState, skipRender) => {
+              this.state.setValue({ ...this.state.getValue(), ...newState })
+              !skipRender && this.updateComponent()
+            },
             children: this.shadeChildren.getValue(),
             element: shadowRoot,
             logger,
@@ -128,9 +131,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           } else {
             this.cleanup = this.cleanup
           }
-          this.state.subscribe(() => this.updateComponent())
-          this.shadeChildren.subscribe(() => this.updateComponent())
-          this.props.subscribe(() => this.updateComponent())
           logger.verbose({
             message: `Creating...`,
             data: this,
