@@ -1,4 +1,4 @@
-export const getPath = (root: Element | ShadowRoot, child: Element) => {
+export const getPath = (root: Element | ShadowRoot | Node, child: Element) => {
   if (!root.contains(child)) {
     throw Error('Child not found in root!')
   }
@@ -9,15 +9,15 @@ export const getPath = (root: Element | ShadowRoot, child: Element) => {
     if (!currentItem.parentElement) {
       break
     }
-    const currentIndex = [...currentItem.parentElement.children].indexOf(currentItem)
+    const currentIndex = [...currentItem.parentElement.childNodes].indexOf(currentItem)
     currentItem = currentItem.parentElement
     path = [currentIndex, ...path]
   }
   return path
 }
 
-export const getElementFromPath = (root: Element, path: number[]) => {
+export const getElementFromPath = (root: ChildNode, path: number[]) => {
   return path.reduce((child, segment) => {
-    return child.children[segment]
-  }, root) as HTMLElement
+    return child.childNodes[segment]
+  }, root)
 }
