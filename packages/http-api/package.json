@@ -1,6 +1,6 @@
 {
   "name": "@furystack/http-api",
-  "version": "5.3.1",
+  "version": "5.3.2",
   "description": "HTTP Api FuryStack package",
   "main": "dist/index.js",
   "files": [
