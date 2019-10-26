@@ -6,7 +6,7 @@ import { ChildrenList } from './children-list'
 export interface RenderOptions<TProps, TState> {
   props: TProps
   getState: () => TState
-  updateState: (newState: PartialElement<TState>) => void
+  updateState: (newState: PartialElement<TState>, skipRender?: boolean) => void
   injector: Injector
   children: ChildrenList
   element: JSX.Element<TProps, TState>

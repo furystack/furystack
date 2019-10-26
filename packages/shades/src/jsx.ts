@@ -7,7 +7,7 @@ declare global {
     interface Element<TProps = any, TState = any> extends HTMLElement {
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
-      updateComponent: () => JSX.Element
+      updateComponent: () => void
       shadeChildren: ObservableValue<ChildrenList>
       callConstruct: () => void
     }

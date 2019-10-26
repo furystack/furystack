@@ -1,9 +1,10 @@
 import { ObservableValue } from '@sensenet/client-utils'
 import { v4 } from 'uuid'
 import { shadeInjector } from './shade-component'
-import { ChildrenList, RenderOptions } from './models'
+import { ChildrenList, RenderOptions, SelectionState } from './models'
+import { getPath, getElementFromPath } from './dom-path'
 
-const shadowRoots = new WeakMap()
+const shadowRoots = new WeakMap<any, ShadowRoot>()
 
 export interface ShadeOptions<TProps, TState> {
   /**
@@ -92,30 +93,77 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
-          const shadowRoot = shadowRoots.get(this)
+          const shadowRoot = shadowRoots.get(this) as ShadowRoot
           return {
             props,
             getState,
             injector: shadeInjector,
-            updateState: newState => this.state.setValue({ ...this.state.getValue(), ...newState }),
+            updateState: (newState, skipRender) => {
+              this.state.setValue({ ...this.state.getValue(), ...newState })
+              !skipRender && this.updateComponent()
+            },
             children: this.shadeChildren.getValue(),
-            element: shadowRoot,
+            element: shadowRoot as any,
             logger,
           } as RenderOptions<TProps, TState>
+        }
+
+        private getSelectionState(shadowRoot: ShadowRoot): SelectionState {
+          const selection = shadowRoot.getSelection()
+          const oldRange = selection && selection.rangeCount && selection.getRangeAt(0)
+
+          return {
+            focusedPath: shadowRoot.activeElement ? getPath(shadowRoot, shadowRoot.activeElement) : undefined,
+            selectionRange: oldRange
+              ? {
+                  startOffset: oldRange.startOffset,
+                  startContainerPath: getPath(shadowRoot, oldRange.startContainer as Element),
+                  endOffset: oldRange.endOffset,
+                  endContainerPath: getPath(shadowRoot, oldRange.endContainer as Element),
+                }
+              : undefined,
+          }
+        }
+
+        private restoreSelectionState({ focusedPath, selectionRange }: SelectionState, root: ShadowRoot) {
+          const firstChild = root.firstChild as HTMLElement
+          if (selectionRange) {
+            console.log('Selection in range', selectionRange)
+            const selection = root.getSelection()
+            if (selection) {
+              selection.removeAllRanges()
+              const newRange = new Range()
+              newRange.setStart(
+                getElementFromPath(firstChild, selectionRange.startContainerPath),
+                selectionRange.startOffset,
+              )
+              newRange.setEnd(getElementFromPath(firstChild, selectionRange.endContainerPath), selectionRange.endOffset)
+              selection.addRange(newRange)
+            }
+          }
+          if (focusedPath) {
+            const newFocusedElement = getElementFromPath(firstChild, focusedPath)
+            newFocusedElement && (newFocusedElement as any).focus && (newFocusedElement as any).focus()
+          }
         }
 
         /**
          * Updates the component in the DOM.
          */
         public updateComponent() {
-          const newJsx = this.render(this.getRenderOptions())
-          const shadowRoot = shadowRoots.get(this)
-          if (shadowRoot.hasChildNodes()) {
-            shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
-          } else {
-            shadowRoot.append(newJsx)
-          }
-          return newJsx
+          requestAnimationFrame(() => {
+            const newJsx = this.render(this.getRenderOptions())
+            const shadowRoot = shadowRoots.get(this) as ShadowRoot
+
+            const selectionState = this.getSelectionState(shadowRoot)
+
+            if (shadowRoot.hasChildNodes()) {
+              shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
+              selectionState && this.restoreSelectionState(selectionState, shadowRoot)
+            } else {
+              shadowRoot.append(newJsx)
+            }
+          })
         }
 
         /**
@@ -128,9 +176,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           } else {
             this.cleanup = this.cleanup
           }
-          this.state.subscribe(() => this.updateComponent())
-          this.shadeChildren.subscribe(() => this.updateComponent())
-          this.props.subscribe(() => this.updateComponent())
           logger.verbose({
             message: `Creating...`,
             data: this,
