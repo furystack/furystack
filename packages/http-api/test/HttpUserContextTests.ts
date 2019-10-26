@@ -2,10 +2,15 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { using, usingAsync } from '@sensenet/client-utils'
 import { Injector } from '@furystack/inject'
-import { User, StoreManager } from '@furystack/core'
-import { HttpUserContext } from '../src'
+import { User, StoreManager, InMemoryStore } from '@furystack/core'
+import { HttpUserContext, DefaultSession } from '../src'
 
 export const prepareInjector = (i: Injector) => {
+  i.setupStores(sm =>
+    sm
+      .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+  )
   i.setExplicitInstance({ headers: {} }, IncomingMessage)
   i.setExplicitInstance({}, ServerResponse)
   i.useHttpApi().useHttpAuthentication()

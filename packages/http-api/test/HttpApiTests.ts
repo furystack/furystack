@@ -1,20 +1,31 @@
 import { Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
-import { HttpUserContext, RequestAction, EmptyResult, HttpApi } from '../src'
+import { User, InMemoryStore } from '@furystack/core'
+import { HttpUserContext, RequestAction, EmptyResult, HttpApi, DefaultSession } from '../src'
 
 // tslint:disable:max-classes-per-file
 
 describe('HttpApi tests', () => {
+  const getInjector = () => {
+    const i = new Injector()
+    i.setupStores(sm =>
+      sm
+        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+        .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+    )
+    return i
+  }
+
   it('Can be constructed', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(getInjector(), async i => {
       i.useHttpApi()
       expect(i.getInstance(HttpApi)).toBeInstanceOf(HttpApi)
     })
   })
 
   it('NotFound Action is executed when no other action is awailable', done => {
-    usingAsync(new Injector(), async i => {
+    usingAsync(getInjector(), async i => {
       const ExampleNotFoundAction: RequestAction = async () => {
         done()
         return EmptyResult()
@@ -28,7 +39,7 @@ describe('HttpApi tests', () => {
   })
 
   it('Action can be executed', done => {
-    usingAsync(new Injector(), async i => {
+    usingAsync(getInjector(), async i => {
       const ExampleAction: RequestAction = async injector => {
         try {
           const userContext = injector.getInstance(HttpUserContext)
@@ -50,7 +61,7 @@ describe('HttpApi tests', () => {
   })
 
   it('Should throw error if multiple actions are resolved for a request', done => {
-    usingAsync(new Injector(), async i => {
+    usingAsync(getInjector(), async i => {
       const ExampleAction: RequestAction = async injector => {
         done()
         return EmptyResult()
@@ -68,7 +79,7 @@ describe('HttpApi tests', () => {
   })
 
   it('Error Action is executed on other action errors executed', done => {
-    usingAsync(new Injector(), async i => {
+    usingAsync(getInjector(), async i => {
       const ExampleFailAction: RequestAction = async () => {
         throw Error(':(')
       }
