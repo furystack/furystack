@@ -110,7 +110,7 @@ export class Configuration {
       case 'Edm.DateTimeOffset':
         return 'Date'
       default: {
-        return `any // original EDM type was: ${edmType}`
+        return `any /*original was '${edmType}' */`
       }
     }
   }

@@ -2,13 +2,20 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { Configuration, EntitySet, OdataEndpoint } from './models'
+import { Configuration, EntitySet, OdataEndpoint, OdataParameter } from './models'
 
 /**
  * Service class for persisting entity types
  */
 @Injectable({ lifetime: 'transient' })
 export class EntityCollectionWriter {
+  private getParameterObject(params?: OdataParameter[]) {
+    const filtered = params && params.filter(p => !p.name.toLowerCase().startsWith('bindingparameter'))
+    return filtered && filtered.length
+      ? `params: {${filtered.map(p => `${p.name}: ${this.config.resolveEdmType(p.type)}`).join(', ')}}`
+      : ''
+  }
+
   private getEntityActions(collection: EntitySet, endpoint: OdataEndpoint, primaryKeyType: string) {
     const actions = endpoint.actions
       .filter(
@@ -17,9 +24,13 @@ export class EntityCollectionWriter {
           action.parameters.find(param => param.name === 'bindingParameter' && param.type === collection.entityType),
       )
       .map(a => {
+        const paramsWithType = this.getParameterObject(a.parameters)
         return this.config.customActionTemplate
           .replace(/\$\{customActionName\}/g, a.name)
           .replace(/\$\{entityIdType\}/g, primaryKeyType)
+          .replace(/\$\{paramsWithType\}/g, paramsWithType)
+          .replace(/\$\{params\}/g, paramsWithType ? ', params' : '')
+          .replace(/\$\{returnType\}/g, a.returnType ? `<${this.config.getModelName(a.returnType)}>` : '')
       })
       .join('\r\n')
     return `${actions}`
@@ -35,7 +46,8 @@ export class EntityCollectionWriter {
       .map(a =>
         this.config.customFunctionTempalte
           .replace(/\$\{customActionName\}/g, a.name)
-          .replace(/\$\{entityIdType\}/g, primaryKeyType),
+          .replace(/\$\{entityIdType\}/g, primaryKeyType)
+          .replace(/\$\{returnType\}/g, a.returnType ? `<${this.config.getModelName(a.returnType)}>` : ''),
       )
       .join('\r\n')
     return `${actions}`
@@ -50,11 +62,15 @@ export class EntityCollectionWriter {
             param => param.name === 'bindingParameter' && param.type === `Collection(${collection.entityType})`,
           ),
       )
-      .map(a =>
-        this.config.customCollectionActionsTemplate
+      .map(a => {
+        const paramsWithType = this.getParameterObject(a.parameters)
+        return this.config.customCollectionActionsTemplate
           .replace(/\$\{customActionName\}/g, a.name)
-          .replace(/\$\{entityIdType\}/g, primaryKeyType),
-      )
+          .replace(/\$\{entityIdType\}/g, primaryKeyType)
+          .replace(/\$\{paramsWithType\}/g, paramsWithType)
+          .replace(/\$\{params\}/g, paramsWithType ? ', params' : '')
+          .replace(/\$\{returnType\}/g, a.returnType ? `<${this.config.getModelName(a.returnType)}>` : '')
+      })
       .join('\r\n')
     return `${actions}`
   }
@@ -71,7 +87,8 @@ export class EntityCollectionWriter {
       .map(a =>
         this.config.customCollectionFunctionTemplate
           .replace(/\$\{customActionName\}/g, a.name)
-          .replace(/\$\{entityIdType\}/g, primaryKeyType),
+          .replace(/\$\{entityIdType\}/g, primaryKeyType)
+          .replace(/\$\{returnType\}/g, a.returnType ? `<${this.config.getModelName(a.returnType)}>` : ''),
       )
       .join('\r\n')
     return `${actions}`

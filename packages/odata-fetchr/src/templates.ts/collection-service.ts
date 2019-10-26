@@ -9,7 +9,7 @@ import { \${entitySetModelName} } from "../entity-types/\${entitySetModelFile}";
  * Service class for collection \${entitySetName}
  * File created by @furystack/odata-fetchr
  */
-@Injectable({ lifetime: "transient" })
+@Injectable({ lifetime: "singleton" })
 export class \${collectionServiceClassName} {
 \${customActions}
 \${customFunctions}

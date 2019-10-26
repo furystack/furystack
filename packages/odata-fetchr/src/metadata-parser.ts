@@ -13,7 +13,7 @@ export class MetadataParser {
       const value: OdataAction = {
         name: a.getAttribute('Name') || 'UnknownAction',
         function: a.getAttribute('Function') || 'UnknownAction',
-        isBound: Boolean(a.getAttribute('IsBound') || true),
+        isBound: a.getAttribute('IsBound') === 'true',
         parameters: Array.from(a.querySelectorAll('Parameter')).map(param => ({
           type: param.getAttribute('Type') || 'UnknownType',
           name: param.getAttribute('Name') || 'UnknownName',
@@ -30,7 +30,7 @@ export class MetadataParser {
       const value: OdataFunction = {
         name: a.getAttribute('Name') || 'UnknownName',
         function: a.getAttribute('Function') || 'UnknownFunction',
-        isBound: Boolean(a.getAttribute('IsBound')),
+        isBound: a.getAttribute('IsBound') === 'true',
         parameters: Array.from(a.querySelectorAll('Parameter')).map(param => ({
           type: param.getAttribute('Type') || 'UnknownType',
           name: param.getAttribute('Name') || 'UnknownName',
@@ -49,7 +49,7 @@ export class MetadataParser {
         key: (key && key.getAttribute('Name')) || 'UnknownKey',
         properties: Array.from(e.querySelectorAll('Property')).map(prop => ({
           name: prop.getAttribute('Name') || 'UnknownName',
-          nullable: Boolean(prop.getAttribute('Nullable')),
+          nullable: prop.getAttribute('Nullable') === 'true',
           type: prop.getAttribute('Type') || 'UnknownType',
         })),
         navigationProperties: Array.from(e.querySelectorAll('NavigationProperty')).map(prop => ({
