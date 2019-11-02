@@ -9,7 +9,7 @@ import { getPath, getElementFromPath } from './dom-path'
 const shadowRoots = new WeakMap<any, ShadowRoot>()
 
 export const hasInjectorOnProps = (props: any): props is { injector: Injector } => {
-  const i = props.injector
+  const i = props && props.injector
   return i && typeof i === 'object' && i instanceof Injector
 }
 
