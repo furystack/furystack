@@ -1,17 +1,11 @@
 import { ObservableValue } from '@sensenet/client-utils'
 import { v4 } from 'uuid'
 import '@furystack/logging'
-import { Injector } from '@furystack/inject'
 import { shadeInjector } from './shade-component'
 import { ChildrenList, RenderOptions, SelectionState } from './models'
 import { getPath, getElementFromPath } from './dom-path'
 
 const shadowRoots = new WeakMap<any, ShadowRoot>()
-
-export const hasInjectorOnProps = (props: any): props is { injector: Injector } => {
-  const i = props && props.injector
-  return i && typeof i === 'object' && i instanceof Injector
-}
 
 export interface ShadeOptions<TProps, TState> {
   /**
@@ -61,7 +55,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
-        public injector: Injector
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
         }
@@ -105,7 +98,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           return {
             props,
             getState,
-            injector: shadeInjector,
             updateState: (newState, skipRender) => {
               this.state.setValue({ ...this.state.getValue(), ...newState })
               !skipRender && this.updateComponent()
@@ -199,11 +191,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           const shadowRoot = this.attachShadow({ mode: 'closed' })
           shadowRoots.set(this, shadowRoot)
           this.props = new ObservableValue()
-          if (hasInjectorOnProps(_props)) {
-            this.injector = _props.injector
-          } else {
-            this.injector = shadeInjector
-          }
         }
       },
     )
