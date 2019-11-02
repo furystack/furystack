@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { PathHelper } from '@sensenet/client-utils'
-import { getOdataParams } from './getOdataParams'
+import { getOdataParams } from './get-odata-params'
 import { Entity, NavigationProperty } from './models'
 import { OdataContext } from './odata-context'
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { getOdataParams } from './getOdataParams'
+import { getOdataParams } from './get-odata-params'
 import { Collection, Entity, NavigationProperty, NavigationPropertyCollection } from './models'
 
 /**
