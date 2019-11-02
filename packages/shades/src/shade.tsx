@@ -98,6 +98,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           return {
             props,
             getState,
+            injector: shadeInjector,
             updateState: (newState, skipRender) => {
               this.state.setValue({ ...this.state.getValue(), ...newState })
               !skipRender && this.updateComponent()
