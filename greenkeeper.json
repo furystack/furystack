@@ -1,0 +1,24 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "examples/repository/package.json",
+        "examples/shade-app/package.json",
+        "package.json",
+        "packages/auth-google/package.json",
+        "packages/core/package.json",
+        "packages/http-api/package.json",
+        "packages/inject/package.json",
+        "packages/logging/package.json",
+        "packages/mongodb-store/package.json",
+        "packages/odata-fetchr/package.json",
+        "packages/odata/package.json",
+        "packages/redis-store/package.json",
+        "packages/repository/package.json",
+        "packages/shades/package.json",
+        "packages/typeorm-store/package.json",
+        "packages/websocket-api/package.json"
+      ]
+    }
+  }
+}
