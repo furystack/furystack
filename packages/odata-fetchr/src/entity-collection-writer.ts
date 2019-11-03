@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
+import { terminal } from 'terminal-kit'
 import { Configuration, EntitySet, OdataEndpoint, OdataParameter } from './models'
 
 /**
@@ -95,6 +96,13 @@ export class EntityCollectionWriter {
   }
 
   public writeEntityCollections(endpoint: OdataEndpoint) {
+    const progressBar = terminal.progressBar({
+      title: 'Writing Collections...',
+      percent: true,
+      eta: true,
+      items: endpoint.entitySets.length,
+    })
+
     for (const collection of endpoint.entitySets) {
       this.logger.verbose({ message: `Writing EntitySet '${collection.name}'...` })
       const entityType = endpoint.entityTypes.find(entity => entity.name === collection.entityType)
@@ -121,6 +129,7 @@ export class EntityCollectionWriter {
         ),
         output,
       )
+      progressBar.itemDone(collection.name)
     }
 
     this.logger.verbose({ message: 'Writing barrel file...' })
