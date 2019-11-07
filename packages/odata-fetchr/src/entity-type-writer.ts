@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
+import { terminal } from 'terminal-kit'
 import { Configuration, EntityType } from './models'
 
 /**
@@ -29,6 +30,13 @@ export class EntityTypeWriter {
 
   public writeEntityTypes(types: EntityType[]) {
     const typeNames = types.map(t => t.name)
+    const progressBar = terminal.progressBar({
+      title: 'Writing Entity types...',
+      percent: true,
+      eta: true,
+      items: typeNames.length,
+    })
+
     for (const entityType of types) {
       this.logVerbose(`Writing Entity Type '${entityType.name}'...`)
       let properties = ''
@@ -67,6 +75,8 @@ export class EntityTypeWriter {
         ),
         output,
       )
+
+      progressBar.itemDone(entityType.name)
     }
 
     this.logVerbose('Writing barrel file...')
