@@ -1,6 +1,6 @@
 {
   "name": "@furystack/odata-fetchr",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "OData v4 Endpoint fetcher",
   "main": "dist/index.js",
   "files": [
@@ -52,8 +52,8 @@
     "@furystack/inject": "^4.0.2",
     "@furystack/logging": "^2.0.6",
     "@sensenet/client-utils": "^1.5.1",
-    "terminal-kit": "^1.31.4",
-    "jsdom": "^15.1.1"
+    "jsdom": "^15.1.1",
+    "terminal-kit": "^1.31.4"
   },
   "devDependencies": {
     "@types/jsdom": "^12.2.3",

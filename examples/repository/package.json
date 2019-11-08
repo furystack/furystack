@@ -1,6 +1,6 @@
 {
   "name": "@furystack/example-repository",
-  "version": "0.2.35",
+  "version": "0.2.36",
   "description": "Content management layer for FuryStack",
   "main": "dist/index.js",
   "private": true,
