@@ -12,7 +12,7 @@ export const TodoApp = Shade({
     },
   },
   shadowDomName: 'shade-app-todo-app',
-  construct: ({ injector, getState, element }) => {
+  constructed: ({ injector, getState, element }) => {
     const observers = [
       injector.getInstance(TodoService).todos.subscribe(() => {
         const allDone = getState().getAllDone(injector)

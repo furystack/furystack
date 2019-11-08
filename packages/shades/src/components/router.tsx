@@ -18,7 +18,7 @@ export const Router = Shade<RouterProps, RouterState>({
   initialState: {
     url: new URL(location.href),
   },
-  construct: options => {
+  constructed: options => {
     const subscription = options.injector
       .getInstance(LocationService)
       .onLocationChanged.subscribe(u => options.updateState({ url: u }), true)

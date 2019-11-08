@@ -4,7 +4,7 @@ import { Counter } from './counter'
 export const CounterContainer = Shade({
   shadowDomName: 'shade-app-counter-container',
   initialState: { arr: [] as number[] },
-  construct: ({ updateState }) => {
+  constructed: ({ updateState }) => {
     const arr = []
     for (let i = 0; i < 1000; i++) {
       arr[i] = Math.round(Math.random() * 100)

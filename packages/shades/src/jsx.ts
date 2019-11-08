@@ -9,7 +9,7 @@ declare global {
       props: ObservableValue<TProps>
       updateComponent: () => void
       shadeChildren: ObservableValue<ChildrenList>
-      callConstruct: () => void
+      callConstructed: () => void
     }
 
     interface IntrinsicElements {

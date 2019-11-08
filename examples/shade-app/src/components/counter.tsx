@@ -17,7 +17,7 @@ export const Counter = Shade<CounterProps, CounterState>({
   onDetach: () => {
     console.log('Counter Detached')
   },
-  construct: ({ props, updateState }) => {
+  constructed: ({ props, updateState }) => {
     updateState({ value: props.defaultValue })
   },
   render: ({ props, getState, updateState }) => {

@@ -12,7 +12,7 @@ export const TodoList = Shade<{}, TodoState>({
   initialState: {
     todoItems: [],
   },
-  construct: ({ injector, updateState }) => {
+  constructed: ({ injector, updateState }) => {
     const observers = [
       injector.getInstance(TodoService).todos.subscribe(todoItems => {
         updateState({ todoItems })

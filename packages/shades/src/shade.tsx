@@ -24,7 +24,7 @@ export interface ShadeOptions<TProps, TState> {
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
    */
-  construct?: (
+  constructed?: (
     options: RenderOptions<TProps, TState>,
   ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
 
@@ -151,38 +151,42 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         /**
          * Updates the component in the DOM.
          */
-        public updateComponent() {
-          requestAnimationFrame(() => {
-            const newJsx = this.render(this.getRenderOptions())
-            const shadowRoot = shadowRoots.get(this) as ShadowRoot
+        public async updateComponent() {
+          return new Promise(resolve => {
+            requestAnimationFrame(() => {
+              const newJsx = this.render(this.getRenderOptions())
+              const shadowRoot = shadowRoots.get(this) as ShadowRoot
 
-            const selectionState = this.getSelectionState(shadowRoot)
+              const selectionState = this.getSelectionState(shadowRoot)
 
-            if (shadowRoot.hasChildNodes()) {
-              shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
-              selectionState && this.restoreSelectionState(selectionState, shadowRoot)
-            } else {
-              shadowRoot.append(newJsx)
-            }
+              if (shadowRoot.hasChildNodes()) {
+                shadowRoot.replaceChild(newJsx, shadowRoot.firstChild as Node)
+                selectionState && this.restoreSelectionState(selectionState, shadowRoot)
+              } else {
+                shadowRoot.append(newJsx)
+              }
+              resolve()
+            })
           })
         }
 
         /**
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
-        public callConstruct() {
-          const cleanupResult = o.construct && o.construct(this.getRenderOptions())
-          if (cleanupResult instanceof Promise) {
-            cleanupResult.then(cleanup => (this.cleanup = cleanup))
-          } else {
-            // construct is not async
-            // this.cleanup = this.cleanup
-          }
-          logger.verbose({
-            message: `Creating...`,
-            data: this,
+        public callConstructed() {
+          this.updateComponent().then(() => {
+            const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
+            if (cleanupResult instanceof Promise) {
+              cleanupResult.then(cleanup => (this.cleanup = cleanup))
+            } else {
+              // construct is not async
+              // this.cleanup = this.cleanup
+            }
+            logger.verbose({
+              message: `Calling Construct...`,
+              data: this,
+            })
           })
-          this.updateComponent()
         }
 
         private cleanup: void | (() => void) = undefined
@@ -203,7 +207,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
     }) as JSX.Element<TProps, TState>
     el.props.setValue(props)
     el.shadeChildren.setValue(children)
-    el.callConstruct()
+    el.callConstructed()
     return el as JSX.Element
   }
 }
