@@ -1,8 +1,6 @@
 import '@furystack/logging'
-import { usingAsync, using } from '@sensenet/client-utils'
-import { Injector } from '@furystack/inject'
+import { usingAsync } from '@sensenet/client-utils'
 import { InMemoryStore } from '../src/InMemoryStore'
-import { StoreManager } from '../src'
 
 class MockClass {
   public id!: number
