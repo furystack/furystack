@@ -34,7 +34,7 @@
     "lint": "eslint . --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
-    "test": "ts-jest --verbose",
+    "test": "jest --verbose",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
     "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
   },
