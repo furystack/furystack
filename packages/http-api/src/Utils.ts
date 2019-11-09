@@ -11,7 +11,7 @@ export class Utils {
    * Reads the post's body and returns a promise with a parsed value
    * @param incomingMessage The incoming message instance
    */
-  public async readPostBody<T>(incomingMessage: IncomingMessage = this.incomingMessage): Promise<T> {
+  public async readPostBody<T>(incomingMessage: IncomingMessage): Promise<T> {
     let body = ''
     await new Promise((resolve, reject) => {
       incomingMessage.on('readable', () => {
@@ -36,11 +36,7 @@ export class Utils {
    * @param incomingMessage The incoming message instance
    * @param serverResponse The outgoing response instance
    */
-  public addCorsHeaders(
-    options: CorsOptions,
-    incomingMessage: IncomingMessage = this.incomingMessage,
-    serverResponse: ServerResponse = this.serverResponse,
-  ) {
+  public addCorsHeaders(options: CorsOptions, incomingMessage: IncomingMessage, serverResponse: ServerResponse) {
     if (
       incomingMessage.headers &&
       incomingMessage.headers.origin !== incomingMessage.headers.host &&
@@ -56,6 +52,4 @@ export class Utils {
       }
     }
   }
-
-  constructor(private incomingMessage: IncomingMessage, private serverResponse: ServerResponse) {}
 }

@@ -1,5 +1,5 @@
 import { HttpUserContext, RequestAction, JsonResult } from '@furystack/http-api'
-import { GoogleLoginService } from './GoogleLoginService'
+import { GoogleLoginService } from './login-service'
 /**
  * HTTP Request action for Google Logins
  */

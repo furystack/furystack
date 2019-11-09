@@ -17,6 +17,8 @@
     "noUnusedLocals": true,
     "declarationMap": true,
     "importHelpers": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "jsx": "react",
+    "jsxFactory": "createComponent"
   }
 }
