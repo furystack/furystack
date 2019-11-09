@@ -22,7 +22,7 @@ export class DataSet<T> {
       if (this.settings.authorizeAdd) {
         const result = await this.settings.authorizeAdd({ injector, entity })
         if (!result.isAllowed) {
-          throw Error(result.message ? result.message : `Cannot add entity.`)
+          throw Error(result.message)
         }
       }
     }
@@ -44,7 +44,7 @@ export class DataSet<T> {
       if (this.settings.authorizeUpdate) {
         const result = await this.settings.authorizeUpdate({ injector, change })
         if (!result.isAllowed) {
-          throw Error(result.message ? result.message : `Cannot update entity`)
+          throw Error(result.message)
         }
       }
       if (this.settings.authorizeUpdateEntity) {
@@ -52,7 +52,7 @@ export class DataSet<T> {
         if (entity) {
           const result = await this.settings.authorizeUpdateEntity({ injector, change, entity })
           if (!result.isAllowed) {
-            throw Error(result.message ? result.message : `Cannot update entity`)
+            throw Error(result.message)
           }
         }
       }
@@ -69,7 +69,7 @@ export class DataSet<T> {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message ? result.message : 'Cannot retrieve count')
+        throw Error(result.message)
       }
     }
     return await this.settings.physicalStore.count()
@@ -84,7 +84,7 @@ export class DataSet<T> {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message ? result.message : 'Cannot retrieve entity collection')
+        throw Error(result.message)
       }
     }
     const parsedFilter =
@@ -101,14 +101,14 @@ export class DataSet<T> {
     if (this.settings && this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message ? result.message : 'Cannot retrieve entity instance')
+        throw Error(result.message)
       }
     }
     const instance = await this.settings.physicalStore.get(key)
     if (instance && this.settings && this.settings.authorizeGetEntity) {
       const result = await this.settings.authorizeGetEntity({ injector, entity: instance })
       if (!result.isAllowed) {
-        throw Error(result.message ? result.message : 'Cannot retrieve entity instance')
+        throw Error(result.message)
       }
     }
     return instance
@@ -123,14 +123,14 @@ export class DataSet<T> {
     if (this.settings && this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message ? result.message : 'Cannot remove entity instance')
+        throw Error(result.message)
       }
       if (this.settings.authroizeRemoveEntity) {
         const entity = await this.settings.physicalStore.get(key)
         if (entity) {
           const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
           if (!removeResult.isAllowed) {
-            throw Error(removeResult.message ? removeResult.message : 'Cannot remove entity instance')
+            throw Error(removeResult.message)
           } else {
             await this.settings.physicalStore.remove(key)
           }

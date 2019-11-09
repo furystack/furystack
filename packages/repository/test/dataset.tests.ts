@@ -1,0 +1,117 @@
+import { Injector } from '@furystack/inject'
+import { using, usingAsync } from '@sensenet/client-utils'
+import { InMemoryStore } from '@furystack/core'
+import '@furystack/logging'
+import { Repository } from '../src/Repository'
+import { AuthorizationResult } from '../src/DataSetSettings'
+import { DataSet } from '../src/DataSet'
+import '../src/InjectorExtension'
+
+class TestClass {
+  public id = 1
+  public value = ''
+}
+
+describe('DataSet', () => {
+  describe('Construction', () => {
+    it('can be retrieved from an extension method with class', () => {
+      using(new Injector(), i => {
+        i.useLogging()
+          .setupStores(stores =>
+            stores.addStore(
+              new InMemoryStore({
+                model: TestClass,
+                primaryKey: 'id',
+              }),
+            ),
+          )
+          .setupRepository(r => r.createDataSet(TestClass))
+        const dataSet: DataSet<TestClass> = i.getDataSetFor(TestClass)
+        expect(dataSet.settings.physicalStore.model).toBe(TestClass)
+      })
+    })
+
+    it('can be retrieved from an extension method with string', () => {
+      using(new Injector(), i => {
+        i.useLogging()
+          .setupStores(stores =>
+            stores.addStore(
+              new InMemoryStore({
+                model: TestClass,
+                primaryKey: 'id',
+              }),
+            ),
+          )
+          .setupRepository(r => r.createDataSet(TestClass))
+        const dataSet = i.getDataSetFor('TestClass')
+        expect(dataSet.settings.physicalStore.model).toBe(TestClass)
+      })
+    })
+
+    it('Should throw if dataset is not registered through extension', () => {
+      using(new Injector(), i => {
+        i.useLogging()
+        expect(() => i.getDataSetFor<TestClass>('TestClass')).toThrowError('')
+      })
+    })
+
+    it('Should throw if dataset is not registered through service', () => {
+      using(new Injector(), i => {
+        i.useLogging()
+        expect(() => i.getInstance(Repository).getDataSetFor<TestClass>('TestClass')).toThrowError('')
+      })
+    })
+  })
+
+  describe('Authorizers', () => {
+    describe('Add', () => {
+      it('should add an entity if no settings are provided', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          const result = await dataSet.get(i, 1)
+          expect(result && result.value).toBe('asd')
+        })
+      })
+
+      it('should call the add async authorizer and add the entity on pass', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const authorizeAdd = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeAdd }))
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          expect(authorizeAdd).toBeCalled()
+          const added = await dataSet.get(i, 1)
+          expect(added && added.value).toBe('asd')
+        })
+      })
+
+      it('add should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const authorizeAdd = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeAdd }))
+
+          const dataSet = await i.getDataSetFor(TestClass)
+
+          try {
+            await dataSet.add(i, { id: 1, value: 'asd' })
+            throw Error('Should throw')
+          } catch (error) {
+            /** */
+            expect(authorizeAdd).toBeCalled()
+            const added = await dataSet.get(i, 1)
+            expect(added).toBeUndefined()
+          }
+        })
+      })
+    })
+  })
+})
