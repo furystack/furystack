@@ -40,7 +40,8 @@
     "@furystack/odata": "^2.1.4",
     "@furystack/redis-store": "^2.0.4",
     "@furystack/typeorm-store": "^3.0.5",
-    "@furystack/websocket-api": "^4.0.8"
+    "@furystack/websocket-api": "^4.0.8",
+    "sqlite3": "^4.1.0"
   },
   "devDependencies": {
     "@types/uuid": "^3.4.4",
