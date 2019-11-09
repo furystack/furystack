@@ -1,7 +1,7 @@
-import '../src'
 import { Injector } from '@furystack/inject'
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Repository } from 'typeorm'
 import { StoreManager, PhysicalStore } from '@furystack/core'
+import { TypeOrmStore } from '../src'
 import '@furystack/logging'
 
 @Entity()
@@ -83,5 +83,28 @@ describe('TypeORM Store', () => {
     const entities = await store.search({ skip: 1 })
     expect(entities.length).toBe(1)
     expect(entities).toEqual([existing2])
+  })
+
+  it('Should add entries', async () => {
+    await store.add(newEntity)
+    const retrieved = await store.get(newEntity.id)
+    expect(retrieved).toEqual(newEntity)
+  })
+
+  it('Should update an entity', async () => {
+    await store.update(existing1.id, { ...existing1, value: 'updated' })
+    const retrieved = await store.get(existing1.id)
+    expect(retrieved).toEqual({ ...existing1, value: 'updated' })
+  })
+
+  it('Should remove an entity', async () => {
+    await store.remove(existing1.id)
+    const entities = await store.search({})
+    expect(entities).not.toContain(existing1)
+  })
+
+  it('Should retrieve the TypeORM Repository', async () => {
+    const repo = await (store as TypeOrmStore<MockEntity>).getTypeormRepository()
+    expect(repo).toBeInstanceOf(Repository)
   })
 })
