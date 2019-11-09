@@ -369,4 +369,83 @@ describe('DataSet', () => {
       })
     })
   })
+
+  describe('get', () => {
+    it('should return the entity if no settings are provided', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.get(i, 1)
+        expect(result && result.id).toBe(1)
+      })
+    })
+
+    it('should return the entity if authorizeGet returns valid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGet }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.get(i, 1)
+        expect(result && result.id).toBe(1)
+      })
+    })
+
+    it('should throw if authorizeGet returns invalid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGet }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        try {
+          await dataSet.get(i, 1)
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+      })
+    })
+
+    it('should return the entity if authorizeGetEntity returns valid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGetEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGetEntity }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.get(i, 1)
+        expect(result && result.id).toBe(1)
+      })
+    })
+
+    it('should throw if authorizeGetEntity returns invalid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGetEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGetEntity }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        try {
+          await dataSet.get(i, 1)
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+      })
+    })
+  })
 })
