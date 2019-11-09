@@ -4,15 +4,25 @@ import { Injector } from '@furystack/inject'
 /**
  * The result model returned by authorizers
  */
-export interface AuthorizationResult {
+export type AuthorizationResult = SuccessfullyValidationResult | FailedValidationResult
+
+export interface SuccessfullyValidationResult {
   /**
-   * Boolean that indicates if the opoeration is allowed or permitted
+   * Indicates if the validation was succesful
    */
-  isAllowed: boolean
+  isAllowed: true
+}
+
+export interface FailedValidationResult {
   /**
-   * An optional message
+   * Indicates if the validation was succesful
    */
-  message?: string
+
+  isAllowed: false
+  /**
+   * The error message string
+   */
+  message: string
 }
 
 /**

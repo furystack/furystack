@@ -1,2 +1,2 @@
-export * from './GoogleLoginAction'
-export * from './GoogleLoginService'
+export * from './login-action'
+export * from './login-service'

@@ -1,6 +1,6 @@
 import { get } from 'https'
 import { User, StoreManager } from '@furystack/core'
-import { ExternalLoginService } from '@furystack/http-api'
+import { ExternalLoginService, HttpAuthenticationSettings } from '@furystack/http-api'
 import { Utils } from '@furystack/http-api/dist/Utils'
 import { Injectable, Injector } from '@furystack/inject'
 
@@ -31,7 +31,7 @@ export class GoogleLoginSettings {
     if (!payload.email_verified) {
       return undefined
     }
-    const userStore = injector.getInstance(StoreManager).getStoreFor(User)
+    const userStore = injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager))
     const users = await userStore.search({
       top: 2,
       filter: {

@@ -1,3 +1,4 @@
+import '@furystack/logging'
 import { usingAsync } from '@sensenet/client-utils'
 import { InMemoryStore } from '../src/InMemoryStore'
 

@@ -1,8 +1,17 @@
+import { Injector } from '@furystack/inject'
+import { using } from '@sensenet/client-utils'
 import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from '../src'
 import { LogLevel } from '../src/LogEntries'
 import { TestLogger } from '../src/TestLogger'
 
 describe('Loggers', () => {
+  it('Can be set up with an extension method', () => {
+    using(new Injector(), i => {
+      i.useLogging()
+      expect(i.logger).toBeInstanceOf(LoggerCollection)
+    })
+  })
+
   describe('LoggerCollection', () => {
     it('Should be constructed', () => {
       const loggers = new LoggerCollection()
