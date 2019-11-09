@@ -322,4 +322,51 @@ describe('DataSet', () => {
       })
     })
   })
+
+  describe('filter', () => {
+    it('should return the unfiltered result if no settings are provided', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.filter(i, {})
+        expect(result.length).toBe(1)
+      })
+    })
+
+    it('should return the unfiltered result if authorizeGet returns valid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGet }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.filter(i, {})
+        expect(result.length).toBe(1)
+      })
+    })
+
+    it('should throw if authorizeGet returns invalid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeGet }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        try {
+          await dataSet.filter(i, {})
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+      })
+    })
+  })
 })
