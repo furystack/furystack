@@ -18,18 +18,15 @@ export class DataSet<T> {
    * @param entity The entity to add
    */
   public async add(injector: Injector, entity: T): Promise<T> {
-    if (this.settings) {
-      if (this.settings.authorizeAdd) {
-        const result = await this.settings.authorizeAdd({ injector, entity })
-        if (!result.isAllowed) {
-          throw Error(result.message)
-        }
+    if (this.settings.authorizeAdd) {
+      const result = await this.settings.authorizeAdd({ injector, entity })
+      if (!result.isAllowed) {
+        throw Error(result.message)
       }
     }
-    const parsed =
-      this.settings && this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
+    const parsed = this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
     const created = await this.settings.physicalStore.add(parsed)
-    this.settings && this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity: created })
+    this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity: created })
     return created
   }
 
@@ -40,29 +37,26 @@ export class DataSet<T> {
    * @param change The update
    */
   public async update(injector: Injector, id: T[this['primaryKey']], change: T): Promise<void> {
-    if (this.settings) {
-      if (this.settings.authorizeUpdate) {
-        const result = await this.settings.authorizeUpdate({ injector, change })
+    if (this.settings.authorizeUpdate) {
+      const result = await this.settings.authorizeUpdate({ injector, change })
+      if (!result.isAllowed) {
+        throw Error(result.message)
+      }
+    }
+    if (this.settings.authorizeUpdateEntity) {
+      const entity = await this.settings.physicalStore.get(id)
+      if (entity) {
+        const result = await this.settings.authorizeUpdateEntity({ injector, change, entity })
         if (!result.isAllowed) {
           throw Error(result.message)
         }
       }
-      if (this.settings.authorizeUpdateEntity) {
-        const entity = await this.settings.physicalStore.get(id)
-        if (entity) {
-          const result = await this.settings.authorizeUpdateEntity({ injector, change, entity })
-          if (!result.isAllowed) {
-            throw Error(result.message)
-          }
-        }
-      }
     }
-    const parsed =
-      this.settings && this.settings.modifyOnUpdate
-        ? await this.settings.modifyOnUpdate({ injector, entity: change })
-        : change
+    const parsed = this.settings.modifyOnUpdate
+      ? await this.settings.modifyOnUpdate({ injector, entity: change })
+      : change
     await this.settings.physicalStore.update(id, parsed)
-    this.settings && this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change: parsed, id })
+    this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change: parsed, id })
   }
 
   /**
@@ -70,7 +64,7 @@ export class DataSet<T> {
    * @param injector The Injector from the context
    */
   public async count(injector: Injector): Promise<number> {
-    if (this.settings && this.settings.authorizeGet) {
+    if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw Error(result.message)
@@ -85,14 +79,13 @@ export class DataSet<T> {
    * @param filter The Filter definition
    */
   public async filter<TFields extends Array<keyof T>>(injector: Injector, filter: SearchOptions<T, TFields>) {
-    if (this.settings && this.settings.authorizeGet) {
+    if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw Error(result.message)
       }
     }
-    const parsedFilter =
-      this.settings && this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
+    const parsedFilter = this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
     return this.settings.physicalStore.search(parsedFilter)
   }
 
@@ -102,7 +95,7 @@ export class DataSet<T> {
    * @param key The identifier of the entity
    */
   public async get(injector: Injector, key: T[this['primaryKey']]) {
-    if (this.settings && this.settings.authorizeGet) {
+    if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw Error(result.message)
@@ -124,7 +117,7 @@ export class DataSet<T> {
    * @param key The primary key
    */
   public async remove(injector: Injector, key: T[this['primaryKey']]): Promise<void> {
-    if (this.settings && this.settings.authorizeRemove) {
+    if (this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
         throw Error(result.message)
