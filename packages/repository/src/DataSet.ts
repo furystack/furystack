@@ -57,8 +57,12 @@ export class DataSet<T> {
         }
       }
     }
-    await this.settings.physicalStore.update(id, change)
-    this.settings && this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change, id })
+    const parsed =
+      this.settings && this.settings.modifyOnUpdate
+        ? await this.settings.modifyOnUpdate({ injector, entity: change })
+        : change
+    await this.settings.physicalStore.update(id, parsed)
+    this.settings && this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change: parsed, id })
   }
 
   /**

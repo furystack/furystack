@@ -92,7 +92,7 @@ describe('DataSet', () => {
         })
       })
 
-      it('add should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
+      it('should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
         await usingAsync(new Injector().useLogging(), async i => {
           const authorizeAdd = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           i.setupStores(stores =>
@@ -110,6 +110,129 @@ describe('DataSet', () => {
             const added = await dataSet.get(i, 1)
             expect(added).toBeUndefined()
           }
+        })
+      })
+
+      it('should modify an entity on add, if modifyOnAdd is provided', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const modifyOnAdd = jest.fn(async (options: { injector: Injector; entity: TestClass }) => ({
+            ...options.entity,
+            value: options.entity.value.toUpperCase(),
+          }))
+
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { modifyOnAdd }))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          const result = await dataSet.get(i, 1)
+          expect(modifyOnAdd).toBeCalled()
+          expect(result && result.value).toBe('ASD')
+        })
+      })
+
+      it('should call the onEntityAdded callback if an entity has been added', async done => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const onEntityAdded = jest.fn(async (options: { injector: Injector; entity: TestClass }) => {
+            done()
+          })
+
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { onEntityAdded }))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+        })
+      })
+    })
+
+    describe('Update', () => {
+      it('should update an entity if no settings are provided', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          await dataSet.update(i, 1, { id: 1, value: 'asd2' })
+          const result = await dataSet.get(i, 1)
+          expect(result && result.value).toBe('asd2')
+        })
+      })
+
+      it('should call the authorizeUpdate authorizer and add the entity on pass', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const authorizeUpdate = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeUpdate }))
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          await dataSet.update(i, 1, { id: 1, value: 'asd2' })
+          expect(authorizeUpdate).toBeCalled()
+          const added = await dataSet.get(i, 1)
+          expect(added && added.value).toBe('asd2')
+        })
+      })
+
+      it('should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const authorizeUpdate = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeUpdate }))
+
+          const dataSet = await i.getDataSetFor(TestClass)
+
+          try {
+            await dataSet.add(i, { id: 1, value: 'asd' })
+            await dataSet.update(i, 1, { id: 1, value: 'asd2' })
+            throw Error('Should throw')
+          } catch (error) {
+            /** */
+            expect(authorizeUpdate).toBeCalled()
+            const added = await dataSet.get(i, 1)
+            expect(added && added.value).toBe('asd')
+          }
+        })
+      })
+
+      it('should modify an entity on add, if modifyOnAdd is provided', async () => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const modifyOnUpdate = jest.fn(async (options: { injector: Injector; entity: TestClass }) => ({
+            ...options.entity,
+            value: options.entity.value.toUpperCase(),
+          }))
+
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { modifyOnUpdate }))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          await dataSet.update(i, 1, { id: 1, value: 'asd2' })
+          const result = await dataSet.get(i, 1)
+          expect(modifyOnUpdate).toBeCalled()
+          expect(result && result.value).toBe('ASD2')
+        })
+      })
+
+      it('should call the onEntityAdded callback if an entity has been added', async done => {
+        await usingAsync(new Injector().useLogging(), async i => {
+          const onEntityUpdated = jest.fn(async () => {
+            done()
+          })
+
+          i.setupStores(stores =>
+            stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+          ).setupRepository(repo => repo.createDataSet(TestClass, { onEntityUpdated }))
+
+          const dataSet = i.getDataSetFor(TestClass)
+          await dataSet.add(i, { id: 1, value: 'asd' })
+          await dataSet.update(i, 1, { id: 1, value: 'asd2' })
         })
       })
     })
