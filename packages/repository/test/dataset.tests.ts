@@ -448,4 +448,89 @@ describe('DataSet', () => {
       })
     })
   })
+  describe('remove', () => {
+    it('should remove the entity if no settings are provided', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        await dataSet.remove(i, 1)
+        const countValue = await dataSet.count(i)
+        expect(countValue).toBe(0)
+      })
+    })
+
+    it('should remove the entity if authorizeRemove returns valid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeRemove = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeRemove }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        await dataSet.remove(i, 1)
+        const count = await dataSet.count(i)
+        expect(count).toBe(0)
+      })
+    })
+
+    it('should throw if authorizeRemove returns invalid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authorizeRemove = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authorizeRemove }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        try {
+          await dataSet.remove(i, 1)
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+        const count = await dataSet.count(i)
+        expect(count).toBe(1)
+      })
+    })
+
+    it('should remove the entity if authroizeRemoveEntity returns valid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authroizeRemoveEntity }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        await dataSet.remove(i, 1)
+        const count = await dataSet.count(i)
+        expect(count).toBe(0)
+      })
+    })
+
+    it('should throw if authroizeRemoveEntity returns invalid result', async () => {
+      await usingAsync(new Injector().useLogging(), async i => {
+        const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        i.setupStores(stores =>
+          stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
+        ).setupRepository(repo => repo.createDataSet(TestClass, { authroizeRemoveEntity }))
+
+        const dataSet = i.getDataSetFor(TestClass)
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        try {
+          await dataSet.remove(i, 1)
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+        const count = await dataSet.count(i)
+        expect(count).toBe(1)
+      })
+    })
+  })
 })

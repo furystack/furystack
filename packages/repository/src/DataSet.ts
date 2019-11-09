@@ -122,21 +122,17 @@ export class DataSet<T> {
       if (!result.isAllowed) {
         throw Error(result.message)
       }
-      if (this.settings.authroizeRemoveEntity) {
-        const entity = await this.settings.physicalStore.get(key)
-        if (entity) {
-          const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
-          if (!removeResult.isAllowed) {
-            throw Error(removeResult.message)
-          } else {
-            await this.settings.physicalStore.remove(key)
-          }
+    }
+    if (this.settings.authroizeRemoveEntity) {
+      const entity = await this.settings.physicalStore.get(key)
+      if (entity) {
+        const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
+        if (!removeResult.isAllowed) {
+          throw Error(removeResult.message)
         }
       }
     }
-  }
-  public dispose() {
-    /** */
+    return await this.settings.physicalStore.remove(key)
   }
 
   constructor(public readonly settings: DataSetSettings<T>) {}
