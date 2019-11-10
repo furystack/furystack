@@ -1,16 +1,14 @@
-name: Node CI
+name: Build, lint and jest tests
 
 on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [12.x, 13.x]
-
+    
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -21,11 +19,12 @@ jobs:
       run: npm i yarn -g
     - name: Install dependencies
       run: yarn install
-    - name: Lint
-      run: yarn lint
+    - name: ESLint checks
+      uses: gimenete/eslint-action@1.0
     - name: Build
       run: yarn build
-    - name: Test
-      run: yarn test
+    - name: Jest Tests
+      run: stefanoeb/jest-action@1.0.0
+      
       env:
         CI: true
