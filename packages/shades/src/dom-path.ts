@@ -17,7 +17,7 @@ export const getPath = (root: Element | ShadowRoot | Node, child: Element) => {
 }
 
 export const getElementFromPath = (root: ChildNode, path: number[]) => {
-  return path.reduce((child, segment) => {
-    return child && child.childNodes[segment]
+  return path.reduce<ChildNode | undefined>((child, segment) => {
+    return child && child.childNodes[segment] ? child.childNodes[segment] : undefined
   }, root)
 }

@@ -144,12 +144,13 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             if (selection) {
               selection.removeAllRanges()
               const newRange = new Range()
-              newRange.setStart(
-                getElementFromPath(firstChild, selectionRange.startContainerPath),
-                selectionRange.startOffset,
-              )
-              newRange.setEnd(getElementFromPath(firstChild, selectionRange.endContainerPath), selectionRange.endOffset)
-              selection.addRange(newRange)
+              const startNode = getElementFromPath(firstChild, selectionRange.startContainerPath)
+              const endNode = getElementFromPath(firstChild, selectionRange.endContainerPath)
+              if (startNode && endNode) {
+                newRange.setStart(startNode, selectionRange.startOffset)
+                newRange.setEnd(endNode, selectionRange.endOffset)
+                selection.addRange(newRange)
+              }
             }
           }
           if (focusedPath) {
