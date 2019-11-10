@@ -1,6 +1,6 @@
 {
   "name": "shade-app",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "",
   "private": true,
   "scripts": {
@@ -27,6 +27,6 @@
     "webpack-dev-server": "^3.4.1"
   },
   "dependencies": {
-    "@furystack/shades": "^2.1.0"
+    "@furystack/shades": "^2.1.1"
   }
 }
