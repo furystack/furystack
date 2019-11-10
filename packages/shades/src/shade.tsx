@@ -163,39 +163,33 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
          * Updates the component in the DOM.
          */
         public async updateComponent() {
-          return new Promise(resolve => {
-            requestAnimationFrame(() => {
-              const newJsx = this.render(this.getRenderOptions())
+          const newJsx = this.render(this.getRenderOptions())
 
-              const selectionState = this.getSelectionState()
+          const selectionState = this.getSelectionState()
 
-              if (this.hasChildNodes()) {
-                this.replaceChild(newJsx, this.firstChild as Node)
-                selectionState && this.restoreSelectionState(selectionState)
-              } else {
-                this.append(newJsx)
-              }
-              resolve()
-            })
-          })
+          if (this.hasChildNodes()) {
+            this.replaceChild(newJsx, this.firstChild as Node)
+            selectionState && this.restoreSelectionState(selectionState)
+          } else {
+            this.append(newJsx)
+          }
         }
 
         /**
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
-          this.updateComponent().then(() => {
-            const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
-            if (cleanupResult instanceof Promise) {
-              cleanupResult.then(cleanup => (this.cleanup = cleanup))
-            } else {
-              // construct is not async
-              // this.cleanup = this.cleanup
-            }
-            logger.verbose({
-              message: `Calling Construct...`,
-              data: this,
-            })
+          this.updateComponent()
+          const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
+          if (cleanupResult instanceof Promise) {
+            cleanupResult.then(cleanup => (this.cleanup = cleanup))
+          } else {
+            // construct is not async
+            // this.cleanup = this.cleanup
+          }
+          logger.verbose({
+            message: `Calling Construct...`,
+            data: this,
           })
         }
 
