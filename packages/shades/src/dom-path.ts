@@ -18,6 +18,6 @@ export const getPath = (root: Element | ShadowRoot | Node, child: Element) => {
 
 export const getElementFromPath = (root: ChildNode, path: number[]) => {
   return path.reduce((child, segment) => {
-    return child.childNodes[segment]
+    return child && child.childNodes[segment]
   }, root)
 }
