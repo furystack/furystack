@@ -6,5 +6,5 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../http-api" }, { "path": "../inject" }]
+  "references": [{ "path": "../core" }, { "path": "../http-api" }, { "path": "../inject" }, { "path": "../utils" }]
 }

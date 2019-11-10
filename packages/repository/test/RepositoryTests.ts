@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { using } from '@sensenet/client-utils'
+import { using } from '@furystack/utils'
 import '../src/InjectorExtension'
 import '@furystack/logging'
 import { InMemoryStore } from '@furystack/core'

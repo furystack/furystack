@@ -1,7 +1,7 @@
 import '@furystack/logging/dist/InjectorExtension'
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
-import { sleepAsync } from '@sensenet/client-utils'
+import { sleepAsync } from '@furystack/utils'
 import { JsonResult, RequestAction } from './Models'
 import { HttpUserContext } from './HttpUserContext'
 

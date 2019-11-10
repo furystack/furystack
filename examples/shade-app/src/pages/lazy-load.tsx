@@ -1,4 +1,4 @@
-import { sleepAsync } from '@sensenet/client-utils'
+import { sleepAsync } from '@furystack/utils'
 import { Shade, createComponent, LazyLoad } from '@furystack/shades'
 
 export const LazyLoadDemo = Shade({

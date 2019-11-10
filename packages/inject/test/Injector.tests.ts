@@ -1,4 +1,4 @@
-import { Disposable, using, usingAsync } from '@sensenet/client-utils'
+import { Disposable, using, usingAsync } from '@furystack/utils'
 import { Injectable } from '../src/Injectable'
 import { Injector } from '../src/Injector'
 

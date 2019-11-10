@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { HttpUserContext, LoginAction } from '../../src'
 
 describe('LoginAction', () => {

@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { using } from '@sensenet/client-utils'
+import { using } from '@furystack/utils'
 import '@furystack/logging'
 import { IsAuthenticated, LoginAction, RequestAction, JsonResult } from '@furystack/http-api'
 import { ModelBuilder, EdmType } from '../src'

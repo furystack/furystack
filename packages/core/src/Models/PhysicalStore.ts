@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 
 /**
  * Type for default filtering model

@@ -1,4 +1,4 @@
-import { ObservableValue } from '@sensenet/client-utils'
+import { ObservableValue } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 import { TodoItem } from '../models/todo-item'
 

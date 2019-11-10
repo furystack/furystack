@@ -1,4 +1,4 @@
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 import { defaultInjectableOptions } from './Injectable'
 import { Constructable } from './Types/Constructable'
 

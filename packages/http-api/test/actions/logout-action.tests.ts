@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { HttpUserContext, LogoutAction } from '../../src'
 
 describe('LogoutAction', () => {

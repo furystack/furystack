@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { HttpApiSettings } from './HttpApiSettings'
 import { Utils } from './Utils'
 import { RequestAction } from './Models'

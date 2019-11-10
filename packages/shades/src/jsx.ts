@@ -1,4 +1,4 @@
-import { ObservableValue } from '@sensenet/client-utils'
+import { ObservableValue } from '@furystack/utils'
 import { ChildrenList, PartialElement } from './models'
 
 declare global {

@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { ErrorAction } from '../../src'
 
 describe('ErrorAction tests', () => {

@@ -1,4 +1,4 @@
-import { using } from '@sensenet/client-utils'
+import { using } from '@furystack/utils'
 import '@furystack/logging'
 import { Injector } from '@furystack/inject'
 import { StoreManager, InMemoryStore } from '../src'

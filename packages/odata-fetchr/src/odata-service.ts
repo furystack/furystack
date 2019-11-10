@@ -1,5 +1,5 @@
 import { Injectable, Constructable } from '@furystack/inject'
-import { PathHelper } from '@sensenet/client-utils'
+import { PathHelper } from '@furystack/utils'
 import { ODataError } from './odata-error'
 import { ODataGetOperation } from './odata-get-operation'
 import { ODataQuery } from './odata-query'

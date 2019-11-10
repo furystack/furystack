@@ -1,4 +1,4 @@
-import { usingAsync, using } from '@sensenet/client-utils'
+import { usingAsync, using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager } from '@furystack/core'
 import { GoogleLoginSettings, GoogleLoginService } from '../src/login-service'

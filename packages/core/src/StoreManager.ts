@@ -1,6 +1,6 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 import { PhysicalStore } from './Models/PhysicalStore'
 
 /**

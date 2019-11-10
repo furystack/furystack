@@ -12,6 +12,7 @@ module.exports = {
     '<rootDir>/packages/repository',
     '<rootDir>/packages/shades',
     '<rootDir>/packages/typeorm-store',
+    '<rootDir>/packages/utils',
     '<rootDir>/packages/websocket-api',
   ],
   transform: {

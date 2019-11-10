@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { using } from '@sensenet/client-utils'
+import { using } from '@furystack/utils'
 
 describe('TypeORM Store', () => {
   it('Should be activated and disposed', () => {

@@ -1,6 +1,6 @@
 import { Server } from 'net'
 import { Injectable, Injector } from '@furystack/inject'
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 
 /**
  * Manager class for server instances

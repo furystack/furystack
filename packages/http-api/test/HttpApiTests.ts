@@ -1,6 +1,6 @@
 import { Injector, Constructable } from '@furystack/inject'
 import { LoggerCollection } from '@furystack/logging'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { User, InMemoryStore } from '@furystack/core'
 import { HttpUserContext, RequestAction, EmptyResult, HttpApi, DefaultSession } from '../src'
 

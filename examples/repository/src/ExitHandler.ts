@@ -1,4 +1,4 @@
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 import Semaphore from 'semaphore-async-await'
 
 process.stdin.resume() // so the program will not close instantly

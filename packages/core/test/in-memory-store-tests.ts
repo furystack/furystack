@@ -1,5 +1,5 @@
 import '@furystack/logging'
-import { usingAsync } from '@sensenet/client-utils'
+import { usingAsync } from '@furystack/utils'
 import { InMemoryStore } from '../src/InMemoryStore'
 
 class MockClass {

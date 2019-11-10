@@ -1,5 +1,5 @@
 import { RequestAction, JsonResult } from '@furystack/http-api'
-import { PathHelper } from '@sensenet/client-utils'
+import { PathHelper } from '@furystack/utils'
 import { OdataContext } from '../odata-context'
 
 /**

@@ -1,4 +1,4 @@
-import { Disposable, ObservableValue, Trace } from '@sensenet/client-utils'
+import { Disposable, ObservableValue, Trace } from '@furystack/utils'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 

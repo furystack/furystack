@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@sensenet/client-utils'
+import { using, usingAsync } from '@furystack/utils'
 import { InMemoryStore } from '@furystack/core'
 import '@furystack/logging'
 import { Repository } from '../src/Repository'

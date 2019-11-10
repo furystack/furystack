@@ -1139,13 +1139,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@sensenet/client-utils@^1.5.1", "@sensenet/client-utils@^1.6.1":
-  version "1.6.6"
-  resolved "https://registry.yarnpkg.com/@sensenet/client-utils/-/client-utils-1.6.6.tgz#72453528f7cdf06145003fe169e67569eddf677b"
-  integrity sha512-DNw/tE3ZFJw1i7MXgYzj3F0dELEgx7/WVawagMvOVYl1XkcqLS+pHB2WK0NvM2OS1earv2daQ345z5b1Cz5icA==
-  dependencies:
-    tslib "^1.9.3"
-
 "@types/babel__core@^7.1.0":
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.3.tgz#e441ea7df63cd080dfcd02ab199e6d16a735fc30"
@@ -7952,9 +7945,9 @@ prettier-linter-helpers@^1.0.0:
     fast-diff "^1.1.2"
 
 prettier@^1.17.1:
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.0.tgz#3bec4489d5eebcd52b95ddd2c22467b5c852fde1"
-  integrity sha512-GlAIjk6DjkNT6u/Bw5QCWrbzh9YlLKwwmJT//1YiCR3WDpZDnyss64aXHQZgF8VKeGlWnX6+tGsKSVxsZT/gtA==
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
+  integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
 
 pretty-error@^2.0.2:
   version "2.1.1"
@@ -8852,7 +8845,7 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-seventh@^0.7.28:
+seventh@^0.7.30:
   version "0.7.30"
   resolved "https://registry.yarnpkg.com/seventh/-/seventh-0.7.30.tgz#e42002240dedae86a49eca06b89d8297f3108e08"
   integrity sha512-GDX4eZEZXQFqURkUA802R3GkawzGA8zm2QS9AfFqPcJKakoytxhI0soTRfhEqNhqh0RrRFO/EraffrAULaxiQQ==
@@ -9238,10 +9231,10 @@ string-argv@^0.3.0:
   resolved "https://registry.yarnpkg.com/string-argv/-/string-argv-0.3.1.tgz#95e2fbec0427ae19184935f816d74aaa4c5c19da"
   integrity sha512-a1uQGz7IyVy9YwhqjZIZu1c8JO8dNIe20xBmSS6qu9kv++k3JGzCVmprbNN5Kn+BgzD5E7YYwg1CcjuJMRNsvg==
 
-string-kit@^0.10.0:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/string-kit/-/string-kit-0.10.1.tgz#b5bf0e83cf2239ba6f68b6131ddad59768f7e575"
-  integrity sha512-qxIqv5bJqYoWzJa0WJFdw9CCoPJ3/9EixXQXVerIYMghd45w0XiESgUchYCEeGg8bQQWHS+TYZW1DcJmHwAxZA==
+string-kit@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/string-kit/-/string-kit-0.10.2.tgz#c7ecc6c11ec317685678dbe372fe050d6534aba3"
+  integrity sha512-NF4DRWkReTTCsM/B2oZEEvHIWIiAqJU7IR0MXoHGYc2gm0vu+of0zKwS1nEWIZhV/G00CjwdpnJKuiE2/8GQtQ==
 
 string-length@^2.0.0:
   version "2.0.0"
@@ -9482,17 +9475,17 @@ temp-write@^3.4.0:
     uuid "^3.0.1"
 
 terminal-kit@^1.31.4:
-  version "1.31.6"
-  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.31.6.tgz#7dffd5b7c62a6ce7074535ce38a7cf295822fed8"
-  integrity sha512-gd4mcx/bNIhZsBYcvZliAmzYDTfRwQhzXhao06BuwY47ZC99ykDkVudf/EVbJTto+JL1aMfckdgU8WdLphdgAg==
+  version "1.31.7"
+  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.31.7.tgz#26096c25b267bb41001895747bedc5face6533ab"
+  integrity sha512-n5WkVXaPnJC7CfqC424lwPt2/ILWks7yFZi24fjiyaT+L23E1urRdjvALHtX1F3Iyjxso54vp86VHvdbXnf84A==
   dependencies:
     "@cronvel/get-pixels" "^3.3.1"
     chroma-js "^2.0.6"
     lazyness "^1.1.1"
     ndarray "^1.0.18"
     nextgen-events "^1.3.0"
-    seventh "^0.7.28"
-    string-kit "^0.10.0"
+    seventh "^0.7.30"
+    string-kit "^0.10.2"
     tree-kit "^0.6.1"
 
 terser-webpack-plugin@^1.4.1:

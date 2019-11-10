@@ -1,4 +1,4 @@
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { connect, MongoClient, MongoClientOptions } from 'mongodb'

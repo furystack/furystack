@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http'
-import { using } from '@sensenet/client-utils'
+import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { GetCurrentUser, LoginAction, LogoutAction, defaultLoginRoutes } from '../src'
 

@@ -1,4 +1,4 @@
-import { ObservableValue } from '@sensenet/client-utils'
+import { ObservableValue } from '@furystack/utils'
 import { v4 } from 'uuid'
 import '@furystack/logging'
 import { shadeInjector } from './shade-component'

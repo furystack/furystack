@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { IncomingMessage, ServerResponse } from 'http'
-import { using, usingAsync } from '@sensenet/client-utils'
+import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { User, StoreManager, InMemoryStore } from '@furystack/core'
 import { HttpUserContext, DefaultSession } from '../src'

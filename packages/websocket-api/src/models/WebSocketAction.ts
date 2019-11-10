@@ -1,4 +1,4 @@
-import { Disposable } from '@sensenet/client-utils'
+import { Disposable } from '@furystack/utils'
 import { Data } from 'ws'
 
 /**
