@@ -116,12 +116,14 @@ export const createEntityResponse = async <T>(options: {
         const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
 
         const expandedEntities = await Promise.all(
-          (await navPropertyCollection.getRelatedEntities(
-            options.entity,
-            dataSet as any,
-            options.injector,
-            options.odataParams,
-          )).map(async expanded => {
+          (
+            await navPropertyCollection.getRelatedEntities(
+              options.entity,
+              dataSet as any,
+              options.injector,
+              options.odataParams,
+            )
+          ).map(async expanded => {
             return await createEntityResponse({
               entity: expanded,
               injector: options.injector,

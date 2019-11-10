@@ -97,12 +97,14 @@ defaultInjector
                   propertyName: 'user',
                   relatedModel: User,
                   getRelatedEntity: async (entity, dataSet, injector, filter) => {
-                    return (await dataSet.filter(
-                      injector,
-                      deepMerge(filter, {
-                        filter: { username: entity.username },
-                      }),
-                    ))[0] as User
+                    return (
+                      await dataSet.filter(
+                        injector,
+                        deepMerge(filter, {
+                          filter: { username: entity.username },
+                        }),
+                      )
+                    )[0] as User
                   },
                 },
               ],
@@ -183,7 +185,10 @@ defaultInjector
             .addEntityType({
               model: TestEntry,
               primaryKey: '_id',
-              properties: [{ property: '_id', type: EdmType.Int16 }, { property: 'value', type: EdmType.String }],
+              properties: [
+                { property: '_id', type: EdmType.Int16 },
+                { property: 'value', type: EdmType.String },
+              ],
             }),
         )
         // Configure entity sets
