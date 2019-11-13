@@ -58,5 +58,8 @@
   "jest-junit": {
     "suiteName": "FuryStack Jest tests",
     "outputDirectory": "./coverage"
+  },
+  "engines": {
+    "node": ">=12.0.0"
   }
 }
