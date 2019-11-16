@@ -11,15 +11,6 @@ export interface CounterState {
 export const Counter = Shade<CounterProps, CounterState>({
   shadowDomName: 'shade-app-counter',
   initialState: { value: 0 },
-  onAttach: () => {
-    console.log('Counter Attached')
-  },
-  onDetach: () => {
-    console.log('Counter Detached')
-  },
-  constructed: ({ props, updateState }) => {
-    updateState({ value: props.defaultValue })
-  },
   render: ({ props, getState, updateState }) => {
     return (
       <div
@@ -41,7 +32,7 @@ export const Counter = Shade<CounterProps, CounterState>({
           style={{
             color: getState().value === props.defaultValue ? 'darkgreen' : 'red',
           }}>
-          {getState().value.toString()}{' '}
+          {getState().value.toString() || props.defaultValue.toString()}{' '}
         </span>
         <button
           onclick={ev => {
