@@ -2,8 +2,7 @@ import { ObservableValue } from '@furystack/utils'
 import { v4 } from 'uuid'
 import '@furystack/logging'
 import { shadeInjector } from './shade-component'
-import { ChildrenList, RenderOptions, SelectionState } from './models'
-import { getPath, getElementFromPath } from './dom-path'
+import { ChildrenList, RenderOptions } from './models'
 
 export interface ShadeOptions<TProps, TState> {
   /**
@@ -106,70 +105,17 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           } as RenderOptions<TProps, TState>
         }
 
-        private getSelectionState(): SelectionState {
-          const owner = this.ownerDocument
-
-          if (!owner) {
-            return {
-              focusedPath: undefined,
-              selectionRange: undefined,
-            }
-          }
-
-          const selection = owner.getSelection()
-          const oldRange = selection && selection.rangeCount && selection.getRangeAt(0)
-
-          return {
-            focusedPath: owner.activeElement ? getPath(owner, owner.activeElement) : undefined,
-            selectionRange: oldRange
-              ? {
-                  startOffset: oldRange.startOffset,
-                  startContainerPath: getPath(owner, oldRange.startContainer as Element),
-                  endOffset: oldRange.endOffset,
-                  endContainerPath: getPath(owner, oldRange.endContainer as Element),
-                }
-              : undefined,
-          }
-        }
-
-        private restoreSelectionState({ focusedPath, selectionRange }: SelectionState) {
-          const owner = this.ownerDocument
-          if (!owner) {
-            return
-          }
-          const firstChild = owner.firstElementChild as ChildNode
-          if (selectionRange) {
-            console.log('Selection in range', selectionRange)
-            const selection = owner.getSelection()
-            if (selection) {
-              selection.removeAllRanges()
-              const newRange = new Range()
-              const startNode = getElementFromPath(firstChild, selectionRange.startContainerPath)
-              const endNode = getElementFromPath(firstChild, selectionRange.endContainerPath)
-              if (startNode && endNode) {
-                newRange.setStart(startNode, selectionRange.startOffset)
-                newRange.setEnd(endNode, selectionRange.endOffset)
-                selection.addRange(newRange)
-              }
-            }
-          }
-          if (focusedPath) {
-            const newFocusedElement = getElementFromPath(firstChild, focusedPath)
-            newFocusedElement && (newFocusedElement as any).focus && (newFocusedElement as any).focus()
-          }
-        }
-
         /**
          * Updates the component in the DOM.
          */
         public async updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
 
-          const selectionState = this.getSelectionState()
+          // const selectionState = this.getSelectionState()
 
           if (this.hasChildNodes()) {
             this.replaceChild(newJsx, this.firstChild as Node)
-            selectionState && this.restoreSelectionState(selectionState)
+            // selectionState && this.restoreSelectionState(selectionState)
           } else {
             this.append(newJsx)
           }
