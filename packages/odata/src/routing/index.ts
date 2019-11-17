@@ -13,11 +13,6 @@ import { getEntityRoute } from './get-entity-route'
 import { RouterOptions } from './router-options'
 import { updateContext } from './update-context'
 
-// TempHacks before Sn-client update, can be removed after next release
-PathHelper.isItemSegment = segment => {
-  return RegExp(/^\('+[\s\S]+'\)$/).test(segment) || RegExp(/^\(+\d+\)$/).test(segment)
-}
-
 PathHelper.getSegments = path => {
   return path
     .split(/\/|[(][']|[(]/g)
@@ -37,20 +32,27 @@ PathHelper.getSegments = path => {
  * @param options The provided Options object
  */
 export const createOdataRouter: (options: RouterOptions) => RouteModel = options => {
+  options.route = PathHelper.normalize(options.route)
+
   const collectionsWithUrls = options.collections.map(c => ({
     collection: c,
-    url: PathHelper.trimSlashes(`${options.route}/${c.name}`),
+    url: PathHelper.normalize(`${options.route}/${c.name}`),
   }))
 
   return injector => {
     const logger = injector.logger.withScope('@furystack/odata/routing')
     const msg = injector.getRequest()
 
+    const urlPathName = PathHelper.normalize(parse(decodeURI(msg.url || ''), true).pathname || '')
+
     logger.verbose({
-      message: `Incoming message: ${msg.url}`,
+      message: `Incoming OData message: ${msg.url}`,
+      data: {
+        urlPathName,
+        url: msg.url,
+      },
     })
 
-    const urlPathName = PathHelper.trimSlashes(parse(decodeURI(msg.url || ''), true).pathname || '')
     const collection = collectionsWithUrls.find(c => urlPathName.indexOf(c.url) !== -1)
     const server = (msg.connection as TLSSocket).encrypted
       ? `https://${msg.headers.host}/`
@@ -72,7 +74,7 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
         const queryParams = entity && getOdataParams(msg.url, entity)
         updateContext<{ [s: string]: any }>(injector, {
           collection: collection.collection,
-          context: PathHelper.joinPaths(server, options.route, `$metadata#${collection.collection.name}`),
+          context: PathHelper.joinPaths(options.route, `$metadata#${collection.collection.name}`),
           entity,
           queryParams,
         })
