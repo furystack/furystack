@@ -129,4 +129,8 @@ export class PathHelper {
     }
     return segments.join('/')
   }
+
+  public static normalize(path: string) {
+    return this.getSegments(path).join('/')
+  }
 }
