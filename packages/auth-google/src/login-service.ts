@@ -60,20 +60,32 @@ export class GoogleLoginService implements ExternalLoginService {
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
   /**
-   * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
-   * @param token The IdToken to authenticate
+   * Returns the extracted Google Authentication data from the token.
+   * @param token
    */
-  public async login(token: string): Promise<User> {
-    return await new Promise<User>((resolve, reject) =>
+  public async getGoogleUserData(token: string): Promise<GoogleApiPayload> {
+    return await new Promise<GoogleApiPayload>((resolve, reject) =>
       get(`${this.googleApiEndpoint}${token}`, async response => {
         if (response.statusCode && response.statusCode < 400) {
           const body = await this.utils.readPostBody<GoogleApiPayload>(response)
-          const user = await this.settings.getUserFromGooglePayload(body, this.injector)
-          user ? resolve(user) : reject('Error: User not found.')
+          resolve(body)
         } else {
           reject({ ...response })
         }
       }),
     )
+  }
+
+  /**
+   * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
+   * @param token The IdToken to authenticate
+   */
+  public async login(token: string): Promise<User> {
+    const googleData = await this.getGoogleUserData(token)
+    const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
+    if (!user) {
+      throw Error(`Attached user not found.`)
+    }
+    return user
   }
 }
