@@ -1,6 +1,7 @@
 import { Server } from 'net'
 import { Injectable, Injector } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
+import { ScopedLogger } from '@furystack/logging'
 
 /**
  * Manager class for server instances
@@ -10,18 +11,16 @@ export class ServerManager implements Disposable {
   private readonly servers: Set<Server> = new Set()
 
   public async dispose() {
-    this.injector.logger.information({ scope: 'ServerManager', message: `Disposing servers...` })
+    this.logger.information({ message: `Disposing servers...` })
     for (const server of this.servers.values()) {
       const serverAddress = server.address()
       try {
         await new Promise((resolve, reject) => server.close(err => (err ? reject(err) : resolve())))
-        this.injector.logger.information({
-          scope: 'ServerManager',
+        this.logger.information({
           message: `Server '${JSON.stringify(serverAddress)}' disposed`,
         })
       } catch (error) {
-        this.injector.logger.error({
-          scope: 'ServerManager',
+        this.logger.error({
           message: `Failed to dispose server '${serverAddress}'.`,
         })
       }
@@ -44,5 +43,9 @@ export class ServerManager implements Disposable {
     this.servers.add(server)
   }
 
-  constructor(private injector: Injector) {}
+  private readonly logger: ScopedLogger
+
+  constructor(injector: Injector) {
+    this.logger = injector.logger.withScope('@furystack/core/server-manager')
+  }
 }

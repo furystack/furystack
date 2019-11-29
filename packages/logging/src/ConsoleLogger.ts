@@ -49,6 +49,7 @@ export const FgWhite = '\x1b[37m'
 export const getLevelColor = (level: LogLevel) => {
   switch (level) {
     case LogLevel.Verbose:
+      return FgCyan
     case LogLevel.Debug:
       return FgBlue
     case LogLevel.Information:
@@ -56,6 +57,7 @@ export const getLevelColor = (level: LogLevel) => {
     case LogLevel.Warning:
       return FgYellow
     case LogLevel.Error:
+      return FgRed
     default:
       return FgRed
   }

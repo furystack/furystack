@@ -26,7 +26,7 @@ export class LocationService implements Disposable {
   private logger: ScopedLogger
 
   constructor(injector: Injector) {
-    this.logger = injector.logger.withScope(this.constructor.name)
+    this.logger = injector.logger.withScope('@furystack/shades/location-service')
     this.logger.verbose({ message: 'Starting Location service...' })
     window.addEventListener('popstate', () => this.updateState())
     window.addEventListener('hashchange', () => this.updateState())

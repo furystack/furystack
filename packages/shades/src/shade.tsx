@@ -44,7 +44,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
-  const logger = shadeInjector.logger.withScope(`<${customElementName}>`)
+  const logger = shadeInjector.logger.withScope(`@furystack/shades/<${customElementName}>`)
 
   const existing = customElements.get(customElementName)
   if (!existing) {
