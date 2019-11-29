@@ -1,6 +1,6 @@
 {
   "name": "@furystack/http-api",
-  "version": "5.3.5",
+  "version": "5.3.6",
   "description": "HTTP Api FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -45,9 +45,9 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^6.0.7",
+    "@furystack/core": "^6.0.8",
     "@furystack/inject": "^4.0.4",
-    "@furystack/logging": "^2.0.9",
+    "@furystack/logging": "^2.0.10",
     "@furystack/utils": "^1.1.0",
     "hash.js": "^1.1.7",
     "uuid": "^3.3.2"

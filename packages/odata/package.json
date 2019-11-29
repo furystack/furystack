@@ -1,6 +1,6 @@
 {
   "name": "@furystack/odata",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "ODATA Rest Endpoint implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -45,10 +45,10 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^6.0.7",
-    "@furystack/http-api": "^5.3.5",
+    "@furystack/core": "^6.0.8",
+    "@furystack/http-api": "^5.3.6",
     "@furystack/inject": "^4.0.4",
-    "@furystack/repository": "^2.0.10",
+    "@furystack/repository": "^2.0.11",
     "@furystack/utils": "^1.1.0"
   },
   "typings": "./dist/index.d.ts",

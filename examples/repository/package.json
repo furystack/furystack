@@ -1,6 +1,6 @@
 {
   "name": "@furystack/example-repository",
-  "version": "0.2.40",
+  "version": "0.2.41",
   "description": "Content management layer for FuryStack",
   "main": "dist/index.js",
   "private": true,
@@ -33,15 +33,15 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/auth-google": "^3.1.0",
-    "@furystack/core": "^6.0.7",
-    "@furystack/http-api": "^5.3.5",
-    "@furystack/mongodb-store": "^2.0.7",
-    "@furystack/odata": "^2.1.7",
-    "@furystack/redis-store": "^2.0.7",
-    "@furystack/typeorm-store": "^3.0.8",
+    "@furystack/auth-google": "^3.1.1",
+    "@furystack/core": "^6.0.8",
+    "@furystack/http-api": "^5.3.6",
+    "@furystack/mongodb-store": "^2.0.8",
+    "@furystack/odata": "^2.1.8",
+    "@furystack/redis-store": "^2.0.8",
+    "@furystack/typeorm-store": "^3.0.9",
     "@furystack/utils": "^1.1.0",
-    "@furystack/websocket-api": "^4.0.11",
+    "@furystack/websocket-api": "^4.0.12",
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {
