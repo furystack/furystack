@@ -14,11 +14,22 @@ import { installAllServices } from './install-steps/install-all-services'
 
 const injector = new Injector().useLogging(InMemoryLogging)
 
-const initConfig = async (args: { download: string; config: string }, userInput: boolean) => {
+export interface ArgType {
+  download: string
+  config: string
+  parallel: number
+}
+
+const initConfig = async (args: ArgType, userInput: boolean) => {
   if (args.download) {
     await injector.getInstance(ConfigDownloaderService).download(args.download as string, args.config as string)
   }
-  injector.useConfig({ configSource: args.config as string, workingDir: process.cwd(), userInput })
+  injector.useConfig({
+    configSource: args.config as string,
+    workingDir: process.cwd(),
+    userInput,
+    parallel: args.parallel,
+  })
 
   await injector.getConfig().init()
 
@@ -99,6 +110,11 @@ const cmd = yargs
     alias: 'dlc',
     type: 'string',
     description: 'downloads a config file from a specified URL',
+  })
+  .option('parallel', {
+    type: 'number',
+    description: 'how many installs can run parallelly',
+    default: 1,
   })
 
 export default cmd.argv

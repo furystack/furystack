@@ -1,11 +1,17 @@
 import { terminal } from 'terminal-kit'
 import { sleepAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
+import Semaphore from 'semaphore-async-await'
 import { CheckPrerequisitesService } from '../services/check-prerequisites'
 import { installService } from './install-service'
 
 export const installAllServices = async (injector: Injector) => {
-  const cfg = injector.getConfig().getConfigData()
+  const config = injector.getConfig()
+  const { parallel } = config.options
+
+  const lock = new Semaphore(parallel)
+
+  const cfg = config.getConfigData()
 
   const checks = await injector.getInstance(CheckPrerequisitesService).checkPrerequisiteForServices(...cfg.services)
   if (checks.length) {
@@ -30,14 +36,21 @@ export const installAllServices = async (injector: Injector) => {
     eta: true,
     percent: true,
   })
+  terminal.saveCursor()
 
-  terminal.nextLine(1)
-
-  for (const service of cfg.services) {
+  const promises = cfg.services.map(async (service, index) => {
+    await lock.acquire()
+    await sleepAsync(index * 100)
+    terminal.restoreCursor()
+    terminal.nextLine(1)
     servicesProgress.startItem(service.appName)
-    await installService(injector, service, cfg.directories.output, cfg.directories.input)
-    servicesProgress.itemDone(service.appName)
-  }
+    installService(injector, service, cfg.directories.output, cfg.directories.input).then(() => {
+      servicesProgress.itemDone(service.appName)
+      lock.release()
+    })
+  })
+
+  await Promise.all(promises)
 
   await sleepAsync(100)
 

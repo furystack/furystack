@@ -59,6 +59,7 @@
     "@furystack/logging": "^2.0.10",
     "@furystack/utils": "^1.1.0",
     "ajv": "^6.10.2",
+    "semaphore-async-await": "^1.5.1",
     "terminal-kit": "^1.32.1",
     "yargs": "^15.0.2"
   }

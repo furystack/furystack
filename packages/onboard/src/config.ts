@@ -12,6 +12,7 @@ export interface ConfigOptions {
   workingDir: string
   configSource: string
   userInput: boolean
+  parallel: number
 }
 
 export class Config {
@@ -63,7 +64,7 @@ export class Config {
     }
     this.configData = configData
   }
-  constructor(private readonly options: ConfigOptions) {}
+  constructor(public readonly options: ConfigOptions) {}
 }
 
 declare module '@furystack/inject/dist/Injector' {
