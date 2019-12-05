@@ -1,15 +1,7 @@
 {
-  "private": true,
-  "version": "1.0.0-2019-06-10",
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "examples/*"
-    ],
-    "nohoist": []
-  },
+  "version": "0.0.1",
   "devDependencies": {
-    "@types/jest": "^24.0.13",
+    "@types/terminal-kit": "^1.28.0",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "eslint": "^6.0.1",
@@ -18,25 +10,20 @@
     "eslint-plugin-jsdoc": "^18.4.3",
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.3",
-    "jest": "^24.8.0",
-    "jest-junit": "^10.0.0",
     "lerna": "^3.19.0",
     "lint-staged": "^9.2.1",
     "prettier": "^1.17.1",
     "rimraf": "^3.0.0",
-    "ts-jest": "^24.1.0",
+    "ts-json-schema-generator": "^0.57.0",
     "tslib": "^1.9.3",
     "typescript": "^3.7.3"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "build": "tsc -b packages",
+    "build": "tsc -b",
     "lint": "eslint . --ext .tsx --ext .ts",
     "prettier": "prettier --write",
-    "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
-    "test": "jest --verbose",
-    "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
-    "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+    "start": "npm run build && node dist/index.js"
   },
   "husky": {
     "hooks": {
@@ -54,12 +41,23 @@
       "git add"
     ]
   },
-  "name": "furystack",
-  "jest-junit": {
-    "suiteName": "FuryStack Jest tests",
-    "outputDirectory": "./coverage"
-  },
+  "name": "@furystack/onboard",
   "engines": {
     "node": ">=12.0.0"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin"
+  ],
+  "bin": {
+    "onboard": "./bin/onboard"
+  },
+  "dependencies": {
+    "@furystack/inject": "^4.0.4",
+    "@furystack/logging": "^2.0.10",
+    "@furystack/utils": "^1.1.0",
+    "ajv": "^6.10.2",
+    "terminal-kit": "^1.32.1"
   }
 }
