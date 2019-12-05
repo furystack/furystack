@@ -4,6 +4,7 @@ import { ServiceModel } from './service'
  * Configuration Root Type
  */
 export interface Config {
+  $schema: string
   /**
    * Absolute paths of the specific directories
    */

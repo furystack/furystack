@@ -4,22 +4,17 @@ import { Injector } from '@furystack/inject/dist/Injector'
 import { validateSchema } from './validate-schema'
 import { Config as ConfigModel } from './models/config'
 import { Prerequisite } from './services/check-prerequisites'
+import { createJsonSchema } from './create-json-schema'
 
 export const configSchemaPath = join(dirname(realpathSync(__filename)), '../config-schema.json')
 
 export interface ConfigOptions {
   workingDir: string
-  configFileName: string
-}
-
-export const defaultConfigOptions: ConfigOptions = {
-  configFileName: 'onboard-config.json',
-  workingDir: process.cwd(),
+  configSource: string
+  userInput: boolean
 }
 
 export class Config {
-  public readonly options: ConfigOptions
-
   private configData?: ConfigModel
   public getConfigData = () => {
     if (!this.configData) {
@@ -43,12 +38,21 @@ export class Config {
     },
   ]
 
-  public getConfigFilePath = () => join(this.options.workingDir, this.options.configFileName)
+  public getConfigFilePath = () => join(this.options.workingDir, this.options.configSource)
 
   public async init() {
     const configFilePath = this.getConfigFilePath()
     const configFileString = readFileSync(configFilePath)
     const configData = JSON.parse(configFileString.toString()) as ConfigModel
+
+    if (!existsSync(configSchemaPath)) {
+      await createJsonSchema({
+        inputTsFile: './src/models/config.ts',
+        outputJsonFile: configSchemaPath,
+        rootType: 'Config',
+        schemaName: 'Config',
+      })
+    }
 
     const schema = JSON.parse(readFileSync(configSchemaPath).toString())
     const validate = validateSchema({ data: configData, schema })
@@ -59,14 +63,12 @@ export class Config {
     }
     this.configData = configData
   }
-  constructor(options: Partial<ConfigOptions>) {
-    this.options = { ...defaultConfigOptions, ...options }
-  }
+  constructor(private readonly options: ConfigOptions) {}
 }
 
 declare module '@furystack/inject/dist/Injector' {
   interface Injector {
-    useConfig: (config: Partial<ConfigOptions>) => Injector
+    useConfig: (config: ConfigOptions) => Injector
     getConfig(): Config
   }
 }

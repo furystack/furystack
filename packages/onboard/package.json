@@ -4,6 +4,7 @@
     "@types/terminal-kit": "^1.28.0",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
+    "@types/yargs": "^13.0.3",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-import": "^2.17.3",
@@ -58,6 +59,7 @@
     "@furystack/logging": "^2.0.10",
     "@furystack/utils": "^1.1.0",
     "ajv": "^6.10.2",
-    "terminal-kit": "^1.32.1"
+    "terminal-kit": "^1.32.1",
+    "yargs": "^15.0.2"
   }
 }
