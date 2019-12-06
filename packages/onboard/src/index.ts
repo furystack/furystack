@@ -5,6 +5,7 @@ import { Injector } from '@furystack/inject'
 import '@furystack/logging'
 import './config'
 import yargs from 'yargs'
+import { sleepAsync } from '@furystack/utils'
 import { mainMenu } from './menus/main'
 import { InMemoryLogging } from './in-memory-logging'
 import { CheckPrerequisitesService, genericPrerequisites } from './services/check-prerequisites'
@@ -15,14 +16,18 @@ import { installAllServices } from './install-steps/install-all-services'
 const injector = new Injector().useLogging(InMemoryLogging)
 
 export interface ArgType {
-  download: string
+  'download-config': string
   config: string
   parallel: number
 }
 
 const initConfig = async (args: ArgType, userInput: boolean) => {
-  if (args.download) {
-    await injector.getInstance(ConfigDownloaderService).download(args.download as string, args.config as string)
+  if (args['download-config']) {
+    console.log('Downloading remote config file...')
+    await sleepAsync(10000)
+    await injector
+      .getInstance(ConfigDownloaderService)
+      .download(args['download-config'] as string, args.config as string)
   }
   injector.useConfig({
     configSource: args.config as string,
