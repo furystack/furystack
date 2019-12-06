@@ -15,7 +15,7 @@ export const startMenu = async (injector: Injector) => {
 
   switch (result.selectedText) {
     case 'All services':
-      await installAllServices(injector)
+      await installAllServices(injector, injector.getConfig().options.stepFilters)
       break
     case 'Selected service':
       await selectServiceMenu(injector)

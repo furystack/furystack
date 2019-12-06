@@ -36,10 +36,21 @@ export class CheckPrerequisitesService {
     return errors
   }
 
-  public async checkPrerequisiteForServices(...args: ServiceModel[]) {
-    const prereqs = args
+  public async checkPrerequisiteForServices(options: {
+    services: ServiceModel[]
+    stepFilters?: Array<InstallStep['type']>
+  }) {
+    const steps = options.services
       .map(service => service.installSteps)
       .reduce((prev, current) => [...prev, ...current], [] as InstallStep[])
+    return await this.checkPrerequisiteForSteps({ steps, stepFilters: options.stepFilters })
+  }
+
+  public async checkPrerequisiteForSteps(options: { steps: InstallStep[]; stepFilters?: Array<InstallStep['type']> }) {
+    const prereqs = options.steps
+      .filter(step =>
+        options.stepFilters && options.stepFilters.length ? options.stepFilters.includes(step.type) : true,
+      )
       .map(step => getServiceForInstallStep(step))
       .map(step => this.injector.getInstance(step))
       .filter(step => step.prerequisites && step.prerequisites.length)

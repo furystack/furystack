@@ -5,6 +5,7 @@ import { validateSchema } from './validate-schema'
 import { Config as ConfigModel } from './models/config'
 import { Prerequisite } from './services/check-prerequisites'
 import { createJsonSchema } from './create-json-schema'
+import { InstallStep } from './models/install-step'
 
 export const configSchemaPath = join(dirname(realpathSync(__filename)), '../config-schema.json')
 
@@ -13,6 +14,7 @@ export interface ConfigOptions {
   configSource: string
   userInput: boolean
   parallel: number
+  stepFilters?: Array<InstallStep['type']>
 }
 
 export class Config {

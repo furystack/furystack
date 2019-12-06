@@ -24,8 +24,11 @@ export class DockerInstallStep implements GenericStep<DockerInstall> {
     if (!dockerContainers.map(d => d.Image).includes(step.imageName)) {
       // ToDo: Check me, volume mappings
       await execAsync(
-        `docker run ${step.imageName}${step.portMappings &&
-          step.portMappings.map(port => ` -p ${port.source}:${port.destination}/${port.type.toLowerCase()}`)}`,
+        `docker run ${step.imageName} ${
+          step.portMappings
+            ? step.portMappings.map(port => ` -d -p ${port.source}:${port.destination}/${port.type.toLowerCase()}`)
+            : ''
+        }`,
         { cwd: context.serviceDir, env: process.env },
       )
     }

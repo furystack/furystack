@@ -11,6 +11,7 @@ import { CheckPrerequisitesService, genericPrerequisites } from './services/chec
 import { defaultConfig } from './default-config'
 import { ConfigDownloaderService } from './services/config-downloader'
 import { installAllServices } from './install-steps/install-all-services'
+import { InstallStep } from './models/install-step'
 
 const injector = new Injector().useLogging(InMemoryLogging)
 
@@ -18,6 +19,7 @@ export interface ArgType {
   'download-config': string
   config: string
   parallel: number
+  stepFilters?: string
 }
 
 const initConfig = async (args: ArgType, userInput: boolean) => {
@@ -34,6 +36,7 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
     configSource: args.config as string,
     workingDir: process.cwd(),
     userInput,
+    stepFilters: (args.stepFilters || '').split(',') as Array<InstallStep['type']>,
     parallel: args.parallel,
   })
 
@@ -83,7 +86,7 @@ const cmd = yargs
     },
     async args => {
       await initConfig(args as any, false)
-      await installAllServices(injector)
+      await installAllServices(injector, injector.getConfig().options.stepFilters)
       process.exit(0)
     },
   )
@@ -121,6 +124,11 @@ const cmd = yargs
     type: 'number',
     description: 'how many installs can run parallelly',
     default: 1,
+  })
+  .option('stepFilters', {
+    type: 'string',
+    desciption:
+      'a list of types of steps to execute (e.g. if you only want to exec GIT pull(s) and PM2 ADD(s) on each repo',
   })
 
 export default cmd.argv

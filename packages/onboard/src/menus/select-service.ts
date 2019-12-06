@@ -16,7 +16,13 @@ export const selectServiceMenu = async (injector: Injector) => {
 
   const serviceToInstall = cfg.services.find(s => s.appName === result.selectedText)
   if (serviceToInstall) {
-    await installService(injector, serviceToInstall, cfg.directories.output, cfg.directories.input)
+    await installService({
+      injector,
+      service: serviceToInstall,
+      workdir: cfg.directories.output,
+      inputDir: cfg.directories.input,
+      stepFilters: injector.getConfig().options.stepFilters,
+    })
   }
 
   terminal.restoreCursor()
