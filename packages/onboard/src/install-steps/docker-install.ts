@@ -26,7 +26,7 @@ export class DockerInstallStep implements GenericStep<DockerInstall> {
       await execAsync(
         `docker run ${step.imageName}${step.portMappings &&
           step.portMappings.map(port => ` -p ${port.source}:${port.destination}/${port.type.toLowerCase()}`)}`,
-        { cwd: context.serviceDir },
+        { cwd: context.serviceDir, env: process.env },
       )
     }
   }
