@@ -46,7 +46,8 @@
   "files": [
     "src",
     "dist",
-    "bin"
+    "bin",
+    "config-schema.json"
   ],
   "bin": {
     "onboard": "./bin/onboard"
