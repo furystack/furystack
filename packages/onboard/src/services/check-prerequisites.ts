@@ -5,16 +5,7 @@ import { getServiceForInstallStep } from '../install-steps/exec-install-step'
 
 export type Prerequisite = (injector: Injector) => Promise<{ message: string; success: false } | undefined>
 
-export const genericPrerequisites: Prerequisite[] = [
-  async () => {
-    if (
-      (!process.env.NVM_DIR || !process.env.NVM_DIR.length) && // linux
-      (!process.env.NVM_HOME || !process.env.NVM_HOME.length) // windows
-    ) {
-      return { message: "The 'NVM_DIR' env.value has not been set. Have you installed NVM?", success: false }
-    }
-  },
-]
+export const genericPrerequisites: Prerequisite[] = []
 
 @Injectable({ lifetime: 'singleton' })
 export class CheckPrerequisitesService {

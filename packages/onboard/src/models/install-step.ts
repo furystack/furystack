@@ -14,7 +14,7 @@ export interface GitClone {
   /**
    * What should happen if the cloned repository already exists?
    */
-  onExists?: 'fail' | 'pull' | 'ignore'
+  onExists?: 'fail' | 'pull' | 'stash-and-pull' | 'ignore'
 }
 
 /**

@@ -26,9 +26,13 @@ export class GitCloneStep implements GenericStep<GitClone> {
       if (existsSync(join(context.serviceDir))) {
         if (step.onExists === 'ignore') {
           return
-        } else {
+        } else if (step.onExists === 'pull') {
           await execAsync(`git pull`, { cwd: context.serviceDir })
           return
+        } else if (step.onExists === 'stash-and-pull') {
+          await execAsync(`git stash`, { cwd: context.serviceDir })
+          await execAsync(`git pull`, { cwd: context.serviceDir })
+          await execAsync(`git stash pop`, { cwd: context.serviceDir })
         }
       }
     }
