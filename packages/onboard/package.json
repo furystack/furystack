@@ -14,10 +14,7 @@
     "lerna": "^3.19.0",
     "lint-staged": "^9.2.1",
     "prettier": "^1.17.1",
-    "rimraf": "^3.0.0",
-    "ts-json-schema-generator": "^0.58.0",
-    "tslib": "^1.9.3",
-    "typescript": "^3.7.3"
+    "rimraf": "^3.0.0"
   },
   "scripts": {
     "build": "tsc -b",
@@ -61,6 +58,9 @@
     "ajv": "^6.10.2",
     "semaphore-async-await": "^1.5.1",
     "terminal-kit": "^1.32.1",
-    "yargs": "^15.0.2"
+    "yargs": "^15.0.2",
+    "ts-json-schema-generator": "^0.58.0",
+    "tslib": "^1.9.3",
+    "typescript": "^3.7.3"
   }
 }
