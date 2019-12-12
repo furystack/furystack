@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { terminal } from 'terminal-kit'
 import { Injector } from '@furystack/inject'
+import { sleepAsync } from '@furystack/utils'
 import { ServiceModel } from '../models/service'
 import { CheckPrerequisitesService } from '../services/check-prerequisites'
 import { InstallStep } from '../models/install-step'
@@ -39,33 +40,41 @@ export const installService = async (options: {
     options.stepFilters && options.stepFilters.length ? options.stepFilters.includes(step.type) : true,
   )
 
-  const progress = terminal.progressBar({
-    title: `Installing ${options.service.appName}...`,
-    items: steps.length,
-    percent: true,
-    eta: true,
-  })
+  if (steps && steps.length) {
+    const progress = terminal.progressBar({
+      title: `Installing ${options.service.appName}...`,
+      items: steps.length,
+      percent: true,
+      eta: true,
+    })
 
-  const installServiceInjector = options.injector.createChild({ owner: options.service })
+    const installServiceInjector = options.injector.createChild({ owner: options.service })
 
-  for (const step of steps) {
-    const stepName = getStepDisplayNames(step)
-    progress.startItem(stepName)
-    try {
-      await execInstallStep(installServiceInjector, step, {
-        rootDir: options.workdir,
-        serviceDir: getServiceDir(options.service, options.workdir),
-        service: options.service,
-        inputDir: options.inputDir,
-      })
-    } catch (error) {
-      terminal
-        .nextLine(1)
-        .red(error.toString())
-        .nextLine(2)
-      process.exit(1)
+    for (const step of steps) {
+      const stepName = getStepDisplayNames(step)
+      progress.startItem(stepName)
+      try {
+        await execInstallStep(installServiceInjector, step, {
+          rootDir: options.workdir,
+          serviceDir: getServiceDir(options.service, options.workdir),
+          service: options.service,
+          inputDir: options.inputDir,
+        })
+      } catch (error) {
+        terminal
+          .nextLine(1)
+          .red(error.toString())
+          .nextLine(2)
+        process.exit(1)
+      }
+      progress.itemDone(stepName)
     }
-    progress.itemDone(stepName)
+    await installServiceInjector.dispose()
+  } else {
+    terminal
+      .magenta(JSON.stringify(options.stepFilters))
+      .nextLine(1)
+      .cyan(JSON.stringify(steps))
+    await sleepAsync(1000)
   }
-  await installServiceInjector.dispose()
 }

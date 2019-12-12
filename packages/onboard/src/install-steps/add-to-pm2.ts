@@ -30,7 +30,7 @@ export class AddToPm2Step implements GenericStep<AddToPm2> {
     }
 
     await execAsync(
-      `pm2 start ${join(context.serviceDir, step.script)} --silent --restart-delay 1000 --cwd=${
+      `pm2 start ${join(context.serviceDir, step.script)} --silent --restart-delay 10000 --cwd=${
         context.serviceDir
       } --name=${step.displayName}`,
       {

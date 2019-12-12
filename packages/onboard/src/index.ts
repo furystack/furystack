@@ -36,7 +36,7 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
     configSource: args.config as string,
     workingDir: process.cwd(),
     userInput,
-    stepFilters: (args.stepFilters || '').split(',') as Array<InstallStep['type']>,
+    stepFilters: (args.stepFilters || '').split(',').filter(f => f && f.length) as Array<InstallStep['type']>,
     parallel: args.parallel,
   })
 
