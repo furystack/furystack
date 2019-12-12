@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.5",
   "devDependencies": {
     "@types/terminal-kit": "^1.28.0",
     "@types/yargs": "^13.0.3",
