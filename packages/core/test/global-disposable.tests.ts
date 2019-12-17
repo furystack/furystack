@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { globalDisposables } from '../src/global-disposables'
+import { globalDisposables, exitHandler } from '../src/global-disposables'
 import '../src/injector-extensions'
 
 describe('Global Disposables', () => {
@@ -12,5 +12,13 @@ describe('Global Disposables', () => {
     i.disposeOnProcessExit()
 
     expect(globalDisposables).toContain(i)
+  })
+
+  it('Should attach event listeners', () => {
+    expect(process.listeners('exit')).toContain(exitHandler)
+    expect(process.listeners('SIGINT')).toContain(exitHandler)
+    expect(process.listeners('SIGUSR1')).toContain(exitHandler)
+    expect(process.listeners('SIGUSR2')).toContain(exitHandler)
+    expect(process.listeners('uncaughtException')).toContain(exitHandler)
   })
 })

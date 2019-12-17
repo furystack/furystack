@@ -3,9 +3,9 @@ import { Disposable } from '@furystack/utils/src'
 
 export const globalDisposables: Set<Disposable> = new Set()
 
-const cleanupLock = new Semaphore(1)
+export const cleanupLock = new Semaphore(1)
 
-const exitHandler = (async (exitCode: any) => {
+export const exitHandler = (async (exitCode: any) => {
   try {
     await cleanupLock.acquire()
     for (const disposable of globalDisposables) {
