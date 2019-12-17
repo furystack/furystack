@@ -1,0 +1,56 @@
+{
+  "version": "0.0.7",
+  "devDependencies": {
+    "@types/terminal-kit": "^1.28.0",
+    "@types/yargs": "^13.0.3",
+    "rimraf": "^3.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "eslint . --ext .tsx --ext .ts",
+    "prettier": "prettier --write",
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+    "start": "npm run build && node dist/index.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "*.{js,jsx}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "name": "@furystack/onboard",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "config-schema.json"
+  ],
+  "bin": {
+    "onboard": "./bin/onboard"
+  },
+  "dependencies": {
+    "@furystack/inject": "^4.0.4",
+    "@furystack/logging": "^2.0.10",
+    "@furystack/utils": "^1.1.0",
+    "ajv": "^6.10.2",
+    "semaphore-async-await": "^1.5.1",
+    "terminal-kit": "^1.32.1",
+    "ts-json-schema-generator": "^0.58.0",
+    "tslib": "^1.9.3",
+    "typescript": "^3.7.3",
+    "yargs": "^15.0.2"
+  }
+}
