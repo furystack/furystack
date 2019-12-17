@@ -23,7 +23,7 @@ declare module '@furystack/inject/dist/Injector' {
     setupStores: (builder: (storeManager: StoreManager) => void) => Injector
 
     /**
-     * Registers an exit handler that disposes the injectable on
+     * The disposable will be disposed on process exit
      */
     disposeOnProcessExit: () => Injector
   }
