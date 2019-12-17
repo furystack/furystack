@@ -1,5 +1,6 @@
 import { Injector } from '@furystack/inject/dist/Injector'
-import { StoreManager } from './StoreManager'
+import { StoreManager } from './store-manager'
+import { globalDisposables } from './global-disposables'
 
 // tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/Injector' {
@@ -20,11 +21,21 @@ declare module '@furystack/inject/dist/Injector' {
      * ````
      */
     setupStores: (builder: (storeManager: StoreManager) => void) => Injector
+
+    /**
+     * The disposable will be disposed on process exit
+     */
+    disposeOnProcessExit: () => Injector
   }
 }
 
 // tslint:disable-next-line: no-unnecessary-type-annotation
 Injector.prototype.setupStores = function(builder) {
   builder(this.getInstance(StoreManager))
+  return this
+}
+
+Injector.prototype.disposeOnProcessExit = function() {
+  globalDisposables.add(this)
   return this
 }

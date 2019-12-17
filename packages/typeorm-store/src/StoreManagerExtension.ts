@@ -4,7 +4,7 @@ import { ConnectionManager } from 'typeorm'
 import { TypeOrmStore } from './TypeOrmStore'
 
 // tslint:disable-next-line: no-unused-expression
-declare module '@furystack/core/dist/StoreManager' {
+declare module '@furystack/core/dist/store-manager' {
   /**
    * Defines an extended Injector instance
    */
