@@ -1,7 +1,7 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@furystack/utils'
-import { PhysicalStore } from './Models/PhysicalStore'
+import { PhysicalStore } from './Models/physical-store'
 
 /**
  * Manager class for store instances
