@@ -149,6 +149,12 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           if (this._injector) {
             return this._injector
           }
+
+          const fromProps = (this.props as any).injector
+          if (fromProps && fromProps instanceof Injector) {
+            return fromProps
+          }
+
           const fromParent = this.getInjectorFromParent()
           if (fromParent) {
             this._injector = fromParent
