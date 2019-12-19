@@ -43,7 +43,9 @@
     },
     {
       "path": "./shades"
+    },
+    {
+      "path": "./onboard"
     }
-
   ]
 }
