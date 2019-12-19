@@ -1,5 +1,14 @@
-/** ToDo: Main entry point */
+import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { Injector } from '@furystack/inject'
+import { VerboseConsoleLogger } from '@furystack/logging'
 import { Layout } from './components/layout'
 
-const root: HTMLDivElement = document.getElementById('root') as HTMLDivElement
-root.appendChild(Layout({}, []))
+const injector = new Injector().useLogging(VerboseConsoleLogger)
+
+const rootElement: HTMLDivElement = document.getElementById('root') as HTMLDivElement
+
+initializeShadeRoot({
+  injector,
+  rootElement,
+  jsxElement: <Layout />,
+})

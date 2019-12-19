@@ -1,7 +1,6 @@
 import { ObservableValue } from '@furystack/utils'
 import { v4 } from 'uuid'
-import '@furystack/logging'
-import { shadeInjector } from './shade-component'
+import { Injector } from '@furystack/inject'
 import { ChildrenList, RenderOptions } from './models'
 
 export interface ShadeOptions<TProps, TState> {
@@ -44,21 +43,18 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
-  const logger = shadeInjector.logger.withScope(`@furystack/shades/<${customElementName}>`)
-
   const existing = customElements.get(customElementName)
   if (!existing) {
-    logger.verbose({ message: `Registering Shade...`, data: { options: o } })
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
+          this.callConstructed()
         }
 
         public disconnectedCallback() {
           o.onDetach && o.onDetach(this.getRenderOptions())
-          logger.verbose({ message: 'Detaching...', data: this })
           this.props.dispose()
           this.state.dispose()
           this.shadeChildren.dispose()
@@ -94,14 +90,14 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           return {
             props,
             getState,
-            injector: shadeInjector,
+            injector: this.injector,
             updateState: (newState, skipRender) => {
               this.state.setValue({ ...this.state.getValue(), ...newState })
               !skipRender && this.updateComponent()
             },
             children: this.shadeChildren.getValue(),
             element: this,
-            logger,
+            logger: this.injector.logger.withScope(`@furystack/shades/<${customElementName}>`),
           } as RenderOptions<TProps, TState>
         }
 
@@ -133,13 +129,48 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             // construct is not async
             // this.cleanup = this.cleanup
           }
-          logger.verbose({
-            message: `Calling Construct...`,
-            data: this,
-          })
         }
 
         private cleanup: void | (() => void) = undefined
+
+        private _injector?: Injector
+
+        private getInjectorFromParent(): Injector | void {
+          let parent = this.parentElement
+          while (parent) {
+            if ((parent as JSX.Element).injector) {
+              return (parent as JSX.Element).injector
+            }
+            parent = parent.parentElement
+          }
+        }
+
+        public get injector(): Injector {
+          if (this._injector) {
+            return this._injector
+          }
+
+          const fromState = (this.state.getValue() as any).injector
+          if (fromState && fromState instanceof Injector) {
+            return fromState
+          }
+
+          const fromProps = (this.props.getValue() as any).injector
+          if (fromProps && fromProps instanceof Injector) {
+            return fromProps
+          }
+
+          const fromParent = this.getInjectorFromParent()
+          if (fromParent) {
+            this._injector = fromParent
+            return fromParent
+          }
+          throw Error('Injector not set explicitly and not found on parents!')
+        }
+
+        public set injector(i: Injector) {
+          this._injector = i
+        }
 
         constructor(_props: TProps) {
           super()
@@ -155,7 +186,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
     }) as JSX.Element<TProps, TState>
     el.props.setValue(props)
     el.shadeChildren.setValue(children)
-    el.callConstructed()
     return el as JSX.Element
   }
 }

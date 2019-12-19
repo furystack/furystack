@@ -36,6 +36,7 @@
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest --verbose",
     "start": "yarn tsc -b examples/repository & node examples/repository/dist/index.js",
+    "startShadeApp": "yarn workspace shade-app start",
     "fetch-metadata": "yarn workspace @furystack/example-repository odata-fetchr"
   },
   "husky": {

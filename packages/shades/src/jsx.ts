@@ -1,10 +1,12 @@
 import { ObservableValue } from '@furystack/utils'
+import { Injector } from '@furystack/inject'
 import { ChildrenList, PartialElement } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace JSX {
     interface Element<TProps = any, TState = any> extends HTMLElement {
+      injector: Injector
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
       updateComponent: () => void
