@@ -150,12 +150,12 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             return this._injector
           }
 
-          const fromState = (this.state.getValue() as any).injector
+          const fromState = (this.state.getValue() as any)?.injector
           if (fromState && fromState instanceof Injector) {
             return fromState
           }
 
-          const fromProps = (this.props.getValue() as any).injector
+          const fromProps = (this.props.getValue() as any)?.injector
           if (fromProps && fromProps instanceof Injector) {
             return fromProps
           }

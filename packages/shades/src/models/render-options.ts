@@ -4,7 +4,7 @@ import { PartialElement } from './partial-element'
 import { ChildrenList } from './children-list'
 
 export interface RenderOptions<TProps, TState> {
-  props: TProps
+  readonly props: TProps
   getState: () => TState
   updateState: (newState: PartialElement<TState>, skipRender?: boolean) => void
   injector: Injector
