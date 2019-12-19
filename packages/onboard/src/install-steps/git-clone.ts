@@ -30,9 +30,13 @@ export class GitCloneStep implements GenericStep<GitClone> {
           await execAsync(`git pull`, { cwd: context.serviceDir })
           return
         } else if (step.onExists === 'stash-and-pull') {
-          await execAsync(`git stash`, { cwd: context.serviceDir })
+          const hasChanges =
+            (await (await execAsync('git status -v --porcelain', { cwd: context.serviceDir })).trim().length) > 0
+
+          hasChanges ?? (await execAsync(`git stash`, { cwd: context.serviceDir }))
           await execAsync(`git pull`, { cwd: context.serviceDir })
-          await execAsync(`git stash pop`, { cwd: context.serviceDir })
+          hasChanges ?? (await execAsync(`git stash pop`, { cwd: context.serviceDir }))
+          return
         }
       }
     }
