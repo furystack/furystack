@@ -22,7 +22,7 @@ Repository is a collection of DataSets. A DataSet is like an extended version of
 
 ### @furystack/http-api
 
-If you want to communicate with the world, this package will be your friend. You can configure the authentication, customize routing and implement custom actions using this package.
+If you want to communicate with the world, this package will be your friend. You can configure the authentication, customize the routing pipeline and implement custom endpoint actions using this package.
 
 ### @furystack/odata-api
 
@@ -38,7 +38,15 @@ This package is a physical store implementation on the top of [TypeOrm](https://
 
 You can log in with a Google ID Token into a FuryStack backend with this simple package.
 
+## Shades
+
+@furystack/shades is a UI library that helps you to create web UIs easily, it works also with @furytechs tools like Logger or Inject.
+
 ## Utility packages
+
+### @furystack/utils
+
+A collection of useful tools like `Disposable`s with `using()` and `usingAsync()` helpers, deepMerge, Tracer and an ultra-lightweight Observer/Observable implementation
 
 ### @furystack/logging
 
@@ -47,3 +55,8 @@ Logging is a powerful library that allows you to create log entries with scopes,
 ### @furystack/inject
 
 Inject is a DI / IOC utility that allows you to handle your dependencies easily. In short terms - Just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them.
+An injector can be extended with _extension methods_, so you can configure your whole app in one place in a type safe way.
+
+### @furystack/onboard
+
+Onboard is a CLI utility to create local development environments in minutes. You can create a json manifest with a steps of cloning your services, installing dependencies, building, etc... and exec them easily - even parallelly. You can share your config from a web service (e.g. in a gist) and install an enviromnent on the fly.
