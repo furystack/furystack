@@ -1,7 +1,7 @@
 import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { Collection, MongoClient } from 'mongodb'
+import { MongoClient } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -14,7 +14,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
 
   public async getCollection() {
     const client = await this.options.mongoClient()
-    return client.db(this.options.db).collection(this.options.collection) as Collection<T>
+    return client.db(this.options.db).collection<T>(this.options.collection)
   }
 
   constructor(
@@ -33,9 +33,9 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
       message: `Initializing MongoDB Store for ${this.model.name}...`,
     })
   }
-  public async add(data: T): Promise<T> {
+  public async add(data: Exclude<T, '_id'>): Promise<T> {
     const collection = await this.getCollection()
-    const result = await collection.insertOne(data)
+    const result = await collection.insertOne(data as any)
     return { _id: result.insertedId, ...data }
   }
   public async update(id: T[this['primaryKey']], data: T): Promise<void> {
