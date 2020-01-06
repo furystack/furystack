@@ -1,6 +1,6 @@
 {
   "name": "@furystack/typeorm-store",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "description": "TypeORM Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -48,7 +48,7 @@
     "sqlite3": "^4.1.0"
   },
   "dependencies": {
-    "@furystack/core": "^6.1.0",
+    "@furystack/core": "^6.1.1",
     "@furystack/inject": "^4.0.4",
     "@furystack/logging": "^2.0.10",
     "@furystack/utils": "^1.1.0",

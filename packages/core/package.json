@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
