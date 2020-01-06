@@ -43,7 +43,9 @@ export class Utils {
       options.origins.some(origin => origin === incomingMessage.headers.origin)
     ) {
       serverResponse.setHeader('Access-Control-Allow-Origin', incomingMessage.headers.origin as string)
-      serverResponse.setHeader('Access-Control-Allow-Credentials', 'true')
+      if (options.credentials) {
+        serverResponse.setHeader('Access-Control-Allow-Credentials', 'true')
+      }
       if (options.headers && options.headers.length) {
         serverResponse.setHeader('Access-Control-Allow-Headers', options.headers.join(', '))
       }

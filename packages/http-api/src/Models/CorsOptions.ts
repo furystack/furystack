@@ -9,7 +9,7 @@ export interface CorsOptions {
   /**
    * List of the allowed actions
    */
-  methods?: Array<'POST' | 'GET' | 'PUT' | 'DELETE'>
+  methods?: Array<'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH'>
   /**
    * List of the allowed headers
    */
