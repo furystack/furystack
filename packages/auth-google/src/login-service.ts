@@ -24,13 +24,12 @@ export interface GoogleApiPayload {
 
 @Injectable({ lifetime: 'singleton' })
 export class GoogleLoginSettings {
+  public get = get
+
   public getUserFromGooglePayload: (
     payload: GoogleApiPayload,
     injector: Injector,
   ) => Promise<User | undefined> = async (payload, injector) => {
-    if (!payload.email_verified) {
-      return undefined
-    }
     const userStore = injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager))
     const users = await userStore.search({
       top: 2,
@@ -65,12 +64,15 @@ export class GoogleLoginService implements ExternalLoginService {
    */
   public async getGoogleUserData(token: string): Promise<GoogleApiPayload> {
     return await new Promise<GoogleApiPayload>((resolve, reject) =>
-      get(`${this.googleApiEndpoint}${token}`, async response => {
+      this.settings.get(`${this.googleApiEndpoint}${token}`, async response => {
         if (response.statusCode && response.statusCode < 400) {
           const body = await this.utils.readPostBody<GoogleApiPayload>(response)
-          resolve(body)
+          if (!body.email_verified) {
+            return reject(new Error('E-mail not verified!'))
+          }
+          return resolve(body)
         } else {
-          reject({ ...response })
+          return reject(new Error('Invalid response!'))
         }
       }),
     )
@@ -81,11 +83,16 @@ export class GoogleLoginService implements ExternalLoginService {
    * @param token The IdToken to authenticate
    */
   public async login(token: string): Promise<User> {
-    const googleData = await this.getGoogleUserData(token)
-    const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
-    if (!user) {
-      throw Error(`Attached user not found.`)
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const googleData = await this.getGoogleUserData(token)
+      const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
+      if (!user) {
+        throw Error(`Attached user not found.`)
+      }
+      return user
+    } catch (error) {
+      throw error
     }
-    return user
   }
 }
