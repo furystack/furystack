@@ -1,11 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
-import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@furystack/utils'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
-import { ExternalLoginService } from './Models'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -125,8 +124,12 @@ export class HttpUserContext {
     throw Error('Failed to authenticate request')
   }
 
-  public async cookieLogin(username: string, password: string, serverResponse: ServerResponse): Promise<User> {
-    const user = await this.authenticateUser(username, password)
+  /**
+   * Creates and sets up a cookie-based session for the provided user
+   * @param user The user to create a session for
+   * @param serverResponse A serverResponse to set the cookie
+   */
+  public async cookieLogin(user: User, serverResponse: ServerResponse): Promise<User> {
     const sessionId = v1()
     await this.sessions.add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
@@ -138,35 +141,6 @@ export class HttpUserContext {
       },
     })
     return user
-  }
-
-  public async externalLogin<T extends ExternalLoginService, TArgs extends any[]>(
-    service: Constructable<T>,
-    serverResponse: ServerResponse,
-    ...args: TArgs
-  ): Promise<User> {
-    try {
-      const instance = this.injector.getInstance(service)
-      const user = await instance.login(...args)
-      const sessionId = v1()
-      await this.sessions.update(sessionId, { sessionId, username: user.username })
-      serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-      this.logger.information({
-        message: `User '${user.username}' logged in with '${service.name}' external service.`,
-        data: {
-          user,
-          sessionId,
-        },
-      })
-      return user
-    } catch (error) {
-      /** */
-      this.logger.error({
-        message: `Error during external login with '${service.name}': ${error.message}`,
-        data: { error },
-      })
-      throw error
-    }
   }
 
   public async cookieLogout() {
@@ -190,7 +164,7 @@ export class HttpUserContext {
   constructor(
     private readonly incomingMessage: IncomingMessage,
     private readonly serverResponse: ServerResponse,
-    private readonly injector: Injector,
+    injector: Injector,
     public readonly authentication: HttpAuthenticationSettings<User>,
     storeManager: StoreManager,
   ) {

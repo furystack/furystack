@@ -8,7 +8,14 @@ describe('LoginAction', () => {
   it('Returns the provided user with 200 on success', async () => {
     const testUser = { Name: 'Userke' }
     await usingAsync(new Injector(), async i => {
-      i.setExplicitInstance({ cookieLogin: jest.fn(async () => testUser), authentication: {} }, HttpUserContext)
+      i.setExplicitInstance(
+        {
+          authenticateUser: jest.fn(async () => testUser),
+          cookieLogin: jest.fn(async () => testUser),
+          authentication: {},
+        },
+        HttpUserContext,
+      )
       i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction(i)
