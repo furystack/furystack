@@ -88,7 +88,7 @@ export class Injector implements Disposable {
       }
     }
 
-    if (meta.options.lifetime !== 'transient' && this.cachedSingletons.has(ctor)) {
+    if (this.cachedSingletons.has(ctor)) {
       return this.cachedSingletons.get(ctor) as T
     }
     const fromParent =
@@ -98,7 +98,9 @@ export class Injector implements Disposable {
     }
     const deps = meta.dependencies.map(dep => this.getInstance(dep, [...dependencies, ctor]))
     const newInstance = new ctor(...deps)
-    this.setExplicitInstance(newInstance)
+    if (meta.options.lifetime !== 'transient') {
+      this.setExplicitInstance(newInstance)
+    }
     return newInstance
   }
 

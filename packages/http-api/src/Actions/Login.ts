@@ -13,7 +13,8 @@ export const LoginAction: RequestAction = async injector => {
   const response = injector.getResponse()
   const loginData = await msg.readPostBody<{ username: string; password: string }>()
   try {
-    const user = await userContext.cookieLogin(loginData.username, loginData.password, response)
+    const user = await userContext.authenticateUser(loginData.username, loginData.password)
+    await userContext.cookieLogin(user, response)
     return JsonResult(user)
   } catch (error) {
     return JsonResult(

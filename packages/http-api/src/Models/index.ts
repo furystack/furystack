@@ -1,5 +1,4 @@
 export * from './CorsOptions'
 export * from './DefaultSession'
-export * from './ExternalLoginService'
 export * from './RequestAction'
 export * from './RouteModel'

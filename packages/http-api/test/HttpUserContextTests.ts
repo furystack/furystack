@@ -249,12 +249,29 @@ describe('HttpUserContext', () => {
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
         ctx.sessions.add = jest.fn(async s => s)
-        ctx.authenticateUser = jest.fn(async () => testUser)
-        const authResult = await ctx.cookieLogin('username', 'password', { setHeader } as any)
+        const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
-        expect(ctx.authenticateUser).toBeCalled()
         expect(ctx.sessions.add).toBeCalled()
+      })
+    })
+  })
+
+  describe('cookieLogout', () => {
+    it('Should invalidate the current session id cookie', async () => {
+      await usingAsync(new Injector(), async i => {
+        prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const setHeader = jest.fn()
+        ctx.sessions.add = jest.fn(async s => s)
+        ctx.authenticateRequest = jest.fn(async () => testUser)
+        ctx.sessions.remove = jest.fn(async () => undefined)
+        ctx['getSessionIdFromRequest'] = () => 'example-session-id'
+        ctx['serverResponse'].setHeader = jest.fn(() => undefined)
+        await ctx.cookieLogin(testUser, { setHeader } as any)
+        await ctx.cookieLogout()
+        expect(ctx['serverResponse'].setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
+        expect(ctx.sessions.remove).toBeCalled()
       })
     })
   })

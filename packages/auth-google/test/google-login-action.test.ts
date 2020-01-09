@@ -2,17 +2,20 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/http-api'
-import { GoogleLoginAction } from '../src'
+import { GoogleLoginAction, GoogleLoginService } from '../src'
 
 describe('GoogleLoginAction', () => {
   it('Should be activated and disposed', async () => {
     await usingAsync(new Injector(), async i => {
-      const externalLogin = jest.fn(async () => ({ username: 'example', roles: [] }))
+      const testUser = { username: 'example', roles: [] }
+      const cookieLogin = jest.fn(async () => testUser)
       i.setExplicitInstance({}, ServerResponse)
+      i.setExplicitInstance(i.getInstance(GoogleLoginService))
+      i.getInstance(GoogleLoginService).login = async () => testUser
       i.setExplicitInstance({ readPostBody: async () => ({ token: 'asd123' }) }, IncomingMessage)
-      i.setExplicitInstance({ externalLogin }, HttpUserContext)
+      i.setExplicitInstance({ cookieLogin }, HttpUserContext)
       const result = await GoogleLoginAction(i)
-      expect(externalLogin).toBeCalled()
+      expect(cookieLogin).toBeCalled()
       expect(JSON.parse(result.chunk).user.username).toBe('example')
     })
   })
