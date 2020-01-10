@@ -4,7 +4,7 @@ import { LocationService } from '../services'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RouterProps {
-  routes: Array<{ url: string; component: () => JSX.Element }>
+  routes: Array<{ url: string; component: (url: URL) => JSX.Element }>
   notFound?: () => JSX.Element
   routeMatcher: (currentUrl: URL, componentUrl: string) => boolean
 }
@@ -28,7 +28,7 @@ export const Router = Shade<RouterProps, RouterState>({
     const currentUrl = options.getState().url
     const routeMatch = options.props.routes.find(r => options.props.routeMatcher(currentUrl, r.url))
     if (routeMatch) {
-      const match = routeMatch.component()
+      const match = routeMatch.component(currentUrl)
       options.logger.information({
         message: `Route matched for '${currentUrl}'`,
         data: { match },
