@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "@types/terminal-kit": "^1.28.0",
     "@types/yargs": "^13.0.3",
@@ -42,8 +42,8 @@
     "onboard": "./bin/onboard"
   },
   "dependencies": {
-    "@furystack/inject": "^4.0.4",
-    "@furystack/logging": "^2.0.10",
+    "@furystack/inject": "^4.0.5",
+    "@furystack/logging": "^2.0.11",
     "@furystack/utils": "^1.1.0",
     "ajv": "^6.10.2",
     "semaphore-async-await": "^1.5.1",
