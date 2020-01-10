@@ -67,9 +67,6 @@ export class GoogleLoginService {
       this.settings.get(`${this.googleApiEndpoint}${token}`, async response => {
         if (response.statusCode && response.statusCode < 400) {
           const body = await this.utils.readPostBody<GoogleApiPayload>(response)
-          if (!body.email_verified) {
-            return reject(new Error('E-mail not verified!'))
-          }
           return resolve(body)
         } else {
           return reject(new Error('Invalid response!'))
