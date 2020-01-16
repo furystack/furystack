@@ -53,7 +53,7 @@
     "ws": "^7.1.1"
   },
   "devDependencies": {
-    "@types/ws": "^6.0.2"
+    "@types/ws": "^7.2.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

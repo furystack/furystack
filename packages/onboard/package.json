@@ -2,7 +2,7 @@
   "version": "0.1.2",
   "devDependencies": {
     "@types/terminal-kit": "^1.28.0",
-    "@types/yargs": "^13.0.3",
+    "@types/yargs": "^15.0.0",
     "rimraf": "^3.0.0"
   },
   "scripts": {
