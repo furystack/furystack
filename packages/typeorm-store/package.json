@@ -45,7 +45,7 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "devDependencies": {
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.1"
   },
   "dependencies": {
     "@furystack/core": "^7.0.0",
