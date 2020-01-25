@@ -232,6 +232,11 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
+"@furystack/utils@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@furystack/utils/-/utils-1.1.0.tgz#6352d0285a33f262c50049076d3db8e6cc8308e5"
+  integrity sha512-yuz7g94iR6TxW4OsROnRllJA6zvHOYq4EHAxXb6UOfcaGtdvnU37ByT089QbPhikuv94UL3i2jBqM9xiXa6LZQ==
+
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
   version "24.9.0"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-24.9.0.tgz#79b1bc06fb74a8cfb01cbdedf945584b1b9707f0"
@@ -1356,13 +1361,6 @@
   version "13.0.6"
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-13.0.6.tgz#6aed913a92c262c13b94d4bca8043237de202124"
   integrity sha512-IkltIncDQWv6fcAvnHtJ6KtkmY/vtR3bViOaCzpj/A3yNhlfZAgxNe6AEQD1cQrkYD+YsKVo08DSxvNKEsD7BA==
-  dependencies:
-    "@types/yargs-parser" "*"
-
-"@types/yargs@^15.0.0":
-  version "15.0.1"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-15.0.1.tgz#9266a9d7be68cfcc982568211085a49a277f7c96"
-  integrity sha512-sYlwNU7zYi6eZbMzFvG6eHD7VsEvFdoDtlD7eI1JTg7YNnuguzmiGsc6MPSq5l8n+h21AsNof0je+9sgOe4+dg==
   dependencies:
     "@types/yargs-parser" "*"
 
@@ -2744,11 +2742,6 @@ commander@~2.19.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
 
-commander@~4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-4.0.1.tgz#b67622721785993182e807f4883633e6401ba53c"
-  integrity sha512-IPF4ouhCP+qdlcmCedhxX4xiGBPyigb8v5NeUp+0LyhwLgxMqyp3S0vl7TAPfS/hiP7FC3caI/PB9lTmP8r1NA==
-
 comment-parser@^0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/comment-parser/-/comment-parser-0.7.2.tgz#baf6d99b42038678b81096f15b630d18142f4b8a"
@@ -3869,16 +3862,15 @@ eslint-plugin-import@^2.17.3:
     read-pkg-up "^2.0.0"
     resolve "^1.12.0"
 
-eslint-plugin-jsdoc@^20.0.0:
-  version "20.4.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-20.4.0.tgz#ea6725c3d1e68cd1ac0e633d935aa7e932b624c2"
-  integrity sha512-c/fnEpwWLFeQn+A7pb1qLOdyhovpqGCWCeUv1wtzFNL5G+xedl9wHUnXtp3b1sGHolVimi9DxKVTuhK/snXoOw==
+eslint-plugin-jsdoc@^21.0.0:
+  version "21.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-21.0.0.tgz#36bc215c5d22b320312a633dda6dfe81c34393af"
+  integrity sha512-CdLGe2oyw5YAX9rxq9bVz7H2PK+r8PVwdGuvYGMBstpbVD/66yUAgRFQRsJwAsRKLmReo58Lw1jFdNcxdOc4eg==
   dependencies:
     comment-parser "^0.7.2"
     debug "^4.1.1"
     jsdoctypeparser "^6.1.0"
     lodash "^4.17.15"
-    object.entries-ponyfill "^1.0.1"
     regextras "^0.7.0"
     semver "^6.3.0"
     spdx-expression-parse "^3.0.0"
@@ -4708,7 +4700,7 @@ glob-to-regexp@^0.3.0:
   resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.3.0.tgz#8c5a1494d2066c570cc3bfe4496175acc4d502ab"
   integrity sha1-jFoUlNIGbFcMw7/kSWF1rMTVAqs=
 
-glob@^7.0.3, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@~7.1.6:
+glob@^7.0.3, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
   version "7.1.6"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.6.tgz#141f33b81a7c2492e125594307480c46679278a6"
   integrity sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==
@@ -6247,13 +6239,6 @@ json-stable-stringify-without-jsonify@^1.0.1:
   resolved "https://registry.yarnpkg.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz#9db7b59496ad3f3cfef30a75142d2d930ad72651"
   integrity sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=
 
-json-stable-stringify@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz#9a759d39c5f2ff503fd5300646ed445f88c4f9af"
-  integrity sha1-mnWdOcXy/1A/1TAGRu1EX4jE+a8=
-  dependencies:
-    jsonify "~0.0.0"
-
 json-stringify-safe@^5.0.1, json-stringify-safe@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
@@ -6289,11 +6274,6 @@ jsonfile@^4.0.0:
   integrity sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=
   optionalDependencies:
     graceful-fs "^4.1.6"
-
-jsonify@~0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
-  integrity sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=
 
 jsonparse@^1.2.0:
   version "1.3.1"
@@ -7301,22 +7281,6 @@ node-notifier@^5.4.2:
     shellwords "^0.1.1"
     which "^1.3.0"
 
-node-pre-gyp@*:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.14.0.tgz#9a0596533b877289bcad4e143982ca3d904ddc83"
-  integrity sha512-+CvDC7ZttU/sSt9rFjix/P05iS43qHCOOGzcr3Ry99bXG7VX953+vFyEuph/tfqoYu8dttBkE86JSKBO2OzcxA==
-  dependencies:
-    detect-libc "^1.0.2"
-    mkdirp "^0.5.1"
-    needle "^2.2.1"
-    nopt "^4.0.1"
-    npm-packlist "^1.1.6"
-    npmlog "^4.0.2"
-    rc "^1.2.7"
-    rimraf "^2.6.1"
-    semver "^5.3.0"
-    tar "^4.4.2"
-
 node-pre-gyp@^0.11.0:
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.11.0.tgz#db1f33215272f692cd38f03238e3e9b47c5dd054"
@@ -7513,11 +7477,6 @@ object.assign@^4.1.0:
     function-bind "^1.1.1"
     has-symbols "^1.0.0"
     object-keys "^1.0.11"
-
-object.entries-ponyfill@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/object.entries-ponyfill/-/object.entries-ponyfill-1.0.1.tgz#29abdf77cbfbd26566dd1aa24e9d88f65433d256"
-  integrity sha1-Kavfd8v70mVm3RqiTp2I9lQz0lY=
 
 object.getownpropertydescriptors@^2.0.3, object.getownpropertydescriptors@^2.1.0:
   version "2.1.0"
@@ -9695,7 +9654,7 @@ tapable@^1.0.0, tapable@^1.1.3:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
   integrity sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==
 
-tar@^4, tar@^4.4.10, tar@^4.4.12, tar@^4.4.2, tar@^4.4.8:
+tar@^4, tar@^4.4.10, tar@^4.4.12, tar@^4.4.8:
   version "4.4.13"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.13.tgz#43b364bc52888d555298637b10d60790254ab525"
   integrity sha512-w2VwSrBoHa5BsSyH+KxEqeQBAllHhccyMFVHtGtdMpF4W7IRWfZjFiQceJPChOeTsSDVUpER2T8FA93pr0L+QA==
@@ -9725,7 +9684,7 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-terminal-kit@^1.31.4, terminal-kit@^1.32.1:
+terminal-kit@^1.31.4:
   version "1.32.3"
   resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.32.3.tgz#e3031407bfc203fbdf00b4bc7fb243a1a84d266d"
   integrity sha512-9iRH+8HbY6KSjOUVF7Ja9s8SyYEJ2eMNI9vfsNvMnDOG9iXly2bLyK1WIwZF7mSZZCZshUiNkuM25BDN3Nj81Q==
@@ -9998,17 +9957,6 @@ ts-jest@^24.1.0:
     semver "^5.5"
     yargs-parser "10.x"
 
-ts-json-schema-generator@^0.58.0:
-  version "0.58.1"
-  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.58.1.tgz#41bce930e53422723646f0b037f33b1b4c8a42d5"
-  integrity sha512-v4shrlxAYtEfeq+1Hfr57pljGv2OMHV8oZ5NwbaWHHGOfXDuDAPn9Cf7HJU4+7ls7UqUPZiyRpKQdRV+GhuSuQ==
-  dependencies:
-    "@types/json-schema" "^7.0.3"
-    commander "~4.0.1"
-    glob "~7.1.6"
-    json-stable-stringify "^1.0.1"
-    typescript "~3.7.3"
-
 ts-loader@^5.3.1:
   version "5.4.5"
   resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-5.4.5.tgz#a0c1f034b017a9344cef0961bfd97cc192492b8b"
@@ -10146,7 +10094,7 @@ typeorm@^0.2.16:
     yargonaut "^1.1.2"
     yargs "^13.2.1"
 
-typescript@^3.6.3, typescript@^3.7.3, typescript@~3.7.3:
+typescript@^3.6.3, typescript@^3.7.3:
   version "3.7.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
@@ -10970,7 +10918,7 @@ yargs@^14.2.2:
     y18n "^4.0.0"
     yargs-parser "^15.0.0"
 
-yargs@^15.0.0, yargs@^15.1.0:
+yargs@^15.0.0:
   version "15.1.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-15.1.0.tgz#e111381f5830e863a89550bd4b136bb6a5f37219"
   integrity sha512-T39FNN1b6hCW4SOIk1XyTOWxtXdcen0t+XYrysQmChzSipvhBO8Bj0nK1ozAasdk24dNWuMZvr4k24nz+8HHLg==
