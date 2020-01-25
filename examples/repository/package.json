@@ -1,6 +1,6 @@
 {
   "name": "@furystack/example-repository",
-  "version": "0.2.46",
+  "version": "0.2.47",
   "description": "Content management layer for FuryStack",
   "main": "dist/index.js",
   "private": true,
@@ -39,9 +39,9 @@
     "@furystack/mongodb-store": "^2.0.12",
     "@furystack/odata": "^2.1.12",
     "@furystack/redis-store": "^2.0.11",
-    "@furystack/typeorm-store": "^3.0.12",
+    "@furystack/typeorm-store": "^3.0.13",
     "@furystack/utils": "^1.1.0",
-    "@furystack/websocket-api": "^4.0.16",
+    "@furystack/websocket-api": "^4.0.17",
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {
