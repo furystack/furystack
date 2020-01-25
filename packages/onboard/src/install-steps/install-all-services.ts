@@ -30,9 +30,7 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
     terminal.eraseDisplayBelow()
     return
   }
-
   terminal.saveCursor()
-
   const services = cfg.services.filter(
     service =>
       service.installSteps.filter(step => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
@@ -56,12 +54,15 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
     terminal.restoreCursor()
     terminal.nextLine(1)
     servicesProgress.startItem(service.appName)
-    installService({ injector, service, workdir: cfg.directories.output, inputDir: cfg.directories.input, stepFilters })
-      .then(() => {
-        servicesProgress.itemDone(service.appName)
-        lock.release()
-      })
-      .catch(() => lock.release())
+    await installService({
+      injector,
+      service,
+      workdir: cfg.directories.output,
+      inputDir: cfg.directories.input,
+      stepFilters,
+    })
+    servicesProgress.itemDone(service.appName)
+    lock.release()
   })
 
   await Promise.all(promises)
