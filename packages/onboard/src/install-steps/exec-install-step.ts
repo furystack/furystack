@@ -1,3 +1,4 @@
+import { Injector, Constructable } from '@furystack/inject'
 import { InstallStep } from '../models/install-step'
 import { ServiceModel } from '../models/service'
 import { AddToPm2Step } from './add-to-pm2'
@@ -11,7 +12,6 @@ import { GenericStep } from './generic-step'
 import { DownloadInputFileInstallStep } from './download-input-file'
 import { DockerCommandStep } from './docker-command'
 import { DockerComposeUpStep } from './docker-compose-up'
-import { Injector, Constructable } from '@furystack/inject'
 
 export interface ExecInstallContext {
   service: ServiceModel

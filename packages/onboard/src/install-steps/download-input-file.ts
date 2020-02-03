@@ -1,10 +1,10 @@
 import { join } from 'path'
 import { createWriteStream } from 'fs'
+import got from 'got'
+import { Injectable } from '@furystack/inject'
 import { DownloadInputFile } from '../models/install-step'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
-import got from 'got'
-import { Injectable } from '@furystack/inject'
 
 @Injectable()
 export class DownloadInputFileInstallStep implements GenericStep<DownloadInputFile> {

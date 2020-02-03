@@ -1,7 +1,7 @@
+import { Injector, Injectable } from '@furystack/inject'
 import { ServiceModel } from '../models/service'
 import { InstallStep } from '../models/install-step'
 import { getServiceForInstallStep } from '../install-steps/exec-install-step'
-import { Injector, Injectable } from '@furystack/inject'
 
 export type Prerequisite = (injector: Injector) => Promise<{ message: string; success: false } | undefined>
 

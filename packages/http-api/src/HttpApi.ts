@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { HttpApiSettings } from './HttpApiSettings'
-import { Utils } from './Utils'
-import { RequestAction } from './Models'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@furystack/utils'
+import { HttpApiSettings } from './HttpApiSettings'
+import { Utils } from './Utils'
+import { RequestAction } from './Models'
 import './InjectorExtension'
 
 /**

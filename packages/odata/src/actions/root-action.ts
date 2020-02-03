@@ -1,6 +1,6 @@
-import { OdataContext } from '../odata-context'
 import { RequestAction, JsonResult } from '@furystack/http-api'
 import { PathHelper } from '@furystack/utils'
+import { OdataContext } from '../odata-context'
 
 /**
  * OData Root action

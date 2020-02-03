@@ -1,8 +1,8 @@
-import { ModelBuilder, EdmType } from '../src'
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import '@furystack/logging'
 import { IsAuthenticated, LoginAction, RequestAction, JsonResult } from '@furystack/http-api'
+import { ModelBuilder, EdmType } from '../src'
 
 class MockClass {
   id!: number

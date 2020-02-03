@@ -1,6 +1,6 @@
-import { HttpApiSettings } from '../src'
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
+import { HttpApiSettings } from '../src'
 
 // tslint:disable: no-string-literal
 

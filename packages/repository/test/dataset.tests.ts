@@ -1,9 +1,9 @@
-import { Repository } from '../src/Repository'
-import { AuthorizationResult } from '../src/DataSetSettings'
-import { DataSet } from '../src/DataSet'
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { InMemoryStore } from '@furystack/core'
+import { Repository } from '../src/Repository'
+import { AuthorizationResult } from '../src/DataSetSettings'
+import { DataSet } from '../src/DataSet'
 import '@furystack/logging'
 import '../src/InjectorExtension'
 

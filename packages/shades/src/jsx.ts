@@ -1,6 +1,6 @@
-import { ChildrenList, PartialElement } from './models'
 import { ObservableValue } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
+import { ChildrenList, PartialElement } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

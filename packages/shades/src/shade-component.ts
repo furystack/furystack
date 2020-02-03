@@ -1,5 +1,5 @@
-import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 import { Injector } from '@furystack/inject'
+import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 import '@furystack/logging'
 
 /**

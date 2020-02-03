@@ -1,10 +1,10 @@
 import { join } from 'path'
+import { Injectable } from '@furystack/inject'
 import { DockerComposeUp } from '../models/install-step'
 import { execAsync } from '../commands/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
-import { Injectable } from '@furystack/inject'
 
 export const dockerComposePrerequisites: Prerequisite[] = [
   async () => {

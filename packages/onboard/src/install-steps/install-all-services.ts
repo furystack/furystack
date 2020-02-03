@@ -1,9 +1,9 @@
-import { CheckPrerequisitesService } from '../services/check-prerequisites'
-import { InstallStep } from '../models/install-step'
-import { installService } from './install-service'
 import { sleepAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
+import { CheckPrerequisitesService } from '../services/check-prerequisites'
+import { InstallStep } from '../models/install-step'
+import { installService } from './install-service'
 
 export const installAllServices = async (injector: Injector, stepFilters?: Array<InstallStep['type']>) => {
   const config = injector.getConfig()

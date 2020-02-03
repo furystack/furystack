@@ -1,11 +1,11 @@
 import { existsSync } from 'fs'
 import { join } from 'path'
+import { Injectable } from '@furystack/inject'
 import { GitClone } from '../models/install-step'
 import { execAsync } from '../commands/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
-import { Injectable } from '@furystack/inject'
 
 export const gitPrerequisites: Prerequisite[] = [
   async () => {

@@ -1,6 +1,8 @@
 import { ServerResponse } from 'http'
 import { TLSSocket } from 'tls'
 import { parse } from 'url'
+import { PathHelper } from '@furystack/utils'
+import { RouteModel } from '@furystack/http-api'
 import { GetCollectionAction } from '../actions/get-collection-action'
 import { MetadataAction } from '../actions/metadata-action'
 import { PostAction } from '../actions/post'
@@ -10,8 +12,6 @@ import { Entity } from '../models'
 import { getEntityRoute } from './get-entity-route'
 import { RouterOptions } from './router-options'
 import { updateContext } from './update-context'
-import { PathHelper } from '@furystack/utils'
-import { RouteModel } from '@furystack/http-api'
 
 PathHelper.getSegments = path => {
   return path

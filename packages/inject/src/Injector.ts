@@ -1,6 +1,6 @@
+import { Disposable } from '@furystack/utils'
 import { defaultInjectableOptions } from './Injectable'
 import { Constructable } from './Types/Constructable'
-import { Disposable } from '@furystack/utils'
 
 /**
  * Container for injectable instances

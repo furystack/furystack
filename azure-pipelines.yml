@@ -24,9 +24,11 @@ steps:
     displayName: 'Install Node.js'
 
   - script: yarn install
-    displayName: 'Yarn install'
+    displayName: 'Install dependencies'
+  - script: yarn lint
+    displayName: 'Lint'
   - script: yarn build
-    displayName: 'Yarn build'
+    displayName: 'Build'
 
   - script: yarn test
     displayName: 'Yarn test'

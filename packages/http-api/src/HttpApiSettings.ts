@@ -1,6 +1,6 @@
+import { Injectable } from '@furystack/inject'
 import { RequestAction, RouteModel, CorsOptions } from './Models'
 import { NotFoundAction, ErrorAction } from './Actions'
-import { Injectable } from '@furystack/inject'
 
 /**
  * Configuration object for the FuryStack HTTP Api

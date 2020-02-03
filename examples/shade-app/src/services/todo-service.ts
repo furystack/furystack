@@ -1,6 +1,6 @@
-import { TodoItem } from '../models/todo-item'
 import { ObservableValue } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
+import { TodoItem } from '../models/todo-item'
 
 @Injectable({ lifetime: 'singleton' })
 export class TodoService {

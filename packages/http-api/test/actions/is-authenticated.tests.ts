@@ -1,6 +1,6 @@
-import { HttpUserContext, IsAuthenticated } from '../../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
+import { HttpUserContext, IsAuthenticated } from '../../src'
 
 describe('isAuthenticated', () => {
   it('exec', async () => {

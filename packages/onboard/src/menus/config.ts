@@ -1,8 +1,8 @@
 import { existsSync, writeFileSync, unlinkSync } from 'fs'
 import { spawnSync } from 'child_process'
-import { defaultConfig } from '../default-config'
 import { terminal } from 'terminal-kit'
 import { Injector } from '@furystack/inject'
+import { defaultConfig } from '../default-config'
 
 const getCommandLine = () => {
   switch (process.platform) {

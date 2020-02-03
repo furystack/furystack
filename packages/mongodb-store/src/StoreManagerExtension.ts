@@ -1,7 +1,7 @@
-import { MongoClientFactory } from './MongoClientFactory'
-import { MongodbStore } from './MongodbStore'
 import { StoreManager } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
+import { MongoClientFactory } from './MongoClientFactory'
+import { MongodbStore } from './MongodbStore'
 
 // tslint:disable-next-line: no-unused-expression
 declare module '@furystack/core/dist/store-manager' {

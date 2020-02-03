@@ -1,6 +1,6 @@
+import { createComponent, Shade } from '@furystack/shades'
 import { Body } from './body'
 import { Header } from './header'
-import { createComponent, Shade } from '@furystack/shades'
 
 export const Layout = Shade({
   shadowDomName: 'shade-app-layout',

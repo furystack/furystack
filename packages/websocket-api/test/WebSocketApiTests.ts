@@ -1,6 +1,6 @@
-import { WebSocketApi } from '../src'
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
+import { WebSocketApi } from '../src'
 
 describe('WebSocketApi', () => {
   it('Should be built', () => {

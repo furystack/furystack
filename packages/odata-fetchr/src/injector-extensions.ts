@@ -1,5 +1,5 @@
-import { ODataServiceOptions, OdataService } from './odata-service'
 import { Injector, Constructable } from '@furystack/inject'
+import { ODataServiceOptions, OdataService } from './odata-service'
 
 declare module '@furystack/inject/dist/Injector' {
   interface Injector {

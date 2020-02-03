@@ -1,7 +1,7 @@
+import { Constructable } from '@furystack/inject'
 import { EdmType } from './edm-type'
 import { FunctionDescriptor } from './function-descriptor'
 import { NavigationProperty, NavigationPropertyCollection } from './navigation-property'
-import { Constructable } from '@furystack/inject'
 
 /**
  * An OData Entity definition

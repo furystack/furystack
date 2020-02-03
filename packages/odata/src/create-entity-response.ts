@@ -1,9 +1,9 @@
-import { getOdataParams } from './get-odata-params'
-import { Entity, NavigationProperty } from './models'
-import { OdataContext } from './odata-context'
 import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { PathHelper } from '@furystack/utils'
+import { getOdataParams } from './get-odata-params'
+import { Entity, NavigationProperty } from './models'
+import { OdataContext } from './odata-context'
 
 /**
  * Removes the most outer level from the expand expression

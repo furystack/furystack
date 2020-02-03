@@ -1,9 +1,9 @@
 import '@furystack/logging/dist/InjectorExtension'
 import { IncomingMessage } from 'http'
-import { JsonResult, RequestAction } from './Models'
-import { HttpUserContext } from './HttpUserContext'
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
+import { JsonResult, RequestAction } from './Models'
+import { HttpUserContext } from './HttpUserContext'
 
 export const Authorize = (...roles: string[]) => (action: RequestAction) => {
   return async (i: Injector) => {

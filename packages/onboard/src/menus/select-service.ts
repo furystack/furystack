@@ -1,6 +1,6 @@
-import { installService } from '../install-steps/install-service'
 import { terminal } from 'terminal-kit'
 import { Injector } from '@furystack/inject'
+import { installService } from '../install-steps/install-service'
 
 export const selectServiceMenu = async (injector: Injector) => {
   terminal.saveCursor()

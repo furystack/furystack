@@ -1,16 +1,16 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 import './config'
+import yargs from 'yargs'
+import { Injector } from '@furystack/inject'
+import { ConsoleLogger, VerboseConsoleLogger } from '@furystack/logging'
+import got from 'got'
 import { mainMenu } from './menus/main'
 import { InMemoryLogging } from './in-memory-logging'
 import { CheckPrerequisitesService, genericPrerequisites } from './services/check-prerequisites'
 import { defaultConfig } from './default-config'
 import { installAllServices } from './install-steps/install-all-services'
 import { InstallStep } from './models/install-step'
-import yargs from 'yargs'
-import { Injector } from '@furystack/inject'
-import { ConsoleLogger, VerboseConsoleLogger } from '@furystack/logging'
-import got from 'got'
 const injector = new Injector().useLogging(InMemoryLogging)
 
 export interface ArgType {

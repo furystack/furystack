@@ -1,10 +1,10 @@
 import { join } from 'path'
+import { Injectable } from '@furystack/inject'
 import { NpmScript } from '../models/install-step'
 import { execAsync } from '../commands/exec-async'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 import { npmPrerequisites } from './npm-install'
-import { Injectable } from '@furystack/inject'
 
 @Injectable()
 export class NpmScriptStep implements GenericStep<NpmScript> {

@@ -1,7 +1,7 @@
-import { Logger } from './Logger'
-import { LoggerCollection } from './LoggerCollection'
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject/dist/Injector'
+import { Logger } from './Logger'
+import { LoggerCollection } from './LoggerCollection'
 
 declare module '@furystack/inject/dist/Injector' {
   /**

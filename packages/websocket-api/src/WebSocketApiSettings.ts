@@ -1,6 +1,6 @@
+import { Constructable } from '@furystack/inject'
 import { WhoAmI } from './Actions/Whoami'
 import { WebSocketAction, WebSocketActionStatic } from '.'
-import { Constructable } from '@furystack/inject'
 
 /**
  * A configuration object for FuryStack WebSocket API

@@ -1,5 +1,5 @@
-import { FunctionDescriptor } from './function-descriptor'
 import { Constructable } from '@furystack/inject'
+import { FunctionDescriptor } from './function-descriptor'
 
 /**
  * Defines an OData Collection

@@ -1,6 +1,6 @@
 import '@furystack/logging'
-import { InMemoryStore } from '../src/in-memory-store'
 import { usingAsync } from '@furystack/utils'
+import { InMemoryStore } from '../src/in-memory-store'
 
 class MockClass {
   public id!: number

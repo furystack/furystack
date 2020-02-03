@@ -1,9 +1,9 @@
+import { PathHelper } from '@furystack/utils'
+import { Injectable, Constructable } from '@furystack/inject'
 import { ODataError } from './odata-error'
 import { ODataGetOperation } from './odata-get-operation'
 import { ODataQuery } from './odata-query'
 import { ODataQueryResult } from './odata-query-result'
-import { PathHelper } from '@furystack/utils'
-import { Injectable, Constructable } from '@furystack/inject'
 
 @Injectable({ lifetime: 'scoped' })
 export class ODataServiceOptions {

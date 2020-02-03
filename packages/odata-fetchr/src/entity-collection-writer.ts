@@ -1,9 +1,9 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
-import { Configuration, EntitySet, OdataEndpoint, OdataParameter } from './models'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { terminal } from 'terminal-kit'
+import { Configuration, EntitySet, OdataEndpoint, OdataParameter } from './models'
 
 /**
  * Service class for persisting entity types

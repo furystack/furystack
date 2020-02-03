@@ -1,6 +1,6 @@
+import { RequestAction, XmlResult } from '@furystack/http-api'
 import { ModelBuilder } from '../model-builder'
 import { xmlToString } from '../xml-utils'
-import { RequestAction, XmlResult } from '@furystack/http-api'
 
 /**
  * OData Metadata action

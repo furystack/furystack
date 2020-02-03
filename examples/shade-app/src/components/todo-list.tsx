@@ -1,7 +1,7 @@
+import { Shade, createComponent } from '@furystack/shades'
 import { TodoItem } from '../models/todo-item'
 import { TodoService } from '../services/todo-service'
 import { TodoItemComponent } from './todo-item'
-import { Shade, createComponent } from '@furystack/shades'
 
 export interface TodoState {
   todoItems: TodoItem[]

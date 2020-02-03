@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { sleepAsync } from '@furystack/utils'
 import { v1 } from 'uuid'
+import { HttpAuthenticationSettings } from './HttpAuthenticationSettings'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
