@@ -42,7 +42,7 @@ export class CheckPrerequisitesService {
       .filter(step =>
         options.stepFilters && options.stepFilters.length ? options.stepFilters.includes(step.type) : true,
       )
-      .map(step => getServiceForInstallStep(step))
+      .map(step => getServiceForInstallStep(step, this.injector))
       .map(step => this.injector.getInstance(step))
       .filter(step => step.prerequisites && step.prerequisites.length)
       .reduce<Prerequisite[]>((prev, current) => [...prev, ...(current.prerequisites as Prerequisite[])], [])

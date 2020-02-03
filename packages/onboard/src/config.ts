@@ -44,10 +44,6 @@ export class Config {
   public getConfigFilePath = () => join(this.options.workingDir, this.options.configSource)
 
   public async init() {
-    const configFilePath = this.getConfigFilePath()
-    const configFileString = readFileSync(configFilePath)
-    const configData = JSON.parse(configFileString.toString()) as ConfigModel
-
     if (!existsSync(configSchemaPath)) {
       await createJsonSchema({
         inputTsFile: './src/models/config.ts',
@@ -56,6 +52,9 @@ export class Config {
         schemaName: 'Config',
       })
     }
+    const configFilePath = this.getConfigFilePath()
+    const configFileString = readFileSync(configFilePath)
+    const configData = JSON.parse(configFileString.toString()) as ConfigModel
 
     const schema = JSON.parse(readFileSync(configSchemaPath).toString())
     const validate = validateSchema({ data: configData, schema })

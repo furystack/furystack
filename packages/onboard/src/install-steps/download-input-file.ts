@@ -1,0 +1,22 @@
+import { join } from 'path'
+import { createWriteStream } from 'fs'
+import { DownloadInputFile } from '../models/install-step'
+import { ExecInstallContext } from './exec-install-step'
+import { GenericStep } from './generic-step'
+import got from 'got'
+import { Injectable } from '@furystack/inject'
+
+@Injectable()
+export class DownloadInputFileInstallStep implements GenericStep<DownloadInputFile> {
+  prerequisites = []
+
+  public run = async (step: DownloadInputFile, context: ExecInstallContext) => {
+    const result = await got(step.url, { isStream: true })
+    result.pipe(createWriteStream(join(context.inputDir, step.destination)))
+    // await new Promise((resolve, reject) => {
+    //   writeFile(join(context.inputDir, step.destination), result.body, err => {
+    //     err ? reject(err) : resolve()
+    //   })
+    // })
+  }
+}

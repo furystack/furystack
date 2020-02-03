@@ -111,4 +111,51 @@ export interface BowerInstall {
   path?: string
 }
 
-export type InstallStep = GitClone | MongoRestore | DockerInstall | AddToPm2 | NpmInstall | NpmScript | BowerInstall
+/**
+ * Downloads a file from a specific location
+ */
+export interface DownloadInputFile {
+  type: 'DownloadInputFile'
+  /**
+   * A full URL to download from
+   */
+  url: string
+  /**
+   * The destination path and file name (relative to the INPUT root)
+   */
+  destination: string
+}
+
+/**
+ * Executes a Docker Compose UP command
+ */
+export interface DockerComposeUp {
+  type: 'DockerComposeUp'
+  /**
+   * The Compose file path and name (relative to the INPUT root directory)
+   */
+  composeFile: string
+}
+
+/**
+ * Executes a custom Docker command
+ */
+export interface DockerCommand {
+  type: 'DockerCommand'
+  /**
+   * The command itself (e.g.: 'cp alma.zip')
+   */
+  command: string
+}
+
+export type InstallStep =
+  | GitClone
+  | MongoRestore
+  | DockerInstall
+  | AddToPm2
+  | NpmInstall
+  | NpmScript
+  | BowerInstall
+  | DownloadInputFile
+  | DockerComposeUp
+  | DockerCommand

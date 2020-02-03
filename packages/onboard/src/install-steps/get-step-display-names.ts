@@ -16,6 +16,12 @@ export const getStepDisplayNames = (step: InstallStep) => {
       return `Restoring Mongo Database '${step.dbName}' from ${step.dumpPath}`
     case 'BowerInstall':
       return `Installing Bower dependencies${step.path ? ` in ${step.path}...` : '...'}`
+    case 'DownloadInputFile':
+      return `Downloading input file to ${step.destination}...`
+    case 'DockerCommand':
+      return `Executing Docker command '${step.command}'`
+    case 'DockerComposeUp':
+      return `Executing Docker-Compose UP...`
     default:
       return (step as any).type
   }

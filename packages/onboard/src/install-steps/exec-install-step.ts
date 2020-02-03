@@ -8,6 +8,9 @@ import { GitCloneStep } from './git-clone'
 import { MongoRestoreStep } from './mongo-restore'
 import { BowerInstallStep } from './bower-install'
 import { GenericStep } from './generic-step'
+import { DownloadInputFileInstallStep } from './download-input-file'
+import { DockerCommandStep } from './docker-command'
+import { DockerComposeUpStep } from './docker-compose-up'
 import { Injector, Constructable } from '@furystack/inject'
 
 export interface ExecInstallContext {
@@ -17,7 +20,10 @@ export interface ExecInstallContext {
   serviceDir: string
 }
 
-export const getServiceForInstallStep = <T extends InstallStep>(step: T): Constructable<GenericStep<T>> => {
+export const getServiceForInstallStep = <T extends InstallStep>(
+  step: T,
+  injector: Injector,
+): Constructable<GenericStep<T>> => {
   switch (step.type) {
     case 'AddToPm2':
       return AddToPm2Step as Constructable<GenericStep<T>>
@@ -33,11 +39,18 @@ export const getServiceForInstallStep = <T extends InstallStep>(step: T): Constr
       return MongoRestoreStep as Constructable<GenericStep<T>>
     case 'BowerInstall':
       return BowerInstallStep as Constructable<GenericStep<T>>
+    case 'DownloadInputFile':
+      return DownloadInputFileInstallStep as Constructable<GenericStep<T>>
+    case 'DockerCommand':
+      return DockerCommandStep as Constructable<GenericStep<T>>
+    case 'DockerComposeUp':
+      return DockerComposeUpStep as Constructable<GenericStep<T>>
     default:
-      throw Error('Step not implemented!')
+      injector.logger.error({ scope: 'execInstallStep', message: 'Step for type is not implemented', data: { step } })
+      throw Error(`Step '${step.type}' not implemented!`)
   }
 }
 
 export const execInstallStep = async (injector: Injector, step: InstallStep, context: ExecInstallContext) => {
-  return await injector.getInstance(getServiceForInstallStep(step)).run(step, context)
+  return await injector.getInstance(getServiceForInstallStep(step, injector)).run(step, context)
 }

@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Onboard",
       "program": "${workspaceFolder}/packages/onboard/dist/index.js",
-      "args": ["---parallel=3", "--stepFilters=AddToPm2"],
+      // "args": ["---parallel=3", "--stepFilters=AddToPm2"],
       "cwd": "${input:workdir}",
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
