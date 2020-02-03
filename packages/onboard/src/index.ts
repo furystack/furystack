@@ -1,6 +1,5 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
-import '@furystack/logging'
 import './config'
 import { mainMenu } from './menus/main'
 import { InMemoryLogging } from './in-memory-logging'
@@ -11,8 +10,7 @@ import { installAllServices } from './install-steps/install-all-services'
 import { InstallStep } from './models/install-step'
 import yargs from 'yargs'
 import { Injector } from '@furystack/inject'
-import { terminal } from 'terminal-kit'
-
+import { ConsoleLogger, VerboseConsoleLogger } from '@furystack/logging'
 const injector = new Injector().useLogging(InMemoryLogging)
 
 export interface ArgType {
@@ -20,14 +18,17 @@ export interface ArgType {
   config: string
   parallel: number
   stepFilters?: string
+  verbose?: boolean
 }
 
 const initConfig = async (args: ArgType, userInput: boolean) => {
+  args.verbose ? injector.useLogging(VerboseConsoleLogger) : injector.useLogging(ConsoleLogger)
+  const logger = injector.logger.withScope('InitConfig')
   if (args['download-config']) {
-    terminal
-      .nextLine(1)
-      .white('Downloading remote config...')
-      .nextLine(1)
+    logger.information({
+      message: 'Downloading remote config...',
+      data: { download: args.config, config: args.config },
+    })
     await injector
       .getInstance(ConfigDownloaderService)
       .download(args['download-config'] as string, args.config as string)
@@ -47,26 +48,14 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
     .check(...injector.getConfig().prerequisites, ...genericPrerequisites)
 
   if (prereqChecks.length) {
-    terminal
-      .nextLine(1)
-      .red('The following prerequisites has not been met:')
-      .nextLine(2)
-    prereqChecks.map(msg => terminal.red(msg).nextLine(1))
-    process.exit(1)
+    logger.error({ message: `The prerequisites has not been met`, data: prereqChecks })
+    throw Error(`The prerequisites has not been met`)
   }
 }
 
-terminal.setNice(5)
-terminal
-  .windowTitle('OnBoard ')
-  .clear()
-  .defaultColor('----====')
-  .white(' | OnBoard | ')
-  .defaultColor('====----')
-  .nextLine(1)
-
 const cmd = yargs
   .scriptName('onboard')
+  .showHelpOnFail(false, 'Specify --help for available options')
   .command(
     'init',
     'initializes the onboard service with a default config file',
@@ -74,8 +63,12 @@ const cmd = yargs
       /** */
     },
     args => {
-      const cfg = JSON.stringify(defaultConfig, undefined, 2)
-      writeFileSync(join(process.cwd(), args.config as string), cfg)
+      try {
+        const cfg = JSON.stringify(defaultConfig, undefined, 2)
+        writeFileSync(join(process.cwd(), args.config as string), cfg)
+      } catch (error) {
+        injector.getInstance(InMemoryLogging).flushToFile()
+      }
     },
   )
   .command(
@@ -85,8 +78,12 @@ const cmd = yargs
       /** */
     },
     async args => {
-      await initConfig(args as any, false)
-      await installAllServices(injector, injector.getConfig().options.stepFilters)
+      try {
+        await initConfig(args as any, false)
+        await installAllServices(injector, injector.getConfig().options.stepFilters)
+      } catch (error) {
+        injector.getInstance(InMemoryLogging).flushToFile()
+      }
       process.exit(0)
     },
   )
@@ -100,7 +97,11 @@ const cmd = yargs
       await initConfig(args as any, true)
       const run = true
       while (run) {
-        await mainMenu(injector)
+        try {
+          await mainMenu(injector)
+        } catch (error) {
+          injector.getInstance(InMemoryLogging).flushToFile()
+        }
       }
     },
   )

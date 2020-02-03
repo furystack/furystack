@@ -1,13 +1,13 @@
 import { CheckPrerequisitesService } from '../services/check-prerequisites'
 import { InstallStep } from '../models/install-step'
 import { installService } from './install-service'
-import { terminal } from 'terminal-kit'
 import { sleepAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
 
 export const installAllServices = async (injector: Injector, stepFilters?: Array<InstallStep['type']>) => {
   const config = injector.getConfig()
+  const logger = injector.logger.withScope('installAllServices')
   const { parallel } = config.options
 
   const lock = new Semaphore(parallel)
@@ -18,19 +18,9 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
     .getInstance(CheckPrerequisitesService)
     .checkPrerequisiteForServices({ services: cfg.services, stepFilters })
   if (checks.length) {
-    terminal
-      .nextLine(2)
-      .red('The following prerequisites has not been met:')
-      .nextLine(2)
-    for (const req of checks) {
-      terminal.red(` - ${req}`).nextLine(1)
-    }
-    await terminal.singleColumnMenu(['Ok, go back :(']).promise
-    terminal.restoreCursor()
-    terminal.eraseDisplayBelow()
+    logger.error({ message: `Some prerequisites has not been met`, data: { checks, ...cfg } })
     return
   }
-  terminal.saveCursor()
   const services = cfg.services.filter(
     service =>
       service.installSteps.filter(step => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
@@ -41,19 +31,9 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
     return
   }
 
-  const servicesProgress = terminal.progressBar({
-    title: 'Installing services...',
-    items: services.length,
-    eta: true,
-    percent: true,
-  })
-
   const promises = services.map(async (service, index) => {
     await lock.acquire()
     await sleepAsync(index * 100)
-    terminal.restoreCursor()
-    terminal.nextLine(1)
-    servicesProgress.startItem(service.appName)
     await installService({
       injector,
       service,
@@ -61,7 +41,10 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
       inputDir: cfg.directories.input,
       stepFilters,
     })
-    servicesProgress.itemDone(service.appName)
+    logger.information({
+      message: `Finished service installation: ${service.appName}`,
+      data: { service, stepFilters },
+    })
     lock.release()
   })
 
@@ -72,8 +55,4 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
   }
 
   await sleepAsync(100)
-
-  terminal.restoreCursor()
-  terminal.previousLine(1)
-  terminal.eraseDisplayBelow()
 }

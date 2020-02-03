@@ -6,7 +6,6 @@ import { execInstallStep } from './exec-install-step'
 import { getStepDisplayNames } from './get-step-display-names'
 import { sleepAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { terminal } from 'terminal-kit'
 
 const getServiceDir = (service: ServiceModel, workDir: string) => {
   return join(workDir, service.appName)
@@ -19,40 +18,39 @@ export const installService = async (options: {
   inputDir: string
   stepFilters?: Array<InstallStep['type']>
 }) => {
+  const logger = options.injector.logger.withScope('installService')
+
   const checks = await options.injector
     .getInstance(CheckPrerequisitesService)
     .checkPrerequisiteForSteps({ steps: options.service.installSteps, stepFilters: options.stepFilters })
 
   if (checks.length) {
-    terminal
-      .nextLine(2)
-      .red('The following prerequisites has not been met:')
-      .nextLine(1)
-    for (const req of checks) {
-      terminal.red(req).nextLine(1)
-    }
-    await terminal.singleColumnMenu(['Ok, go back :(']).promise
-    terminal.restoreCursor()
-    terminal.eraseDisplayBelow()
-    return
+    logger.error({
+      message: `Some prerequisites has not been met`,
+      data: { ...options, checks },
+    })
   }
   const steps = options.service.installSteps.filter(step =>
     options.stepFilters && options.stepFilters.length ? options.stepFilters.includes(step.type) : true,
   )
 
   if (steps && steps.length) {
-    const progress = terminal.progressBar({
-      title: `Installing ${options.service.appName}...`,
-      items: steps.length,
-      percent: true,
-      eta: true,
+    logger.information({
+      message: `Installing service ${options.service.appName}...`,
+      data: { steps },
     })
 
     const installServiceInjector = options.injector.createChild({ owner: options.service })
 
     for (const step of steps) {
       const stepName = getStepDisplayNames(step)
-      progress.startItem(stepName)
+      logger.information({
+        message: `Executing step in service '${options.service.appName}': ${stepName}`,
+        data: {
+          step,
+          service: options.service,
+        },
+      })
       try {
         await execInstallStep(installServiceInjector, step, {
           rootDir: options.workdir,
@@ -61,20 +59,16 @@ export const installService = async (options: {
           inputDir: options.inputDir,
         })
       } catch (error) {
-        terminal
-          .nextLine(1)
-          .red(error.toString())
-          .nextLine(2)
-        process.exit(1)
+        logger.error({
+          scope: `installService/${step.type}`,
+          message: 'There was an error installing the service',
+          data: { service: options.service, step, error, errorString: error.toString() },
+        })
+        throw error
       }
-      progress.itemDone(stepName)
     }
     await installServiceInjector.dispose()
   } else {
-    terminal
-      .magenta(JSON.stringify(options.stepFilters))
-      .nextLine(1)
-      .cyan(JSON.stringify(steps))
     await sleepAsync(1000)
   }
 }

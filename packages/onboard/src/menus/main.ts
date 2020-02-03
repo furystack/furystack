@@ -4,6 +4,10 @@ import { terminal } from 'terminal-kit'
 import { Injector } from '@furystack/inject'
 
 export const mainMenu = async (injector: Injector) => {
+  terminal
+    .clear()
+    .nextLine(1)
+    .defaultColor(`----------=========== Onboard ===========----------`)
   terminal.saveCursor()
   const result = await terminal.singleColumnMenu(['Start install', 'Config', 'Exit']).promise
 
