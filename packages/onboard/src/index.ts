@@ -5,12 +5,12 @@ import { mainMenu } from './menus/main'
 import { InMemoryLogging } from './in-memory-logging'
 import { CheckPrerequisitesService, genericPrerequisites } from './services/check-prerequisites'
 import { defaultConfig } from './default-config'
-import { ConfigDownloaderService } from './services/config-downloader'
 import { installAllServices } from './install-steps/install-all-services'
 import { InstallStep } from './models/install-step'
 import yargs from 'yargs'
 import { Injector } from '@furystack/inject'
 import { ConsoleLogger, VerboseConsoleLogger } from '@furystack/logging'
+import got from 'got'
 const injector = new Injector().useLogging(InMemoryLogging)
 
 export interface ArgType {
@@ -29,9 +29,8 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
       message: 'Downloading remote config...',
       data: { download: args.config, config: args.config },
     })
-    await injector
-      .getInstance(ConfigDownloaderService)
-      .download(args['download-config'] as string, args.config as string)
+    const result = await got(args['download-config'])
+    writeFileSync(args.config, result.body)
   }
   injector.useConfig({
     configSource: args.config as string,
@@ -94,12 +93,13 @@ const cmd = yargs
       /** */
     },
     async args => {
-      await initConfig(args as any, true)
-      const run = true
+      let run = true
       while (run) {
         try {
+          await initConfig(args as any, true)
           await mainMenu(injector)
         } catch (error) {
+          run = false
           injector.getInstance(InMemoryLogging).flushToFile()
         }
       }
