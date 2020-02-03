@@ -1,5 +1,5 @@
-import { Shade, createComponent } from '@furystack/shades'
 import { TodoService } from '../services/todo-service'
+import { Shade, createComponent } from '@furystack/shades'
 
 export const AddTodo = Shade({
   shadowDomName: 'add-todo',

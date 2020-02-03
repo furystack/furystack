@@ -1,9 +1,9 @@
 import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
+import { PhysicalStore, SearchOptions } from './models/physical-store'
+import { InMemoryStore } from './in-memory-store'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
-import { PhysicalStore, SearchOptions } from './models/physical-store'
-import { InMemoryStore } from './in-memory-store'
 
 /**
  * Store implementation that stores info in a simple JSON file

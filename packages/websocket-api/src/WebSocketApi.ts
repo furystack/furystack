@@ -1,12 +1,12 @@
 import { parse } from 'url'
 import { IncomingMessage } from 'http'
+import { WebSocketAction } from './models'
+import { WebSocketApiSettings } from './WebSocketApiSettings'
 import { ServerManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
-import { WebSocketAction } from './models'
-import { WebSocketApiSettings } from './WebSocketApiSettings'
 
 /**
  * A WebSocket API implementation for FuryStack

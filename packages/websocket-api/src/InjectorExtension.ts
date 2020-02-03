@@ -1,6 +1,6 @@
-import { Injector } from '@furystack/inject/dist/Injector'
 import { WebSocketApi } from './WebSocketApi'
 import { WebSocketApiSettings } from './WebSocketApiSettings'
+import { Injector } from '@furystack/inject/dist/Injector'
 
 declare module '@furystack/inject/dist/Injector' {
   /**

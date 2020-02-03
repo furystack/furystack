@@ -1,7 +1,7 @@
-import { terminal } from 'terminal-kit'
-import { Injector } from '@furystack/inject'
 import { configMenu } from './config'
 import { startMenu } from './start'
+import { terminal } from 'terminal-kit'
+import { Injector } from '@furystack/inject'
 
 export const mainMenu = async (injector: Injector) => {
   terminal.saveCursor()

@@ -1,7 +1,7 @@
+import { StoreManager, InMemoryStore } from '../src'
 import { using } from '@furystack/utils'
 import '@furystack/logging'
 import { Injector } from '@furystack/inject'
-import { StoreManager, InMemoryStore } from '../src'
 
 describe('StoreManager', () => {
   it('Can be retrieved from an injector', () => {

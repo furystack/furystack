@@ -1,12 +1,12 @@
 import { join } from 'path'
-import { terminal } from 'terminal-kit'
-import { Injector } from '@furystack/inject'
-import { sleepAsync } from '@furystack/utils'
 import { ServiceModel } from '../models/service'
 import { CheckPrerequisitesService } from '../services/check-prerequisites'
 import { InstallStep } from '../models/install-step'
 import { execInstallStep } from './exec-install-step'
 import { getStepDisplayNames } from './get-step-display-names'
+import { sleepAsync } from '@furystack/utils'
+import { Injector } from '@furystack/inject'
+import { terminal } from 'terminal-kit'
 
 const getServiceDir = (service: ServiceModel, workDir: string) => {
   return join(workDir, service.appName)

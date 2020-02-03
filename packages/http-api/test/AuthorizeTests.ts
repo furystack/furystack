@@ -1,8 +1,8 @@
 import { IncomingMessage } from 'http'
+import { Authorize, EmptyResult, HttpUserContext } from '../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { User } from '@furystack/core'
-import { Authorize, EmptyResult, HttpUserContext } from '../src'
 
 describe('Authorize', () => {
   it('Should return 403 when failed to get current user', async () => {

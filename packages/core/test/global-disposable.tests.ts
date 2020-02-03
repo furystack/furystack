@@ -1,6 +1,6 @@
+import { globalDisposables, exitHandler } from '../src/global-disposables'
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { globalDisposables, exitHandler } from '../src/global-disposables'
 import '../src/injector-extensions'
 
 describe('Global Disposables', () => {

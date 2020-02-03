@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
+import { NotFoundAction } from '../../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { NotFoundAction } from '../../src'
 
 describe('NotFoundAction tests', () => {
   it('exec', async () => {

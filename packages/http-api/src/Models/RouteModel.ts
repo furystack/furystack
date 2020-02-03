@@ -1,5 +1,5 @@
-import { Injector } from '@furystack/inject'
 import { RequestAction } from './RequestAction'
+import { Injector } from '@furystack/inject'
 
 /**
  * Strategy for resolving actions from a route

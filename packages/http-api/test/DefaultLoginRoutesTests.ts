@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
+import { GetCurrentUser, LoginAction, LogoutAction, defaultLoginRoutes } from '../src'
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { GetCurrentUser, LoginAction, LogoutAction, defaultLoginRoutes } from '../src'
 
 describe('Default login routes', () => {
   it('/login should resolve Login action', () => {

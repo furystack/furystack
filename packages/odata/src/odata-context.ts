@@ -1,6 +1,6 @@
-import { Injectable } from '@furystack/inject'
 import { getOdataParams } from './get-odata-params'
 import { Collection, Entity, NavigationProperty, NavigationPropertyCollection } from './models'
+import { Injectable } from '@furystack/inject'
 
 /**
  * Context model for OData operations

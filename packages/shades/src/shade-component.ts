@@ -1,6 +1,6 @@
+import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 import { Injector } from '@furystack/inject'
 import '@furystack/logging'
-import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 
 /**
  * Appends a list of items to a HTML element

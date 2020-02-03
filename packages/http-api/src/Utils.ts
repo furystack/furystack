@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { Injectable } from '@furystack/inject'
 import { CorsOptions } from './Models/CorsOptions'
+import { Injectable } from '@furystack/inject'
 
 /**
  * A collection of various HTTP API related utilities

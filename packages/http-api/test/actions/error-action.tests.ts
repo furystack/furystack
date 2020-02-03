@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
+import { ErrorAction } from '../../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { ErrorAction } from '../../src'
 
 describe('ErrorAction tests', () => {
   it('returns the error in the standard format', async () => {

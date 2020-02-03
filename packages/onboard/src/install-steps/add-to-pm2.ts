@@ -1,10 +1,10 @@
 import { join } from 'path'
-import { Injectable } from '@furystack/inject'
 import { AddToPm2 } from '../models/install-step'
 import { execAsync } from '../commands/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { GenericStep } from './generic-step'
 import { ExecInstallContext } from './exec-install-step'
+import { Injectable } from '@furystack/inject'
 
 const pm2Prerequisites: Prerequisite[] = [
   async () => {

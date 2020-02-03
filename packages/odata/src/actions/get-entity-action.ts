@@ -1,7 +1,7 @@
-import { RequestAction, NotFoundAction, JsonResult } from '@furystack/http-api'
-import { Repository } from '@furystack/repository'
 import { createEntityResponse } from '../create-entity-response'
 import { OdataContext } from '../odata-context'
+import { RequestAction, NotFoundAction, JsonResult } from '@furystack/http-api'
+import { Repository } from '@furystack/repository'
 
 /**
  * Odata Get Entity action

@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http'
+import { Authenticate, EmptyResult, HttpUserContext } from '../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { Authenticate, EmptyResult, HttpUserContext } from '../src'
 
 describe('Authenticate', () => {
   it('Should return 403 w/o basic auth header, when unauthorized and basic auth is disabled', async () => {

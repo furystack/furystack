@@ -1,5 +1,5 @@
-import { Injector } from '@furystack/inject'
 import { OdataContext } from '../odata-context'
+import { Injector } from '@furystack/inject'
 
 /**
  * updates the OData Context based on a partial ODataContext instance

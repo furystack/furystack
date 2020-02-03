@@ -1,6 +1,6 @@
+import { DataSetSettings } from './DataSetSettings'
 import { Injectable, Injector } from '@furystack/inject'
 import { SearchOptions } from '@furystack/core'
-import { DataSetSettings } from './DataSetSettings'
 
 /**
  * An authorized Repository Store instance

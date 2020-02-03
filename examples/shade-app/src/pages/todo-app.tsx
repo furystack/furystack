@@ -1,8 +1,8 @@
-import { Shade, createComponent } from '@furystack/shades'
-import { Injector } from '@furystack/inject'
 import { TodoService } from '../services/todo-service'
 import { AddTodo } from '../components/add-todo'
 import { TodoList } from '../components/todo-list'
+import { Injector } from '@furystack/inject'
+import { Shade, createComponent } from '@furystack/shades'
 
 export const TodoApp = Shade({
   initialState: {

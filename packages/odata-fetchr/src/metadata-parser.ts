@@ -1,5 +1,5 @@
-import { Injectable } from '@furystack/inject'
 import { EntitySet, EntityType, OdataAction, OdataEndpoint, OdataFunction } from './models'
+import { Injectable } from '@furystack/inject'
 
 /**
  * method that parses an OData XML to an Endpoint model

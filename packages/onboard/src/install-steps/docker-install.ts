@@ -1,10 +1,10 @@
-import { Injectable } from '@furystack/inject'
 import { DockerInstall } from '../models/install-step'
 import { readDockerContainers } from '../commands/read-docker-containers'
 import { execAsync } from '../commands/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
+import { Injectable } from '@furystack/inject'
 
 export const dockerPrerequisites: Prerequisite[] = [
   async () => {

@@ -1,7 +1,7 @@
+import { ChildrenList, RenderOptions } from './models'
 import { ObservableValue } from '@furystack/utils'
 import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
-import { ChildrenList, RenderOptions } from './models'
 
 export interface ShadeOptions<TProps, TState> {
   /**

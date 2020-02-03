@@ -1,9 +1,9 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { Configuration, EntityType } from './models'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 import { terminal } from 'terminal-kit'
-import { Configuration, EntityType } from './models'
 
 /**
  * Service class for persisting entity types

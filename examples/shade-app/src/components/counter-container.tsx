@@ -1,5 +1,5 @@
-import { Shade, createComponent } from '@furystack/shades'
 import { Counter } from './counter'
+import { Shade, createComponent } from '@furystack/shades'
 
 export const CounterContainer = Shade({
   shadowDomName: 'shade-app-counter-container',

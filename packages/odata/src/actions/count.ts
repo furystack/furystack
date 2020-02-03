@@ -1,6 +1,6 @@
+import { OdataContext } from '../odata-context'
 import { RequestAction, PlainTextResult } from '@furystack/http-api'
 import { Repository } from '@furystack/repository'
-import { OdataContext } from '../odata-context'
 
 /**
  * OData Count action

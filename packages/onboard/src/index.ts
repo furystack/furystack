@@ -1,10 +1,7 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
-import { terminal } from 'terminal-kit'
-import { Injector } from '@furystack/inject'
 import '@furystack/logging'
 import './config'
-import yargs from 'yargs'
 import { mainMenu } from './menus/main'
 import { InMemoryLogging } from './in-memory-logging'
 import { CheckPrerequisitesService, genericPrerequisites } from './services/check-prerequisites'
@@ -12,6 +9,9 @@ import { defaultConfig } from './default-config'
 import { ConfigDownloaderService } from './services/config-downloader'
 import { installAllServices } from './install-steps/install-all-services'
 import { InstallStep } from './models/install-step'
+import yargs from 'yargs'
+import { Injector } from '@furystack/inject'
+import { terminal } from 'terminal-kit'
 
 const injector = new Injector().useLogging(InMemoryLogging)
 

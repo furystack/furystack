@@ -1,7 +1,7 @@
 import { createServer } from 'http'
+import { ServerManager } from '../src'
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { ServerManager } from '../src'
 import '@furystack/logging'
 
 describe('ServerManager', () => {

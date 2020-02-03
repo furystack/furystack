@@ -1,15 +1,15 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import { Injector } from '@furystack/inject'
-import { ConsoleLogger } from '@furystack/logging'
-import { usingAsync } from '@furystack/utils'
-import { JSDOM } from 'jsdom'
-import { terminal } from 'terminal-kit'
 import { EntityCollectionWriter } from './entity-collection-writer'
 import { EntityTypeWriter } from './entity-type-writer'
 import { MetadataParser } from './metadata-parser'
 import { Configuration } from './models/configuration'
 import { OdataContextWriter } from './odata-context-writer'
+import { Injector } from '@furystack/inject'
+import { ConsoleLogger } from '@furystack/logging'
+import { usingAsync } from '@furystack/utils'
+import { JSDOM } from 'jsdom'
+import { terminal } from 'terminal-kit'
 ;(async () => {
   await usingAsync(new Injector(), async injector => {
     const progressBar = terminal.progressBar({

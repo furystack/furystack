@@ -1,6 +1,6 @@
-import { Disposable, using, usingAsync } from '@furystack/utils'
 import { Injectable } from '../src/Injectable'
 import { Injector } from '../src/Injector'
+import { Disposable, using, usingAsync } from '@furystack/utils'
 
 // tslint:disable:max-classes-per-file
 

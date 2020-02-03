@@ -1,6 +1,6 @@
+import { HttpUserContext, GetCurrentUser } from '../../src'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { HttpUserContext, GetCurrentUser } from '../../src'
 
 describe('getCurrentUser', () => {
   it('exec', async () => {

@@ -1,6 +1,6 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
-import { LoggerCollection } from '@furystack/logging'
 import { FileStore } from '../src/file-store'
+import { LoggerCollection } from '@furystack/logging'
 
 class MockClass {
   public id!: number

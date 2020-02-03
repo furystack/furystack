@@ -1,6 +1,6 @@
-import { Injector } from '@furystack/inject/dist/Injector'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
+import { Injector } from '@furystack/inject/dist/Injector'
 
 // tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/Injector' {

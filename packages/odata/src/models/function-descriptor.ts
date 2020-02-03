@@ -1,7 +1,7 @@
-import { RequestAction } from '@furystack/http-api'
-import { Constructable } from '@furystack/inject'
 import { XmlNode } from '../xml-utils'
 import { EdmType } from './edm-type'
+import { RequestAction } from '@furystack/http-api'
+import { Constructable } from '@furystack/inject'
 
 /**
  * Interface that defines a callable OData function

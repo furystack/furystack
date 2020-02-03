@@ -1,6 +1,6 @@
-import { Shade, createComponent } from '@furystack/shades'
 import { TodoItem } from '../models/todo-item'
 import { TodoService } from '../services/todo-service'
+import { Shade, createComponent } from '@furystack/shades'
 
 export const TodoItemComponent = Shade<{ item: TodoItem }>({
   shadowDomName: 'todo-item',

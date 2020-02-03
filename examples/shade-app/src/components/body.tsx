@@ -1,5 +1,5 @@
-import { createComponent, Router, LazyLoad, Shade } from '@furystack/shades'
 import { HomePage } from '../pages/home'
+import { createComponent, Router, LazyLoad, Shade } from '@furystack/shades'
 
 export const Body = Shade({
   shadowDomName: 'shade-app-body',

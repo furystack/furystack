@@ -1,4 +1,3 @@
-import { Injector, Constructable } from '@furystack/inject'
 import { InstallStep } from '../models/install-step'
 import { ServiceModel } from '../models/service'
 import { AddToPm2Step } from './add-to-pm2'
@@ -9,6 +8,7 @@ import { GitCloneStep } from './git-clone'
 import { MongoRestoreStep } from './mongo-restore'
 import { BowerInstallStep } from './bower-install'
 import { GenericStep } from './generic-step'
+import { Injector, Constructable } from '@furystack/inject'
 
 export interface ExecInstallContext {
   service: ServiceModel

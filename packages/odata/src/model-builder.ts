@@ -1,6 +1,6 @@
-import { Injectable } from '@furystack/inject'
 import { NamespaceBuilder } from './namespace-builder'
 import { XmlNode } from './xml-utils'
+import { Injectable } from '@furystack/inject'
 
 /**
  * Model builder for OData endpoints

@@ -1,5 +1,5 @@
-import { Constructable } from '@furystack/inject'
 import { PhysicalStore, SearchOptions, selectFields, PartialResult } from './models/physical-store'
+import { Constructable } from '@furystack/inject'
 
 /**
  * Store implementation that stores data in an in-memory cache

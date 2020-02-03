@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { IncomingMessage, ServerResponse } from 'http'
+import { HttpUserContext, DefaultSession } from '../src'
 import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { User, StoreManager, InMemoryStore } from '@furystack/core'
-import { HttpUserContext, DefaultSession } from '../src'
 
 export const prepareInjector = (i: Injector) => {
   i.setupStores(sm =>

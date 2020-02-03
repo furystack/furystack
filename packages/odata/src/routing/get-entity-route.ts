@@ -1,6 +1,4 @@
 import { IncomingMessage } from 'http'
-import { Injector } from '@furystack/inject'
-import { PathHelper } from '@furystack/utils'
 import { DeleteAction } from '../actions/delete'
 import { GetEntityAction } from '../actions/get-entity-action'
 import { NavigationPropertyAction } from '../actions/navigation-property'
@@ -10,6 +8,8 @@ import { PutAction } from '../actions/put'
 import { ModelBuilder } from '../model-builder'
 import { Entity } from '../models/entity'
 import { updateContext } from './update-context'
+import { PathHelper } from '@furystack/utils'
+import { Injector } from '@furystack/inject'
 
 /**
  * Returns an available route for entities

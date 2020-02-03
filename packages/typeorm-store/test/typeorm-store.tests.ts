@@ -1,7 +1,7 @@
+import { TypeOrmStore } from '../src'
 import { Injector } from '@furystack/inject'
 import { Entity, PrimaryGeneratedColumn, Column, Repository } from 'typeorm'
 import { StoreManager, PhysicalStore } from '@furystack/core'
-import { TypeOrmStore } from '../src'
 import '../src/InjectorExtension'
 import '../src/StoreManagerExtension'
 import '@furystack/logging'

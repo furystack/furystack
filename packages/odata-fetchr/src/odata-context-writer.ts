@@ -1,8 +1,8 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { Configuration, OdataEndpoint } from './models'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { Configuration, OdataEndpoint } from './models'
 
 /**
  * OData Context Writer class
