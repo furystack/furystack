@@ -17,7 +17,8 @@ export interface ArgType {
   'download-config': string
   config: string
   parallel: number
-  stepFilters?: string
+  stepFilters?: Array<InstallStep['type']>
+  services?: string[]
   verbose?: boolean
 }
 
@@ -36,7 +37,8 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
     configSource: args.config as string,
     workingDir: process.cwd(),
     userInput,
-    stepFilters: (args.stepFilters || '').split(',').filter(f => f && f.length) as Array<InstallStep['type']>,
+    stepFilters: args.stepFilters,
+    services: args.services,
     parallel: args.parallel,
   })
 
@@ -71,8 +73,8 @@ const cmd = yargs
     },
   )
   .command(
-    'start-all',
-    'start all services with the config from the given URL',
+    'start',
+    'start the selected installations (all services without the --service option)',
     () => {
       /** */
     },
@@ -128,8 +130,12 @@ const cmd = yargs
     description: 'how many installs can run parallelly',
     default: 1,
   })
+  .option('services', {
+    type: 'array',
+    description: 'a list of services to install',
+  })
   .option('stepFilters', {
-    type: 'string',
+    type: 'array',
     desciption:
       'a list of types of steps to execute (e.g. if you only want to exec GIT pull(s) and PM2 ADD(s) on each repo',
   })

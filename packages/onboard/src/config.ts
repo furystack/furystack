@@ -15,6 +15,7 @@ export interface ConfigOptions {
   userInput: boolean
   parallel: number
   stepFilters?: Array<InstallStep['type']>
+  services?: string[]
 }
 
 export class Config {

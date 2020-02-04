@@ -1,6 +1,5 @@
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
 import { AddToPm2 } from '../models/install-step'
 import { execAsync } from '../commands/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
@@ -20,14 +19,15 @@ const pm2Prerequisites: Prerequisite[] = [
 @Injectable()
 export class AddToPm2Step implements GenericStep<AddToPm2> {
   public prerequisites = pm2Prerequisites
-  private logger: ScopedLogger
   public async run(step: AddToPm2, context: ExecInstallContext) {
+    const logger = this.injector.logger.withScope(`installService/${context.service.appName}/${this.constructor.name}`)
+
     const pm2InfoText = await execAsync('pm2 jlist', { maxBuffer: 1024 * 1024 * 10 })
 
     const pm2Info: any[] = JSON.parse(pm2InfoText)
 
     if (pm2Info.find(entry => entry.name === step.displayName)) {
-      this.logger.verbose({
+      logger.verbose({
         message: `The entry '${step.displayName}' has already been added to PM2, skipping...`,
         data: { step },
       })
@@ -43,13 +43,11 @@ export class AddToPm2Step implements GenericStep<AddToPm2> {
       },
     )
 
-    this.logger.verbose({
+    logger.verbose({
       message: `The entry '${step.displayName}' hasbeen added to PM2.`,
       data: { step },
     })
   }
 
-  constructor(injector: Injector) {
-    this.logger = injector.logger.withScope(this.constructor.name)
-  }
+  constructor(private readonly injector: Injector) {}
 }

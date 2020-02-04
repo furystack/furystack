@@ -14,14 +14,18 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
 
   const cfg = config.getConfigData()
 
+  const filteredServices = cfg.services.filter(
+    s => !config.options.services || config.options.services.includes(s.appName),
+  )
+
   const checks = await injector
     .getInstance(CheckPrerequisitesService)
-    .checkPrerequisiteForServices({ services: cfg.services, stepFilters })
+    .checkPrerequisiteForServices({ services: filteredServices, stepFilters })
   if (checks.length) {
     logger.error({ message: `Some prerequisites has not been met`, data: { checks, ...cfg } })
     return
   }
-  const services = cfg.services.filter(
+  const services = filteredServices.filter(
     service =>
       service.installSteps.filter(step => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
         .length > 0,

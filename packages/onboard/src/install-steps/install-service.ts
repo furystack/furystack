@@ -18,7 +18,7 @@ export const installService = async (options: {
   inputDir: string
   stepFilters?: Array<InstallStep['type']>
 }) => {
-  const logger = options.injector.logger.withScope('installService')
+  const logger = options.injector.logger.withScope(`installService/${options.service.appName}`)
 
   const checks = await options.injector
     .getInstance(CheckPrerequisitesService)

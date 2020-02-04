@@ -7,20 +7,23 @@ export const selectServiceMenu = async (injector: Injector) => {
 
   terminal.nextLine(1).white('Select a service to install')
 
-  const cfg = injector.getConfig().getConfigData()
-  cfg.services.map(s => s.appName)
+  const cfg = injector.getConfig()
+  const cfgData = cfg.getConfigData()
+  const filteredServices = cfgData.services
+    .filter(s => !cfg.options.services || cfg.options.services.includes(s.appName))
+    .map(s => s.appName)
 
-  const result = await terminal.gridMenu([...cfg.services.map(s => s.appName), 'back']).promise
+  const result = await terminal.gridMenu([...filteredServices, 'back']).promise
   terminal.restoreCursor()
   terminal.eraseDisplayBelow()
 
-  const serviceToInstall = cfg.services.find(s => s.appName === result.selectedText)
+  const serviceToInstall = cfgData.services.find(s => s.appName === result.selectedText)
   if (serviceToInstall) {
     await installService({
       injector,
       service: serviceToInstall,
-      workdir: cfg.directories.output,
-      inputDir: cfg.directories.input,
+      workdir: cfgData.directories.output,
+      inputDir: cfgData.directories.input,
       stepFilters: injector.getConfig().options.stepFilters,
     })
   }
