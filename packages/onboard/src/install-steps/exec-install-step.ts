@@ -46,11 +46,28 @@ export const getServiceForInstallStep = <T extends InstallStep>(
     case 'DockerComposeUp':
       return DockerComposeUpStep as Constructable<GenericStep<T>>
     default:
-      injector.logger.error({ scope: 'execInstallStep', message: 'Step for type is not implemented', data: { step } })
+      injector.logger.error({
+        scope: `execInstallStep/${step.type}`,
+        message: 'Step for type is not implemented',
+        data: { step },
+      })
       throw Error(`Step '${step.type}' not implemented!`)
   }
 }
 
 export const execInstallStep = async (injector: Injector, step: InstallStep, context: ExecInstallContext) => {
-  return await injector.getInstance(getServiceForInstallStep(step, injector)).run(step, context)
+  try {
+    return await injector.getInstance(getServiceForInstallStep(step, injector)).run(step, context)
+  } catch (error) {
+    injector.logger.withScope(`execInstallStep/${context.service.appName}/${step.type}`).warning({
+      message: `The step has been failed`,
+      data: {
+        step,
+        service: context.service,
+        error,
+        errorString: error.toString(),
+      },
+    })
+    throw error
+  }
 }

@@ -36,20 +36,27 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
   }
 
   const promises = services.map(async (service, index) => {
-    await lock.acquire()
-    await sleepAsync(index * 100)
-    await installService({
-      injector,
-      service,
-      workdir: cfg.directories.output,
-      inputDir: cfg.directories.input,
-      stepFilters,
-    })
-    logger.information({
-      message: `Finished service installation: ${service.appName}`,
-      data: { service, stepFilters },
-    })
-    lock.release()
+    try {
+      await lock.acquire()
+      await sleepAsync(index * 100)
+      await installService({
+        injector,
+        service,
+        workdir: cfg.directories.output,
+        inputDir: cfg.directories.input,
+        stepFilters,
+      })
+      logger.information({
+        message: `Finished service installation: ${service.appName}`,
+        data: { service, stepFilters },
+      })
+      lock.release()
+    } catch (error) {
+      logger.error({
+        message: `An error happened during installing the service '${service.appName}'`,
+        data: { service, stepFilters, error, errorString: error.toString() },
+      })
+    }
   })
 
   await Promise.all(promises)

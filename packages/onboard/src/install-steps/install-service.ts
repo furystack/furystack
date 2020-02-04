@@ -60,8 +60,7 @@ export const installService = async (options: {
         })
       } catch (error) {
         logger.error({
-          scope: `installService/${step.type}`,
-          message: 'There was an error installing the service',
+          message: `There was an error installing the service '${options.service.appName}' during the step '${step.type}'`,
           data: { service: options.service, step, error, errorString: error.toString() },
         })
         throw error
