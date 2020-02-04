@@ -1,15 +1,15 @@
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
 import { AddToPm2 } from '../models/install-step'
-import { execAsync } from '../commands/exec-async'
+import '../services/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { GenericStep } from './generic-step'
 import { ExecInstallContext } from './exec-install-step'
 
 const pm2Prerequisites: Prerequisite[] = [
-  async () => {
+  async i => {
     try {
-      await await execAsync('pm2 -h', {})
+      await await i.execAsync('pm2 -h', {})
     } catch (error) {
       return { success: false, message: 'PM2 has not been found. Have you installed it?' }
     }
@@ -22,7 +22,7 @@ export class AddToPm2Step implements GenericStep<AddToPm2> {
   public async run(step: AddToPm2, context: ExecInstallContext) {
     const logger = this.injector.logger.withScope(`installService/${context.service.appName}/${this.constructor.name}`)
 
-    const pm2InfoText = await execAsync('pm2 jlist', { maxBuffer: 1024 * 1024 * 10 })
+    const pm2InfoText = await this.injector.execAsync('pm2 jlist', { maxBuffer: 1024 * 1024 * 10 })
 
     const pm2Info: any[] = JSON.parse(pm2InfoText)
 
@@ -34,7 +34,7 @@ export class AddToPm2Step implements GenericStep<AddToPm2> {
       return
     }
 
-    await execAsync(
+    await this.injector.execAsync(
       `pm2 start ${join(context.serviceDir, step.script)} --silent --restart-delay 10000 --cwd=${
         context.serviceDir
       } --name=${step.displayName}`,

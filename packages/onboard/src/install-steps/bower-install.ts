@@ -1,15 +1,15 @@
 import { join } from 'path'
-import { Injectable } from '@furystack/inject'
-import { execAsync } from '../commands/exec-async'
+import { Injectable, Injector } from '@furystack/inject'
+import '../services/exec-async'
 import { BowerInstall } from '../models/install-step'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const bowerPrerequisites: Prerequisite[] = [
-  async () => {
+  async i => {
     try {
-      await execAsync('bower help', {})
+      await i.execAsync('bower help', {})
     } catch (error) {
       return { success: false, message: 'Bower has not been found. Have you installed it?' }
     }
@@ -22,6 +22,8 @@ export class BowerInstallStep implements GenericStep<BowerInstall> {
 
   public run = async (step: BowerInstall, context: ExecInstallContext) => {
     const dir = step.path ? join(context.serviceDir, step.path) : context.serviceDir
-    await execAsync('bower install', { env: process.env, cwd: dir })
+    await this.injector.execAsync('bower install', { env: process.env, cwd: dir })
   }
+
+  constructor(private readonly injector: Injector) {}
 }

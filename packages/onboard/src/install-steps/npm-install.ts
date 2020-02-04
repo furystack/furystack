@@ -1,7 +1,7 @@
 import { join } from 'path'
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injector } from '@furystack/inject'
 import { NpmInstall } from '../models/install-step'
-import { execAsync } from '../commands/exec-async'
+import '../services/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
@@ -19,6 +19,7 @@ export class NpmInstallStep implements GenericStep<NpmInstall> {
   prerequisites = npmPrerequisites
   public run = async (step: NpmInstall, context: ExecInstallContext) => {
     const dir = step.path ? join(context.serviceDir, step.path) : context.serviceDir
-    await execAsync('npm install', { cwd: dir, env: process.env })
+    await this.injector.execAsync('npm install', { cwd: dir, env: process.env })
   }
+  constructor(private injector: Injector) {}
 }

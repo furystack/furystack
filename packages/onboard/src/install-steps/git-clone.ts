@@ -2,15 +2,15 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import { Injectable, Injector } from '@furystack/inject'
 import { GitClone } from '../models/install-step'
-import { execAsync } from '../commands/exec-async'
+import '../services/exec-async'
 import { Prerequisite } from '../services/check-prerequisites'
 import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const gitPrerequisites: Prerequisite[] = [
-  async () => {
+  async i => {
     try {
-      await execAsync('git help', {})
+      await i.execAsync('git help', {})
     } catch (error) {
       return { success: false, message: 'Git has not been found. Have you installed it?' }
     }
@@ -34,10 +34,10 @@ export class GitCloneStep implements GenericStep<GitClone> {
           return
         } else if (step.onExists === 'pull') {
           logger.verbose({ message: 'Pulling GIT changes...', data: { step, service: context.service } })
-          await execAsync(`git pull`, { cwd: context.serviceDir })
+          await this.injector.execAsync(`git pull`, { cwd: context.serviceDir })
           return
         } else if (step.onExists === 'stash-and-pull') {
-          const result = await execAsync('git status -v --porcelain', { cwd: context.serviceDir })
+          const result = await this.injector.execAsync('git status -v --porcelain', { cwd: context.serviceDir })
           const hasChanges = result.trim().length > 0
 
           if (hasChanges) {
@@ -45,10 +45,10 @@ export class GitCloneStep implements GenericStep<GitClone> {
               message: 'Changes detected, executing STASH...',
               data: { step, service: context.service },
             })
-            await execAsync(`git stash`, { cwd: context.serviceDir })
+            await this.injector.execAsync(`git stash`, { cwd: context.serviceDir })
           }
           logger.verbose({ message: 'Pulling GIT changes...', data: { step, service: context.service } })
-          await execAsync(`git pull`, { cwd: context.serviceDir })
+          await this.injector.execAsync(`git pull`, { cwd: context.serviceDir })
           return
         }
       }
@@ -56,7 +56,7 @@ export class GitCloneStep implements GenericStep<GitClone> {
 
     logger.verbose({ message: `Cloning a new GIT repository to '${context.serviceDir}'...`, data: step })
 
-    await execAsync(
+    await this.injector.execAsync(
       `git clone ${step.branch ? `--single-branch --branch ${step.branch}` : ''} ${step.repository} ${
         context.service.appName
       }`,
