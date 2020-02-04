@@ -13,10 +13,5 @@ export class DownloadInputFileInstallStep implements GenericStep<DownloadInputFi
   public run = async (step: DownloadInputFile, context: ExecInstallContext) => {
     const result = await got(step.url, { isStream: true })
     result.pipe(createWriteStream(join(context.inputDir, step.destination)))
-    // await new Promise((resolve, reject) => {
-    //   writeFile(join(context.inputDir, step.destination), result.body, err => {
-    //     err ? reject(err) : resolve()
-    //   })
-    // })
   }
 }
