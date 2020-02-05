@@ -21,19 +21,3 @@ Object {
   "services": Array [],
 }
 `;
-
-exports[`Onboard Config Should extend the Injector with useConfig() 1`] = `
-Config {
-  "getConfigData": [Function],
-  "getConfigFilePath": [Function],
-  "options": Object {
-    "configSource": "",
-    "parallel": 1,
-    "workingDir": "C:\\\\development\\\\furystack",
-  },
-  "prerequisites": Array [
-    [Function],
-    [Function],
-  ],
-}
-`;
