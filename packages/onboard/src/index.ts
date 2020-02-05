@@ -22,7 +22,7 @@ export interface ArgType {
   verbose?: boolean
 }
 
-const initConfig = async (args: ArgType, userInput: boolean) => {
+const initConfig = async (args: ArgType) => {
   args.verbose ? injector.useLogging(VerboseConsoleLogger) : injector.useLogging(ConsoleLogger)
   const logger = injector.logger.withScope('InitConfig')
   if (args['download-config']) {
@@ -36,7 +36,6 @@ const initConfig = async (args: ArgType, userInput: boolean) => {
   injector.useConfig({
     configSource: args.config as string,
     workingDir: process.cwd(),
-    userInput,
     stepFilters: args.stepFilters,
     services: args.services,
     parallel: args.parallel,
@@ -80,7 +79,7 @@ const cmd = yargs
     },
     async args => {
       try {
-        await initConfig(args as any, false)
+        await initConfig(args as any)
         await installAllServices(injector, injector.getConfig().options.stepFilters)
       } catch (error) {
         injector.getInstance(InMemoryLogging).flushToFile()
@@ -98,7 +97,7 @@ const cmd = yargs
       let run = true
       while (run) {
         try {
-          await initConfig(args as any, true)
+          await initConfig(args as any)
           await mainMenu(injector)
         } catch (error) {
           run = false

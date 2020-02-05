@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Onboard Config Default config should match the snapshot 1`] = `
+Object {
+  "$schema": "https://gist.github.com/gallayl/38b1a1c279ad8ff192e3902ba020f101/raw",
+  "directories": Object {
+    "input": "~/dev/onboard-input",
+    "output": "~/dev/onboard-output",
+  },
+  "services": Array [],
+}
+`;
+
+exports[`Onboard Config Should be initialized with a default value 1`] = `
+Object {
+  "$schema": "https://gist.github.com/gallayl/38b1a1c279ad8ff192e3902ba020f101/raw",
+  "directories": Object {
+    "input": "~/dev/onboard-input",
+    "output": "~/dev/onboard-output",
+  },
+  "services": Array [],
+}
+`;
+
+exports[`Onboard Config Should extend the Injector with useConfig() 1`] = `
+Config {
+  "getConfigData": [Function],
+  "getConfigFilePath": [Function],
+  "options": Object {
+    "configSource": "",
+    "parallel": 1,
+    "workingDir": "C:\\\\development\\\\furystack",
+  },
+  "prerequisites": Array [
+    [Function],
+    [Function],
+  ],
+}
+`;

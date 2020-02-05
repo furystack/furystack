@@ -12,7 +12,6 @@ export const configSchemaPath = join(dirname(realpathSync(__filename)), '../conf
 export interface ConfigOptions {
   workingDir: string
   configSource: string
-  userInput: boolean
   parallel: number
   stepFilters?: Array<InstallStep['type']>
   services?: string[]
@@ -47,7 +46,7 @@ export class Config {
   public async init() {
     if (!existsSync(configSchemaPath)) {
       await createJsonSchema({
-        inputTsFile: './src/models/config.ts',
+        inputTsFile: join(realpathSync(dirname(__filename)), '..', './src/models/config.ts'),
         outputJsonFile: configSchemaPath,
         rootType: 'Config',
         schemaName: 'Config',

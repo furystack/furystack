@@ -8,6 +8,7 @@ module.exports = {
     '<rootDir>/packages/mongodb-store',
     '<rootDir>/packages/odata',
     '<rootDir>/packages/odata-fetchr',
+    '<rootDir>/packages/onboard',
     '<rootDir>/packages/redis-store',
     '<rootDir>/packages/repository',
     '<rootDir>/packages/shades',
