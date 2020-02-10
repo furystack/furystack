@@ -11,7 +11,7 @@ export const GetCollectionAction: RequestAction = async injector => {
   const context = injector.getInstance(OdataContext)
   const dataSet = repo.getDataSetFor(context.collection.name)
   const plainValue = await dataSet.filter(injector, {
-    order: context.queryParams.orderBy as any,
+    order: context.queryParams.orderBy,
     skip: context.queryParams.skip,
     top: context.queryParams.top,
     select: context.queryParams.select,

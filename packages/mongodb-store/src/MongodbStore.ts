@@ -1,7 +1,7 @@
 import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient } from 'mongodb'
+import { MongoClient, FilterQuery } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -56,7 +56,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
       : []
 
     const result = await collection
-      .find(filter.filter)
+      .find(filter.filter as FilterQuery<T>)
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
       .sort(sort)

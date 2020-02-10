@@ -83,30 +83,34 @@ export const createEntityResponse = async <T>(options: {
         const entityType = options.entityTypes.find(t => t.model === navProperty.relatedModel) as Entity<
           typeof navProperty.relatedModel
         >
+
         const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+        const expandOdataParams = options.odataParams.expandExpression
+          ? {
+              expandExpression: poppedExpandLevel,
+              ...getOdataParams(`?${poppedExpandLevel}`, entityType),
+            }
+          : {}
         const expanded = await (navProperty as NavigationProperty<T, any>).getRelatedEntity(
           options.entity,
           dataSet,
           options.injector,
-          options.odataParams,
+          { ...expandOdataParams },
         )
         // eslint-disable-next-line require-atomic-updates
-        expandedEntity[navProperty.propertyName as keyof typeof expandedEntity] = await createEntityResponse({
+        expandedEntity[navProperty.propertyName as keyof typeof expandedEntity] = await createEntityResponse<any>({
           entity: expanded,
           injector: options.injector,
           entityType,
           entityTypes: options.entityTypes,
           odataParams: {
-            ...options.odataParams,
-            ...(options.odataParams.expandExpression
-              ? {
-                  expandExpression: poppedExpandLevel,
-                  expand: getOdataParams(`?${poppedExpandLevel}`, entityType).expand,
-                }
-              : {}),
-          },
+            ...expandOdataParams,
+          } as any,
           repo: options.repo,
-          odataContext: options.odataContext,
+          odataContext: {
+            ...options.odataContext,
+            navigationProperty: navProperty,
+          },
         })
       } else if (navPropertyCollection) {
         const dataSet = options.repo.getDataSetFor(navPropertyCollection.dataSet || navPropertyCollection.relatedModel)

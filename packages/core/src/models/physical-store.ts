@@ -1,6 +1,29 @@
 import { Constructable } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 
+export const SingleComparisonOperators = ['$eq', '$gt', '$gte', '$lt', '$lte', '$ne'] as const
+export const ArrayComparisonOperators = ['$in', '$nin'] as const
+export const LogicalOperators = ['$and', '$not', '$nor', '$or'] as const
+
+export const allOperators = [...SingleComparisonOperators, ...ArrayComparisonOperators, ...LogicalOperators] as const
+
+export type FilterType<T> = {
+  [K in keyof T]?:
+    | T[K]
+    | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
+    | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
+    | { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
+}
+
+export const isOperator = (propertyString: string): propertyString is typeof allOperators[number] =>
+  allOperators.includes(propertyString as typeof allOperators[number])
+
+// const t: FilterType<{ a: number; b: string; c: boolean }> = {
+//   a: { $eq: 1 },
+//   b: { $in: ['a', 'b', 'c'] },
+//   c: { $and: [{ a: { $eq: 2 } }] },
+// }
+
 /**
  * Type for default filtering model
  */
@@ -28,7 +51,7 @@ export interface SearchOptions<T, TSelect extends Array<keyof T>> {
   /**
    * The fields should match this filter
    */
-  filter?: Partial<T>
+  filter?: FilterType<T>
 }
 
 export type PartialResult<T, TFields extends keyof T> = { [K in TFields]: T[K] }
@@ -78,10 +101,10 @@ export interface PhysicalStore<T> extends Disposable {
 
   /**
    * Returns a promise that will be resolved with an array of elements that matches the filter
-   * @param filter The Filter value
+   * @param searchOptions An options object for the Search expression
    */
   search<TSelect extends Array<keyof T>>(
-    filter: SearchOptions<T, TSelect>,
+    searchOptions: SearchOptions<T, TSelect>,
   ): Promise<Array<PartialResult<T, TSelect[number]>>>
 
   /**

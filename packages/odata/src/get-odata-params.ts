@@ -1,5 +1,5 @@
 import { parse } from 'url'
-import { Entity } from './models'
+import { Entity, EdmType } from './models'
 
 export type OrderType<T> = { [key in keyof T]?: 'ASC' | 'DESC' }
 export interface OdataParams<T> {
@@ -22,7 +22,20 @@ export const getOdataParams = <T>(url: string | undefined, entity: Entity<T>) =>
   const parseFilter = (filter: string) => {
     const filterObj: { [key in keyof T]?: T[key] } = {}
     const [fieldName, value] = filter.split(' eq ')
-    const parsedValue = value.replace(/'/g, '')
+    let parsedValue: any = value.replace(/'/g, '')
+
+    switch (entity.properties.find(f => f.property === fieldName)?.type) {
+      case EdmType.Int16:
+      case EdmType.Int32:
+        parsedValue = parseInt(parsedValue, 10)
+        break
+      case EdmType.Double:
+        parsedValue = parseFloat(parsedValue)
+        break
+      default:
+        break
+    }
+
     filterObj[fieldName as keyof T] = parsedValue as any
     return filterObj
   }
