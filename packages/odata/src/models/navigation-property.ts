@@ -24,7 +24,7 @@ export interface NavigationProperty<TBaseModel, TRelatedModel> {
   /**
    * Async method implementation that returns an entity with the related model
    */
-  getRelatedEntity: <TFields extends Array<keyof TRelatedModel>>(
+  getRelatedEntity: (
     /**
      * The base model
      */
@@ -40,7 +40,7 @@ export interface NavigationProperty<TBaseModel, TRelatedModel> {
     /**
      * An optional filter definition
      */
-    filter: SearchOptions<TRelatedModel, TFields>,
+    filter: SearchOptions<TRelatedModel, Array<keyof TRelatedModel>>,
   ) => Promise<TRelatedModel>
 }
 

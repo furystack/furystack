@@ -1,8 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
 import { PathHelper } from '@furystack/utils'
-import { getOdataParams } from './get-odata-params'
-import { Entity, NavigationProperty } from './models'
+import { getOdataParams, OdataParams } from './get-odata-params'
+import { Entity } from './models'
 import { OdataContext } from './odata-context'
 
 /**
@@ -32,7 +32,7 @@ export const createEntityResponse = async <T>(options: {
   entity: T
   entityType: Entity<T>
   entityTypes: Array<Entity<any>>
-  odataParams: ReturnType<typeof getOdataParams>
+  odataParams: OdataParams<T>
   repo: Repository
   odataContext: OdataContext<T>
 }) => {
@@ -84,21 +84,18 @@ export const createEntityResponse = async <T>(options: {
           typeof navProperty.relatedModel
         >
 
-        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression)
         const expandOdataParams = options.odataParams.expandExpression
           ? {
               expandExpression: poppedExpandLevel,
               ...getOdataParams(`?${poppedExpandLevel}`, entityType),
             }
           : {}
-        const expanded = await (navProperty as NavigationProperty<T, any>).getRelatedEntity(
-          options.entity,
-          dataSet,
-          options.injector,
-          { ...expandOdataParams },
-        )
+        const expanded = await navProperty.getRelatedEntity(options.entity, dataSet, options.injector, {
+          ...expandOdataParams,
+        })
         // eslint-disable-next-line require-atomic-updates
-        expandedEntity[navProperty.propertyName as keyof typeof expandedEntity] = await createEntityResponse<any>({
+        expandedEntity[navProperty.propertyName] = await createEntityResponse<any>({
           entity: expanded,
           injector: options.injector,
           entityType,
@@ -117,21 +114,21 @@ export const createEntityResponse = async <T>(options: {
         const entityType = options.entityTypes.find(t => t.model === navPropertyCollection.relatedModel) as Entity<
           typeof navPropertyCollection.relatedModel
         >
-        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression as string)
+        const poppedExpandLevel = popExpandLevel(options.odataParams.expandExpression)
 
         const expandedEntities = await Promise.all(
           (
-            await navPropertyCollection.getRelatedEntities(
+            await navPropertyCollection.getRelatedEntities<any>(
               options.entity,
-              dataSet as any,
+              dataSet,
               options.injector,
               options.odataParams,
             )
           ).map(async expanded => {
-            return await createEntityResponse({
+            return await createEntityResponse<any>({
               entity: expanded,
               injector: options.injector,
-              entityType: entityType as any,
+              entityType,
               entityTypes: options.entityTypes,
               odataParams: {
                 ...options.odataParams,
@@ -143,11 +140,11 @@ export const createEntityResponse = async <T>(options: {
                   : {}),
               },
               repo: options.repo,
-              odataContext: options.odataContext as any,
+              odataContext: options.odataContext,
             })
           }),
         )
-        expandedEntity[navPropertyCollection.propertyName as keyof typeof expandedEntity] = expandedEntities
+        expandedEntity[navPropertyCollection.propertyName] = expandedEntities
       }
     }),
   )

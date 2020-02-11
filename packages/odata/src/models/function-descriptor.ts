@@ -43,7 +43,6 @@ export const toXmlNode = (descriptor: FunctionDescriptor, namespace: string, typ
     tagName: type,
     attributes: {
       Name: descriptor.name,
-      // Function: f[1].action.name.toString(),
       ...(descriptor.isBound ? { IsBound: true } : {}),
     },
     children: [
