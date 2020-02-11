@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { InMemoryStore } from '@furystack/core'
 import got from 'got'
 import { JsonResult } from '@furystack/http-api'
-import { EdmType, NavigationProperty } from '../src/index'
+import { EdmType } from '../src/index'
 
 describe('OData Integration Tests', () => {
   class User {
@@ -90,7 +90,7 @@ describe('OData Integration Tests', () => {
                       })
                       return related[0] || null
                     },
-                  } as NavigationProperty<User, Entity2>,
+                  },
                 ],
               })
               .addEntityType({

@@ -2,8 +2,6 @@
   "groups": {
     "default": {
       "packages": [
-        "examples/repository/package.json",
-        "examples/shade-app/package.json",
         "package.json",
         "packages/auth-google/package.json",
         "packages/core/package.json",

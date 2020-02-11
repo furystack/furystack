@@ -18,16 +18,6 @@
       }
     },
     {
-      "name": "ExampleRepository Service",
-      "type": "node",
-      "request": "launch",
-      "args": ["${workspaceFolder}/examples/repository/src/index.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}/examples/repository",
-      "protocol": "inspector"
-    },
-    {
       "name": "Current TS File",
       "type": "node",
       "request": "launch",
@@ -36,14 +26,6 @@
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "odata-fetchr",
-      "program": "${workspaceFolder}/packages/odata-fetchr/dist/odata-fetchr.js",
-      "args": ["workspace", "@furystack/example-repository", "odata-fetchr"],
-      "cwd": "${workspaceFolder}/examples/repository"
     },
     {
       "type": "node",
