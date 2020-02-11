@@ -50,11 +50,11 @@
     "@furystack/logging": "^2.0.12",
     "@furystack/utils": "^1.1.0",
     "hash.js": "^1.1.7",
-    "uuid": "^3.3.2"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "@types/node": "^13.1.2",
-    "@types/uuid": "^3.4.4"
+    "@types/node": "^13.7.1",
+    "@types/uuid": "^3.4.7"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
