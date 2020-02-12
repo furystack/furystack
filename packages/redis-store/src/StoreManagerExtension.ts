@@ -3,7 +3,6 @@ import { Constructable } from '@furystack/inject'
 import { RedisClient } from 'redis'
 import { RedisStore } from './RedisStore'
 
-// tslint:disable-next-line: no-unused-expression
 declare module '@furystack/core/dist/store-manager' {
   /**
    * Defines an extended Injector instance
