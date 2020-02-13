@@ -7,7 +7,7 @@ import { RedisStore } from '../src'
 
 describe('Redis Store', () => {
   class ExampleClass {
-    id!: number
+    id!: string
     value!: string
   }
 
@@ -32,7 +32,7 @@ describe('Redis Store', () => {
   })
 
   it('Should add an entity', async () => {
-    const entityToAdd: ExampleClass = { id: 123456, value: v4() }
+    const entityToAdd: ExampleClass = { id: v4(), value: v4() }
     await store.add(entityToAdd)
     const retrieved = await store.get(entityToAdd.id)
     expect(retrieved).toStrictEqual(entityToAdd)
@@ -41,7 +41,7 @@ describe('Redis Store', () => {
     expect(updated?.value).toBe('updatedValue')
     await store.remove(entityToAdd.id)
     const deleted = await store.get(entityToAdd.id)
-    expect(deleted).toBeNull()
+    expect(deleted).toBeFalsy()
   })
 
   it('Should throw on count', async () => {

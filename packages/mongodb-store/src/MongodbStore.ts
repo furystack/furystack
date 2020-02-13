@@ -38,13 +38,13 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const result = await collection.insertOne(data as any)
     return { _id: result.insertedId, ...data }
   }
-  public async update(id: T[this['primaryKey']], data: T): Promise<void> {
+  public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
-    await collection.updateOne({ _id: id } as any, data)
+    await collection.updateOne({ _id: id } as any, { $set: data })
   }
-  public async count(filter: Partial<T>): Promise<number> {
+  public async count(filter?: Partial<T>): Promise<number> {
     const collection = await this.getCollection()
-    return await collection.countDocuments(filter) // ToDo: Test
+    return await collection.countDocuments(filter)
   }
   public async search<TFields extends Array<keyof T>>(
     filter: SearchOptions<T, TFields>,

@@ -1,9 +1,9 @@
 import { StoreManager } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
+import { MongoClientOptions } from 'mongodb'
 import { MongoClientFactory } from './MongoClientFactory'
 import { MongodbStore } from './MongodbStore'
 
-// tslint:disable-next-line: no-unused-expression
 declare module '@furystack/core/dist/store-manager' {
   /**
    * Defines an extended Injector instance
@@ -12,35 +12,40 @@ declare module '@furystack/core/dist/store-manager' {
     /**
      * Registers a MongoDb store to the StoreManager instance with the provided model.
      */
-    useMongoDb: <T extends { _id: string }>(
+    useMongoDb: <T extends { _id: string }>(options: {
       /**
        * The constructable model class
        */
-      model: Constructable<T>,
+      model: Constructable<T>
       /**
        * Url of the MongoDb repository
        */
-      url: string,
+      url: string
       /**
        * MongoDb Database name
        */
-      db: string,
+      db: string
       /**
        * MongoDb Collection name
        */
-      collection: string,
-    ) => StoreManager
+      collection: string
+
+      /**
+       * Optional options for the MongoDb Client
+       */
+      options?: MongoClientOptions
+    }) => StoreManager
   }
 }
 
-StoreManager.prototype.useMongoDb = function(model, url, db, collection) {
+StoreManager.prototype.useMongoDb = function({ model, db, collection, url, options }) {
   const clientFactory = this.injector.getInstance(MongoClientFactory)
   const store = new MongodbStore({
     model,
     db,
     collection,
     logger: this.injector.logger,
-    mongoClient: async () => await clientFactory.getClientFor(url),
+    mongoClient: async () => await clientFactory.getClientFor(url, options),
   })
   this.addStore(store)
   return this
