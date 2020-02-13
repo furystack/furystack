@@ -1,5 +1,5 @@
 import Semaphore from 'semaphore-async-await'
-import { Disposable } from '@furystack/utils/src'
+import { Disposable } from '@furystack/utils'
 
 /**
  * Readonly set that stores references of the disposables that should be disposed on process exit
