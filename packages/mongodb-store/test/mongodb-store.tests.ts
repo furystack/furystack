@@ -45,7 +45,7 @@ describe('MongoDB Store', () => {
     expect(updated?.value).toBe('updatedValue')
     await store.remove(entityToAdd._id)
     const deleted = await store.get(entityToAdd._id)
-    expect(deleted).toBeNull()
+    expect(deleted).toBeFalsy()
   })
 
   it('Count should return a number', async () => {
