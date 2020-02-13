@@ -1,15 +1,9 @@
 {
   "files": [],
   "include": [],
-  "compilerOptions": {
-    "composite": true
-  },
   "references": [
     {
       "path": "./auth-google"
-    },
-    {
-      "path": "./logging"
     },
     {
       "path": "./core"
@@ -21,31 +15,37 @@
       "path": "./inject"
     },
     {
+      "path": "./logging"
+    },
+    {
+      "path": "./mongodb-store"
+    },
+    {
       "path": "./odata"
     },
     {
       "path": "./odata-fetchr"
     },
     {
-      "path": "./typeorm-store"
-    },
-    {
-      "path": "./websocket-api"
-    },
-    {
-      "path": "./repository"
+      "path": "./onboard"
     },
     {
       "path": "./redis-store"
     },
     {
-      "path": "./mongodb-store"
+      "path": "./repository"
     },
     {
       "path": "./shades"
     },
     {
-      "path": "./onboard"
+      "path": "./typeorm-store"
+    },
+    {
+      "path": "./utils"
+    },
+    {
+      "path": "./websocket-api"
     }
   ]
 }
