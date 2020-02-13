@@ -50,10 +50,12 @@
     "@furystack/logging": "^2.0.13",
     "@furystack/utils": "^1.1.0",
     "redis": "^3.0.2",
-    "semaphore-async-await": "^1.5.1"
+    "semaphore-async-await": "^1.5.1",
+    "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@types/redis": "^2.8.12"
+    "@types/redis": "^2.8.12",
+    "uuid": "^3.4.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

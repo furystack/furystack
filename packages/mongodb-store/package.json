@@ -50,10 +50,14 @@
     "@furystack/logging": "^2.0.13",
     "@furystack/utils": "^1.1.0",
     "mongodb": "^3.2.3",
-    "semaphore-async-await": "^1.5.1"
+    "semaphore-async-await": "^1.5.1",
+    "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@types/mongodb": "^3.1.25"
+    "@types/mongodb": "^3.1.25",
+    "@types/node": "^13.7.1",
+    "got": "^10.5.5",
+    "uuid": "^3.4.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

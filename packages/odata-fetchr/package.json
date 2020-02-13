@@ -8,9 +8,7 @@
     "dist",
     "src"
   ],
-  "bin": {
-    "odata-fetchr": "./bin/odata-fetchr.cmd"
-  },
+  "bin": "./bin/odata-fetchr.cmd",
   "scripts": {},
   "repository": {
     "type": "git",
@@ -53,7 +51,8 @@
     "@furystack/logging": "^2.0.13",
     "@furystack/utils": "^1.1.0",
     "jsdom": "^16.0.0",
-    "terminal-kit": "^1.31.4"
+    "terminal-kit": "^1.31.4",
+    "tslib": "^1.10.0"
   },
   "devDependencies": {
     "@types/jsdom": "^12.2.3",
