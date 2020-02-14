@@ -1,7 +1,7 @@
 import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient, FilterQuery } from 'mongodb'
+import { MongoClient, FilterQuery, Collection } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -12,7 +12,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   public readonly model: Constructable<T>
   private readonly logger: ScopedLogger
 
-  public async getCollection() {
+  public async getCollection(): Promise<Collection<T>> {
     const client = await this.options.mongoClient()
     return client.db(this.options.db).collection<T>(this.options.collection)
   }

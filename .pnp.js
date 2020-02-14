@@ -588,6 +588,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@furystack/inject", "workspace:packages/inject"],
             ["@furystack/logging", "workspace:packages/logging"],
             ["@furystack/utils", "workspace:packages/utils"],
+            ["@types/json-schema", "npm:7.0.4"],
             ["@types/node", "npm:13.7.1"],
             ["@types/terminal-kit", "npm:1.28.0"],
             ["@types/yargs", "npm:15.0.3"],

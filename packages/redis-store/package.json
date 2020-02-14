@@ -54,7 +54,7 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@types/redis": "^2.8.12",
+    "@types/redis": "^2.8.15",
     "uuid": "^3.4.0"
   },
   "typings": "./dist/index.d.ts",

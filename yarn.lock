@@ -369,10 +369,10 @@ __metadata:
     "@furystack/inject": ^4.0.7
     "@furystack/logging": ^2.0.13
     "@furystack/utils": ^1.1.0
-    "@types/mongodb": ^3.1.25
+    "@types/mongodb": ^3.3.16
     "@types/node": ^13.7.1
     got: ^10.5.5
-    mongodb: ^3.2.3
+    mongodb: ^3.5.3
     semaphore-async-await: ^1.5.1
     tslib: ^1.10.0
     uuid: ^3.4.0
@@ -386,10 +386,10 @@ __metadata:
     "@furystack/inject": ^4.0.7
     "@furystack/logging": ^2.0.13
     "@furystack/utils": ^1.1.0
-    "@types/jsdom": ^12.2.3
+    "@types/jsdom": ^12.2.4
     "@types/terminal-kit": ^1.28.0
-    jsdom: ^16.0.0
-    terminal-kit: ^1.31.4
+    jsdom: ^16.1.0
+    terminal-kit: ^1.33.2
     tslib: ^1.10.0
   bin:
     odata-fetchr: ./bin/odata-fetchr.cmd
@@ -418,17 +418,18 @@ __metadata:
     "@furystack/inject": ^4.0.7
     "@furystack/logging": ^2.0.13
     "@furystack/utils": ^1.1.0
+    "@types/json-schema": ^7.0.4
     "@types/node": ^13.7.1
     "@types/terminal-kit": ^1.28.0
-    "@types/yargs": ^15.0.0
+    "@types/yargs": ^15.0.3
     ajv: ^6.11.0
-    got: ^10.4.0
-    rimraf: ^3.0.0
+    got: ^10.5.5
+    rimraf: ^3.0.2
     semaphore-async-await: ^1.5.1
-    terminal-kit: ^1.32.1
+    terminal-kit: ^1.33.2
     ts-json-schema-generator: ^0.60.0
     tslib: ^1.10.0
-    typescript: ^3.7.3
+    typescript: ^3.7.5
     yargs: ^15.1.0
   bin:
     onboard: ./bin/onboard
@@ -443,7 +444,7 @@ __metadata:
     "@furystack/inject": ^4.0.7
     "@furystack/logging": ^2.0.13
     "@furystack/utils": ^1.1.0
-    "@types/redis": ^2.8.12
+    "@types/redis": ^2.8.15
     redis: ^3.0.2
     semaphore-async-await: ^1.5.1
     tslib: ^1.10.0
@@ -489,7 +490,7 @@ __metadata:
     semaphore-async-await: ^1.5.1
     sqlite3: ^4.1.1
     tslib: ^1.10.0
-    typeorm: ^0.2.16
+    typeorm: ^0.2.22
   languageName: unknown
   linkType: soft
 
@@ -510,9 +511,9 @@ __metadata:
     "@furystack/inject": ^4.0.7
     "@furystack/logging": ^2.0.13
     "@furystack/utils": ^1.1.0
-    "@types/ws": ^7.2.0
+    "@types/ws": ^7.2.1
     tslib: ^1.10.0
-    ws: ^7.1.1
+    ws: ^7.2.1
   languageName: unknown
   linkType: soft
 
@@ -1792,7 +1793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^25.1.1":
+"@types/jest@npm:^25.1.2":
   version: 25.1.2
   resolution: "@types/jest@npm:25.1.2"
   dependencies:
@@ -1802,7 +1803,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^12.2.3":
+"@types/jsdom@npm:^12.2.4":
   version: 12.2.4
   resolution: "@types/jsdom@npm:12.2.4"
   dependencies:
@@ -1836,7 +1837,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb@npm:^3.1.25":
+"@types/mongodb@npm:^3.3.16":
   version: 3.3.16
   resolution: "@types/mongodb@npm:3.3.16"
   dependencies:
@@ -1881,7 +1882,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/redis@npm:^2.8.12":
+"@types/redis@npm:^2.8.15":
   version: 2.8.15
   resolution: "@types/redis@npm:2.8.15"
   dependencies:
@@ -1929,7 +1930,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^7.2.0":
+"@types/ws@npm:^7.2.1":
   version: 7.2.1
   resolution: "@types/ws@npm:7.2.1"
   dependencies:
@@ -1954,7 +1955,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^15.0.0":
+"@types/yargs@npm:^15.0.0, @types/yargs@npm:^15.0.3":
   version: 15.0.3
   resolution: "@types/yargs@npm:15.0.3"
   dependencies:
@@ -1963,7 +1964,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^2.0.0":
+"@typescript-eslint/eslint-plugin@npm:^2.19.2":
   version: 2.19.2
   resolution: "@typescript-eslint/eslint-plugin@npm:2.19.2"
   dependencies:
@@ -1996,7 +1997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^2.0.0":
+"@typescript-eslint/parser@npm:^2.19.2":
   version: 2.19.2
   resolution: "@typescript-eslint/parser@npm:2.19.2"
   dependencies:
@@ -4006,7 +4007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^6.0.0":
+"eslint-config-prettier@npm:^6.10.0":
   version: 6.10.0
   resolution: "eslint-config-prettier@npm:6.10.0"
   dependencies:
@@ -4078,7 +4079,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^3.1.0":
+"eslint-plugin-prettier@npm:^3.1.2":
   version: 3.1.2
   resolution: "eslint-plugin-prettier@npm:3.1.2"
   dependencies:
@@ -4116,7 +4117,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^6.0.1":
+"eslint@npm:^6.8.0":
   version: 6.8.0
   resolution: "eslint@npm:6.8.0"
   dependencies:
@@ -4683,25 +4684,25 @@ fsevents@^2.1.2:
   version: 0.0.0-use.local
   resolution: "furystack@workspace:."
   dependencies:
-    "@types/jest": ^25.1.1
-    "@typescript-eslint/eslint-plugin": ^2.0.0
-    "@typescript-eslint/parser": ^2.0.0
-    eslint: ^6.0.1
-    eslint-config-prettier: ^6.0.0
+    "@types/jest": ^25.1.2
+    "@typescript-eslint/eslint-plugin": ^2.19.2
+    "@typescript-eslint/parser": ^2.19.2
+    eslint: ^6.8.0
+    eslint-config-prettier: ^6.10.0
     eslint-plugin-import: 2.20.0
     eslint-plugin-jsdoc: ^21.0.0
-    eslint-plugin-prettier: ^3.1.0
-    got: ^10.5.2
-    husky: ^4.0.6
+    eslint-plugin-prettier: ^3.1.2
+    got: ^10.5.5
+    husky: ^4.2.3
     jest: ^25.1.0
     jest-junit: ^10.0.0
-    lerna: ^3.20.1
-    lint-staged: ^10.0.2
-    prettier: ^1.17.1
-    rimraf: ^3.0.0
-    ts-jest: ^25.0.0
-    tslib: ^1.9.3
-    typescript: ^3.7.3
+    lerna: ^3.20.2
+    lint-staged: ^10.0.7
+    prettier: ^1.19.1
+    rimraf: ^3.0.2
+    ts-jest: ^25.2.0
+    tslib: ^1.10.0
+    typescript: ^3.7.5
   languageName: unknown
   linkType: soft
 
@@ -4956,7 +4957,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"got@npm:^10.4.0, got@npm:^10.5.2, got@npm:^10.5.5":
+"got@npm:^10.5.5":
   version: 10.5.5
   resolution: "got@npm:10.5.5"
   dependencies:
@@ -5222,7 +5223,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"husky@npm:^4.0.6":
+"husky@npm:^4.2.3":
   version: 4.2.3
   resolution: "husky@npm:4.2.3"
   dependencies:
@@ -6429,7 +6430,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"jsdom@npm:^16.0.0":
+"jsdom@npm:^16.1.0":
   version: 16.1.0
   resolution: "jsdom@npm:16.1.0"
   dependencies:
@@ -6631,7 +6632,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"lerna@npm:^3.20.1":
+"lerna@npm:^3.20.2":
   version: 3.20.2
   resolution: "lerna@npm:3.20.2"
   dependencies:
@@ -6683,7 +6684,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^10.0.2":
+"lint-staged@npm:^10.0.7":
   version: 10.0.7
   resolution: "lint-staged@npm:10.0.7"
   dependencies:
@@ -7354,7 +7355,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^3.2.3":
+"mongodb@npm:^3.5.3":
   version: 3.5.3
   resolution: "mongodb@npm:3.5.3"
   dependencies:
@@ -8506,7 +8507,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"prettier@npm:^1.17.1":
+"prettier@npm:^1.19.1":
   version: 1.19.1
   resolution: "prettier@npm:1.19.1"
   bin:
@@ -9217,7 +9218,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^3.0.0":
+"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:
@@ -10142,7 +10143,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"terminal-kit@npm:^1.31.4, terminal-kit@npm:^1.32.1":
+"terminal-kit@npm:^1.33.2":
   version: 1.33.2
   resolution: "terminal-kit@npm:1.33.2"
   dependencies:
@@ -10391,7 +10392,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^25.0.0":
+"ts-jest@npm:^25.2.0":
   version: 25.2.0
   resolution: "ts-jest@npm:25.2.0"
   dependencies:
@@ -10428,7 +10429,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.10.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
+"tslib@npm:^1.10.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0":
   version: 1.10.0
   resolution: "tslib@npm:1.10.0"
   checksum: 2/d03db5b8d205cd908421bd16c53c7912b857e4cbe4a54ea2b5f7c7a22cd86317462ea1783b093a36d78a1611fa10baf51696a94bb5c1e13c818145b8954a02c9
@@ -10515,7 +10516,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typeorm@npm:^0.2.16":
+"typeorm@npm:^0.2.22":
   version: 0.2.22
   resolution: "typeorm@npm:0.2.22"
   dependencies:
@@ -10539,7 +10540,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@^3.7.3, typescript@~3.7.5":
+"typescript@^3.7.5, typescript@~3.7.5":
   version: 3.7.5
   resolution: "typescript@npm:3.7.5"
   bin:
@@ -10549,7 +10550,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^3.7.3#builtin<compat/typescript>, typescript@patch:typescript@~3.7.5#builtin<compat/typescript>":
+"typescript@patch:typescript@^3.7.5#builtin<compat/typescript>, typescript@patch:typescript@~3.7.5#builtin<compat/typescript>":
   version: 3.7.5
   resolution: "typescript@patch:typescript@npm%3A3.7.5#builtin<compat/typescript>::version=3.7.5&hash=273569"
   bin:
@@ -11039,7 +11040,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ws@npm:^7.0.0, ws@npm:^7.1.1, ws@npm:^7.2.1":
+"ws@npm:^7.0.0, ws@npm:^7.2.1":
   version: 7.2.1
   resolution: "ws@npm:7.2.1"
   peerDependencies:

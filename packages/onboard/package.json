@@ -1,10 +1,11 @@
 {
   "version": "1.0.1",
   "devDependencies": {
+    "@types/json-schema": "^7.0.4",
     "@types/node": "^13.7.1",
     "@types/terminal-kit": "^1.28.0",
-    "@types/yargs": "^15.0.0",
-    "rimraf": "^3.0.0"
+    "@types/yargs": "^15.0.3",
+    "rimraf": "^3.0.2"
   },
   "scripts": {
     "build": "tsc -b",
@@ -45,12 +46,12 @@
     "@furystack/logging": "^2.0.13",
     "@furystack/utils": "^1.1.0",
     "ajv": "^6.11.0",
-    "got": "^10.4.0",
+    "got": "^10.5.5",
     "semaphore-async-await": "^1.5.1",
-    "terminal-kit": "^1.32.1",
+    "terminal-kit": "^1.33.2",
     "ts-json-schema-generator": "^0.60.0",
     "tslib": "^1.10.0",
-    "typescript": "^3.7.3",
+    "typescript": "^3.7.5",
     "yargs": "^15.1.0"
   }
 }
