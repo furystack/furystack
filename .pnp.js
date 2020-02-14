@@ -125,6 +125,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lint-staged", "npm:10.0.7"],
             ["prettier", "npm:1.19.1"],
             ["rimraf", "npm:3.0.2"],
+            ["sqlite3", "npm:4.1.1"],
             ["ts-jest", "virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:25.2.0"],
             ["tslib", "npm:1.10.0"],
             ["typescript", "patch:typescript@npm%3A3.7.5#builtin<compat/typescript>::version=3.7.5&hash=273569"]
@@ -5341,6 +5342,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lint-staged", "npm:10.0.7"],
             ["prettier", "npm:1.19.1"],
             ["rimraf", "npm:3.0.2"],
+            ["sqlite3", "npm:4.1.1"],
             ["ts-jest", "virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:25.2.0"],
             ["tslib", "npm:1.10.0"],
             ["typescript", "patch:typescript@npm%3A3.7.5#builtin<compat/typescript>::version=3.7.5&hash=273569"]
