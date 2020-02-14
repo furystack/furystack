@@ -56,7 +56,7 @@
     "terminal-kit": "^1.31.4"
   },
   "devDependencies": {
-    "@types/jsdom": "^12.2.3",
+    "@types/jsdom": "^16.1.0",
     "@types/terminal-kit": "^1.28.0"
   },
   "typings": "./dist/index.d.ts",
