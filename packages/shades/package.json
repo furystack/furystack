@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "devDependencies": {
+    "@types/jest": "^25.1.2",
     "@types/uuid": "^3.4.7"
   },
   "dependencies": {

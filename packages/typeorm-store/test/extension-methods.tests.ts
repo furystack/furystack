@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import '@furystack/logging'
-import { using, usingAsync } from '@furystack/utils'
+import { usingAsync, using } from '@furystack/utils'
 import '../src'
 import { ConnectionManager, Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 

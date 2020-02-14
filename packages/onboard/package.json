@@ -1,6 +1,7 @@
 {
   "version": "1.0.1",
   "devDependencies": {
+    "@types/jest": "^25.1.2",
     "@types/json-schema": "^7.0.4",
     "@types/node": "^13.7.1",
     "@types/terminal-kit": "^1.28.0",

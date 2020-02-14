@@ -54,6 +54,7 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/jest": "^25.1.2",
     "got": "^10.5.5"
   },
   "typings": "./dist/index.d.ts",

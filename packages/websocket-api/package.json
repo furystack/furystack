@@ -54,6 +54,7 @@
     "ws": "^7.2.1"
   },
   "devDependencies": {
+    "@types/jest": "^25.1.2",
     "@types/ws": "^7.2.1"
   },
   "typings": "./dist/index.d.ts",

@@ -24,21 +24,8 @@
   "bugs": {
     "url": "https://github.com/furystack/furystack.git"
   },
-  "nyc": {
-    "exclude": [
-      "temp/test/**/*.*",
-      "temp/src/**/I*.js",
-      "**/index.js"
-    ],
-    "include": "temp/src/**/*.*",
-    "check-coverage": false,
-    "cache": true,
-    "all": true,
-    "reporter": [
-      "lcov",
-      "text-summary",
-      "json"
-    ]
+  "devDependencies": {
+    "@types/jest": "^25.1.2"
   },
   "homepage": "https://github.com/furystack/furystack.git",
   "dependencies": {

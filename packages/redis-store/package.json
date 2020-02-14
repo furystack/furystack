@@ -54,6 +54,7 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/jest": "^25.1.2",
     "@types/redis": "^2.8.15",
     "uuid": "^3.4.0"
   },

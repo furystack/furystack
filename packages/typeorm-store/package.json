@@ -44,17 +44,18 @@
     ]
   },
   "homepage": "https://github.com/furystack/core.git",
-  "devDependencies": {
-    "sqlite3": "^4.1.1"
-  },
   "dependencies": {
     "@furystack/core": "^7.0.2",
     "@furystack/inject": "^4.0.7",
     "@furystack/logging": "^2.0.13",
     "@furystack/utils": "^1.1.0",
     "semaphore-async-await": "^1.5.1",
+    "sqlite3": "^4.1.1",
     "tslib": "^1.10.0",
     "typeorm": "^0.2.22"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.2"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
