@@ -1,5 +1,5 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "devDependencies": {
     "@types/jest": "^25.1.2",
     "@types/json-schema": "^7.0.4",
@@ -43,9 +43,9 @@
   ],
   "bin": "./bin/onboard",
   "dependencies": {
-    "@furystack/inject": "^4.0.9",
-    "@furystack/logging": "^2.0.15",
-    "@furystack/utils": "^1.1.2",
+    "@furystack/inject": "^4.0.10",
+    "@furystack/logging": "^2.0.16",
+    "@furystack/utils": "^1.1.3",
     "ajv": "^6.11.0",
     "got": "^10.5.5",
     "semaphore-async-await": "^1.5.1",

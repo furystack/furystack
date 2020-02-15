@@ -1,6 +1,6 @@
 {
   "name": "@furystack/odata-fetchr",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "OData v4 Endpoint fetcher",
   "main": "dist/index.js",
   "files": [
@@ -47,9 +47,9 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/inject": "^4.0.9",
-    "@furystack/logging": "^2.0.15",
-    "@furystack/utils": "^1.1.2",
+    "@furystack/inject": "^4.0.10",
+    "@furystack/logging": "^2.0.16",
+    "@furystack/utils": "^1.1.3",
     "jsdom": "^16.1.0",
     "terminal-kit": "^1.33.3",
     "tslib": "^1.10.0"
