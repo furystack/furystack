@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject/dist/Injector'
+import { Injector } from '@furystack/inject'
 import { WebSocketApi } from './WebSocketApi'
 import { WebSocketApiSettings } from './WebSocketApiSettings'
 

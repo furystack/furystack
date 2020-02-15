@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject/dist/Injector'
+import { Injector } from '@furystack/inject'
 import { DataSet } from './DataSet'
 import { Repository } from './Repository'
 

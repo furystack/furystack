@@ -465,6 +465,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@furystack/inject", "workspace:packages/inject"],
             ["@furystack/utils", "workspace:packages/utils"],
             ["@types/jest", "npm:25.1.2"],
+            ["@types/node", "npm:13.7.1"],
             ["tslib", "npm:1.10.0"]
           ],
           "linkType": "SOFT",
@@ -578,10 +579,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@furystack/logging", "workspace:packages/logging"],
             ["@furystack/utils", "workspace:packages/utils"],
             ["@types/jest", "npm:25.1.2"],
-            ["@types/jsdom", "npm:12.2.4"],
+            ["@types/jsdom", "npm:16.1.0"],
             ["@types/terminal-kit", "npm:1.28.0"],
             ["jsdom", "virtual:e6d817cde6b281833ce1a28b05218c0facc002b8a40b77ee2d58cff4403cbd03a5b2da94eb0cc67829ea251ce17c3ce52ddae723de255d60445da6edfba53bd8#npm:16.1.0"],
-            ["terminal-kit", "npm:1.33.2"],
+            ["terminal-kit", "npm:1.33.3"],
             ["tslib", "npm:1.10.0"]
           ],
           "linkType": "SOFT",
@@ -604,7 +605,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["got", "npm:10.5.5"],
             ["rimraf", "npm:3.0.2"],
             ["semaphore-async-await", "npm:1.5.1"],
-            ["terminal-kit", "npm:1.33.2"],
+            ["terminal-kit", "npm:1.33.3"],
             ["ts-json-schema-generator", "npm:0.60.0"],
             ["tslib", "npm:1.10.0"],
             ["typescript", "patch:typescript@npm%3A3.7.5#builtin<compat/typescript>::version=3.7.5&hash=273569"],
@@ -2119,13 +2120,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/jsdom", [
-        ["npm:12.2.4", {
-          "packageLocation": "./.yarn/cache/@types-jsdom-npm-12.2.4-41e2140030-2.zip/node_modules/@types/jsdom/",
+        ["npm:16.1.0", {
+          "packageLocation": "./.yarn/cache/@types-jsdom-npm-16.1.0-fdee14f50b-2.zip/node_modules/@types/jsdom/",
           "packageDependencies": [
-            ["@types/jsdom", "npm:12.2.4"],
+            ["@types/jsdom", "npm:16.1.0"],
             ["@types/node", "npm:13.7.0"],
-            ["@types/tough-cookie", "npm:2.3.6"],
-            ["parse5", "npm:4.0.0"]
+            ["@types/parse5", "npm:5.0.2"],
+            ["@types/tough-cookie", "npm:2.3.6"]
           ],
           "linkType": "HARD",
         }]
@@ -2206,6 +2207,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-parse-json-npm-4.0.0-298522afa6-2.zip/node_modules/@types/parse-json/",
           "packageDependencies": [
             ["@types/parse-json", "npm:4.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/parse5", [
+        ["npm:5.0.2", {
+          "packageLocation": "./.yarn/cache/@types-parse5-npm-5.0.2-aca43fb470-2.zip/node_modules/@types/parse5/",
+          "packageDependencies": [
+            ["@types/parse5", "npm:5.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -9188,13 +9198,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["parse5", [
-        ["npm:4.0.0", {
-          "packageLocation": "./.yarn/cache/parse5-npm-4.0.0-6cf9579d2a-2.zip/node_modules/parse5/",
-          "packageDependencies": [
-            ["parse5", "npm:4.0.0"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:5.1.0", {
           "packageLocation": "./.yarn/cache/parse5-npm-5.1.0-b9c35ee7fa-2.zip/node_modules/parse5/",
           "packageDependencies": [
@@ -11219,10 +11222,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["terminal-kit", [
-        ["npm:1.33.2", {
-          "packageLocation": "./.yarn/cache/terminal-kit-npm-1.33.2-bbce578499-2.zip/node_modules/terminal-kit/",
+        ["npm:1.33.3", {
+          "packageLocation": "./.yarn/cache/terminal-kit-npm-1.33.3-fc35ef9828-2.zip/node_modules/terminal-kit/",
           "packageDependencies": [
-            ["terminal-kit", "npm:1.33.2"],
+            ["terminal-kit", "npm:1.33.3"],
             ["@cronvel/get-pixels", "npm:3.3.1"],
             ["chroma-js", "npm:2.1.0"],
             ["lazyness", "npm:1.1.1"],

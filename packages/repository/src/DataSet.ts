@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { SearchOptions } from '@furystack/core'
+import { SearchOptions, PartialResult } from '@furystack/core'
 import { DataSetSettings } from './DataSetSettings'
 
 /**
@@ -78,7 +78,10 @@ export class DataSet<T> {
    * @param injector The Injector from the context
    * @param filter The Filter definition
    */
-  public async filter<TFields extends Array<keyof T>>(injector: Injector, filter: SearchOptions<T, TFields>) {
+  public async filter<TFields extends Array<keyof T>>(
+    injector: Injector,
+    filter: SearchOptions<T, TFields>,
+  ): Promise<Array<PartialResult<T, TFields[number]>>> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {

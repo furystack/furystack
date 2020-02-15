@@ -1,6 +1,6 @@
 import { join, dirname } from 'path'
 import { readFileSync, realpathSync, existsSync } from 'fs'
-import { Injector } from '@furystack/inject/dist/Injector'
+import { Injector } from '@furystack/inject'
 import { validateSchema } from './validate-schema'
 import { Config as ConfigModel } from './models/config'
 import { Prerequisite } from './services/check-prerequisites'

@@ -1,4 +1,4 @@
-import '@furystack/logging/dist/InjectorExtension'
+import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'

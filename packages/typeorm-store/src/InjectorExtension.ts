@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject/dist/Injector'
+import { Injector } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
 import { Connection, ConnectionManager } from 'typeorm'
 import { ConnectionOptions } from 'typeorm/connection/ConnectionOptions'
