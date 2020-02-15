@@ -1,4 +1,4 @@
-import { Disposable, ObservableValue, Trace } from '@furystack/utils'
+import { Disposable, ObservableValue, Trace, ValueObserver } from '@furystack/utils'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
 
@@ -15,7 +15,7 @@ export class LocationService implements Disposable {
 
   public onLocationChanged = new ObservableValue<URL>(new URL(location.href))
 
-  public locationStateLogObserver = this.onLocationChanged.subscribe(newUrl => {
+  public locationStateLogObserver: ValueObserver<URL> = this.onLocationChanged.subscribe(newUrl => {
     this.logger.verbose({ message: 'Location changed', data: { oldUrl: this.onLocationChanged.getValue(), newUrl } })
   })
 
