@@ -48,8 +48,14 @@
     "@furystack/core": "^7.0.2",
     "@furystack/http-api": "^5.3.12",
     "@furystack/inject": "^4.0.7",
+    "@furystack/logging": "^2.0.13",
     "@furystack/repository": "^2.0.16",
-    "@furystack/utils": "^1.1.0"
+    "@furystack/utils": "^1.1.0",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.2",
+    "got": "^10.5.5"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

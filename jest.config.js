@@ -37,7 +37,7 @@ module.exports = {
         warnOnly: true,
       },
       isolatedModules: true,
-      tsConfig: './tsconfig-base.json',
+      tsConfig: './tsconfig.json',
     },
   },
 }

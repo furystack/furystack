@@ -1,14 +1,7 @@
 module.exports = {
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-    'prettier',
-    'prettier/@typescript-eslint',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier', 'prettier/@typescript-eslint'],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'prettier', 'jsdoc', 'import'],
+  plugins: ['@typescript-eslint', 'prettier', 'jsdoc'],
   env: { browser: true, node: true, es6: true, jest: true },
   parserOptions: {
     ecmaVersion: 6,
@@ -46,8 +39,6 @@ module.exports = {
     'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
     'prettier/prettier': 'error',
     'require-jsdoc': 1,
-    'import/no-unresolved': 'off',
-    'import/order': 'error',
     'object-shorthand': 'error',
     'dot-notation': 'error',
     'no-caller': 'error',

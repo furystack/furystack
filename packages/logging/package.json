@@ -24,25 +24,14 @@
   "bugs": {
     "url": "https://github.com/furystack/furystack.git"
   },
-  "nyc": {
-    "exclude": [
-      "temp/test/**/*.*",
-      "temp/src/**/I*.js",
-      "**/index.js"
-    ],
-    "include": "temp/src/**/*.*",
-    "check-coverage": false,
-    "cache": true,
-    "all": true,
-    "reporter": [
-      "lcov",
-      "text-summary",
-      "json"
-    ]
+  "devDependencies": {
+    "@types/jest": "^25.1.2"
   },
   "homepage": "https://github.com/furystack/furystack.git",
   "dependencies": {
-    "@furystack/inject": "^4.0.7"
+    "@furystack/inject": "^4.0.7",
+    "@furystack/utils": "^1.1.0",
+    "tslib": "^1.10.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
