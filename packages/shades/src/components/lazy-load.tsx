@@ -14,13 +14,11 @@ export interface LazyLoadState {
 export const LazyLoad = Shade<LazyLoadProps, LazyLoadState>({
   initialState: {},
   shadowDomName: 'lazy-load',
-  constructed: async ({ props, updateState, logger }) => {
+  constructed: async ({ props, updateState }) => {
     try {
       const loaded = await props.component()
-      logger.verbose({ message: `Component lazy-loaded`, data: loaded })
       updateState({ component: loaded })
     } catch (error) {
-      logger.error({ message: `Failed to lazy-load component`, data: { error } })
       if (props.error) {
         updateState({ error })
       } else {

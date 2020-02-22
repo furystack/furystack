@@ -97,7 +97,6 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
             },
             children: this.shadeChildren.getValue(),
             element: this,
-            logger: this.injector.logger.withScope(`@furystack/shades/<${customElementName}>`),
           } as RenderOptions<TProps, TState>
         }
 

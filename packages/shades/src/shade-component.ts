@@ -1,6 +1,4 @@
-import { Injector } from '@furystack/inject'
 import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
-import '@furystack/logging'
 
 /**
  * Appends a list of items to a HTML element
@@ -20,12 +18,6 @@ export const appendChild = (el: HTMLElement, children: ChildrenList) => {
     }
   }
 }
-
-/**
- * the default static injector instance for Shade
- */
-export const shadeInjector = new Injector()
-shadeInjector.useLogging()
 
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
