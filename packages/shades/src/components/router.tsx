@@ -31,7 +31,7 @@ export const Router = Shade<RouterProps, RouterState>({
       const match = routeMatch.component(currentUrl)
       return match
     }
-    if (options.props.notFound) {9
+    if (options.props.notFound) {
       return options.props.notFound(currentUrl)
     }
     return <div></div>
