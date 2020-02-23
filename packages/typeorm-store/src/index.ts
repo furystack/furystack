@@ -1,3 +1,3 @@
-export * from './TypeOrmStore'
-import './InjectorExtension'
-import './StoreManagerExtension'
+export * from './typeorm-store'
+import './injector-extensions'
+import './store-manager-extensions'

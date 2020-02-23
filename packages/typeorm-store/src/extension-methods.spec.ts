@@ -1,7 +1,8 @@
 import { Injector } from '@furystack/inject'
 import '@furystack/logging'
 import { usingAsync, using } from '@furystack/utils'
-import '../src'
+import './injector-extensions'
+import './store-manager-extensions'
 import { ConnectionManager, Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
 describe('TypeORM Extension Methods', () => {

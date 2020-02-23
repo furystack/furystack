@@ -1,7 +1,7 @@
 import { StoreManager } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { ConnectionManager } from 'typeorm'
-import { TypeOrmStore } from './TypeOrmStore'
+import { TypeOrmStore } from './typeorm-store'
 
 declare module '@furystack/core/dist/store-manager' {
   /**
