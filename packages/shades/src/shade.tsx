@@ -47,7 +47,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
   if (!existing) {
     customElements.define(
       customElementName,
-      class extends HTMLElement implements JSX.Element {
+      (class extends HTMLElement implements JSX.Element {
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
           this.callConstructed()
@@ -175,7 +175,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           super()
           this.props = new ObservableValue()
         }
-      },
+      } as any) as CustomElementConstructor,
     )
   }
 
