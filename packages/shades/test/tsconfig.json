@@ -1,9 +1,0 @@
-{
-  "extends": "../../../tsconfig.json",
-  "include": ["**/*"],
-  "compilerOptions": {
-    "rootDirs": ["../src", "../test"],
-    "jsx": "react",
-    "jsxFactory": "createComponent"
-  }
-}

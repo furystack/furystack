@@ -1,5 +1,5 @@
-import { createComponent } from '../src/shade-component'
-import '../src/jsx'
+import { createComponent } from './shade-component'
+import './jsx'
 
 describe('Shades Component Factory', () => {
   it('Should create a simple component', () => {

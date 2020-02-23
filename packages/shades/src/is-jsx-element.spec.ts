@@ -1,4 +1,4 @@
-import { isJsxElement } from '../src/jsx'
+import { isJsxElement } from './jsx'
 
 describe('isJsxElement', () => {
   it('Should return false if element doesnt have state & props', () => {
