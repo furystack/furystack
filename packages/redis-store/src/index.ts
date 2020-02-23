@@ -1,2 +1,2 @@
-export * from './RedisStore'
-import './StoreManagerExtension'
+export * from './redis-store'
+import './store-manager-extensions'

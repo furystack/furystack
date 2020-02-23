@@ -3,7 +3,8 @@ import { createClient, RedisClient } from 'redis'
 import { StoreManager } from '@furystack/core'
 import '@furystack/logging'
 import { v4 } from 'uuid'
-import { RedisStore } from '../src'
+import { RedisStore } from './redis-store'
+import './store-manager-extensions'
 
 describe('Redis Store', () => {
   class ExampleClass {
@@ -22,7 +23,7 @@ describe('Redis Store', () => {
   })
 
   afterEach(async () => {
-    client.end()
+    client.end(false)
     await store.dispose()
     await i.dispose()
   })
@@ -38,7 +39,7 @@ describe('Redis Store', () => {
     expect(retrieved).toStrictEqual(entityToAdd)
     await store.update(entityToAdd.id, { ...entityToAdd, value: 'updatedValue' })
     const updated = await store.get(entityToAdd.id)
-    expect(updated?.value).toBe('updatedValue')
+    expect(updated && updated.value).toBe('updatedValue')
     await store.remove(entityToAdd.id)
     const deleted = await store.get(entityToAdd.id)
     expect(deleted).toBeFalsy()

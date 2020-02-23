@@ -869,6 +869,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.1.3'],
                   ['@types/redis', 'npm:2.8.16'],
+                  ['@types/uuid', 'npm:3.4.7'],
                   ['redis', 'npm:3.0.2'],
                   ['semaphore-async-await', 'npm:1.5.1'],
                   ['tslib', 'npm:1.11.0'],
