@@ -2,8 +2,8 @@ import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
-import { JsonResult, RequestAction } from './Models'
-import { HttpUserContext } from './HttpUserContext'
+import { JsonResult, RequestAction } from './models/request-action'
+import { HttpUserContext } from './http-user-context'
 
 export const Authenticate = () => (action: RequestAction) => {
   return async (i: Injector) => {

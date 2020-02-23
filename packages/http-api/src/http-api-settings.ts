@@ -1,0 +1,20 @@
+import { Injectable } from '@furystack/inject'
+import { RequestAction, RouteModel, CorsOptions } from './models'
+import { NotFoundAction, ErrorAction } from './actions'
+
+/**
+ * Configuration object for the FuryStack HTTP Api
+ */
+@Injectable({ lifetime: 'singleton' })
+export class HttpApiSettings {
+  public defaultAction: RequestAction = NotFoundAction
+  public errorAction: RequestAction = ErrorAction
+  public hostName = 'localhost'
+  public notFoundAction: RequestAction = NotFoundAction
+  public actions: RouteModel[] = []
+  public port = 8080
+  public protocol: 'http' | 'https' = 'http'
+  public corsOptions: CorsOptions = {
+    origins: [],
+  }
+}

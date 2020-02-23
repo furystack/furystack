@@ -1,6 +1,6 @@
 import { parse } from 'url'
-import { RouteModel } from './Models'
-import { IsAuthenticated, GetCurrentUser, LoginAction, LogoutAction } from './Actions'
+import { RouteModel } from './models/route-model'
+import { IsAuthenticated, GetCurrentUser, LoginAction, LogoutAction } from './actions'
 
 /**
  * Default routes for /login, /logout and /getCurrentUser
