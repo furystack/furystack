@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { globalDisposables, exitHandler } from '../src/global-disposables'
-import '../src/injector-extensions'
+import { globalDisposables, exitHandler } from './global-disposables'
+import './injector-extensions'
 
 describe('Global Disposables', () => {
   it('Should be empty by default', () => {

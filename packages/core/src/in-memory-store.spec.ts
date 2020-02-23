@@ -1,6 +1,6 @@
 import '@furystack/logging'
 import { usingAsync } from '@furystack/utils'
-import { InMemoryStore } from '../src/in-memory-store'
+import { InMemoryStore } from './in-memory-store'
 
 class MockClass {
   public id!: number
@@ -103,7 +103,7 @@ describe('InMemoryStore', () => {
       })
       // Type check should also warn!
       expect(partialResult[0].id).toBeTruthy()
-      expect((partialResult[0] as any)['notNeeded']).toBeUndefined()
+      expect((partialResult[0] as any).notNeeded).toBeUndefined()
 
       const fullResult = await i.search({ filter: { id: 1 } })
       expect(fullResult[0].notNeeded).toBeTruthy()

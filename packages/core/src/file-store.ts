@@ -30,7 +30,7 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
-  private hasChanges = false
+  public hasChanges = false
   public async get(key: T[this['primaryKey']]) {
     return await this.fileLock.execute(async () => {
       return await this.inMemoryStore.get(key)
@@ -56,7 +56,7 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   private fileLock = new Semaphore(1)
-  private async saveChanges() {
+  public async saveChanges() {
     if (!this.hasChanges) {
       return
     }
@@ -133,8 +133,8 @@ export class FileStore<T> implements PhysicalStore<T> {
     this.hasChanges = true
   }
 
-  private readFile = nodeReadFile
-  private writeFile = nodeWriteFile
+  public readFile = nodeReadFile
+  public writeFile = nodeWriteFile
 
   private logger: ScopedLogger
 

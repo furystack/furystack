@@ -1,6 +1,6 @@
 import { readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs'
 import { LoggerCollection } from '@furystack/logging'
-import { FileStore } from '../src/file-store'
+import { FileStore } from './file-store'
 
 class MockClass {
   public id!: number
@@ -43,9 +43,9 @@ describe('FileStore', () => {
       primaryKey: 'id',
     })
     expect(f2).toBeInstanceOf(FileStore)
-    expect(f2['readFile']).toBe(nodeReadFile)
-    expect(f2['writeFile']).toBe(nodeWriteFile)
-    clearInterval(f2['tick'])
+    expect(f2.readFile).toBe(nodeReadFile)
+    expect(f2.writeFile).toBe(nodeWriteFile)
+    clearInterval(f2.tick)
   })
 
   it('Update should set a value', async () => {
@@ -88,7 +88,7 @@ describe('FileStore', () => {
   })
 
   it('save should be triggered after change', done => {
-    f['writeFile'] = ((_name: string, _value: any, callback: () => void) => {
+    f.writeFile = ((_name: string, _value: any, callback: () => void) => {
       callback()
       done()
     }) as any
@@ -105,7 +105,7 @@ describe('FileStore', () => {
   })
 
   it('reload should fill the cache from the response', async () => {
-    f['readFile'] = ((_name: string, callback: (err: any, data: string) => void) => {
+    f.readFile = ((_name: string, callback: (err: any, data: string) => void) => {
       callback(undefined, JSON.stringify([{ id: 1, value: 'asd' }]))
     }) as any
 
@@ -117,10 +117,10 @@ describe('FileStore', () => {
   })
 
   it('saveChanges should skip file writing on no changes', () => {
-    f['hasChanges'] = false
-    f['writeFile'] = ((_name: string, _value: any, _callback: (err: any) => void) => {
+    f.hasChanges = false
+    f.writeFile = ((_name: string, _value: any, _callback: (err: any) => void) => {
       throw Error("Shouldn't be triggered on no change!")
     }) as any
-    f['saveChanges']()
+    f.saveChanges()
   })
 })
