@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { WhoAmI } from './Actions/Whoami'
+import { WhoAmI } from './actions/whoami'
 import { WebSocketAction, WebSocketActionStatic } from '.'
 
 /**

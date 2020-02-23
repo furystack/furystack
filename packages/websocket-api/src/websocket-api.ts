@@ -5,7 +5,7 @@ import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
-import { WebSocketApiSettings } from './WebSocketApiSettings'
+import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
 
 /**
