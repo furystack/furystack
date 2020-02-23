@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
-import { AbstractLogger } from './AbstractLogger'
-import { LeveledLogEntry } from './LogEntries'
-import { Logger } from './Logger'
+import { AbstractLogger } from './abstract-logger'
+import { LeveledLogEntry } from './log-entries'
+import { Logger } from './logger'
 
 /**
  * A specific logger that forwards its messages to a collection of loggers

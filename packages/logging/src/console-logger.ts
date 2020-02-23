@@ -1,6 +1,6 @@
 import { Injectable } from '@furystack/inject'
-import { AbstractLogger } from './AbstractLogger'
-import { LeveledLogEntry, LogLevel } from './LogEntries'
+import { AbstractLogger } from './abstract-logger'
+import { LeveledLogEntry, LogLevel } from './log-entries'
 
 /**
  * Resets the console color

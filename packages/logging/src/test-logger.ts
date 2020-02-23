@@ -1,5 +1,5 @@
-import { AbstractLogger } from './AbstractLogger'
-import { LeveledLogEntry } from './LogEntries'
+import { AbstractLogger } from './abstract-logger'
+import { LeveledLogEntry } from './log-entries'
 
 /**
  * A test logger instance with a callback for added events

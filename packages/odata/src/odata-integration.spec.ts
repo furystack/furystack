@@ -484,7 +484,7 @@ describe('OData Integration Tests', () => {
           body: JSON.stringify({ complexValue: { foo: 'foo', bar: 'bar' } }),
         },
       )
-      expect(store.cache.get(entityToPost.guid).complexValue.foo).toBe('foo')
+      expect(store.cache.get(entityToPost.guid)?.complexValue.foo).toBe('foo')
       expect(patchResponse.statusCode).toBe(204)
       await got(responseBody['@odata.id'], { method: 'DELETE' })
       expect(store.cache.has(entityToPost.guid)).toBe(false)

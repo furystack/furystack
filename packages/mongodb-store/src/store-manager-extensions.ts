@@ -1,8 +1,8 @@
 import { StoreManager } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { MongoClientOptions } from 'mongodb'
-import { MongoClientFactory } from './MongoClientFactory'
-import { MongodbStore } from './MongodbStore'
+import { MongoClientFactory } from './mongo-client-factory'
+import { MongodbStore } from './mongodb-store'
 
 declare module '@furystack/core/dist/store-manager' {
   /**

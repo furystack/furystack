@@ -2,7 +2,8 @@ import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import '@furystack/logging'
 import { v4 } from 'uuid'
-import { MongodbStore } from '../src'
+import { MongodbStore } from './mongodb-store'
+import './store-manager-extensions'
 
 describe('MongoDB Store', () => {
   class ExampleClass {

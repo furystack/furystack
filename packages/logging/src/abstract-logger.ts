@@ -1,5 +1,5 @@
-import { LeveledLogEntry, LogEntry, LogLevel } from './LogEntries'
-import { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './Logger'
+import { LeveledLogEntry, LogEntry, LogLevel } from './log-entries'
+import { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './logger'
 
 /**
  * Default scope key for the Abstract Logger

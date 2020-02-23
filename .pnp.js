@@ -760,6 +760,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@types/jest', 'npm:25.1.3'],
                   ['@types/mongodb', 'npm:3.3.16'],
                   ['@types/node', 'npm:13.7.4'],
+                  ['@types/uuid', 'npm:3.4.7'],
                   ['got', 'npm:10.6.0'],
                   ['mongodb', 'npm:3.5.3'],
                   ['semaphore-async-await', 'npm:1.5.1'],

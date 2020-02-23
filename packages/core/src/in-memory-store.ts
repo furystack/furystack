@@ -24,7 +24,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     return data
   }
 
-  private cache: Map<T[this['primaryKey']], T> = new Map()
+  public cache: Map<T[this['primaryKey']], T> = new Map()
   public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
 
   private filterInternal(values: T[], filter?: FilterType<T>): T[] {

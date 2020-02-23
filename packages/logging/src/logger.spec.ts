@@ -1,8 +1,10 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { ConsoleLogger, defaultFormatter, LoggerCollection, verboseFormatter } from '../src'
-import { LogLevel } from '../src/LogEntries'
-import { TestLogger } from '../src/TestLogger'
+import { LogLevel } from './log-entries'
+import { TestLogger } from './test-logger'
+import { LoggerCollection } from './logger-collection'
+import './injector-extensions'
+import { ConsoleLogger, verboseFormatter, defaultFormatter } from './console-logger'
 
 describe('Loggers', () => {
   it('Can be set up with an extension method', () => {
@@ -133,49 +135,6 @@ describe('Loggers', () => {
         }),
       )
       loggers.fatal({
-        message: 'alma',
-        scope: 'alma',
-      })
-    })
-
-    it('Should skip filtered events in a simple logger', done => {
-      const logger = new TestLogger(
-        async e => {
-          expect(e.level).toBe(LogLevel.Error)
-          done()
-        },
-        {
-          filter: ev => ev.level === LogLevel.Error,
-        },
-      )
-      logger.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
-      logger.error({
-        message: 'alma',
-        scope: 'alma',
-      })
-    })
-
-    it('Should skip filtered events in a collection', done => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(
-          async e => {
-            expect(e.level).toBe(LogLevel.Error)
-            done()
-          },
-          {
-            filter: ev => ev.level === LogLevel.Error,
-          },
-        ),
-      )
-      loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
-      loggers.error({
         message: 'alma',
         scope: 'alma',
       })
