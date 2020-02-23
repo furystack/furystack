@@ -1,13 +1,13 @@
 import { Injectable } from '@furystack/inject'
 import { odataCollectionService } from '../templates.ts/collection-service'
-import { entityPropertyTemplate } from '../templates.ts/EntityProperty'
+import { entityPropertyTemplate } from '../templates.ts/entity-property'
 import {
   odataCustomActionTemplate,
   odataCustomCollectionActionTemplate,
   odataCustomFunctionTemplate,
   odataCustomCollectionFunctionTemplate,
 } from '../templates.ts/custom-actions-functions'
-import { entityTypeTemplate } from '../templates.ts/EntityType'
+import { entityTypeTemplate } from '../templates.ts/entity-type'
 import { odataContext } from '../templates.ts/odata-context'
 
 /**

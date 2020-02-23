@@ -3,7 +3,8 @@ import { InMemoryStore, StoreManager } from '@furystack/core'
 import got from 'got'
 import { JsonResult } from '@furystack/http-api'
 import { PathHelper } from '@furystack/utils'
-import { EdmType } from '../src/index'
+import { EdmType } from './models/edm-type'
+import './injector-extension'
 
 const port = 8888
 const odataRouteName = `api/odata-test`
@@ -434,7 +435,7 @@ describe('OData Integration Tests', () => {
       const groups = JSON.parse(response.body)
       expect(groups['@odata.context']).toBe('$metadata#UserCollection')
       expect(groups['@odata.count']).toBe(4)
-      expect(groups.value.map(g => g.id)).toStrictEqual([1, 2, 3, 4])
+      expect(groups.value.map((g: Group) => g.id)).toStrictEqual([1, 2, 3, 4])
     })
 
     it('Retrieve the owner from a Group entity', async () => {
@@ -474,7 +475,7 @@ describe('OData Integration Tests', () => {
         ['@odata.id']: PathHelper.joinPaths(odataPath, 'Entity2Collection', `('${entityToPost.guid}')`),
         ...entityToPost,
       })
-      expect(store['cache'].has(entityToPost.guid)).toBe(true)
+      expect(store.cache.has(entityToPost.guid)).toBe(true)
 
       const patchResponse = await got(
         PathHelper.joinPaths(odataPath, `Entity2Collection`, `('${entityToPost.guid}')`),
@@ -483,10 +484,10 @@ describe('OData Integration Tests', () => {
           body: JSON.stringify({ complexValue: { foo: 'foo', bar: 'bar' } }),
         },
       )
-      expect(store['cache'].get(entityToPost.guid).complexValue.foo).toBe('foo')
+      expect(store.cache.get(entityToPost.guid).complexValue.foo).toBe('foo')
       expect(patchResponse.statusCode).toBe(204)
       await got(responseBody['@odata.id'], { method: 'DELETE' })
-      expect(store['cache'].has(entityToPost.guid)).toBe(false)
+      expect(store.cache.has(entityToPost.guid)).toBe(false)
     })
   })
 

@@ -2,7 +2,9 @@ import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import '@furystack/logging'
 import { IsAuthenticated, LoginAction, RequestAction, JsonResult } from '@furystack/http-api'
-import { ModelBuilder, EdmType } from '../src'
+import { EdmType } from './models/edm-type'
+import { ModelBuilder } from './model-builder'
+import './injector-extension'
 
 class MockClass {
   id!: number
