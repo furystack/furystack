@@ -1,7 +1,7 @@
 import { Injector, Constructable } from '@furystack/inject'
 import { ODataServiceOptions, OdataService } from './odata-service'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   interface Injector {
     useOdataClient: (params: Omit<Omit<ODataServiceOptions, 'model'>, 'modelName'>) => Injector
     getOdataServiceFor: <T>(model: Constructable<T>, modelName: string) => OdataService<T>

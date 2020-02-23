@@ -717,6 +717,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                 packageDependencies: [
                   ['@furystack/inject', 'workspace:packages/inject'],
                   ['@furystack/utils', 'workspace:packages/utils'],
+                  ['@types/jest', 'npm:25.1.3'],
                   ['reflect-metadata', 'npm:0.1.13'],
                   ['tslib', 'npm:1.11.0'],
                 ],

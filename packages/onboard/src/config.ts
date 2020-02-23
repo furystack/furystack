@@ -68,7 +68,7 @@ export class Config {
   constructor(public readonly options: ConfigOptions) {}
 }
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   interface Injector {
     useConfig: (config: ConfigOptions) => Injector
     getConfig(): Config

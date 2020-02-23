@@ -1,11 +1,11 @@
 import { HttpApiSettings } from '@furystack/http-api'
-import { Injector } from '@furystack/inject/dist/Injector'
+import { Injector } from '@furystack/inject/dist/injector'
 import { DataSet } from '@furystack/repository'
 import { ModelBuilder } from './model-builder'
 import { createOdataRouter } from './routing'
 import { OdataContext } from './odata-context'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */

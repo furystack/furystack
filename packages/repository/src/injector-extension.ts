@@ -4,7 +4,7 @@ import { DataSet } from './data-set'
 import { Repository } from './repository'
 
 // tslint:disable-next-line: no-unused-expression
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */

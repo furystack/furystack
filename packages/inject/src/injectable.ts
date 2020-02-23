@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { Injector } from './Injector'
-import { Constructable } from './Types/Constructable'
+import { Injector } from './injector'
+import { Constructable } from './types/constructable'
 
 /**
  * Options for the injectable instance

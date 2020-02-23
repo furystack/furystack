@@ -8,7 +8,7 @@ import { HttpApiSettings } from './HttpApiSettings'
 import { RouteModel } from './Models'
 import { HttpAuthenticationSettings } from '.'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Extended Injector with Http API related methods
    */

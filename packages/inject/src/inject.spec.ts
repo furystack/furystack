@@ -1,4 +1,4 @@
-import { Injectable } from '../src'
+import { Injectable } from './injectable'
 
 // tslint:disable:max-classes-per-file
 describe('Tests', () => {

@@ -1,6 +1,6 @@
 import { Disposable, using, usingAsync } from '@furystack/utils'
-import { Injectable } from '../src/Injectable'
-import { Injector } from '../src/Injector'
+import { Injectable } from './injectable'
+import { Injector } from './injector'
 
 // tslint:disable:max-classes-per-file
 
@@ -50,7 +50,7 @@ describe('Injector', () => {
     parent.setExplicitInstance(instance)
     expect(i.getInstance(InstanceClass)).toBe(instance)
     // tslint:disable-next-line:no-string-literal
-    expect(parent['cachedSingletons'].get(InstanceClass)).toBe(instance)
+    expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
   })
 
   it('Should create instance on a parent injector if not available', () => {
@@ -61,7 +61,7 @@ describe('Injector', () => {
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(
       // tslint:disable-next-line:no-string-literal
-      parent['cachedSingletons'].get(InstanceClass),
+      parent.cachedSingletons.get(InstanceClass),
     ).toBeInstanceOf(InstanceClass)
   })
 
@@ -129,7 +129,7 @@ describe('Injector', () => {
       i.setExplicitInstance({}, Object)
       i.remove(Object)
       // tslint:disable-next-line: no-string-literal
-      expect(i['cachedSingletons'].size).toBe(0)
+      expect(i.cachedSingletons.size).toBe(0)
     })
   })
 

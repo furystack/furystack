@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */

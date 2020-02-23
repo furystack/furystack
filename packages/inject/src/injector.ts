@@ -1,6 +1,6 @@
 import { Disposable } from '@furystack/utils'
-import { defaultInjectableOptions } from './Injectable'
-import { Constructable } from './Types/Constructable'
+import { defaultInjectableOptions } from './injectable'
+import { Constructable } from './types/constructable'
 
 /**
  * Container for injectable instances
@@ -35,7 +35,7 @@ export class Injector implements Disposable {
     Constructable<any>,
     {
       dependencies: Array<Constructable<any>>
-      options: import('./Injectable').InjectableOptions
+      options: import('./injectable').InjectableOptions
     }
   > = new Map()
 

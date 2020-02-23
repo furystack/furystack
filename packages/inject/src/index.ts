@@ -1,3 +1,3 @@
-export * from './Injectable'
-export * from './Injector'
-export * from './Types'
+export * from './injectable'
+export * from './injector'
+export * from './types'

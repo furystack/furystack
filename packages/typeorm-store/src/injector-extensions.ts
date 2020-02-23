@@ -3,7 +3,7 @@ import Semaphore from 'semaphore-async-await'
 import { Connection, ConnectionManager } from 'typeorm'
 import { ConnectionOptions } from 'typeorm/connection/ConnectionOptions'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Extended Injector type with TypeOrm methods
    */

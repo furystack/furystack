@@ -16,7 +16,7 @@ export class ExecAsyncService {
   }
 }
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   interface Injector {
     execAsync(command: string, options: ExecOptions): Promise<string>
   }

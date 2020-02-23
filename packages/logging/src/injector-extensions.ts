@@ -3,7 +3,7 @@ import { Injector } from '@furystack/inject'
 import { Logger } from './logger'
 import { LoggerCollection } from './logger-collection'
 
-declare module '@furystack/inject/dist/Injector' {
+declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */
