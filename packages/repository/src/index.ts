@@ -1,4 +1,4 @@
-export * from './Repository'
-export * from './DataSet'
-export * from './DataSetSettings'
-import './InjectorExtension'
+export * from './repository'
+export * from './data-set'
+export * from './data-set-setting'
+import './injector-extension'

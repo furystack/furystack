@@ -1,11 +1,11 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { InMemoryStore } from '@furystack/core'
-import { Repository } from '../src/Repository'
-import { AuthorizationResult } from '../src/DataSetSettings'
-import { DataSet } from '../src/DataSet'
+import { Repository } from './repository'
+import { AuthorizationResult } from './data-set-setting'
+import { DataSet } from './data-set'
 import '@furystack/logging'
-import '../src/InjectorExtension'
+import './injector-extension'
 
 class TestClass {
   public id = 1

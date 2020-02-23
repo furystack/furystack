@@ -2,8 +2,8 @@ import { PhysicalStore, StoreManager } from '@furystack/core'
 import { Constructable, Injectable, Injector } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 import { ScopedLogger } from '@furystack/logging'
-import { DataSetSettings } from './DataSetSettings'
-import { DataSet } from './DataSet'
+import { DataSetSettings } from './data-set-setting'
+import { DataSet } from './data-set'
 
 /**
  * Collection of authorized physical stores

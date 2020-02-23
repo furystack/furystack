@@ -1,9 +1,9 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import '../src/InjectorExtension'
+import './injector-extension'
 import '@furystack/logging'
 import { InMemoryStore } from '@furystack/core'
-import { DataSet } from '../src/DataSet'
+import { DataSet } from './data-set'
 
 describe('Repository', () => {
   it('Should retrieve a dataSet', () => {

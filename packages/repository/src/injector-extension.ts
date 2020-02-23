@@ -1,7 +1,7 @@
 import { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
-import { DataSet } from './DataSet'
-import { Repository } from './Repository'
+import { DataSet } from './data-set'
+import { Repository } from './repository'
 
 // tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/Injector' {
