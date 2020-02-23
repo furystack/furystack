@@ -17,14 +17,15 @@ describe('Odata', () => {
   it('Should be added to an injector', () => {
     using(new Injector(), i => {
       i.useLogging().useOdata('odata', builder => builder)
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot()
+      expect(i.getInstance(ModelBuilder)).toBeInstanceOf(ModelBuilder)
+      expect(i.getInstance(ModelBuilder).namespaces.size).toBe(0)
     })
   })
 
   it('Should add a namespace', () => {
     using(new Injector(), i => {
       i.useLogging().useOdata('odata', builder => builder.addNameSpace('default', ns => ns))
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot()
+      expect(i.getInstance(ModelBuilder).namespaces.has('default')).toBeTruthy()
     })
   })
 
@@ -44,7 +45,9 @@ describe('Odata', () => {
           }
         }),
       )
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot()
+      const ns = i.getInstance(ModelBuilder).namespaces.get('default')
+      expect(ns?.functions.length).toBe(1)
+      expect(ns?.actions.length).toBe(1)
     })
   })
 
@@ -64,7 +67,12 @@ describe('Odata', () => {
           ),
         ),
       )
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot()
+      expect(
+        i
+          .getInstance(ModelBuilder)
+          .namespaces.get('default')
+          ?.entities.entities.has('MockClass'),
+      ).toBeTruthy()
     })
   })
 
@@ -91,7 +99,12 @@ describe('Odata', () => {
             ),
         ),
       )
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot()
+      expect(
+        i
+          .getInstance(ModelBuilder)
+          .namespaces.get('default')
+          ?.collections.collections.has('mockClassEntities'),
+      ).toBeTruthy()
     })
   })
   it('Should match a complex snapshot and an XML node', () => {
@@ -154,8 +167,8 @@ describe('Odata', () => {
           return ns
         }),
       )
-      expect(i.getInstance(ModelBuilder)).toMatchSnapshot('ModelBuilder')
-      expect(i.getInstance(ModelBuilder).toXmlNode()).toMatchSnapshot('ModelBuilder XML Node')
+      // ToDo: better expectation
+      expect(i.getInstance(ModelBuilder).toXmlNode()).toBeDefined()
     })
   })
 })

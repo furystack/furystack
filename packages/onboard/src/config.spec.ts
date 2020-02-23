@@ -3,13 +3,8 @@ import { join } from 'path'
 import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { Config } from './config'
-import { defaultConfig } from './default-config'
 
 describe('Onboard Config', () => {
-  it('Default config should match the snapshot', () => {
-    expect(defaultConfig).toMatchSnapshot()
-  })
-
   it('Should extend the Injector with useConfig()', () => {
     using(new Injector(), i => {
       i.useConfig({
@@ -41,7 +36,9 @@ describe('Onboard Config', () => {
         })
         .getConfig()
         .init()
-      expect(i.getConfig().getConfigData()).toMatchSnapshot()
+      expect(i.getConfig().options.parallel).toBe(1)
+      expect(i.getConfig().options.configSource).toBe('onboard-config.json')
+      expect(i.getConfig().options.workingDir).toBe(join(__dirname, '..'))
     })
   })
 
