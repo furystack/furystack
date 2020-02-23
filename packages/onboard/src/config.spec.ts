@@ -2,8 +2,8 @@ import { existsSync, unlinkSync, realpathSync } from 'fs'
 import { join } from 'path'
 import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { Config } from '../src/config'
-import { defaultConfig } from '../src/default-config'
+import { Config } from './config'
+import { defaultConfig } from './default-config'
 
 describe('Onboard Config', () => {
   it('Default config should match the snapshot', () => {

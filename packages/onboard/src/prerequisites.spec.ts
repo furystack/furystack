@@ -1,6 +1,6 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { CheckPrerequisitesService } from '../src/services/check-prerequisites'
+import { CheckPrerequisitesService } from './services/check-prerequisites'
 
 describe('Onboad Prerequisites', () => {
   it('Should check an array of prerequisites', async () => {

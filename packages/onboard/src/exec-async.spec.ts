@@ -1,5 +1,5 @@
-import '../src/services/exec-async'
-import { using, usingAsync } from '@furystack/utils'
+import './services/exec-async'
+import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 describe('Onboard Exec Async', () => {
   it('Should execute a command', async () => {
