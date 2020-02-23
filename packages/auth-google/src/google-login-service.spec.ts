@@ -1,7 +1,7 @@
 import { usingAsync, using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager } from '@furystack/core'
-import { GoogleLoginSettings, GoogleLoginService } from '../src/login-service'
+import { GoogleLoginSettings, GoogleLoginService } from './login-service'
 
 describe('Google Login Service', () => {
   describe('Settings', () => {
@@ -43,7 +43,7 @@ describe('Google Login Service', () => {
           getUserStore: sm => sm.getStoreFor<User & { password: string }>(User as any),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService['utils'].readPostBody = async () =>
+        loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
             // eslint-disable-next-line @typescript-eslint/camelcase
@@ -66,7 +66,7 @@ describe('Google Login Service', () => {
           getUserStore: sm => sm.getStoreFor<User & { password: string }>(User as any),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService['utils'].readPostBody = async () =>
+        loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
             // eslint-disable-next-line @typescript-eslint/camelcase
@@ -89,7 +89,7 @@ describe('Google Login Service', () => {
           getUserStore: sm => sm.getStoreFor<User & { password: string }>(User as any),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService['utils'].readPostBody = async () =>
+        loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
             // eslint-disable-next-line @typescript-eslint/camelcase
@@ -117,7 +117,7 @@ describe('Google Login Service', () => {
 
         const loginService = i.getInstance(GoogleLoginService)
 
-        loginService['utils'].readPostBody = async () =>
+        loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
             // eslint-disable-next-line @typescript-eslint/camelcase

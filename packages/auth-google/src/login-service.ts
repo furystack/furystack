@@ -52,7 +52,7 @@ export class GoogleLoginService {
    */
   constructor(
     private readonly settings: GoogleLoginSettings,
-    private readonly utils: Utils,
+    public readonly utils: Utils,
     private injector: Injector,
   ) {}
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='

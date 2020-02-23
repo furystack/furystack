@@ -2,7 +2,8 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/http-api'
-import { GoogleLoginAction, GoogleLoginService } from '../src'
+import { GoogleLoginService } from './login-service'
+import { GoogleLoginAction } from './login-action'
 
 describe('GoogleLoginAction', () => {
   it('Should be activated and disposed', async () => {
