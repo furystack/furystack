@@ -42,8 +42,19 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
                     return false
                   }
                   break
+                case '$ne':
+                  if ((filter as any)[key][filterKey] === item[key]) {
+                    return false
+                  }
+                  break
                 case '$in':
                   if (!(filter as any)[key][filterKey].includes(item[key])) {
+                    return false
+                  }
+                  break
+
+                case '$nin':
+                  if ((filter as any)[key][filterKey].includes(item[key])) {
                     return false
                   }
                   break

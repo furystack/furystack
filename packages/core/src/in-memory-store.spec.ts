@@ -98,6 +98,26 @@ describe('InMemoryStore', () => {
     expect(result.map(r => r.value)).toEqual(['asd', 'def'])
   })
 
+  it('filter should return the corresponding entries with $nin statement', async () => {
+    f.update(1, { id: 1, value: 'asd' })
+    f.update(2, { id: 2, value: 'def' })
+    f.update(3, { id: 3, value: 'sdf' })
+
+    const result = await f.search({ filter: { value: { $nin: ['asd', 'def'] } } })
+    expect(result.length).toBe(1)
+    expect(result.map(r => r.value)).toEqual(['sdf'])
+  })
+
+  it('filter should return the corresponding entries with $ne statement', async () => {
+    f.update(1, { id: 1, value: 'asd' })
+    f.update(2, { id: 2, value: 'def' })
+    f.update(3, { id: 3, value: 'sdf' })
+
+    const result = await f.search({ filter: { value: { $ne: 'asd' } } })
+    expect(result.length).toBe(2)
+    expect(result.map(r => r.value)).toEqual(['def', 'sdf'])
+  })
+
   it('filter should return the corresponding entries with $in AND $eq statement', async () => {
     f.update(1, { id: 1, value: 'asd' })
     f.update(2, { id: 2, value: 'def' })
