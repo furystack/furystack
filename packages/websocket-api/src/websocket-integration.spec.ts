@@ -3,7 +3,6 @@ import { WhoAmI } from './actions/whoami'
 import '.'
 import '@furystack/http-api'
 import ws from 'ws'
-import { VerboseConsoleLogger } from '@furystack/logging'
 import { InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from '@furystack/http-api'
 
@@ -11,7 +10,6 @@ describe('WebSocket Integration tests', () => {
   const port = 9999
   const path = '/ws'
   const i = new Injector()
-    .useLogging(VerboseConsoleLogger)
     .useHttpApi()
     .setupStores(sm =>
       sm

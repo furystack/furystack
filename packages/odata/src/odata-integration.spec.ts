@@ -496,6 +496,15 @@ describe('OData Integration Tests', () => {
       })
       expect(store.cache.has(entityToPost.guid)).toBe(true)
 
+      const load = await got(PathHelper.joinPaths(odataPath, `Entity2Collection`, `('${entityToPost.guid}')`))
+      const loadBody = JSON.parse(load.body)
+      expect(load.statusCode).toBe(200)
+      expect(loadBody).toStrictEqual({
+        ['@odata.context']: PathHelper.joinPaths(odataRouteName, '$metadata#Entity2Collection'),
+        ['@odata.id']: PathHelper.joinPaths(odataPath, 'Entity2Collection', `('${entityToPost.guid}')`),
+        ...entityToPost,
+      })
+
       const patchResponse = await got(
         PathHelper.joinPaths(odataPath, `Entity2Collection`, `('${entityToPost.guid}')`),
         {
@@ -543,6 +552,11 @@ describe('OData Integration Tests', () => {
     it('Should exec an entity custom function', async () => {
       const response = await got(PathHelper.joinPaths(odataPath, 'UserCollection', '(1)', `userFunction`))
       expect(JSON.parse(response.body)).toStrictEqual({ value: 'userFunction' })
+    })
+
+    it('Should exec return an entity count', async () => {
+      const response = await got(PathHelper.joinPaths(odataPath, 'UserCollection', '$count'))
+      expect(response.body).toEqual('4')
     })
   })
 

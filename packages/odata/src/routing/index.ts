@@ -12,6 +12,7 @@ import { Entity } from '../models'
 import { getEntityRoute } from './get-entity-route'
 import { RouterOptions } from './router-options'
 import { updateContext } from './update-context'
+import { OdataCount } from '../actions/count'
 
 PathHelper.getSegments = path => {
   return path
@@ -100,6 +101,10 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
         collection.collection.actions.find(a => urlPathName === PathHelper.joinPaths(collection.url, a.name))
       if (msg.method === 'POST' && collectionAction) {
         return collectionAction.action
+      }
+
+      if (urlPathName === PathHelper.joinPaths(collection.url, '$count')) {
+        return OdataCount
       }
 
       switch (msg.method) {

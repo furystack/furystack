@@ -3,8 +3,7 @@ import { createClient, RedisClient } from 'redis'
 import { StoreManager } from '@furystack/core'
 import '@furystack/logging'
 import { v4 } from 'uuid'
-import { RedisStore } from './redis-store'
-import './store-manager-extensions'
+import { RedisStore } from '.'
 
 describe('Redis Store', () => {
   class ExampleClass {
