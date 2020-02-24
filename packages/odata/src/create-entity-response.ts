@@ -8,7 +8,6 @@ import { OdataContext } from './odata-context'
 /**
  * Removes the most outer level from the expand expression
  * @param expand The Expand expression
- * @param entityType The type of the entity
  */
 export const popExpandLevel = (expand: string) => {
   const initial = expand.split('(')
@@ -94,7 +93,6 @@ export const createEntityResponse = async <T>(options: {
         const expanded = await navProperty.getRelatedEntity(options.entity, dataSet, options.injector, {
           ...expandOdataParams,
         })
-        // eslint-disable-next-line require-atomic-updates
         expandedEntity[navProperty.propertyName] = await createEntityResponse<any>({
           entity: expanded,
           injector: options.injector,

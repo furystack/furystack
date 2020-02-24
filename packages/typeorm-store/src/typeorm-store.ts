@@ -1,4 +1,4 @@
-import { SearchOptions, PhysicalStore, PartialResult } from '@furystack/core'
+import { SearchOptions, PhysicalStore, PartialResult, FilterType } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { Connection, Repository } from 'typeorm'
@@ -12,6 +12,15 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
 
   public readonly model: Constructable<T>
   private readonly logger: ScopedLogger
+
+  // ToDo: Support more statements
+  private parseFilter(filter: FilterType<T>) {
+    const returnValue: any = {}
+    for (const key in filter) {
+      returnValue[key] = (filter[key] as any).$eq
+    }
+    return returnValue
+  }
 
   constructor(
     private readonly options: {
@@ -47,7 +56,7 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
   }
   public async count(filter: Partial<T>): Promise<number> {
     await this.options.connection.awaitConnection()
-    return await this.typeOrmRepo.count({ where: filter })
+    return await this.typeOrmRepo.count({ where: this.parseFilter(filter) })
   }
   public async search<TFields extends Array<keyof T>>(
     filter: SearchOptions<T, TFields>,
@@ -56,7 +65,7 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
     const { top, skip, order, ...where } = filter
 
     return await this.typeOrmRepo.find({
-      where: where.filter,
+      where: this.parseFilter(where.filter || {}),
       select: where.select,
       take: top,
       skip,

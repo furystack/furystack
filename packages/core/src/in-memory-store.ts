@@ -37,16 +37,25 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
           for (const filterKey in filter[key]) {
             if (isOperator(filterKey)) {
               switch (filterKey) {
+                case '$eq':
+                  if ((filter as any)[key][filterKey] !== item[key]) {
+                    return false
+                  }
+                  break
                 case '$in':
-                  return (filter as any)[key][filterKey].includes(item[key])
+                  if (!(filter as any)[key][filterKey].includes(item[key])) {
+                    return false
+                  }
+                  break
                 default:
                   throw new Error(`The expression (${key}) is not supported by '${this.constructor.name}'!`)
               }
+            } else {
+              throw new Error(`The filter key '${filterKey}' is not a valid operation`)
             }
           }
-        }
-        if (filter[key] !== item[key]) {
-          return false
+        } else {
+          throw new Error(`The filter has to be an object, got ${typeof filter[key]} for field '${key}'`)
         }
       }
       return true
@@ -83,7 +92,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     return value
   }
 
-  public async count(filter?: Partial<T>) {
+  public async count(filter?: FilterType<T>) {
     return this.filterInternal([...this.cache.values()], filter).length
   }
 

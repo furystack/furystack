@@ -3,17 +3,18 @@ import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
-import { usingAsync } from '@furystack/utils'
+import { usingAsync, Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
+import { ServerResponse } from 'http'
 
 /**
  * A WebSocket API implementation for FuryStack
  */
 @Injectable({ lifetime: 'scoped' })
-export class WebSocketApi {
-  private readonly socket: WebSocketServer
+export class WebSocketApi implements Disposable {
+  public readonly socket: WebSocketServer
   private readonly injector: Injector
   private readonly logger: ScopedLogger
   constructor(
@@ -71,12 +72,18 @@ export class WebSocketApi {
       })
     }
   }
+  public async dispose() {
+    this.socket.clients.forEach(client => client.close())
+    this.socket.clients.forEach(client => client.terminate())
+    await new Promise((resolve, reject) => this.socket.close(err => (err ? reject(err) : resolve())))
+  }
 
   public execute(data: Data, msg: IncomingMessage, websocket: ws) {
     const action = this.settings.actions.find(a => a.canExecute(data))
     if (action) {
       usingAsync(this.injector.createChild({ owner: msg }), async i => {
         i.setExplicitInstance(msg, IncomingMessage)
+        i.setExplicitInstance({}, ServerResponse)
         i.setExplicitInstance(websocket, ws)
         const actionInstance = i.getInstance<WebSocketAction>(action)
         actionInstance.execute(data)

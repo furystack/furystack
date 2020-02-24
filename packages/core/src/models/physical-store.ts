@@ -9,7 +9,6 @@ export const allOperators = [...SingleComparisonOperators, ...ArrayComparisonOpe
 
 export type FilterType<T> = {
   [K in keyof T]?:
-    | T[K]
     | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
     | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
     | { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
@@ -18,11 +17,11 @@ export type FilterType<T> = {
 export const isOperator = (propertyString: string): propertyString is typeof allOperators[number] =>
   allOperators.includes(propertyString as typeof allOperators[number])
 
-// const t: FilterType<{ a: number; b: string; c: boolean }> = {
-//   a: { $eq: 1 },
-//   b: { $in: ['a', 'b', 'c'] },
-//   c: { $and: [{ a: { $eq: 2 } }] },
-// }
+export const t: FilterType<{ a: number; b: string; c: boolean }> = {
+  a: { $eq: 1 },
+  b: { $in: ['a', 'b', 'c'] },
+  c: { $and: [{ a: { $eq: 2 } }] },
+}
 
 /**
  * Type for default filtering model
@@ -97,7 +96,7 @@ export interface PhysicalStore<T> extends Disposable {
   /**
    * Returns a promise that will be resolved with the count of the elements
    */
-  count(filter?: Partial<T>): Promise<number>
+  count(filter?: FilterType<T>): Promise<number>
 
   /**
    * Returns a promise that will be resolved with an array of elements that matches the filter

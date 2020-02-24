@@ -55,8 +55,8 @@ export class HttpUserContext {
         password.length &&
         (await this.users.search({
           filter: {
-            username: userName,
-            password: this.authentication.hashMethod(password),
+            username: { $eq: userName },
+            password: { $eq: this.authentication.hashMethod(password) },
           },
         }))) ||
       []
@@ -110,7 +110,7 @@ export class HttpUserContext {
       if (session) {
         const userResult = await this.users.search({
           filter: {
-            username: session.username,
+            username: { $eq: session.username },
           },
         })
         if (userResult.length === 1) {

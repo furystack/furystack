@@ -91,7 +91,7 @@ describe('OData Integration Tests', () => {
                     getRelatedEntity: async (entity, dataset, injector, filter) => {
                       const related = await dataset.filter(injector, {
                         ...filter,
-                        filter: { ...filter.filter, entity1Id: entity.id },
+                        filter: { ...filter.filter, entity1Id: { $eq: entity.id } },
                         top: 1,
                       })
                       return related[0] || null
@@ -123,7 +123,7 @@ describe('OData Integration Tests', () => {
                         top: 1,
                         filter: {
                           ...filter.filter,
-                          id: entity.ownerId,
+                          id: { $eq: entity.ownerId },
                         },
                       })
                       return owner[0] || null

@@ -33,7 +33,7 @@ export class GoogleLoginSettings {
     const users = await userStore.search({
       top: 2,
       filter: {
-        username: payload.email,
+        username: { $eq: payload.email },
       },
     })
     if (users.length === 1) {

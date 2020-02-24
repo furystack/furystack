@@ -1,4 +1,4 @@
-import { SearchOptions, PhysicalStore, selectFields, PartialResult } from '@furystack/core'
+import { SearchOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { MongoClient, FilterQuery, Collection } from 'mongodb'
@@ -42,9 +42,9 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
     await collection.updateOne({ _id: id } as any, { $set: data })
   }
-  public async count(filter?: Partial<T>): Promise<number> {
+  public async count(filter?: FilterType<T>): Promise<number> {
     const collection = await this.getCollection()
-    return await collection.countDocuments(filter)
+    return await collection.countDocuments(filter as FilterQuery<T>)
   }
   public async search<TFields extends Array<keyof T>>(
     filter: SearchOptions<T, TFields>,

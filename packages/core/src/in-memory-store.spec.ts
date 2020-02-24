@@ -5,6 +5,7 @@ import { InMemoryStore } from './in-memory-store'
 class MockClass {
   public id!: number
   public value!: string
+  public value2?: string
 }
 
 describe('InMemoryStore', () => {
@@ -59,13 +60,13 @@ describe('InMemoryStore', () => {
     await f.add({ id: 2, value: 'asd' })
     await f.add({ id: 3, value: 'alma' })
 
-    const asdCount = await f.count({ value: 'asd' })
+    const asdCount = await f.count({ value: { $eq: 'asd' } })
     expect(asdCount).toBe(2)
 
-    const almaCount = await f.count({ value: 'alma' })
+    const almaCount = await f.count({ value: { $eq: 'alma' } })
     expect(almaCount).toBe(1)
 
-    const nullCount = await f.count({ value: 'null' })
+    const nullCount = await f.count({ value: { $eq: 'null' } })
     expect(nullCount).toBe(0)
   })
 
@@ -74,8 +75,17 @@ describe('InMemoryStore', () => {
     f.update(2, { id: 2, value: 'def' })
     f.update(3, { id: 3, value: 'def' })
 
-    const result = await f.search({ filter: { value: 'def' } })
+    const result = await f.search({ filter: { value: { $eq: 'def' } } })
     expect(result.length).toBe(2)
+  })
+
+  it('filter should return the corresponding entries for multiple props', async () => {
+    f.update(1, { id: 1, value: 'asd' })
+    f.update(2, { id: 2, value: 'def', value2: 'def' })
+    f.update(3, { id: 3, value: 'def' })
+
+    const result = await f.search({ filter: { value: { $eq: 'def' }, value2: { $eq: 'def' } } })
+    expect(result.length).toBe(1)
   })
 
   it('filter should return the corresponding entries with $in statement', async () => {
@@ -88,6 +98,16 @@ describe('InMemoryStore', () => {
     expect(result.map(r => r.value)).toEqual(['asd', 'def'])
   })
 
+  it('filter should return the corresponding entries with $in AND $eq statement', async () => {
+    f.update(1, { id: 1, value: 'asd' })
+    f.update(2, { id: 2, value: 'def' })
+    f.update(3, { id: 3, value: 'sdf' })
+
+    const result = await f.search({ filter: { value: { $in: ['asd', 'def'], $eq: 'asd' } } })
+    expect(result.length).toBe(1)
+    expect(result.map(r => r.value)).toEqual(['asd'])
+  })
+
   it('Should return partial and full result', async () => {
     class ExampleClass {
       public id = 1
@@ -98,14 +118,14 @@ describe('InMemoryStore', () => {
       await i.add({ id: 1, value: 'alma', notNeeded: true })
 
       const partialResult = await i.search({
-        filter: { id: 1 },
+        filter: { id: { $eq: 1 } },
         select: ['id', 'value'],
       })
       // Type check should also warn!
       expect(partialResult[0].id).toBeTruthy()
       expect((partialResult[0] as any).notNeeded).toBeUndefined()
 
-      const fullResult = await i.search({ filter: { id: 1 } })
+      const fullResult = await i.search({ filter: { id: { $eq: 1 } } })
       expect(fullResult[0].notNeeded).toBeTruthy()
     })
   })

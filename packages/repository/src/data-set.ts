@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { SearchOptions, PartialResult } from '@furystack/core'
+import { SearchOptions, PartialResult, FilterType } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
 
 /**
@@ -63,14 +63,14 @@ export class DataSet<T> {
    * Returns a Promise with the entity count
    * @param injector The Injector from the context
    */
-  public async count(injector: Injector): Promise<number> {
+  public async count(injector: Injector, filter?: FilterType<T>): Promise<number> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw Error(result.message)
       }
     }
-    return await this.settings.physicalStore.count()
+    return await this.settings.physicalStore.count(filter)
   }
 
   /**

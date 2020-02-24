@@ -65,7 +65,7 @@ describe('TypeORM Store', () => {
     expect(count).toBe(2)
   })
   it('Should count entities with filter', async () => {
-    const count = await store.count({ id: 2 })
+    const count = await store.count({ id: { $eq: 2 } })
     expect(count).toBe(1)
   })
 
