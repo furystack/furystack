@@ -4,10 +4,22 @@ import { EdmType } from '../models'
 
 describe('FieldValue', () => {
   it('Should return unparsed by default', () => {
-    const value = 'defaultValue'
-    const parsed = parseFieldValue(value, 'field', ({ properties: [] } as unknown) as Entity<any>)
+    expect(() =>
+      parseFieldValue('someValue', 'someField', ({
+        properties: [],
+        name: 'EntityTypeName',
+      } as unknown) as Entity<any>),
+    ).toThrow("The property 'someField' is not defined on entity 'EntityTypeName'")
+  })
+
+  it('Should return unchanged value by default', () => {
+    const value = '15'
+    const parsed = parseFieldValue(value, 'field1', ({
+      properties: [{ property: 'field1', type: EdmType.GeometryPolygon }],
+    } as unknown) as Entity<{ field1: number }>)
     expect(parsed).toBe(value)
   })
+
   it('Should return parsed ints for Int16', () => {
     const value = '15'
     const parsed = parseFieldValue(value, 'field1', ({
