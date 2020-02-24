@@ -15,6 +15,20 @@ export const PostAction: RequestAction = async injector => {
 
   const postBody = await incomingMessage.readPostBody()
 
+  const missingProps: string[] = []
+  // ToDo: Validate required properties
+  context.entity.properties
+    .filter(prop => prop.nullable === false)
+    .map(prop => {
+      if ((postBody as any)[prop.property] === undefined) {
+        missingProps.push(prop.property)
+      }
+    })
+
+  if (missingProps.length) {
+    return JsonResult({ error: { message: `Missing field(s): ${missingProps.join(',')}` } }, 400)
+  }
+
   const entity = await dataSet.add(injector, postBody)
 
   const expanded = await createEntityResponse({

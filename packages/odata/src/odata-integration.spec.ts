@@ -160,6 +160,7 @@ describe('OData Integration Tests', () => {
                   {
                     property: 'booleanValue',
                     type: EdmType.Boolean,
+                    nullable: true,
                   },
                   {
                     property: 'complexValue',
@@ -477,6 +478,20 @@ describe('OData Integration Tests', () => {
   })
 
   describe('Generic CRUD methods', () => {
+    it('Should not add entity on POST when not all required fields are present', async () => {
+      const entityToPost = {
+        guid: 'IncompletePostResponse1',
+      } as Entity2
+      await expect(
+        got(PathHelper.joinPaths(odataPath, `Entity2Collection`), {
+          method: 'POST',
+          body: JSON.stringify(entityToPost),
+        }),
+      ).rejects.toThrow()
+      const store: InMemoryStore<Entity2> = i.getInstance(StoreManager).getStoreFor(Entity2)
+      expect(store.cache.has('IncompletePostResponse1')).toBeFalsy()
+    })
+
     it('POST/PATCH/DELETE walkthrough', async () => {
       const store: InMemoryStore<Entity2> = i.getInstance(StoreManager).getStoreFor(Entity2)
 
