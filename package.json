@@ -12,19 +12,19 @@
     "@typescript-eslint/parser": "^2.21.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
-    "eslint-plugin-jsdoc": "^21.0.0",
+    "eslint-plugin-jsdoc": "^22.0.0",
     "eslint-plugin-prettier": "^3.1.2",
     "got": "^10.6.0",
     "husky": "^4.2.3",
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
     "lerna": "^3.20.2",
-    "lint-staged": "^10.0.7",
+    "lint-staged": "^10.0.8",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
     "sqlite3": "^4.1.1",
-    "tslib": "^1.11.0",
-    "typescript": "^3.8.2"
+    "tslib": "^1.11.1",
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",

@@ -52,7 +52,7 @@
     "@furystack/utils": "^1.1.5",
     "jsdom": "^16.2.0",
     "terminal-kit": "^1.33.15",
-    "tslib": "^1.11.0"
+    "tslib": "^1.11.1"
   },
   "devDependencies": {
     "@types/jest": "^25.1.3",
