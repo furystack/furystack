@@ -15,10 +15,8 @@ export const exitHandler = (async (exitCode: any) => {
   try {
     await cleanupLock.acquire()
     for (const disposable of globalDisposables) {
-      console.log(`Cleaning up ${disposable.constructor.name}`)
       await disposable.dispose()
     }
-    console.log(`Cleanup done, exited with code '${exitCode}'....`)
   } catch (error) {
     console.error('Error during cleanup!', error)
   } finally {
