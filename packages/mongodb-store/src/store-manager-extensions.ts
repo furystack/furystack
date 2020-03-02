@@ -1,4 +1,4 @@
-import { StoreManager } from '@furystack/core'
+import { StoreManager } from '@furystack/core/dist/store-manager'
 import { Constructable } from '@furystack/inject'
 import { MongoClientOptions } from 'mongodb'
 import { MongoClientFactory } from './mongo-client-factory'

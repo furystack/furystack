@@ -9,29 +9,29 @@ import Semaphore from 'semaphore-async-await'
  */
 @Injectable({ lifetime: 'singleton' })
 export class MongoClientFactory implements Disposable {
-  private connections: Map<string, { client: MongoClient; lock: Semaphore }> = new Map()
+  private connections: Map<string, MongoClient> = new Map()
+
+  private readonly connectionLock = new Semaphore(1)
 
   public dispose() {
-    for (const connection of this.connections.values()) {
-      connection.client.close()
-    }
+    Promise.all([...this.connections.values()].map(c => c.close()))
     this.connections.clear()
   }
 
   public async getClientFor(url: string, options?: MongoClientOptions) {
     const existing = this.connections.get(url)
     if (existing) {
-      await existing.lock.acquire()
-      existing.lock.release()
-      return existing.client as MongoClient
+      return existing
     }
 
-    const lock = new Semaphore(1)
     try {
-      await lock.acquire()
-      this.connections.set(url, { lock, client: null as any })
+      await this.connectionLock.acquire()
+      const existingCreated = this.connections.get(url)
+      if (existingCreated) {
+        return existingCreated
+      }
       const client = await connect(url, options)
-      this.connections.set(url, { lock, client })
+      this.connections.set(url, client)
       this.logger.information({ message: `Created MongoDB connection for '${url}'` })
       return client
     } catch (error) {
@@ -45,7 +45,7 @@ export class MongoClientFactory implements Disposable {
       })
       throw error
     } finally {
-      lock.release()
+      this.connectionLock.release()
     }
   }
 

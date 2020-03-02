@@ -32,7 +32,7 @@ describe('MongoDB Store', () => {
     await i.dispose()
   })
 
-  it('Should be a RedisStore instance', () => {
+  it('Should be a MongodbStore instance', () => {
     expect(store).toBeInstanceOf(MongodbStore)
   })
 
