@@ -17,7 +17,10 @@ export interface OdataParams<T> {
 
 /**
  * Returns the possible OData params from a request
- * @param request The incoming request message
+ *
+ * @param url The full URL
+ * @param entity The generic Entity instance
+ * @returns the created OData params
  */
 export const getOdataParams = <T>(url: string | undefined, entity: Entity<T>) => {
   const params = (url && parse(url, true).query) || {}

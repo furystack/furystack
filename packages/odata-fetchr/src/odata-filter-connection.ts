@@ -10,6 +10,7 @@ export class ODataFilterConnection<T> {
 
   /**
    * Sets the connection between OData Filter expression segments to 'AND' type
+   *
    * @returns The next ODataFilterExpression (Fluent)
    */
   public get and() {
@@ -20,6 +21,7 @@ export class ODataFilterConnection<T> {
 
   /**
    * Sets the connection between OData Filter expression segments to 'OR' type
+   *
    * @returns The next ODataFilterExpression (Fluent)
    */
   public get or() {

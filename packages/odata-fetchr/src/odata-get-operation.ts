@@ -10,6 +10,7 @@ export class ODataGetOperation<T> extends ODataOperation<T> {
 
   /**
    * Executes the Get operation
+   *
    * @returns An awaitable Promise<T>
    */
   public async exec(): Promise<T> {

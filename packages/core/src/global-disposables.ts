@@ -11,7 +11,7 @@ export const cleanupLock = new Semaphore(1)
 /**
  * Will be triggered via process event listeners
  */
-export const exitHandler = (async (exitCode: any) => {
+export const exitHandler = (async () => {
   try {
     await cleanupLock.acquire()
     for (const disposable of globalDisposables) {

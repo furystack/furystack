@@ -8,10 +8,11 @@ import {
   isOperator,
 } from './models/physical-store'
 
-/**
- * Store implementation that stores data in an in-memory cache
- */
 export class InMemoryStore<T> implements PhysicalStore<T> {
+  /**
+   *
+   * @param key The key to remove from the store
+   */
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     this.cache.delete(key)
   }
@@ -123,6 +124,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
 
   /**
    * Creates an InMemoryStore that can be used for testing purposes.
+   *
    * @param options Options for the In Memory Store
    */
   constructor(options: {

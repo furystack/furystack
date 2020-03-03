@@ -64,7 +64,7 @@ describe('HttpApi tests', () => {
 
   it('Should throw error if multiple actions are resolved for a request', done => {
     usingAsync(getInjector(), async i => {
-      const ExampleAction: RequestAction = async injector => {
+      const ExampleAction: RequestAction = async () => {
         done()
         return EmptyResult()
       }
@@ -86,7 +86,7 @@ describe('HttpApi tests', () => {
         throw Error(':(')
       }
 
-      const ExampleErrorAction: RequestAction = async injector => {
+      const ExampleErrorAction: RequestAction = async () => {
         done()
         return EmptyResult()
       }

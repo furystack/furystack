@@ -4,6 +4,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * OData Patch action
+ *
+ * @param injector The Injector from the Stack
  */
 export const PatchAction: RequestAction = async injector => {
   const repo = injector.getInstance(Repository)

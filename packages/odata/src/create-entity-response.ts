@@ -7,7 +7,9 @@ import { OdataContext } from './odata-context'
 
 /**
  * Removes the most outer level from the expand expression
+ *
  * @param expand The Expand expression
+ * @returns the popped expression
  */
 export const popExpandLevel = (expand: string) => {
   const initial = expand.split('(')
@@ -24,6 +26,7 @@ export const popExpandLevel = (expand: string) => {
 
 /**
  * Method that adds expanded fields to an entity model
+ *
  * @param options The options to be provided
  */
 export const createEntityResponse = async <T>(options: {

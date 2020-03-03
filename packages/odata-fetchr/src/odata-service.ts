@@ -27,8 +27,8 @@ export class OdataService<T> {
   }
 
   /**
-   * Creates an OData Get Operation object.
    * @param id The entity's unique identifier
+   * @returns an OData Get Operation object.
    */
   public get(id: any): ODataGetOperation<T> {
     const entityUri = this.getUriForEntity(id)
@@ -39,6 +39,7 @@ export class OdataService<T> {
 
   /**
    * Executes an OData Post Operation
+   *
    * @param entity the entity to be posted
    * @returns an awaitable promise with the created content
    */
@@ -51,8 +52,9 @@ export class OdataService<T> {
 
   /**
    * Executes an OData Patch Operation
-   * @param id The entitie's unique identifier
-   * @param entity's delta to be patched
+   *
+   * @param id The entity's unique identifier
+   * @param entity The patch data that will be applied
    * @returns an awaitable promise
    */
   public async patch(id: any, entity: any): Promise<any> {
@@ -64,6 +66,7 @@ export class OdataService<T> {
 
   /**
    * Executes an OData Put Operation
+   *
    * @param id The entitie's unique identifier
    * @param entity the entity to be putted
    * @returns an awaitable promise with the putted content
@@ -77,6 +80,7 @@ export class OdataService<T> {
 
   /**
    * Executes an OData Delete Operation
+   *
    * @param id The entity's unique identifier
    * @returns an awaitable promise
    */
@@ -88,8 +92,7 @@ export class OdataService<T> {
 
   /**
    * Creates an OData Query object
-   * @param id The entitie's unique identifier
-   * @param entity the entity to be posted
+   *
    * @returns an awaitable promise with the created content
    */
   public query(): ODataQuery<T> {
@@ -116,9 +119,10 @@ export class OdataService<T> {
 
   /**
    * Executes a custom action on an OData entity
+   *
    * @param actionName The action's actionName
-   * @param id The entity's unique identifier
-   * @param ...args The other optional arguments
+   * @param entityId The unique identifier
+   * @param postData The data that will be posted
    * @returns An awaitable promise
    */
   public async execCustomAction<TReturns, TData = {}>(
@@ -134,8 +138,9 @@ export class OdataService<T> {
 
   /**
    * Executes a custom action on an OData entity collection
+   *
    * @param actionName The action's actionName
-   * @param ...args The other optional arguments
+   * @param postData A data that will be posted
    * @returns An awaitable promise
    */
   public async execCustomCollectionAction<TReturns, TData = {}>(
@@ -150,9 +155,9 @@ export class OdataService<T> {
 
   /**
    * Executes a custom function on an OData entity
-   * @param actionName The action's actionName
-   * @param id The entity's unique identifier
-   * @param ...args The other optional arguments
+   *
+   * @param fucntionName Name of the OData function
+   * @param entityId The unique identifier of the Entity
    * @returns An awaitable promise
    */
   public async execCustomFunction<TReturns>(fucntionName: string, entityId: any): Promise<TReturns> {
@@ -161,8 +166,8 @@ export class OdataService<T> {
 
   /**
    * Executes a custom function on an OData entity collection
-   * @param actionName The action's actionName
-   * @param ...args The other optional arguments
+   *
+   * @param functionName Name of the OData function
    * @returns An awaitable promise
    */
   public async execCustomCollectionFunction<TReturns>(functionName: string): Promise<TReturns> {

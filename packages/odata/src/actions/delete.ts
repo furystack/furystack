@@ -4,6 +4,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * OData Delete action
+ *
+ * @param injector The Injector from the Stack
  */
 export const DeleteAction: RequestAction = async injector => {
   const repo = injector.getInstance(Repository)

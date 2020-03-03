@@ -1,5 +1,11 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier', 'prettier/@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'prettier/@typescript-eslint',
+    'plugin:jsdoc/recommended',
+  ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'prettier', 'jsdoc'],
   env: { browser: true, node: true, es6: true, jest: true },
@@ -11,7 +17,7 @@ module.exports = {
     },
   },
   settings: {
-    jsdoc: { exemptEmptyFunctions: false },
+    // jsdoc: { exemptEmptyFunctions: false },
   },
   rules: {
     'arrow-parens': ['error', 'as-needed'],
@@ -55,6 +61,8 @@ module.exports = {
     'prefer-template': 'error',
     'prefer-destructuring': ['error', { array: false, object: true }],
     'default-case': 'error',
+    'jsdoc/require-param-type': 'off',
+    'jsdoc/require-returns-type': 'off',
   },
   overrides: [
     {

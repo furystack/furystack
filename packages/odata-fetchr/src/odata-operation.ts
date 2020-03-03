@@ -7,7 +7,9 @@ export abstract class ODataOperation<T> {
 
   /**
    * Sets the OData $expand= property
-   * @param ...expand The field name(s) to be expanded
+   *
+   * @param expand The field name(s) to be expanded
+   * @returns the operation instance for chaining
    */
   public expand<K extends keyof T>(...expand: K[]) {
     this._expand = this.parseStringOrStringArray(...expand)
@@ -16,7 +18,9 @@ export abstract class ODataOperation<T> {
 
   /**
    * Sets the OData $select= property
-   * @param ...select The field name(s) to be included in the OData Select
+   *
+   * @param select The field name(s) to be included in the OData Select
+   * @returns the operation instance for chaining
    */
   public select<K extends keyof T>(...select: K[]) {
     this._select = this.parseStringOrStringArray(...select)

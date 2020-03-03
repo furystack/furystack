@@ -30,7 +30,9 @@ PathHelper.getSegments = path => {
 
 /**
  * Factory methods that creates an OData Route based on the provided parameters
+ *
  * @param options The provided Options object
+ * @returns the route model
  */
 export const createOdataRouter: (options: RouterOptions) => RouteModel = options => {
   options.route = PathHelper.normalize(options.route)

@@ -4,6 +4,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * OData Count action
+ *
+ * @param injector The Injector from the Stack
  */
 export const OdataCount: RequestAction = async injector => {
   const context = injector.getInstance(OdataContext)

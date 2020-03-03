@@ -18,8 +18,10 @@ export class ModelBuilder {
    *    builder.addNamespace('myNamespace', namespaceBuilder =>
    *      namespaceBuilder.setupEntities(...) ))
    * ````
+   *
    * @param name Name of the namespace
    * @param buildNamespace The Namespace Builder factory method
+   * @returns the builder instance for chaining
    */
   public addNameSpace(name: string, buildNamespace: (n: NamespaceBuilder) => NamespaceBuilder) {
     const ns = new NamespaceBuilder(name)
@@ -28,7 +30,7 @@ export class ModelBuilder {
   }
 
   /**
-   * Returns the current builder data in XML format
+   * @returns the current builder data in XML format
    */
   public toXmlNode() {
     const children = Array.from(this.namespaces.values()).map(v => v.toXmlNode())

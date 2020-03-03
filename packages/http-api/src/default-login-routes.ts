@@ -4,7 +4,9 @@ import { IsAuthenticated, GetCurrentUser, LoginAction, LogoutAction } from './ac
 
 /**
  * Default routes for /login, /logout and /getCurrentUser
- * @param msg The incoming HTTP Message
+ *
+ * @param injector The injector from the current stack
+ * @returns The route on match
  */
 export const defaultLoginRoutes: RouteModel = injector => {
   const msg = injector.getRequest()

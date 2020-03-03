@@ -134,7 +134,7 @@ describe('DataSet', () => {
 
       it('should call the onEntityAdded callback if an entity has been added', async done => {
         await usingAsync(new Injector().useLogging(), async i => {
-          const onEntityAdded = jest.fn(async (options: { injector: Injector; entity: TestClass }) => {
+          const onEntityAdded = jest.fn(async () => {
             done()
           })
 

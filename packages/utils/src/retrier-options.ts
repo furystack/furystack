@@ -9,6 +9,8 @@ export class RetrierOptions {
   private retries: number = RetrierOptions.RETRIES_DEFAULT
   /**
    * How many times should retry the operation
+   *
+   * @returns the count of retries
    */
   public get Retries(): number {
     return this.retries
@@ -23,7 +25,7 @@ export class RetrierOptions {
   public static readonly RETRY_INTERVAL_MS_DEFAULT = 10
   private retryIntervalMs?: number
   /**
-   * The interval between tries in milliseconds
+   * @returns the interval in millisecs
    */
   public get RetryIntervalMs(): number {
     return this.retryIntervalMs !== undefined ? this.retryIntervalMs : RetrierOptions.RETRY_INTERVAL_MS_DEFAULT
@@ -39,7 +41,7 @@ export class RetrierOptions {
   private timeoutMsValue?: number
 
   /**
-   * The Timeout interval in milliseconds
+   * @returns the Timeout interval in milliseconds
    */
   public get timeoutMs(): number {
     return this.timeoutMsValue !== undefined ? this.timeoutMsValue : RetrierOptions.TIMEOUT_MS_DEFAULT

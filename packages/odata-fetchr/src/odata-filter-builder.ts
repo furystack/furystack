@@ -11,6 +11,7 @@ export class ODataFilterBuilder<T> {
 
   /**
    * Factory method for creating ODataFilterBuilders
+   *
    * @returns The first ODataFilterExpression value for the ODataFilterBuilder
    */
   public static create<T>(): ODataFilterExpression<T> {
@@ -21,6 +22,7 @@ export class ODataFilterBuilder<T> {
 
   /**
    * Evaluates the ODataFilterBuilder<T>'s segments into a parsed OData Filter expression
+   *
    * @returns The Filter query expression
    */
   public toString(): string {

@@ -2,9 +2,6 @@ import { Disposable } from '@furystack/utils'
 import { defaultInjectableOptions } from './injectable'
 import { Constructable } from './types/constructable'
 
-/**
- * Container for injectable instances
- */
 export class Injector implements Disposable {
   /**
    * Disposes the Injector object and all its disposable injectables
@@ -47,6 +44,7 @@ export class Injector implements Disposable {
    *
    * @param ctor The constructor object (e.g. MyClass)
    * @param dependencies Resolved dependencies (usually provided by the framework)
+   * @returns The instance of the requested service
    */
   public getInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
     if (ctor === this.constructor) {
@@ -106,6 +104,7 @@ export class Injector implements Disposable {
 
   /**
    * Sets explicitliy an instance for a key in the store
+   *
    * @param instance The created instance
    * @param key The class key to be persisted (optional, calls back to the instance's constructor)
    */
@@ -131,7 +130,9 @@ export class Injector implements Disposable {
 
   /**
    * Creates a child injector instance
+   *
    * @param options Additional injector options
+   * @returns the created Injector
    */
   public createChild(options?: Partial<Injector['options']>) {
     const i = new Injector()

@@ -29,7 +29,7 @@ export class ServerManager implements Disposable {
   }
 
   /**
-   * Returns a collection of servers
+   * @returns a collection of servers
    */
   public getServers() {
     return this.servers.values()
@@ -37,6 +37,7 @@ export class ServerManager implements Disposable {
 
   /**
    * Adds a new server to a set
+   *
    * @param server The server to add
    */
   public set(server: Server) {

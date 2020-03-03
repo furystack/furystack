@@ -3,6 +3,7 @@ import { EntitySet, EntityType, OdataAction, OdataEndpoint, OdataFunction } from
 
 /**
  * method that parses an OData XML to an Endpoint model
+ *
  * @param xml the XML document
  */
 @Injectable({ lifetime: 'transient' })

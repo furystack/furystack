@@ -4,6 +4,8 @@ import { xmlToString } from '../xml-utils'
 
 /**
  * OData Metadata action
+ *
+ * @param injector The Injector from the Stack
  */
 export const MetadataAction: RequestAction = async injector => {
   const model = injector.getInstance(ModelBuilder)

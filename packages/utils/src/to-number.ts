@@ -1,5 +1,6 @@
 /**
  * Casts an arbitrary value to a number. Both null and undefined are treated as undefined values by default.
+ *
  * @param value An arbitrary value to convert to a number.
  * @param defaultValue The default value that is used when the specified value is either null or undefined values.
  * @returns Number | NaN | undefined

@@ -11,7 +11,7 @@ class MockClass {
   value!: string
 }
 
-const MockAction: RequestAction = async i => JsonResult({ value: 'asd' })
+const MockAction: RequestAction = async () => JsonResult({ value: 'asd' })
 
 describe('Odata', () => {
   it('Should be added to an injector', () => {

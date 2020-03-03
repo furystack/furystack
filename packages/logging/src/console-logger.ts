@@ -43,8 +43,8 @@ export const FgCyan = '\x1b[36m'
 export const FgWhite = '\x1b[37m'
 
 /**
- * Returns an associated color to a specific log level
  * @param level the log level
+ * @returns an associated color to a specific log level
  */
 export const getLevelColor = (level: LogLevel) => {
   switch (level) {
@@ -64,19 +64,19 @@ export const getLevelColor = (level: LogLevel) => {
 }
 
 /**
- * The default formatter for the Console logger
  * @param entry the log entry to be formatted
+ * @returns the formatted message
  */
-export const defaultFormatter = <T>(entry: LeveledLogEntry<T>) => {
+export const defaultFormat = <T>(entry: LeveledLogEntry<T>) => {
   const fontColor = getLevelColor(entry.level)
   return [`${fontColor}%s${Reset}`, entry.scope, entry.message]
 }
 
 /**
- * Formatter for a verbose message
  * @param entry the log entry
+ * @returns the formatted message
  */
-export const verboseFormatter = <T>(entry: LeveledLogEntry<T>) => {
+export const verboseFormat = <T>(entry: LeveledLogEntry<T>) => {
   const fontColor = getLevelColor(entry.level)
   return entry.data
     ? [`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data]
@@ -89,7 +89,7 @@ export const verboseFormatter = <T>(entry: LeveledLogEntry<T>) => {
 @Injectable({ lifetime: 'scoped' })
 export class ConsoleLogger extends AbstractLogger {
   public async addEntry<T>(entry: LeveledLogEntry<T>) {
-    const data = defaultFormatter(entry)
+    const data = defaultFormat(entry)
     console.log(...data)
   }
 }
@@ -97,7 +97,7 @@ export class ConsoleLogger extends AbstractLogger {
 @Injectable({ lifetime: 'scoped' })
 export class VerboseConsoleLogger extends AbstractLogger {
   public async addEntry<T>(entry: LeveledLogEntry<T>) {
-    const data = verboseFormatter(entry)
+    const data = verboseFormat(entry)
     console.log(...data)
   }
 }

@@ -20,7 +20,9 @@ export class NamespaceBuilder {
    *  namespace.setupEntities(entityBuilder =>
    *    entityBuilder.addEntityType(...))
    * ````
+   *
    * @param buildEntities the entity builder factory method
+   * @returns the builder instance for chaining
    */
   public setupEntities(buildEntities: (e: EntityTypeBuilder) => EntityTypeBuilder) {
     this.entities = buildEntities(this.entities)
@@ -33,9 +35,11 @@ export class NamespaceBuilder {
    *  namespace.setupCollections(collections =>
    *    .addCollection(...))
    * ````
+   *
    * @param buildCollection the collection builder factory method
+   * @returns the builder instance for chaining
    */
-  public setupCollections<T>(buildCollection: (builder: CollectionBuilder) => CollectionBuilder) {
+  public setupCollections(buildCollection: (builder: CollectionBuilder) => CollectionBuilder) {
     this.collections = buildCollection(this.collections)
     return this
   }
@@ -44,7 +48,9 @@ export class NamespaceBuilder {
    * Sets up the global Action definitions.
    * Global Actions can be called with a POST method on the OData endpoint
    * (e.g. POST '/odata/login')
+   *
    * @param actions The Action definitions
+   * @returns the builder instance for chaining
    */
   public setupGlobalActions(actions: this['actions']) {
     return (this.actions = actions)
@@ -54,7 +60,9 @@ export class NamespaceBuilder {
    * Sets up the global Function definitions.
    * Global Functions can be called with a GET method on the OData endpoint
    * (e.g. GET '/odata/currentUser')
-   * @param actions The Function definitions
+   *
+   * @param functions The Function definitions
+   * @returns the builder instance for chaining
    */
   public setupGlobalFunctions(functions: this['functions']) {
     return (this.functions = functions)
@@ -63,7 +71,7 @@ export class NamespaceBuilder {
   constructor(public readonly name: string) {}
 
   /**
-   * Returns the NamespaceBuilder in an XML format
+   * @returns the NamespaceBuilder in an XML format
    */
   public toXmlNode(): XmlNode {
     const value: XmlNode = {

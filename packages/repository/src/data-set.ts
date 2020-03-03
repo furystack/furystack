@@ -14,6 +14,7 @@ export class DataSet<T> {
 
   /**
    * Adds an entity to the DataSet
+   *
    * @param injector The injector from the context
    * @param entity The entity to add
    */
@@ -32,6 +33,7 @@ export class DataSet<T> {
 
   /**
    * Updates an entity in the store
+   *
    * @param injector The injector from the context
    * @param id The identifier of the entity
    * @param change The update
@@ -61,7 +63,9 @@ export class DataSet<T> {
 
   /**
    * Returns a Promise with the entity count
+   *
    * @param injector The Injector from the context
+   * @param filter The Filter that will be applied
    */
   public async count(injector: Injector, filter?: FilterType<T>): Promise<number> {
     if (this.settings.authorizeGet) {
@@ -75,6 +79,7 @@ export class DataSet<T> {
 
   /**
    * Returns a filtered subset of the entity
+   *
    * @param injector The Injector from the context
    * @param filter The Filter definition
    */
@@ -94,6 +99,7 @@ export class DataSet<T> {
 
   /**
    * Returns an entity based on its primary key
+   *
    * @param injector The injector from the context
    * @param key The identifier of the entity
    */
@@ -116,6 +122,7 @@ export class DataSet<T> {
 
   /**
    * Removes an entity based on its primary key
+   *
    * @param injector The Injector from the context
    * @param key The primary key
    */

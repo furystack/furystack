@@ -25,6 +25,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of an Equals (~eq) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -37,6 +38,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of an Not Equals (~ne) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -48,6 +50,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a Greater Than (~gt) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -59,6 +62,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a Greater Than or Equals (~ge) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -70,6 +74,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a Lesser Than (~lt) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -81,6 +86,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a Lesser Than or equals (~le) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -92,6 +98,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a HAS (~has) filter segment
+   *
    * @param field The name of the field to check (String literal)
    * @param value The value to check
    * @returns The next ODataFilterConnection (Fluent)
@@ -103,6 +110,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a nested negated (~not) FilterBuilder object
+   *
    * @param build The fluent chain for the filter expression
    * @returns The next ODataFilterConnection (Fluent)
    */
@@ -115,6 +123,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Creates an instance of a nested FilterBuilder object
+   *
    * @param build The fluent chain for the filter expression
    * @returns The next ODataFilterConnection (Fluent)
    */
@@ -127,6 +136,7 @@ export class ODataFilterExpression<T> {
 
   /**
    * Gets the evaluated OData filter segment
+   *
    * @returns The OData filter segment
    */
   public toString(): string {

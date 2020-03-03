@@ -39,9 +39,10 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Subscribes to a value changes
-   * @param {ValueChangeCallback<T>} callback The callback method that will be called on each change
-   * @param {boolean} getLast Will call the callback with the last known value right after subscription
-   * @returns {ValueObserver<T>} The ValueObserver instance
+   *
+   * @param callback The callback method that will be called on each change
+   * @param getLast Will call the callback with the last known value right after subscription
+   * @returns The ValueObserver instance
    */
   public subscribe(callback: ValueChangeCallback<T>, getLast = false) {
     const observer = new ValueObserver<T>(this, callback)
@@ -54,7 +55,8 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * The observer will unsubscribe from the Observable
-   * @param {ValueObserver<T>} observer The ValueObserver instance
+   *
+   * @param observer The ValueObserver instance
    * @returns if unsubscribing was successfull
    */
   public unsubscribe(observer: ValueObserver<T>) {
@@ -63,7 +65,8 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Gets the current Value
-   * @returns {T} The current value
+   *
+   * @returns The current value
    */
   public getValue(): T {
     return this.currentValue
@@ -71,7 +74,8 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Sets a new value and notifies the observers.
-   * @param {T} newValue The new value to be set
+   *
+   * @param newValue The new value to be set
    */
   public setValue(newValue: T) {
     if (this.currentValue !== newValue) {
@@ -84,15 +88,15 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Gets the observers
-   * @returns {ReadonlyArray<ValueObserver<T>>} The subscribed observers
+   *
+   * @returns The subscribed observers
    */
   public getObservers() {
     return [...this.observers] as ReadonlyArray<ValueObserver<T>>
   }
 
   /**
-   * @constructs The ObservableValue object
-   * @param {T} initialValue Optional initial value
+   * @param initialValue Optional initial value
    */
   constructor(initialValue?: T) {
     if (initialValue) {

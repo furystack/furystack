@@ -8,6 +8,7 @@ export class CollectionBuilder {
 
   /**
    * Adds a collection instance
+   *
    * @param collection The Collection to add
    * @returns the builder instance
    */

@@ -26,7 +26,9 @@ export class Retrier {
 
   /**
    * Factory method for creating a Retrier
+   *
    * @param {()=>Promise<boolean>} callback The method that will be invoked on each try
+   * @returns the created Retrier instance
    */
   public static create(callback: () => Promise<boolean>) {
     return new Retrier(callback, new RetrierOptions())
@@ -42,7 +44,8 @@ export class Retrier {
 
   /**
    * Method to override the default Retrier settings.
-   * @param {Partial<RetrierOptions>} options The options to be overridden
+   *
+   * @param options The options to be overridden
    * @throws Error if the Retrier is running.
    * @returns the Retrier instance
    */
@@ -56,6 +59,7 @@ export class Retrier {
 
   /**
    * Public method that starts the Retrier
+   *
    * @throws Error if the Retrier is already started.
    * @returns {Promise<boolean>} A boolean value that indicates if the process has been succeeded.
    */

@@ -90,7 +90,9 @@ export class Configuration {
 
   /**
    * Returns a meaningful type from an EDM Type string
+   *
    * @param edmType the plain EDM Type string
+   * @returns the resolved type name
    */
   public resolveEdmType(edmType: string) {
     switch (edmType) {
@@ -117,6 +119,7 @@ export class Configuration {
 
   /**
    * Generates the entity type model name (with namespace). By default, trims the namespace and returns the lower case entity name.
+   *
    * @param entityName The plain entity type name
    */
 
@@ -126,7 +129,9 @@ export class Configuration {
 
   /**
    * Generates the model name that will be used as a class / interface name. By default it trims the namespace, sanitizes the name and returns it capitalized.
+   *
    * @param entityName The plain entity name (with namespace)
+   * @returns the generated name
    */
   public getModelName(entityName: string) {
     const sanitized = entityName.split('.')[entityName.split('.').length - 1].replace(/[^a-zA-Z0-9.-]/g, () => '_')
@@ -135,6 +140,9 @@ export class Configuration {
 
   /**
    * Returns the service file's name (without the .ts extension) from the service, defaults to the collection name in lower case
+   *
+   * @param collectionName The plain collection name
+   * @returns the resolved service file name
    */
   public getServiceFileName(collectionName: string) {
     return collectionName.toLowerCase()
@@ -142,7 +150,9 @@ export class Configuration {
 
   /**
    * Returns a class name from the collection name that will be used as the collection's name. By default, it trims namespaces and returns the capitalized class name.
+   *
    * @param collectionName The plain collection name with namespaces
+   * @returns the generated service class name
    */
   public getServiceClassName(collectionName: string) {
     return (

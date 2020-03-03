@@ -1,13 +1,7 @@
 import { using, usingAsync, Disposable } from './disposable'
 
-/**
- * Defines a Mock Disposable class
- */
 export class MockDisposable implements Disposable {
   private disposed = false
-  /**
-   * Returns if the Disposable is already disposed
-   */
   public isDisposed = () => this.disposed
   /**
    * Disposes the MockDisposable instance, calls the dispose callback

@@ -18,7 +18,9 @@ export const defaultInjectableOptions: InjectableOptions = {
 
 /**
  * Decorator method for tagging a class as injectable
+ *
  * @param options The options object
+ * @returns void
  */
 export const Injectable = (options?: Partial<InjectableOptions>) => {
   return <T extends Constructable<any>>(ctor: T) => {

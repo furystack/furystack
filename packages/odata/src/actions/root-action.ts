@@ -4,6 +4,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * OData Root action
+ *
+ * @param injector The Injector instance
  */
 export const RootAction: RequestAction = async injector => {
   const ctx = injector.getInstance(OdataContext)

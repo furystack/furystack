@@ -26,7 +26,7 @@ describe('Global Disposables', () => {
     usingAsync(new Injector(), async i => {
       i.dispose = jest.fn(i.dispose)
       i.disposeOnProcessExit()
-      await exitHandler(0)
+      await exitHandler()
       expect(i.dispose).toBeCalled()
     })
   })

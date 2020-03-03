@@ -82,12 +82,14 @@ export interface PhysicalStore<T> extends Disposable {
 
   /**
    * Adds an entry to the store, returns a promise that will be resolved with the added data
+   *
    * @param data The data to be added
    */
   add(data: T): Promise<T>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
+   *
    * @param id The primary key of the entry
    * @param data The data to be updated
    */
@@ -100,6 +102,7 @@ export interface PhysicalStore<T> extends Disposable {
 
   /**
    * Returns a promise that will be resolved with an array of elements that matches the filter
+   *
    * @param searchOptions An options object for the Search expression
    */
   search<TSelect extends Array<keyof T>>(
@@ -108,12 +111,14 @@ export interface PhysicalStore<T> extends Disposable {
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined
+   *
    * @param key The primary key of the entry
    */
   get(key: T[this['primaryKey']]): Promise<T | undefined>
 
   /**
    * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
+   *
    * @param key The primary key of the entry to remove
    */
   remove(key: T[this['primaryKey']]): Promise<void>

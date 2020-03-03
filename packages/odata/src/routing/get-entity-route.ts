@@ -13,6 +13,14 @@ import { updateContext } from './update-context'
 
 /**
  * Returns an available route for entities
+ *
+ * @param injector The injector instance from the stack
+ * @param urlPathName The url
+ * @param msg The incoming message instance
+ * @param entity The generic Entity
+ * @param collectionUrl URL to the Collection
+ *
+ * @returns The request action
  */
 export const getEntityRoute = <T>(
   injector: Injector,

@@ -37,7 +37,9 @@ export interface ShadeOptions<TProps, TState> {
 
 /**
  * Factory method for creating Shade components
- * @param o Options for component creation
+ *
+ * @param o for component creation
+ * @returns the JSX element
  */
 export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState>) => {
   // register shadow-dom element
@@ -77,12 +79,13 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         public shadeChildren = new ObservableValue<ChildrenList>([])
 
         /**
-         * Method that returns the JSX element
+         * @param options Options for rendering the component
+         * @returns the JSX element
          */
         public render = (options: RenderOptions<TProps, TState>) => o.render(options)
 
         /**
-         * Returns values for the current render options
+         * @returns values for the current render options
          */
         private getRenderOptions = () => {
           const props = this.props.getValue()

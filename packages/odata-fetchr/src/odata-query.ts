@@ -47,6 +47,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Sets the '$filter=' variable in the OData Query URL.
+   *
    * @param filter The plain text value for the odata $filter. Overrides the FilterBuilder
    * @returns the ODataQuery instance (Fluent)
    */
@@ -57,6 +58,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Builds a query expression for the OData Query
+   *
    * @param build The builder expression
    * @returns The ODataQuery instance (Fluent)
    */
@@ -69,6 +71,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Sets the OData $top= query attribute
+   *
    * @param top The value to be returned by the query
    * @returns The ODataQuery instance (Fluent)
    */
@@ -79,6 +82,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Sets the OData $skip= query attribute
+   *
    * @param skip The value to be skipped by the query
    * @returns The ODataQuery instance (Fluent)
    */
@@ -89,6 +93,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Sets the OData $orderby= query attribute
+   *
    * @param orderBy The field name(s) in string
    * @returns The ODataQuery instance (Fluent)
    */
@@ -99,6 +104,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
   /**
    * Executes the query.
+   *
    * @returns An awaitable promise with the query result.
    */
   public async exec(): Promise<ODataQueryResult<T>> {

@@ -6,6 +6,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * Odata Navigation Property Collection action
+ *
+ * @param injector The Injector from the Stack
  */
 export const NavigationPropertyCollectionAction: RequestAction = async injector => {
   const repo = injector.getInstance(Repository)

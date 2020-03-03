@@ -26,7 +26,10 @@ export class StoreManager implements Disposable {
   /**
    * Returns a store model for a constructable object.
    * Throws error if no store is registered
+   *
    * @param model The Constructable object
+   * @throws if the Store is not registered
+   * @returns a Store object
    */
   public getStoreFor<T, TType extends PhysicalStore<T> = PhysicalStore<T>>(model: Constructable<T>) {
     const instance = this.stores.get(model)
@@ -43,8 +46,9 @@ export class StoreManager implements Disposable {
 
   /**
    * Adds a store instance to the StoreManager class
+   *
    * @param store The store to add
-   * @returns {this} the StoreManager instance
+   * @returns the StoreManager instance for chaining
    */
   public addStore<T>(store: PhysicalStore<T>) {
     this.stores.set(store.model, store)

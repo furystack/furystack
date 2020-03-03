@@ -89,10 +89,6 @@ export const observableTests = describe('Observable', () => {
 
     it('should remove the subscription only from the disposed Observer', done => {
       class Alma {
-        /**
-         * Example mock class for testing
-         * @param {number} n example parameter
-         */
         public Callback() {
           done()
         }

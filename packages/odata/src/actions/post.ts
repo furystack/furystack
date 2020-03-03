@@ -5,6 +5,8 @@ import { OdataContext } from '../odata-context'
 
 /**
  * OData Post action
+ *
+ * @param injector The Injector from the Stack
  */
 export const PostAction: RequestAction = async injector => {
   const incomingMessage = injector.getRequest()

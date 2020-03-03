@@ -47,9 +47,6 @@ export class GoogleLoginSettings {
  */
 @Injectable({ lifetime: 'transient' })
 export class GoogleLoginService {
-  /**
-   *
-   */
   constructor(
     private readonly settings: GoogleLoginSettings,
     public readonly utils: Utils,
@@ -58,8 +55,8 @@ export class GoogleLoginService {
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
   /**
-   * Returns the extracted Google Authentication data from the token.
-   * @param token
+   * @param token The ID Token
+   * @returns the extracted Google Authentication data from the token.
    */
   public async getGoogleUserData(token: string): Promise<GoogleApiPayload> {
     return await new Promise<GoogleApiPayload>((resolve, reject) =>
@@ -76,6 +73,7 @@ export class GoogleLoginService {
 
   /**
    * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
+   *
    * @param token The IdToken to authenticate
    */
   public async login(token: string): Promise<User> {

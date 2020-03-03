@@ -2,6 +2,7 @@ import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
 
 /**
  * Appends a list of items to a HTML element
+ *
  * @param el the root element
  * @param children array of items to append
  */
@@ -21,9 +22,11 @@ export const appendChild = (el: HTMLElement, children: ChildrenList) => {
 
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
+ *
  * @param elementType The type of the element (component or stateless component factory method)
  * @param props The props for the component
  * @param children additional rest parameters will be parsed as children objects
+ * @returns the created JSX element
  */
 export const createComponent = <TProps>(
   elementType: string | ShadeComponent<TProps>,

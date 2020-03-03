@@ -34,6 +34,7 @@ export class HttpUserContext {
 
   /**
    * Returns if the current user can be authorized with ALL of the specified roles
+   *
    * @param roles The list of roles to authorize
    */
   public async isAuthorized(...roles: string[]): Promise<boolean> {
@@ -48,6 +49,9 @@ export class HttpUserContext {
 
   /**
    * Checks if the system contains a user with the provided name and password, throws an error otherwise
+   *
+   * @param userName The username
+   * @param password The password
    */
   public async authenticateUser(userName: string, password: string) {
     const match =
@@ -126,6 +130,7 @@ export class HttpUserContext {
 
   /**
    * Creates and sets up a cookie-based session for the provided user
+   *
    * @param user The user to create a session for
    * @param serverResponse A serverResponse to set the cookie
    */

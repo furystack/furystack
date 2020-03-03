@@ -6,7 +6,9 @@
 export class PathHelper {
   /**
    * Trims the slash characters from the beginning and from the end of the path to avoid duplicated slashes
+   *
    * @param {string} path The source path that should be trimmed
+   * @returns the trimmed path
    */
   public static trimSlashes(path: string) {
     while (path.endsWith('/')) {
@@ -21,6 +23,7 @@ export class PathHelper {
   /**
    * Splits a full path into path segments,
    * e.g.: /Root/Example('Content1') will be ["Root", "Example", "('Content1')"]
+   *
    * @param path The path to be splitted
    * @returns {string[]} the segments for the path
    */
@@ -40,7 +43,9 @@ export class PathHelper {
 
   /**
    * Checks if a specific segment is an Item segment or not (like "('Content1')"" or "(654)")
+   *
    * @param segment The segment to be examined
+   * @returns a boolean value that indicates if the segment is an item segment
    */
   public static isItemSegment(segment: string): boolean {
     return RegExp(/^\('+[\s\S]+'\)$/).test(segment) || RegExp(/^\(+\d+\)$/).test(segment)
@@ -48,6 +53,7 @@ export class PathHelper {
 
   /**
    * Method that tells if a path is an item path or an item reference path (e.g. contains an Item segment).
+   *
    * @param {string} path Path that you want to test.
    * @returns {boolean} Returns if the given path is a path of a Content or not.
    */
@@ -59,6 +65,7 @@ export class PathHelper {
 
   /**
    * Returns the full path for a content based on its Id or Path
+   *
    * @param {string | number} idOrPath the Id Or Path of the content
    * @returns A full Id or Path-based url of the content (e.g.  *'/content(1)'* or *'/Root/Example/('Content')'*)
    */
@@ -73,6 +80,7 @@ export class PathHelper {
 
   /**
    * Method that gets the URL that refers to a single item in the Sense/Net Content Repository
+   *
    * @param {string} path Path that you want to format.
    * @returns {string} Path in entity format e.g. /workspaces('project') from /workspaces/project
    */
@@ -90,6 +98,7 @@ export class PathHelper {
 
   /**
    * Method that gets the URL that refers to a single item in the Sense/Net Content Repository by its Id
+   *
    * @param id {number} Id of the Content.
    * @returns {string} e.g. /content(123)
    */
@@ -99,7 +108,9 @@ export class PathHelper {
 
   /**
    * Method that allows to join paths without multiple or missing slashes
+   *
    * @param args The list of the paths to join
+   * @returns the joined path string
    */
   public static joinPaths(...args: string[]) {
     return args.map(this.trimSlashes).join('/')
@@ -107,6 +118,7 @@ export class PathHelper {
 
   /**
    * Checks if the ancestorPath is really the ancestor of the descendantPath
+   *
    * @param {string} ancestorPath the ancestor path
    * @param {string} descendantPath the descendant path
    * @returns {boolean} if the provided path is the ancestor of the descendant
@@ -120,7 +132,9 @@ export class PathHelper {
    * e.g. "/Root/Example/Content" will return "/Root/Example"
    *
    * "Root" will always return "Root"
+   *
    * @param path The content path
+   * @returns the parent path
    */
   public static getParentPath(path: string): string {
     const segments = this.getSegments(path)

@@ -35,8 +35,11 @@ export interface FunctionDescriptor {
 
 /**
  * Converts a descriptor entry to XML node
- * @param f The descriptor to be converted
+ *
+ * @param descriptor The descriptor to be converted
+ * @param namespace A namespace string
  * @param type Type (action / function)
+ * @returns the generated XML Node
  */
 export const toXmlNode = (descriptor: FunctionDescriptor, namespace: string, type: 'Action' | 'Function') => {
   const value: XmlNode = {

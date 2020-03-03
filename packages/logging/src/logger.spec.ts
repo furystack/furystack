@@ -4,7 +4,7 @@ import { LogLevel } from './log-entries'
 import { TestLogger } from './test-logger'
 import { LoggerCollection } from './logger-collection'
 import './injector-extensions'
-import { ConsoleLogger, verboseFormatter, defaultFormatter } from './console-logger'
+import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
 
 describe('Loggers', () => {
   it('Can be set up with an extension method', () => {
@@ -158,7 +158,7 @@ describe('Loggers', () => {
   describe('defaultFormatter', () => {
     it('Should print compact messages', () =>
       expect(
-        defaultFormatter({
+        defaultFormat({
           level: LogLevel.Debug,
           scope: 'scope',
           message: 'message',
@@ -167,10 +167,10 @@ describe('Loggers', () => {
       ).toEqual(['\u001b[34m%s\u001b[0m', 'scope', 'message']))
   })
 
-  describe('verboseFormatter', () => {
+  describe('defaultFormat', () => {
     it('Should print compact messages', () =>
       expect(
-        verboseFormatter({
+        defaultFormat({
           level: LogLevel.Debug,
           scope: 'scope',
           message: 'message',
@@ -179,7 +179,7 @@ describe('Loggers', () => {
 
     it('Should print verbose messages with data', () =>
       expect(
-        verboseFormatter({
+        verboseFormat({
           level: LogLevel.Debug,
           scope: 'scope',
           message: 'message',

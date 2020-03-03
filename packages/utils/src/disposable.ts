@@ -25,7 +25,7 @@
 
 /**
  * Resources in using an usingAsync should implement this interface
- * @category Disposable
+ *
  */
 export interface Disposable {
   /**
@@ -36,8 +36,10 @@ export interface Disposable {
 
 /**
  * Method that accepts an IDisposable resource that will be disposed after the callback
- * @param {Disposable} resource The resource that is used in the callback and will be disposed afterwards
- * @param {function} callback The callback that will be executed synchrounously before the resource will be disposed
+ *
+ * @param resource The resource that is used in the callback and will be disposed afterwards
+ * @param callback The callback that will be executed synchrounously before the resource will be disposed
+ * @returns the value that will be returned by the callback method
  */
 export const using = <T extends Disposable, TReturns>(resource: T, callback: (resource: T) => TReturns) => {
   try {
@@ -49,8 +51,9 @@ export const using = <T extends Disposable, TReturns>(resource: T, callback: (re
 
 /**
  * Method that accepts an IDisposable resource that will be disposed after the callback
- * @param {Disposable} resource The resource that is used in the callback and will be disposed afterwards
- * @param {function} callback The callback that will be executed asynchrounously before the resource will be disposed
+ *
+ * @param resource The resource that is used in the callback and will be disposed afterwards
+ * @param callback The callback that will be executed asynchrounously before the resource will be disposed
  */
 export const usingAsync = async <T extends Disposable, TReturns>(
   resource: T,

@@ -9,7 +9,9 @@ export interface XmlNode {
 
 /**
  * Converts an XML Node to string
+ *
  * @param n The node to be converted
+ * @returns a string value
  */
 // tslint:disable-next-line: no-unnecessary-type-annotation
 export const xmlToString: (n: XmlNode | string) => string = n => {
