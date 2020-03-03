@@ -28,7 +28,6 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-// tslint:disable-next-line: no-unnecessary-type-annotation
 Injector.prototype.setupStores = function(builder) {
   builder(this.getInstance(StoreManager))
   return this
