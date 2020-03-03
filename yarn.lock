@@ -376,7 +376,7 @@ __metadata:
     "@furystack/logging": ^2.0.18
     "@furystack/utils": ^1.1.5
     "@types/jest": ^25.1.3
-    "@types/mongodb": ^3.3.16
+    "@types/mongodb": ^3.5.0
     "@types/node": ^13.7.7
     "@types/uuid": ^7.0.0
     got: ^10.6.0
@@ -398,7 +398,7 @@ __metadata:
     "@types/jsdom": ^16.1.0
     "@types/terminal-kit": ^1.28.0
     jsdom: ^16.2.0
-    terminal-kit: ^1.33.15
+    terminal-kit: ^1.34.0
     tslib: ^1.11.1
   bin:
     odata-fetchr: ./bin/odata-fetchr.cmd
@@ -437,11 +437,11 @@ __metadata:
     got: ^10.6.0
     rimraf: ^3.0.2
     semaphore-async-await: ^1.5.1
-    terminal-kit: ^1.33.15
+    terminal-kit: ^1.34.0
     ts-json-schema-generator: ^0.61.1
     tslib: ^1.11.1
     typescript: ^3.8.3
-    yargs: ^15.2.0
+    yargs: ^15.1.0
   bin:
     onboard: ./bin/onboard
   languageName: unknown
@@ -1891,13 +1891,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb@npm:^3.3.16":
-  version: 3.3.16
-  resolution: "@types/mongodb@npm:3.3.16"
+"@types/mongodb@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "@types/mongodb@npm:3.5.0"
   dependencies:
     "@types/bson": "*"
     "@types/node": "*"
-  checksum: 2/7d84b86c1fb6e7773c5ffceb06873c215f20565c06170b3ea2c25134b7c76235bf9b0efddb74a6aeb23b4b7a9c3510e8bac1f741b5ae908cef6060f5e62d92ac
+  checksum: 2/490e1873043bf397cddf61e4f61e109aa74a158ab800fe0ca9780f6b6a9ec04e390dec11a9ed90de372b9bbe7ead7eae293693dd0ee6cbc241b05a7f62505e31
   languageName: node
   linkType: hard
 
@@ -2027,11 +2027,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^2.21.0":
-  version: 2.21.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:2.21.0"
+"@typescript-eslint/eslint-plugin@npm:^2.22.0":
+  version: 2.22.0
+  resolution: "@typescript-eslint/eslint-plugin@npm:2.22.0"
   dependencies:
-    "@typescript-eslint/experimental-utils": 2.21.0
+    "@typescript-eslint/experimental-utils": 2.22.0
     eslint-utils: ^1.4.3
     functional-red-black-tree: ^1.0.1
     regexpp: ^3.0.0
@@ -2043,30 +2043,30 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 2/5a147e73fdc85fd78fbf762389f15140830dd6483bff84c5b981c6363bccb8739d99b58e512e25078cf63a3163b2e23aa76a4aa7e4157a516cc3c4c1264ec80b
+  checksum: 2/07ef4384468e08421e681143dbc6892782ca487c973f025bbfd737d3fd7ba0a50dbe0f66edf3ebf6bbee9b69bbf146c6c092f54999937b620b73a26bea4afdd1
   languageName: node
   linkType: hard
 
-"@typescript-eslint/experimental-utils@npm:2.21.0":
-  version: 2.21.0
-  resolution: "@typescript-eslint/experimental-utils@npm:2.21.0"
+"@typescript-eslint/experimental-utils@npm:2.22.0":
+  version: 2.22.0
+  resolution: "@typescript-eslint/experimental-utils@npm:2.22.0"
   dependencies:
     "@types/json-schema": ^7.0.3
-    "@typescript-eslint/typescript-estree": 2.21.0
+    "@typescript-eslint/typescript-estree": 2.22.0
     eslint-scope: ^5.0.0
   peerDependencies:
     eslint: "*"
-  checksum: 2/bcc5fb5957c5416d101c70225c4cb7bb92af7bef63831d248bbca3cec82563f018dcf9d4ce032b307c3d06a8d72562e333bd091f819146a105e820e56eda77bd
+  checksum: 2/b3d7114444983129644048fc174f354371c31ad0c6e0a40281528eb458c81c5c65bb302ba2365321bd549e53c8fc5d3beb7004006bb9a5318724079ba23260a7
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^2.21.0":
-  version: 2.21.0
-  resolution: "@typescript-eslint/parser@npm:2.21.0"
+"@typescript-eslint/parser@npm:^2.22.0":
+  version: 2.22.0
+  resolution: "@typescript-eslint/parser@npm:2.22.0"
   dependencies:
     "@types/eslint-visitor-keys": ^1.0.0
-    "@typescript-eslint/experimental-utils": 2.21.0
-    "@typescript-eslint/typescript-estree": 2.21.0
+    "@typescript-eslint/experimental-utils": 2.22.0
+    "@typescript-eslint/typescript-estree": 2.22.0
     eslint-visitor-keys: ^1.1.0
   peerDependencies:
     eslint: ^5.0.0 || ^6.0.0
@@ -2074,13 +2074,13 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 2/ab5de8fd7f02ff93faaa0e22e9a6dd8b6a52ef48aec2084a3ab2118b4171cb4a294fae39ea9c75c119085e7e83e8e7e71b6e047ebf459e59f0c346ae6530a847
+  checksum: 2/736feadd4ea8f8e514639cb90e5eac1abc1a60c45e9d6835dcc92560220aa46bba13ff5ffa6cbd659f0341611e94dcb3c54c01770fe6405deaf3175a10ac6873
   languageName: node
   linkType: hard
 
-"@typescript-eslint/typescript-estree@npm:2.21.0":
-  version: 2.21.0
-  resolution: "@typescript-eslint/typescript-estree@npm:2.21.0"
+"@typescript-eslint/typescript-estree@npm:2.22.0":
+  version: 2.22.0
+  resolution: "@typescript-eslint/typescript-estree@npm:2.22.0"
   dependencies:
     debug: ^4.1.1
     eslint-visitor-keys: ^1.1.0
@@ -2094,7 +2094,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 2/e6724eea96602ceb3a3747fa4c1a1a93df94d9503a4b846d22fe1c17175890ad9c2dd86609e4d3f154c698ca4b8a21ada0b5ad99b03618f4ce76ee62139b82cf
+  checksum: 2/dc7b15db92e07f9b1d93047c36e0a8b61b55ba0f91c9b78fa2f9c98fe458bad8b7f5889bfccea6b99c5d9d3a7bf7c34e916b7f8fe8f7951604e38948b8645103
   languageName: node
   linkType: hard
 
@@ -4704,8 +4704,8 @@ fsevents@^2.1.2:
   version: 0.0.0-use.local
   resolution: "furystack@workspace:."
   dependencies:
-    "@typescript-eslint/eslint-plugin": ^2.21.0
-    "@typescript-eslint/parser": ^2.21.0
+    "@typescript-eslint/eslint-plugin": ^2.22.0
+    "@typescript-eslint/parser": ^2.22.0
     "@yarnpkg/pnpify": ^2.0.0-rc.18
     eslint: ^6.8.0
     eslint-config-prettier: ^6.10.0
@@ -10073,9 +10073,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"terminal-kit@npm:^1.33.15":
-  version: 1.33.15
-  resolution: "terminal-kit@npm:1.33.15"
+"terminal-kit@npm:^1.34.0":
+  version: 1.34.0
+  resolution: "terminal-kit@npm:1.34.0"
   dependencies:
     "@cronvel/get-pixels": ^3.3.1
     chroma-js: ^2.1.0
@@ -10085,7 +10085,7 @@ resolve@1.1.7:
     seventh: ^0.7.34
     string-kit: ^0.11.6
     tree-kit: ^0.6.2
-  checksum: 2/14e6b0d4067e4a564e19016f85d2eee43a8bd85469e15210a9e4e563c25fe504ab019b02281a1992e9b2043846ce90016e07d9446076aa62571dace724df65a0
+  checksum: 2/8dfba302189323c19131ed821ecdca2e3052046a9bd5b2a8614f8a12a2be9be5becd225d9e7954dae1e3ef473259e1e3e1d0e1d33a3c3e95e1f8018685432ff2
   languageName: node
   linkType: hard
 
@@ -11172,7 +11172,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:^15.2.0":
+"yargs@npm:^15.1.0":
   version: 15.2.0
   resolution: "yargs@npm:15.2.0"
   dependencies:
