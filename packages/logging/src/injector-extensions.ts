@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject/dist/injector'
+import { Injector } from '@furystack/inject'
 import { Logger } from './logger'
 import { LoggerCollection } from './logger-collection'
 

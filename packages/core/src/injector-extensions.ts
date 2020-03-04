@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject/dist/injector'
+import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
 

@@ -2,7 +2,7 @@ import { parse } from 'url'
 import { Entity } from './models'
 import { parseFilter } from './parsers/filter'
 import { parseOrderBy } from './parsers/order-by'
-import { FilterType } from '../../core/src'
+import { FilterType } from '@furystack/core'
 
 export type OrderType<T> = { [key in keyof T]?: 'ASC' | 'DESC' }
 export interface OdataParams<T> {

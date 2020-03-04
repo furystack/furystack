@@ -1,5 +1,5 @@
 import { Entity } from '../models'
-import { FilterType } from '../../../core/src'
+import { FilterType } from '@furystack/core'
 import { parseFieldValue } from './field-value'
 
 export const parseSingleOperation = <T>(options: {
