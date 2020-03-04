@@ -39,7 +39,7 @@
     "@furystack/logging": "^2.0.20",
     "@furystack/utils": "^1.1.7",
     "tslib": "^1.11.1",
-    "uuid": "^7.0.1"
+    "uuid": "^7.0.2"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

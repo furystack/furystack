@@ -304,23 +304,23 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/http-api": ^5.3.18
-    "@furystack/inject": ^4.0.13
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/http-api": ^5.3.19
+    "@furystack/inject": ^4.0.14
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/node": ^13.7.7
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^7.0.8, @furystack/core@workspace:packages/core":
+"@furystack/core@^7.0.9, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/node": ^13.7.7
     semaphore-async-await: ^1.5.1
@@ -328,40 +328,40 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/http-api@^5.3.18, @furystack/http-api@workspace:packages/http-api":
+"@furystack/http-api@^5.3.19, @furystack/http-api@workspace:packages/http-api":
   version: 0.0.0-use.local
   resolution: "@furystack/http-api@workspace:packages/http-api"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/node": ^13.7.7
     "@types/uuid": ^7.0.0
     hash.js: ^1.1.7
     tslib: ^1.11.1
-    uuid: ^7.0.1
+    uuid: ^7.0.2
   languageName: unknown
   linkType: soft
 
-"@furystack/inject@^4.0.13, @furystack/inject@workspace:packages/inject":
+"@furystack/inject@^4.0.14, @furystack/inject@workspace:packages/inject":
   version: 0.0.0-use.local
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
-    "@furystack/utils": ^1.1.6
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     reflect-metadata: ^0.1.13
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@^2.0.19, @furystack/logging@workspace:packages/logging":
+"@furystack/logging@^2.0.20, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
-    "@furystack/inject": ^4.0.13
-    "@furystack/utils": ^1.1.6
+    "@furystack/inject": ^4.0.14
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     tslib: ^1.11.1
   languageName: unknown
@@ -371,10 +371,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/mongodb": ^3.5.0
     "@types/node": ^13.7.7
@@ -383,7 +383,7 @@ __metadata:
     mongodb: ^3.5.4
     semaphore-async-await: ^1.5.1
     tslib: ^1.11.1
-    uuid: ^7.0.1
+    uuid: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -391,14 +391,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/odata-fetchr@workspace:packages/odata-fetchr"
   dependencies:
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/jsdom": ^16.1.0
     "@types/terminal-kit": ^1.28.0
     jsdom: ^16.2.0
-    terminal-kit: ^1.34.0
+    terminal-kit: ^1.34.1
     tslib: ^1.11.1
   bin:
     odata-fetchr: ./bin/odata-fetchr.cmd
@@ -409,12 +409,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/odata@workspace:packages/odata"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/http-api": ^5.3.18
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/repository": ^2.0.22
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/http-api": ^5.3.19
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/repository": ^2.0.23
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     got: ^10.6.0
     tslib: ^1.11.1
@@ -425,9 +425,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/onboard@workspace:packages/onboard"
   dependencies:
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/json-schema": ^7.0.4
     "@types/node": ^13.7.7
@@ -437,11 +437,11 @@ __metadata:
     got: ^10.6.0
     rimraf: ^3.0.2
     semaphore-async-await: ^1.5.1
-    terminal-kit: ^1.34.0
-    ts-json-schema-generator: ^0.61.1
+    terminal-kit: ^1.34.1
+    ts-json-schema-generator: ^0.62.0
     tslib: ^1.11.1
     typescript: ^3.8.3
-    yargs: ^15.2.0
+    yargs: ^15.1.0
   bin:
     onboard: ./bin/onboard
   languageName: unknown
@@ -451,28 +451,28 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/redis": ^2.8.16
     "@types/uuid": ^7.0.0
     redis: ^3.0.2
     semaphore-async-await: ^1.5.1
     tslib: ^1.11.1
-    uuid: ^7.0.1
+    uuid: ^7.0.2
   languageName: unknown
   linkType: soft
 
-"@furystack/repository@^2.0.22, @furystack/repository@workspace:packages/repository":
+"@furystack/repository@^2.0.23, @furystack/repository@workspace:packages/repository":
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     tslib: ^1.11.1
   languageName: unknown
@@ -482,15 +482,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/http-api": ^5.3.18
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/http-api": ^5.3.19
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/uuid": ^7.0.0
     tslib: ^1.11.1
-    uuid: ^7.0.1
+    uuid: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -498,10 +498,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/typeorm-store@workspace:packages/typeorm-store"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     semaphore-async-await: ^1.5.1
     sqlite3: ^4.1.1
@@ -510,7 +510,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/utils@^1.1.6, @furystack/utils@workspace:packages/utils":
+"@furystack/utils@^1.1.7, @furystack/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
@@ -523,11 +523,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^7.0.8
-    "@furystack/http-api": ^5.3.18
-    "@furystack/inject": ^4.0.13
-    "@furystack/logging": ^2.0.19
-    "@furystack/utils": ^1.1.6
+    "@furystack/core": ^7.0.9
+    "@furystack/http-api": ^5.3.19
+    "@furystack/inject": ^4.0.14
+    "@furystack/logging": ^2.0.20
+    "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/ws": ^7.2.2
     tslib: ^1.11.1
@@ -10073,9 +10073,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"terminal-kit@npm:^1.34.0":
-  version: 1.34.0
-  resolution: "terminal-kit@npm:1.34.0"
+"terminal-kit@npm:^1.34.1":
+  version: 1.34.1
+  resolution: "terminal-kit@npm:1.34.1"
   dependencies:
     "@cronvel/get-pixels": ^3.3.1
     chroma-js: ^2.1.0
@@ -10085,7 +10085,7 @@ resolve@1.1.7:
     seventh: ^0.7.34
     string-kit: ^0.11.6
     tree-kit: ^0.6.2
-  checksum: 2/8dfba302189323c19131ed821ecdca2e3052046a9bd5b2a8614f8a12a2be9be5becd225d9e7954dae1e3ef473259e1e3e1d0e1d33a3c3e95e1f8018685432ff2
+  checksum: 2/74ae50642ca529f9999c54925e99e3ae451b34909b178a71c702dc90900481719dcf0b446f07ddeb74e78f2a3e1ffbe7d28836cc61a859a8cab2dc41663c4ab2
   languageName: node
   linkType: hard
 
@@ -10321,9 +10321,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-json-schema-generator@npm:^0.61.1":
-  version: 0.61.1
-  resolution: "ts-json-schema-generator@npm:0.61.1"
+"ts-json-schema-generator@npm:^0.62.0":
+  version: 0.62.0
+  resolution: "ts-json-schema-generator@npm:0.62.0"
   dependencies:
     "@types/json-schema": ^7.0.4
     commander: ~4.1.1
@@ -10332,7 +10332,7 @@ resolve@1.1.7:
     typescript: ~3.8.3
   bin:
     ts-json-schema-generator: bin/ts-json-schema-generator
-  checksum: 2/f9e34f1aed99b4661dcc1586ba07dc34b60300891b27bcc141278669f0dd1322c9b247515b19059fe8e050616c3cbb393703e58721ef78ff646b4bce46559b58
+  checksum: 2/f340f546b6bf9cd19a2ca86581f0063fd760ab4ec53640152c5c6250072188ead1bfaa96e6364cf327280643a0dd127fcbb21d34bb18386b69c1a7fd6b3419ae
   languageName: node
   linkType: hard
 
@@ -10640,12 +10640,12 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"uuid@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "uuid@npm:7.0.1"
+"uuid@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "uuid@npm:7.0.2"
   bin:
     uuid: dist/bin/uuid
-  checksum: 2/3a7738aca617766b9f137cacdcf7ced0a92d4a34a2b379d2f46b7bef9498cf87bea58e4e8ca38475cb4c20ce0d4405e5a664def4ef8c0c936852c00d5571582f
+  checksum: 2/25137594ba74b0ca8bcf582f8c7c2e7556efe621d5cf2459d0c713755cb67c8546768b2d05c62d65a890a44e213551010f169cfa7c6ace4adcdd1bdfab22a627
   languageName: node
   linkType: hard
 
@@ -11172,7 +11172,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:^15.2.0":
+"yargs@npm:^15.1.0":
   version: 15.2.0
   resolution: "yargs@npm:15.2.0"
   dependencies:

@@ -43,7 +43,7 @@
     "@types/node": "^13.7.7",
     "@types/uuid": "^7.0.0",
     "got": "^10.6.0",
-    "uuid": "^7.0.1"
+    "uuid": "^7.0.2"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
