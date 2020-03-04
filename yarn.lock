@@ -304,8 +304,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^7.0.9
-    "@furystack/http-api": ^5.3.19
+    "@furystack/core": ^7.0.10
+    "@furystack/http-api": ^5.3.20
     "@furystack/inject": ^4.0.14
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
@@ -314,12 +314,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^7.0.9, @furystack/core@workspace:packages/core":
+"@furystack/core@^7.0.10, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/node": ^13.7.7
@@ -328,13 +328,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/http-api@^5.3.19, @furystack/http-api@workspace:packages/http-api":
+"@furystack/http-api@^5.3.20, @furystack/http-api@workspace:packages/http-api":
   version: 0.0.0-use.local
   resolution: "@furystack/http-api@workspace:packages/http-api"
   dependencies:
-    "@furystack/core": ^7.0.9
+    "@furystack/core": ^7.0.10
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/node": ^13.7.7
@@ -356,7 +356,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@^2.0.20, @furystack/logging@workspace:packages/logging":
+"@furystack/logging@^2.0.21, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
@@ -371,12 +371,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^7.0.9
+    "@furystack/core": ^7.0.10
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
-    "@types/mongodb": ^3.5.0
+    "@types/mongodb": ^3.5.1
     "@types/node": ^13.7.7
     "@types/uuid": ^7.0.0
     got: ^10.6.0
@@ -392,7 +392,7 @@ __metadata:
   resolution: "@furystack/odata-fetchr@workspace:packages/odata-fetchr"
   dependencies:
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/jsdom": ^16.1.0
@@ -409,11 +409,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/odata@workspace:packages/odata"
   dependencies:
-    "@furystack/core": ^7.0.9
-    "@furystack/http-api": ^5.3.19
+    "@furystack/core": ^7.0.10
+    "@furystack/http-api": ^5.3.20
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
-    "@furystack/repository": ^2.0.23
+    "@furystack/logging": ^2.0.21
+    "@furystack/repository": ^2.0.24
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     got: ^10.6.0
@@ -426,7 +426,7 @@ __metadata:
   resolution: "@furystack/onboard@workspace:packages/onboard"
   dependencies:
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/json-schema": ^7.0.4
@@ -441,7 +441,7 @@ __metadata:
     ts-json-schema-generator: ^0.62.0
     tslib: ^1.11.1
     typescript: ^3.8.3
-    yargs: ^15.1.0
+    yargs: ^15.2.0
   bin:
     onboard: ./bin/onboard
   languageName: unknown
@@ -451,9 +451,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^7.0.9
+    "@furystack/core": ^7.0.10
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/redis": ^2.8.16
@@ -465,13 +465,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/repository@^2.0.23, @furystack/repository@workspace:packages/repository":
+"@furystack/repository@^2.0.24, @furystack/repository@workspace:packages/repository":
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^7.0.9
+    "@furystack/core": ^7.0.10
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     tslib: ^1.11.1
@@ -482,10 +482,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^7.0.9
-    "@furystack/http-api": ^5.3.19
+    "@furystack/core": ^7.0.10
+    "@furystack/http-api": ^5.3.20
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/uuid": ^7.0.0
@@ -498,9 +498,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/typeorm-store@workspace:packages/typeorm-store"
   dependencies:
-    "@furystack/core": ^7.0.9
+    "@furystack/core": ^7.0.10
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     semaphore-async-await: ^1.5.1
@@ -523,10 +523,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^7.0.9
-    "@furystack/http-api": ^5.3.19
+    "@furystack/core": ^7.0.10
+    "@furystack/http-api": ^5.3.20
     "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.20
+    "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7
     "@types/jest": ^25.1.3
     "@types/ws": ^7.2.2
@@ -1891,13 +1891,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb@npm:^3.5.0":
-  version: 3.5.0
-  resolution: "@types/mongodb@npm:3.5.0"
+"@types/mongodb@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "@types/mongodb@npm:3.5.1"
   dependencies:
     "@types/bson": "*"
     "@types/node": "*"
-  checksum: 2/490e1873043bf397cddf61e4f61e109aa74a158ab800fe0ca9780f6b6a9ec04e390dec11a9ed90de372b9bbe7ead7eae293693dd0ee6cbc241b05a7f62505e31
+  checksum: 2/2995de3e96fc45fffb1bc15e8c4c27876c2eda7f2408adb29c12d6bd18c01e575b5ae8fd8e015f7925d87dd61d56dd9ea762b9c4d96e2f78ee867d69f691ea20
   languageName: node
   linkType: hard
 
@@ -11172,7 +11172,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:^15.1.0":
+"yargs@npm:^15.2.0":
   version: 15.2.0
   resolution: "yargs@npm:15.2.0"
   dependencies:
