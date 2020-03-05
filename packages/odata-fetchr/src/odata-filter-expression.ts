@@ -10,10 +10,10 @@ export class ODataFilterExpression<T> {
   private getFilterValueSegment(value: any): string {
     const castedValue = value.toString()
     if (typeof value === 'string' && !/^[0-9]*$/.test(castedValue)) {
-      return `('${castedValue}')`
+      return `'${castedValue}'`
     }
 
-    return `(${castedValue})`
+    return `${castedValue}`
   }
 
   constructor(public filterBuilderRef: ODataFilterBuilder<T>) {}
