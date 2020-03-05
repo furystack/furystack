@@ -2,7 +2,7 @@ import { ServerResponse } from 'http'
 import { TLSSocket } from 'tls'
 import { parse } from 'url'
 import { PathHelper } from '@furystack/utils'
-import { RouteModel } from '@furystack/http-api'
+import { RouteModel, JsonResult, RequestAction } from '@furystack/http-api'
 import { GetCollectionAction } from '../actions/get-collection-action'
 import { MetadataAction } from '../actions/metadata-action'
 import { PostAction } from '../actions/post'
@@ -74,13 +74,17 @@ export const createOdataRouter: (options: RouterOptions) => RouteModel = options
       const entity = options.entities.find(e => e.model === collection.collection.model)
 
       if (entity) {
-        const queryParams = entity && getOdataParams(msg.url, entity)
-        updateContext<{ [s: string]: any }>(injector, {
-          collection: collection.collection,
-          context: PathHelper.joinPaths(options.route, `$metadata#${collection.collection.name}`),
-          entity,
-          queryParams,
-        })
+        try {
+          const queryParams = entity && getOdataParams(msg.url, entity)
+          updateContext<{ [s: string]: any }>(injector, {
+            collection: collection.collection,
+            context: PathHelper.joinPaths(options.route, `$metadata#${collection.collection.name}`),
+            entity,
+            queryParams,
+          })
+        } catch (error) {
+          return (async () => JsonResult({ message: error.toString() }, 400)) as RequestAction
+        }
       }
 
       if (PathHelper.isItemPath(urlPathName)) {
