@@ -97,8 +97,8 @@ export class ODataQuery<T> extends ODataOperation<T> {
    * @param orderBy The field name(s) in string
    * @returns The ODataQuery instance (Fluent)
    */
-  public orderBy<K extends keyof T>(...orderBy: K[]): ODataQuery<T> {
-    this._orderBy = this.parseStringOrStringArray(...orderBy)
+  public orderBy<K extends keyof T>(...orderBy: Array<[K, 'asc' | 'desc']>): ODataQuery<T> {
+    this._orderBy = this.parseStringOrStringArray(...orderBy.map(o => o.join(' ')))
     return this
   }
 
