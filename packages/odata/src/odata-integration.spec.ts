@@ -5,6 +5,7 @@ import { JsonResult } from '@furystack/http-api'
 import { PathHelper } from '@furystack/utils'
 import { EdmType } from './models/edm-type'
 import './injector-extension'
+import { NavigationProperty, NavigationPropertyCollection } from './models'
 
 const port = 8888
 const odataRouteName = `api/odata-test`
@@ -96,7 +97,7 @@ describe('OData Integration Tests', () => {
                       })
                       return related[0] || null
                     },
-                  },
+                  } as NavigationProperty<User, Entity2>,
                 ],
                 actions: [{ name: 'userAction', action: async () => JsonResult({ value: 'userAction' }) }],
                 functions: [{ name: 'userFunction', action: async () => JsonResult({ value: 'userFunction' }) }],
@@ -128,7 +129,7 @@ describe('OData Integration Tests', () => {
                       })
                       return owner[0] || null
                     },
-                  },
+                  } as NavigationProperty<Group, User>,
                 ],
                 navigationPropertyCollections: [
                   {
@@ -145,7 +146,7 @@ describe('OData Integration Tests', () => {
                       })
                       return [...members]
                     },
-                  },
+                  } as NavigationPropertyCollection<Group, User>,
                 ],
               })
               .addEntityType({

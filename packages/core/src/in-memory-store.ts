@@ -7,6 +7,7 @@ import {
   FilterType,
   isOperator,
 } from './models/physical-store'
+import { deepMerge } from '@furystack/utils'
 
 export class InMemoryStore<T> implements PhysicalStore<T> {
   /**
@@ -34,28 +35,35 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     }
     return values.filter(item => {
       for (const key in filter) {
-        if (typeof filter[key] === 'object') {
-          for (const filterKey in filter[key]) {
+        if (typeof (filter as any)[key] === 'object') {
+          for (const filterKey in (filter as any)[key]) {
             if (isOperator(filterKey)) {
+              const itemValue = (item as any)[key]
+              const filterValue = (filter as any)[key][filterKey]
               switch (filterKey) {
                 case '$eq':
-                  if ((filter as any)[key][filterKey] !== item[key]) {
+                  if (filterValue !== itemValue) {
                     return false
                   }
                   break
                 case '$ne':
-                  if ((filter as any)[key][filterKey] === item[key]) {
+                  if (filterValue === itemValue) {
                     return false
                   }
                   break
                 case '$in':
-                  if (!(filter as any)[key][filterKey].includes(item[key])) {
+                  if (!filterValue.includes(itemValue)) {
                     return false
                   }
                   break
 
                 case '$nin':
-                  if ((filter as any)[key][filterKey].includes(item[key])) {
+                  if (filterValue.includes(itemValue)) {
+                    return false
+                  }
+                  break
+                case '$regex':
+                  if (!new RegExp(filterValue).test((itemValue as any).toString())) {
                     return false
                   }
                   break
@@ -67,7 +75,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
             }
           }
         } else {
-          throw new Error(`The filter has to be an object, got ${typeof filter[key]} for field '${key}'`)
+          throw new Error(`The filter has to be an object, got ${typeof (filter as any)[key]} for field '${key}'`)
         }
       }
       return true

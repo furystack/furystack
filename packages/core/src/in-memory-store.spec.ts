@@ -128,6 +128,16 @@ describe('InMemoryStore', () => {
     expect(result.map(r => r.value)).toEqual(['asd'])
   })
 
+  it('filter should return the corresponding entries with $regex', async () => {
+    f.update(1, { id: 1, value: 'asd' })
+    f.update(2, { id: 2, value: 'aaa' })
+    f.update(3, { id: 3, value: 'bbb' })
+
+    const result = await f.search({ filter: { value: { $regex: '([a])' } } })
+    expect(result.length).toBe(2)
+    expect(result.map(r => r.value)).toEqual(['asd', 'aaa'])
+  })
+
   it('Should return partial and full result', async () => {
     class ExampleClass {
       public id = 1

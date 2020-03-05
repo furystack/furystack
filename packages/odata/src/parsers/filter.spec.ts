@@ -39,6 +39,13 @@ describe('Filter', () => {
       stringField: { $eq: 'alma' },
     })
   })
+
+  it('Should parse single $eq witn string and special characters', () => {
+    expect(parseFilter("stringField eq 'alma%&@'", testEntity)).toEqual({
+      stringField: { $eq: 'alma%&@' },
+    })
+  })
+
   it('Should parse single $eq witn int expressions', () => {
     expect(parseFilter('numberField eq 15', testEntity)).toEqual({
       numberField: { $eq: 15 },

@@ -1,19 +1,28 @@
 import { Constructable } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 
-export const SingleComparisonOperators = ['$eq', '$gt', '$gte', '$lt', '$lte', '$ne'] as const
+export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
+export const SingleComparisonOperators = ['$eq', '$ne'] as const
+
 export const ArrayComparisonOperators = ['$in', '$nin'] as const
 export const LogicalOperators = ['$and', '$not', '$nor', '$or'] as const
 
-export const allOperators = [...SingleComparisonOperators, ...ArrayComparisonOperators, ...LogicalOperators] as const
+export const allOperators = [
+  ...SingleComparisonOperators,
+  ...NumberComparisonOperators,
+  ...ArrayComparisonOperators,
+  ...LogicalOperators,
+  '$regex',
+] as const
 
 export type FilterType<T> = {
   [K in keyof T]?:
+    | (T[K] extends string ? { $regex?: string } : {})
+    | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : {})
     | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
     | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
-    | { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
-}
-
+} &
+  { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
 export const isOperator = (propertyString: string): propertyString is typeof allOperators[number] =>
   allOperators.includes(propertyString as typeof allOperators[number])
 

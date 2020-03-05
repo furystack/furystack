@@ -38,10 +38,10 @@ export interface Entity<T> {
   /**
    * List of navigation properties that points to a single entity
    */
-  navigationProperties?: Array<NavigationProperty<T, unknown>>
+  navigationProperties?: Array<NavigationProperty<T, any>>
 
   /**
    * List of navigation properties that points to an entity collection
    */
-  navigationPropertyCollections?: Array<NavigationPropertyCollection<T, unknown>>
+  navigationPropertyCollections?: Array<NavigationPropertyCollection<T, any>>
 }

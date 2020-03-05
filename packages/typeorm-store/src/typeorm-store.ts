@@ -17,7 +17,7 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
   private parseFilter(filter: FilterType<T>) {
     const returnValue: any = {}
     for (const key in filter) {
-      returnValue[key] = (filter[key] as any).$eq
+      returnValue[key] = ((filter as any)[key] as any).$eq
     }
     return returnValue
   }
