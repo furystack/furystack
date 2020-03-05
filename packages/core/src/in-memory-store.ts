@@ -7,7 +7,6 @@ import {
   FilterType,
   isOperator,
 } from './models/physical-store'
-import { deepMerge } from '@furystack/utils'
 
 export class InMemoryStore<T> implements PhysicalStore<T> {
   /**
