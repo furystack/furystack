@@ -607,7 +607,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["rimraf", "npm:3.0.2"],
             ["semaphore-async-await", "npm:1.5.1"],
             ["terminal-kit", "npm:1.34.1"],
-            ["ts-json-schema-generator", "npm:0.62.0"],
+            ["ts-json-schema-generator", "npm:0.64.0"],
             ["tslib", "npm:1.11.1"],
             ["typescript", "patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569"],
             ["yargs", "npm:15.2.0"]
@@ -11496,10 +11496,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["ts-json-schema-generator", [
-        ["npm:0.62.0", {
-          "packageLocation": "./.yarn/cache/ts-json-schema-generator-npm-0.62.0-69a0a12038-2.zip/node_modules/ts-json-schema-generator/",
+        ["npm:0.64.0", {
+          "packageLocation": "./.yarn/cache/ts-json-schema-generator-npm-0.64.0-3edec731e3-2.zip/node_modules/ts-json-schema-generator/",
           "packageDependencies": [
-            ["ts-json-schema-generator", "npm:0.62.0"],
+            ["ts-json-schema-generator", "npm:0.64.0"],
             ["@types/json-schema", "npm:7.0.4"],
             ["commander", "npm:4.1.1"],
             ["glob", "npm:7.1.6"],
