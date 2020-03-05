@@ -311,7 +311,7 @@ describe('OData Integration Tests', () => {
     })
     it('Retrieve from collection with a "$filter=name eq asdf" filter on strings', async () => {
       const response = await got(
-        PathHelper.joinPaths(odataPath, `UserCollection?$filter=${encodeURIComponent('name eq asdf')}`),
+        PathHelper.joinPaths(odataPath, `UserCollection?$filter=${encodeURIComponent("name eq 'asdf'")}`),
       )
       const body = JSON.parse(response.body)
       for (const value of body.value.map((v: User) => v.name)) {

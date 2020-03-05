@@ -1,5 +1,5 @@
 import { Entity } from '../models'
-import { FilterType, SingleComparisonOperators } from '@furystack/core'
+import { FilterType, SingleComparisonOperators, NumberComparisonOperators } from '@furystack/core'
 import { parseFieldValue } from './field-value'
 
 export const parseSingleOperation = <T, K extends keyof T>(
@@ -14,9 +14,9 @@ export const parseSingleOperation = <T, K extends keyof T>(
 }
 
 export const operatorRegex = new RegExp(
-  `(?<subject>([a-zA-Z0-9_.]+)) (?<operator>(${SingleComparisonOperators.map(op => op.replace('$', '')).join(
-    '|',
-  )})) ('(?<stringValue>.*)'|(?<numberValue>[0-9.]*))$`,
+  `(?<subject>([a-zA-Z0-9_.]+)) (?<operator>(${[...SingleComparisonOperators, ...NumberComparisonOperators]
+    .map(op => op.replace('$', ''))
+    .join('|')})) ('(?<stringValue>.*)'|(?<numberValue>[0-9\\.]*))$`,
 )
 
 export const parseOperator = <T>(filter: string, entity: Entity<T>): FilterType<T> => {
