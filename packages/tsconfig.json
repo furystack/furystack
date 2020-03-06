@@ -21,12 +21,6 @@
       "path": "./mongodb-store"
     },
     {
-      "path": "./odata"
-    },
-    {
-      "path": "./odata-fetchr"
-    },
-    {
       "path": "./onboard"
     },
     {
@@ -34,6 +28,9 @@
     },
     {
       "path": "./repository"
+    },
+    {
+      "path": "./rest"
     },
     {
       "path": "./shades"

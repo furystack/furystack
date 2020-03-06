@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse, createServer as createHttpServer } from 'http'
 import { ServerOptions, createServer as createHttpsServer } from 'https'
 import { ServerManager, User } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { defaultLoginRoutes } from './default-login-routes'
 import { HttpApi } from './http-api'
 import { HttpApiSettings } from './http-api-settings'
