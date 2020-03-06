@@ -7,43 +7,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest tests",
+      "name": "Launch via YARN",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": ["run", "jest", "--runInBand"],
+      "runtimeArgs": ["node", "--inspect-brk", "packages/rest-service/dist/mock.js"],
       "port": 9229,
-      "skipFiles": ["<node_internals>/**"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Onboard",
-      "program": "${workspaceFolder}/packages/onboard/dist/index.js",
-      // "args": ["---parallel=3", "--stepFilters=AddToPm2"],
-      "cwd": "${input:workdir}",
-      "skipFiles": ["<node_internals>/**"],
-      "console": "integratedTerminal",
-      "env": {
-        // "NODE_DEBUG": "cluster,net,http,fs,tls,module,timers"
-      }
-    },
-    {
-      "name": "Current TS File",
-      "type": "node",
-      "request": "launch",
-      "args": ["${relativeFile}"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
-    }
-  ],
-  "inputs": [
-    {
-      "type": "promptString",
-      "id": "workdir",
-      "description": "The working directory",
-      "default": "C:\\development\\plano-in"
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

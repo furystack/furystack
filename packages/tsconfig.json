@@ -33,6 +33,12 @@
       "path": "./rest"
     },
     {
+      "path": "./rest-service"
+    },
+    {
+      "path": "./rest-client"
+    },
+    {
       "path": "./shades"
     },
     {

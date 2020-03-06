@@ -66,6 +66,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           reference: 'workspace:packages/rest',
         },
         {
+          name: '@furystack/rest-client',
+          reference: 'workspace:packages/rest-client',
+        },
+        {
+          name: '@furystack/rest-service',
+          reference: 'workspace:packages/rest-service',
+        },
+        {
           name: '@furystack/shades',
           reference: 'workspace:packages/shades',
         },
@@ -95,6 +103,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ['@furystack/redis-store', ['workspace:packages/redis-store']],
         ['@furystack/repository', ['workspace:packages/repository']],
         ['@furystack/rest', ['workspace:packages/rest']],
+        ['@furystack/rest-client', ['workspace:packages/rest-client']],
+        ['@furystack/rest-service', ['workspace:packages/rest-service']],
         ['@furystack/shades', ['workspace:packages/shades']],
         ['@furystack/typeorm-store', ['workspace:packages/typeorm-store']],
         ['@furystack/utils', ['workspace:packages/utils']],
@@ -856,6 +866,52 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                 packageLocation: './packages/rest/',
                 packageDependencies: [
                   ['@furystack/rest', 'workspace:packages/rest'],
+                  ['@furystack/inject', 'workspace:packages/inject'],
+                  ['tslib', 'npm:1.11.1'],
+                ],
+                linkType: 'SOFT',
+              },
+            ],
+          ],
+        ],
+        [
+          '@furystack/rest-client',
+          [
+            [
+              'workspace:packages/rest-client',
+              {
+                packageLocation: './packages/rest-client/',
+                packageDependencies: [
+                  ['@furystack/rest-client', 'workspace:packages/rest-client'],
+                  ['@furystack/inject', 'workspace:packages/inject'],
+                  ['@furystack/logging', 'workspace:packages/logging'],
+                  ['@furystack/rest', 'workspace:packages/rest'],
+                  ['@furystack/utils', 'workspace:packages/utils'],
+                  ['@types/jest', 'npm:25.1.3'],
+                  ['tslib', 'npm:1.11.1'],
+                ],
+                linkType: 'SOFT',
+              },
+            ],
+          ],
+        ],
+        [
+          '@furystack/rest-service',
+          [
+            [
+              'workspace:packages/rest-service',
+              {
+                packageLocation: './packages/rest-service/',
+                packageDependencies: [
+                  ['@furystack/rest-service', 'workspace:packages/rest-service'],
+                  ['@furystack/inject', 'workspace:packages/inject'],
+                  ['@furystack/logging', 'workspace:packages/logging'],
+                  ['@furystack/rest', 'workspace:packages/rest'],
+                  ['@furystack/utils', 'workspace:packages/utils'],
+                  ['@types/jest', 'npm:25.1.3'],
+                  ['@types/node', 'npm:13.7.7'],
+                  ['path-to-regexp', 'npm:6.1.0'],
+                  ['semaphore-async-await', 'npm:1.5.1'],
                   ['tslib', 'npm:1.11.1'],
                 ],
                 linkType: 'SOFT',
@@ -13406,6 +13462,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               {
                 packageLocation: './.yarn/cache/path-parse-npm-1.0.6-4a4c90546c-2.zip/node_modules/path-parse/',
                 packageDependencies: [['path-parse', 'npm:1.0.6']],
+                linkType: 'HARD',
+              },
+            ],
+          ],
+        ],
+        [
+          'path-to-regexp',
+          [
+            [
+              'npm:6.1.0',
+              {
+                packageLocation: './.yarn/cache/path-to-regexp-npm-6.1.0-34e3bd652e-2.zip/node_modules/path-to-regexp/',
+                packageDependencies: [['path-to-regexp', 'npm:6.1.0']],
                 linkType: 'HARD',
               },
             ],

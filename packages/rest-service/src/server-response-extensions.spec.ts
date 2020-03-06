@@ -1,6 +1,6 @@
 import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
-import { JsonResult } from './models/request-action'
+import { JsonResult } from '@furystack/rest'
 import './server-response-extensions'
 
 describe('ServerResponse extensions', () => {

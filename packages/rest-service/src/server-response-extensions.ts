@@ -1,5 +1,5 @@
 import http from 'http'
-import { ActionResult } from './models/request-action'
+import { ActionResult } from '@furystack/rest'
 
 export interface SendJsonOptions<T> {
   statusCode?: number
@@ -19,6 +19,9 @@ declare module 'http' {
 }
 
 http.ServerResponse.prototype.sendActionResult = function<T>(options: ActionResult<T>) {
+  if (typeof options.chunk === 'object') {
+    options.chunk = JSON.stringify(options.chunk) as any
+  }
   if (typeof options.chunk === 'string' && options.chunk === 'BypassResult') {
     return
   }
