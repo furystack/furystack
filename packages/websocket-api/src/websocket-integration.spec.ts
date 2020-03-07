@@ -1,23 +1,24 @@
 import { Injector } from '@furystack/inject'
 import { WhoAmI } from './actions/whoami'
 import '.'
-import '@furystack/http-api'
 import ws from 'ws'
 import { InMemoryStore, User } from '@furystack/core'
-import { DefaultSession } from '@furystack/http-api'
+import { DefaultSession } from '@furystack/rest-service'
 
 describe('WebSocket Integration tests', () => {
   const port = 9999
   const path = '/ws'
   const i = new Injector()
-    .useHttpApi()
+    .useRestService({
+      api: {},
+      port,
+    })
     .setupStores(sm =>
       sm
         .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
         .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
     )
     .useHttpAuthentication({})
-    .listenHttp({ port })
     .useWebsockets({ actions: [WhoAmI], path })
   const client = new ws(`ws://127.0.0.1:${port}/ws`)
 

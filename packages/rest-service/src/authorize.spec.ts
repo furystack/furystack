@@ -4,7 +4,7 @@ import { usingAsync } from '@furystack/utils'
 import { User } from '@furystack/core'
 import { HttpUserContext } from './http-user-context'
 import { Authorize } from './authorize'
-import { EmptyResult } from './models/request-action'
+import { EmptyResult } from '@furystack/rest'
 
 describe('Authorize', () => {
   it('Should return 403 when failed to get current user', async () => {
@@ -15,10 +15,10 @@ describe('Authorize', () => {
         { isAuthorized: isAuthorizedAction, getCurrentUser: () => Promise.reject(':(') },
         HttpUserContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(403)
       expect(result.chunk).toBe(JSON.stringify({ error: 'forbidden' }))
       expect(exampleAuthorizedAction).not.toBeCalled()
@@ -36,10 +36,10 @@ describe('Authorize', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(403)
       expect(result.chunk).toBe(JSON.stringify({ error: 'forbidden' }))
       expect(exampleAuthorizedAction).not.toBeCalled()
@@ -57,10 +57,10 @@ describe('Authorize', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
       expect(exampleAuthorizedAction).toBeCalledWith(i)

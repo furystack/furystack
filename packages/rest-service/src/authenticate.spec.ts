@@ -2,7 +2,7 @@ import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from './http-user-context'
-import { EmptyResult } from './models/request-action'
+import { EmptyResult } from '@furystack/rest'
 import { Authenticate } from './authenticate'
 
 describe('Authenticate', () => {
@@ -18,10 +18,10 @@ describe('Authenticate', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(401)
       expect(result.chunk).toBe(JSON.stringify({ error: 'unauthorized' }))
       expect(result.headers).toEqual({ 'Content-Type': 'application/json' })
@@ -41,10 +41,10 @@ describe('Authenticate', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(401)
       expect(result.chunk).toBe(JSON.stringify({ error: 'unauthorized' }))
       expect(result.headers).toEqual({ 'Content-Type': 'application/json', 'WWW-Authenticate': 'Basic' })
@@ -60,10 +60,10 @@ describe('Authenticate', () => {
         { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
         HttpUserContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_i: Injector) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
 
-      const result = await authorized(i)
+      const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
       expect(exampleAuthenticatedAction).toBeCalledWith(i)

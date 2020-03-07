@@ -49,7 +49,15 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
+export interface RequestOptions<TQuery, TBody> {
+  injector: Injector
+  query: TQuery
+  body: TBody
+}
+
 /**
  * Interface for a HTTP Request action
  */
-export type RequestAction<TResult> = (i: Injector) => Promise<ActionResult<TResult>>
+export type RequestAction<TResult, TReqQuery, TReqBody> = (
+  options: RequestOptions<TReqQuery, TReqBody>,
+) => Promise<ActionResult<TResult>>

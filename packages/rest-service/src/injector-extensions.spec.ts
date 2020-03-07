@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import '@furystack/logging'
-import { HttpApiSettings } from './http-api-settings'
 import './injector-extensions'
 import './http-api'
 
@@ -10,10 +9,7 @@ import './http-api'
 describe('Injector extensions', () => {
   it('Should be added to the injector prototype', () => {
     using(new Injector(), i => {
-      i.useHttpApi()
-        .useHttpAuthentication()
-        .useDefaultLoginRoutes()
-      expect(i.cachedSingletons.has(HttpApiSettings))
+      i.useRestService({ api: {}, port: 19999 }).useHttpAuthentication()
     })
   })
 })

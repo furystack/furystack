@@ -16,7 +16,7 @@ export const prepareInjector = (i: Injector) => {
   )
   i.setExplicitInstance({ headers: {} }, IncomingMessage)
   i.setExplicitInstance({}, ServerResponse)
-  i.useHttpApi().useHttpAuthentication()
+  i.useRestService({ api: {}, port: 19999 }).useHttpAuthentication()
 }
 
 describe('HttpUserContext', () => {
