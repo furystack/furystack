@@ -774,7 +774,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['ts-json-schema-generator', 'npm:0.65.0'],
                   ['tslib', 'npm:1.11.1'],
                   ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
-                  ['yargs', 'npm:15.2.0'],
+                  ['yargs', 'npm:15.3.0'],
                 ],
                 linkType: 'SOFT',
               },
@@ -17943,11 +17943,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               },
             ],
             [
-              'npm:15.2.0',
+              'npm:15.3.0',
               {
-                packageLocation: './.yarn/cache/yargs-npm-15.2.0-4ac57c37f0-2.zip/node_modules/yargs/',
+                packageLocation: './.yarn/cache/yargs-npm-15.3.0-c4d72cfe1d-2.zip/node_modules/yargs/',
                 packageDependencies: [
-                  ['yargs', 'npm:15.2.0'],
+                  ['yargs', 'npm:15.3.0'],
                   ['cliui', 'npm:6.0.0'],
                   ['decamelize', 'npm:1.2.0'],
                   ['find-up', 'npm:4.1.0'],
@@ -17958,7 +17958,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['string-width', 'npm:4.2.0'],
                   ['which-module', 'npm:2.0.0'],
                   ['y18n', 'npm:4.0.0'],
-                  ['yargs-parser', 'npm:17.1.0'],
+                  ['yargs-parser', 'npm:18.1.0'],
                 ],
                 linkType: 'HARD',
               },
@@ -18016,11 +18016,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               },
             ],
             [
-              'npm:17.1.0',
+              'npm:18.1.0',
               {
-                packageLocation: './.yarn/cache/yargs-parser-npm-17.1.0-c6d4e20c42-2.zip/node_modules/yargs-parser/',
+                packageLocation: './.yarn/cache/yargs-parser-npm-18.1.0-9e3374fb67-2.zip/node_modules/yargs-parser/',
                 packageDependencies: [
-                  ['yargs-parser', 'npm:17.1.0'],
+                  ['yargs-parser', 'npm:18.1.0'],
                   ['camelcase', 'npm:5.3.1'],
                   ['decamelize', 'npm:1.2.0'],
                 ],
