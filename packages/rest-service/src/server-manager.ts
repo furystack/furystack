@@ -36,17 +36,18 @@ export class ServerManager implements Disposable {
   }
 
   public async dispose() {
+    await this.listenLock.acquire()
+    this.openedSockets.forEach(s => s.destroy())
     await Promise.all(
       [...this.servers.values()].map(
         s =>
           new Promise((resolve, reject) => {
             s.server.close(err => (err ? reject(err) : resolve()))
             s.server.off('connection', this.onConnection)
+            s.listener.dispose()
           }),
       ),
     )
-
-    this.openedSockets.forEach(s => s.destroy())
   }
 
   public async getOrCreate(options: ServerOptions): Promise<ServerRecord> {
