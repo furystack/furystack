@@ -1,4 +1,5 @@
 import './injector-extensions'
+export * from './actions'
 export * from './authenticate'
 export * from './authorize'
 export * from './http-authentication-settings'

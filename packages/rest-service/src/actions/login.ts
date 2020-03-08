@@ -10,11 +10,10 @@ import { RequestError } from '@furystack/rest'
  * Returns the current user instance
  */
 
-export const LoginAction: RequestAction<
-  User | { message: string },
-  undefined,
-  { username: string; password: string }
-> = async ({ injector, body }) => {
+export const LoginAction: RequestAction<User, undefined, { username: string; password: string }> = async ({
+  injector,
+  body,
+}) => {
   const userContext = injector.getInstance(HttpUserContext)
   const response = injector.getResponse()
   try {
