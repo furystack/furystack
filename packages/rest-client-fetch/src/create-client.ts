@@ -8,7 +8,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
   return <TMethod extends keyof T, TEndpoint extends keyof T[TMethod]>(options: {
     method: TMethod
     endpoint: TEndpoint
-    param: Parameters<T[TMethod][TEndpoint]>[0]
+    param: Parameters<T[TMethod][TEndpoint]>
   }): ReturnType<T[TMethod][TEndpoint]> => {
     return clientOptions.fetch(options.param)
   }

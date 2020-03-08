@@ -387,11 +387,11 @@ __metadata:
     got: ^10.6.0
     rimraf: ^3.0.2
     semaphore-async-await: ^1.5.1
-    terminal-kit: ^1.34.3
+    terminal-kit: ^1.34.5
     ts-json-schema-generator: ^0.65.0
     tslib: ^1.11.1
     typescript: ^3.8.3
-    yargs: ^15.1.0
+    yargs: ^15.2.0
   bin:
     onboard: ./bin/onboard
   languageName: unknown
@@ -428,9 +428,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client@workspace:packages/rest-client":
+"@furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
-  resolution: "@furystack/rest-client@workspace:packages/rest-client"
+  resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
     "@furystack/inject": ^4.0.14
     "@furystack/logging": ^2.0.21
@@ -522,7 +522,7 @@ __metadata:
     "@types/jest": ^25.1.4
     "@types/ws": ^7.2.2
     tslib: ^1.11.1
-    ws: ^7.2.1
+    ws: ^7.2.2
   languageName: unknown
   linkType: soft
 
@@ -9955,9 +9955,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"terminal-kit@npm:^1.34.3":
-  version: 1.34.3
-  resolution: "terminal-kit@npm:1.34.3"
+"terminal-kit@npm:^1.34.5":
+  version: 1.34.5
+  resolution: "terminal-kit@npm:1.34.5"
   dependencies:
     "@cronvel/get-pixels": ^3.3.1
     chroma-js: ^2.1.0
@@ -9967,7 +9967,7 @@ resolve@1.1.7:
     seventh: ^0.7.34
     string-kit: ^0.11.6
     tree-kit: ^0.6.2
-  checksum: 2/684501ad8395f6901cde5a1e998560f8452f681fe896dba7710287217abcd21c56a1a297b539be2f3f413321d8dd647b4eae60fe2b2b64e3da6bb37f1298859a
+  checksum: 2/ef2ead7caabb4785c50daeacca9d74fb45249091437f3156f54d38a9ec34a4f154ba3c5bb62e64f2a43d56fab6ca6391567a02c5131201799a4563054c605f99
   languageName: node
   linkType: hard
 
@@ -10819,7 +10819,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ws@npm:^7.0.0, ws@npm:^7.2.1":
+"ws@npm:^7.0.0":
   version: 7.2.1
   resolution: "ws@npm:7.2.1"
   peerDependencies:
@@ -10831,6 +10831,21 @@ resolve@1.1.7:
     utf-8-validate:
       optional: true
   checksum: 2/097beba4b2722f097b8bcf92b1da6e81838c389b5e7f0246eb622a1949083fc6868aed0f51bc4c520d2d37f983e45134f903ee98b0881b0d7d51e25a1446753d
+  languageName: node
+  linkType: hard
+
+"ws@npm:^7.2.2":
+  version: 7.2.2
+  resolution: "ws@npm:7.2.2"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 2/fe66f98e07cdb832d6161edd147e6bdec13cf7e811cd34b11d85fdc7b7c17eaf9498c1656dc4786c9d2207dc1cd86aef0060706af8c756ef86e9b5e9421ef566
   languageName: node
   linkType: hard
 
@@ -11018,7 +11033,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:^15.1.0":
+"yargs@npm:^15.2.0":
   version: 15.2.0
   resolution: "yargs@npm:15.2.0"
   dependencies:
