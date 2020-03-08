@@ -1,4 +1,4 @@
-import { RestApi, ActionResult, RequestOptions, RequestAction } from '@furystack/rest'
+import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
 import { ResponseError } from './response-error'
 
 export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody>) => Promise<ActionResult<any>>
@@ -41,31 +41,3 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     return body
   }
 }
-
-interface MyApi extends RestApi {
-  GET: {
-    '/isAuthenticated': RequestAction<boolean, undefined, undefined>
-    '/currentUser': RequestAction<{ username: string; roles: string[] }, undefined, undefined>
-  }
-  POST: {
-    '/login': RequestAction<
-      { username: string; roles: string[] },
-      undefined,
-      {
-        username: string
-        password: string
-      }
-    >
-    '/logout': RequestAction<undefined, undefined, undefined>
-  }
-}
-
-const client = createClient<MyApi>({ endpointUrl: 'https://localhost/api' })
-client({
-  method: 'POST',
-  action: '/login',
-  body: {
-    username: 'alma',
-    password: 'körte',
-  },
-}).then(result => result)
