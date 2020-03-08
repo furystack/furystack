@@ -11,7 +11,7 @@ declare module '@furystack/inject/dist/injector' {
    */
   export interface Injector {
     /**
-     * Sets up the @furystack/http-api with the provided settings
+     * Sets up the @furystack/rest-service with the provided settings
      */
     useRestService: <T extends RestApi>(api: Omit<ImplementApiOptions<T>, 'injector'>) => this
     /**

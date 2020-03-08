@@ -14,7 +14,7 @@ export const Authorize = <T, T2, T3>(...roles: string[]) => (action: RequestActi
         const { url } = options.injector.getInstance(IncomingMessage)
         await sleepAsync(Math.random() * 1000)
         options.injector.logger.warning({
-          scope: '@furystack/http-api/@Authorize()',
+          scope: '@furystack/rest-service/@Authorize()',
           message: `User '${currentUser.username}' has been tried to access to action '${url}' without the required roles.`,
           data: {
             user: currentUser,

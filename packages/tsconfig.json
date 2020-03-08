@@ -9,9 +9,6 @@
       "path": "./core"
     },
     {
-      "path": "./http-api"
-    },
-    {
       "path": "./inject"
     },
     {

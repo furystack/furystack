@@ -12,7 +12,7 @@ export const Authenticate = () => <T, T2, T3>(action: RequestAction<T, T2, T3>) 
       const { url } = args.injector.getInstance(IncomingMessage)
       await sleepAsync(Math.random() * 1000)
       args.injector.logger.warning({
-        scope: '@furystack/http-api/@Authenticate()',
+        scope: '@furystack/rest-service/@Authenticate()',
         message: `An unauthenticated user has been tried to access to action '${url}' without authentication.`,
         data: {
           url,

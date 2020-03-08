@@ -175,6 +175,6 @@ export class HttpUserContext {
   ) {
     this.users = authentication.getUserStore(storeManager)
     this.sessions = authentication.getSessionStore(storeManager)
-    this.logger = injector.logger.withScope(`@furystack/http-api/${this.constructor.name}`)
+    this.logger = injector.logger.withScope(`@furystack/rest-service/${this.constructor.name}`)
   }
 }
