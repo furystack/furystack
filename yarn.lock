@@ -329,23 +329,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/http-api@^5.3.21, @furystack/http-api@workspace:packages/http-api":
-  version: 0.0.0-use.local
-  resolution: "@furystack/http-api@workspace:packages/http-api"
-  dependencies:
-    "@furystack/core": ^7.0.11
-    "@furystack/inject": ^4.0.14
-    "@furystack/logging": ^2.0.21
-    "@furystack/utils": ^1.1.7
-    "@types/jest": ^25.1.4
-    "@types/node": ^13.9.0
-    "@types/uuid": ^7.0.0
-    hash.js: ^1.1.7
-    tslib: ^1.11.1
-    uuid: ^7.0.2
-  languageName: unknown
-  linkType: soft
-
 "@furystack/inject@^4.0.14, @furystack/inject@workspace:packages/inject":
   version: 0.0.0-use.local
   resolution: "@furystack/inject@workspace:packages/inject"
@@ -445,9 +428,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client@workspace:packages/rest-client":
+"@furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
-  resolution: "@furystack/rest-client@workspace:packages/rest-client"
+  resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
     "@furystack/inject": ^4.0.14
     "@furystack/logging": ^2.0.21
@@ -492,7 +475,6 @@ __metadata:
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
     "@furystack/core": ^7.0.11
-    "@furystack/http-api": ^5.3.21
     "@furystack/inject": ^4.0.14
     "@furystack/logging": ^2.0.21
     "@furystack/utils": ^1.1.7

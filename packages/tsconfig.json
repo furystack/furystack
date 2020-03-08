@@ -33,7 +33,7 @@
       "path": "./rest-service"
     },
     {
-      "path": "./rest-client"
+      "path": "./rest-client-fetch"
     },
     {
       "path": "./shades"
