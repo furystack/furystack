@@ -34,7 +34,7 @@ describe('LoginAction', () => {
       i.setExplicitInstance({}, ServerResponse)
       await expect(
         LoginAction({ injector: i, body: { username: '', password: '' }, query: undefined }),
-      ).rejects.toThrowError('Login failed.')
+      ).rejects.toThrowError('Login Failed')
     })
   })
 })
