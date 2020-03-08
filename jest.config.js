@@ -3,6 +3,7 @@ module.exports = {
     '<rootDir>/packages/auth-google',
     '<rootDir>/packages/core',
     '<rootDir>/packages/rest',
+    '<rootDir>/packages/rest-client',
     '<rootDir>/packages/rest-service',
     '<rootDir>/packages/inject',
     '<rootDir>/packages/logging',
