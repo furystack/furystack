@@ -8,7 +8,7 @@ import { HttpUserContext } from './http-user-context'
 import './injector-extensions'
 import '@furystack/logging'
 
-export const prepareInjector = (i: Injector) => {
+export const prepareInjector = async (i: Injector) => {
   i.setupStores(sm =>
     sm
       .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
@@ -16,7 +16,8 @@ export const prepareInjector = (i: Injector) => {
   )
   i.setExplicitInstance({ headers: {} }, IncomingMessage)
   i.setExplicitInstance({}, ServerResponse)
-  i.useRestService({ api: {}, port: 19999 }).useHttpAuthentication()
+  i.useHttpAuthentication()
+  // await i.getInstance(ServerManager).getOrCreate({ port: 19999 })
 }
 
 describe('HttpUserContext', () => {
@@ -24,7 +25,7 @@ describe('HttpUserContext', () => {
 
   it('Should be constructed with the extension method', async () => {
     await usingAsync(new Injector(), async i => {
-      prepareInjector(i)
+      await prepareInjector(i)
       const ctx = i.getInstance(HttpUserContext)
       expect(ctx).toBeInstanceOf(HttpUserContext)
     })
@@ -33,7 +34,7 @@ describe('HttpUserContext', () => {
   describe('isAuthenticated', () => {
     it('Should return true for authenticated users', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
         const value = await ctx.isAuthenticated()
@@ -44,7 +45,7 @@ describe('HttpUserContext', () => {
 
     it('Should return false for unauthenticated users', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => {
           throw Error(':(')
@@ -58,7 +59,7 @@ describe('HttpUserContext', () => {
   describe('isAuthorized', () => {
     it('Should return true if all roles are authorized', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
         const value = await ctx.isAuthorized('grantedRole1', 'grantedRole2')
@@ -69,7 +70,7 @@ describe('HttpUserContext', () => {
 
     it('Should return false if not all roles are authorized', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
         const value = await ctx.isAuthorized('grantedRole1', 'nonGrantedRole2')
@@ -82,7 +83,7 @@ describe('HttpUserContext', () => {
   describe('authenticateUser', () => {
     it('Should fail when the store is empty', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         await expect(ctx.authenticateUser('user', 'password')).rejects.toThrow('')
       })
@@ -90,7 +91,7 @@ describe('HttpUserContext', () => {
 
     it('Should fail when the password not equals', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
@@ -101,7 +102,7 @@ describe('HttpUserContext', () => {
 
     it('Should fail when the username not equals', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
@@ -112,7 +113,7 @@ describe('HttpUserContext', () => {
 
     it('Should fail when password not provided', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getUserStore(i.getInstance(StoreManager))
@@ -123,7 +124,7 @@ describe('HttpUserContext', () => {
 
     it('Should return the user without the password hash when the username and password matches', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const store = ctx.authentication.getUserStore(i.getInstance(StoreManager))
         const loginUser = { username: 'user', roles: [] }
@@ -137,7 +138,7 @@ describe('HttpUserContext', () => {
   describe('getSessionIdFromRequest', () => {
     it('Should return null if no headers present', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const sid = ctx.getSessionIdFromRequest()
         expect(sid).toBeNull()
@@ -146,7 +147,7 @@ describe('HttpUserContext', () => {
 
     it('Should return null if no session ID cookie present', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         i.getInstance(IncomingMessage).headers = { cookie: 'a=2;b=3;c=4;' }
         const ctx = i.getInstance(HttpUserContext)
         const sid = ctx.getSessionIdFromRequest()
@@ -155,7 +156,7 @@ describe('HttpUserContext', () => {
     })
     it('Should return the Session ID value if session ID cookie present', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;` }
 
@@ -168,7 +169,7 @@ describe('HttpUserContext', () => {
   describe('authenticateRequest', () => {
     it('Should try to authenticate with Basic, if enabled', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` }
         ctx.authenticateUser = jest.fn(async () => testUser)
@@ -180,7 +181,7 @@ describe('HttpUserContext', () => {
 
     it('Should NOT try to authenticate with Basic, if disabled', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication.enableBasicAuth = false
         i.getInstance(IncomingMessage).headers = { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` }
@@ -192,7 +193,7 @@ describe('HttpUserContext', () => {
 
     it('Should fail with no session in the store', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
 
@@ -202,7 +203,7 @@ describe('HttpUserContext', () => {
 
     it('Should fail with valid session Id but no user', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
         ctx.authentication
@@ -214,7 +215,7 @@ describe('HttpUserContext', () => {
 
     it('Should authenticate with cookie, if the session IDs matches', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
         ctx.authentication
@@ -233,7 +234,7 @@ describe('HttpUserContext', () => {
   describe('getCurrentUser', () => {
     it('Should return the current user from authenticateRequest() once per request', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authenticateRequest = jest.fn(async () => testUser)
         const result = await ctx.getCurrentUser()
@@ -248,7 +249,7 @@ describe('HttpUserContext', () => {
   describe('cookieLogin', () => {
     it('Should return the current user from authenticateRequest() once per request', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
         ctx.sessions.add = jest.fn(async s => s)
@@ -263,7 +264,7 @@ describe('HttpUserContext', () => {
   describe('cookieLogout', () => {
     it('Should invalidate the current session id cookie', async () => {
       await usingAsync(new Injector(), async i => {
-        prepareInjector(i)
+        await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
         ctx.sessions.add = jest.fn(async s => s)

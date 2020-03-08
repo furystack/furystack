@@ -10,7 +10,7 @@ describe('getCurrentUser', () => {
       i.setExplicitInstance({ getCurrentUser: async () => testUser }, HttpUserContext)
       const result = await GetCurrentUser({ injector: i, query: undefined, body: undefined })
       expect(result.statusCode).toBe(200)
-      expect(result.chunk).toBe(JSON.stringify(testUser))
+      expect(result.chunk).toEqual(testUser)
     })
   })
 })
