@@ -2,7 +2,6 @@ import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import '@furystack/logging'
 import './injector-extensions'
-import './http-api'
 
 // tslint:disable: no-string-literal
 

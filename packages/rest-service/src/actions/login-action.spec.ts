@@ -24,7 +24,7 @@ describe('LoginAction', () => {
         query: undefined,
         body: { username: 'testuser', password: 'alma' },
       })
-      expect(result.chunk).toBe(JSON.stringify(testUser))
+      expect(result.chunk).toEqual(testUser)
       expect(result.statusCode).toBe(200)
     })
   })
@@ -36,7 +36,7 @@ describe('LoginAction', () => {
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction({ injector: i, body: { username: '', password: '' }, query: undefined })
       expect(result.statusCode).toBe(400)
-      expect(result.chunk).toBe(JSON.stringify({ message: 'Login failed' }))
+      expect(result.chunk).toEqual({ message: 'Login failed' })
     })
   })
 })

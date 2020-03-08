@@ -10,7 +10,7 @@ describe('NotFoundAction tests', () => {
       i.setExplicitInstance({}, ServerResponse)
       const result = await NotFoundAction({ injector: i, query: undefined, body: undefined })
       expect(result.statusCode).toBe(404)
-      expect(result.chunk).toBe(JSON.stringify({ Error: 'Content not found', url: 'https://google.com' }))
+      expect(result.chunk).toEqual({ Error: 'Content not found', url: 'https://google.com' })
     })
   })
 })

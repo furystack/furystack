@@ -2,7 +2,8 @@ module.exports = {
   roots: [
     '<rootDir>/packages/auth-google',
     '<rootDir>/packages/core',
-    '<rootDir>/packages/http-api',
+    '<rootDir>/packages/rest',
+    '<rootDir>/packages/rest-service',
     '<rootDir>/packages/inject',
     '<rootDir>/packages/logging',
     '<rootDir>/packages/mongodb-store',

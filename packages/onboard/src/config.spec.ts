@@ -1,12 +1,12 @@
 import { existsSync, unlinkSync, realpathSync } from 'fs'
 import { join } from 'path'
-import { using, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { Config } from './config'
 
 describe('Onboard Config', () => {
-  it('Should extend the Injector with useConfig()', () => {
-    using(new Injector(), i => {
+  it('Should extend the Injector with useConfig()', async () => {
+    await usingAsync(new Injector(), async i => {
       i.useConfig({
         configSource: '',
         parallel: 1,
@@ -16,8 +16,8 @@ describe('Onboard Config', () => {
     })
   })
 
-  it('Should throw if try to get config data before initialization', () => {
-    usingAsync(new Injector(), async i => {
+  it('Should throw if try to get config data before initialization', async () => {
+    await usingAsync(new Injector(), async i => {
       const cfg = i
         .useConfig({ parallel: 1, configSource: 'onboard-config.json', workingDir: process.cwd() })
         .getConfig()

@@ -23,7 +23,7 @@ describe('Authenticate', () => {
 
       const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(401)
-      expect(result.chunk).toBe(JSON.stringify({ error: 'unauthorized' }))
+      expect(result.chunk).toEqual({ error: 'unauthorized' })
       expect(result.headers).toEqual({ 'Content-Type': 'application/json' })
       expect(exampleAuthenticatedAction).not.toBeCalled()
     })
@@ -46,7 +46,7 @@ describe('Authenticate', () => {
 
       const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(401)
-      expect(result.chunk).toBe(JSON.stringify({ error: 'unauthorized' }))
+      expect(result.chunk).toEqual({ error: 'unauthorized' })
       expect(result.headers).toEqual({ 'Content-Type': 'application/json', 'WWW-Authenticate': 'Basic' })
       expect(exampleAuthenticatedAction).not.toBeCalled()
     })
@@ -62,11 +62,11 @@ describe('Authenticate', () => {
       )
       const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
-
-      const result = await authorized({ injector: i, body: undefined, query: undefined })
+      const params = { injector: i, body: undefined, query: undefined }
+      const result = await authorized(params)
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
-      expect(exampleAuthenticatedAction).toBeCalledWith(i)
+      expect(exampleAuthenticatedAction).toBeCalledWith(params)
     })
   })
 })

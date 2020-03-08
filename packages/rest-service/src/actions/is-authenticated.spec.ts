@@ -9,7 +9,7 @@ describe('isAuthenticated', () => {
       i.setExplicitInstance({ isAuthenticated: async () => true }, HttpUserContext)
       const result = await IsAuthenticated({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(200)
-      expect(result.chunk).toBe(JSON.stringify({ isAuthenticated: true }))
+      expect(result.chunk).toEqual({ isAuthenticated: true })
     })
   })
 })

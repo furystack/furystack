@@ -1,7 +1,7 @@
 import { SearchOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient, FilterQuery, Collection } from 'mongodb'
+import { MongoClient, FilterQuery, Collection, ObjectId } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -70,7 +70,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   }
   public async remove(key: T[this['primaryKey']]): Promise<void> {
     const collection = await this.getCollection()
-    await collection.remove({ _id: key })
+    await collection.deleteOne({ _id: new ObjectId(key) } as any)
   }
   public async dispose() {
     /** */

@@ -108,7 +108,7 @@ export class FileStore<T> implements PhysicalStore<T> {
             reject(error)
           } else {
             this.cache.clear()
-            const json = JSON.parse(data.toString()) as T[]
+            const json = (data ? JSON.parse(data.toString()) : []) as T[]
             for (const user of json) {
               this.cache.set(user[this.primaryKey], user)
             }

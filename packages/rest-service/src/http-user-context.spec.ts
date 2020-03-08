@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { IncomingMessage, ServerResponse } from 'http'
-import { using, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { User, StoreManager, InMemoryStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
@@ -22,8 +22,8 @@ export const prepareInjector = (i: Injector) => {
 describe('HttpUserContext', () => {
   const testUser: User = { username: 'testUser', roles: ['grantedRole1', 'grantedRole2'] }
 
-  it('Should be constructed with the extension method', () => {
-    using(new Injector(), i => {
+  it('Should be constructed with the extension method', async () => {
+    await usingAsync(new Injector(), async i => {
       prepareInjector(i)
       const ctx = i.getInstance(HttpUserContext)
       expect(ctx).toBeInstanceOf(HttpUserContext)

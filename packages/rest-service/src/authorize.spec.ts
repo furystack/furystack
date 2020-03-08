@@ -20,7 +20,7 @@ describe('Authorize', () => {
 
       const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(403)
-      expect(result.chunk).toBe(JSON.stringify({ error: 'forbidden' }))
+      expect(result.chunk).toEqual({ error: 'forbidden' })
       expect(exampleAuthorizedAction).not.toBeCalled()
     })
   })
@@ -41,7 +41,7 @@ describe('Authorize', () => {
 
       const result = await authorized({ injector: i, body: undefined, query: undefined })
       expect(result.statusCode).toBe(403)
-      expect(result.chunk).toBe(JSON.stringify({ error: 'forbidden' }))
+      expect(result.chunk).toEqual({ error: 'forbidden' })
       expect(exampleAuthorizedAction).not.toBeCalled()
     })
   })
@@ -59,11 +59,11 @@ describe('Authorize', () => {
       )
       const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
-
-      const result = await authorized({ injector: i, body: undefined, query: undefined })
+      const params = { injector: i, body: undefined, query: undefined }
+      const result = await authorized(params)
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
-      expect(exampleAuthorizedAction).toBeCalledWith(i)
+      expect(exampleAuthorizedAction).toBeCalledWith(params)
     })
   })
 })

@@ -11,9 +11,11 @@ describe('ErrorAction tests', () => {
       i.setExplicitInstance({ message: 'Something went wrong', stack: 'Stack' }, Error)
       const result = await ErrorAction({ injector: i, query: undefined, body: undefined })
       expect(result.statusCode).toBe(500)
-      expect(result.chunk).toBe(
-        '{"chunk":{"message":"Something went wrong","url":"https://google.com","stack":"Stack"}}',
-      )
+      expect(result.chunk).toEqual({
+        message: 'Something went wrong',
+        url: 'https://google.com',
+        stack: 'Stack',
+      })
     })
   })
 })
