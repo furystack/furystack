@@ -40,6 +40,7 @@ steps:
     displayName: 'Build'
 
   - script: yarn test
+    timeoutInMinutes: 5
     displayName: 'Yarn test'
   - script: bash <(curl -s https://codecov.io/bash)
     displayName: 'Publish test results to Codecov'

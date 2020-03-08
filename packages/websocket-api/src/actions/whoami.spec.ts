@@ -1,5 +1,5 @@
 import { WhoAmI } from './whoami'
-import { HttpUserContext } from '@furystack/http-api'
+import { HttpUserContext } from '@furystack/rest-service'
 import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
 

@@ -1,12 +1,13 @@
-import { HttpUserContext, RequestAction, JsonResult } from '@furystack/http-api'
+import { RequestAction, JsonResult } from '@furystack/rest'
+import { HttpUserContext } from '@furystack/rest-service'
 import { GoogleLoginService } from './login-service'
+import { User } from '@furystack/core'
 /**
  * HTTP Request action for Google Logins
  */
 
-export const GoogleLoginAction: RequestAction = async injector => {
-  const loginData = await injector.getRequest().readPostBody<{ token: string }>()
-  const user = await injector.getInstance(GoogleLoginService).login(loginData.token)
+export const GoogleLoginAction: RequestAction<User, undefined, { token: string }> = async ({ injector, body }) => {
+  const user = await injector.getInstance(GoogleLoginService).login(body.token)
   await injector.getInstance(HttpUserContext).cookieLogin(user, injector.getResponse())
-  return JsonResult({ user })
+  return JsonResult(user)
 }

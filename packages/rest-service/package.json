@@ -1,0 +1,52 @@
+{
+  "name": "@furystack/rest-service",
+  "version": "1.0.0",
+  "description": "Repository implementation for FuryStack",
+  "main": "dist/index.js",
+  "scripts": {
+    "start:mock": "yarn node ./dist/mock.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/core.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "HTTP",
+    "REST",
+    "API",
+    "Actions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/core.git"
+  },
+  "homepage": "https://github.com/furystack/core.git",
+  "dependencies": {
+    "@furystack/core": "^7.0.11",
+    "@furystack/inject": "^4.0.14",
+    "@furystack/logging": "^2.0.21",
+    "@furystack/rest": "^1.0.0",
+    "@furystack/utils": "^1.1.7",
+    "hash.js": "^1.1.7",
+    "path-to-regexp": "^6.1.0",
+    "semaphore-async-await": "^1.5.1",
+    "tslib": "^1.11.1",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.0",
+    "@types/uuid": "^7.0.0"
+  },
+  "typings": "./dist/index.d.ts",
+  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+}

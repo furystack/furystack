@@ -1,0 +1,37 @@
+{
+  "name": "@furystack/rest",
+  "version": "1.0.0",
+  "description": "Generic REST package",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/core.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "HTTP",
+    "REST",
+    "API",
+    "Actions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/core.git"
+  },
+  "homepage": "https://github.com/furystack/core.git",
+  "dependencies": {
+    "@furystack/inject": "^4.0.14",
+    "tslib": "^1.11.1"
+  },
+  "typings": "./dist/index.d.ts",
+  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+}

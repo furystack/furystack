@@ -8,7 +8,7 @@
   "include": ["src"],
   "references": [
     { "path": "../core" },
-    { "path": "../http-api" },
+    { "path": "../rest-service" },
     { "path": "../inject" },
     { "path": "../logging" },
     { "path": "../utils" }

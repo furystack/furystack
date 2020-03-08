@@ -1,35 +1,45 @@
 import { Injector } from '@furystack/inject'
 import { WhoAmI } from './actions/whoami'
 import '.'
-import '@furystack/http-api'
 import ws from 'ws'
 import { InMemoryStore, User } from '@furystack/core'
-import { DefaultSession } from '@furystack/http-api'
+import { DefaultSession, ServerManager } from '@furystack/rest-service'
 
 describe('WebSocket Integration tests', () => {
+  const host = 'localhost'
   const port = 9999
   const path = '/ws'
-  const i = new Injector()
-    .useHttpApi()
-    .setupStores(sm =>
-      sm
-        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-        .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
-    )
-    .useHttpAuthentication({})
-    .listenHttp({ port })
-    .useWebsockets({ actions: [WhoAmI], path })
-  const client = new ws(`ws://127.0.0.1:${port}/ws`)
+  let i!: Injector
+  let client: ws
 
-  beforeAll(done =>
-    client.on('open', () => {
-      done()
-    }),
-  )
+  beforeEach(done => {
+    i = new Injector()
+      .useRestService({
+        api: {},
+        port,
+        hostName: host,
+      })
+      .setupStores(sm =>
+        sm
+          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+      )
+      .useHttpAuthentication({})
+      .useWebsockets({ actions: [WhoAmI], path, port, host })
+    i.getInstance(ServerManager)
+      .getOrCreate({ port })
+      .then(() => {
+        client = new ws(`ws://${host}:${port}/ws`)
+        client
+          .on('open', () => {
+            done()
+          })
+          .on('error', done)
+      })
+  })
 
-  afterAll(async () => {
-    i.dispose()
-    client.close()
+  afterEach(async () => {
+    await i.dispose()
   })
 
   it('Should be connected', done => {

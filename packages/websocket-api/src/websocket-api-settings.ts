@@ -6,6 +6,8 @@ import { WebSocketAction, WebSocketActionStatic } from '.'
  * A configuration object for FuryStack WebSocket API
  */
 export class WebSocketApiSettings {
+  public port = 9090
+  public host?: string
   public path = '/socket'
   public actions: Array<Constructable<WebSocketAction> & WebSocketActionStatic> = [WhoAmI]
 }

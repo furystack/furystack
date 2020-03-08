@@ -1,4 +1,4 @@
-import { HttpUserContext } from '@furystack/http-api'
+import { HttpUserContext } from '@furystack/rest-service'
 import { Injectable } from '@furystack/inject'
 import ws, { Data } from 'ws'
 import { WebSocketAction } from '../models/websocket-action'

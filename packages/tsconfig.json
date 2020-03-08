@@ -9,9 +9,6 @@
       "path": "./core"
     },
     {
-      "path": "./http-api"
-    },
-    {
       "path": "./inject"
     },
     {
@@ -21,12 +18,6 @@
       "path": "./mongodb-store"
     },
     {
-      "path": "./odata"
-    },
-    {
-      "path": "./odata-fetchr"
-    },
-    {
       "path": "./onboard"
     },
     {
@@ -34,6 +25,15 @@
     },
     {
       "path": "./repository"
+    },
+    {
+      "path": "./rest"
+    },
+    {
+      "path": "./rest-service"
+    },
+    {
+      "path": "./rest-client-fetch"
     },
     {
       "path": "./shades"

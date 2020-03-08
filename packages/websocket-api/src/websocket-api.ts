@@ -1,6 +1,6 @@
 import { parse } from 'url'
 import { IncomingMessage } from 'http'
-import { ServerManager } from '@furystack/core'
+import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { usingAsync, Disposable } from '@furystack/utils'
@@ -58,8 +58,8 @@ export class WebSocketApi implements Disposable {
       })
     })
 
-    for (const server of this.serverManager.getServers()) {
-      server.on('upgrade', (request, socket, head) => {
+    serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then(server => {
+      server.server.on('upgrade', (request, socket, head) => {
         const { pathname } = parse(request.url)
         if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, websocket => {
@@ -70,7 +70,7 @@ export class WebSocketApi implements Disposable {
           })
         }
       })
-    }
+    })
   }
   public async dispose() {
     this.socket.clients.forEach(client => client.close())
