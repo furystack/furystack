@@ -7,6 +7,7 @@ import './incoming-message-extensions'
 import './server-response-extensions'
 import { CorsOptions } from 'models/cors-options'
 import { Utils } from './utils'
+import { ErrorAction } from './actions/error-action'
 
 export interface ImplementApiOptions<T extends RestApi> {
   api: T
@@ -44,8 +45,13 @@ export const implementApi = async <T extends RestApi>({
 
           const query = new URLSearchParams(req.url)
           const body = await utils.readPostBody(i.getRequest())
-          const actionResult = await reqAction({ injector: i, body, query })
-          res.sendActionResult(actionResult)
+          try {
+            const actionResult = await reqAction({ injector: i, body, query })
+            res.sendActionResult(actionResult)
+          } catch (error) {
+            const errorActionResult = await ErrorAction({ injector: i, body: error, query })
+            res.sendActionResult(errorActionResult)
+          }
         })
       }
     }

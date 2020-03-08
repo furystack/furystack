@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'http'
+import { ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { LoginAction } from './login'
@@ -17,7 +17,6 @@ describe('LoginAction', () => {
         },
         HttpUserContext,
       )
-      i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction({
         injector: i,
@@ -29,14 +28,13 @@ describe('LoginAction', () => {
     })
   })
 
-  it('Returns error with 400 on fail', async () => {
+  it('Returns throw error with 400 on fail', async () => {
     await usingAsync(new Injector(), async i => {
       i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
-      i.setExplicitInstance({ readPostBody: async () => ({}) }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      const result = await LoginAction({ injector: i, body: { username: '', password: '' }, query: undefined })
-      expect(result.statusCode).toBe(400)
-      expect(result.chunk).toEqual({ message: 'Login failed' })
+      await expect(
+        LoginAction({ injector: i, body: { username: '', password: '' }, query: undefined }),
+      ).rejects.toThrowError('Login failed.')
     })
   })
 })

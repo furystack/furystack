@@ -2,6 +2,7 @@ import { HttpUserContext } from '../http-user-context'
 import { RequestAction, JsonResult } from '@furystack/rest'
 import '../injector-extensions'
 import { User } from '@furystack/core'
+import { RequestError } from './request-error'
 
 /**
  * Action that logs in the current user
@@ -19,13 +20,8 @@ export const LoginAction: RequestAction<
   try {
     const user = await userContext.authenticateUser(body.username, body.password)
     await userContext.cookieLogin(user, response)
-    return JsonResult(user)
+    return JsonResult(user, 200)
   } catch (error) {
-    return JsonResult(
-      {
-        message: 'Login failed',
-      },
-      400,
-    )
+    throw new RequestError('Login Failed', 400)
   }
 }
