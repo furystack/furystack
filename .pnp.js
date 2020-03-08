@@ -62,8 +62,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           reference: 'workspace:packages/rest',
         },
         {
-          name: '@furystack/rest-client',
-          reference: 'workspace:packages/rest-client',
+          name: '@furystack/rest-client-fetch',
+          reference: 'workspace:packages/rest-client-fetch',
         },
         {
           name: '@furystack/rest-service',
@@ -98,7 +98,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ['@furystack/redis-store', ['workspace:packages/redis-store']],
         ['@furystack/repository', ['workspace:packages/repository']],
         ['@furystack/rest', ['workspace:packages/rest']],
-        ['@furystack/rest-client', ['workspace:packages/rest-client']],
+        ['@furystack/rest-client-fetch', ['workspace:packages/rest-client-fetch']],
         ['@furystack/rest-service', ['workspace:packages/rest-service']],
         ['@furystack/shades', ['workspace:packages/shades']],
         ['@furystack/typeorm-store', ['workspace:packages/typeorm-store']],
@@ -770,7 +770,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['got', 'npm:10.6.0'],
                   ['rimraf', 'npm:3.0.2'],
                   ['semaphore-async-await', 'npm:1.5.1'],
-                  ['terminal-kit', 'npm:1.34.3'],
+                  ['terminal-kit', 'npm:1.34.5'],
                   ['ts-json-schema-generator', 'npm:0.65.0'],
                   ['tslib', 'npm:1.11.1'],
                   ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
@@ -846,14 +846,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
         ],
         [
-          '@furystack/rest-client',
+          '@furystack/rest-client-fetch',
           [
             [
-              'workspace:packages/rest-client',
+              'workspace:packages/rest-client-fetch',
               {
-                packageLocation: './packages/rest-client/',
+                packageLocation: './packages/rest-client-fetch/',
                 packageDependencies: [
-                  ['@furystack/rest-client', 'workspace:packages/rest-client'],
+                  ['@furystack/rest-client-fetch', 'workspace:packages/rest-client-fetch'],
                   ['@furystack/inject', 'workspace:packages/inject'],
                   ['@furystack/logging', 'workspace:packages/logging'],
                   ['@furystack/rest', 'workspace:packages/rest'],
@@ -977,7 +977,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['tslib', 'npm:1.11.1'],
                   [
                     'ws',
-                    'virtual:6d02acc624e4972fe19554f5522646c7e2b23f29ee7a75d6e525fc8541a04ae1fe9c19dc29f86bdb62ca585ef6b47f78e3c5b9a5c1c9cca5c34523ee4b0351c2#npm:7.2.1',
+                    'virtual:1daadfd0669ff92df0caef751bc269e6a77808dafe2af911a6678eb7288c295a593b6f72a23cf4f20995127374191fa47a2386237a94dffab65bb28ebb665b73#npm:7.2.2',
                   ],
                 ],
                 linkType: 'SOFT',
@@ -16277,11 +16277,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'terminal-kit',
           [
             [
-              'npm:1.34.3',
+              'npm:1.34.5',
               {
-                packageLocation: './.yarn/cache/terminal-kit-npm-1.34.3-f16238c0de-2.zip/node_modules/terminal-kit/',
+                packageLocation: './.yarn/cache/terminal-kit-npm-1.34.5-c4496e364f-2.zip/node_modules/terminal-kit/',
                 packageDependencies: [
-                  ['terminal-kit', 'npm:1.34.3'],
+                  ['terminal-kit', 'npm:1.34.5'],
                   ['@cronvel/get-pixels', 'npm:3.3.1'],
                   ['chroma-js', 'npm:2.1.0'],
                   ['lazyness', 'npm:1.1.1'],
@@ -17698,6 +17698,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [
           'ws',
           [
+            [
+              'virtual:1daadfd0669ff92df0caef751bc269e6a77808dafe2af911a6678eb7288c295a593b6f72a23cf4f20995127374191fa47a2386237a94dffab65bb28ebb665b73#npm:7.2.2',
+              {
+                packageLocation:
+                  './.yarn/$$virtual/ws-virtual-cde55d6f8b/0/cache/ws-npm-7.2.2-f96fa94d12-2.zip/node_modules/ws/',
+                packageDependencies: [
+                  [
+                    'ws',
+                    'virtual:1daadfd0669ff92df0caef751bc269e6a77808dafe2af911a6678eb7288c295a593b6f72a23cf4f20995127374191fa47a2386237a94dffab65bb28ebb665b73#npm:7.2.2',
+                  ],
+                  ['bufferutil', null],
+                  ['utf-8-validate', null],
+                ],
+                packagePeers: ['bufferutil', 'utf-8-validate'],
+                linkType: 'HARD',
+              },
+            ],
             [
               'virtual:6d02acc624e4972fe19554f5522646c7e2b23f29ee7a75d6e525fc8541a04ae1fe9c19dc29f86bdb62ca585ef6b47f78e3c5b9a5c1c9cca5c34523ee4b0351c2#npm:7.2.1',
               {
