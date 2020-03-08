@@ -2,7 +2,7 @@ import { HttpUserContext } from '../http-user-context'
 import { RequestAction, JsonResult } from '@furystack/rest'
 import '../injector-extensions'
 import { User } from '@furystack/core'
-import { RequestError } from './request-error'
+import { RequestError } from '@furystack/rest'
 
 /**
  * Action that logs in the current user

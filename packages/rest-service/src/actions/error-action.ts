@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'http'
 import { RequestAction, JsonResult } from '@furystack/rest'
-import { RequestError } from './request-error'
+import { RequestError } from '@furystack/rest'
 
 /**
  * Action for unhandled (500) errors

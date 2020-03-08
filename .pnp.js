@@ -34,10 +34,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           reference: 'workspace:packages/core',
         },
         {
-          name: '@furystack/http-api',
-          reference: 'workspace:packages/http-api',
-        },
-        {
           name: '@furystack/inject',
           reference: 'workspace:packages/inject',
         },
@@ -95,7 +91,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       fallbackExclusionList: [
         ['@furystack/auth-google', ['workspace:packages/auth-google']],
         ['@furystack/core', ['workspace:packages/core']],
-        ['@furystack/http-api', ['workspace:packages/http-api']],
         ['@furystack/inject', ['workspace:packages/inject']],
         ['@furystack/logging', ['workspace:packages/logging']],
         ['@furystack/mongodb-store', ['workspace:packages/mongodb-store']],
@@ -689,31 +684,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
         ],
         [
-          '@furystack/http-api',
-          [
-            [
-              'workspace:packages/http-api',
-              {
-                packageLocation: './packages/http-api/',
-                packageDependencies: [
-                  ['@furystack/http-api', 'workspace:packages/http-api'],
-                  ['@furystack/core', 'workspace:packages/core'],
-                  ['@furystack/inject', 'workspace:packages/inject'],
-                  ['@furystack/logging', 'workspace:packages/logging'],
-                  ['@furystack/utils', 'workspace:packages/utils'],
-                  ['@types/jest', 'npm:25.1.4'],
-                  ['@types/node', 'npm:13.9.0'],
-                  ['@types/uuid', 'npm:7.0.0'],
-                  ['hash.js', 'npm:1.1.7'],
-                  ['tslib', 'npm:1.11.1'],
-                  ['uuid', 'npm:7.0.2'],
-                ],
-                linkType: 'SOFT',
-              },
-            ],
-          ],
-        ],
-        [
           '@furystack/inject',
           [
             [
@@ -934,7 +904,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                 packageDependencies: [
                   ['@furystack/shades', 'workspace:packages/shades'],
                   ['@furystack/core', 'workspace:packages/core'],
-                  ['@furystack/http-api', 'workspace:packages/http-api'],
                   ['@furystack/inject', 'workspace:packages/inject'],
                   ['@furystack/logging', 'workspace:packages/logging'],
                   ['@furystack/utils', 'workspace:packages/utils'],
