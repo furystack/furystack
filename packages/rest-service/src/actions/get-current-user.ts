@@ -1,6 +1,6 @@
 import { RequestAction, JsonResult } from '@furystack/rest'
 import { HttpUserContext } from '../http-user-context'
-import { User } from '../../../core/src'
+import { User } from '@furystack/core'
 
 /**
  * Action that returns the current authenticated user

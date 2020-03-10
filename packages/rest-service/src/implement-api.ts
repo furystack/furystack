@@ -5,7 +5,7 @@ import { pathToRegexp } from 'path-to-regexp'
 import { usingAsync } from '@furystack/utils'
 import './incoming-message-extensions'
 import './server-response-extensions'
-import { CorsOptions } from 'models/cors-options'
+import { CorsOptions } from './models/cors-options'
 import { Utils } from './utils'
 import { ErrorAction } from './actions/error-action'
 
