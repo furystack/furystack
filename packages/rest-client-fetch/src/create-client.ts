@@ -1,4 +1,5 @@
 import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
+import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 
 export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody>) => Promise<ActionResult<any>>
@@ -29,7 +30,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     action: TAction
     body: TParamType
   }): Promise<ResponseParameter<T[TMethod][TAction]>> => {
-    const result = await fetchMethod(clientOptions.endpointUrl, {
+    const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, options.action as string), {
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: JSON.stringify(options.body),
