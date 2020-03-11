@@ -38,9 +38,11 @@ export class FileStore<T> implements PhysicalStore<T> {
   }
 
   public async add(data: T) {
-    return await this.fileLock.execute(async () => {
+    const result = await this.fileLock.execute(async () => {
       return await this.inMemoryStore.add(data)
     })
+    this.hasChanges = true
+    return result
   }
 
   public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
