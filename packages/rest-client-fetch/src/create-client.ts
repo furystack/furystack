@@ -1,16 +1,29 @@
 import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
+import { compile } from 'path-to-regexp'
 
 export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody, any>) => Promise<ActionResult<any>>
   ? TBody
-  : never
+  : unknown
+
+export type QueryParameter<T> = T extends (
+  options: RequestOptions<infer TQuery, any, any>,
+) => Promise<ActionResult<any>>
+  ? TQuery
+  : unknown
+
+export type UrlParameter<T> = T extends (
+  options: RequestOptions<any, any, infer TUrlParams>,
+) => Promise<ActionResult<any>>
+  ? TUrlParams
+  : unknown
 
 export type ResponseParameter<T> = T extends (
   options: RequestOptions<any, any, any>,
 ) => Promise<ActionResult<infer TResponse>>
   ? TResponse
-  : never
+  : unknown
 
 export interface ClientOptions {
   endpointUrl: string
@@ -24,21 +37,36 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
   return async <
     TMethod extends keyof T,
     TAction extends keyof T[TMethod],
-    TParamType extends BodyParameter<T[TMethod][TAction]>
-  >(options: {
-    method: TMethod
-    action: TAction
-    body: TParamType
-  }): Promise<ResponseParameter<T[TMethod][TAction]>> => {
-    const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, options.action as string), {
+    TBodyType extends BodyParameter<T[TMethod][TAction]>,
+    TQuery extends QueryParameter<T[TMethod][TAction]>,
+    TUrlParams extends UrlParameter<T[TMethod][TAction]>
+  >(
+    options: {
+      method: TMethod
+      action: TAction
+    } & (unknown extends TBodyType ? {} : { body: TBodyType }) &
+      (unknown extends TQuery ? {} : { query: TQuery }) &
+      (unknown extends TUrlParams ? {} : { url: TUrlParams }),
+  ): Promise<ResponseParameter<T[TMethod][TAction]>> => {
+    const { url, query, body } = options as any
+
+    const urlToSend =
+      (url ? compile(options.action as string)(url) : options.action) +
+      (query
+        ? `?${Object.keys(query)
+            .map(key => `${key}=${query[key]}`)
+            .join('&')}`
+        : '')
+
+    const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string), {
       ...clientOptions.requestInit,
       method: options.method.toString(),
-      body: JSON.stringify(options.body),
+      body: body ? JSON.stringify(body) : undefined,
     })
     if (!result.ok) {
       throw new ResponseError(result.statusText, result)
     }
-    const body = await result.json()
-    return body
+    const responseBody = await result.json()
+    return responseBody
   }
 }
