@@ -19,8 +19,7 @@
     "declarationMap": true,
     "importHelpers": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "jsx": "react",
-    "jsxFactory": "createComponent"
+    "isolatedModules": true,
+    "skipLibCheck": true
   }
 }

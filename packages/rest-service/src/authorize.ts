@@ -1,11 +1,11 @@
 import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { sleepAsync } from '@furystack/utils'
-import { JsonResult, RequestAction, RequestOptions, RequestActionOptions } from '@furystack/rest'
+import { JsonResult, RequestAction, RequestOptions, RequestActionOptions, ActionResult } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
 
 export const Authorize = <T extends RequestActionOptions>(...roles: string[]) => (action: RequestAction<T>) => {
-  return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>) => {
+  return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
     const userContext = options.injector.getInstance(HttpUserContext)
     try {
       const currentUser = await userContext.getCurrentUser()
@@ -21,11 +21,11 @@ export const Authorize = <T extends RequestActionOptions>(...roles: string[]) =>
             requiredRoles: roles,
           },
         })
-        return JsonResult({ error: 'forbidden' }, 403)
+        return JsonResult({ error: 'forbidden' }, 403) as any
       }
       return await action(options)
     } catch (error) {
-      return JsonResult({ error: 'forbidden' }, 403)
+      return JsonResult({ error: 'forbidden' }, 403) as any
     }
   }
 }
