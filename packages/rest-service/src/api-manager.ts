@@ -1,4 +1,4 @@
-import { Disposable, PathHelper, ValueObserver, usingAsync } from '@furystack/utils'
+import { Disposable, PathHelper, usingAsync } from '@furystack/utils'
 import { RequestAction, RestApi } from '@furystack/rest'
 import { Injectable, Injector } from '@furystack/inject'
 import { ServerManager, OnRequest } from './server-manager'
@@ -22,8 +22,6 @@ export type CompiledApi = {
   [K: string]: {
     [R: string]: { fullPath: string; regex: RegExp; action: RequestAction<any> }
   }
-} & {
-  listener: ValueObserver<OnRequest>
 }
 
 export type OnRequestOptions = OnRequest & {
@@ -41,7 +39,6 @@ export class ApiManager implements Disposable {
   private readonly apis = new Map<string, CompiledApi>()
 
   public dispose() {
-    ;[...this.apis.values()].map(api => api.listener.dispose())
     this.apis.clear()
   }
 
@@ -69,12 +66,21 @@ export class ApiManager implements Disposable {
     const rootApiPath = PathHelper.normalize(root)
     const server = await this.serverManager.getOrCreate({ hostName, port })
     const compiledApi = this.compileApi(api, root)
-    compiledApi.listener = server.listener.subscribe(msg =>
-      this.onMessage({ ...msg, compiledApi, rootApiPath, port, supportedMethods, cors, injector, hostName }),
-    )
+    server.apis.push({
+      shouldExec: msg =>
+        this.shouldExecRequest({
+          ...msg,
+          method: msg.req.method?.toUpperCase(),
+          rootApiPath,
+          supportedMethods,
+          url: PathHelper.normalize(msg.req.url || ''),
+        }),
+      onRequest: msg =>
+        this.onMessage({ ...msg, compiledApi, rootApiPath, port, supportedMethods, cors, injector, hostName }),
+    })
   }
 
-  private shouldExecRequest(options: {
+  public shouldExecRequest(options: {
     method?: string
     url?: string
     rootApiPath: string
@@ -88,7 +94,7 @@ export class ApiManager implements Disposable {
       : false
   }
 
-  private getActionFromEndpoint(compiledEndpoint: CompiledApi, method: string, fullUrl: URL) {
+  private getActionFromEndpoint(compiledEndpoint: CompiledApi, fullUrl: URL, method: string) {
     return (Object.values(compiledEndpoint[method]).find(route => (route as any).regex.test(fullUrl.pathname)) ||
       undefined) as
       | {
@@ -146,10 +152,6 @@ export class ApiManager implements Disposable {
   }
 
   private async onMessage(options: OnRequestOptions) {
-    const method = options.req.method?.toUpperCase() as string
-    if (!this.shouldExecRequest({ ...options, method, url: options.req.url })) {
-      return
-    }
     const fullUrl = new URL(
       PathHelper.joinPaths(
         'http://',
@@ -165,7 +167,7 @@ export class ApiManager implements Disposable {
       return
     }
 
-    const action = this.getActionFromEndpoint(options.compiledApi, method, fullUrl)
+    const action = this.getActionFromEndpoint(options.compiledApi, fullUrl, options.req.method?.toUpperCase() as string)
     if (action) {
       await this.executeAction({ ...options, ...action, fullUrl })
     } else {

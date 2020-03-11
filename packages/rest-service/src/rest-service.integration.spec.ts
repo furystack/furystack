@@ -145,4 +145,13 @@ describe('@furystack/rest-service inregration tests', () => {
       expect(response.statusCode).toBe(200)
     })
   })
+
+  it('Should reject requests outside of the API Root', async () => {
+    await usingAsync(new Injector(), async i => {
+      await prepareInjector(i)
+      await expect(got(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'))).rejects.toThrowError(
+        'socket hang up',
+      )
+    })
+  })
 })

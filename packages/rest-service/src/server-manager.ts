@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { Disposable, ObservableValue } from '@furystack/utils'
+import { Disposable } from '@furystack/utils'
 import { Server, createServer } from 'http'
 import Semaphore from 'semaphore-async-await'
 import { IncomingMessage, ServerResponse } from 'http'
@@ -18,7 +18,7 @@ export interface OnRequest {
 
 export interface ServerRecord {
   server: Server
-  listener: ObservableValue<OnRequest>
+  apis: Array<{ shouldExec: (options: OnRequest) => boolean; onRequest: (options: OnRequest) => void }>
 }
 
 @Injectable({ lifetime: 'singleton' })
@@ -47,7 +47,6 @@ export class ServerManager implements Disposable {
           new Promise((resolve, reject) => {
             s.server.close(err => (err ? reject(err) : resolve()))
             s.server.off('connection', this.onConnection)
-            s.listener.dispose()
           }),
       ),
     )
@@ -60,16 +59,21 @@ export class ServerManager implements Disposable {
       if (!this.servers.has(url)) {
         try {
           await new Promise((resolve, reject) => {
-            const listener = new ObservableValue<OnRequest>()
+            const apis: ServerRecord['apis'] = []
             const server = createServer((req, res) => {
-              listener.setValue({ req, res })
+              const apiMatch = apis.find(api => api.shouldExec({ req, res }))
+              if (apiMatch) {
+                apiMatch.onRequest({ req, res })
+              } else {
+                res.destroy()
+              }
             })
             server.on('connection', this.onConnection)
             server
               .listen(options.port, options.hostName)
               .on('listening', () => resolve())
               .on('error', err => reject(err))
-            this.servers.set(url, { server, listener })
+            this.servers.set(url, { server, apis })
           })
         } catch (error) {
           this.logger.error({
