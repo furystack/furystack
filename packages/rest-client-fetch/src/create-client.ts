@@ -19,11 +19,7 @@ export type UrlParameter<T> = T extends (
   ? TUrlParams
   : unknown
 
-export type ResponseParameter<T> = T extends (
-  options: RequestOptions<any, any, any>,
-) => Promise<ActionResult<infer TResponse>>
-  ? TResponse
-  : never
+export type ReturnType<T> = T extends (options: any) => Promise<ActionResult<infer TResult>> ? TResult : never
 
 export interface ClientOptions {
   endpointUrl: string
@@ -40,7 +36,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     TBodyType extends BodyParameter<T[TMethod][TAction]>,
     TQuery extends QueryParameter<T[TMethod][TAction]>,
     TUrlParams extends UrlParameter<T[TMethod][TAction]>,
-    TResponse extends ResponseParameter<T[TMethod][TAction]>
+    TReturns extends ReturnType<T[TMethod][TAction]>
   >(
     options: {
       method: TMethod
@@ -48,7 +44,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     } & (unknown extends TBodyType ? {} : { body: TBodyType }) &
       (unknown extends TQuery ? {} : { query: TQuery }) &
       (unknown extends TUrlParams ? {} : { url: TUrlParams }),
-  ): Promise<TResponse> => {
+  ): Promise<TReturns> => {
     const { url, query, body } = options as any
 
     const urlToSend =
