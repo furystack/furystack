@@ -21644,7 +21644,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 
           /* istanbul ignore else */
           if (opts.template && !opts.template.match(TEMPLATE_PATTERN)) return cb(new Error('Invalid template provided'))
-
           ;(function _getUniqueName() {
             try {
               const name = _generateTmpName(opts)
@@ -23316,7 +23315,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           value: true,
         })
         var ErrorCode
-
         ;(function(ErrorCode) {
           ErrorCode['API_ERROR'] = 'API_ERROR'
           ErrorCode['BLACKLISTED'] = 'BLACKLISTED'
