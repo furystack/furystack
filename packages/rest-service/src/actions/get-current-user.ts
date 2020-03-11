@@ -1,6 +1,7 @@
 import { RequestAction, JsonResult } from '@furystack/rest'
 import { HttpUserContext } from '../http-user-context'
 import { User } from '@furystack/core'
+import { Authenticate } from '../authenticate'
 
 /**
  * Action that returns the current authenticated user
@@ -9,7 +10,7 @@ import { User } from '@furystack/core'
  */
 export const GetCurrentUser: RequestAction<{
   result: User
-}> = async ({ injector }) => {
+}> = Authenticate()(async ({ injector }) => {
   const user = await injector.getInstance(HttpUserContext).getCurrentUser()
   return JsonResult(user)
-}
+})

@@ -14,17 +14,17 @@ describe('WebSocket Integration tests', () => {
 
   beforeEach(done => {
     i = new Injector()
-      .useRestService({
-        api: {},
-        root: '',
-        port,
-        hostName: host,
-      })
-      .setupStores(sm =>
-        sm
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
-      )
+    i.useRestService({
+      api: {},
+      root: '',
+      port,
+      hostName: host,
+    })
+    i.setupStores(sm =>
+      sm
+        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+        .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+    )
       .useHttpAuthentication({})
       .useWebsockets({ actions: [WhoAmI], path, port, host })
     i.getInstance(ServerManager)

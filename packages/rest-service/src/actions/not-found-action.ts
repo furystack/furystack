@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http'
 import { RequestAction, JsonResult } from '@furystack/rest'
 
 /**
@@ -6,11 +5,10 @@ import { RequestAction, JsonResult } from '@furystack/rest'
  *
  * @param injector The injector from the current stack
  */
-export const NotFoundAction: RequestAction<{ result: { error: string; url?: string } }> = async ({ injector }) => {
+export const NotFoundAction: RequestAction<{ result: { error: string } }> = async () => {
   return JsonResult(
     {
       error: 'Content not found',
-      url: injector.getInstance(IncomingMessage).url,
     },
     404,
   )

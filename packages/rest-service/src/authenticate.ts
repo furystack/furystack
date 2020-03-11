@@ -4,7 +4,7 @@ import { sleepAsync } from '@furystack/utils'
 import { JsonResult, RequestAction, RequestOptions, ActionResult, RequestActionOptions } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
 
-export const Authenticate = () => <T extends RequestActionOptions>(action: RequestAction<T>) => {
+export const Authenticate = () => <T extends RequestActionOptions>(action: RequestAction<T>): RequestAction<T> => {
   return async (args: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
     const userContext = args.injector.getInstance(HttpUserContext)
     const authenticated = await userContext.isAuthenticated()

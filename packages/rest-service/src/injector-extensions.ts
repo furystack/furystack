@@ -3,7 +3,7 @@ import { User } from '@furystack/core'
 import { Injector } from '@furystack/inject/dist/injector'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { RestApi } from '@furystack/rest'
-import { implementApi, ImplementApiOptions } from './implement-api'
+import { ApiManager, ImplementApiOptions } from './api-manager'
 
 declare module '@furystack/inject/dist/injector' {
   /**
@@ -13,7 +13,7 @@ declare module '@furystack/inject/dist/injector' {
     /**
      * Sets up the @furystack/rest-service with the provided settings
      */
-    useRestService: <T extends RestApi>(api: Omit<ImplementApiOptions<T>, 'injector'>) => this
+    useRestService: <T extends RestApi>(api: Omit<ImplementApiOptions<T>, 'injector'>) => Promise<this>
     /**
      * returns the current Request (IncomingMessage) instance
      */
@@ -42,11 +42,15 @@ Injector.prototype.getResponse = function() {
   return this.getInstance(ServerResponse)
 }
 
-Injector.prototype.useRestService = function(api) {
-  implementApi({ ...api, injector: this })
+Injector.prototype.useRestService = async function(api) {
   const logger = this.logger.withScope('@furystack/rest-service/useRestService')
   logger.verbose({
     message: 'Setting up Rest Service API...',
+    data: api,
+  })
+  await this.getInstance(ApiManager).addApi({ ...api, injector: this })
+  logger.verbose({
+    message: `Rest Service API is listening at ${api.port}`,
     data: api,
   })
   return this
