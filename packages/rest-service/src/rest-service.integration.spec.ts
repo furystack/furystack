@@ -135,4 +135,14 @@ describe('@furystack/rest-service inregration tests', () => {
       expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz' })
     })
   })
+
+  it('Should respond with OK to OPTIONS requests', async () => {
+    await usingAsync(new Injector(), async i => {
+      await prepareInjector(i)
+      const response = await got(PathHelper.joinPaths(apiUrl, 'testPostBody'), {
+        method: 'OPTIONS',
+      })
+      expect(response.statusCode).toBe(200)
+    })
+  })
 })

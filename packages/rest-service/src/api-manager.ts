@@ -40,8 +40,8 @@ export type OnRequestOptions = OnRequest & {
 export class ApiManager implements Disposable {
   private readonly apis = new Map<string, CompiledApi>()
 
-  public async dispose() {
-    ;[...this.apis.values()].forEach(api => api.listener.dispose())
+  public dispose() {
+    ;[...this.apis.values()].map(api => api.listener.dispose())
     this.apis.clear()
   }
 
@@ -82,7 +82,7 @@ export class ApiManager implements Disposable {
   }): boolean {
     return options.method &&
       options.url &&
-      options.supportedMethods.includes(options.method) &&
+      (options.supportedMethods.includes(options.method) || options.method === 'OPTIONS') &&
       PathHelper.normalize(options.url).startsWith(options.rootApiPath)
       ? true
       : false
@@ -103,7 +103,6 @@ export class ApiManager implements Disposable {
     injector,
     req,
     res,
-    cors,
     fullUrl,
     action,
     regex,
@@ -118,13 +117,6 @@ export class ApiManager implements Disposable {
       const utils = i.getInstance(Utils)
       i.setExplicitInstance(req)
       i.setExplicitInstance(res)
-      cors && utils.addCorsHeaders(cors, req, res)
-      if (req.method === 'OPTIONS') {
-        res.writeHead(200)
-        res.end()
-        return
-      }
-
       try {
         const actionResult = await action({
           injector: i,
@@ -165,6 +157,13 @@ export class ApiManager implements Disposable {
         options.req.url as string,
       ),
     )
+
+    options.cors && options.injector.getInstance(Utils).addCorsHeaders(options.cors, options.req, options.res)
+    if (options.req.method === 'OPTIONS') {
+      options.res.writeHead(200)
+      options.res.end()
+      return
+    }
 
     const action = this.getActionFromEndpoint(options.compiledApi, method, fullUrl)
     if (action) {
