@@ -8,7 +8,7 @@ describe('getCurrentUser', () => {
     const testUser = { Name: 'Userke' }
     await usingAsync(new Injector(), async i => {
       i.setExplicitInstance({ getCurrentUser: async () => testUser }, HttpUserContext)
-      const result = await GetCurrentUser({ injector: i, query: undefined, body: undefined })
+      const result = await GetCurrentUser({ injector: i })
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toEqual(testUser)
     })

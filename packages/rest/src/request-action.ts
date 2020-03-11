@@ -49,15 +49,33 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
-export interface RequestOptions<TQuery, TBody> {
+export type RequestOptions<TQuery, TBody, TUrlParams> = {
+  // The injector in the scope of the current request
   injector: Injector
-  query: TQuery
-  body: TBody
-}
+} & (unknown extends TQuery
+  ? {}
+  : {
+      // Parameters from the Query object (e.g.: ?search=foo => {search: "foo"})
+      getQuery: () => TQuery
+    }) &
+  (unknown extends TBody
+    ? {}
+    : {
+        // The post body type
+        getBody: () => Promise<TBody>
+      }) &
+  (unknown extends TUrlParams
+    ? {}
+    : {
+        // Params from the URL (e.g. /api/collection/:entityId => {entityId: 'someEntityId'})
+        getUrlParams: () => TUrlParams
+      })
+
+export type RequestActionOptions = { result?: any; query?: any; body?: any; urlParams?: any }
 
 /**
  * Interface for a HTTP Request action
  */
-export type RequestAction<TResult, TReqQuery, TReqBody> = (
-  options: RequestOptions<TReqQuery, TReqBody>,
-) => Promise<ActionResult<TResult>>
+export type RequestAction<TOptions extends RequestActionOptions> = (
+  options: RequestOptions<TOptions['query'], TOptions['body'], TOptions['urlParams']>,
+) => Promise<ActionResult<TOptions['result']>>

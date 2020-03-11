@@ -7,7 +7,9 @@ import { User } from '@furystack/core'
  *
  * @param injector The injector from the current stack
  */
-export const GetCurrentUser: RequestAction<User, undefined, undefined> = async ({ injector }) => {
+export const GetCurrentUser: RequestAction<{
+  result: User
+}> = async ({ injector }) => {
   const user = await injector.getInstance(HttpUserContext).getCurrentUser()
   return JsonResult(user)
 }

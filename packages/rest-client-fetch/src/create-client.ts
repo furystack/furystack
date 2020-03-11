@@ -2,12 +2,12 @@ import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 
-export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody>) => Promise<ActionResult<any>>
+export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody, any>) => Promise<ActionResult<any>>
   ? TBody
   : never
 
 export type ResponseParameter<T> = T extends (
-  options: RequestOptions<any, any>,
+  options: RequestOptions<any, any, any>,
 ) => Promise<ActionResult<infer TResponse>>
   ? TResponse
   : never

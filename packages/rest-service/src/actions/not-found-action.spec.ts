@@ -8,7 +8,9 @@ describe('NotFoundAction tests', () => {
     await usingAsync(new Injector(), async i => {
       i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
       i.setExplicitInstance({}, ServerResponse)
-      const result = await NotFoundAction({ injector: i, query: undefined, body: undefined })
+      const result = await NotFoundAction({
+        injector: i,
+      })
       expect(result.statusCode).toBe(404)
       expect(result.chunk).toEqual({ error: 'Content not found', url: 'https://google.com' })
     })

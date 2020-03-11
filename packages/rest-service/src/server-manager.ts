@@ -23,12 +23,15 @@ export interface ServerRecord {
 
 @Injectable({ lifetime: 'singleton' })
 export class ServerManager implements Disposable {
+  public static DEFAULT_HOST = 'localhost'
+
   public servers = new Map<string, ServerRecord>()
   private openedSockets = new Set<Socket>()
 
   private readonly listenLock = new Semaphore(1)
 
-  private getHostUrl = (options: ServerOptions) => `http://${options.hostName || 'localhost'}:${options.port}`
+  private getHostUrl = (options: ServerOptions) =>
+    `http://${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`
 
   private onConnection = (socket: Socket) => {
     this.openedSockets.add(socket)

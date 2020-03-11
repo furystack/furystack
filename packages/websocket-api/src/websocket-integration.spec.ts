@@ -16,6 +16,7 @@ describe('WebSocket Integration tests', () => {
     i = new Injector()
       .useRestService({
         api: {},
+        root: '',
         port,
         hostName: host,
       })

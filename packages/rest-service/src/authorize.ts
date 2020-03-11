@@ -1,11 +1,11 @@
 import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { sleepAsync } from '@furystack/utils'
-import { JsonResult, RequestAction, RequestOptions } from '@furystack/rest'
+import { JsonResult, RequestAction, RequestOptions, RequestActionOptions } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
 
-export const Authorize = <T, T2, T3>(...roles: string[]) => (action: RequestAction<T, T2, T3>) => {
-  return async (options: RequestOptions<T2, T3>) => {
+export const Authorize = <T extends RequestActionOptions>(...roles: string[]) => (action: RequestAction<T>) => {
+  return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>) => {
     const userContext = options.injector.getInstance(HttpUserContext)
     try {
       const currentUser = await userContext.getCurrentUser()
