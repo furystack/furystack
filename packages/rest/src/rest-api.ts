@@ -3,6 +3,6 @@ import { RequestAction } from './request-action'
 
 export type RestApi = {
   [M in typeof methods[number]]?: {
-    [R: string]: RequestAction<any, any, any>
+    [R: string]: RequestAction<any>
   }
 }

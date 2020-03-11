@@ -7,11 +7,12 @@ import { RequestError } from '@furystack/rest'
  * Returns a serialized error instance in JSON format.
  */
 
-export const ErrorAction: RequestAction<{ message: string; url?: string; stack?: string }, any, Error> = async ({
-  injector,
-  body,
-}) => {
+export const ErrorAction: RequestAction<{
+  body: Error
+  result: { message: string; url?: string; stack?: string }
+}> = async ({ injector, getBody }) => {
   const msg = injector.getInstance(IncomingMessage)
+  const body = await getBody()
   injector.logger.warning({
     message: `An action returned 500 from '${msg.url}'.`,
     data: {

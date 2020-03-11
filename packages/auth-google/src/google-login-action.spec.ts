@@ -14,7 +14,7 @@ describe('GoogleLoginAction', () => {
       i.setExplicitInstance(i.getInstance(GoogleLoginService))
       i.getInstance(GoogleLoginService).login = async () => testUser
       i.setExplicitInstance({ cookieLogin }, HttpUserContext)
-      const result = await GoogleLoginAction({ injector: i, body: { token: 'asd123' }, query: undefined })
+      const result = await GoogleLoginAction({ injector: i, getBody: async () => ({ token: 'asd123' }) })
       expect(cookieLogin).toBeCalled()
       expect(result.chunk.username).toBe('example')
     })

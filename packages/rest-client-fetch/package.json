@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-client-fetch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,10 +29,11 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/inject": "^4.0.14",
-    "@furystack/logging": "^2.0.21",
-    "@furystack/rest": "^1.0.0",
-    "@furystack/utils": "^1.1.7",
+    "@furystack/inject": "^4.0.15",
+    "@furystack/logging": "^2.0.22",
+    "@furystack/rest": "^1.0.1",
+    "@furystack/utils": "^1.1.8",
+    "path-to-regexp": "^6.1.0",
     "tslib": "^1.11.1"
   },
   "devDependencies": {

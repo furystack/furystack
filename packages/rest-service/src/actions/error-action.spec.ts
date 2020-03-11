@@ -9,7 +9,7 @@ describe('ErrorAction tests', () => {
     await usingAsync(new Injector().useLogging(), async i => {
       i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
 
-      const result = await ErrorAction({ injector: i, query: undefined, body: new Error('Something went wrong') })
+      const result = await ErrorAction({ injector: i, getBody: async () => new Error('Something went wrong') })
       expect(result.statusCode).toBe(500)
       expect(result.chunk.message).toBe('Something went wrong')
       expect(result.chunk.url).toBe('https://google.com')

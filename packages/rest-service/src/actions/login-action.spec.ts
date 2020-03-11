@@ -20,8 +20,7 @@ describe('LoginAction', () => {
       i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction({
         injector: i,
-        query: undefined,
-        body: { username: 'testuser', password: 'alma' },
+        getBody: async () => ({ username: 'testuser', password: 'alma' }),
       })
       expect(result.chunk).toEqual(testUser)
       expect(result.statusCode).toBe(200)
@@ -33,7 +32,7 @@ describe('LoginAction', () => {
       i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
       i.setExplicitInstance({}, ServerResponse)
       await expect(
-        LoginAction({ injector: i, body: { username: '', password: '' }, query: undefined }),
+        LoginAction({ injector: i, getBody: async () => ({ username: '', password: '' }) }),
       ).rejects.toThrowError('Login Failed')
     })
   })

@@ -6,7 +6,7 @@ import { RequestAction, EmptyResult } from '@furystack/rest'
  *
  * @param injector The injector from the current stack
  */
-export const LogoutAction: RequestAction<undefined, undefined, undefined> = async ({ injector }) => {
+export const LogoutAction: RequestAction<{}> = async ({ injector }) => {
   await injector.getInstance(HttpUserContext).cookieLogout()
   return EmptyResult()
 }

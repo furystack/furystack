@@ -8,7 +8,7 @@ import './injector-extensions'
 describe('Injector extensions', () => {
   it('Should be added to the injector prototype', async () => {
     await usingAsync(new Injector(), async i => {
-      i.useRestService({ api: {}, port: 19999 }).useHttpAuthentication()
+      i.useHttpAuthentication().useRestService({ api: {}, port: 19999, root: '/api' })
     })
   })
 })
