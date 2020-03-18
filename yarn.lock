@@ -362,7 +362,7 @@ __metadata:
     "@types/jest": ^25.1.4
     "@types/mongodb": ^3.5.2
     "@types/node": ^13.9.1
-    "@types/uuid": ^7.0.0
+    "@types/uuid": ^7.0.2
     got: ^10.6.0
     mongodb: ^3.5.5
     semaphore-async-await: ^1.5.1
@@ -407,7 +407,7 @@ __metadata:
     "@furystack/utils": ^1.1.10
     "@types/jest": ^25.1.4
     "@types/redis": ^2.8.16
-    "@types/uuid": ^7.0.0
+    "@types/uuid": ^7.0.2
     redis: ^3.0.2
     semaphore-async-await: ^1.5.1
     tslib: ^1.11.1
@@ -453,7 +453,7 @@ __metadata:
     "@furystack/utils": ^1.1.10
     "@types/jest": ^25.1.4
     "@types/node": ^13.9.1
-    "@types/uuid": ^7.0.0
+    "@types/uuid": ^7.0.2
     got: ^10.6.0
     hash.js: ^1.1.7
     path-to-regexp: ^6.1.0
@@ -481,7 +481,7 @@ __metadata:
     "@furystack/logging": ^2.0.24
     "@furystack/utils": ^1.1.10
     "@types/jest": ^25.1.4
-    "@types/uuid": ^7.0.0
+    "@types/uuid": ^7.0.2
     tslib: ^1.11.1
     uuid: ^7.0.2
   languageName: unknown
@@ -1945,10 +1945,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@types/uuid@npm:7.0.0"
-  checksum: 2/e4c6e48acc900a56c302863f0b089b1ffded1730ff6b480b8992b6c846c13ace9bfd9dd6bb0bdff767f541cf8e2ed21fc7eadc2eedab6064ebbfd4c8493d4e1a
+"@types/uuid@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@types/uuid@npm:7.0.2"
+  checksum: 2/2358ec47266a648bf6a2beeb800b9848cb03fa583a5e2e1a5a3c2b3d932551982f6a19bb6360fe91971f2520f0078c8de9621481fcddee727949a237b1085da6
   languageName: node
   linkType: hard
 
