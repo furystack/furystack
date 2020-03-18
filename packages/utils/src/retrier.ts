@@ -37,7 +37,7 @@ export class Retrier {
   private constructor(private callback: () => Promise<boolean>, public readonly options: RetrierOptions) {}
 
   private async wait(ms: number) {
-    return new Promise<any>(resolve => {
+    return new Promise(resolve => {
       setTimeout(resolve, ms)
     })
   }

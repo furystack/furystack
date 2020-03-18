@@ -4,7 +4,7 @@ import { ObservableValue } from './observable-value'
 /**
  * Options object for tracing method calls
  */
-export interface TraceMethodOptions<T, TMethod extends (...args: TArgs) => any, TArgs extends any[]> {
+export interface TraceMethodOptions<T, TMethod extends (...args: TArgs) => unknown, TArgs extends unknown[]> {
   /**
    * The context object. Can be an instance or a constructor for static methods
    */
