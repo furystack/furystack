@@ -3,12 +3,12 @@ import { LeveledLogEntry, LogEntry } from './log-entries'
 /**
  * Log entry without scope variable
  */
-export type LogEntryWithoutScope<T> = Exclude<LogEntry<T>, { scope: string }>
+export type LogEntryWithoutScope<T> = Omit<LogEntry<T>, 'scope'>
 
 /**
  * Leveled log entry without scope variable
  */
-export type LeveledLogEntryWithoutScope<T> = Exclude<LeveledLogEntry<T>, { scope: string }>
+export type LeveledLogEntryWithoutScope<T> = Omit<LeveledLogEntry<T>, 'scope'>
 
 /**
  * A logger instance with predefined scopes

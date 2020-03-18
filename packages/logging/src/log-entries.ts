@@ -39,7 +39,7 @@ export interface LogEntry<TData> {
   /**
    * A well-defined scope for grouping entries, e.g. a component or service name.
    */
-  scope?: string
+  scope: string
 
   /**
    * The message string

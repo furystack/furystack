@@ -101,7 +101,11 @@ const cmd = yargs
           await mainMenu(injector)
         } catch (error) {
           run = false
-          injector.logger.error({ message: `Operation failed: ${error.toString()}`, data: { error } })
+          injector.logger.error({
+            scope: '@furystack/onboard',
+            message: `Operation failed: ${error.toString()}`,
+            data: { error },
+          })
           injector.getInstance(InMemoryLogging).flushToFile()
           process.exit(1)
         }

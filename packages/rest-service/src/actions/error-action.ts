@@ -14,6 +14,7 @@ export const ErrorAction: RequestAction<{
   const msg = injector.getInstance(IncomingMessage)
   const body = await getBody()
   injector.logger.warning({
+    scope: '@furystack/rest-service',
     message: `An action returned 500 from '${msg.url}'.`,
     data: {
       error: body,
