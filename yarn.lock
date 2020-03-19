@@ -304,48 +304,48 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/rest": ^1.1.1
-    "@furystack/rest-service": ^1.1.2
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/rest": ^1.1.2
+    "@furystack/rest-service": ^1.1.3
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
-    "@types/node": ^13.9.1
+    "@types/node": ^13.9.2
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^8.0.2, @furystack/core@workspace:packages/core":
+"@furystack/core@^8.0.3, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
-    "@types/node": ^13.9.1
+    "@types/node": ^13.9.2
     semaphore-async-await: ^1.5.1
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/inject@^4.0.17, @furystack/inject@workspace:packages/inject":
+"@furystack/inject@^4.0.18, @furystack/inject@workspace:packages/inject":
   version: 0.0.0-use.local
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
-    "@furystack/utils": ^1.1.10
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     reflect-metadata: ^0.1.13
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@^2.0.24, @furystack/logging@workspace:packages/logging":
+"@furystack/logging@^2.0.25, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
-    "@furystack/inject": ^4.0.17
-    "@furystack/utils": ^1.1.10
+    "@furystack/inject": ^4.0.18
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     tslib: ^1.11.1
   languageName: unknown
@@ -355,13 +355,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/mongodb": ^3.5.2
-    "@types/node": ^13.9.1
+    "@types/node": ^13.9.2
     "@types/uuid": ^7.0.2
     got: ^10.6.0
     mongodb: ^3.5.5
@@ -375,12 +375,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/onboard@workspace:packages/onboard"
   dependencies:
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/json-schema": ^7.0.4
-    "@types/node": ^13.9.1
+    "@types/node": ^13.9.2
     "@types/terminal-kit": ^1.28.1
     "@types/yargs": ^15.0.4
     ajv: ^6.12.0
@@ -401,10 +401,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/redis": ^2.8.16
     "@types/uuid": ^7.0.2
@@ -419,10 +419,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     tslib: ^1.11.1
   languageName: unknown
@@ -432,27 +432,27 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/rest": ^1.1.1
-    "@furystack/utils": ^1.1.10
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/rest": ^1.1.2
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     path-to-regexp: ^6.1.0
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^1.1.2, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^1.1.3, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/rest": ^1.1.1
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/rest": ^1.1.2
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
-    "@types/node": ^13.9.1
+    "@types/node": ^13.9.2
     "@types/uuid": ^7.0.2
     got: ^10.6.0
     hash.js: ^1.1.7
@@ -463,11 +463,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^1.1.1, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^1.1.2, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
-    "@furystack/inject": ^4.0.17
+    "@furystack/inject": ^4.0.18
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
@@ -476,10 +476,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/uuid": ^7.0.2
     tslib: ^1.11.1
@@ -491,10 +491,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/typeorm-store@workspace:packages/typeorm-store"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     semaphore-async-await: ^1.5.1
     sqlite3: ^4.1.1
@@ -503,7 +503,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/utils@^1.1.10, @furystack/utils@workspace:packages/utils":
+"@furystack/utils@^1.1.11, @furystack/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
@@ -516,13 +516,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^8.0.2
-    "@furystack/inject": ^4.0.17
-    "@furystack/logging": ^2.0.24
-    "@furystack/rest-service": ^1.1.2
-    "@furystack/utils": ^1.1.10
+    "@furystack/core": ^8.0.3
+    "@furystack/inject": ^4.0.18
+    "@furystack/logging": ^2.0.25
+    "@furystack/rest-service": ^1.1.3
+    "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
-    "@types/ws": ^7.2.2
+    "@types/ws": ^7.2.3
     tslib: ^1.11.1
     ws: ^7.2.3
   languageName: unknown
@@ -1897,10 +1897,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^13.9.1":
-  version: 13.9.1
-  resolution: "@types/node@npm:13.9.1"
-  checksum: 2/578d73f0128266e9fe1a0ba0017ef37196b9c8e5ecd66f8b99c22ccc7b02591b76454dbd61e420983f5b347103c8f31d8bc4f313f03c47dd6e8e70ce997ff2fc
+"@types/node@npm:^13.9.2":
+  version: 13.9.2
+  resolution: "@types/node@npm:13.9.2"
+  checksum: 2/d462ab643ff00eb7b64883cd9a42b2318e5283b397afbe96310cac62e4f48ec97983ee99aa59c6a63c3e302fcd004d30d549889dbc6c712abb566572d92fa533
   languageName: node
   linkType: hard
 
@@ -1952,12 +1952,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^7.2.2":
-  version: 7.2.2
-  resolution: "@types/ws@npm:7.2.2"
+"@types/ws@npm:^7.2.3":
+  version: 7.2.3
+  resolution: "@types/ws@npm:7.2.3"
   dependencies:
     "@types/node": "*"
-  checksum: 2/0404eabfb169c224542fa9996816e2d0fc1e9fccc2115b1cb42c2612fcc14873407a2dc669111e0abbba064657890c184558d587dd9ab73f59be5ced4683147d
+  checksum: 2/c917b7660c6ddda26a8f46294b56cec8deddf06fee2d546534bf72d3ace22a9902e34e044bc5430b873f66ddc02e5a086467ff1fd0670588aa3bdd021ef88457
   languageName: node
   linkType: hard
 
@@ -4029,9 +4029,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^22.0.1":
-  version: 22.0.1
-  resolution: "eslint-plugin-jsdoc@npm:22.0.1"
+"eslint-plugin-jsdoc@npm:^22.1.0":
+  version: 22.1.0
+  resolution: "eslint-plugin-jsdoc@npm:22.1.0"
   dependencies:
     comment-parser: ^0.7.2
     debug: ^4.1.1
@@ -4042,7 +4042,7 @@ __metadata:
     spdx-expression-parse: ^3.0.0
   peerDependencies:
     eslint: ^6.0.0
-  checksum: 2/0b1e5c3a6590cf13c910212e5ec136acdf7f23fd5bbb66247a856d28e143eb22075b67aff6fb75577edc16435e9e0650bb1cf40056e6601f666cf9b85cd9567c
+  checksum: 2/0b3cf1eb026010375834647b7208e062a0324b3d883c606d7fb66e8a4eb48c5355b44e8e7a6405111d05d3cd1e634ab38e44e116af452cd4820042347f368203
   languageName: node
   linkType: hard
 
@@ -4649,7 +4649,7 @@ fsevents@^2.1.2:
     "@yarnpkg/pnpify": ^2.0.0-rc.19
     eslint: ^6.8.0
     eslint-config-prettier: ^6.10.0
-    eslint-plugin-jsdoc: ^22.0.1
+    eslint-plugin-jsdoc: ^22.1.0
     eslint-plugin-prettier: ^3.1.2
     got: ^10.6.0
     husky: ^4.2.3
