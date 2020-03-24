@@ -3,11 +3,7 @@ import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
 import { ChildrenList, RenderOptions } from './models'
 
-export interface ShadeOptions<TProps, TState> {
-  /**
-   * The initial state of the component
-   */
-  getInitialState?: (options: { injector: Injector; props: TProps }) => TState
+export type ShadeOptions<TProps, TState> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -33,7 +29,14 @@ export interface ShadeOptions<TProps, TState> {
    * Will be executed when the element is detached from the DOM.
    */
   onDetach?: (options: RenderOptions<TProps, TState>) => void
-}
+} & (unknown extends TState
+  ? {}
+  : {
+      /**
+       * The initial state of the component
+       */
+      getInitialState: (options: { injector: Injector; props: TProps }) => TState
+    })
 
 /**
  * Factory method for creating Shade components
@@ -41,7 +44,7 @@ export interface ShadeOptions<TProps, TState> {
  * @param o for component creation
  * @returns the JSX element
  */
-export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState>) => {
+export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>) => {
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
