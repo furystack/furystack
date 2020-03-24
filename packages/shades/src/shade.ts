@@ -93,17 +93,17 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = () => {
           const props = this.props.getValue()
           const getState = () => this.state.getValue()
-          return {
+          return ({
             props,
             getState,
             injector: this.injector,
-            updateState: (newState, skipRender) => {
+            updateState: (newState: TState, skipRender: boolean) => {
               this.state.setValue({ ...this.state.getValue(), ...newState })
               !skipRender && this.updateComponent()
             },
             children: this.shadeChildren.getValue(),
             element: this,
-          } as RenderOptions<TProps, TState>
+          } as any) as RenderOptions<TProps, TState>
         }
 
         /**
@@ -191,7 +191,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
       ...props,
     }) as JSX.Element<TProps, TState>
     el.props.setValue(props)
-    o.getInitialState && el.state.setValue(o.getInitialState({ props, injector: el.injector }))
+    ;(o as any).getInitialState && el.state.setValue((o as any).getInitialState({ props, injector: el.injector }))
     el.shadeChildren.setValue(children)
     return el as JSX.Element
   }
