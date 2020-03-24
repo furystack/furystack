@@ -12,7 +12,7 @@ export interface LazyLoadState {
 }
 
 export const LazyLoad = Shade<LazyLoadProps, LazyLoadState>({
-  initialState: {},
+  getInitialState: () => ({}),
   shadowDomName: 'lazy-load',
   constructed: async ({ props, updateState }) => {
     try {

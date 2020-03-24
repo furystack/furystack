@@ -13,20 +13,20 @@ export interface RouterState {
 }
 export const Router = Shade<RouterProps, RouterState>({
   shadowDomName: 'shade-router',
-  initialState: {
+  getInitialState: () => ({
     url: new URL(location.href),
-  },
-  constructed: options => {
-    const subscription = options.injector.getInstance(LocationService).onLocationChanged.subscribe(u => {
+  }),
+  constructed: (options) => {
+    const subscription = options.injector.getInstance(LocationService).onLocationChanged.subscribe((u) => {
       if (u.toString() !== options.getState().url.toString()) {
         options.updateState({ url: u })
       }
     }, true)
     return () => subscription.dispose()
   },
-  render: options => {
+  render: (options) => {
     const currentUrl = options.getState().url
-    const routeMatch = options.props.routes.find(r => options.props.routeMatcher(currentUrl, r.url))
+    const routeMatch = options.props.routes.find((r) => options.props.routeMatcher(currentUrl, r.url))
     if (routeMatch) {
       const match = routeMatch.component(currentUrl)
       return match

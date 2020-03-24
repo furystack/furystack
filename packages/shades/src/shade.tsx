@@ -7,7 +7,7 @@ export interface ShadeOptions<TProps, TState> {
   /**
    * The initial state of the component
    */
-  initialState?: TState
+  getInitialState?: (options: { injector: Injector; props: TProps }) => TState
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -71,7 +71,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         /**
          * Will be triggered on state update
          */
-        public state = new ObservableValue(o.initialState)
+        public state: ObservableValue<TState>
 
         /**
          * Will be updated when on children change
@@ -126,7 +126,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
           this.updateComponent()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
-            cleanupResult.then(cleanup => (this.cleanup = cleanup))
+            cleanupResult.then((cleanup) => (this.cleanup = cleanup))
           } else {
             // construct is not async
             // this.cleanup = this.cleanup
@@ -177,6 +177,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
         constructor(_props: TProps) {
           super()
           this.props = new ObservableValue()
+          this.state = new ObservableValue()
         }
       } as any) as CustomElementConstructor,
     )
@@ -187,6 +188,7 @@ export const Shade = <TProps, TState = undefined>(o: ShadeOptions<TProps, TState
       ...props,
     }) as JSX.Element<TProps, TState>
     el.props.setValue(props)
+    o.getInitialState && el.state.setValue(o.getInitialState({ props, injector: el.injector }))
     el.shadeChildren.setValue(children)
     return el as JSX.Element
   }
