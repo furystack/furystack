@@ -126,6 +126,9 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
+          ;(o as any).getInitialState &&
+            this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
+
           this.updateComponent()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
@@ -191,7 +194,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
       ...props,
     }) as JSX.Element<TProps, TState>
     el.props.setValue(props)
-    ;(o as any).getInitialState && el.state.setValue((o as any).getInitialState({ props, injector: el.injector }))
+
     el.shadeChildren.setValue(children)
     return el as JSX.Element
   }

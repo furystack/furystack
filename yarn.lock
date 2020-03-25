@@ -304,10 +304,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/rest": ^1.1.2
-    "@furystack/rest-service": ^1.1.4
+    "@furystack/rest-service": ^1.1.5
     "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/node": ^13.9.4
@@ -315,7 +315,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^8.0.4, @furystack/core@workspace:packages/core":
+"@furystack/core@^8.0.5, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
@@ -355,7 +355,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/utils": ^1.1.11
@@ -401,7 +401,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/utils": ^1.1.11
@@ -419,7 +419,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/utils": ^1.1.11
@@ -442,11 +442,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^1.1.4, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^1.1.5, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/rest": ^1.1.2
@@ -476,7 +476,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/utils": ^1.1.11
@@ -491,7 +491,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/typeorm-store@workspace:packages/typeorm-store"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
     "@furystack/utils": ^1.1.11
@@ -516,10 +516,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^8.0.4
+    "@furystack/core": ^8.0.5
     "@furystack/inject": ^4.0.18
     "@furystack/logging": ^2.0.25
-    "@furystack/rest-service": ^1.1.4
+    "@furystack/rest-service": ^1.1.5
     "@furystack/utils": ^1.1.11
     "@types/jest": ^25.1.4
     "@types/ws": ^7.2.3
