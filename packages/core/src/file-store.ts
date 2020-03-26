@@ -18,8 +18,7 @@ export class FileStore<T> implements PhysicalStore<T> {
   private readonly inMemoryStore: InMemoryStore<T>
 
   private get cache() {
-    // eslint-disable-next-line dot-notation
-    return this.inMemoryStore['cache']
+    return this.inMemoryStore.cache
   }
 
   public async remove(key: T[this['primaryKey']]): Promise<void> {

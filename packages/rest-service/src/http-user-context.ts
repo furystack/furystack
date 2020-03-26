@@ -65,8 +65,7 @@ export class HttpUserContext {
         }))) ||
       []
     if (match.length === 1) {
-      // eslint-disable-next-line no-shadow
-      const { password, ...user } = match[0]
+      const { password: pw, ...user } = match[0]
       return user
     }
     await sleepAsync(Math.random() * 1000)

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { IncomingMessage, ServerResponse } from 'http'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'

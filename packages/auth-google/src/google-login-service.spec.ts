@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { usingAsync, using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager } from '@furystack/core'
@@ -16,7 +17,6 @@ describe('Google Login Service', () => {
         const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(
           {
             email: 'user@example.com',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             email_verified: true,
           } as any,
           i,
@@ -44,7 +44,6 @@ describe('Google Login Service', () => {
         loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             email_verified: false,
           } as any)
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
@@ -67,7 +66,6 @@ describe('Google Login Service', () => {
         loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             email_verified: true,
           } as any)
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
@@ -90,7 +88,6 @@ describe('Google Login Service', () => {
         loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             email_verified: false,
           } as any)
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
@@ -115,7 +112,6 @@ describe('Google Login Service', () => {
         loginService.utils.readPostBody = async () =>
           ({
             email: 'user@example.com',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             email_verified: true,
           } as any)
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {

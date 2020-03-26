@@ -77,16 +77,11 @@ export class GoogleLoginService {
    * @param token The IdToken to authenticate
    */
   public async login(token: string): Promise<User> {
-    // eslint-disable-next-line no-useless-catch
-    try {
-      const googleData = await this.getGoogleUserData(token)
-      const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
-      if (!user) {
-        throw Error(`Attached user not found.`)
-      }
-      return user
-    } catch (error) {
-      throw error
+    const googleData = await this.getGoogleUserData(token)
+    const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
+    if (!user) {
+      throw Error(`Attached user not found.`)
     }
+    return user
   }
 }
