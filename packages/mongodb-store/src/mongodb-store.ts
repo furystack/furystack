@@ -65,7 +65,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     const collection = await this.getCollection()
-    const result = await collection.findOne({ _id: key } as any)
+    const result = await collection.findOne({ _id: { $eq: new ObjectId(key) } } as any)
     return result || undefined
   }
   public async remove(key: T[this['primaryKey']]): Promise<void> {
