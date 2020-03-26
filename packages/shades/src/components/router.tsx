@@ -1,11 +1,11 @@
 import { Shade } from '../shade'
 import { createComponent } from '../shade-component'
 import { LocationService } from '../services'
+import { match, MatchResult } from 'path-to-regexp'
 
 export interface RouterProps {
-  routes: Array<{ url: string; component: (currentUrl: URL) => JSX.Element }>
+  routes: Array<{ url: string; component: (options: { currentUrl: URL; match: MatchResult }) => JSX.Element }>
   notFound?: (currentUrl: URL) => JSX.Element
-  routeMatcher: (currentUrl: URL, componentUrl: string) => boolean
 }
 
 export interface RouterState {
@@ -26,10 +26,12 @@ export const Router = Shade<RouterProps, RouterState>({
   },
   render: (options) => {
     const currentUrl = options.getState().url
-    const routeMatch = options.props.routes.find((r) => options.props.routeMatcher(currentUrl, r.url))
-    if (routeMatch) {
-      const match = routeMatch.component(currentUrl)
-      return match
+    for (const route of options.props.routes) {
+      const matchFn = match(route.url)
+      const matchResult = matchFn(currentUrl.pathname)
+      if (matchResult) {
+        return route.component({ currentUrl, match: matchResult })
+      }
     }
     if (options.props.notFound) {
       return options.props.notFound(currentUrl)

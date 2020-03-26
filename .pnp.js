@@ -657,6 +657,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@furystack/utils", "workspace:packages/utils"],
             ["@types/jest", "npm:25.1.4"],
             ["@types/uuid", "npm:7.0.2"],
+            ["path-to-regexp", "npm:6.1.0"],
             ["tslib", "npm:1.11.1"],
             ["uuid", "npm:7.0.2"]
           ],
