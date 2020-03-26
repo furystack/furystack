@@ -1,9 +1,11 @@
 import { sleepAsync } from '@furystack/utils'
+import '@furystack/logging'
 import { Injector } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
 import { CheckPrerequisitesService } from '../services/check-prerequisites'
 import { InstallStep } from '../models/install-step'
 import { installService } from './install-service'
+import '../config'
 
 export const installAllServices = async (injector: Injector, stepFilters?: Array<InstallStep['type']>) => {
   const config = injector.getConfig()
@@ -27,7 +29,8 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
   }
   const services = filteredServices.filter(
     (service) =>
-      service.installSteps.filter((step) => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
+      service.installSteps.filter((step) =>
+        stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true,
       ).length > 0,
   )
 
