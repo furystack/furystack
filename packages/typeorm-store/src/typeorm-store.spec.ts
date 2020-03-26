@@ -44,7 +44,7 @@ describe('TypeORM Store', () => {
         synchronize: true,
         logging: false,
       })
-      .setupStores(sm => sm.useTypeOrmStore(MockEntity))
+      .setupStores((sm) => sm.useTypeOrmStore(MockEntity))
 
     store = injector.getInstance(StoreManager).getStoreFor(MockEntity)
     await store.add(existing1)

@@ -35,7 +35,7 @@ export class TypeOrmStore<T> implements PhysicalStore<T> {
     this.logger.verbose({
       message: `Initializing TypeORM Store for ${this.model.name}...`,
     })
-    options.connection.awaitConnection().then(c => {
+    options.connection.awaitConnection().then((c) => {
       this.typeOrmRepo = c.getRepository<T>(options.model)
       this.primaryKey = this.typeOrmRepo.metadata.primaryColumns[0].propertyName as keyof T
     })

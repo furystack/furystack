@@ -9,7 +9,7 @@ import { Logger } from './logger'
 @Injectable({ lifetime: 'singleton' })
 export class LoggerCollection extends AbstractLogger {
   public async addEntry<T>(entry: LeveledLogEntry<T>): Promise<void> {
-    const promises = this.loggers.map(l => (l !== this ? l.addEntry(entry) : Promise.resolve()))
+    const promises = this.loggers.map((l) => (l !== this ? l.addEntry(entry) : Promise.resolve()))
     await Promise.all(promises)
   }
 

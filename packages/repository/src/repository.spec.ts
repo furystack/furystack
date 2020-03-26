@@ -7,13 +7,13 @@ import { DataSet } from './data-set'
 
 describe('Repository', () => {
   it('Should retrieve a dataSet', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       class ExampleClass {
         id!: number
       }
       i.useLogging()
-        .setupStores(sm => sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' })))
-        .setupRepository(r => r.createDataSet(ExampleClass, {}))
+        .setupStores((sm) => sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' })))
+        .setupRepository((r) => r.createDataSet(ExampleClass, {}))
 
       const dataSet = i.getDataSetFor(ExampleClass)
       expect(dataSet).toBeInstanceOf(DataSet)

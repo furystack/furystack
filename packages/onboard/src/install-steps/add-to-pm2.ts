@@ -7,7 +7,7 @@ import { GenericStep } from './generic-step'
 import { ExecInstallContext } from './exec-install-step'
 
 const pm2Prerequisites: Prerequisite[] = [
-  async i => {
+  async (i) => {
     try {
       await await i.execAsync('pm2 -h', {})
     } catch (error) {
@@ -26,7 +26,7 @@ export class AddToPm2Step implements GenericStep<AddToPm2> {
 
     const pm2Info: any[] = JSON.parse(pm2InfoText)
 
-    if (pm2Info.find(entry => entry.name === step.displayName)) {
+    if (pm2Info.find((entry) => entry.name === step.displayName)) {
       logger.verbose({
         message: `The entry '${step.displayName}' has already been added to PM2, skipping...`,
         data: { step },

@@ -30,7 +30,7 @@ export const installService = async (options: {
       data: { ...options, checks },
     })
   }
-  const steps = options.service.installSteps.filter(step =>
+  const steps = options.service.installSteps.filter((step) =>
     options.stepFilters && options.stepFilters.length ? options.stepFilters.includes(step.type) : true,
   )
 

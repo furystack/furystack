@@ -7,7 +7,7 @@ import { ConnectionManager, Entity, PrimaryGeneratedColumn, Column } from 'typeo
 
 describe('TypeORM Extension Methods', () => {
   it('Can be initialized from an extension method', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       i.useLogging().useTypeOrm({
         type: 'sqlite',
         database: ':memory:',
@@ -21,7 +21,7 @@ describe('TypeORM Extension Methods', () => {
   })
 
   it('Can add stores to StoreManager with an extension method', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       @Entity()
       class Example {
         @PrimaryGeneratedColumn()
@@ -39,7 +39,7 @@ describe('TypeORM Extension Methods', () => {
           synchronize: true,
           logging: false,
         })
-        .setupStores(stores => stores.useTypeOrmStore(Example))
+        .setupStores((stores) => stores.useTypeOrmStore(Example))
     })
   })
 })

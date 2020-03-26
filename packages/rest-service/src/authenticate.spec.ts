@@ -7,7 +7,7 @@ import { Authenticate } from './authenticate'
 
 describe('Authenticate', () => {
   it('Should return 403 w/o basic auth header, when unauthorized and basic auth is disabled', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = jest.fn(async () => false)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
@@ -30,7 +30,7 @@ describe('Authenticate', () => {
   })
 
   it('Should return 403 with basic auth headers when unauthorized and basic auth is enabled', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = jest.fn(async () => false)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
@@ -53,7 +53,7 @@ describe('Authenticate', () => {
   })
 
   it('Should exec the original action if authorized', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = jest.fn(async () => true)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(

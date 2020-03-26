@@ -4,10 +4,7 @@ import { configMenu } from './config'
 import { startMenu } from './start'
 
 export const mainMenu = async (injector: Injector) => {
-  terminal
-    .clear()
-    .nextLine(1)
-    .defaultColor(`----------=========== Onboard ===========----------`)
+  terminal.clear().nextLine(1).defaultColor(`----------=========== Onboard ===========----------`)
   terminal.saveCursor()
   const result = await terminal.singleColumnMenu(['Start install', 'Config', 'Exit']).promise
 
@@ -20,10 +17,7 @@ export const mainMenu = async (injector: Injector) => {
     case 'Config':
       return await configMenu(injector)
     case 'Exit':
-      terminal
-        .nextLine(2)
-        .defaultColor('Ok, bye.')
-        .nextLine(2)
+      terminal.nextLine(2).defaultColor('Ok, bye.').nextLine(2)
       process.exit(0)
       break
     default:

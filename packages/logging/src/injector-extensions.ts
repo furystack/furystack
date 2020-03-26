@@ -20,8 +20,8 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.useLogging = function(...loggers) {
-  const loggerInstances = loggers.map(l => this.getInstance(l))
+Injector.prototype.useLogging = function (...loggers) {
+  const loggerInstances = loggers.map((l) => this.getInstance(l))
   const collection = this.getInstance(LoggerCollection)
   collection.attachLogger(...loggerInstances)
   this.setExplicitInstance(collection, LoggerCollection)

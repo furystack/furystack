@@ -18,7 +18,7 @@ export const createJsonSchema = async (options: {
   })
   const schema = p.createSchema(options.schemaName)
   return await new Promise<JSONSchema7>((resolve, reject) =>
-    writeFile(options.outputJsonFile, JSON.stringify(schema), err => {
+    writeFile(options.outputJsonFile, JSON.stringify(schema), (err) => {
       err ? reject(err) : resolve(schema)
     }),
   )

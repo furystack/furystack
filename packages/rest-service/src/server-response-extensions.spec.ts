@@ -11,7 +11,7 @@ describe('ServerResponse extensions', () => {
       expect(typeof msg.sendActionResult).toBe('function')
     })
 
-    it('Should send the response with the correct Content Type header and default status', done => {
+    it('Should send the response with the correct Content Type header and default status', (done) => {
       const jsonValue = { value: Math.random() }
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))

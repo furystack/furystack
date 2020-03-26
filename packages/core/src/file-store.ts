@@ -69,7 +69,7 @@ export class FileStore<T> implements PhysicalStore<T> {
         values.push(this.cache.get(key) as T)
       }
       await new Promise((resolve, reject) => {
-        this.writeFile(this.options.fileName, JSON.stringify(values), error => {
+        this.writeFile(this.options.fileName, JSON.stringify(values), (error) => {
           if (!error) {
             resolve()
           } else {

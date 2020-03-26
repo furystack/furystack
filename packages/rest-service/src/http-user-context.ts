@@ -40,7 +40,7 @@ export class HttpUserContext {
   public async isAuthorized(...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser()
     for (const role of roles) {
-      if (!currentUser || !currentUser.roles.some(c => c === role)) {
+      if (!currentUser || !currentUser.roles.some((c) => c === role)) {
         return false
       }
     }
@@ -86,12 +86,12 @@ export class HttpUserContext {
       const cookies = this.incomingMessage.headers.cookie
         .toString()
         .split(';')
-        .filter(val => val.length > 0)
-        .map(val => {
+        .filter((val) => val.length > 0)
+        .map((val) => {
           const [name, value] = val.split('=')
           return { name: name.trim(), value: value.trim() }
         })
-      const sessionCookie = cookies.find(c => c.name === this.authentication.cookieName)
+      const sessionCookie = cookies.find((c) => c.name === this.authentication.cookieName)
       if (sessionCookie) {
         return sessionCookie.value
       }

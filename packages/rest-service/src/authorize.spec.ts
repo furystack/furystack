@@ -8,7 +8,7 @@ import { EmptyResult } from '@furystack/rest'
 
 describe('Authorize', () => {
   it('Should return 403 when failed to get current user', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthorizedAction = jest.fn(async () => false)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
@@ -26,7 +26,7 @@ describe('Authorize', () => {
   })
 
   it('Should return 403 if the current user does not have the role', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthorizedAction = jest.fn(async () => false)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(
@@ -47,7 +47,7 @@ describe('Authorize', () => {
   })
 
   it('Should exec the original action if authorized', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const isAuthorizedAction = jest.fn(async () => true)
       i.setExplicitInstance({ url: 'http://google.com' }, IncomingMessage)
       i.setExplicitInstance(

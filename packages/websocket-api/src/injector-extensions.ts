@@ -21,7 +21,7 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.useWebsockets = function(settings) {
+Injector.prototype.useWebsockets = function (settings) {
   const s = { ...new WebSocketApiSettings(), ...settings }
   this.setExplicitInstance(s, WebSocketApiSettings)
   this.getInstance(WebSocketApi)

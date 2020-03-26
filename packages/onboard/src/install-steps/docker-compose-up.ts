@@ -7,7 +7,7 @@ import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const dockerComposePrerequisites: Prerequisite[] = [
-  async injector => {
+  async (injector) => {
     try {
       await injector.execAsync('docker-compose version', {})
     } catch (error) {

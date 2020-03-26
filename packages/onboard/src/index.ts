@@ -62,7 +62,7 @@ const cmd = yargs
     () => {
       /** */
     },
-    args => {
+    (args) => {
       try {
         const cfg = JSON.stringify(defaultConfig, undefined, 2)
         writeFileSync(join(process.cwd(), args.config as string), cfg)
@@ -77,7 +77,7 @@ const cmd = yargs
     () => {
       /** */
     },
-    async args => {
+    async (args) => {
       try {
         await initConfig(args as any)
         await installAllServices(injector, injector.getConfig().options.stepFilters)
@@ -93,7 +93,7 @@ const cmd = yargs
     () => {
       /** */
     },
-    async args => {
+    async (args) => {
       let run = true
       while (run) {
         try {

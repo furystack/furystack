@@ -17,13 +17,13 @@ describe('Global Disposables', () => {
   })
 
   it('Should be filled from an injector extension', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       i.disposeOnProcessExit()
       expect(globalDisposables).toContain(i)
     })
   })
   it('Should dispose the injector on exit', async () => {
-    usingAsync(new Injector(), async i => {
+    usingAsync(new Injector(), async (i) => {
       i.dispose = jest.fn(i.dispose)
       i.disposeOnProcessExit()
       await exitHandler()

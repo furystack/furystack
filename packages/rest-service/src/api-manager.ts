@@ -48,7 +48,7 @@ export class ApiManager implements Disposable {
 
   private compileApi<T extends RestApi>(api: T, root: string) {
     const compiledApi = {} as CompiledApi
-    this.getSuportedMethods(api).forEach(method => {
+    this.getSuportedMethods(api).forEach((method) => {
       const endpoint = {}
 
       Object.entries((api as any)[method]).forEach(([path, action]) => {
@@ -67,7 +67,7 @@ export class ApiManager implements Disposable {
     const server = await this.serverManager.getOrCreate({ hostName, port })
     const compiledApi = this.compileApi(api, root)
     server.apis.push({
-      shouldExec: msg =>
+      shouldExec: (msg) =>
         this.shouldExecRequest({
           ...msg,
           method: msg.req.method?.toUpperCase(),
@@ -75,7 +75,7 @@ export class ApiManager implements Disposable {
           supportedMethods,
           url: PathHelper.normalize(msg.req.url || ''),
         }),
-      onRequest: msg =>
+      onRequest: (msg) =>
         this.onMessage({ ...msg, compiledApi, rootApiPath, port, supportedMethods, cors, injector, hostName }),
     })
   }
@@ -95,7 +95,7 @@ export class ApiManager implements Disposable {
   }
 
   private getActionFromEndpoint(compiledEndpoint: CompiledApi, fullUrl: URL, method: string) {
-    return (Object.values(compiledEndpoint[method]).find(route => (route as any).regex.test(fullUrl.pathname)) ||
+    return (Object.values(compiledEndpoint[method]).find((route) => (route as any).regex.test(fullUrl.pathname)) ||
       undefined) as
       | {
           action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
@@ -119,7 +119,7 @@ export class ApiManager implements Disposable {
     regex: RegExp
     fullPath: string
   }) {
-    await usingAsync(injector.createChild(), async i => {
+    await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
       i.setExplicitInstance(req)
       i.setExplicitInstance(res)

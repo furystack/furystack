@@ -30,13 +30,13 @@ declare module 'typeorm/connection/Connection' {
 
 const lock = new Semaphore(1)
 
-Connection.prototype.awaitConnection = async function() {
+Connection.prototype.awaitConnection = async function () {
   await lock.acquire()
   lock.release()
   return this
 }
 
-Injector.prototype.useTypeOrm = function(options) {
+Injector.prototype.useTypeOrm = function (options) {
   const logger = this.logger.withScope('@furystack/typeorm-store/useTypeOrm')
 
   logger.verbose({
@@ -60,7 +60,7 @@ Injector.prototype.useTypeOrm = function(options) {
         message: `Connection estabilished to DB${options.name ? ` for connection ${options.name}` : ''}...`,
       })
     })
-    .catch(e => {
+    .catch((e) => {
       logger.fatal({
         data: { error: e, options },
         message: `Error while connection to the database${options.name ? ` for connection ${options.name}` : ''}...`,

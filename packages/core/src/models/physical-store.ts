@@ -66,7 +66,7 @@ export type PartialResult<T, TFields extends keyof T> = { [K in TFields]: T[K] }
 
 export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
   const returnValue: PartialResult<T, TField[number]> = {} as any
-  Object.keys(entry).map(key => {
+  Object.keys(entry).map((key) => {
     const field: TField[number] = key as TField[number]
     if (fields.includes(field)) {
       returnValue[field] = entry[field]

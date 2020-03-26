@@ -6,7 +6,7 @@ import { HttpUserContext } from '../http-user-context'
 describe('getCurrentUser', () => {
   it('exec', async () => {
     const testUser = { Name: 'Userke' }
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(
         { getCurrentUser: async () => testUser, isAuthenticated: async () => true },
         HttpUserContext,

@@ -8,7 +8,7 @@ import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const gitPrerequisites: Prerequisite[] = [
-  async i => {
+  async (i) => {
     try {
       await i.execAsync('git help', {})
     } catch (error) {

@@ -27,13 +27,13 @@ export class Config {
   }
 
   public prerequisites: Prerequisite[] = [
-    async injector => {
+    async (injector) => {
       const outputDir = injector.getConfig().getConfigData().directories.output
       if (!existsSync(outputDir)) {
         return { message: `The output directory '${outputDir}' doesn't exists.`, success: false }
       }
     },
-    async injector => {
+    async (injector) => {
       const inputDir = injector.getConfig().getConfigData().directories.input
       if (!existsSync(inputDir)) {
         return { message: `The input directory '${inputDir}' doesn't exists.`, success: false }
@@ -60,7 +60,7 @@ export class Config {
     const validate = validateSchema({ data: configData, schema })
     if (validate.errors) {
       throw Error(
-        `${validate.errors.map(e => `${e.message} - ${e.dataPath} / ${JSON.stringify(e.params)}`).join('\r\n')}`,
+        `${validate.errors.map((e) => `${e.message} - ${e.dataPath} / ${JSON.stringify(e.params)}`).join('\r\n')}`,
       )
     }
     this.configData = configData
@@ -75,11 +75,11 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.useConfig = function(cfg) {
+Injector.prototype.useConfig = function (cfg) {
   this.setExplicitInstance(new Config(cfg), Config)
   return this
 }
 
-Injector.prototype.getConfig = function() {
+Injector.prototype.getConfig = function () {
   return this.getInstance(Config)
 }

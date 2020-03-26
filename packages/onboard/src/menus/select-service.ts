@@ -10,14 +10,14 @@ export const selectServiceMenu = async (injector: Injector) => {
   const cfg = injector.getConfig()
   const cfgData = cfg.getConfigData()
   const filteredServices = cfgData.services
-    .filter(s => !cfg.options.services || cfg.options.services.includes(s.appName))
-    .map(s => s.appName)
+    .filter((s) => !cfg.options.services || cfg.options.services.includes(s.appName))
+    .map((s) => s.appName)
 
   const result = await terminal.gridMenu([...filteredServices, 'back']).promise
   terminal.restoreCursor()
   terminal.eraseDisplayBelow()
 
-  const serviceToInstall = cfgData.services.find(s => s.appName === result.selectedText)
+  const serviceToInstall = cfgData.services.find((s) => s.appName === result.selectedText)
   if (serviceToInstall) {
     await installService({
       injector,

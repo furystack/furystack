@@ -4,7 +4,7 @@ import { CheckPrerequisitesService } from './services/check-prerequisites'
 
 describe('Onboad Prerequisites', () => {
   it('Should check an array of prerequisites', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const service = i.getInstance(CheckPrerequisitesService)
       expect(service).toBeInstanceOf(CheckPrerequisitesService)
     })

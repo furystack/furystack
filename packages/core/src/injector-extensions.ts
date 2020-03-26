@@ -28,12 +28,12 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.setupStores = function(builder) {
+Injector.prototype.setupStores = function (builder) {
   builder(this.getInstance(StoreManager))
   return this
 }
 
-Injector.prototype.disposeOnProcessExit = function() {
+Injector.prototype.disposeOnProcessExit = function () {
   globalDisposables.add(this)
   return this
 }

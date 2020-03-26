@@ -36,7 +36,7 @@ describe('Injector', () => {
   })
 
   it('Should throw an error when setting an Injector instance', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(() => i.setExplicitInstance(new Injector())).toThrowError('Cannot set an injector instance as injectable')
     })
   })
@@ -110,7 +110,7 @@ describe('Injector', () => {
     })
   })
 
-  it('Should dispose cached entries on dispose and tolerate non-disposable ones', done => {
+  it('Should dispose cached entries on dispose and tolerate non-disposable ones', (done) => {
     class TestDisposable implements Disposable {
       public dispose() {
         done()
@@ -118,14 +118,14 @@ describe('Injector', () => {
     }
     class TestInstance {}
 
-    usingAsync(new Injector(), async i => {
+    usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(new TestDisposable())
       i.setExplicitInstance(new TestInstance())
     })
   })
 
   it('Remove should remove an entity from the cached singletons list', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       i.setExplicitInstance({}, Object)
       i.remove(Object)
       // tslint:disable-next-line: no-string-literal
@@ -134,14 +134,14 @@ describe('Injector', () => {
   })
 
   it('Requesting an Injector instance should return self', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(i.getInstance(Injector)).toBe(i)
     })
   })
 
   it('Requesting an undecorated instance should throw an error', () => {
     class UndecoratedTestClass {}
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
         `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
@@ -157,7 +157,7 @@ describe('Injector', () => {
       constructor(public lt: Trs1) {}
     }
 
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(() => i.getInstance(St1)).toThrowError(
         `Injector error: Singleton type 'St1' depends on non-singleton injectables: Trs1:transient`,
       )
@@ -173,7 +173,7 @@ describe('Injector', () => {
       constructor(public sc: Sc1) {}
     }
 
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(() => i.getInstance(St2)).toThrowError(
         `Injector error: Singleton type 'St2' depends on non-singleton injectables: Sc1:scoped`,
       )
@@ -189,7 +189,7 @@ describe('Injector', () => {
       constructor(public sc: Tr2) {}
     }
 
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(() => i.getInstance(Sc2)).toThrowError(
         `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
       )

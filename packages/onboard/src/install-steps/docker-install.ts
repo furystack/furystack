@@ -7,7 +7,7 @@ import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const dockerPrerequisites: Prerequisite[] = [
-  async i => {
+  async (i) => {
     try {
       await i.execAsync('docker', {})
     } catch (error) {
@@ -21,12 +21,12 @@ export class DockerInstallStep implements GenericStep<DockerInstall> {
   prerequisites = dockerPrerequisites
   public run = async (step: DockerInstall, context: ExecInstallContext) => {
     const dockerContainers = await readDockerContainers(this.injector)
-    if (!dockerContainers.map(d => d.Image).includes(step.imageName)) {
+    if (!dockerContainers.map((d) => d.Image).includes(step.imageName)) {
       // ToDo: Check me, volume mappings
       await this.injector.execAsync(
         `docker run ${step.imageName} ${
           step.portMappings
-            ? step.portMappings.map(port => ` -d -p ${port.source}:${port.destination}/${port.type.toLowerCase()}`)
+            ? step.portMappings.map((port) => ` -d -p ${port.source}:${port.destination}/${port.type.toLowerCase()}`)
             : ''
         }`,
         { cwd: context.serviceDir, env: process.env },

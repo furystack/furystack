@@ -7,13 +7,13 @@ import './injector-extensions'
 
 describe('StoreManager', () => {
   it('Can be retrieved from an injector', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       expect(i.useLogging().getInstance(StoreManager)).toBeInstanceOf(StoreManager)
     })
   })
 
   it('Should throw if trying to retrieve a non-existing store', () => {
-    using(new Injector(), i => {
+    using(new Injector(), (i) => {
       const sm = i.useLogging().getInstance(StoreManager)
       expect(() => sm.getStoreFor(class {})).toThrow()
     })
@@ -25,8 +25,8 @@ describe('StoreManager', () => {
       value!: string
     }
 
-    using(new Injector(), i => {
-      i.useLogging().setupStores(stores =>
+    using(new Injector(), (i) => {
+      i.useLogging().setupStores((stores) =>
         stores.addStore(
           new InMemoryStore({
             model: Test,

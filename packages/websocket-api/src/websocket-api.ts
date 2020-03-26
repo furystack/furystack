@@ -38,7 +38,7 @@ export class WebSocketApi implements Disposable {
           remoteAddress: msg.socket.remoteAddress,
         },
       })
-      websocket.on('message', message => {
+      websocket.on('message', (message) => {
         this.logger.verbose({
           message: 'Client Message received',
           data: {
@@ -58,11 +58,11 @@ export class WebSocketApi implements Disposable {
       })
     })
 
-    serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then(server => {
+    serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then((server) => {
       server.server.on('upgrade', (request, socket, head) => {
         const { pathname } = parse(request.url)
         if (pathname === this.settings.path) {
-          this.socket.handleUpgrade(request, socket, head, websocket => {
+          this.socket.handleUpgrade(request, socket, head, (websocket) => {
             this.logger.verbose({
               message: `Client connected to socket at '${this.settings.path}'.`,
             })
@@ -73,15 +73,15 @@ export class WebSocketApi implements Disposable {
     })
   }
   public async dispose() {
-    this.socket.clients.forEach(client => client.close())
-    this.socket.clients.forEach(client => client.terminate())
-    await new Promise((resolve, reject) => this.socket.close(err => (err ? reject(err) : resolve())))
+    this.socket.clients.forEach((client) => client.close())
+    this.socket.clients.forEach((client) => client.terminate())
+    await new Promise((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
   }
 
   public execute(data: Data, msg: IncomingMessage, websocket: ws) {
-    const action = this.settings.actions.find(a => a.canExecute(data))
+    const action = this.settings.actions.find((a) => a.canExecute(data))
     if (action) {
-      usingAsync(this.injector.createChild({ owner: msg }), async i => {
+      usingAsync(this.injector.createChild({ owner: msg }), async (i) => {
         i.setExplicitInstance(msg, IncomingMessage)
         i.setExplicitInstance({}, ServerResponse)
         i.setExplicitInstance(websocket, ws)

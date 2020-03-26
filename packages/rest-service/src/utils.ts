@@ -24,7 +24,7 @@ export class Utils {
       incomingMessage.on('end', () => {
         resolve()
       })
-      incomingMessage.on('error', err => {
+      incomingMessage.on('error', (err) => {
         reject(err)
       })
     })
@@ -42,7 +42,7 @@ export class Utils {
     if (
       incomingMessage.headers &&
       incomingMessage.headers.origin !== incomingMessage.headers.host &&
-      options.origins.some(origin => origin === incomingMessage.headers.origin)
+      options.origins.some((origin) => origin === incomingMessage.headers.origin)
     ) {
       serverResponse.setHeader('Access-Control-Allow-Origin', incomingMessage.headers.origin as string)
       if (options.credentials) {

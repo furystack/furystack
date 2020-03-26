@@ -87,7 +87,7 @@ describe('FileStore', () => {
     expect(persisted).toEqual({ id: 1, value: 'asd' })
   })
 
-  it('save should be triggered after change', done => {
+  it('save should be triggered after change', (done) => {
     f.writeFile = ((_name: string, _value: any, callback: () => void) => {
       callback()
       done()

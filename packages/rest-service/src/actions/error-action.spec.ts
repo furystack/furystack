@@ -6,7 +6,7 @@ import { IncomingMessage } from 'http'
 
 describe('ErrorAction tests', () => {
   it('returns the error in the standard format', async () => {
-    await usingAsync(new Injector().useLogging(), async i => {
+    await usingAsync(new Injector().useLogging(), async (i) => {
       i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
 
       const result = await ErrorAction({ injector: i, getBody: async () => new Error('Something went wrong') })

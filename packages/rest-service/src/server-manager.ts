@@ -40,12 +40,12 @@ export class ServerManager implements Disposable {
 
   public async dispose() {
     await this.listenLock.acquire()
-    this.openedSockets.forEach(s => s.destroy())
+    this.openedSockets.forEach((s) => s.destroy())
     await Promise.all(
       [...this.servers.values()].map(
-        s =>
+        (s) =>
           new Promise((resolve, reject) => {
-            s.server.close(err => (err ? reject(err) : resolve()))
+            s.server.close((err) => (err ? reject(err) : resolve()))
             s.server.off('connection', this.onConnection)
           }),
       ),
@@ -61,7 +61,7 @@ export class ServerManager implements Disposable {
           await new Promise((resolve, reject) => {
             const apis: ServerRecord['apis'] = []
             const server = createServer((req, res) => {
-              const apiMatch = apis.find(api => api.shouldExec({ req, res }))
+              const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
               if (apiMatch) {
                 apiMatch.onRequest({ req, res })
               } else {
@@ -72,7 +72,7 @@ export class ServerManager implements Disposable {
             server
               .listen(options.port, options.hostName)
               .on('listening', () => resolve())
-              .on('error', err => reject(err))
+              .on('error', (err) => reject(err))
             this.servers.set(url, { server, apis })
           })
         } catch (error) {

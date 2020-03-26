@@ -34,15 +34,15 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.getRequest = function() {
+Injector.prototype.getRequest = function () {
   return this.getInstance(IncomingMessage)
 }
 
-Injector.prototype.getResponse = function() {
+Injector.prototype.getResponse = function () {
   return this.getInstance(ServerResponse)
 }
 
-Injector.prototype.useRestService = async function(api) {
+Injector.prototype.useRestService = async function (api) {
   const logger = this.logger.withScope('@furystack/rest-service/useRestService')
   logger.verbose({
     message: 'Setting up Rest Service API...',
@@ -56,7 +56,7 @@ Injector.prototype.useRestService = async function(api) {
   return this
 }
 
-Injector.prototype.useHttpAuthentication = function(s) {
+Injector.prototype.useHttpAuthentication = function (s) {
   this.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...s }, HttpAuthenticationSettings)
   return this
 }

@@ -52,7 +52,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
 
     const sort = filter.order
-      ? [...Object.keys(filter.order).map(key => [key, (filter.order as any)[key] === 'ASC' ? 1 : -1])]
+      ? [...Object.keys(filter.order).map((key) => [key, (filter.order as any)[key] === 'ASC' ? 1 : -1])]
       : []
 
     const result = await collection
@@ -61,7 +61,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
       .sort(sort)
       .toArray()
-    return result.map(entry => (filter.select ? selectFields(entry, ...filter.select) : entry))
+    return result.map((entry) => (filter.select ? selectFields(entry, ...filter.select) : entry))
   }
   public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
     const collection = await this.getCollection()

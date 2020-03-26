@@ -23,7 +23,7 @@ describe('Whoami action', () => {
   })
 
   it('Should return the current user', async () => {
-    await usingAsync(new WhoAmI(contextMock, wsMock), async instance => {
+    await usingAsync(new WhoAmI(contextMock, wsMock), async (instance) => {
       await instance.execute()
       expect(wsMock.send).toBeCalledWith(JSON.stringify({ currentUser }))
     })

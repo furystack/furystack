@@ -51,7 +51,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       (url ? compile(options.action as string)(url) : options.action) +
       (query
         ? `?${Object.keys(query)
-            .map(key => `${key}=${query[key]}`)
+            .map((key) => `${key}=${query[key]}`)
             .join('&')}`
         : '')
 

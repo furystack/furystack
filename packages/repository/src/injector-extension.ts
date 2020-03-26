@@ -34,12 +34,12 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.setupRepository = function(builder) {
+Injector.prototype.setupRepository = function (builder) {
   builder(this.getInstance(Repository))
   return this
 }
 
 // tslint:disable-next-line: no-unnecessary-type-annotation
-Injector.prototype.getDataSetFor = function<T>(model: Constructable<T> | string) {
+Injector.prototype.getDataSetFor = function <T>(model: Constructable<T> | string) {
   return this.getInstance(Repository).getDataSetFor<T>(model)
 }

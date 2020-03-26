@@ -5,7 +5,7 @@ import { LogoutAction } from './logout'
 
 describe('LogoutAction', () => {
   it('exec', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const cookieLogout = jest.fn(async () => true)
       i.setExplicitInstance(
         {

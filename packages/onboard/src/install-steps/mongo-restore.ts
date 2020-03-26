@@ -7,7 +7,7 @@ import { ExecInstallContext } from './exec-install-step'
 import { GenericStep } from './generic-step'
 
 export const mongoPrerequisites: Prerequisite[] = [
-  async i => {
+  async (i) => {
     try {
       await i.execAsync('mongorestore --help', {})
     } catch (error) {

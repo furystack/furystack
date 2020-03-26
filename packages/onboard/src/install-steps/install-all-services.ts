@@ -15,7 +15,7 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
   const cfg = config.getConfigData()
 
   const filteredServices = cfg.services.filter(
-    s => !config.options.services || config.options.services.includes(s.appName),
+    (s) => !config.options.services || config.options.services.includes(s.appName),
   )
 
   const checks = await injector
@@ -26,9 +26,9 @@ export const installAllServices = async (injector: Injector, stepFilters?: Array
     return
   }
   const services = filteredServices.filter(
-    service =>
-      service.installSteps.filter(step => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
-        .length > 0,
+    (service) =>
+      service.installSteps.filter((step) => (stepFilters && stepFilters.length ? stepFilters.includes(step.type) : true))
+      ).length > 0,
   )
 
   if (!services) {

@@ -32,7 +32,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     if (!filter) {
       return values
     }
-    return values.filter(item => {
+    return values.filter((item) => {
       for (const key in filter) {
         if (typeof (filter as any)[key] === 'object') {
           for (const filterKey in (filter as any)[key]) {
@@ -103,7 +103,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     }
 
     if (searchOptions.select) {
-      value = value.map(item => {
+      value = value.map((item) => {
         return selectFields(item, ...(searchOptions.select as TFields))
       })
     }

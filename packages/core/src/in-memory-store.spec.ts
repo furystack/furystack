@@ -95,7 +95,7 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: { $in: ['asd', 'def'] } } })
     expect(result.length).toBe(2)
-    expect(result.map(r => r.value)).toEqual(['asd', 'def'])
+    expect(result.map((r) => r.value)).toEqual(['asd', 'def'])
   })
 
   it('filter should return the corresponding entries with $nin statement', async () => {
@@ -105,7 +105,7 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: { $nin: ['asd', 'def'] } } })
     expect(result.length).toBe(1)
-    expect(result.map(r => r.value)).toEqual(['sdf'])
+    expect(result.map((r) => r.value)).toEqual(['sdf'])
   })
 
   it('filter should return the corresponding entries with $ne statement', async () => {
@@ -115,7 +115,7 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: { $ne: 'asd' } } })
     expect(result.length).toBe(2)
-    expect(result.map(r => r.value)).toEqual(['def', 'sdf'])
+    expect(result.map((r) => r.value)).toEqual(['def', 'sdf'])
   })
 
   it('filter should return the corresponding entries with $in AND $eq statement', async () => {
@@ -125,7 +125,7 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: { $in: ['asd', 'def'], $eq: 'asd' } } })
     expect(result.length).toBe(1)
-    expect(result.map(r => r.value)).toEqual(['asd'])
+    expect(result.map((r) => r.value)).toEqual(['asd'])
   })
 
   it('filter should return the corresponding entries with $regex', async () => {
@@ -135,7 +135,7 @@ describe('InMemoryStore', () => {
 
     const result = await f.search({ filter: { value: { $regex: '([a])' } } })
     expect(result.length).toBe(2)
-    expect(result.map(r => r.value)).toEqual(['asd', 'aaa'])
+    expect(result.map((r) => r.value)).toEqual(['asd', 'aaa'])
   })
 
   it('Should return partial and full result', async () => {
@@ -144,7 +144,7 @@ describe('InMemoryStore', () => {
       public value = ''
       public notNeeded = false
     }
-    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async i => {
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async (i) => {
       await i.add({ id: 1, value: 'alma', notNeeded: true })
 
       const partialResult = await i.search({
@@ -167,7 +167,7 @@ describe('InMemoryStore', () => {
       public orderableValue2 = 1
     }
 
-    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async (store) => {
       for (let i = 0; i < 10; i++) {
         await store.add({ id: i, orderableValue1: Math.random(), orderableValue2: Math.random() })
       }
@@ -201,7 +201,7 @@ describe('InMemoryStore', () => {
       public id = 1
     }
 
-    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async store => {
+    await usingAsync(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }), async (store) => {
       for (let i = 0; i < 10; i++) {
         await store.add({ id: i })
       }

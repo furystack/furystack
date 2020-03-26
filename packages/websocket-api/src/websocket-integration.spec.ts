@@ -12,7 +12,7 @@ describe('WebSocket Integration tests', () => {
   let i!: Injector
   let client: ws
 
-  beforeEach(done => {
+  beforeEach((done) => {
     i = new Injector()
     i.useRestService({
       api: {},
@@ -20,7 +20,7 @@ describe('WebSocket Integration tests', () => {
       port,
       hostName: host,
     })
-    i.setupStores(sm =>
+    i.setupStores((sm) =>
       sm
         .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
         .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
@@ -43,8 +43,8 @@ describe('WebSocket Integration tests', () => {
     await i.dispose()
   })
 
-  it('Should be connected', done => {
-    client.on('message', data => {
+  it('Should be connected', (done) => {
+    client.on('message', (data) => {
       expect(data.toString()).toBe('{"currentUser":null}')
       client.close()
       done()

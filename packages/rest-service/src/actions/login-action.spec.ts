@@ -8,7 +8,7 @@ describe('LoginAction', () => {
   /** */
   it('Returns the provided user with 200 on success', async () => {
     const testUser = { Name: 'Userke' }
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(
         {
           authenticateUser: jest.fn(async () => testUser),
@@ -28,7 +28,7 @@ describe('LoginAction', () => {
   })
 
   it('Returns throw error with 400 on fail', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
       i.setExplicitInstance({}, ServerResponse)
       await expect(

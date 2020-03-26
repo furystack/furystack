@@ -38,7 +38,7 @@ declare module '@furystack/core/dist/store-manager' {
   }
 }
 
-StoreManager.prototype.useMongoDb = function({ model, db, collection, url, options }) {
+StoreManager.prototype.useMongoDb = function ({ model, db, collection, url, options }) {
   const clientFactory = this.injector.getInstance(MongoClientFactory)
   const store = new MongodbStore({
     model,

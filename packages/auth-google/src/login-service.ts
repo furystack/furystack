@@ -60,7 +60,7 @@ export class GoogleLoginService {
    */
   public async getGoogleUserData(token: string): Promise<GoogleApiPayload> {
     return await new Promise<GoogleApiPayload>((resolve, reject) =>
-      this.settings.get(`${this.googleApiEndpoint}${token}`, async response => {
+      this.settings.get(`${this.googleApiEndpoint}${token}`, async (response) => {
         if (response.statusCode && response.statusCode < 400) {
           const body = await this.utils.readPostBody<GoogleApiPayload>(response)
           return resolve(body)

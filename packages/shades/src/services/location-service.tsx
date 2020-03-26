@@ -15,7 +15,7 @@ export class LocationService implements Disposable {
 
   public onLocationChanged = new ObservableValue<URL>(new URL(location.href))
 
-  public locationStateLogObserver: ValueObserver<URL> = this.onLocationChanged.subscribe(newUrl => {
+  public locationStateLogObserver: ValueObserver<URL> = this.onLocationChanged.subscribe((newUrl) => {
     this.logger.verbose({ message: 'Location changed', data: { oldUrl: this.onLocationChanged.getValue(), newUrl } })
   })
 

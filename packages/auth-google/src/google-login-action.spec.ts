@@ -6,7 +6,7 @@ import { ServerResponse } from 'http'
 
 describe('GoogleLoginAction', () => {
   it('Should be activated and disposed', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       const testUser = { username: 'example', roles: [] }
       const cookieLogin = jest.fn(async () => testUser)
       i.setExplicitInstance({}, ServerResponse)

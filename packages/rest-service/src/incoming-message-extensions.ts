@@ -7,7 +7,7 @@ declare module 'http' {
   }
 }
 
-http.IncomingMessage.prototype.readPostBody = async function<T>() {
+http.IncomingMessage.prototype.readPostBody = async function <T>() {
   const utils = new Utils()
   return await utils.readPostBody<T>(this)
 }

@@ -30,8 +30,8 @@ export class PathHelper {
   public static getSegments(path: string): string[] {
     return path
       .split(/\/|[(][']|[(]/g)
-      .filter(segment => segment && segment.length)
-      .map(segment => {
+      .filter((segment) => segment && segment.length)
+      .map((segment) => {
         if (segment.endsWith("')")) {
           segment = `('${segment}`
         } else if (segment.endsWith(')')) {
@@ -59,7 +59,7 @@ export class PathHelper {
    */
   public static isItemPath(path: string): boolean {
     const segments = this.getSegments(path)
-    const itemSegment = segments.find(s => this.isItemSegment(s))
+    const itemSegment = segments.find((s) => this.isItemSegment(s))
     return itemSegment && itemSegment.length ? true : false
   }
 

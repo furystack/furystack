@@ -15,7 +15,7 @@ describe('MongoDB Store', () => {
   let store!: MongodbStore<ExampleClass>
 
   beforeEach(async () => {
-    i = new Injector().useLogging().setupStores(sm =>
+    i = new Injector().useLogging().setupStores((sm) =>
       sm.useMongoDb({
         model: ExampleClass,
         collection: 'furystack-mongo-store-tests',

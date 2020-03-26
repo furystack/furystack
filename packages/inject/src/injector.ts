@@ -8,10 +8,10 @@ export class Injector implements Disposable {
    */
   public async dispose() {
     /** */
-    const singletons = Array.from(this.cachedSingletons.entries()).map(e => e[1])
+    const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1])
     const disposeRequests = singletons
-      .filter(s => s !== this)
-      .map(async s => {
+      .filter((s) => s !== this)
+      .map(async (s) => {
         if (s.dispose) {
           return s.dispose() || Promise.resolve()
         }
@@ -54,7 +54,7 @@ export class Injector implements Disposable {
     if (!meta) {
       throw Error(
         `No metadata found for '${ctor.name}'. Dependencies: ${dependencies
-          .map(d => d.name)
+          .map((d) => d.name)
           .join(',')}. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     }
@@ -64,9 +64,9 @@ export class Injector implements Disposable {
 
     if (meta.options.lifetime === 'singleton') {
       const invalidDeps = meta.dependencies
-        .map(dep => ({ meta: Injector.meta.get(dep), dep }))
-        .filter(m => m.meta && (m.meta.options.lifetime === 'scoped' || m.meta.options.lifetime === 'transient'))
-        .map(i => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
+        .map((dep) => ({ meta: Injector.meta.get(dep), dep }))
+        .filter((m) => m.meta && (m.meta.options.lifetime === 'scoped' || m.meta.options.lifetime === 'transient'))
+        .map((i) => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
       if (invalidDeps.length) {
         throw Error(
           `Injector error: Singleton type '${ctor.name}' depends on non-singleton injectables: ${invalidDeps.join(
@@ -76,9 +76,9 @@ export class Injector implements Disposable {
       }
     } else if (meta.options.lifetime === 'scoped') {
       const invalidDeps = meta.dependencies
-        .map(dep => ({ meta: Injector.meta.get(dep), dep }))
-        .filter(m => m.meta && m.meta.options.lifetime === 'transient')
-        .map(i => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
+        .map((dep) => ({ meta: Injector.meta.get(dep), dep }))
+        .filter((m) => m.meta && m.meta.options.lifetime === 'transient')
+        .map((i) => i.meta && `${i.dep.name}:${i.meta.options.lifetime}`)
       if (invalidDeps.length) {
         throw Error(
           `Injector error: Scoped type '${ctor.name}' depends on transient injectables: ${invalidDeps.join(',')}`,
@@ -94,7 +94,7 @@ export class Injector implements Disposable {
     if (fromParent) {
       return fromParent
     }
-    const deps = meta.dependencies.map(dep => this.getInstance(dep, [...dependencies, ctor]))
+    const deps = meta.dependencies.map((dep) => this.getInstance(dep, [...dependencies, ctor]))
     const newInstance = new ctor(...deps)
     if (meta.options.lifetime !== 'transient') {
       this.setExplicitInstance(newInstance)
@@ -115,7 +115,7 @@ export class Injector implements Disposable {
       Injector.meta.set(ctor, {
         dependencies:
           (meta &&
-            (meta as any[]).map(param => {
+            (meta as any[]).map((param) => {
               return param
             })) ||
           [],

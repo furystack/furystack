@@ -22,6 +22,6 @@ declare module '@furystack/inject/dist/injector' {
   }
 }
 
-Injector.prototype.execAsync = async function(command, options) {
+Injector.prototype.execAsync = async function (command, options) {
   return await this.getInstance(ExecAsyncService).exec(command, options)
 }

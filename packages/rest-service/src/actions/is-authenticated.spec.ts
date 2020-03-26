@@ -5,7 +5,7 @@ import { HttpUserContext } from '../http-user-context'
 
 describe('isAuthenticated', () => {
   it('exec', async () => {
-    await usingAsync(new Injector(), async i => {
+    await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance({ isAuthenticated: async () => true }, HttpUserContext)
       const result = await IsAuthenticated({ injector: i })
       expect(result.statusCode).toBe(200)

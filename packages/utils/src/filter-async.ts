@@ -24,6 +24,6 @@ declare global {
     filterAsync: (callbackFn: (entry: T) => Promise<boolean>) => Promise<T[]>
   }
 }
-Array.prototype.filterAsync = function(callbackFn) {
+Array.prototype.filterAsync = function (callbackFn) {
   return filterAsync(this, callbackFn)
 }
