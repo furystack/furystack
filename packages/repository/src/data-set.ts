@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { SearchOptions, PartialResult, FilterType } from '@furystack/core'
+import { AuthorizationError, SearchOptions, PartialResult, FilterType } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
 
 /**
@@ -22,7 +22,7 @@ export class DataSet<T> {
     if (this.settings.authorizeAdd) {
       const result = await this.settings.authorizeAdd({ injector, entity })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     const parsed = this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
@@ -42,7 +42,7 @@ export class DataSet<T> {
     if (this.settings.authorizeUpdate) {
       const result = await this.settings.authorizeUpdate({ injector, change })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     if (this.settings.authorizeUpdateEntity) {
@@ -50,7 +50,7 @@ export class DataSet<T> {
       if (entity) {
         const result = await this.settings.authorizeUpdateEntity({ injector, change, entity })
         if (!result.isAllowed) {
-          throw Error(result.message)
+          throw new AuthorizationError(result.message)
         }
       }
     }
@@ -71,7 +71,7 @@ export class DataSet<T> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     return await this.settings.physicalStore.count(filter)
@@ -90,7 +90,7 @@ export class DataSet<T> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     const parsedFilter = this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
@@ -107,14 +107,14 @@ export class DataSet<T> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     const instance = await this.settings.physicalStore.get(key)
     if (instance && this.settings && this.settings.authorizeGetEntity) {
       const result = await this.settings.authorizeGetEntity({ injector, entity: instance })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     return instance
@@ -130,7 +130,7 @@ export class DataSet<T> {
     if (this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
-        throw Error(result.message)
+        throw new AuthorizationError(result.message)
       }
     }
     if (this.settings.authroizeRemoveEntity) {
@@ -138,7 +138,7 @@ export class DataSet<T> {
       if (entity) {
         const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
         if (!removeResult.isAllowed) {
-          throw Error(removeResult.message)
+          throw new AuthorizationError(removeResult.message)
         }
       }
     }

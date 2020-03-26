@@ -1,3 +1,4 @@
+export * from './errors'
 export * from './models/physical-store'
 export * from './models/user'
 export * from './file-store'
