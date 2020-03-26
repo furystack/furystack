@@ -1,6 +1,7 @@
 import { IncomingMessage } from 'http'
 import { RequestAction, JsonResult } from '@furystack/rest'
 import { RequestError } from '@furystack/rest'
+import { AuthorizationError } from '@furystack/core'
 
 /**
  * Action for unhandled (500) errors
@@ -15,13 +16,13 @@ export const ErrorAction: RequestAction<{
   const body = await getBody()
   injector.logger.warning({
     scope: '@furystack/rest-service',
-    message: `An action returned 500 from '${msg.url}'.`,
+    message: `An action throwed error from '${msg.url}'.`,
     data: {
       error: body,
     },
   })
-  return JsonResult(
-    { message: body.message, url: msg.url, stack: body.stack },
-    body instanceof RequestError ? body.responseCode : 500,
-  )
+
+  const errorCode = body instanceof RequestError ? body.responseCode : body instanceof AuthorizationError ? 403 : 500
+
+  return JsonResult({ message: body.message, url: msg.url, stack: body.stack }, errorCode)
 }
