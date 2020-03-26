@@ -8,8 +8,6 @@ module.exports = {
     '<rootDir>/packages/inject',
     '<rootDir>/packages/logging',
     '<rootDir>/packages/mongodb-store',
-    '<rootDir>/packages/odata',
-    '<rootDir>/packages/odata-fetchr',
     '<rootDir>/packages/onboard',
     '<rootDir>/packages/redis-store',
     '<rootDir>/packages/repository',
