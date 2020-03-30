@@ -3,7 +3,7 @@
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@types/json-schema": "^7.0.4",
-    "@types/node": "^13.9.4",
+    "@types/node": "^13.9.5",
     "@types/terminal-kit": "^1.28.1",
     "@types/yargs": "^15.0.4",
     "rimraf": "^3.0.2"
