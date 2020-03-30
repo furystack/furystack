@@ -16,7 +16,11 @@ export class Injector implements Disposable {
           return s.dispose() || Promise.resolve()
         }
       })
-    await Promise.all(disposeRequests)
+    const result = await Promise.allSettled(disposeRequests)
+    const fails = result.filter((r) => r.status === 'rejected')
+    if (fails && fails.length) {
+      console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
+    }
     this.cachedSingletons.clear()
   }
 

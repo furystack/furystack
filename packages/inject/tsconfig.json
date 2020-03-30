@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true
+    "composite": true,
+    "lib": ["ES2019", "ES2020.Promise", "DOM"]
   },
   "references": [{ "path": "../utils" }],
   "include": ["src"]

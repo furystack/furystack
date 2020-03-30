@@ -34,5 +34,5 @@
     "tslib": "^1.11.1"
   },
   "typings": "./dist/index.d.ts",
-  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+  "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }
