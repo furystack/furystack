@@ -17,4 +17,8 @@ export class LoggerCollection extends AbstractLogger {
   public attachLogger(...loggers: Logger[]) {
     this.loggers.push(...loggers)
   }
+
+  public detach(logger: Logger) {
+    this.loggers = this.loggers.filter((l) => l !== logger)
+  }
 }
