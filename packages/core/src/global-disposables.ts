@@ -1,4 +1,3 @@
-import Semaphore from 'semaphore-async-await'
 import { Disposable } from '@furystack/utils'
 
 /**
@@ -6,21 +5,14 @@ import { Disposable } from '@furystack/utils'
  */
 export const globalDisposables: Set<Disposable> = new Set()
 
-export const cleanupLock = new Semaphore(1)
-
 /**
  * Will be triggered via process event listeners
  */
 export const exitHandler = (async () => {
-  try {
-    await cleanupLock.acquire()
-    for (const disposable of globalDisposables) {
-      await disposable.dispose()
-    }
-  } catch (error) {
-    console.error('Error during cleanup!', error)
-  } finally {
-    cleanupLock.release()
+  const result = await Promise.allSettled([...globalDisposables].map((d) => d.dispose()))
+  const fails = result.filter((r) => r.status === 'rejected')
+  if (fails && fails.length) {
+    console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
   }
 }).bind(null)
 
