@@ -40,11 +40,11 @@
     "path-to-regexp": "^6.1.0",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^1.11.1",
-    "uuid": "^7.0.2"
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@types/jest": "^25.1.4",
-    "@types/node": "^13.9.5",
+    "@types/node": "^13.9.8",
     "@types/uuid": "^7.0.2",
     "got": "^10.7.0"
   },
