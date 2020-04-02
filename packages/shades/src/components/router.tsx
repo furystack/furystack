@@ -1,12 +1,13 @@
 import { Shade } from '../shade'
 import { createComponent } from '../shade-component'
 import { LocationService } from '../services'
-import { match, MatchResult } from 'path-to-regexp'
+import { match, MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { RenderOptions } from '../models'
 
 export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: URL; match: MatchResult<TMatchResult> }) => JSX.Element
+  routingOptions?: TokensToRegexpOptions
   onVisit?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
   onLeave?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
 }
@@ -27,7 +28,7 @@ export const Router = Shade<RouterProps, RouterState>({
     const subscription = injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
       const lastRoute = getState().activeRoute
       for (const route of props.routes) {
-        const matchFn = match(route.url)
+        const matchFn = match(route.url, route.routingOptions)
         const matchResult = matchFn(currentUrl.pathname)
         if (matchResult) {
           if (route !== lastRoute) {
