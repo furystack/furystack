@@ -25,7 +25,7 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.4"
+    "@types/jest": "^25.2.1"
   },
   "homepage": "https://github.com/furystack/furystack.git",
   "dependencies": {
