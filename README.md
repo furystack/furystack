@@ -21,13 +21,9 @@ The entry-level logic (like store managers or server managers) and models (defin
 
 Repository is a collection of DataSets. A DataSet is like an extended version of a physical store. You can create/retrieve/update/delete entries, but in an authorized way. You can subscribe to events here as well.
 
-### @furystack/http-api [![npm](https://img.shields.io/npm/v/@furystack/http-api.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/http-api)
+### @furystack/rest-api [![npm](https://img.shields.io/npm/v/@furystack/rest-api.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-api)
 
-If you want to communicate with the world, this package will be your friend. You can configure the authentication, customize the routing pipeline and implement custom endpoint actions using this package.
-
-### @furystack/odata-api [![npm](https://img.shields.io/npm/v/@furystack/odata.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/odata)
-
-[OData](https://www.odata.org/) is a set of best practices for building and consuming RESTful APIs. You can create OData endpoints with FuryStack on a top of Data Stores easily. You can even open your endpoint in Excel :)
+If you want to communicate with the world, this package will be your friend. You can define your API as a Typescript interface and implement it on the backend with [@furystack/rest-service](https://www.npmjs.com/package/@furystack/rest-service). Consuming this APIs are also handy with the [@furystack/rest-client-fetch](https://www.npmjs.com/package/@furystack/rest-client-fetch) package in the browser.
 
 ## Optional goodies
 

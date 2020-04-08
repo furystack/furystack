@@ -1,6 +1,6 @@
 {
   "name": "@furystack/typeorm-store",
-  "version": "3.0.33",
+  "version": "3.0.37",
   "description": "TypeORM Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,17 +29,17 @@
   },
   "homepage": "https://github.com/furystack/core.git",
   "dependencies": {
-    "@furystack/core": "^8.0.7",
-    "@furystack/inject": "^4.0.20",
-    "@furystack/logging": "^2.0.27",
-    "@furystack/utils": "^1.1.12",
+    "@furystack/core": "^8.0.11",
+    "@furystack/inject": "^4.0.24",
+    "@furystack/logging": "^2.0.31",
+    "@furystack/utils": "^1.1.15",
     "semaphore-async-await": "^1.5.1",
     "sqlite3": "^4.1.1",
     "tslib": "^1.11.1",
     "typeorm": "^0.2.24"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.4"
+    "@types/jest": "^25.2.1"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
