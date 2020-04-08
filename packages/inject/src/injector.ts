@@ -7,13 +7,14 @@ export class Injector implements Disposable {
    * Disposes the Injector object and all its disposable injectables
    */
   public async dispose() {
-    /** */
     const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1])
     const disposeRequests = singletons
       .filter((s) => s !== this)
       .map(async (s) => {
         if (s.dispose) {
-          return s.dispose() || Promise.resolve()
+          console.log('Dispose start', s.constructor.name)
+          await s.dispose()
+          console.log('Dispose finished', s.constructor.name)
         }
       })
     const result = await Promise.allSettled(disposeRequests)
@@ -21,6 +22,7 @@ export class Injector implements Disposable {
     if (fails && fails.length) {
       console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
     }
+
     this.cachedSingletons.clear()
   }
 
