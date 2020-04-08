@@ -39,7 +39,6 @@ export class ServerManager implements Disposable {
   }
 
   public async dispose() {
-    await this.listenLock.acquire()
     this.openedSockets.forEach((s) => s.destroy())
     await Promise.all(
       [...this.servers.values()].map(
@@ -50,6 +49,7 @@ export class ServerManager implements Disposable {
           }),
       ),
     )
+    this.servers.clear()
   }
 
   public async getOrCreate(options: ServerOptions): Promise<ServerRecord> {
