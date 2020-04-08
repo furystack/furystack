@@ -33,7 +33,7 @@
     "@furystack/inject": "^4.0.24",
     "@furystack/logging": "^2.0.31",
     "@furystack/utils": "^1.1.15",
-    "@types/mongodb": "^3.5.4",
+    "@types/mongodb": "^3.5.5",
     "mongodb": "^3.5.5",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^1.11.1"
