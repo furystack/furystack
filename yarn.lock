@@ -398,7 +398,7 @@ __metadata:
     "@furystack/rest-service": ^1.1.12
     "@furystack/utils": ^1.1.16
     "@types/jest": ^25.2.1
-    "@types/node": ^13.11.0
+    "@types/node": ^13.11.1
     tslib: ^1.11.1
   languageName: unknown
   linkType: soft
@@ -411,7 +411,7 @@ __metadata:
     "@furystack/logging": ^2.0.32
     "@furystack/utils": ^1.1.16
     "@types/jest": ^25.2.1
-    "@types/node": ^13.11.0
+    "@types/node": ^13.11.1
     semaphore-async-await: ^1.5.1
     tslib: ^1.11.1
   languageName: unknown
@@ -449,7 +449,7 @@ __metadata:
     "@furystack/utils": ^1.1.16
     "@types/jest": ^25.2.1
     "@types/mongodb": ^3.5.5
-    "@types/node": ^13.11.0
+    "@types/node": ^13.11.1
     "@types/uuid": ^7.0.2
     got: ^10.7.0
     mongodb: ^3.5.5
@@ -468,8 +468,8 @@ __metadata:
     "@furystack/utils": ^1.1.16
     "@types/jest": ^25.2.1
     "@types/json-schema": ^7.0.4
-    "@types/node": ^13.11.0
-    "@types/terminal-kit": ^1.28.1
+    "@types/node": ^13.11.1
+    "@types/terminal-kit": ^1.28.2
     "@types/yargs": ^15.0.4
     ajv: ^6.12.0
     got: ^10.7.0
@@ -540,7 +540,7 @@ __metadata:
     "@furystack/rest": ^1.1.9
     "@furystack/utils": ^1.1.16
     "@types/jest": ^25.2.1
-    "@types/node": ^13.11.0
+    "@types/node": ^13.11.1
     "@types/uuid": ^7.0.2
     got: ^10.7.0
     hash.js: ^1.1.7
@@ -1995,10 +1995,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^13.11.0":
-  version: 13.11.0
-  resolution: "@types/node@npm:13.11.0"
-  checksum: 2/8691b7c62a978a78e54c5019c5b055400ff7977fcd6694ce62c79c8c3b1bf5e4818195177693e77950df97134787703c6b0e54d6144eb4dfd183a2ac3e510f39
+"@types/node@npm:^13.11.1":
+  version: 13.11.1
+  resolution: "@types/node@npm:13.11.1"
+  checksum: 2/0ced8498fb982d1275ce4f2e13554243d53386315e57de641d934fddeb02d86bc745c2c6b2aacad1072f081b0984d5f3beb81d309823202ec6cf8653f6d8100b
   languageName: node
   linkType: hard
 
@@ -2041,12 +2041,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/terminal-kit@npm:^1.28.1":
-  version: 1.28.1
-  resolution: "@types/terminal-kit@npm:1.28.1"
+"@types/terminal-kit@npm:^1.28.2":
+  version: 1.28.2
+  resolution: "@types/terminal-kit@npm:1.28.2"
   dependencies:
     "@types/nextgen-events": "*"
-  checksum: 2/2e116b19fd8840b41641a415c1b62d74f0234fad1a98bd674793cb035b3a785b59eb568edb49349b9119978dde7b8650c4ed059a206fa014d299db6bd8ff3519
+  checksum: 2/20de9a4ebbd78033274880cbcb95d2a8dcaf2e427ac806e87895324df7754676320bf408dcef5e0849a4164f918f7d7919a616214ff8e86e3844608c89e25c0b
   languageName: node
   linkType: hard
 
@@ -4796,7 +4796,7 @@ fsevents@^2.1.2:
     jest: ^25.3.0
     jest-junit: ^10.0.0
     lerna: ^3.20.2
-    lint-staged: ^10.1.2
+    lint-staged: ^10.1.3
     prettier: ^2.0.4
     rimraf: ^3.0.2
     sqlite3: ^4.1.1
@@ -6750,9 +6750,9 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^10.1.2":
-  version: 10.1.2
-  resolution: "lint-staged@npm:10.1.2"
+"lint-staged@npm:^10.1.3":
+  version: 10.1.3
+  resolution: "lint-staged@npm:10.1.3"
   dependencies:
     chalk: ^3.0.0
     commander: ^4.0.1
@@ -6769,7 +6769,7 @@ fsevents@^2.1.2:
     stringify-object: ^3.3.0
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: 2/3548e35efcbce5f327ac9f3d2f78c53200b3a6bae0dd9cc7dc2ca594ffd46d20243255409eccf861f2ce032168aac7436233037dd86e03d486287095626b6ff2
+  checksum: 2/e6eb011e5240b4c4a253de2cacc0d81a390de30b60da9ed030393f3d50ff6584a765c9a1f1299045311437bcc6befcfec968ac00bd12a46ce9d314ca53df80d0
   languageName: node
   linkType: hard
 
