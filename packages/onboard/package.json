@@ -1,5 +1,5 @@
 {
-  "version": "1.0.23",
+  "version": "1.0.24",
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/json-schema": "^7.0.4",
