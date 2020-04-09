@@ -25,6 +25,7 @@ export interface ClientOptions {
   endpointUrl: string
   fetch?: typeof fetch
   requestInit?: RequestInit
+  serializeQueryParams?: (param: any) => string
 }
 
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
@@ -51,7 +52,12 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       (url ? compile(options.action as string)(url) : options.action) +
       (query
         ? `?${Object.keys(query)
-            .map((key) => `${key}=${query[key]}`)
+            .map(
+              (key) =>
+                `${key}=${
+                  clientOptions.serializeQueryParams ? clientOptions.serializeQueryParams(query[key]) : query[key]
+                }`,
+            )
             .join('&')}`
         : '')
 

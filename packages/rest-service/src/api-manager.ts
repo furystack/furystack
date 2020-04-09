@@ -16,6 +16,7 @@ export interface ImplementApiOptions<T extends RestApi> {
   root: string
   port: number
   cors?: CorsOptions
+  deserializeQueryParams?: (param: string) => any
 }
 
 export type CompiledApi = {
@@ -32,6 +33,7 @@ export type OnRequestOptions = OnRequest & {
   injector: Injector
   cors?: CorsOptions
   supportedMethods: string[]
+  deserializeQueryParams?: (param: string) => any
 }
 
 @Injectable({ lifetime: 'singleton' })
@@ -61,7 +63,15 @@ export class ApiManager implements Disposable {
     return compiledApi
   }
 
-  public async addApi<T extends RestApi>({ api, hostName, port, root, cors, injector }: ImplementApiOptions<T>) {
+  public async addApi<T extends RestApi>({
+    api,
+    hostName,
+    port,
+    root,
+    cors,
+    injector,
+    deserializeQueryParams,
+  }: ImplementApiOptions<T>) {
     const supportedMethods = this.getSuportedMethods(api)
     const rootApiPath = PathHelper.normalize(root)
     const server = await this.serverManager.getOrCreate({ hostName, port })
@@ -76,7 +86,17 @@ export class ApiManager implements Disposable {
           url: PathHelper.normalize(msg.req.url || ''),
         }),
       onRequest: (msg) =>
-        this.onMessage({ ...msg, compiledApi, rootApiPath, port, supportedMethods, cors, injector, hostName }),
+        this.onMessage({
+          ...msg,
+          compiledApi,
+          rootApiPath,
+          port,
+          supportedMethods,
+          cors,
+          injector,
+          hostName,
+          deserializeQueryParams,
+        }),
     })
   }
 
@@ -113,6 +133,7 @@ export class ApiManager implements Disposable {
     action,
     regex,
     fullPath,
+    deserializeQueryParams,
   }: OnRequestOptions & {
     fullUrl: URL
     action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
@@ -129,7 +150,8 @@ export class ApiManager implements Disposable {
           getBody: () => utils.readPostBody<any>(i.getRequest()),
           getQuery: () => {
             return [...fullUrl.searchParams.keys()].reduce((last, current) => {
-              ;(last as any)[current] = fullUrl.searchParams.get(current)
+              const currentValue = fullUrl.searchParams.get(current) as string
+              ;(last as any)[current] = deserializeQueryParams ? deserializeQueryParams(currentValue) : currentValue
               return last
             }, {})
           },
