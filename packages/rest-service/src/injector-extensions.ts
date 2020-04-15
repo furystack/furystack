@@ -28,9 +28,6 @@ declare module '@furystack/inject/dist/injector' {
      * Sets up the HTTP Authentication
      */
     useHttpAuthentication: <TUser extends User>(settings?: Partial<HttpAuthenticationSettings<TUser>>) => Injector
-    /**
-     * Add a specific routing to the HTTP API
-     */
   }
 }
 
