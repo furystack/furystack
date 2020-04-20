@@ -1,4 +1,4 @@
-import { StoreManager } from '@furystack/core'
+import { StoreManager } from '@furystack/core/dist/store-manager'
 import { Constructable } from '@furystack/inject'
 import { ConnectionManager } from 'typeorm'
 import { TypeOrmStore } from './typeorm-store'
@@ -23,7 +23,7 @@ declare module '@furystack/core/dist/store-manager' {
      *    sm.useTypeOrmStore(User))
      * ````
      */
-    useTypeOrmStore: <T>(model: Constructable<T>, connectionName?: string) => StoreManager
+    useTypeOrmStore: <T>(model: Constructable<T>, connectionName?: string) => this
   }
 }
 

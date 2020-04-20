@@ -1,5 +1,6 @@
 import { exec, ExecOptions } from 'child_process'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
+import { Injectable } from '@furystack/inject'
 
 @Injectable({ lifetime: 'singleton' })
 export class ExecAsyncService {
@@ -17,7 +18,7 @@ export class ExecAsyncService {
 }
 
 declare module '@furystack/inject/dist/injector' {
-  interface Injector {
+  export interface Injector {
     execAsync(command: string, options: ExecOptions): Promise<string>
   }
 }

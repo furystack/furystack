@@ -34,7 +34,7 @@ declare module '@furystack/core/dist/store-manager' {
        * Optional options for the MongoDb Client
        */
       options?: MongoClientOptions
-    }) => StoreManager
+    }) => this
   }
 }
 

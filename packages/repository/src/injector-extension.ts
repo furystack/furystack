@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { DataSet } from './data-set'
 import { Repository } from './repository'
 
@@ -8,7 +8,7 @@ declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */
-  interface Injector {
+  export interface Injector {
     /**
      * Sets up a Repository on an injector
      * usage example:
@@ -26,7 +26,7 @@ declare module '@furystack/inject/dist/injector' {
      * const userDataSet = injector.getDataSetFor(User)
      * ````
      */
-    setupRepository: (builder: (repository: Repository) => void) => Injector
+    setupRepository: (builder: (repository: Repository) => void) => this
     /**
      * Returns a DataSet for a specific model
      */

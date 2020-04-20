@@ -12,9 +12,7 @@ export class Injector implements Disposable {
       .filter((s) => s !== this)
       .map(async (s) => {
         if (s.dispose) {
-          console.log('Dispose start', s.constructor.name)
           await s.dispose()
-          console.log('Dispose finished', s.constructor.name)
         }
       })
     const result = await Promise.allSettled(disposeRequests)

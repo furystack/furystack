@@ -1,7 +1,8 @@
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import Semaphore from 'semaphore-async-await'
-import { Connection, ConnectionManager } from 'typeorm'
+import { Connection } from 'typeorm/connection/Connection'
 import { ConnectionOptions } from 'typeorm/connection/ConnectionOptions'
+import { ConnectionManager } from 'typeorm'
 
 declare module '@furystack/inject/dist/injector' {
   /**
@@ -18,7 +19,7 @@ declare module '@furystack/inject/dist/injector' {
      * })
      * ````
      */
-    useTypeOrm: (connectionOptions: ConnectionOptions) => Injector
+    useTypeOrm: (connectionOptions: ConnectionOptions) => this
   }
 }
 
