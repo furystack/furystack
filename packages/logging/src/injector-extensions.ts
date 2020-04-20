@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { Logger } from './logger'
 import { LoggerCollection } from './logger-collection'
 
@@ -7,7 +7,7 @@ declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */
-  interface Injector {
+  export interface Injector {
     /**
      * Registers a Logger service to the injector container with the provided loggers.
      */

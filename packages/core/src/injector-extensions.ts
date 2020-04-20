@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
 
@@ -6,7 +6,7 @@ declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */
-  interface Injector {
+  export interface Injector {
     /**
      * Registers a store instance to the StoreManager.
      *

@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
-    "@types/redis": "^2.8.17",
+    "@types/redis": "^2.8.18",
     "@types/uuid": "^7.0.2",
     "uuid": "^7.0.3"
   },

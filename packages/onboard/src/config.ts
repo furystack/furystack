@@ -1,6 +1,6 @@
 import { join, dirname } from 'path'
 import { readFileSync, realpathSync, existsSync } from 'fs'
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { validateSchema } from './validate-schema'
 import { Config as ConfigModel } from './models/config'
 import { Prerequisite } from './services/check-prerequisites'
@@ -69,7 +69,7 @@ export class Config {
 }
 
 declare module '@furystack/inject/dist/injector' {
-  interface Injector {
+  export interface Injector {
     useConfig: (config: ConfigOptions) => Injector
     getConfig(): Config
   }

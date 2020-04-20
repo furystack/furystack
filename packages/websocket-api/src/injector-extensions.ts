@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject/dist/injector'
 import { WebSocketApi } from './websocket-api'
 import { WebSocketApiSettings } from './websocket-api-settings'
 
@@ -6,7 +6,7 @@ declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
    */
-  interface Injector {
+  export interface Injector {
     /**
      * Registers a WebSocket API on a current injector instance.
      * Usage example:
