@@ -70,7 +70,7 @@ export class Config {
 
 declare module '@furystack/inject/dist/injector' {
   export interface Injector {
-    useConfig: (config: ConfigOptions) => Injector
+    useConfig: (config: ConfigOptions) => this
     getConfig(): Config
   }
 }

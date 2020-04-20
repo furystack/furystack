@@ -17,7 +17,7 @@ declare module '@furystack/inject/dist/injector' {
      * })
      * ````
      */
-    useWebsockets: (settings?: Partial<WebSocketApiSettings>) => Injector
+    useWebsockets: (settings?: Partial<WebSocketApiSettings>) => this
   }
 }
 

@@ -26,7 +26,7 @@ declare module '@furystack/inject/dist/injector' {
      * const userDataSet = injector.getDataSetFor(User)
      * ````
      */
-    setupRepository: (builder: (repository: Repository) => void) => Injector
+    setupRepository: (builder: (repository: Repository) => void) => this
     /**
      * Returns a DataSet for a specific model
      */

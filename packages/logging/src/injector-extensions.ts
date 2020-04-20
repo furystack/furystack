@@ -11,7 +11,7 @@ declare module '@furystack/inject/dist/injector' {
     /**
      * Registers a Logger service to the injector container with the provided loggers.
      */
-    useLogging: (...loggers: Array<Constructable<Logger>>) => Injector
+    useLogging: (...loggers: Array<Constructable<Logger>>) => this
 
     /**
      * Returns the registered Logger instance

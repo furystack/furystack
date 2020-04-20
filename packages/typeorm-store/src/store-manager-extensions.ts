@@ -23,7 +23,7 @@ declare module '@furystack/core/dist/store-manager' {
      *    sm.useTypeOrmStore(User))
      * ````
      */
-    useTypeOrmStore: <T>(model: Constructable<T>, connectionName?: string) => StoreManager
+    useTypeOrmStore: <T>(model: Constructable<T>, connectionName?: string) => this
   }
 }
 

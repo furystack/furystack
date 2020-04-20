@@ -20,7 +20,7 @@ declare module '@furystack/core/dist/store-manager' {
      *    .setupStores(sm => sm.useRedis(SessionModel, 'sessionId', createClient())
      * ````
      */
-    useRedis: <T>(model: Constructable<T>, primaryKey: keyof T, client: RedisClient) => StoreManager
+    useRedis: <T>(model: Constructable<T>, primaryKey: keyof T, client: RedisClient) => this
   }
 }
 
