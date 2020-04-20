@@ -1,5 +1,5 @@
 {
-  "version": "1.0.24",
+  "version": "1.0.25",
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/json-schema": "^7.0.4",
@@ -43,8 +43,8 @@
   ],
   "bin": "./bin/onboard",
   "dependencies": {
-    "@furystack/inject": "^4.0.25",
-    "@furystack/logging": "^2.0.32",
+    "@furystack/inject": "^4.0.26",
+    "@furystack/logging": "^2.0.33",
     "@furystack/utils": "^1.1.16",
     "ajv": "^6.12.2",
     "got": "^10.7.0",
