@@ -1,5 +1,6 @@
 import { Injector } from '@furystack/inject'
 import '@furystack/logging'
+import '@furystack/core'
 import { usingAsync, using } from '@furystack/utils'
 import './injector-extensions'
 import './store-manager-extensions'

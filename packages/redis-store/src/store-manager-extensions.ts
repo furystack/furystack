@@ -1,4 +1,4 @@
-import { StoreManager } from '@furystack/core'
+import { StoreManager } from '@furystack/core/dist/store-manager'
 import { Constructable } from '@furystack/inject'
 import { RedisClient } from 'redis'
 import { RedisStore } from './redis-store'
