@@ -118,11 +118,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                 packageDependencies: [
                   [
                     '@typescript-eslint/eslint-plugin',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   [
                     '@typescript-eslint/parser',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   [
                     '@yarnpkg/pnpify',
@@ -131,23 +131,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['eslint', 'npm:6.8.0'],
                   [
                     'eslint-config-prettier',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.10.1',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.11.0',
                   ],
                   [
                     'eslint-plugin-jsdoc',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:23.1.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:24.0.0',
                   ],
                   [
                     'eslint-plugin-prettier',
                     'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:3.1.3',
                   ],
-                  ['got', 'npm:10.7.0'],
+                  ['got', 'npm:11.0.2'],
                   ['husky', 'npm:4.2.5'],
                   ['jest', 'npm:25.4.0'],
                   ['jest-junit', 'npm:10.0.0'],
                   ['lerna', 'npm:3.20.2'],
-                  ['lint-staged', 'npm:10.1.6'],
-                  ['prettier', 'npm:2.0.4'],
+                  ['lint-staged', 'npm:10.1.7'],
+                  ['prettier', 'npm:2.0.5'],
                   ['rimraf', 'npm:3.0.2'],
                   ['sqlite3', 'npm:4.1.1'],
                   ['tslib', 'npm:1.11.1'],
@@ -829,7 +829,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/rest-service', 'workspace:packages/rest-service'],
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.2.1'],
-                  ['@types/node', 'npm:13.13.0'],
+                  ['@types/node', 'npm:13.13.2'],
                   ['tslib', 'npm:1.11.1'],
                 ],
                 linkType: 'SOFT',
@@ -850,7 +850,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/logging', 'workspace:packages/logging'],
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.2.1'],
-                  ['@types/node', 'npm:13.13.0'],
+                  ['@types/node', 'npm:13.13.2'],
                   ['semaphore-async-await', 'npm:1.5.1'],
                   ['tslib', 'npm:1.11.1'],
                 ],
@@ -911,10 +911,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/logging', 'workspace:packages/logging'],
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.2.1'],
-                  ['@types/mongodb', 'npm:3.5.6'],
-                  ['@types/node', 'npm:13.13.0'],
+                  ['@types/mongodb', 'npm:3.5.9'],
+                  ['@types/node', 'npm:13.13.2'],
                   ['@types/uuid', 'npm:7.0.2'],
-                  ['got', 'npm:10.7.0'],
+                  ['got', 'npm:11.0.2'],
                   ['mongodb', 'npm:3.5.6'],
                   ['semaphore-async-await', 'npm:1.5.1'],
                   ['tslib', 'npm:1.11.1'],
@@ -939,11 +939,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.2.1'],
                   ['@types/json-schema', 'npm:7.0.4'],
-                  ['@types/node', 'npm:13.13.0'],
+                  ['@types/node', 'npm:13.13.2'],
                   ['@types/terminal-kit', 'npm:1.28.2'],
                   ['@types/yargs', 'npm:15.0.4'],
                   ['ajv', 'npm:6.12.2'],
-                  ['got', 'npm:10.7.0'],
+                  ['got', 'npm:11.0.2'],
                   ['rimraf', 'npm:3.0.2'],
                   ['semaphore-async-await', 'npm:1.5.1'],
                   ['terminal-kit', 'npm:1.35.2'],
@@ -1058,9 +1058,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['@furystack/rest', 'workspace:packages/rest'],
                   ['@furystack/utils', 'workspace:packages/utils'],
                   ['@types/jest', 'npm:25.2.1'],
-                  ['@types/node', 'npm:13.13.0'],
+                  ['@types/node', 'npm:13.13.2'],
                   ['@types/uuid', 'npm:7.0.2'],
-                  ['got', 'npm:10.7.0'],
+                  ['got', 'npm:11.0.2'],
                   ['hash.js', 'npm:1.1.7'],
                   ['path-to-regexp', 'npm:6.1.0'],
                   ['semaphore-async-await', 'npm:1.5.1'],
@@ -3386,11 +3386,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           '@types/mongodb',
           [
             [
-              'npm:3.5.6',
+              'npm:3.5.9',
               {
-                packageLocation: './.yarn/cache/@types-mongodb-npm-3.5.6-10ab8abc27-2.zip/node_modules/@types/mongodb/',
+                packageLocation: './.yarn/cache/@types-mongodb-npm-3.5.9-d257a0db9e-2.zip/node_modules/@types/mongodb/',
                 packageDependencies: [
-                  ['@types/mongodb', 'npm:3.5.6'],
+                  ['@types/mongodb', 'npm:3.5.9'],
                   ['@types/bson', 'npm:4.0.1'],
                   ['@types/node', 'npm:13.7.4'],
                 ],
@@ -3425,10 +3425,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               },
             ],
             [
-              'npm:13.13.0',
+              'npm:13.13.2',
               {
-                packageLocation: './.yarn/cache/@types-node-npm-13.13.0-247c77d018-2.zip/node_modules/@types/node/',
-                packageDependencies: [['@types/node', 'npm:13.13.0']],
+                packageLocation: './.yarn/cache/@types-node-npm-13.13.2-15aa70594a-2.zip/node_modules/@types/node/',
+                packageDependencies: [['@types/node', 'npm:13.13.2']],
                 linkType: 'HARD',
               },
             ],
@@ -3633,29 +3633,29 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           '@typescript-eslint/eslint-plugin',
           [
             [
-              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/@typescript-eslint-eslint-plugin-virtual-85656ff767/0/cache/@typescript-eslint-eslint-plugin-npm-2.28.0-836c724556-2.zip/node_modules/@typescript-eslint/eslint-plugin/',
+                  './.yarn/$$virtual/@typescript-eslint-eslint-plugin-virtual-ddb84be57a/0/cache/@typescript-eslint-eslint-plugin-npm-2.29.0-ddef65d1de-2.zip/node_modules/@typescript-eslint/eslint-plugin/',
                 packageDependencies: [
                   [
                     '@typescript-eslint/eslint-plugin',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   [
                     '@typescript-eslint/experimental-utils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:2.28.0',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:2.29.0',
                   ],
                   [
                     '@typescript-eslint/parser',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   ['eslint', 'npm:6.8.0'],
                   ['functional-red-black-tree', 'npm:1.0.1'],
                   ['regexpp', 'npm:3.0.0'],
                   [
                     'tsutils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:3.17.1',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:3.17.1',
                   ],
                   ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
                 ],
@@ -3669,19 +3669,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           '@typescript-eslint/experimental-utils',
           [
             [
-              'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:2.28.0',
+              'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:2.29.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/@typescript-eslint-experimental-utils-virtual-24cd9867d4/0/cache/@typescript-eslint-experimental-utils-npm-2.28.0-e160d6f657-2.zip/node_modules/@typescript-eslint/experimental-utils/',
+                  './.yarn/$$virtual/@typescript-eslint-experimental-utils-virtual-0bd30c6cd8/0/cache/@typescript-eslint-experimental-utils-npm-2.29.0-cbc9af082d-2.zip/node_modules/@typescript-eslint/experimental-utils/',
                 packageDependencies: [
                   [
                     '@typescript-eslint/experimental-utils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:2.28.0',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:2.29.0',
                   ],
                   ['@types/json-schema', 'npm:7.0.4'],
                   [
                     '@typescript-eslint/typescript-estree',
-                    'virtual:24cd9867d46118552b2223447669c722a68a561c7e9676c9fde512bb7066d323571ff9e78658b1149b8508793027bf2346ff369a41bec8823454eaf030affe7a#npm:2.28.0',
+                    'virtual:0bd30c6cd88dc92dceb1655b0666712cfbbabb2d669532bdb3ba2a6e56ff1ba5eb22b09ff77e7ff081f140749ccb165a200a3d4dbf7206e76caef986cb7f1bb5#npm:2.29.0',
                   ],
                   ['eslint', 'npm:6.8.0'],
                   ['eslint-scope', 'npm:5.0.0'],
@@ -3697,23 +3697,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           '@typescript-eslint/parser',
           [
             [
-              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/@typescript-eslint-parser-virtual-f7dad7cc69/0/cache/@typescript-eslint-parser-npm-2.28.0-591ce03c56-2.zip/node_modules/@typescript-eslint/parser/',
+                  './.yarn/$$virtual/@typescript-eslint-parser-virtual-b3d09bb5cc/0/cache/@typescript-eslint-parser-npm-2.29.0-481df0224e-2.zip/node_modules/@typescript-eslint/parser/',
                 packageDependencies: [
                   [
                     '@typescript-eslint/parser',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   ['@types/eslint-visitor-keys', 'npm:1.0.0'],
                   [
                     '@typescript-eslint/experimental-utils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:2.28.0',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:2.29.0',
                   ],
                   [
                     '@typescript-eslint/typescript-estree',
-                    'virtual:f7dad7cc691b1022edd07787eac3d21c93bdda11c942698a03098b3bb59f623effb336047737eede9034d9b8db2b5206d308af14b15187e333a8c5cde32c91c5#npm:2.28.0',
+                    'virtual:b3d09bb5cced80b109d727dc1c3eae6b4c4a14dcc12dd1c050d539bef2db2d48c4aabfacf957d22115a0389df61dfe7b565e1a85d49ff91601ad78bf1384b9b5#npm:2.29.0',
                   ],
                   ['eslint', 'npm:6.8.0'],
                   ['eslint-visitor-keys', 'npm:1.1.0'],
@@ -3729,14 +3729,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           '@typescript-eslint/typescript-estree',
           [
             [
-              'virtual:24cd9867d46118552b2223447669c722a68a561c7e9676c9fde512bb7066d323571ff9e78658b1149b8508793027bf2346ff369a41bec8823454eaf030affe7a#npm:2.28.0',
+              'virtual:0bd30c6cd88dc92dceb1655b0666712cfbbabb2d669532bdb3ba2a6e56ff1ba5eb22b09ff77e7ff081f140749ccb165a200a3d4dbf7206e76caef986cb7f1bb5#npm:2.29.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/@typescript-eslint-typescript-estree-virtual-ff0679e4cb/0/cache/@typescript-eslint-typescript-estree-npm-2.28.0-1543853acf-2.zip/node_modules/@typescript-eslint/typescript-estree/',
+                  './.yarn/$$virtual/@typescript-eslint-typescript-estree-virtual-93cbc1f0d8/0/cache/@typescript-eslint-typescript-estree-npm-2.29.0-bbde764df7-2.zip/node_modules/@typescript-eslint/typescript-estree/',
                 packageDependencies: [
                   [
                     '@typescript-eslint/typescript-estree',
-                    'virtual:24cd9867d46118552b2223447669c722a68a561c7e9676c9fde512bb7066d323571ff9e78658b1149b8508793027bf2346ff369a41bec8823454eaf030affe7a#npm:2.28.0',
+                    'virtual:0bd30c6cd88dc92dceb1655b0666712cfbbabb2d669532bdb3ba2a6e56ff1ba5eb22b09ff77e7ff081f140749ccb165a200a3d4dbf7206e76caef986cb7f1bb5#npm:2.29.0',
                   ],
                   [
                     'debug',
@@ -3749,7 +3749,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['semver', 'npm:6.3.0'],
                   [
                     'tsutils',
-                    'virtual:ff0679e4cb1ad7a578108a30fdba97450a713a4f46dad705df135ae461c886395d9fd338524254a3aa6bc01b46d2729ab9a9889d621b5a78be515100571139f1#npm:3.17.1',
+                    'virtual:93cbc1f0d80609c0b9a77816a3b19f4d07f15870616e648052e3d2a105cf61c2f4b1b174cd887591499a8c2f8f6d58edc8b10a0784508a786d6ad82b1a5889c6#npm:3.17.1',
                   ],
                   ['typescript', null],
                 ],
@@ -3758,14 +3758,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               },
             ],
             [
-              'virtual:f7dad7cc691b1022edd07787eac3d21c93bdda11c942698a03098b3bb59f623effb336047737eede9034d9b8db2b5206d308af14b15187e333a8c5cde32c91c5#npm:2.28.0',
+              'virtual:b3d09bb5cced80b109d727dc1c3eae6b4c4a14dcc12dd1c050d539bef2db2d48c4aabfacf957d22115a0389df61dfe7b565e1a85d49ff91601ad78bf1384b9b5#npm:2.29.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/@typescript-eslint-typescript-estree-virtual-d84c9d6eeb/0/cache/@typescript-eslint-typescript-estree-npm-2.28.0-1543853acf-2.zip/node_modules/@typescript-eslint/typescript-estree/',
+                  './.yarn/$$virtual/@typescript-eslint-typescript-estree-virtual-1874aac853/0/cache/@typescript-eslint-typescript-estree-npm-2.29.0-bbde764df7-2.zip/node_modules/@typescript-eslint/typescript-estree/',
                 packageDependencies: [
                   [
                     '@typescript-eslint/typescript-estree',
-                    'virtual:f7dad7cc691b1022edd07787eac3d21c93bdda11c942698a03098b3bb59f623effb336047737eede9034d9b8db2b5206d308af14b15187e333a8c5cde32c91c5#npm:2.28.0',
+                    'virtual:b3d09bb5cced80b109d727dc1c3eae6b4c4a14dcc12dd1c050d539bef2db2d48c4aabfacf957d22115a0389df61dfe7b565e1a85d49ff91601ad78bf1384b9b5#npm:2.29.0',
                   ],
                   [
                     'debug',
@@ -3778,7 +3778,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['semver', 'npm:6.3.0'],
                   [
                     'tsutils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:3.17.1',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:3.17.1',
                   ],
                   ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
                 ],
@@ -5207,18 +5207,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [
           'cacheable-lookup',
           [
-            [
-              'npm:2.0.0',
-              {
-                packageLocation:
-                  './.yarn/cache/cacheable-lookup-npm-2.0.0-82dd2af682-2.zip/node_modules/cacheable-lookup/',
-                packageDependencies: [
-                  ['cacheable-lookup', 'npm:2.0.0'],
-                  ['keyv', 'npm:4.0.0'],
-                ],
-                linkType: 'HARD',
-              },
-            ],
             [
               'npm:4.1.2',
               {
@@ -7023,19 +7011,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
         ],
         [
-          'duplexer3',
-          [
-            [
-              'npm:0.1.4',
-              {
-                packageLocation: './.yarn/cache/duplexer3-npm-0.1.4-361a33d994-2.zip/node_modules/duplexer3/',
-                packageDependencies: [['duplexer3', 'npm:0.1.4']],
-                linkType: 'HARD',
-              },
-            ],
-          ],
-        ],
-        [
           'duplexify',
           [
             [
@@ -7371,14 +7346,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'eslint-config-prettier',
           [
             [
-              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.10.1',
+              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.11.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/eslint-config-prettier-virtual-6d20292422/0/cache/eslint-config-prettier-npm-6.10.1-ca02b7dfaa-2.zip/node_modules/eslint-config-prettier/',
+                  './.yarn/$$virtual/eslint-config-prettier-virtual-62bb50e6c6/0/cache/eslint-config-prettier-npm-6.11.0-cf0b83022d-2.zip/node_modules/eslint-config-prettier/',
                 packageDependencies: [
                   [
                     'eslint-config-prettier',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.10.1',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.11.0',
                   ],
                   ['eslint', 'npm:6.8.0'],
                   ['get-stdin', 'npm:6.0.0'],
@@ -7393,14 +7368,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'eslint-plugin-jsdoc',
           [
             [
-              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:23.1.0',
+              'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:24.0.0',
               {
                 packageLocation:
-                  './.yarn/$$virtual/eslint-plugin-jsdoc-virtual-79f94d2c56/0/cache/eslint-plugin-jsdoc-npm-23.1.0-8722ac9e52-2.zip/node_modules/eslint-plugin-jsdoc/',
+                  './.yarn/$$virtual/eslint-plugin-jsdoc-virtual-b91809562d/0/cache/eslint-plugin-jsdoc-npm-24.0.0-c1c8ded234-2.zip/node_modules/eslint-plugin-jsdoc/',
                 packageDependencies: [
                   [
                     'eslint-plugin-jsdoc',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:23.1.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:24.0.0',
                   ],
                   ['comment-parser', 'npm:0.7.2'],
                   [
@@ -7434,7 +7409,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                     'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:3.1.3',
                   ],
                   ['eslint', 'npm:6.8.0'],
-                  ['prettier', 'npm:2.0.4'],
+                  ['prettier', 'npm:2.0.5'],
                   ['prettier-linter-helpers', 'npm:1.0.0'],
                 ],
                 packagePeers: ['eslint', 'prettier'],
@@ -8386,11 +8361,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['furystack', 'workspace:.'],
                   [
                     '@typescript-eslint/eslint-plugin',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   [
                     '@typescript-eslint/parser',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.28.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:2.29.0',
                   ],
                   [
                     '@yarnpkg/pnpify',
@@ -8399,23 +8374,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['eslint', 'npm:6.8.0'],
                   [
                     'eslint-config-prettier',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.10.1',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:6.11.0',
                   ],
                   [
                     'eslint-plugin-jsdoc',
-                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:23.1.0',
+                    'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:24.0.0',
                   ],
                   [
                     'eslint-plugin-prettier',
                     'virtual:5d447c0d7b9961d9ad7a1c35089af52e19e716c45e72749e656503a096e972c9b89952cc1d88f3934bbbb7ea4970c278367a1db100883a0cf04726f63e2d1308#npm:3.1.3',
                   ],
-                  ['got', 'npm:10.7.0'],
+                  ['got', 'npm:11.0.2'],
                   ['husky', 'npm:4.2.5'],
                   ['jest', 'npm:25.4.0'],
                   ['jest-junit', 'npm:10.0.0'],
                   ['lerna', 'npm:3.20.2'],
-                  ['lint-staged', 'npm:10.1.6'],
-                  ['prettier', 'npm:2.0.4'],
+                  ['lint-staged', 'npm:10.1.7'],
+                  ['prettier', 'npm:2.0.5'],
                   ['rimraf', 'npm:3.0.2'],
                   ['sqlite3', 'npm:4.1.1'],
                   ['tslib', 'npm:1.11.1'],
@@ -8850,31 +8825,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'got',
           [
             [
-              'npm:10.7.0',
-              {
-                packageLocation: './.yarn/cache/got-npm-10.7.0-9215e39e3e-2.zip/node_modules/got/',
-                packageDependencies: [
-                  ['got', 'npm:10.7.0'],
-                  ['@sindresorhus/is', 'npm:2.1.0'],
-                  ['@szmarczak/http-timer', 'npm:4.0.5'],
-                  ['@types/cacheable-request', 'npm:6.0.1'],
-                  ['cacheable-lookup', 'npm:2.0.0'],
-                  ['cacheable-request', 'npm:7.0.1'],
-                  ['decompress-response', 'npm:5.0.0'],
-                  ['duplexer3', 'npm:0.1.4'],
-                  ['get-stream', 'npm:5.1.0'],
-                  ['lowercase-keys', 'npm:2.0.0'],
-                  ['mimic-response', 'npm:2.1.0'],
-                  ['p-cancelable', 'npm:2.0.0'],
-                  ['p-event', 'npm:4.1.0'],
-                  ['responselike', 'npm:2.0.0'],
-                  ['to-readable-stream', 'npm:2.1.0'],
-                  ['type-fest', 'npm:0.10.0'],
-                ],
-                linkType: 'HARD',
-              },
-            ],
-            [
               'npm:11.0.0-beta.1',
               {
                 packageLocation: './.yarn/cache/got-npm-11.0.0-beta.1-fc45be7bba-2.zip/node_modules/got/',
@@ -8889,6 +8839,28 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   ['decompress-response', 'npm:5.0.0'],
                   ['get-stream', 'npm:5.1.0'],
                   ['http2-wrapper', 'npm:1.0.0-beta.4.3'],
+                  ['lowercase-keys', 'npm:2.0.0'],
+                  ['p-cancelable', 'npm:2.0.0'],
+                  ['responselike', 'npm:2.0.0'],
+                ],
+                linkType: 'HARD',
+              },
+            ],
+            [
+              'npm:11.0.2',
+              {
+                packageLocation: './.yarn/cache/got-npm-11.0.2-71177351ed-2.zip/node_modules/got/',
+                packageDependencies: [
+                  ['got', 'npm:11.0.2'],
+                  ['@sindresorhus/is', 'npm:2.1.0'],
+                  ['@szmarczak/http-timer', 'npm:4.0.5'],
+                  ['@types/cacheable-request', 'npm:6.0.1'],
+                  ['@types/responselike', 'npm:1.0.0'],
+                  ['cacheable-lookup', 'npm:4.1.2'],
+                  ['cacheable-request', 'npm:7.0.1'],
+                  ['decompress-response', 'npm:5.0.0'],
+                  ['get-stream', 'npm:5.1.0'],
+                  ['http2-wrapper', 'npm:1.0.0-beta.4.4'],
                   ['lowercase-keys', 'npm:2.0.0'],
                   ['p-cancelable', 'npm:2.0.0'],
                   ['responselike', 'npm:2.0.0'],
@@ -9267,6 +9239,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
                   './.yarn/cache/http2-wrapper-npm-1.0.0-beta.4.3-2fbcef3f1b-2.zip/node_modules/http2-wrapper/',
                 packageDependencies: [
                   ['http2-wrapper', 'npm:1.0.0-beta.4.3'],
+                  ['quick-lru', 'npm:5.1.0'],
+                  ['resolve-alpn', 'npm:1.0.0'],
+                ],
+                linkType: 'HARD',
+              },
+            ],
+            [
+              'npm:1.0.0-beta.4.4',
+              {
+                packageLocation:
+                  './.yarn/cache/http2-wrapper-npm-1.0.0-beta.4.4-a0af16c91c-2.zip/node_modules/http2-wrapper/',
+                packageDependencies: [
+                  ['http2-wrapper', 'npm:1.0.0-beta.4.4'],
                   ['quick-lru', 'npm:5.1.0'],
                   ['resolve-alpn', 'npm:1.0.0'],
                 ],
@@ -11612,11 +11597,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'lint-staged',
           [
             [
-              'npm:10.1.6',
+              'npm:10.1.7',
               {
-                packageLocation: './.yarn/cache/lint-staged-npm-10.1.6-67592b8533-2.zip/node_modules/lint-staged/',
+                packageLocation: './.yarn/cache/lint-staged-npm-10.1.7-f361830c8e-2.zip/node_modules/lint-staged/',
                 packageDependencies: [
-                  ['lint-staged', 'npm:10.1.6'],
+                  ['lint-staged', 'npm:10.1.7'],
                   ['chalk', 'npm:4.0.0'],
                   ['commander', 'npm:5.0.0'],
                   ['cosmiconfig', 'npm:6.0.0'],
@@ -13707,22 +13692,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
         ],
         [
-          'p-event',
-          [
-            [
-              'npm:4.1.0',
-              {
-                packageLocation: './.yarn/cache/p-event-npm-4.1.0-abd574740b-2.zip/node_modules/p-event/',
-                packageDependencies: [
-                  ['p-event', 'npm:4.1.0'],
-                  ['p-timeout', 'npm:2.0.1'],
-                ],
-                linkType: 'HARD',
-              },
-            ],
-          ],
-        ],
-        [
           'p-finally',
           [
             [
@@ -13874,22 +13843,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
               {
                 packageLocation: './.yarn/cache/p-reduce-npm-1.0.0-c6a0dae789-2.zip/node_modules/p-reduce/',
                 packageDependencies: [['p-reduce', 'npm:1.0.0']],
-                linkType: 'HARD',
-              },
-            ],
-          ],
-        ],
-        [
-          'p-timeout',
-          [
-            [
-              'npm:2.0.1',
-              {
-                packageLocation: './.yarn/cache/p-timeout-npm-2.0.1-cd74d88327-2.zip/node_modules/p-timeout/',
-                packageDependencies: [
-                  ['p-timeout', 'npm:2.0.1'],
-                  ['p-finally', 'npm:1.0.0'],
-                ],
                 linkType: 'HARD',
               },
             ],
@@ -14481,10 +14434,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'prettier',
           [
             [
-              'npm:2.0.4',
+              'npm:2.0.5',
               {
-                packageLocation: './.yarn/cache/prettier-npm-2.0.4-8d1f5f638d-2.zip/node_modules/prettier/',
-                packageDependencies: [['prettier', 'npm:2.0.4']],
+                packageLocation: './.yarn/cache/prettier-npm-2.0.5-f0ee4e15ce-2.zip/node_modules/prettier/',
+                packageDependencies: [['prettier', 'npm:2.0.5']],
                 linkType: 'HARD',
               },
             ],
@@ -17489,20 +17442,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
         ],
         [
-          'to-readable-stream',
-          [
-            [
-              'npm:2.1.0',
-              {
-                packageLocation:
-                  './.yarn/cache/to-readable-stream-npm-2.1.0-fff0ea6d91-2.zip/node_modules/to-readable-stream/',
-                packageDependencies: [['to-readable-stream', 'npm:2.1.0']],
-                linkType: 'HARD',
-              },
-            ],
-          ],
-        ],
-        [
           'to-regex',
           [
             [
@@ -17689,34 +17628,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           'tsutils',
           [
             [
-              'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:3.17.1',
+              'virtual:93cbc1f0d80609c0b9a77816a3b19f4d07f15870616e648052e3d2a105cf61c2f4b1b174cd887591499a8c2f8f6d58edc8b10a0784508a786d6ad82b1a5889c6#npm:3.17.1',
               {
                 packageLocation:
-                  './.yarn/$$virtual/tsutils-virtual-a558333a51/0/cache/tsutils-npm-3.17.1-ed6df1e57e-2.zip/node_modules/tsutils/',
+                  './.yarn/$$virtual/tsutils-virtual-eea485a62a/0/cache/tsutils-npm-3.17.1-ed6df1e57e-2.zip/node_modules/tsutils/',
                 packageDependencies: [
                   [
                     'tsutils',
-                    'virtual:85656ff76751e7a804290c85f43f48a83959923fcd7b55bfb05d9d3e548b8d60deed0c2489299db4cccaa62b8aef1112222e751f1e34424f22449c786de7a562#npm:3.17.1',
+                    'virtual:93cbc1f0d80609c0b9a77816a3b19f4d07f15870616e648052e3d2a105cf61c2f4b1b174cd887591499a8c2f8f6d58edc8b10a0784508a786d6ad82b1a5889c6#npm:3.17.1',
                   ],
                   ['tslib', 'npm:1.11.0'],
-                  ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
+                  ['typescript', null],
                 ],
                 packagePeers: ['typescript'],
                 linkType: 'HARD',
               },
             ],
             [
-              'virtual:ff0679e4cb1ad7a578108a30fdba97450a713a4f46dad705df135ae461c886395d9fd338524254a3aa6bc01b46d2729ab9a9889d621b5a78be515100571139f1#npm:3.17.1',
+              'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:3.17.1',
               {
                 packageLocation:
-                  './.yarn/$$virtual/tsutils-virtual-092122b1e3/0/cache/tsutils-npm-3.17.1-ed6df1e57e-2.zip/node_modules/tsutils/',
+                  './.yarn/$$virtual/tsutils-virtual-f6c8ff0ea5/0/cache/tsutils-npm-3.17.1-ed6df1e57e-2.zip/node_modules/tsutils/',
                 packageDependencies: [
                   [
                     'tsutils',
-                    'virtual:ff0679e4cb1ad7a578108a30fdba97450a713a4f46dad705df135ae461c886395d9fd338524254a3aa6bc01b46d2729ab9a9889d621b5a78be515100571139f1#npm:3.17.1',
+                    'virtual:ddb84be57ae43ce6298a438112bea286f80376204627c1f283e50640aab8ebe223a1e2844ddccc0ef30c2b73f23e9325047d6032a8e0edfaf08f2a89c9254604#npm:3.17.1',
                   ],
                   ['tslib', 'npm:1.11.0'],
-                  ['typescript', null],
+                  ['typescript', 'patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=273569'],
                 ],
                 packagePeers: ['typescript'],
                 linkType: 'HARD',
@@ -17798,14 +17737,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [
           'type-fest',
           [
-            [
-              'npm:0.10.0',
-              {
-                packageLocation: './.yarn/cache/type-fest-npm-0.10.0-acf1c75b8a-2.zip/node_modules/type-fest/',
-                packageDependencies: [['type-fest', 'npm:0.10.0']],
-                linkType: 'HARD',
-              },
-            ],
             [
               'npm:0.3.1',
               {
