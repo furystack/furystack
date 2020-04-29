@@ -27,10 +27,6 @@ If you want to communicate with the world, this package will be your friend. You
 
 ## Optional goodies
 
-### @furystack/typeorm-store [![npm](https://img.shields.io/npm/v/@furystack/typeorm-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/typeorm-store)
-
-This package is a physical store implementation on the top of [TypeOrm](https://typeorm.io/#/). You can easily use PostgreSQL, SQLite, MSSql or MySQL in that way.
-
 ### @furystack/auth-google [![npm](https://img.shields.io/npm/v/@furystack/auth-google.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-google)
 
 You can log in with a Google ID Token into a FuryStack backend with this simple package.
