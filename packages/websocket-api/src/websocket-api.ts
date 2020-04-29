@@ -7,7 +7,6 @@ import { usingAsync, Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
-import { ServerResponse } from 'http'
 
 /**
  * A WebSocket API implementation for FuryStack
