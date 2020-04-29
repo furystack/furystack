@@ -3,8 +3,12 @@ import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/rest-service'
 import { GoogleLoginAction, GoogleLoginService } from '.'
 import { ServerResponse } from 'http'
+import { IncomingMessage } from 'http'
 
 describe('GoogleLoginAction', () => {
+  const request = { url: 'https://google.com' } as IncomingMessage
+  const response = {} as ServerResponse
+
   it('Should be activated and disposed', async () => {
     await usingAsync(new Injector(), async (i) => {
       const testUser = { username: 'example', roles: [] }
@@ -14,7 +18,12 @@ describe('GoogleLoginAction', () => {
       i.setExplicitInstance(i.getInstance(GoogleLoginService))
       i.getInstance(GoogleLoginService).login = async () => testUser
       i.setExplicitInstance({ cookieLogin }, HttpUserContext)
-      const result = await GoogleLoginAction({ injector: i, getBody: async () => ({ token: 'asd123' }) })
+      const result = await GoogleLoginAction({
+        request,
+        response,
+        injector: i,
+        getBody: async () => ({ token: 'asd123' }),
+      })
       expect(cookieLogin).toBeCalled()
       expect(result.chunk.username).toBe('example')
     })
