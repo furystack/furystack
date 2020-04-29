@@ -2,7 +2,7 @@ import { WhoAmI } from './whoami'
 import { HttpUserContext } from '@furystack/rest-service'
 import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
-import { IncomingMessage, ServerResponse } from 'http'
+import { IncomingMessage } from 'http'
 
 describe('Whoami action', () => {
   const currentUser = { username: 'testuser' }
