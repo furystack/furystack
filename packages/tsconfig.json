@@ -39,9 +39,6 @@
       "path": "./shades"
     },
     {
-      "path": "./typeorm-store"
-    },
-    {
       "path": "./utils"
     },
     {
