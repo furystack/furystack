@@ -17,11 +17,19 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+strategy:
+  matrix:
+    node_12_x:
+      node_version: 12.x
+    node_14_x:
+      node_version: 14.x
+  maxParallel: 2
+
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: '12.x'
-    displayName: 'Install Node.js'
+      versionSpec: $(node_version)
+    displayName: Use Node.js $(node_version)
 
   - task: DockerCompose@0
     displayName: Start services from docker-compose
