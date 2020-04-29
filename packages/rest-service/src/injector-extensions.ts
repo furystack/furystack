@@ -1,4 +1,3 @@
-import { IncomingMessage, ServerResponse } from 'http'
 import { User } from '@furystack/core'
 import { Injector } from '@furystack/inject/dist/injector'
 import { HttpAuthenticationSettings } from './http-authentication-settings'

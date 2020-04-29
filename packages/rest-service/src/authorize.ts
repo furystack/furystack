@@ -9,8 +9,8 @@ export const Authorize = (...roles: string[]) => <T extends RequestActionOptions
   return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
     try {
       const userContext = options.injector.getInstance(HttpUserContext)
-      const currentUser = await userContext.getCurrentUser()
-      const authorized = await userContext.isAuthorized(...roles)
+      const currentUser = await userContext.getCurrentUser(options.request)
+      const authorized = await userContext.isAuthorized(options.request, ...roles)
       if (!authorized) {
         const { url } = options.request
         await sleepAsync(Math.random() * 1000)

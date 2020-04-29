@@ -6,7 +6,7 @@ import { HttpUserContext } from './http-user-context'
 export const Authenticate = () => <T extends RequestActionOptions>(action: RequestAction<T>): RequestAction<T> => {
   return async (args: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
     const userContext = args.injector.getInstance(HttpUserContext)
-    const authenticated = await userContext.isAuthenticated()
+    const authenticated = await userContext.isAuthenticated(args.request)
     if (!authenticated) {
       const { url } = args.request
       await sleepAsync(Math.random() * 1000)
