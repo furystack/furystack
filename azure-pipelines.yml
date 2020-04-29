@@ -31,6 +31,15 @@ steps:
       versionSpec: $(node_version)
     displayName: Use Node.js $(node_version)
 
+  - script: yarn install
+    displayName: 'Install dependencies'
+
+  - script: yarn lint
+    displayName: 'Lint'
+
+  - script: yarn build
+    displayName: 'Build'
+
   - task: DockerCompose@0
     displayName: Start services from docker-compose
     inputs:
@@ -40,16 +49,10 @@ steps:
       detached: true
       buildImages: true
 
-  - script: yarn install
-    displayName: 'Install dependencies'
-  - script: yarn lint
-    displayName: 'Lint'
-  - script: yarn build
-    displayName: 'Build'
-
   - script: yarn test
     timeoutInMinutes: 5
     displayName: 'Yarn test'
+
   - script: bash <(curl -s https://codecov.io/bash)
     displayName: 'Publish test results to Codecov'
 
