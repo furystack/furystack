@@ -142,8 +142,6 @@ export class ApiManager implements Disposable {
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
-      i.setExplicitInstance(req)
-      i.setExplicitInstance(res)
       try {
         const actionResult = await action({
           request: req,

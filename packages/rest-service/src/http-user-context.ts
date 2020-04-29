@@ -21,11 +21,12 @@ export class HttpUserContext {
   private user?: User
 
   /**
+   * @param request The request to be authenticated
    * Returns if the current user is authenticated
    */
-  public async isAuthenticated() {
+  public async isAuthenticated(request: IncomingMessage) {
     try {
-      const currentUser = await this.getCurrentUser()
+      const currentUser = await this.getCurrentUser(request)
       return currentUser !== null
     } catch (error) {
       return false
@@ -35,10 +36,11 @@ export class HttpUserContext {
   /**
    * Returns if the current user can be authorized with ALL of the specified roles
    *
+   * @param request The request to be authenticated
    * @param roles The list of roles to authorize
    */
-  public async isAuthorized(...roles: string[]): Promise<boolean> {
-    const currentUser = await this.getCurrentUser()
+  public async isAuthorized(request: IncomingMessage, ...roles: string[]): Promise<boolean> {
+    const currentUser = await this.getCurrentUser(request)
     for (const role of roles) {
       if (!currentUser || !currentUser.roles.some((c) => c === role)) {
         return false
@@ -72,17 +74,17 @@ export class HttpUserContext {
     throw Error('Failed to authenticate.')
   }
 
-  public async getCurrentUser() {
+  public async getCurrentUser(request: IncomingMessage) {
     if (!this.user) {
-      this.user = await this.authenticateRequest()
+      this.user = await this.authenticateRequest(request)
       return this.user
     }
     return this.user
   }
 
-  public getSessionIdFromRequest(): string | null {
-    if (this.incomingMessage.headers.cookie) {
-      const cookies = this.incomingMessage.headers.cookie
+  public getSessionIdFromRequest(request: IncomingMessage): string | null {
+    if (request.headers.cookie) {
+      const cookies = request.headers.cookie
         .toString()
         .split(';')
         .filter((val) => val.length > 0)
@@ -98,16 +100,16 @@ export class HttpUserContext {
     return null
   }
 
-  public async authenticateRequest(): Promise<User> {
+  public async authenticateRequest(request: IncomingMessage): Promise<User> {
     // Basic auth
-    if (this.authentication.enableBasicAuth && this.incomingMessage.headers.authorization) {
-      const authData = Buffer.from(this.incomingMessage.headers.authorization.toString().split(' ')[1], 'base64')
+    if (this.authentication.enableBasicAuth && request.headers.authorization) {
+      const authData = Buffer.from(request.headers.authorization.toString().split(' ')[1], 'base64')
       const [userName, password] = authData.toString().split(':')
       return await this.authenticateUser(userName, password)
     }
 
     // Cookie auth
-    const sessionId = this.getSessionIdFromRequest()
+    const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
       const session = await this.sessions.get(sessionId)
       if (session) {
@@ -147,12 +149,12 @@ export class HttpUserContext {
     return user
   }
 
-  public async cookieLogout() {
-    const sessionId = this.getSessionIdFromRequest()
+  public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
+    const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const user = await this.authenticateRequest()
+      const user = await this.authenticateRequest(request)
       await this.sessions.remove(sessionId)
-      this.serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
+      response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
       this.logger.information({
         message: `User '${user.username}' has been logged out.`,
         data: {
@@ -166,8 +168,6 @@ export class HttpUserContext {
   private readonly logger: ScopedLogger
 
   constructor(
-    public readonly incomingMessage: IncomingMessage,
-    public readonly serverResponse: ServerResponse,
     injector: Injector,
     public readonly authentication: HttpAuthenticationSettings<User>,
     storeManager: StoreManager,

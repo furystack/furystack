@@ -13,13 +13,15 @@ export const prepareInjector = async (i: Injector) => {
       .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
       .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
   )
-  i.setExplicitInstance({ headers: {} }, IncomingMessage)
-  i.setExplicitInstance({}, ServerResponse)
+
   i.useHttpAuthentication()
   // await i.getInstance(ServerManager).getOrCreate({ port: 19999 })
 }
 
 describe('HttpUserContext', () => {
+  const request = { headers: {} } as IncomingMessage
+  const response = ({} as any) as ServerResponse
+
   const testUser: User = { username: 'testUser', roles: ['grantedRole1', 'grantedRole2'] }
 
   it('Should be constructed with the extension method', async () => {
@@ -36,7 +38,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
-        const value = await ctx.isAuthenticated()
+        const value = await ctx.isAuthenticated(request)
         expect(value).toBe(true)
         expect(ctx.getCurrentUser).toBeCalled()
       })
@@ -49,7 +51,7 @@ describe('HttpUserContext', () => {
         ctx.getCurrentUser = jest.fn(async () => {
           throw Error(':(')
         })
-        await expect(ctx.isAuthenticated()).resolves.toEqual(false)
+        await expect(ctx.isAuthenticated(request)).resolves.toEqual(false)
         expect(ctx.getCurrentUser).toBeCalled()
       })
     })
@@ -61,7 +63,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
-        const value = await ctx.isAuthorized('grantedRole1', 'grantedRole2')
+        const value = await ctx.isAuthorized(request, 'grantedRole1', 'grantedRole2')
         expect(value).toBe(true)
         expect(ctx.getCurrentUser).toBeCalled()
       })
@@ -72,7 +74,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.getCurrentUser = jest.fn(async () => testUser)
-        const value = await ctx.isAuthorized('grantedRole1', 'nonGrantedRole2')
+        const value = await ctx.isAuthorized(request, 'grantedRole1', 'nonGrantedRole2')
         expect(value).toBe(false)
         expect(ctx.getCurrentUser).toBeCalled()
       })
@@ -139,7 +141,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const sid = ctx.getSessionIdFromRequest()
+        const sid = ctx.getSessionIdFromRequest(request)
         expect(sid).toBeNull()
       })
     })
@@ -147,9 +149,9 @@ describe('HttpUserContext', () => {
     it('Should return null if no session ID cookie present', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
-        i.getInstance(IncomingMessage).headers = { cookie: 'a=2;b=3;c=4;' }
+        const requestWithCookie = ({ ...request, cookie: 'a=2;b=3;c=4;' } as unknown) as IncomingMessage
         const ctx = i.getInstance(HttpUserContext)
-        const sid = ctx.getSessionIdFromRequest()
+        const sid = ctx.getSessionIdFromRequest(requestWithCookie)
         expect(sid).toBeNull()
       })
     })
@@ -157,9 +159,12 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        i.getInstance(IncomingMessage).headers = { cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;` }
+        const requestWithAuthCookie = ({
+          ...request,
+          cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;`,
+        } as unknown) as IncomingMessage
 
-        const sid = ctx.getSessionIdFromRequest()
+        const sid = ctx.getSessionIdFromRequest(requestWithAuthCookie)
         expect(sid).toBe('666')
       })
     })
@@ -170,9 +175,10 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        i.getInstance(IncomingMessage).headers = { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` }
         ctx.authenticateUser = jest.fn(async () => testUser)
-        const result = await ctx.authenticateRequest()
+        const result = await ctx.authenticateRequest({
+          headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
+        } as IncomingMessage)
         expect(ctx.authenticateUser).toBeCalledWith('testuser', 'password')
         expect(result).toBe(testUser)
       })
@@ -183,9 +189,12 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication.enableBasicAuth = false
-        i.getInstance(IncomingMessage).headers = { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` }
         ctx.authenticateUser = jest.fn(async () => testUser)
-        await expect(ctx.authenticateRequest()).rejects.toThrow('')
+        await expect(
+          ctx.authenticateRequest({
+            headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
+          } as IncomingMessage),
+        ).rejects.toThrow('')
         expect(ctx.authenticateUser).not.toBeCalled()
       })
     })
@@ -194,9 +203,11 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
-
-        await expect(ctx.authenticateRequest()).rejects.toThrow('')
+        await expect(
+          ctx.authenticateRequest({
+            headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
+          } as IncomingMessage),
+        ).rejects.toThrow('')
       })
     })
 
@@ -204,11 +215,14 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
         ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
-        await expect(ctx.authenticateRequest()).rejects.toThrow('')
+        await expect(
+          ctx.authenticateRequest({
+            headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
+          } as IncomingMessage),
+        ).rejects.toThrow('')
       })
     })
 
@@ -216,14 +230,15 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        i.getInstance(IncomingMessage).headers = { cookie: `${ctx.authentication.cookieName}=666;a=3` }
         ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
 
         ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser, password: '' })
 
-        const result = await ctx.authenticateRequest()
+        const result = await ctx.authenticateRequest({
+          headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
+        } as IncomingMessage)
 
         expect(result).toEqual(testUser)
       })
@@ -236,8 +251,8 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authenticateRequest = jest.fn(async () => testUser)
-        const result = await ctx.getCurrentUser()
-        const result2 = await ctx.getCurrentUser()
+        const result = await ctx.getCurrentUser(request)
+        const result2 = await ctx.getCurrentUser(request)
         expect(ctx.authenticateRequest).toBeCalledTimes(1)
         expect(result).toBe(testUser)
         expect(result2).toBe(testUser)
@@ -270,10 +285,10 @@ describe('HttpUserContext', () => {
         ctx.authenticateRequest = jest.fn(async () => testUser)
         ctx.sessions.remove = jest.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
-        ctx.serverResponse.setHeader = jest.fn(() => undefined)
+        response.setHeader = jest.fn(() => undefined)
         await ctx.cookieLogin(testUser, { setHeader } as any)
-        await ctx.cookieLogout()
-        expect(ctx.serverResponse.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
+        await ctx.cookieLogout(request, response)
+        expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
         expect(ctx.sessions.remove).toBeCalled()
       })
     })

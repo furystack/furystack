@@ -1,5 +1,4 @@
 import '@furystack/logging'
-import { IncomingMessage } from 'http'
 import { sleepAsync } from '@furystack/utils'
 import { JsonResult, RequestAction, RequestOptions, RequestActionOptions, ActionResult } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
@@ -13,7 +12,7 @@ export const Authorize = (...roles: string[]) => <T extends RequestActionOptions
       const currentUser = await userContext.getCurrentUser()
       const authorized = await userContext.isAuthorized(...roles)
       if (!authorized) {
-        const { url } = options.injector.getInstance(IncomingMessage)
+        const { url } = options.request
         await sleepAsync(Math.random() * 1000)
         options.injector.logger.warning({
           scope: '@furystack/rest-service/@Authorize()',
