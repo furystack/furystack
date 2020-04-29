@@ -146,8 +146,10 @@ export class ApiManager implements Disposable {
       i.setExplicitInstance(res)
       try {
         const actionResult = await action({
+          request: req,
+          response: res,
           injector: i,
-          getBody: () => utils.readPostBody<any>(i.getRequest()),
+          getBody: () => utils.readPostBody<any>(req),
           getQuery: () => {
             return [...fullUrl.searchParams.keys()].reduce((last, current) => {
               const currentValue = fullUrl.searchParams.get(current) as string
@@ -166,7 +168,12 @@ export class ApiManager implements Disposable {
         })
         res.sendActionResult(actionResult)
       } catch (error) {
-        const errorActionResult = await ErrorAction({ injector: i, getBody: async () => error })
+        const errorActionResult = await ErrorAction({
+          request: req,
+          response: res,
+          injector: i,
+          getBody: async () => error,
+        })
         res.sendActionResult(errorActionResult)
       }
       return
@@ -193,7 +200,9 @@ export class ApiManager implements Disposable {
     if (action) {
       await this.executeAction({ ...options, ...action, fullUrl })
     } else {
-      options.res.sendActionResult(await NotFoundAction({ injector: options.injector }))
+      options.res.sendActionResult(
+        await NotFoundAction({ injector: options.injector, request: options.req, response: options.res }),
+      )
     }
   }
 
