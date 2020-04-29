@@ -4,7 +4,8 @@
     "outDir": "./dist",
     "composite": true,
     "rootDir": "./src",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "lib": ["ES2019", "ES2020.Promise", "DOM", "DOM.Iterable"]
   },
   "include": ["src"],
   "references": [{ "path": "../rest" }, { "path": "../inject" }, { "path": "../utils" }]
