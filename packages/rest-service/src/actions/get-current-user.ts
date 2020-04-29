@@ -10,7 +10,7 @@ import { Authenticate } from '../authenticate'
  */
 export const GetCurrentUser: RequestAction<{
   result: User
-}> = Authenticate()(async ({ injector }) => {
-  const user = await injector.getInstance(HttpUserContext).getCurrentUser()
+}> = Authenticate()(async ({ injector, request }) => {
+  const user = await injector.getInstance(HttpUserContext).getCurrentUser(request)
   return JsonResult(user)
 })
