@@ -28,8 +28,8 @@ strategy:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: ${{ matrix.node_version }}
-    displayName: Use Node.js ${{ matrix.node_version }}
+      versionSpec: $(node_version)
+    displayName: Use Node.js $(node_version)
 
   - task: DockerCompose@0
     displayName: Start services from docker-compose
