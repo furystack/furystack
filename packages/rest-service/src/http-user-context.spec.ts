@@ -161,7 +161,7 @@ describe('HttpUserContext', () => {
         const ctx = i.getInstance(HttpUserContext)
         const requestWithAuthCookie = ({
           ...request,
-          cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;`,
+          headers: { cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;` },
         } as unknown) as IncomingMessage
 
         const sid = ctx.getSessionIdFromRequest(requestWithAuthCookie)
