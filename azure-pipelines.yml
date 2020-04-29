@@ -19,7 +19,10 @@ pool:
 
 strategy:
   matrix:
-    node-version: [12.x, 14.x]
+    node_12_x:
+      node_version: 12.x
+    node_14_x:
+      node_version: 14.x
   maxParallel: 2
 
 steps:
