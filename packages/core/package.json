@@ -10,7 +10,7 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/furystack/core.git"
+    "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
     "furystack",
@@ -24,9 +24,9 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/furystack/core.git"
+    "url": "https://github.com/furystack/furystack/issues"
   },
-  "homepage": "https://github.com/furystack/core.git",
+  "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.2"
