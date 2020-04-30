@@ -2,12 +2,12 @@ import { createComponent } from './shade-component'
 import './jsx'
 
 describe('Shades Component Factory', () => {
-  it('Should create a simple component', () => {
+  it.skip('Should create a simple component', () => {
     const component = <div>test</div>
     expect(component)
   })
 
-  it('Should create a nested component', () => {
+  it.skip('Should create a nested component', () => {
     const component = (
       <div style={{ display: 'flex' }}>
         <h1>Hi, I'm a header</h1>

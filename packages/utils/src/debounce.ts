@@ -5,14 +5,14 @@
  * @returns a method that wraps the original one with an async debounce
  */
 export const debounce = <TArgs extends unknown[], TReturns>(method: (...args: TArgs) => TReturns, debounceMs = 250) => {
-  let timeout: number | undefined
+  let timeout: ReturnType<typeof setTimeout> | undefined
   return ((...args: TArgs) => {
     if (timeout) {
       clearTimeout(timeout)
     }
     timeout = setTimeout(() => {
       method(...args)
-      clearTimeout(timeout)
+      clearTimeout(timeout as any)
       timeout = undefined
     }, debounceMs)
   }) as (...args: TArgs) => TReturns

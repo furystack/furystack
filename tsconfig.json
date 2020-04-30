@@ -19,6 +19,7 @@
     "declarationMap": true,
     "importHelpers": true,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   }
 }

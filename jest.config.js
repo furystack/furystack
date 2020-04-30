@@ -15,6 +15,7 @@ module.exports = {
     '<rootDir>/packages/utils',
     '<rootDir>/packages/websocket-api',
   ],
+  testEnvironment: 'node',
   moduleFileExtensions: ['js', 'json', 'node'],
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{js,jsx}', '!**/node_modules/**'],
