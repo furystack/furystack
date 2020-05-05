@@ -1,11 +1,13 @@
-import { ServerResponse } from 'http'
+import { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { LoginAction } from './login'
 import { HttpUserContext } from '../http-user-context'
 
 describe('LoginAction', () => {
-  /** */
+  const request = { url: 'https://google.com' } as IncomingMessage
+  const response = {} as ServerResponse
+
   it('Returns the provided user with 200 on success', async () => {
     const testUser = { Name: 'Userke' }
     await usingAsync(new Injector(), async (i) => {
@@ -17,8 +19,9 @@ describe('LoginAction', () => {
         },
         HttpUserContext,
       )
-      i.setExplicitInstance({}, ServerResponse)
       const result = await LoginAction({
+        request,
+        response,
         injector: i,
         getBody: async () => ({ username: 'testuser', password: 'alma' }),
       })
@@ -30,9 +33,8 @@ describe('LoginAction', () => {
   it('Returns throw error with 400 on fail', async () => {
     await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
-      i.setExplicitInstance({}, ServerResponse)
       await expect(
-        LoginAction({ injector: i, getBody: async () => ({ username: '', password: '' }) }),
+        LoginAction({ request, response, injector: i, getBody: async () => ({ username: '', password: '' }) }),
       ).rejects.toThrowError('Login Failed')
     })
   })

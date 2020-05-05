@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http'
 import { RequestAction, JsonResult } from '@furystack/rest'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
@@ -11,12 +10,11 @@ import { AuthorizationError } from '@furystack/core'
 export const ErrorAction: RequestAction<{
   body: Error
   result: { message: string; url?: string; stack?: string }
-}> = async ({ injector, getBody }) => {
-  const msg = injector.getInstance(IncomingMessage)
+}> = async ({ injector, getBody, request }) => {
   const body = await getBody()
   injector.logger.warning({
     scope: '@furystack/rest-service',
-    message: `An action throwed error from '${msg.url}'.`,
+    message: `An action throwed error from '${request.url}'.`,
     data: {
       error: body,
     },
@@ -24,5 +22,5 @@ export const ErrorAction: RequestAction<{
 
   const errorCode = body instanceof RequestError ? body.responseCode : body instanceof AuthorizationError ? 403 : 500
 
-  return JsonResult({ message: body.message, url: msg.url, stack: body.stack }, errorCode)
+  return JsonResult({ message: body.message, url: request.url, stack: body.stack }, errorCode)
 }

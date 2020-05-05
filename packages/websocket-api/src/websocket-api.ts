@@ -7,7 +7,6 @@ import { usingAsync, Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
-import { ServerResponse } from 'http'
 
 /**
  * A WebSocket API implementation for FuryStack
@@ -78,15 +77,13 @@ export class WebSocketApi implements Disposable {
     await new Promise((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
   }
 
-  public execute(data: Data, msg: IncomingMessage, websocket: ws) {
-    const action = this.settings.actions.find((a) => a.canExecute(data))
+  public execute(data: Data, request: IncomingMessage, websocket: ws) {
+    const action = this.settings.actions.find((a) => a.canExecute({ data, request }))
     if (action) {
-      usingAsync(this.injector.createChild({ owner: msg }), async (i) => {
-        i.setExplicitInstance(msg, IncomingMessage)
-        i.setExplicitInstance({}, ServerResponse)
+      usingAsync(this.injector.createChild({ owner: request }), async (i) => {
         i.setExplicitInstance(websocket, ws)
         const actionInstance = i.getInstance<WebSocketAction>(action)
-        actionInstance.execute(data)
+        actionInstance.execute({ data, request })
       })
     }
   }

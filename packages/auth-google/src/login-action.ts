@@ -9,9 +9,10 @@ import { User } from '@furystack/core'
 export const GoogleLoginAction: RequestAction<{ result: User; body: { token: string } }> = async ({
   injector,
   getBody,
+  response,
 }) => {
   const { token } = await getBody()
   const user = await injector.getInstance(GoogleLoginService).login(token)
-  await injector.getInstance(HttpUserContext).cookieLogin(user, injector.getResponse())
+  await injector.getInstance(HttpUserContext).cookieLogin(user, response)
   return JsonResult(user)
 }

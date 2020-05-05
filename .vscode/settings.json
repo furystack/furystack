@@ -1,17 +1,11 @@
 {
   "editor.formatOnSave": true,
-  "eslint.validate": [
-    "typescript",
-    "typescriptreact"
-  ],
-  "typescript.tsdk": ".vscode/pnpify/typescript/lib",
+  "eslint.validate": ["typescript", "typescriptreact"],
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/*/**": true,
     "./yarn/*/**": true,
     ".vscode/pnpify/*/**": true
-  },
-  "eslint.nodePath": ".vscode/pnpify",
-  "prettier.prettierPath": ".vscode/pnpify/prettier/index.js"
+  }
 }

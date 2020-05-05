@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [12.x, 14.x]
 
     steps:
       - uses: actions/checkout@v1
@@ -16,8 +16,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Build the docker-compose stack
-        run: docker-compose up -d
 
       - name: Install YARN
         run: npm i yarn -g
@@ -27,6 +25,8 @@ jobs:
         run: yarn lint
       - name: Build
         run: yarn build
+      - name: Build the docker-compose stack
+        run: docker-compose up -d     
       - name: Test
         run: yarn test
       - uses: codecov/codecov-action@v1

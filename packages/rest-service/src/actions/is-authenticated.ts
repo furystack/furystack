@@ -6,7 +6,10 @@ import { HttpUserContext } from '../http-user-context'
  *
  * @param injector The injector from the current stack
  */
-export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({ injector }) => {
-  const isAuthenticated = await injector.getInstance(HttpUserContext).isAuthenticated()
+export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({
+  injector,
+  request,
+}) => {
+  const isAuthenticated = await injector.getInstance(HttpUserContext).isAuthenticated(request)
   return JsonResult({ isAuthenticated })
 }

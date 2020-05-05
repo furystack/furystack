@@ -13,9 +13,9 @@ import { RequestError } from '@furystack/rest'
 export const LoginAction: RequestAction<{ result: User; body: { username: string; password: string } }> = async ({
   injector,
   getBody,
+  response,
 }) => {
   const userContext = injector.getInstance(HttpUserContext)
-  const response = injector.getResponse()
   const body = await getBody()
   try {
     const user = await userContext.authenticateUser(body.username, body.password)

@@ -32,7 +32,7 @@
   "dependencies": {
     "tslib": "^1.11.1"
   },
-  "homepage": "https://github.com/furystack",
+  "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^25.2.1"
   }

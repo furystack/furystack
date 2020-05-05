@@ -52,6 +52,8 @@ export const BypassResult = () =>
 export type RequestOptions<TQuery, TBody, TUrlParams> = {
   // The injector in the scope of the current request
   injector: Injector
+  request: import('http').IncomingMessage
+  response: import('http').ServerResponse
 } & (unknown extends TQuery
   ? {}
   : {

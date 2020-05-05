@@ -5,13 +5,20 @@ import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
+import { ServerResponse } from 'http'
 
 describe('ErrorAction tests', () => {
+  const request = { url: 'https://google.com' } as IncomingMessage
+  const response = {} as ServerResponse
+
   it('returns the error in the standard format', async () => {
     await usingAsync(new Injector().useLogging(), async (i) => {
-      i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
-
-      const result = await ErrorAction({ injector: i, getBody: async () => new Error('Something went wrong') })
+      const result = await ErrorAction({
+        injector: i,
+        getBody: async () => new Error('Something went wrong'),
+        request,
+        response,
+      })
       expect(result.statusCode).toBe(500)
       expect(result.chunk.message).toBe('Something went wrong')
       expect(result.chunk.url).toBe('https://google.com')
@@ -20,9 +27,9 @@ describe('ErrorAction tests', () => {
 
   it('returns the error code from request errors', async () => {
     await usingAsync(new Injector().useLogging(), async (i) => {
-      i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
-
       const result = await ErrorAction({
+        request,
+        response,
         injector: i,
         getBody: async () => new RequestError('Something went wrong', 401),
       })
@@ -34,9 +41,9 @@ describe('ErrorAction tests', () => {
 
   it('returns the 403 for authorization errors', async () => {
     await usingAsync(new Injector().useLogging(), async (i) => {
-      i.setExplicitInstance({ url: 'https://google.com' }, IncomingMessage)
-
       const result = await ErrorAction({
+        request,
+        response,
         injector: i,
         getBody: async () => new AuthorizationError('Something went wrong'),
       })
