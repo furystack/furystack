@@ -5,6 +5,7 @@ import { HttpUserContext } from './http-user-context'
 import { EmptyResult } from '@furystack/rest'
 import { Authenticate } from './authenticate'
 import { ServerResponse } from 'http'
+import { IdentityContext } from '@furystack/core'
 
 describe('Authenticate', () => {
   const response = ({} as any) as ServerResponse
@@ -13,10 +14,14 @@ describe('Authenticate', () => {
   it('Should return 403 w/o basic auth header, when unauthorized and basic auth is disabled', async () => {
     await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = jest.fn(async () => false)
+
+      i.setExplicitInstance(
+        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
+        IdentityContext,
+      )
+
       i.setExplicitInstance(
         {
-          isAuthenticated: isAuthenticatedAction,
-          getCurrentUser: async () => Promise.reject(':('),
           authentication: { enableBasicAuth: false },
         },
         HttpUserContext,
@@ -59,7 +64,7 @@ describe('Authenticate', () => {
       const isAuthenticatedAction = jest.fn(async () => true)
       i.setExplicitInstance(
         { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
-        HttpUserContext,
+        IdentityContext,
       )
       const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)

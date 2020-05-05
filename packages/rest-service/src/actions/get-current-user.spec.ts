@@ -1,8 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { GetCurrentUser } from './get-current-user'
-import { HttpUserContext } from '../http-user-context'
 import { IncomingMessage, ServerResponse } from 'http'
+import { IdentityContext } from '@furystack/core'
 
 describe('getCurrentUser', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
@@ -13,7 +13,7 @@ describe('getCurrentUser', () => {
     await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(
         { getCurrentUser: async () => testUser, isAuthenticated: async () => true },
-        HttpUserContext,
+        IdentityContext,
       )
       const result = await GetCurrentUser({ injector: i, request, response })
       expect(result.statusCode).toBe(200)

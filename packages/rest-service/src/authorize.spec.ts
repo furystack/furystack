@@ -1,8 +1,7 @@
 import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { User } from '@furystack/core'
-import { HttpUserContext } from './http-user-context'
+import { User, IdentityContext } from '@furystack/core'
 import { Authorize } from './authorize'
 import { EmptyResult } from '@furystack/rest'
 import { ServerResponse } from 'http'
@@ -16,7 +15,7 @@ describe('Authorize', () => {
       const isAuthorizedAction = jest.fn(async () => false)
       i.setExplicitInstance(
         { isAuthorized: isAuthorizedAction, getCurrentUser: () => Promise.reject(':(') },
-        HttpUserContext,
+        IdentityContext,
       )
       const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
@@ -36,7 +35,7 @@ describe('Authorize', () => {
           isAuthorized: isAuthorizedAction,
           getCurrentUser: async () => Promise.resolve<User>({ username: 'a', roles: ['Role1'] }),
         },
-        HttpUserContext,
+        IdentityContext,
       )
       const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
@@ -56,7 +55,7 @@ describe('Authorize', () => {
           isAuthorized: isAuthorizedAction,
           getCurrentUser: async () => Promise.resolve<User>({ username: 'a', roles: ['Role1'] }),
         },
-        HttpUserContext,
+        IdentityContext,
       )
       const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
