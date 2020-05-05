@@ -34,8 +34,8 @@ describe('IdentityContext', () => {
   it('getCurrentUser should be called from extension', async () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
-      const spy = jest.spyOn(ctx, 'isAuthorized')
-      await expect(await i.isAuthorized()).rejects.toThrowError('')
+      const spy = jest.spyOn(ctx, 'getCurrentUser')
+      await expect(i.getCurrentUser()).rejects.toThrowError('')
       expect(spy).toBeCalledTimes(1)
     })
   })
