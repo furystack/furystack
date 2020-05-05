@@ -8,7 +8,7 @@ import { CorsOptions } from './models/cors-options'
 import { Utils } from './utils'
 import { ErrorAction } from './actions/error-action'
 import './server-response-extensions'
-import { IdentityContext, User } from '@furystack/core/src'
+import { IdentityContext, User } from '@furystack/core'
 import { HttpUserContext } from 'http-user-context'
 
 export interface ImplementApiOptions<T extends RestApi> {

@@ -1,4 +1,4 @@
-import { Injectable } from '@furystack/inject/src'
+import { Injectable } from '@furystack/inject'
 import { User } from './models/user'
 
 @Injectable()
