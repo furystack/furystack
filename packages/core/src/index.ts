@@ -5,5 +5,6 @@ export * from './file-store'
 export * from './in-memory-store'
 export * from './store-manager'
 export * from './global-disposables'
+export * from './identity-context'
 
 import './injector-extensions'

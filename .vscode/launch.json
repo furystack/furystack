@@ -21,7 +21,7 @@
       "runtimeArgs": [
         "node",
         "--inspect-brk",
-        "${workspaceRoot}/.yarn/cache/jest-npm-25.1.0-0e542566c5-2.zip/node_modules/jest/bin/jest.js",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
         "--runInBand",
         "--testTimeout=99999999"
       ],
@@ -36,7 +36,7 @@
       "runtimeArgs": [
         "node",
         "--inspect-brk",
-        "${workspaceRoot}/.yarn/cache/jest-npm-25.1.0-0e542566c5-2.zip/node_modules/jest/bin/jest.js",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
 
         "${fileBasenameNoExtension}",
         "--runInBand",
