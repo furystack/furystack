@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import { User } from './models/user'
 
-@Injectable()
+@Injectable({ lifetime: 'scoped' })
 export class IdentityContext {
   public async isAuthenticated() {
     return false
