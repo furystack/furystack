@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-store",
-  "version": "2.0.38",
+  "version": "2.0.39",
   "description": "Redis Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,10 +29,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^8.0.14",
-    "@furystack/inject": "^4.0.26",
-    "@furystack/logging": "^2.0.33",
-    "@furystack/utils": "^1.1.16",
+    "@furystack/core": "^8.0.15",
+    "@furystack/inject": "^4.0.27",
+    "@furystack/logging": "^2.0.34",
+    "@furystack/utils": "^1.1.17",
     "redis": "^3.0.2",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^1.11.1"
