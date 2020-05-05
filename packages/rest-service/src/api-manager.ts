@@ -8,6 +8,8 @@ import { CorsOptions } from './models/cors-options'
 import { Utils } from './utils'
 import { ErrorAction } from './actions/error-action'
 import './server-response-extensions'
+import { IdentityContext, User } from '@furystack/core/src'
+import { HttpUserContext } from 'http-user-context'
 
 export interface ImplementApiOptions<T extends RestApi> {
   api: T
@@ -142,6 +144,12 @@ export class ApiManager implements Disposable {
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
+      const httpUserContext = i.getInstance(HttpUserContext)
+      i.setExplicitInstance<IdentityContext>({
+        getCurrentUser: <TUser extends User>() => httpUserContext.getCurrentUser(req) as Promise<TUser>,
+        isAuthorized: (...roles) => httpUserContext.isAuthorized(req, ...roles),
+        isAuthenticated: () => httpUserContext.isAuthenticated(req),
+      })
       try {
         const actionResult = await action({
           request: req,
