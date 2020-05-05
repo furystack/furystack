@@ -145,11 +145,14 @@ export class ApiManager implements Disposable {
     await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
       const httpUserContext = i.getInstance(HttpUserContext)
-      i.setExplicitInstance<IdentityContext>({
-        getCurrentUser: <TUser extends User>() => httpUserContext.getCurrentUser(req) as Promise<TUser>,
-        isAuthorized: (...roles) => httpUserContext.isAuthorized(req, ...roles),
-        isAuthenticated: () => httpUserContext.isAuthenticated(req),
-      })
+      i.setExplicitInstance<IdentityContext>(
+        {
+          getCurrentUser: <TUser extends User>() => httpUserContext.getCurrentUser(req) as Promise<TUser>,
+          isAuthorized: (...roles) => httpUserContext.isAuthorized(req, ...roles),
+          isAuthenticated: () => httpUserContext.isAuthenticated(req),
+        },
+        IdentityContext,
+      )
       try {
         const actionResult = await action({
           request: req,
