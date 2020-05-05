@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@furystack/utils/src'
+import { using, usingAsync } from '@furystack/utils'
 import { IdentityContext } from './identity-context'
 import './injector-extensions'
 
