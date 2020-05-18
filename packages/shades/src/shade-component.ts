@@ -40,7 +40,7 @@ export const createComponent = <TProps>(
 
     if (props && (props as any).style) {
       const style = (props as any).style as CSSStyleDeclaration
-      for (const styleName of Object.keys(style) as Array<keyof CSSStyleDeclaration>) {
+      for (const styleName of Object.keys(style) as any) {
         el.style[styleName as any] = style[styleName]
       }
     }

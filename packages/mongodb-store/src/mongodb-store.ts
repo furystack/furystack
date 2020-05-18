@@ -36,7 +36,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
   public async add(data: Exclude<T, '_id'>): Promise<T> {
     const collection = await this.getCollection()
     const result = await collection.insertOne(data as any)
-    return { _id: result.insertedId, ...data }
+    return { ...data, _id: result.insertedId }
   }
   public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
