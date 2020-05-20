@@ -188,18 +188,6 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
       })
     })
     describe('Filtering', () => {
-      it('should filter strings', async () => {
-        await usingAsync(options.createStore(), async (store) => {
-          await store.add(
-            createMockEntity({ id: 1, stringValue1: 'asd' }),
-            createMockEntity({ id: 2, stringValue1: 'def' }),
-            createMockEntity({ id: 3, stringValue1: 'def' }),
-          )
-          const result = await store.find({ filter: { stringValue1: 'def' } })
-          expect(result.length).toBe(2)
-        })
-      })
-
       it('should filter strings with $eq', async () => {
         await usingAsync(options.createStore(), async (store) => {
           await store.add(
@@ -212,18 +200,6 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
         })
       })
 
-      it('should filter numbers', async () => {
-        await usingAsync(options.createStore(), async (store) => {
-          await store.add(
-            createMockEntity({ id: 1, numberValue1: 1 }),
-            createMockEntity({ id: 2, numberValue1: 2 }),
-            createMockEntity({ id: 3, numberValue1: 2 }),
-          )
-          const result = await store.find({ filter: { stringValue1: 2 } })
-          expect(result.length).toBe(2)
-        })
-      })
-
       it('should filter numbers with $eq', async () => {
         await usingAsync(options.createStore(), async (store) => {
           await store.add(
@@ -231,7 +207,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
             createMockEntity({ id: 2, numberValue1: 2 }),
             createMockEntity({ id: 3, numberValue1: 2 }),
           )
-          const result = await store.find({ filter: { stringValue1: { $eq: 2 } } })
+          const result = await store.find({ filter: { numberValue1: { $eq: 2 } } })
           expect(result.length).toBe(2)
         })
       })
@@ -336,10 +312,10 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
             createMockEntity({ numberValue1: 2 }),
           )
 
-          const count = await store.count({ numberValue1: 1 })
+          const count = await store.count({ numberValue1: { $eq: 1 } })
           expect(count).toBe(2)
 
-          const count2 = await store.count({ numberValue1: 2 })
+          const count2 = await store.count({ numberValue1: { $eq: 2 } })
           expect(count2).toBe(1)
         })
       })

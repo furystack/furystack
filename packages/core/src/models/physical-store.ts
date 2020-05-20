@@ -17,8 +17,8 @@ export const allOperators = [
 
 export type FilterType<T> = {
   [K in keyof T]?:
-    | (T[K] extends string ? { $regex?: string } : {})
-    | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : {})
+    | (T[K] extends string ? { $regex?: string } : never)
+    | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : never)
     | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
     | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
 } &
@@ -27,9 +27,9 @@ export const isOperator = (propertyString: string): propertyString is typeof all
   allOperators.includes(propertyString as typeof allOperators[number])
 
 export const t: FilterType<{ a: number; b: string; c: boolean }> = {
-  a: { $eq: 1 },
+  a: { $eq: 3 },
   b: { $in: ['a', 'b', 'c'] },
-  c: { $and: [{ a: { $eq: 2 } }] },
+  $and: [{ a: { $eq: 2 } }],
 }
 
 /**

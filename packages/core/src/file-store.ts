@@ -3,7 +3,7 @@ import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
 import { InMemoryStore } from './in-memory-store'
-import { PhysicalStore, FindOptions } from './models/physical-store'
+import { PhysicalStore, FindOptions, FilterType } from './models/physical-store'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -50,7 +50,7 @@ export class FileStore<T> implements PhysicalStore<T> {
     })
   }
 
-  public async count(filter?: Partial<T>) {
+  public async count(filter?: FilterType<T>) {
     return await this.fileLock.execute(async () => {
       return this.inMemoryStore.count(filter)
     })
