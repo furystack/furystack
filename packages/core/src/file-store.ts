@@ -1,9 +1,9 @@
-import { FSWatcher, readFile as nodeReadFile, watch, writeFile as nodeWriteFile } from 'fs'
+import { FSWatcher, promises, watch } from 'fs'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
 import { InMemoryStore } from './in-memory-store'
-import { PhysicalStore, SearchOptions } from './models/physical-store'
+import { PhysicalStore, FindOptions } from './models/physical-store'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -21,9 +21,9 @@ export class FileStore<T> implements PhysicalStore<T> {
     return this.inMemoryStore.cache
   }
 
-  public async remove(key: T[this['primaryKey']]): Promise<void> {
+  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
     await this.fileLock.execute(async () => {
-      await this.inMemoryStore.remove(key)
+      await this.inMemoryStore.remove(...keys)
     })
     this.hasChanges = true
   }
@@ -36,17 +36,17 @@ export class FileStore<T> implements PhysicalStore<T> {
     })
   }
 
-  public async add(data: T) {
+  public async add(...entries: T[]) {
     const result = await this.fileLock.execute(async () => {
-      return await this.inMemoryStore.add(data)
+      return await this.inMemoryStore.add(...entries)
     })
     this.hasChanges = true
     return result
   }
 
-  public async search<TFields extends Array<keyof T>>(filter: SearchOptions<T, TFields>) {
+  public async find<TFields extends Array<keyof T>>(filter: FindOptions<T, TFields>) {
     return await this.fileLock.execute(async () => {
-      return this.inMemoryStore.search(filter)
+      return this.inMemoryStore.find(filter)
     })
   }
 
@@ -67,15 +67,7 @@ export class FileStore<T> implements PhysicalStore<T> {
       for (const key of this.cache.keys()) {
         values.push(this.cache.get(key) as T)
       }
-      await new Promise((resolve, reject) => {
-        this.writeFile(this.options.fileName, JSON.stringify(values), (error) => {
-          if (!error) {
-            resolve()
-          } else {
-            reject(error)
-          }
-        })
-      })
+      await this.writeFile(this.options.fileName, JSON.stringify(values))
       this.hasChanges = false
       this.logger.information({
         message: `Store '${this.options.fileName}' has been updated with the latest changes.`,
@@ -103,20 +95,12 @@ export class FileStore<T> implements PhysicalStore<T> {
   public async reloadData() {
     try {
       await this.fileLock.acquire()
-      await new Promise((resolve, reject) => {
-        this.readFile(this.options.fileName, (error, data) => {
-          if (error) {
-            reject(error)
-          } else {
-            this.cache.clear()
-            const json = (data ? JSON.parse(data.toString()) : []) as T[]
-            for (const user of json) {
-              this.cache.set(user[this.primaryKey], user)
-            }
-            resolve()
-          }
-        })
-      })
+      const data = await this.readFile(this.options.fileName)
+      const json = (data ? JSON.parse(data.toString()) : []) as T[]
+      this.cache.clear()
+      for (const entity of json) {
+        this.cache.set(entity[this.primaryKey], entity)
+      }
     } catch (e) {
       this.logger.error({
         message: `Error loading data into store from '${this.options.fileName}'.`,
@@ -134,8 +118,8 @@ export class FileStore<T> implements PhysicalStore<T> {
     this.hasChanges = true
   }
 
-  public readFile = nodeReadFile
-  public writeFile = nodeWriteFile
+  public readFile = promises.readFile
+  public writeFile = promises.writeFile
 
   private logger: ScopedLogger
 
@@ -146,15 +130,11 @@ export class FileStore<T> implements PhysicalStore<T> {
       tickMs?: number
       logger: Logger
       model: Constructable<T>
-      readFile?: typeof nodeReadFile
-      writeFile?: typeof nodeWriteFile
     },
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
     this.logger = options.logger.withScope(`@furystack/core/${this.constructor.name}`)
-    options.readFile && (this.readFile = options.readFile)
-    options.writeFile && (this.writeFile = options.writeFile)
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
     try {

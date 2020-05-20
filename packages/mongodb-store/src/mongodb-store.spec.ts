@@ -55,7 +55,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should throw on search', async () => {
-    const entries = await store.search({ top: 1 })
+    const entries = await store.find({ top: 1 })
     for (const entry of entries) {
       expect(entry).toBeInstanceOf(Object)
     }

@@ -1,7 +1,7 @@
 import { Constructable } from '@furystack/inject'
 import {
   PhysicalStore,
-  SearchOptions,
+  FindOptions,
   selectFields,
   PartialResult,
   FilterType,
@@ -11,18 +11,19 @@ import {
 export class InMemoryStore<T> implements PhysicalStore<T> {
   /**
    *
-   * @param key The key to remove from the store
+   * @param keys The keys to remove from the store
    */
-  public async remove(key: T[this['primaryKey']]): Promise<void> {
-    this.cache.delete(key)
+  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
+    keys.map((key) => this.cache.delete(key))
   }
 
-  public async add(data: T): Promise<T> {
-    if (this.cache.has(data[this.primaryKey])) {
-      throw new Error('Item with the primary key already exists.')
-    }
-    this.cache.set(data[this.primaryKey], data)
-    return data
+  public async add(...entries: T[]): Promise<void> {
+    entries.map((entry) => {
+      if (this.cache.has(entry[this.primaryKey])) {
+        throw new Error('Item with the primary key already exists.')
+      }
+      this.cache.set(entry[this.primaryKey], entry)
+    })
   }
 
   public cache: Map<T[this['primaryKey']], T> = new Map()
@@ -81,7 +82,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     })
   }
 
-  public async search<TFields extends Array<keyof T>>(searchOptions: SearchOptions<T, TFields>) {
+  public async find<TFields extends Array<keyof T>>(searchOptions: FindOptions<T, TFields>) {
     let value: Array<PartialResult<T, TFields[number]>> = this.filterInternal(
       [...this.cache.values()],
       searchOptions.filter,
@@ -133,6 +134,8 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
    * Creates an InMemoryStore that can be used for testing purposes.
    *
    * @param options Options for the In Memory Store
+   * @param options.primaryKey
+   * @param options.model
    */
   constructor(options: {
     /**

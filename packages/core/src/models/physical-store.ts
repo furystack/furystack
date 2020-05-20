@@ -35,7 +35,7 @@ export const t: FilterType<{ a: number; b: string; c: boolean }> = {
 /**
  * Type for default filtering model
  */
-export interface SearchOptions<T, TSelect extends Array<keyof T>> {
+export interface FindOptions<T, TSelect extends Array<keyof T>> {
   /**
    * Limits the hits
    */
@@ -92,9 +92,9 @@ export interface PhysicalStore<T> extends Disposable {
   /**
    * Adds an entry to the store, returns a promise that will be resolved with the added data
    *
-   * @param data The data to be added
+   * @param entries The data to be added
    */
-  add(data: T): Promise<T>
+  add(...entries: T[]): Promise<void>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
@@ -102,7 +102,7 @@ export interface PhysicalStore<T> extends Disposable {
    * @param id The primary key of the entry
    * @param data The data to be updated
    */
-  update(id: T[this['primaryKey']], data: T): Promise<void>
+  update(id: T[this['primaryKey']], data: Partial<T>): Promise<void>
 
   /**
    * Returns a promise that will be resolved with the count of the elements
@@ -114,8 +114,8 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param searchOptions An options object for the Search expression
    */
-  search<TSelect extends Array<keyof T>>(
-    searchOptions: SearchOptions<T, TSelect>,
+  find<TSelect extends Array<keyof T>>(
+    findOptions: FindOptions<T, TSelect>,
   ): Promise<Array<PartialResult<T, TSelect[number]>>>
 
   /**
@@ -123,12 +123,15 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param key The primary key of the entry
    */
-  get(key: T[this['primaryKey']]): Promise<T | undefined>
+  get<TSelect extends Array<keyof T>>(
+    key: T[this['primaryKey']],
+    select?: TSelect,
+  ): Promise<PartialResult<T, TSelect[number]> | undefined>
 
   /**
    * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
    *
    * @param key The primary key of the entry to remove
    */
-  remove(key: T[this['primaryKey']]): Promise<void>
+  remove(...keys: Array<T[this['primaryKey']]>): Promise<void>
 }

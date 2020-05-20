@@ -1,7 +1,7 @@
-import { SearchOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
+import { FindOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient, FilterQuery, Collection, ObjectId } from 'mongodb'
+import { MongoClient, FilterQuery, Collection, ObjectId, OptionalId } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -33,10 +33,9 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
       message: `Initializing MongoDB Store for ${this.model.name}...`,
     })
   }
-  public async add(data: Exclude<T, '_id'>): Promise<T> {
+  public async add(...entries: T[]): Promise<void> {
     const collection = await this.getCollection()
-    const result = await collection.insertOne(data as any)
-    return { ...data, _id: result.insertedId }
+    await collection.insertMany(entries as Array<OptionalId<T>>)
   }
   public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
@@ -46,8 +45,8 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const collection = await this.getCollection()
     return await collection.countDocuments(filter as FilterQuery<T>)
   }
-  public async search<TFields extends Array<keyof T>>(
-    filter: SearchOptions<T, TFields>,
+  public async find<TFields extends Array<keyof T>>(
+    filter: FindOptions<T, TFields>,
   ): Promise<Array<PartialResult<T, TFields[number]>>> {
     const collection = await this.getCollection()
 
@@ -68,9 +67,10 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     const result = await collection.findOne({ _id: { $eq: new ObjectId(key) } } as any)
     return result || undefined
   }
-  public async remove(key: T[this['primaryKey']]): Promise<void> {
+  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
     const collection = await this.getCollection()
-    await collection.deleteOne({ _id: new ObjectId(key) } as any)
+    const ids = keys.map((key) => new ObjectId(key))
+    await collection.deleteMany({ _id: { $in: ids } } as FilterQuery<T>)
   }
   public async dispose() {
     /** */

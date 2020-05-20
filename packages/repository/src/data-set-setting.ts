@@ -1,4 +1,4 @@
-import { PhysicalStore, SearchOptions } from '@furystack/core'
+import { PhysicalStore, FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 
 /**
@@ -108,6 +108,6 @@ export interface DataSetSettings<T> {
    */
   addFilter?: <TFields extends Array<keyof T>>(options: {
     injector: Injector
-    filter: SearchOptions<T, TFields>
-  }) => Promise<SearchOptions<T, TFields>>
+    filter: FindOptions<T, TFields>
+  }) => Promise<FindOptions<T, TFields>>
 }

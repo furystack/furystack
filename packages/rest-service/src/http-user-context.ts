@@ -59,7 +59,7 @@ export class HttpUserContext {
     const match =
       (password &&
         password.length &&
-        (await this.users.search({
+        (await this.users.find({
           filter: {
             username: { $eq: userName },
             password: { $eq: this.authentication.hashMethod(password) },
@@ -111,9 +111,9 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const [session] = await this.sessions.search({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
+      const [session] = await this.sessions.find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
       if (session) {
-        const userResult = await this.users.search({
+        const userResult = await this.users.find({
           filter: {
             username: { $eq: session.username },
           },
