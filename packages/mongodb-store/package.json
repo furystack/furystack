@@ -36,12 +36,12 @@
     "@types/mongodb": "^3.5.9",
     "mongodb": "^3.5.6",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.2",
-    "@types/uuid": "^7.0.2",
+    "@types/node": "^14.0.4",
+    "@types/uuid": "^8.0.0",
     "got": "^11.0.2",
     "uuid": "^8.0.0"
   },

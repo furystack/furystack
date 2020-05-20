@@ -34,7 +34,7 @@
     "@furystack/logging": "^2.0.34",
     "@furystack/rest-service": "^2.1.2",
     "@furystack/utils": "^1.1.17",
-    "tslib": "^1.11.1",
+    "tslib": "^2.0.0",
     "ws": "^7.2.3"
   },
   "devDependencies": {

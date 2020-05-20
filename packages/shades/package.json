@@ -30,7 +30,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^25.2.1",
-    "@types/uuid": "^7.0.2"
+    "@types/uuid": "^8.0.0"
   },
   "dependencies": {
     "@furystack/core": "^8.1.0",
@@ -38,7 +38,7 @@
     "@furystack/logging": "^2.0.34",
     "@furystack/utils": "^1.1.17",
     "path-to-regexp": "^6.1.0",
-    "tslib": "^1.11.1",
+    "tslib": "^2.0.0",
     "uuid": "^8.0.0"
   },
   "typings": "./dist/index.d.ts",

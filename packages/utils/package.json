@@ -30,7 +30,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {

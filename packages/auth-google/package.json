@@ -34,11 +34,11 @@
     "@furystack/rest": "^1.1.11",
     "@furystack/rest-service": "^2.1.2",
     "@furystack/utils": "^1.1.17",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.2"
+    "@types/node": "^14.0.4"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

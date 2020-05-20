@@ -35,12 +35,12 @@
     "@furystack/utils": "^1.1.17",
     "redis": "^3.0.2",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/redis": "^2.8.18",
-    "@types/uuid": "^7.0.2",
+    "@types/uuid": "^8.0.0",
     "uuid": "^8.0.0"
   },
   "typings": "./dist/index.d.ts",
