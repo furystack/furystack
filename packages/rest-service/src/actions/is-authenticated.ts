@@ -3,7 +3,9 @@ import { RequestAction, JsonResult } from '@furystack/rest'
 /**
  * Action that returns if the current user is authenticated
  *
- * @param injector The injector from the current stack
+ * @param options The options for the Custom Action
+ * @param options.injector The Injector from the current context
+ * @returns A standard authentication result
  */
 export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({ injector }) => {
   const isAuthenticated = await injector.isAuthenticated()

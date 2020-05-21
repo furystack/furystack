@@ -75,6 +75,7 @@ export class GoogleLoginService {
    * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
    *
    * @param token The IdToken to authenticate
+   * @returns The current user
    */
   public async login(token: string): Promise<User> {
     const googleData = await this.getGoogleUserData(token)

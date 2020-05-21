@@ -65,6 +65,7 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param filter The Filter that will be applied
+   * @returns the Count
    */
   public async count(injector: Injector, filter?: FilterType<T>): Promise<number> {
     if (this.settings.authorizeGet) {
@@ -81,6 +82,7 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param filter The Filter definition
+   * @returns A result with the current items
    */
   public async find<TFields extends Array<keyof T>>(
     injector: Injector,
@@ -101,6 +103,8 @@ export class DataSet<T> {
    *
    * @param injector The injector from the context
    * @param key The identifier of the entity
+   *
+   * @returns An item with the current unique key or Undefined
    */
   public async get(injector: Injector, key: T[this['primaryKey']]) {
     if (this.settings.authorizeGet) {
@@ -124,6 +128,7 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param key The primary key
+   * @returns A promise that will be resolved / rejected based on the remove success
    */
   public async remove(injector: Injector, key: T[this['primaryKey']]): Promise<void> {
     if (this.settings.authorizeRemove) {

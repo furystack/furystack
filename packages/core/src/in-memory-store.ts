@@ -134,8 +134,8 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
    * Creates an InMemoryStore that can be used for testing purposes.
    *
    * @param options Options for the In Memory Store
-   * @param options.primaryKey
-   * @param options.model
+   * @param options.primaryKey The name of the primary key field
+   * @param options.model The Entity Model
    */
   constructor(options: {
     /**

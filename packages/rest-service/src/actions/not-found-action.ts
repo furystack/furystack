@@ -1,7 +1,7 @@
 import { RequestAction, JsonResult } from '@furystack/rest'
 
 /**
- * Default fall back "Not Found" (404) action
+ * @returns The standard Not Found action result
  */
 export const NotFoundAction: RequestAction<{ result: { error: string } }> = async () => {
   return JsonResult(
