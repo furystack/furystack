@@ -1,6 +1,7 @@
-import 'reflect-metadata'
 import { Injector } from './injector'
 import { Constructable } from './types/constructable'
+
+import './reflect-metadata-polyfill'
 
 /**
  * Options for the injectable instance
