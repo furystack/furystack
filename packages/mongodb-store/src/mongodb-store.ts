@@ -18,6 +18,11 @@ export class MongodbStore<T> implements PhysicalStore<T> {
     return collection
   }
 
+  private async ensurePrimaryKey() {
+    const coll = await this.getCollection()
+    await coll.createIndex({ [this.primaryKey]: 1 }, { unique: true })
+  }
+
   constructor(
     private readonly options: {
       model: Constructable<T>
@@ -34,6 +39,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
     this.logger.verbose({
       message: `Initializing MongoDB Store for ${this.model.name}...`,
     })
+    this.ensurePrimaryKey()
   }
   public async add(...entries: T[]): Promise<void> {
     const collection = await this.getCollection()

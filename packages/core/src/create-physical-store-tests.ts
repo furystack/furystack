@@ -62,7 +62,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
         await usingAsync(options.createStore(), async (store) => {
           const entity = createMockEntity()
           await store.add(entity)
-          await expect(store.add(entity)).rejects.toThrow('Item with the primary key already exists.')
+          await expect(store.add(entity)).rejects.toThrow()
           const count = await store.count()
           expect(count).toBe(1)
         })
@@ -230,10 +230,10 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
 
       it('filter should return the corresponding entries with $in statement', async () => {
         await usingAsync(options.createStore(), async (store) => {
-          store.add(
-            createMockEntity({ id: 1, stringValue1: 'asd' }),
-            createMockEntity({ id: 2, stringValue1: 'def' }),
-            createMockEntity({ id: 3, stringValue1: 'sdf' }),
+          await store.add(
+            createMockEntity({ stringValue1: 'asd' }),
+            createMockEntity({ stringValue1: 'def' }),
+            createMockEntity({ stringValue1: 'sdf' }),
           )
 
           const result = await store.find({ filter: { stringValue1: { $in: ['asd', 'def'] } } })
