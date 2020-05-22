@@ -37,11 +37,14 @@ export class MongodbStore<T> implements PhysicalStore<T> {
   }
   public async add(...entries: T[]): Promise<void> {
     const collection = await this.getCollection()
-    await collection.insertMany(entries as Array<OptionalId<T>>)
+    await collection.insertMany(entries.map((e) => ({ ...e })) as Array<OptionalId<T>>)
   }
   public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
-    await collection.updateOne({ _id: id } as any, { $set: data })
+    const updateResult = await collection.updateOne({ [this.primaryKey]: id } as any, { $set: data })
+    if (updateResult.matchedCount < 1) {
+      throw Error(`Entity not found with id '${id}', cannot update!`)
+    }
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const collection = await this.getCollection()
@@ -58,17 +61,27 @@ export class MongodbStore<T> implements PhysicalStore<T> {
 
     const result = await collection
       .find(filter.filter as FilterQuery<T>)
+      .project(this.getProjection(filter.select))
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
       .sort(sort)
       .toArray()
     return result.map((entry) => (filter.select ? selectFields(entry, ...filter.select) : entry))
   }
+
+  private getProjection(fields?: Array<keyof T>) {
+    return {
+      ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
+      _id: 0,
+    }
+  }
+
   public async get(key: T[this['primaryKey']], select?: Array<keyof T>): Promise<T | undefined> {
-    // ToDo: Projection
     const collection = await this.getCollection()
-    const projection = select ? Object.fromEntries(select.map((field) => [field, 1])) : undefined
-    const result = await collection.findOne({ [this.primaryKey]: { $eq: key } } as FilterQuery<T>, projection)
+    const projection = this.getProjection(select)
+    const result = await collection.findOne({ [this.primaryKey]: { $eq: key } } as FilterQuery<T>, {
+      projection,
+    })
     return result || undefined
   }
   public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {

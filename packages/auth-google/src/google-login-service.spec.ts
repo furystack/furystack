@@ -105,7 +105,8 @@ describe('Google Login Service', () => {
           sm.addStore(new InMemoryStore({ model: User, primaryKey: 'username' })),
         ).useHttpAuthentication({ getUserStore: (sm) => sm.getStoreFor<User & { password: string }>(User as any) })
 
-        const usr = await i.getInstance(StoreManager).getStoreFor(User).add({ username: 'user@example.com', roles: [] })
+        const usr = { username: 'user@example.com', roles: [] }
+        await i.getInstance(StoreManager).getStoreFor(User).add(usr)
 
         const loginService = i.getInstance(GoogleLoginService)
 

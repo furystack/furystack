@@ -27,7 +27,10 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   }
 
   public cache: Map<T[this['primaryKey']], T> = new Map()
-  public get = async (key: T[this['primaryKey']]) => this.cache.get(key)
+  public get = async (key: T[this['primaryKey']], select?: Array<keyof T>) => {
+    const item = this.cache.get(key)
+    return item && select ? selectFields(item, ...select) : item
+  }
 
   private filterInternal(values: T[], filter?: FilterType<T>): T[] {
     if (!filter) {
@@ -117,6 +120,9 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   }
 
   public async update(id: T[this['primaryKey']], data: T) {
+    if (!this.cache.has(id)) {
+      throw Error(`Entity not found with id '${id}', cannot update!`)
+    }
     this.cache.set(id, {
       ...this.cache.get(id),
       ...data,

@@ -11,9 +11,10 @@ export class TestClass {
   dateValue!: Date
 }
 
+let idIndex = 0
 export const createMockEntity = (part?: Partial<TestClass>) =>
   ({
-    id: Math.round(Math.random() * 100),
+    id: idIndex++,
     stringValue1: 'foo',
     stringValue2: 'bar',
     numberValue1: Math.round(Math.random() * 1000),
@@ -99,7 +100,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
         await usingAsync(options.createStore(), async (store) => {
           const entity = createMockEntity()
           await store.add(entity)
-          await store.update(entity.id, { ...entity, stringValue1: 'modified' })
+          await store.update(entity.id, { stringValue1: 'modified' })
           const retrieved = await store.get(entity.id)
           expect(retrieved?.stringValue1).toEqual('modified')
         })
@@ -108,8 +109,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
       it('Update should throw an error if the entity does not exists', async () => {
         await usingAsync(options.createStore(), async (store) => {
           const entity = createMockEntity()
-          await store.update(entity.id, entity)
-          await expect(await store.update(entity.id, entity)).rejects.toThrow('Entity not found')
+          await expect(store.update(entity.id, entity)).rejects.toThrow('Entity not found')
         })
       })
 
@@ -120,7 +120,8 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
           const count = await store.count()
           expect(count).toBe(1)
           await store.remove(entity.id)
-          expect(count).toBe(0)
+          const countAferDelete = await store.count()
+          expect(countAferDelete).toBe(0)
         })
       })
 
@@ -133,9 +134,11 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
           const count = await store.count()
           expect(count).toBe(3)
           await store.remove(entity1.id, entity2.id)
-          expect(count).toBe(1)
+          const countAferDelete = await store.count()
+          expect(countAferDelete).toBe(1)
           await store.remove(entity3.id)
-          expect(count).toBe(0)
+          const countAferDeleteAll = await store.count()
+          expect(countAferDeleteAll).toBe(0)
         })
       })
     })

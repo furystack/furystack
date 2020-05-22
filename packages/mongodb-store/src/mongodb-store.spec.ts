@@ -25,7 +25,8 @@ describe('MongoDB Store', () => {
       const oldDispose = store.dispose
       store.dispose = async () => {
         const client = await i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
-        await client.db(`furystack-mongo-store-tests-${dbIdx}`).dropDatabase()
+        const db = client.db(mongoOptions.db)
+        await db.dropDatabase()
         store.dispose = oldDispose
         await i.dispose()
       }
