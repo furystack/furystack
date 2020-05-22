@@ -1,25 +1,27 @@
 import { FindOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient, FilterQuery, Collection, ObjectId, OptionalId } from 'mongodb'
+import { MongoClient, FilterQuery, Collection, OptionalId } from 'mongodb'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T> {
-  public readonly primaryKey = '_id'
+export class MongodbStore<T> implements PhysicalStore<T> {
+  public readonly primaryKey: keyof T
 
   public readonly model: Constructable<T>
   private readonly logger: ScopedLogger
 
   public async getCollection(): Promise<Collection<T>> {
     const client = await this.options.mongoClient()
-    return client.db(this.options.db).collection<T>(this.options.collection)
+    const collection = client.db(this.options.db).collection<T>(this.options.collection)
+    return collection
   }
 
   constructor(
     private readonly options: {
       model: Constructable<T>
+      primaryKey: keyof T
       db: string
       collection: string
       logger: Logger
@@ -27,7 +29,7 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
     },
   ) {
     this.logger = this.options.logger.withScope(`@furystack/mongodb-store/${this.constructor.name}`)
-
+    this.primaryKey = options.primaryKey
     this.model = options.model
     this.logger.verbose({
       message: `Initializing MongoDB Store for ${this.model.name}...`,
@@ -62,15 +64,16 @@ export class MongodbStore<T extends { _id: string }> implements PhysicalStore<T>
       .toArray()
     return result.map((entry) => (filter.select ? selectFields(entry, ...filter.select) : entry))
   }
-  public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
+  public async get(key: T[this['primaryKey']], select?: Array<keyof T>): Promise<T | undefined> {
+    // ToDo: Projection
     const collection = await this.getCollection()
-    const result = await collection.findOne({ _id: { $eq: new ObjectId(key) } } as any)
+    const projection = select ? Object.fromEntries(select.map((field) => [field, 1])) : undefined
+    const result = await collection.findOne({ [this.primaryKey]: { $eq: key } } as FilterQuery<T>, projection)
     return result || undefined
   }
   public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
     const collection = await this.getCollection()
-    const ids = keys.map((key) => new ObjectId(key))
-    await collection.deleteMany({ _id: { $in: ids } } as FilterQuery<T>)
+    await collection.deleteMany({ [this.primaryKey]: { $in: keys } } as FilterQuery<T>)
   }
   public async dispose() {
     /** */

@@ -12,11 +12,15 @@ declare module '@furystack/core/dist/store-manager' {
     /**
      * Registers a MongoDb store to the StoreManager instance with the provided model.
      */
-    useMongoDb: <T extends { _id: string }>(options: {
+    useMongoDb: <T>(options: {
       /**
        * The constructable model class
        */
       model: Constructable<T>
+      /**
+       * The name of the Primary Key property
+       */
+      primaryKey: keyof T
       /**
        * Url of the MongoDb repository
        */
@@ -38,10 +42,11 @@ declare module '@furystack/core/dist/store-manager' {
   }
 }
 
-StoreManager.prototype.useMongoDb = function ({ model, db, collection, url, options }) {
+StoreManager.prototype.useMongoDb = function ({ model, primaryKey, db, collection, url, options }) {
   const clientFactory = this.injector.getInstance(MongoClientFactory)
   const store = new MongodbStore({
     model,
+    primaryKey,
     db,
     collection,
     logger: this.injector.logger,

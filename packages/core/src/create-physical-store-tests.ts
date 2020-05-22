@@ -16,8 +16,8 @@ export const createMockEntity = (part?: Partial<TestClass>) =>
     id: Math.round(Math.random() * 100),
     stringValue1: 'foo',
     stringValue2: 'bar',
-    numberValue1: 1,
-    numberValue2: 666,
+    numberValue1: Math.round(Math.random() * 1000),
+    numberValue2: Math.random() * 100,
     booleanValue: true,
     dateValue: new Date(),
     ...part,
@@ -61,7 +61,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
         await usingAsync(options.createStore(), async (store) => {
           const entity = createMockEntity()
           await store.add(entity)
-          await expect(await store.add(entity)).rejects.toThrow('Item with the primary key already exists.')
+          await expect(store.add(entity)).rejects.toThrow('Item with the primary key already exists.')
           const count = await store.count()
           expect(count).toBe(1)
         })
@@ -146,13 +146,13 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
           for (let i = 0; i < 10; i++) {
             await store.add(createMockEntity({ id: i }))
           }
-          const zeroToThree = await store.find({ top: 4 })
+          const zeroToThree = await store.find({ top: 4, select: ['id'] })
           expect(zeroToThree).toEqual([{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }])
 
-          const fiveToEight = await store.find({ skip: 5, top: 4 })
+          const fiveToEight = await store.find({ skip: 5, top: 4, select: ['id'] })
           expect(fiveToEight).toEqual([{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }])
 
-          const eightNine = await store.find({ skip: 8 })
+          const eightNine = await store.find({ skip: 8, select: ['id'] })
           expect(eightNine).toEqual([{ id: 8 }, { id: 9 }])
         })
       })
