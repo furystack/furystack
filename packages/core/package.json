@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -32,9 +32,9 @@
     "@types/node": "^14.0.4"
   },
   "dependencies": {
-    "@furystack/inject": "^4.0.28",
-    "@furystack/logging": "^2.0.35",
-    "@furystack/utils": "^1.1.18",
+    "@furystack/inject": "^4.0.29",
+    "@furystack/logging": "^2.0.36",
+    "@furystack/utils": "^1.1.19",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.0.0"
   },
