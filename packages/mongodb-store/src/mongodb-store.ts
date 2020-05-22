@@ -27,7 +27,9 @@ export class MongodbStore<T> implements PhysicalStore<T> {
     try {
       const client = await this.options.mongoClient()
       const collection = client.db(this.options.db).collection<T>(this.options.collection)
-      await collection.createIndex({ [this.primaryKey]: 1 }, { unique: true })
+      if (this.primaryKey !== '_id') {
+        await collection.createIndex({ [this.primaryKey]: 1 }, { unique: true })
+      }
       this.collection = collection
       return collection
     } finally {
