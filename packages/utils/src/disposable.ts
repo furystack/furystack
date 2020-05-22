@@ -54,6 +54,8 @@ export const using = <T extends Disposable, TReturns>(resource: T, callback: (re
  *
  * @param resource The resource that is used in the callback and will be disposed afterwards
  * @param callback The callback that will be executed asynchrounously before the resource will be disposed
+ *
+ * @returns A promise that will be resolved with a return value after the resource is disposed
  */
 export const usingAsync = async <T extends Disposable, TReturns>(
   resource: T,

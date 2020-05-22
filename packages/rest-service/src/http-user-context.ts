@@ -2,7 +2,6 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { sleepAsync } from '@furystack/utils'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 
@@ -22,7 +21,7 @@ export class HttpUserContext {
 
   /**
    * @param request The request to be authenticated
-   * Returns if the current user is authenticated
+   * @returns if the current user is authenticated
    */
   public async isAuthenticated(request: IncomingMessage) {
     try {
@@ -38,6 +37,8 @@ export class HttpUserContext {
    *
    * @param request The request to be authenticated
    * @param roles The list of roles to authorize
+   *
+   * @returns a boolean value that indicates if the user is authenticated
    */
   public async isAuthorized(request: IncomingMessage, ...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser(request)
@@ -54,12 +55,13 @@ export class HttpUserContext {
    *
    * @param userName The username
    * @param password The password
+   * @returns the authenticated User
    */
   public async authenticateUser(userName: string, password: string) {
     const match =
       (password &&
         password.length &&
-        (await this.users.search({
+        (await this.users.find({
           filter: {
             username: { $eq: userName },
             password: { $eq: this.authentication.hashMethod(password) },
@@ -70,7 +72,6 @@ export class HttpUserContext {
       const { password: pw, ...user } = match[0]
       return user
     }
-    await sleepAsync(Math.random() * 1000)
     throw Error('Failed to authenticate.')
   }
 
@@ -111,9 +112,9 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const [session] = await this.sessions.search({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
+      const [session] = await this.sessions.find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
       if (session) {
-        const userResult = await this.users.search({
+        const userResult = await this.users.find({
           filter: {
             username: { $eq: session.username },
           },
@@ -134,6 +135,7 @@ export class HttpUserContext {
    *
    * @param user The user to create a session for
    * @param serverResponse A serverResponse to set the cookie
+   * @returns the current User
    */
   public async cookieLogin(user: User, serverResponse: ServerResponse): Promise<User> {
     const sessionId = v1()

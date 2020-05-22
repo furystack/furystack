@@ -30,7 +30,7 @@ export class GoogleLoginSettings {
     injector: Injector,
   ) => Promise<User | undefined> = async (payload, injector) => {
     const userStore = injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager))
-    const users = await userStore.search({
+    const users = await userStore.find({
       top: 2,
       filter: {
         username: { $eq: payload.email },
@@ -75,6 +75,7 @@ export class GoogleLoginService {
    * Authenticates the user with an IdToken and returns a user. The user will be inserted to the DataStore if not present.
    *
    * @param token The IdToken to authenticate
+   * @returns The current user
    */
   public async login(token: string): Promise<User> {
     const googleData = await this.getGoogleUserData(token)

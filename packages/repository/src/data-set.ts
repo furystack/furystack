@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { AuthorizationError, SearchOptions, PartialResult, FilterType } from '@furystack/core'
+import { AuthorizationError, FindOptions, PartialResult, FilterType } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
 
 /**
@@ -18,7 +18,7 @@ export class DataSet<T> {
    * @param injector The injector from the context
    * @param entity The entity to add
    */
-  public async add(injector: Injector, entity: T): Promise<T> {
+  public async add(injector: Injector, entity: T): Promise<void> {
     if (this.settings.authorizeAdd) {
       const result = await this.settings.authorizeAdd({ injector, entity })
       if (!result.isAllowed) {
@@ -26,9 +26,8 @@ export class DataSet<T> {
       }
     }
     const parsed = this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
-    const created = await this.settings.physicalStore.add(parsed)
-    this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity: created })
-    return created
+    await this.settings.physicalStore.add(parsed)
+    this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity })
   }
 
   /**
@@ -66,6 +65,7 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param filter The Filter that will be applied
+   * @returns the Count
    */
   public async count(injector: Injector, filter?: FilterType<T>): Promise<number> {
     if (this.settings.authorizeGet) {
@@ -82,10 +82,11 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param filter The Filter definition
+   * @returns A result with the current items
    */
-  public async filter<TFields extends Array<keyof T>>(
+  public async find<TFields extends Array<keyof T>>(
     injector: Injector,
-    filter: SearchOptions<T, TFields>,
+    filter: FindOptions<T, TFields>,
   ): Promise<Array<PartialResult<T, TFields[number]>>> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
@@ -94,7 +95,7 @@ export class DataSet<T> {
       }
     }
     const parsedFilter = this.settings.addFilter ? await this.settings.addFilter({ injector, filter }) : filter
-    return this.settings.physicalStore.search(parsedFilter)
+    return this.settings.physicalStore.find(parsedFilter)
   }
 
   /**
@@ -102,6 +103,8 @@ export class DataSet<T> {
    *
    * @param injector The injector from the context
    * @param key The identifier of the entity
+   *
+   * @returns An item with the current unique key or Undefined
    */
   public async get(injector: Injector, key: T[this['primaryKey']]) {
     if (this.settings.authorizeGet) {
@@ -125,6 +128,7 @@ export class DataSet<T> {
    *
    * @param injector The Injector from the context
    * @param key The primary key
+   * @returns A promise that will be resolved / rejected based on the remove success
    */
   public async remove(injector: Injector, key: T[this['primaryKey']]): Promise<void> {
     if (this.settings.authorizeRemove) {

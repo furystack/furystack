@@ -332,7 +332,7 @@ describe('DataSet', () => {
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
-        const result = await dataSet.filter(i, {})
+        const result = await dataSet.find(i, {})
         expect(result.length).toBe(1)
       })
     })
@@ -346,7 +346,7 @@ describe('DataSet', () => {
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
-        const result = await dataSet.filter(i, {})
+        const result = await dataSet.find(i, {})
         expect(result.length).toBe(1)
       })
     })
@@ -361,7 +361,7 @@ describe('DataSet', () => {
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
-          await dataSet.filter(i, {})
+          await dataSet.find(i, {})
           throw Error('Should throw')
         } catch (error) {
           /** */

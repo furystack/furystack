@@ -9,6 +9,9 @@
       "path": "./core"
     },
     {
+      "path": "./filesystem-store"
+    },
+    {
       "path": "./inject"
     },
     {

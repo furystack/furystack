@@ -11,6 +11,7 @@ export class Utils {
    * Reads the post's body and returns a promise with a parsed value
    *
    * @param incomingMessage The incoming message instance
+   * @returns the parsed object from the post body
    */
   public async readPostBody<T>(incomingMessage: IncomingMessage): Promise<T> {
     let body = ''

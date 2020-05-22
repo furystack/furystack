@@ -2,6 +2,7 @@ module.exports = {
   roots: [
     '<rootDir>/packages/auth-google',
     '<rootDir>/packages/core',
+    '<rootDir>/packages/filesystem-store',
     '<rootDir>/packages/rest',
     '<rootDir>/packages/rest-client-fetch',
     '<rootDir>/packages/rest-service',
