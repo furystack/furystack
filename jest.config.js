@@ -12,7 +12,6 @@ module.exports = {
     '<rootDir>/packages/onboard',
     '<rootDir>/packages/redis-store',
     '<rootDir>/packages/repository',
-    '<rootDir>/packages/shades',
     '<rootDir>/packages/utils',
     '<rootDir>/packages/websocket-api',
   ],

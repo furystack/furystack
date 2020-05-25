@@ -39,9 +39,6 @@
       "path": "./rest-client-fetch"
     },
     {
-      "path": "./shades"
-    },
-    {
       "path": "./utils"
     },
     {
