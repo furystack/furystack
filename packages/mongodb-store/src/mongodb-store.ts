@@ -107,7 +107,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
 
   private getProjection(fields?: Array<keyof T>) {
     return {
-      _id: 0,
+      ...(this.primaryKey !== '_id' ? { _id: 0 } : {}),
       ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
     }
   }
