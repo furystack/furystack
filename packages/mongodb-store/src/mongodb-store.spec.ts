@@ -5,6 +5,12 @@ import { v4 } from 'uuid'
 import '@furystack/logging'
 import './store-manager-extensions'
 import { MongoClientFactory } from './mongo-client-factory'
+import { using } from '@furystack/utils'
+
+class TestClassWithId {
+  _id!: string
+  value!: string
+}
 
 describe('MongoDB Store', () => {
   let dbIdx = 0
@@ -32,5 +38,26 @@ describe('MongoDB Store', () => {
       }
       return store
     },
+  })
+
+  it('Should retrieve an entity with its id', async () => {
+    using(new Injector(), async (injector) => {
+      injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
+      const { created } = await store.add({ value: 'value1' })
+      const retrieved = await store.get(created[0]._id)
+      expect(retrieved).toEqual(created[0])
+    })
+  })
+
+  it('Should retrieve more entities with theis ids', async () => {
+    using(new Injector(), async (injector) => {
+      injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
+      const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
+      const retrieved = await store.find({ filter: { _id: { $in: created.map((c) => c._id) } } })
+      expect(retrieved.length).toBe(3)
+      expect(retrieved).toEqual(created)
+    })
   })
 })

@@ -9,7 +9,7 @@ import {
 } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
-import { MongoClient, FilterQuery, Collection, OptionalId } from 'mongodb'
+import { MongoClient, FilterQuery, Collection, OptionalId, ObjectId } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -115,9 +115,12 @@ export class MongodbStore<T> implements PhysicalStore<T> {
   public async get(key: T[this['primaryKey']], select?: Array<keyof T>): Promise<T | undefined> {
     const collection = await this.getCollection()
     const projection = this.getProjection(select)
-    const result = await collection.findOne({ [this.primaryKey]: { $eq: key } } as FilterQuery<T>, {
-      projection,
-    })
+    const result = await collection.findOne(
+      { [this.primaryKey]: { $eq: this.primaryKey === '_id' ? new ObjectId(key as any) : key } } as FilterQuery<T>,
+      {
+        projection,
+      },
+    )
     return result || undefined
   }
   public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
