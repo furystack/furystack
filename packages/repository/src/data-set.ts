@@ -127,17 +127,18 @@ export class DataSet<T> {
    *
    * @param injector The injector from the context
    * @param key The identifier of the entity
+   * @param select A field list used for projection
    *
    * @returns An item with the current unique key or Undefined
    */
-  public async get(injector: Injector, key: T[this['primaryKey']]) {
+  public async get(injector: Injector, key: T[this['primaryKey']], select?: Array<keyof T>) {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw new AuthorizationError(result.message)
       }
     }
-    const instance = await this.settings.physicalStore.get(key)
+    const instance = await this.settings.physicalStore.get(key, select)
     if (instance && this.settings && this.settings.authorizeGetEntity) {
       const result = await this.settings.authorizeGetEntity({ injector, entity: instance })
       if (!result.isAllowed) {
