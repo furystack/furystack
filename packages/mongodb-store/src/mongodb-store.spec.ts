@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import '@furystack/logging'
 import './store-manager-extensions'
 import { MongoClientFactory } from './mongo-client-factory'
-import { using } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 
 class TestClassWithId {
   _id!: string
@@ -41,7 +41,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should retrieve an entity with its id', async () => {
-    using(new Injector(), async (injector) => {
+    await usingAsync(new Injector(), async (injector) => {
       injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
       const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
       const { created } = await store.add({ value: 'value1' })
@@ -51,7 +51,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should retrieve more entities with theis ids', async () => {
-    using(new Injector(), async (injector) => {
+    await usingAsync(new Injector(), async (injector) => {
       injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
       const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
