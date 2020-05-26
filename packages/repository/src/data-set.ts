@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { AuthorizationError, FindOptions, PartialResult, FilterType } from '@furystack/core'
+import { AuthorizationError, FindOptions, PartialResult, FilterType, WithOptionalId } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
 
 /**
@@ -16,18 +16,28 @@ export class DataSet<T> {
    * Adds an entity to the DataSet
    *
    * @param injector The injector from the context
-   * @param entity The entity to add
+   * @param entities The entities to add
    */
-  public async add(injector: Injector, entity: T): Promise<void> {
-    if (this.settings.authorizeAdd) {
-      const result = await this.settings.authorizeAdd({ injector, entity })
-      if (!result.isAllowed) {
-        throw new AuthorizationError(result.message)
-      }
-    }
-    const parsed = this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
-    await this.settings.physicalStore.add(parsed)
-    this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity })
+  public async add(injector: Injector, ...entities: Array<WithOptionalId<T, this['primaryKey']>>): Promise<void> {
+    await Promise.all(
+      entities.map(async (entity) => {
+        if (this.settings.authorizeAdd) {
+          const result = await this.settings.authorizeAdd({ injector, entity })
+          if (!result.isAllowed) {
+            throw new AuthorizationError(result.message)
+          }
+        }
+      }),
+    )
+
+    const parsed = await Promise.all(
+      entities.map(async (entity) => {
+        return this.settings.modifyOnAdd ? await this.settings.modifyOnAdd({ injector, entity }) : entity
+      }),
+    )
+
+    const { created } = await this.settings.physicalStore.add(...parsed)
+    created.map((entity) => this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity }))
   }
 
   /**
@@ -149,5 +159,5 @@ export class DataSet<T> {
     return await this.settings.physicalStore.remove(key)
   }
 
-  constructor(public readonly settings: DataSetSettings<T>) {}
+  constructor(public readonly settings: DataSetSettings<T, keyof T>) {}
 }

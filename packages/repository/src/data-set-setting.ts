@@ -1,4 +1,4 @@
-import { PhysicalStore, FindOptions } from '@furystack/core'
+import { PhysicalStore, FindOptions, WithOptionalId } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 
 /**
@@ -28,7 +28,7 @@ export interface FailedValidationResult {
 /**
  * Model for authorizers
  */
-export interface DataSetSettings<T> {
+export interface DataSetSettings<T, K extends keyof T> {
   /**
    * The name of the dataset. Will fall back to the constructor's name
    */
@@ -42,12 +42,12 @@ export interface DataSetSettings<T> {
   /**
    * Authorizes the entity creation
    */
-  authorizeAdd?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
+  authorizeAdd?: (options: { injector: Injector; entity: WithOptionalId<T, K> }) => Promise<AuthorizationResult>
 
   /**
    * modifies an entity before persisting on creation
    */
-  modifyOnAdd?: (options: { injector: Injector; entity: T }) => Promise<T>
+  modifyOnAdd?: (options: { injector: Injector; entity: WithOptionalId<T, K> }) => Promise<T>
 
   /**
    * Callback that fires right after the entity has been persisted

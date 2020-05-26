@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { InMemoryStore } from '@furystack/core'
+import { InMemoryStore, WithOptionalId } from '@furystack/core'
 import { Repository } from './repository'
 import { AuthorizationResult } from './data-set-setting'
 import { DataSet } from './data-set'
@@ -115,10 +115,12 @@ describe('DataSet', () => {
 
       it('should modify an entity on add, if modifyOnAdd is provided', async () => {
         await usingAsync(new Injector().useLogging(), async (i) => {
-          const modifyOnAdd = jest.fn(async (options: { injector: Injector; entity: TestClass }) => ({
-            ...options.entity,
-            value: options.entity.value.toUpperCase(),
-          }))
+          const modifyOnAdd = jest.fn(
+            async (options: { injector: Injector; entity: WithOptionalId<TestClass, 'id'> }) => ({
+              ...options.entity,
+              value: options.entity.value.toUpperCase(),
+            }),
+          ) as any
 
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
