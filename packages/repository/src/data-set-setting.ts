@@ -42,7 +42,7 @@ export interface DataSetSettings<T, K extends keyof T> {
   /**
    * modifies an entity before persisting on creation
    */
-  modifyOnAdd?: (options: { injector: Injector; entity: WithOptionalId<T, K> }) => Promise<T>
+  modifyOnAdd?: (options: { injector: Injector; entity: WithOptionalId<T, K> }) => Promise<WithOptionalId<T, K>>
 
   /**
    * Callback that fires right after the entity has been persisted
