@@ -267,7 +267,7 @@ describe('HttpUserContext', () => {
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
         ctx.sessions.add = jest.fn(async () => {
-          /** */
+          return {} as any
         })
         const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
         expect(authResult).toBe(testUser)
@@ -284,7 +284,7 @@ describe('HttpUserContext', () => {
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
         ctx.sessions.add = jest.fn(async () => {
-          /** */
+          return {} as any
         })
         ctx.authenticateRequest = jest.fn(async () => testUser)
         ctx.sessions.remove = jest.fn(async () => undefined)
