@@ -1,4 +1,12 @@
-import { FindOptions, PhysicalStore, selectFields, PartialResult, FilterType } from '@furystack/core'
+import {
+  FindOptions,
+  PhysicalStore,
+  selectFields,
+  PartialResult,
+  FilterType,
+  WithOptionalId,
+  CreateResult,
+} from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { MongoClient, FilterQuery, Collection, OptionalId } from 'mongodb'
@@ -54,9 +62,18 @@ export class MongodbStore<T> implements PhysicalStore<T> {
       message: `Initializing MongoDB Store for ${this.model.name}...`,
     })
   }
-  public async add(...entries: T[]): Promise<void> {
+  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
-    await collection.insertMany(entries.map((e) => ({ ...e })) as Array<OptionalId<T>>)
+    const result = await collection.insertMany(entries.map((e) => ({ ...e })) as Array<OptionalId<T>>)
+    return {
+      created:
+        this.primaryKey === '_id'
+          ? (result.ops as T[])
+          : ((result.ops.map((entity) => {
+              const { _id, ...r } = entity
+              return r
+            }) as any) as T[]),
+    }
   }
   public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
@@ -90,8 +107,8 @@ export class MongodbStore<T> implements PhysicalStore<T> {
 
   private getProjection(fields?: Array<keyof T>) {
     return {
-      ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
       _id: 0,
+      ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
     }
   }
 

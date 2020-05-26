@@ -32,6 +32,12 @@ export const t: FilterType<{ a: number; b: string; c: boolean }> = {
   $and: [{ a: { $eq: 2 } }],
 }
 
+export interface CreateResult<T> {
+  created: T[]
+}
+
+export type WithOptionalId<T, K extends keyof T> = Omit<T, K> & Partial<T>
+
 /**
  * Type for default filtering model
  */
@@ -94,7 +100,7 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param entries The data to be added
    */
-  add(...entries: T[]): Promise<void>
+  add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done

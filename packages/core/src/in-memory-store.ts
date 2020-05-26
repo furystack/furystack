@@ -1,4 +1,5 @@
 import { Constructable } from '@furystack/inject'
+import { v4 } from 'uuid'
 import {
   PhysicalStore,
   FindOptions,
@@ -6,6 +7,7 @@ import {
   PartialResult,
   FilterType,
   isOperator,
+  CreateResult,
 } from './models/physical-store'
 
 export class InMemoryStore<T> implements PhysicalStore<T> {
@@ -17,13 +19,19 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     keys.map((key) => this.cache.delete(key))
   }
 
-  public async add(...entries: T[]): Promise<void> {
-    entries.map((entry) => {
+  public async add(...entries: T[]): Promise<CreateResult<T>> {
+    const created = entries.map((e) => {
+      const entry = { ...e }
+      if (entry[this.primaryKey] === undefined) {
+        entry[this.primaryKey] = v4() as any
+      }
       if (this.cache.has(entry[this.primaryKey])) {
         throw new Error('Item with the primary key already exists.')
       }
       this.cache.set(entry[this.primaryKey], entry)
+      return entry
     })
+    return { created }
   }
 
   public cache: Map<T[this['primaryKey']], T> = new Map()

@@ -48,6 +48,18 @@ export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
         })
       })
 
+      it('Should be able to store an entity without providing an unique Id', async () => {
+        await usingAsync(options.createStore(), async (store) => {
+          const { id, ...entityWithoutId } = createMockEntity()
+          const { created } = await store.add(entityWithoutId)
+          expect(created.length).toBe(1)
+          const count = await store.count()
+          expect(count).toBe(1)
+          const retrieved = await store.get(created[0].id)
+          expect(retrieved).toEqual(created[0])
+        })
+      })
+
       it('Should be able to store multiple entities', async () => {
         await usingAsync(options.createStore(), async (store) => {
           const entity1 = createMockEntity()
