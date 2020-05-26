@@ -30,11 +30,6 @@ export interface FailedValidationResult {
  */
 export interface DataSetSettings<T, K extends keyof T> {
   /**
-   * The name of the dataset. Will fall back to the constructor's name
-   */
-  name: string
-
-  /**
    * An instance of a physical store
    */
   physicalStore: PhysicalStore<T>

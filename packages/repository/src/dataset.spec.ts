@@ -43,7 +43,7 @@ describe('DataSet', () => {
             ),
           )
           .setupRepository((r) => r.createDataSet(TestClass))
-        const dataSet = i.getDataSetFor('TestClass')
+        const dataSet = i.getDataSetFor(TestClass)
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
     })
@@ -51,14 +51,14 @@ describe('DataSet', () => {
     it('Should throw if dataset is not registered through extension', () => {
       using(new Injector(), (i) => {
         i.useLogging()
-        expect(() => i.getDataSetFor<TestClass>('TestClass')).toThrowError('')
+        expect(() => i.getDataSetFor(TestClass)).toThrowError('')
       })
     })
 
     it('Should throw if dataset is not registered through service', () => {
       using(new Injector(), (i) => {
         i.useLogging()
-        expect(() => i.getInstance(Repository).getDataSetFor<TestClass>('TestClass')).toThrowError('')
+        expect(() => i.getInstance(Repository).getDataSetFor(TestClass)).toThrowError('')
       })
     })
   })

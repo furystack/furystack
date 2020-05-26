@@ -14,29 +14,26 @@ export class Repository implements Disposable {
     this.dataSets.clear()
   }
 
-  private dataSets: Map<string, DataSet<any>> = new Map()
+  private dataSets: Map<any, DataSet<any>> = new Map()
 
-  public getDataSetFor<T>(model: Constructable<T> | string) {
-    const modelName = typeof model !== 'string' ? model.name : model
-    const instance = this.dataSets.get(modelName)
+  public getDataSetFor<T>(model: Constructable<T>) {
+    const instance = this.dataSets.get(model)
     if (!instance) {
       this.logger.error({
-        message: `No DataSet found for '${modelName}'`,
+        message: `No DataSet found for '${model}'`,
       })
-      throw Error(`No DataSet found for '${modelName}'`)
+      throw Error(`No DataSet found for '${model}'`)
     }
     return instance as DataSet<T>
   }
   public createDataSet<T>(model: Constructable<T>, settings?: Partial<DataSetSettings<T, keyof T>>) {
     const physicalStore =
       (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as PhysicalStore<T>)
-    const name = (settings && settings.name) || model.name
     const instance = new DataSet({
       ...settings,
       physicalStore,
-      name,
     })
-    this.dataSets.set((settings && settings.name) || model.name, instance)
+    this.dataSets.set(model, instance)
     return this
   }
 

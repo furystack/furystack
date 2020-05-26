@@ -30,7 +30,7 @@ declare module '@furystack/inject/dist/injector' {
     /**
      * Returns a DataSet for a specific model
      */
-    getDataSetFor: <T>(model: Constructable<T> | string) => DataSet<T>
+    getDataSetFor: <T>(model: Constructable<T>) => DataSet<T>
   }
 }
 
@@ -40,6 +40,6 @@ Injector.prototype.setupRepository = function (builder) {
 }
 
 // tslint:disable-next-line: no-unnecessary-type-annotation
-Injector.prototype.getDataSetFor = function <T>(model: Constructable<T> | string) {
+Injector.prototype.getDataSetFor = function <T>(model: Constructable<T>) {
   return this.getInstance(Repository).getDataSetFor<T>(model)
 }
