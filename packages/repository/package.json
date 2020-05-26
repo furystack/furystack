@@ -1,6 +1,6 @@
 {
   "name": "@furystack/repository",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
