@@ -1,5 +1,12 @@
 import { Injectable, Injector } from '@furystack/inject'
-import { AuthorizationError, FindOptions, PartialResult, FilterType, WithOptionalId } from '@furystack/core'
+import {
+  AuthorizationError,
+  FindOptions,
+  PartialResult,
+  FilterType,
+  WithOptionalId,
+  CreateResult,
+} from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
 
 /**
@@ -17,8 +24,12 @@ export class DataSet<T> {
    *
    * @param injector The injector from the context
    * @param entities The entities to add
+   * @returns The CreateResult with the created entities
    */
-  public async add(injector: Injector, ...entities: Array<WithOptionalId<T, this['primaryKey']>>): Promise<void> {
+  public async add(
+    injector: Injector,
+    ...entities: Array<WithOptionalId<T, this['primaryKey']>>
+  ): Promise<CreateResult<T>> {
     await Promise.all(
       entities.map(async (entity) => {
         if (this.settings.authorizeAdd) {
@@ -36,8 +47,11 @@ export class DataSet<T> {
       }),
     )
 
-    const { created } = await this.settings.physicalStore.add(...parsed)
-    created.map((entity) => this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity }))
+    const createResult = await this.settings.physicalStore.add(...parsed)
+    createResult.created.map(
+      (entity) => this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity }),
+    )
+    return createResult
   }
 
   /**
