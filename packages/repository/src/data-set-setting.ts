@@ -66,7 +66,7 @@ export interface DataSetSettings<T, K extends keyof T> {
   /**
    * modifies an entity before persisting on update
    */
-  modifyOnUpdate?: (options: { injector: Injector; entity: T }) => Promise<T>
+  modifyOnUpdate?: (options: { injector: Injector; id: T[keyof T]; entity: Partial<T> }) => Promise<Partial<T>>
 
   /**
    * Callback that fires right after entity update

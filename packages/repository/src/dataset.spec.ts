@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { InMemoryStore, WithOptionalId } from '@furystack/core'
 import { Repository } from './repository'
-import { AuthorizationResult } from './data-set-setting'
+import { AuthorizationResult, DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
 import '@furystack/logging'
 import './injector-extension'
@@ -242,9 +242,9 @@ describe('DataSet', () => {
 
       it('should modify an entity on update, if modifyOnAdd is provided', async () => {
         await usingAsync(new Injector().useLogging(), async (i) => {
-          const modifyOnUpdate = jest.fn(async (options: { injector: Injector; entity: TestClass }) => ({
+          const modifyOnUpdate: DataSetSettings<TestClass, 'id'>['modifyOnUpdate'] = jest.fn(async (options) => ({
             ...options.entity,
-            value: options.entity.value.toUpperCase(),
+            value: options.entity.value?.toUpperCase(),
           }))
 
           i.setupStores((stores) =>

@@ -61,7 +61,7 @@ export class DataSet<T> {
    * @param id The identifier of the entity
    * @param change The update
    */
-  public async update(injector: Injector, id: T[this['primaryKey']], change: T): Promise<void> {
+  public async update(injector: Injector, id: T[this['primaryKey']], change: Partial<T>): Promise<void> {
     if (this.settings.authorizeUpdate) {
       const result = await this.settings.authorizeUpdate({ injector, change })
       if (!result.isAllowed) {
@@ -78,7 +78,7 @@ export class DataSet<T> {
       }
     }
     const parsed = this.settings.modifyOnUpdate
-      ? await this.settings.modifyOnUpdate({ injector, entity: change })
+      ? await this.settings.modifyOnUpdate({ injector, id, entity: change })
       : change
     await this.settings.physicalStore.update(id, parsed)
     this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change: parsed, id })
