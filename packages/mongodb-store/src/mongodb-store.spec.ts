@@ -45,6 +45,9 @@ describe('MongoDB Store', () => {
       injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
       const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
       const { created } = await store.add({ value: 'value1' })
+
+      expect(typeof created[0]._id).toBe('string')
+
       const retrieved = await store.get(created[0]._id)
       expect(retrieved).toEqual(created[0])
     })
