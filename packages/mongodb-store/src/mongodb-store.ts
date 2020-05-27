@@ -1,12 +1,4 @@
-import {
-  FindOptions,
-  PhysicalStore,
-  selectFields,
-  PartialResult,
-  FilterType,
-  WithOptionalId,
-  CreateResult,
-} from '@furystack/core'
+import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { Logger, ScopedLogger } from '@furystack/logging'
 import { MongoClient, FilterQuery, Collection, OptionalId, ObjectId } from 'mongodb'
@@ -102,7 +94,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
       .sort(sort)
       .toArray()
-    return result.map((entry) => (filter.select ? selectFields(entry, ...filter.select) : entry))
+    return result
   }
 
   private getProjection(fields?: Array<keyof T>) {
