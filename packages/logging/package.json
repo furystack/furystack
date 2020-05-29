@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "2.0.37",
+  "version": "2.0.38",
   "description": "Logging API for FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^4.0.30",
-    "@furystack/utils": "^1.2.0",
+    "@furystack/inject": "^4.0.31",
+    "@furystack/utils": "^1.2.1",
     "tslib": "^2.0.0"
   },
   "typings": "./dist/index.d.ts",
