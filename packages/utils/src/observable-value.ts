@@ -99,7 +99,7 @@ export class ObservableValue<T> implements Disposable {
    * @param initialValue Optional initial value
    */
   constructor(initialValue?: T) {
-    if (initialValue) {
+    if (initialValue !== undefined) {
       this.currentValue = initialValue
     }
   }
