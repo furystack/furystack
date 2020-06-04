@@ -49,7 +49,3 @@ Logging is a powerful library that allows you to create log entries with scopes,
 
 Inject is a DI / IOC utility that allows you to handle your dependencies easily. In short terms - Just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them.
 An injector can be extended with _extension methods_, so you can configure your whole app in one place in a type safe way.
-
-### @furystack/onboard [![npm](https://img.shields.io/npm/v/@furystack/onboard.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/onboard)
-
-Onboard is a CLI utility to create local development environments in minutes. You can create a json manifest with a steps of cloning your services, installing dependencies, building, etc... and exec them easily - even parallelly. You can share your config from a web service (e.g. in a gist) and install an enviromnent on the fly.

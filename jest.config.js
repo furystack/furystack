@@ -9,7 +9,6 @@ module.exports = {
     '<rootDir>/packages/inject',
     '<rootDir>/packages/logging',
     '<rootDir>/packages/mongodb-store',
-    '<rootDir>/packages/onboard',
     '<rootDir>/packages/redis-store',
     '<rootDir>/packages/repository',
     '<rootDir>/packages/utils',

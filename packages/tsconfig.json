@@ -21,9 +21,6 @@
       "path": "./mongodb-store"
     },
     {
-      "path": "./onboard"
-    },
-    {
       "path": "./redis-store"
     },
     {
