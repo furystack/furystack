@@ -7,13 +7,7 @@ import { CorsOptions } from './models/cors-options'
  */
 @Injectable({ lifetime: 'transient' })
 export class Utils {
-  /**
-   * Reads the post's body and returns a promise with a parsed value
-   *
-   * @param incomingMessage The incoming message instance
-   * @returns the parsed object from the post body
-   */
-  public async readPostBody<T>(incomingMessage: IncomingMessage): Promise<T> {
+  public async readPostBodyRaw(incomingMessage: IncomingMessage) {
     let body = ''
     await new Promise((resolve, reject) => {
       incomingMessage.on('readable', () => {
@@ -29,6 +23,17 @@ export class Utils {
         reject(err)
       })
     })
+    return body
+  }
+
+  /**
+   * Reads the post's body and returns a promise with a parsed value
+   *
+   * @param incomingMessage The incoming message instance
+   * @returns the parsed object from the post body
+   */
+  public async readPostBody<T>(incomingMessage: IncomingMessage): Promise<T> {
+    const body = await this.readPostBodyRaw(incomingMessage)
     return JSON.parse(body) as T
   }
 

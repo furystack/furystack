@@ -10,6 +10,20 @@ describe('IncomingMessage extensions', () => {
       expect(typeof msg.readPostBody).toBe('function')
     })
 
+    it('Should read the raw post body', async () => {
+      const exampleValue = { value: Math.random().toString() }
+      const socket = new Socket()
+      const msg = new IncomingMessage(socket)
+      setTimeout(() => {
+        msg.read = () => JSON.stringify(exampleValue)
+        msg.emit('readable')
+        msg.emit('end')
+      }, 10)
+
+      const result = await msg.readPostBodyRaw()
+      expect(result).toEqual(JSON.stringify(exampleValue))
+    })
+
     it('Should read the post body', async () => {
       const exampleValue = { value: Math.random().toString() }
       const socket = new Socket()
