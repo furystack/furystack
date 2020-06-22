@@ -3,10 +3,12 @@ import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injector } from '@furystack/inject'
 import { LoggerCollection, ScopedLogger } from '@furystack/logging'
-import { usingAsync, Disposable } from '@furystack/utils'
+import { Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
+import { IdentityContext } from '@furystack/core'
+import { WebsocketUserContext } from './websocket-user-context'
 
 /**
  * A WebSocket API implementation for FuryStack
@@ -16,6 +18,9 @@ export class WebSocketApi implements Disposable {
   public readonly socket: WebSocketServer
   private readonly injector: Injector
   private readonly logger: ScopedLogger
+
+  private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
+
   constructor(
     logger: LoggerCollection,
     private settings: WebSocketApiSettings,
@@ -30,6 +35,10 @@ export class WebSocketApi implements Disposable {
     this.socket = new WebSocketServer({ noServer: true })
     this.injector = parentInjector.createChild({ owner: this })
     this.socket.on('connection', (websocket, msg) => {
+      const connectionInjector = this.injector.createChild({ owner: msg })
+      connectionInjector.setExplicitInstance(websocket, ws)
+      connectionInjector.setExplicitInstance(msg, IncomingMessage)
+      connectionInjector.setExplicitInstance(new WebsocketUserContext(connectionInjector), IdentityContext)
       this.logger.verbose({
         message: 'Client connected to WebSocket',
         data: {
@@ -37,6 +46,7 @@ export class WebSocketApi implements Disposable {
           remoteAddress: msg.socket.remoteAddress,
         },
       })
+      this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
       websocket.on('message', (message) => {
         this.logger.verbose({
           message: 'Client Message received',
@@ -44,10 +54,11 @@ export class WebSocketApi implements Disposable {
             message,
           },
         })
-        this.execute(message, msg, websocket)
+        this.execute(message, connectionInjector)
       })
 
       websocket.on('close', () => {
+        this.clients.delete(websocket)
         this.logger.verbose({
           message: 'Client disconnected',
           data: {
@@ -77,14 +88,29 @@ export class WebSocketApi implements Disposable {
     await new Promise((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
   }
 
-  public execute(data: Data, request: IncomingMessage, websocket: ws) {
-    const action = this.settings.actions.find((a) => a.canExecute({ data, request }))
+  public async broadcast(
+    callback: (options: { injector: Injector; ws: ws; message: IncomingMessage }) => void | Promise<void>,
+  ) {
+    const errors: any[] = []
+    await Promise.all(
+      [...this.clients.values()].map(async (client) => {
+        try {
+          await callback(client)
+        } catch (error) {
+          errors.push({ message: error.message, stack: error.stack })
+        }
+      }),
+    )
+    if (errors.length) {
+      this.logger.warning({ message: 'The Broadcast operation encountered some errors', data: { errors } })
+    }
+  }
+
+  public execute(data: Data, injector: Injector) {
+    const action = this.settings.actions.find((a) => a.canExecute({ data }))
     if (action) {
-      usingAsync(this.injector.createChild({ owner: request }), async (i) => {
-        i.setExplicitInstance(websocket, ws)
-        const actionInstance = i.getInstance<WebSocketAction>(action)
-        actionInstance.execute({ data, request })
-      })
+      const actionInstance = injector.getInstance<WebSocketAction>(action)
+      actionInstance.execute({ data })
     }
   }
 }
