@@ -1,6 +1,5 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { Logger, ScopedLogger } from '@furystack/logging'
 import { MongoClient, FilterQuery, Collection, OptionalId, ObjectId } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
@@ -11,7 +10,6 @@ export class MongodbStore<T> implements PhysicalStore<T> {
   public readonly primaryKey: keyof T
 
   public readonly model: Constructable<T>
-  private readonly logger: ScopedLogger
 
   private initLock = new Semaphore(1)
   private collection?: Collection<T>
@@ -86,16 +84,11 @@ export class MongodbStore<T> implements PhysicalStore<T> {
       primaryKey: keyof T
       db: string
       collection: string
-      logger: Logger
       mongoClient: () => Promise<MongoClient>
     },
   ) {
-    this.logger = this.options.logger.withScope(`@furystack/mongodb-store/${this.constructor.name}`)
     this.primaryKey = options.primaryKey
     this.model = options.model
-    this.logger.verbose({
-      message: `Initializing MongoDB Store for ${this.model.name}...`,
-    })
   }
   public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()

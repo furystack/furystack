@@ -32,7 +32,6 @@ export class MongoClientFactory implements Disposable {
       }
       const client = await connect(url, options)
       this.connections.set(url, client)
-      this.logger.information({ message: `Created MongoDB connection for '${url}'` })
       return client
     } catch (error) {
       this.logger.error({

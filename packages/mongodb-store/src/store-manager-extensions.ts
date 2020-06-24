@@ -49,7 +49,6 @@ StoreManager.prototype.useMongoDb = function ({ model, primaryKey, db, collectio
     primaryKey,
     db,
     collection,
-    logger: this.injector.logger,
     mongoClient: async () => await clientFactory.getClientFor(url, options),
   })
   this.addStore(store)
