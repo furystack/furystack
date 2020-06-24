@@ -20,6 +20,9 @@ export const ErrorAction: RequestAction<{
       message: `An action throwed error from '${request.url}'.`,
       data: {
         error: body,
+        message: body.message,
+        url: request.url,
+        stack: body.stack,
       },
     })
   }
