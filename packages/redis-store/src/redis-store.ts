@@ -62,7 +62,7 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
         if (err) {
           return reject(err)
         }
-        resolve(JSON.parse(val) as T)
+        resolve(JSON.parse(val as string) as T)
       }),
     )
   }
