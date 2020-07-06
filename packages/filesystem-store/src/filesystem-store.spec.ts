@@ -1,8 +1,8 @@
 import { promises, existsSync } from 'fs'
-import { LoggerCollection } from '@furystack/logging'
 import { FileSystemStore } from './filesystem-store'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import { v4 } from 'uuid'
+import { LoggerCollection } from '@furystack/logging'
 
 describe('FileSystemStore', () => {
   const storeNames: string[] = []

@@ -68,10 +68,6 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
       }
       await this.writeFile(this.options.fileName, JSON.stringify(values))
       this.hasChanges = false
-      this.logger.information({
-        message: `Store '${this.options.fileName}' has been updated with the latest changes.`,
-        data: { values },
-      })
     } catch (e) {
       this.logger.error({
         message: `Error saving changed data to '${this.options.fileName}'.`,
@@ -83,9 +79,6 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
   }
 
   public async dispose() {
-    this.logger.information({
-      message: `Disposing FileStore: '${this.options.fileName}'`,
-    })
     await this.saveChanges()
     this.watcher && this.watcher.close()
     clearInterval(this.tick)
