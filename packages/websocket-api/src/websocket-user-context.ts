@@ -13,13 +13,17 @@ export class WebsocketUserContext implements IdentityContext {
     }
   }
   public async isAuthorized(...roles: string[]): Promise<boolean> {
-    const currentUser = await this.getCurrentUser()
-    for (const role of roles) {
-      if (!currentUser || !currentUser.roles.some((c) => c === role)) {
-        return false
+    try {
+      const currentUser = await this.getCurrentUser()
+      for (const role of roles) {
+        if (!currentUser || !currentUser.roles.some((c) => c === role)) {
+          return false
+        }
       }
+      return true
+    } catch (error) {
+      return false
     }
-    return true
   }
   public async getCurrentUser<TUser extends User>(): Promise<TUser> {
     const user = await this.injector
