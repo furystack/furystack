@@ -38,10 +38,10 @@
     "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.4",
+    "@types/jest": "^26.0.7",
     "@types/redis": "^2.8.25",
     "@types/uuid": "^8.0.0",
-    "uuid": "^8.2.0"
+    "uuid": "^8.3.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
