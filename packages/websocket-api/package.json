@@ -1,6 +1,6 @@
 {
   "name": "@furystack/websocket-api",
-  "version": "7.0.4",
+  "version": "7.0.5",
   "description": "HTTP Api FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -29,11 +29,11 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^9.1.6",
-    "@furystack/inject": "^4.0.35",
-    "@furystack/logging": "^2.0.42",
-    "@furystack/rest-service": "^2.1.13",
-    "@furystack/utils": "^1.2.5",
+    "@furystack/core": "^9.1.7",
+    "@furystack/inject": "^4.0.36",
+    "@furystack/logging": "^2.0.43",
+    "@furystack/rest-service": "^2.1.14",
+    "@furystack/utils": "^1.2.6",
     "tslib": "^2.0.0",
     "ws": "^7.2.3"
   },
