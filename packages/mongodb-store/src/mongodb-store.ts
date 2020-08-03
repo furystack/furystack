@@ -146,7 +146,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
     const result = await collection.findOne(this.createIdFilter(key), {
       projection,
     })
-    return this.stringifyResultId(result) || undefined
+    return result ? this.stringifyResultId(result) : undefined
   }
   public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
     const collection = await this.getCollection()
