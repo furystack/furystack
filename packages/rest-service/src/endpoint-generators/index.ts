@@ -1,3 +1,4 @@
+export * from './create-delete-endpoint'
 export * from './create-get-collection-endpoint'
 export * from './create-get-entity-endpoint'
 export * from './create-patch-endpoint'
