@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { JsonResult, DeleteEndpoint } from '@furystack/rest'
+import { DeleteEndpoint, PlainTextResult } from '@furystack/rest'
 import '@furystack/repository'
 
 /**
@@ -14,7 +14,7 @@ export const createDeleteEndpoint = <T extends object>(options: { model: Constru
     const { id } = getUrlParams()
     const dataSet = injector.getDataSetFor(options.model)
     await dataSet.remove(injector, id)
-    return JsonResult({ success: true })
+    return PlainTextResult('', 204)
   }
   return endpoint
 }

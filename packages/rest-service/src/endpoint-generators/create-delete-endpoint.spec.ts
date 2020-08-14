@@ -24,7 +24,8 @@ describe('createDeleteEndpoint', () => {
       expect(countBeforeDelete).toBe(1)
 
       const response = await got('http://127.0.0.1:1111/api/mock', { method: 'DELETE' })
-      expect(JSON.parse(response.body)).toStrictEqual({ success: true })
+      expect(response.statusCode).toBe(204)
+      expect(response.body).toBe('')
 
       const countAfterDelete = await i.getDataSetFor(MockClass).count(i)
       expect(countAfterDelete).toBe(0)

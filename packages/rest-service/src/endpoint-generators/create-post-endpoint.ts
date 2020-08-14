@@ -1,7 +1,7 @@
 import { Constructable } from '@furystack/inject'
 import { JsonResult, RequestError, PostEndpoint } from '@furystack/rest'
 import '@furystack/repository'
-
+import '../incoming-message-extensions'
 /**
  * Creates a POST endpoint for updating entities
  *
@@ -17,7 +17,7 @@ export const createPostEndpoint = <T extends object>(options: { model: Construct
     if (!created || !created.length) {
       throw new RequestError('Entity not found', 404)
     }
-    return JsonResult(created[0])
+    return JsonResult(created[0], 201)
   }
   return endpoint
 }
