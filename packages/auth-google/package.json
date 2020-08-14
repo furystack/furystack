@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-google",
-  "version": "4.0.44",
+  "version": "4.0.45",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -31,8 +31,8 @@
   "dependencies": {
     "@furystack/core": "^9.1.7",
     "@furystack/inject": "^4.0.36",
-    "@furystack/rest": "^1.1.20",
-    "@furystack/rest-service": "^2.1.14",
+    "@furystack/rest": "^1.2.0",
+    "@furystack/rest-service": "^2.2.0",
     "@furystack/utils": "^1.2.6",
     "tslib": "^2.0.0"
   },
