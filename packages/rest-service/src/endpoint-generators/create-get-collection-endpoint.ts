@@ -13,8 +13,8 @@ export const createGetCollectionEndpoint = <T>(options: { model: Constructable<T
   const endpoint: GetCollectionEndpoint<T> = async ({ injector, getQuery }) => {
     const { findOptions } = getQuery()
     const dataSet = injector.getDataSetFor(options.model)
-    const entriesPromise = dataSet.find<any>(injector, findOptions)
-    const countPromise = dataSet.count(injector, findOptions.filter)
+    const entriesPromise = dataSet.find<any>(injector, findOptions || {})
+    const countPromise = dataSet.count(injector, findOptions?.filter)
     const [entries, count] = await Promise.all([entriesPromise, countPromise])
 
     return JsonResult({ entries, count })
