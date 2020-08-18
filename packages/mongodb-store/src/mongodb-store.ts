@@ -120,7 +120,12 @@ export class MongodbStore<T> implements PhysicalStore<T> {
     const collection = await this.getCollection()
 
     const sort = filter.order
-      ? [...Object.keys(filter.order).map((key) => [key, (filter.order as any)[key] === 'ASC' ? 1 : -1])]
+      ? [
+          ...Object.keys(filter.order).map<[string, number]>((key) => [
+            key,
+            (filter.order as any)[key] === 'ASC' ? 1 : -1,
+          ]),
+        ]
       : []
 
     const result = await collection
