@@ -76,7 +76,7 @@ module.exports = {
       },
     },
     {
-      files: ['packages/**/*-extensions.{ts,tsx}'],
+      files: ['packages/**/*-extension*.{ts,tsx}'],
       rules: {
         'no-shadow': 'off',
       },
