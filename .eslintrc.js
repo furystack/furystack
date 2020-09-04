@@ -75,5 +75,11 @@ module.exports = {
         'dot-notation': 'off',
       },
     },
+    {
+      files: ['packages/**/*-extensions.{ts,tsx}'],
+      rules: {
+        'no-shadow': 'off',
+      },
+    },
   ],
 }

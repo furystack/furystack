@@ -41,7 +41,7 @@ export interface Disposable {
  * @param callback The callback that will be executed synchrounously before the resource will be disposed
  * @returns the value that will be returned by the callback method
  */
-export const using = <T extends Disposable, TReturns>(resource: T, callback: (resource: T) => TReturns) => {
+export const using = <T extends Disposable, TReturns>(resource: T, callback: (r: T) => TReturns) => {
   try {
     return callback(resource)
   } finally {
@@ -59,7 +59,7 @@ export const using = <T extends Disposable, TReturns>(resource: T, callback: (re
  */
 export const usingAsync = async <T extends Disposable, TReturns>(
   resource: T,
-  callback: (resource: T) => Promise<TReturns>,
+  callback: (r: T) => Promise<TReturns>,
 ) => {
   try {
     return await callback(resource)
