@@ -8,13 +8,19 @@ import {
   CreateResult,
 } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
-import { ObservableValue } from '@furystack/utils'
+import { Disposable, ObservableValue } from '@furystack/utils'
 
 /**
  * An authorized Repository Store instance
  */
 @Injectable({ lifetime: 'transient' })
-export class DataSet<T> {
+export class DataSet<T> implements Disposable {
+  public dispose() {
+    this.onEntityAdded.dispose()
+    this.onEntityRemoved.dispose()
+    this.onEntityUpdated.dispose()
+  }
+
   /**
    * Primary key of the contained entity
    */
