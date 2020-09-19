@@ -11,6 +11,7 @@ import { DataSet } from './data-set'
 @Injectable({ lifetime: 'singleton' })
 export class Repository implements Disposable {
   public dispose() {
+    this.dataSets.forEach((ds) => ds.dispose())
     this.dataSets.clear()
   }
 
