@@ -8,6 +8,7 @@ import {
   CreateResult,
 } from '@furystack/core'
 import { DataSetSettings } from './data-set-setting'
+import { ObservableValue } from '@furystack/utils'
 
 /**
  * An authorized Repository Store instance
@@ -48,11 +49,14 @@ export class DataSet<T> {
     )
 
     const createResult = await this.settings.physicalStore.add(...parsed)
-    createResult.created.map(
-      (entity) => this.settings.onEntityAdded && this.settings.onEntityAdded({ injector, entity }),
-    )
+    createResult.created.map((entity) => this.onEntityAdded.setValue({ injector, entity }))
     return createResult
   }
+
+  /**
+   * Observable that will be updated after the entity has been persisted
+   */
+  public readonly onEntityAdded = new ObservableValue<{ injector: Injector; entity: T }>()
 
   /**
    * Updates an entity in the store
@@ -81,8 +85,13 @@ export class DataSet<T> {
       ? await this.settings.modifyOnUpdate({ injector, id, entity: change })
       : change
     await this.settings.physicalStore.update(id, parsed)
-    this.settings.onEntityUpdated && this.settings.onEntityUpdated({ injector, change: parsed, id })
+    this.onEntityUpdated.setValue({ injector, change: parsed, id })
   }
+
+  /**
+   * Observable that will be updated right after an entity update
+   */
+  public readonly onEntityUpdated = new ObservableValue<{ injector: Injector; id: T[keyof T]; change: Partial<T> }>()
 
   /**
    * Returns a Promise with the entity count
@@ -171,8 +180,17 @@ export class DataSet<T> {
         }
       }
     }
-    return await this.settings.physicalStore.remove(key)
+    await this.settings.physicalStore.remove(key)
+    this.onEntityRemoved.setValue({ injector, key })
   }
+
+  /**
+   * Callback that fires right after entity update
+   */
+  public readonly onEntityRemoved = new ObservableValue<{
+    injector: Injector
+    key: T[keyof T]
+  }>()
 
   constructor(public readonly settings: DataSetSettings<T, keyof T>) {}
 }

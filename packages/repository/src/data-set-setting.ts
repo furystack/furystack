@@ -45,11 +45,6 @@ export interface DataSetSettings<T, K extends keyof T> {
   modifyOnAdd?: (options: { injector: Injector; entity: WithOptionalId<T, K> }) => Promise<WithOptionalId<T, K>>
 
   /**
-   * Callback that fires right after the entity has been persisted
-   */
-  onEntityAdded?: (options: { injector: Injector; entity: T }) => void
-
-  /**
    * Authorizes entity updates (before the entity gets loaded from the store)
    */
   authorizeUpdate?: (options: { injector: Injector; change: Partial<T> }) => Promise<AuthorizationResult>
@@ -69,11 +64,6 @@ export interface DataSetSettings<T, K extends keyof T> {
   modifyOnUpdate?: (options: { injector: Injector; id: T[keyof T]; entity: Partial<T> }) => Promise<Partial<T>>
 
   /**
-   * Callback that fires right after entity update
-   */
-  onEntityUpdated?: (options: { injector: Injector; id: T[keyof T]; change: Partial<T> }) => void
-
-  /**
    * Authorizes entity removal (before the entity gets loaded from the store)
    */
   authorizeRemove?: (options: { injector: Injector }) => Promise<AuthorizationResult>
@@ -82,11 +72,6 @@ export interface DataSetSettings<T, K extends keyof T> {
    * Authorizes entity removal per loaded entity
    */
   authroizeRemoveEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
-
-  /**
-   * Callback that fires right after entity update
-   */
-  onEntityRemoved?: (options: { injector: Injector; entity: T }) => void
 
   /**
    * Authorizes entity retrival w/o entity loading
