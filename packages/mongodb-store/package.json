@@ -36,14 +36,14 @@
     "@types/mongodb": "^3.5.26",
     "mongodb": "^3.6.2",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
-    "@types/node": "^14.11.2",
+    "@types/node": "^14.11.8",
     "@types/uuid": "^8.0.0",
     "got": "^11.7.0",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.1"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

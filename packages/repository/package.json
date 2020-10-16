@@ -33,7 +33,7 @@
     "@furystack/inject": "^4.0.39",
     "@furystack/logging": "^2.0.46",
     "@furystack/utils": "^1.2.9",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14"
