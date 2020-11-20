@@ -60,7 +60,7 @@ describe('createGetEntityEndpoint', () => {
           },
         },
       })
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         got(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
           .then(() => reject('Should throw'))
           .catch((err) => {

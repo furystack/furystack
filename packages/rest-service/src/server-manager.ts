@@ -44,7 +44,7 @@ export class ServerManager implements Disposable {
     await Promise.allSettled(
       [...this.servers.values()].map(
         (s) =>
-          new Promise((resolve, reject) => {
+          new Promise<void>((resolve, reject) => {
             s.server.close((err) => (err ? reject(err) : resolve()))
             s.server.off('connection', this.onConnection)
           }),
@@ -60,7 +60,7 @@ export class ServerManager implements Disposable {
       await this.listenLock.acquire()
       if (!this.servers.has(url)) {
         try {
-          await new Promise((resolve, reject) => {
+          await new Promise<void>((resolve, reject) => {
             const apis: ServerRecord['apis'] = []
             const server = createServer((req, res) => {
               const apiMatch = apis.find((api) => api.shouldExec({ req, res }))

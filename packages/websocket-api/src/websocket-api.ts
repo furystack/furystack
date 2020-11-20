@@ -85,7 +85,7 @@ export class WebSocketApi implements Disposable {
   public async dispose() {
     this.socket.clients.forEach((client) => client.close())
     this.socket.clients.forEach((client) => client.terminate())
-    await new Promise((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
+    await new Promise<void>((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
   }
 
   public async broadcast(

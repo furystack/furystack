@@ -102,7 +102,7 @@ export const disposableTests = describe('Disposable', () => {
         public isDisposed = false
         /** set isDisposed with a timeout */
         public async dispose() {
-          await new Promise((resolve) =>
+          await new Promise<void>((resolve) =>
             setTimeout(() => {
               this.isDisposed = true
               resolve()

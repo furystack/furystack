@@ -9,7 +9,7 @@ import { CorsOptions } from './models/cors-options'
 export class Utils {
   public async readPostBodyRaw(incomingMessage: IncomingMessage) {
     let body = ''
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       incomingMessage.on('readable', () => {
         const data = incomingMessage.read()
         if (data) {

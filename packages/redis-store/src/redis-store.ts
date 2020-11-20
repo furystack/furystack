@@ -70,7 +70,7 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
     await Promise.all(
       keys.map(
         async (key) =>
-          await new Promise((resolve, reject) =>
+          await new Promise<void>((resolve, reject) =>
             this.options.client.del((key as any).toString(), [], (err) => {
               if (err) {
                 return reject()
