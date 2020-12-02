@@ -28,7 +28,7 @@ describe('createPatchEndpoint', () => {
         body: JSON.stringify({ value: 'updated' }),
       })
       expect(response.statusCode).toBe(200)
-      expect(response.body).toBe('')
+      expect(response.body).toBe('{}')
       const updated = await i.getDataSetFor(MockClass).get(i, 'mock')
       expect(updated?.value).toBe('updated')
     })

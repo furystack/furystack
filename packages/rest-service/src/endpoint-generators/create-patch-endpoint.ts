@@ -1,5 +1,5 @@
 import { Constructable } from '@furystack/inject'
-import { PatchEndpoint, PlainTextResult } from '@furystack/rest'
+import { JsonResult, PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
 
@@ -16,7 +16,7 @@ export const createPatchEndpoint = <T extends object>(options: { model: Construc
     const patchData = await request.readPostBody<T>()
     const dataSet = injector.getDataSetFor(options.model)
     await dataSet.update(injector, id, patchData)
-    return PlainTextResult('')
+    return JsonResult({})
   }
   return endpoint
 }

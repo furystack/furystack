@@ -5,5 +5,5 @@ import { RequestAction } from '../request-action'
  */
 export type DeleteEndpoint<T> = RequestAction<{
   urlParams: { id: T[keyof T] }
-  result: string
+  result: {}
 }>
