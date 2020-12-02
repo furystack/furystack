@@ -12,7 +12,7 @@ describe('WebSocket User Context', () => {
   describe('isAuthenticated', () => {
     it('should authenticate with HttpUserContext and the IncomingMessage', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authFn = jest.fn(async () => mockUser)
+        const authFn = jest.fn(async (..._args: any[]) => mockUser)
         const incomingMessage = {}
         i.setExplicitInstance(incomingMessage, IncomingMessage)
         i.setExplicitInstance({ authenticateRequest: authFn }, HttpUserContext)
@@ -24,7 +24,7 @@ describe('WebSocket User Context', () => {
 
     it('should return false if HttpUserContext throws', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authFn = jest.fn(() => Promise.reject('Hey! No user here!'))
+        const authFn = jest.fn((..._args: any[]) => Promise.reject('Hey! No user here!'))
         const incomingMessage = {}
         i.setExplicitInstance(incomingMessage, IncomingMessage)
         i.setExplicitInstance({ authenticateRequest: authFn }, HttpUserContext)

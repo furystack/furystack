@@ -37,7 +37,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ GET: { '/test': RequestAction<{ result: { foo: number } }> } }>({
+    const client = createClient<{ GET: { '/test': RequestAction<{ result: { value: number } }> } }>({
       endpointUrl,
       fetch,
     })
@@ -61,7 +61,7 @@ describe('@furystack/rest-client-fetch', () => {
     }))
 
     const client = createClient<{
-      GET: { '/test': RequestAction<{ result: { foo: number }; query: { value: string } }> }
+      GET: { '/test': RequestAction<{ result: { value: number }; query: { value: string } }> }
     }>({
       endpointUrl,
       fetch,
@@ -90,7 +90,7 @@ describe('@furystack/rest-client-fetch', () => {
     }))
 
     const client = createClient<{
-      GET: { '/test/:urlValue': RequestAction<{ result: { foo: number }; url: { urlValue: string } }> }
+      GET: { '/test/:urlValue': RequestAction<{ result: { value: number }; url: { urlValue: string } }> }
     }>({
       endpointUrl,
       fetch,

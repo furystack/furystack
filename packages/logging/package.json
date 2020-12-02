@@ -25,7 +25,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.15"
+    "@types/jest": "^26.0.16"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
