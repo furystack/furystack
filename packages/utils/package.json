@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "General utilities",
   "main": "dist/index.js",
   "typings": "./dist/index.d.ts",
