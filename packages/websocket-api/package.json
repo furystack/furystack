@@ -38,7 +38,7 @@
     "ws": "^7.4.1"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.18",
+    "@types/jest": "^26.0.19",
     "@types/ws": "^7.4.0"
   },
   "typings": "./dist/index.d.ts",
