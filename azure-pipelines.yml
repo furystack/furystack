@@ -102,7 +102,12 @@ jobs:
                 buildImages: true
             - script: yarn test
               displayName: 'Run Tests'
+            - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc
+              displayName: Create .npmrc
+              env:
+                NPM_TOKEN: $(NPM_TOKEN)
             - script: yarn lerna publish from-package -y
               displayName: Publish packages to NPM
+
             
             
