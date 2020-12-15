@@ -104,7 +104,5 @@ jobs:
               displayName: 'Run Tests'
             - script: yarn lerna publish from-package -y
               displayName: Publish packages to NPM
-              env:
-                NPM_TOKEN: $(NPM_TOKEN)
             
             
