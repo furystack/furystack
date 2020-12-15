@@ -8,6 +8,7 @@
     "nohoist": []
   },
   "devDependencies": {
+    "@types/jsdom": "^16.2.5",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
     "eslint": "^7.15.0",
