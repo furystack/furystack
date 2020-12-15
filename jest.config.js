@@ -18,7 +18,7 @@ module.exports = {
     '<rootDir>/packages/shades-lottie',
     '<rootDir>/packages/shades-nipple',
   ],
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   moduleFileExtensions: ['js', 'json', 'node'],
   collectCoverage: true,
   collectCoverageFrom: ['**/*.{js,jsx}', '!**/node_modules/**'],
