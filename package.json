@@ -27,7 +27,7 @@
     "typescript": "^4.1.3"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags --force-publish",
     "build": "tsc -b packages",
     "lint": "eslint . --ext .tsx --ext .ts",
     "prettier": "prettier --write",

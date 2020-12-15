@@ -17,53 +17,105 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-strategy:
-  matrix:
-    node_14_x:
-      node_version: 14.x
-  maxParallel: 2
 
-steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: $(node_version)
-    displayName: Use Node.js $(node_version)
+jobs:
+  - job: buildAndTest
+  
+    strategy:
+      matrix:
+        node_14_x:
+          node_version: 14.x
+    displayName: Build and test
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(node_version)
+        displayName: Use Node.js $(node_version)
 
-  - script: yarn install
-    displayName: 'Install dependencies'
+      - script: yarn install
+        displayName: 'Install dependencies'
 
-  - script: yarn lint
-    displayName: 'Lint'
+      - script: yarn lint
+        displayName: 'Lint'
 
-  - script: yarn build
-    displayName: 'Build'
+      - script: yarn build
+        displayName: 'Build'
 
-  - task: DockerCompose@0
-    displayName: Start services from docker-compose
-    inputs:
-      action: Run services
-      dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
-      projectName: $(Build.Repository.Name)
-      detached: true
-      buildImages: true
+      - task: DockerCompose@0
+        displayName: Start services from docker-compose
+        inputs:
+          action: Run services
+          dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
+          projectName: $(Build.Repository.Name)
+          detached: true
+          buildImages: true
 
-  - script: yarn test
-    timeoutInMinutes: 5
-    displayName: 'Yarn test'
+      - script: yarn test
+        timeoutInMinutes: 5
+        displayName: 'Yarn test'
 
-  - script: bash <(curl -s https://codecov.io/bash)
-    displayName: 'Publish test results to Codecov'
+      - script: bash <(curl -s https://codecov.io/bash)
+        displayName: 'Publish test results to Codecov'
 
-  - task: PublishCodeCoverageResults@1
-    displayName: 'Publish test coverage results'
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish test coverage results'
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
 
-  - task: PublishTestResults@2
-    displayName: Publish test results
-    condition: succeededOrFailed()
-    inputs:
-      testRunner: JUnit
-      testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        condition: succeededOrFailed()
+        inputs:
+          testRunner: JUnit
+          testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+  - deployment: deploy
+    displayName: Deploy packages to NPM
+    dependsOn: buildAndTest
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    timeoutInMinutes: 60
+    environment:
+      name: NPM
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: NodeTool@0
+              inputs:
+                versionSpec: '14.x'
+              displayName: 'Install Node.js'
+            - script:
+                  |
+                  if [[ ! -f .npmrc ]]; then
+                    echo 'No .npmrc found! Creating one now. Please review the following link for more information: https://docs.gitlab.com/ee/user/packages/npm_registry/index.html#authenticating-with-a-ci-job-token'
+
+                    {
+                      echo '@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_SERVER_PROTOCOL}://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/'
+                      echo '//${CI_SERVER_HOST}/api/v4/packages/npm/:_authToken=${CI_JOB_TOKEN}'
+                      echo '//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}'
+                    } >> .npmrc
+
+                  fi
+              displayName: Create .npmrc
+            - script: yarn install
+              displayName: 'Install'
+            - script: yarn lint
+              displayName: 'Lint'
+            - script: yarn build
+              displayName: 'Build'
+            - task: DockerCompose@0
+              displayName: Start services from docker-compose
+              inputs:
+                action: Run services
+                dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
+                projectName: $(Build.Repository.Name)
+                detached: true
+                buildImages: true
+            - script: yarn test
+              displayName: 'Run Tests'
+            - script: yarn lerna publish from-package -y
+              displayName: Publish packages to NPM
+            
+            
