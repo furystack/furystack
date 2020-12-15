@@ -102,7 +102,7 @@ jobs:
                 buildImages: true
             - script: yarn test
               displayName: 'Run Tests'
-            - script: echo '@furystack:registry=https://registry.npmjs.org/npm/registry' >> .npmrc && echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && npm whoami && yarn lerna publish from-package -y
+            - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
               displayName: Publish packages to NPM
               env:
                 NPM_TOKEN: $(NPM_TOKEN)
