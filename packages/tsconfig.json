@@ -40,6 +40,18 @@
     },
     {
       "path": "./websocket-api"
+    },
+    {
+      "path": "./shades"
+    },
+    {
+      "path": "./shades-common-components"
+    },
+    {
+      "path": "./shades-nipple"
+    },
+    {
+      "path": "./shades-lottie"
     }
   ]
 }
