@@ -17,12 +17,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-strategy:
-  matrix:
-    node_14_x:
-      node_version: 14.x
-  maxParallel: 2
-
 jobs:
   - job: buildAndTest
     displayName: Build and test
