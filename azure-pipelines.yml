@@ -17,8 +17,14 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+
 jobs:
   - job: buildAndTest
+  
+    strategy:
+      matrix:
+        node_14_x:
+          node_version: 14.x
     displayName: Build and test
     steps:
       - task: NodeTool@0
