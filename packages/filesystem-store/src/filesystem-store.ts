@@ -87,6 +87,11 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
       for (const entity of json) {
         this.cache.set(entity[this.primaryKey], entity)
       }
+    } catch (err) {
+      // ignore if file not exists yet
+      if (err.code !== 'ENOENT') {
+        throw err
+      }
     } finally {
       this.fileLock.release()
     }
