@@ -1,5 +1,4 @@
 import { Injector } from '@furystack/inject'
-import '@furystack/logging'
 import './injector-extensions'
 import { usingAsync, PathHelper } from '@furystack/utils'
 import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions'
@@ -28,7 +27,6 @@ const root = 'test-api'
 
 const prepareInjector = (i: Injector) =>
   i
-    .useLogging()
     .setupStores((sm) =>
       sm
         .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))

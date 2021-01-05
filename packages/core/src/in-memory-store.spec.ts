@@ -1,4 +1,3 @@
-import '@furystack/logging'
 import { InMemoryStore } from './in-memory-store'
 import { TestClass, createStoreTest, createMockEntity } from './create-physical-store-tests'
 

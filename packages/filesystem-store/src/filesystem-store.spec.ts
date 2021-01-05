@@ -2,14 +2,13 @@ import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './filesystem-store'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import { v4 } from 'uuid'
-import { LoggerCollection } from '@furystack/logging'
 
 describe('FileSystemStore', () => {
   const storeNames: string[] = []
   const createStore = () => {
     const fileName = `filestore-test-${v4()}.json`
     storeNames.push(fileName)
-    return new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', logger: new LoggerCollection() })
+    return new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' })
   }
 
   createStoreTest({

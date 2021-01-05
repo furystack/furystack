@@ -16,7 +16,6 @@ declare module '@furystack/core/dist/store-manager' {
      * import '@furystack/redis-store'
      *
      * defaultInjector
-     *    .useLogging(ConsoleLogger)
      *    .setupStores(sm => sm.useRedis(SessionModel, 'sessionId', createClient())
      * ````
      */
@@ -25,7 +24,7 @@ declare module '@furystack/core/dist/store-manager' {
 }
 
 StoreManager.prototype.useRedis = function (model, primaryKey, client) {
-  const store = new RedisStore({ model, client, primaryKey, logger: this.injector.logger })
+  const store = new RedisStore({ model, client, primaryKey })
   this.addStore(store)
   return this
 }

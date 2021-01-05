@@ -1,7 +1,6 @@
 import { PhysicalStore, StoreManager } from '@furystack/core'
-import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Constructable, Injectable } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
-import { ScopedLogger } from '@furystack/logging'
 import { DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
 
@@ -20,9 +19,6 @@ export class Repository implements Disposable {
   public getDataSetFor<T>(model: Constructable<T>) {
     const instance = this.dataSets.get(model)
     if (!instance) {
-      this.logger.error({
-        message: `No DataSet found for '${model}'`,
-      })
       throw Error(`No DataSet found for '${model}'`)
     }
     return instance as DataSet<T>
@@ -38,9 +34,5 @@ export class Repository implements Disposable {
     return this
   }
 
-  private logger: ScopedLogger
-
-  constructor(private readonly storeManager: StoreManager, private readonly injector: Injector) {
-    this.logger = this.injector.logger.withScope(`@furystack/repository/${this.constructor.name}`)
-  }
+  constructor(private readonly storeManager: StoreManager) {}
 }

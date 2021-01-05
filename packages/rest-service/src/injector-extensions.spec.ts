@@ -1,6 +1,5 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import '@furystack/logging'
 import './injector-extensions'
 
 // tslint:disable: no-string-literal

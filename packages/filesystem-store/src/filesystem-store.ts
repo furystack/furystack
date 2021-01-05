@@ -1,6 +1,5 @@
 import { FSWatcher, promises, watch } from 'fs'
 import { Constructable } from '@furystack/inject'
-import { Logger, ScopedLogger } from '@furystack/logging'
 import Semaphore from 'semaphore-async-await'
 import { InMemoryStore, PhysicalStore, FindOptions, FilterType } from '@furystack/core'
 
@@ -68,11 +67,6 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
       }
       await this.writeFile(this.options.fileName, JSON.stringify(values))
       this.hasChanges = false
-    } catch (e) {
-      this.logger.error({
-        message: `Error saving changed data to '${this.options.fileName}'.`,
-        data: { error: e },
-      })
     } finally {
       this.fileLock.release()
     }
@@ -93,11 +87,6 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
       for (const entity of json) {
         this.cache.set(entity[this.primaryKey], entity)
       }
-    } catch (e) {
-      this.logger.error({
-        message: `Error loading data into store from '${this.options.fileName}'.`,
-        data: e,
-      })
     } finally {
       this.fileLock.release()
     }
@@ -113,28 +102,21 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
   public readFile = promises.readFile
   public writeFile = promises.writeFile
 
-  private logger: ScopedLogger
-
   constructor(
     private readonly options: {
       fileName: string
       primaryKey: keyof T
       tickMs?: number
-      logger: Logger
       model: Constructable<T>
     },
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
-    this.logger = options.logger.withScope(`@furystack/core/${this.constructor.name}`)
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
     try {
       this.reloadData()
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-        this.logger.verbose({
-          message: `The file '${this.options.fileName}' has been changed, reloading data...`,
-        })
         this.reloadData()
       })
     } catch (error) {

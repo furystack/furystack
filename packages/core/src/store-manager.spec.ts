@@ -1,5 +1,4 @@
 import { using } from '@furystack/utils'
-import '@furystack/logging'
 import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
@@ -8,13 +7,13 @@ import './injector-extensions'
 describe('StoreManager', () => {
   it('Can be retrieved from an injector', () => {
     using(new Injector(), (i) => {
-      expect(i.useLogging().getInstance(StoreManager)).toBeInstanceOf(StoreManager)
+      expect(i.getInstance(StoreManager)).toBeInstanceOf(StoreManager)
     })
   })
 
   it('Should throw if trying to retrieve a non-existing store', () => {
     using(new Injector(), (i) => {
-      const sm = i.useLogging().getInstance(StoreManager)
+      const sm = i.getInstance(StoreManager)
       expect(() => sm.getStoreFor(class {})).toThrow()
     })
   })
@@ -26,7 +25,7 @@ describe('StoreManager', () => {
     }
 
     using(new Injector(), (i) => {
-      i.useLogging().setupStores((stores) =>
+      i.setupStores((stores) =>
         stores.addStore(
           new InMemoryStore({
             model: Test,

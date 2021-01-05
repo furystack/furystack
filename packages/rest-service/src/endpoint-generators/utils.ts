@@ -2,7 +2,6 @@ import { Injector } from '@furystack/inject'
 import { InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from '../models/default-session'
 import '@furystack/repository'
-import '@furystack/logging'
 import '../injector-extensions'
 
 export class MockClass {
@@ -36,5 +35,4 @@ export const setupContext = (i: Injector) => {
         }),
       ),
   ).setupRepository((r) => r.createDataSet(MockClass))
-  i.useLogging()
 }

@@ -1,6 +1,5 @@
 import { PhysicalStore, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { Logger, ScopedLogger } from '@furystack/logging'
 import { RedisClient } from 'redis'
 
 /**
@@ -10,23 +9,16 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
   public primaryKey!: K
 
   public readonly model: Constructable<T>
-  private readonly logger: ScopedLogger
 
   constructor(
     private readonly options: {
       model: Constructable<T>
       client: RedisClient
-      logger: Logger
       primaryKey: K
     },
   ) {
-    this.logger = this.options.logger.withScope(`@furystack/redis-store/${this.constructor.name}`)
     this.primaryKey = options.primaryKey
-
     this.model = options.model
-    this.logger.verbose({
-      message: `Initializing Redis Store for ${this.model.name}...`,
-    })
   }
   public async add(...entries: T[]): Promise<CreateResult<T>> {
     const created = await Promise.all(

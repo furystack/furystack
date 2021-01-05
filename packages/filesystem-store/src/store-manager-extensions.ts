@@ -14,7 +14,6 @@ declare module '@furystack/core/dist/store-manager' {
      * import '@furystack/filesystem-store'
      *
      * defaultInjector
-     *    .useLogging(ConsoleLogger)
      *    .useFileSystem(sm => sm.useFileSystem({model: MyModel, primaryKey: 'myId', fileName: 'asd.json')
      * ````
      */
@@ -28,8 +27,7 @@ declare module '@furystack/core/dist/store-manager' {
 }
 
 StoreManager.prototype.useFileSystem = function (options) {
-  const { logger } = this.injector
-  const store = new FileSystemStore({ ...options, logger })
+  const store = new FileSystemStore({ ...options })
   this.addStore(store)
   return this
 }

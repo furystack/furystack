@@ -1,6 +1,6 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@furystack/utils'
+import { AggregatedError } from './errors'
 import { PhysicalStore } from './models/physical-store'
 
 /**
@@ -13,9 +13,10 @@ export class StoreManager implements Disposable {
    */
   public async dispose() {
     const result = await Promise.allSettled([...this.stores.entries()].map(async ([_model, store]) => store.dispose()))
-    const fails = result.filter((r) => r.status === 'rejected')
+    const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
     if (fails && fails.length) {
-      this.logger.warning({ message: `There was an error during disposing '${fails.length}' stores`, data: { fails } })
+      const error = new AggregatedError(`There was an error during disposing ${fails.length} stores.`, fails)
+      throw error
     }
   }
   private stores: Map<Constructable<any>, PhysicalStore<any>> = new Map()
@@ -31,12 +32,7 @@ export class StoreManager implements Disposable {
   public getStoreFor<T, TType extends PhysicalStore<T> = PhysicalStore<T>>(model: Constructable<T>) {
     const instance = this.stores.get(model)
     if (!instance) {
-      const message = `Store not found for '${model.name}'`
-      this.logger.warning({
-        message,
-      })
-
-      throw Error(message)
+      throw Error(`Store not found for '${model.name}'`)
     }
     return instance as TType
   }
@@ -52,9 +48,5 @@ export class StoreManager implements Disposable {
     return this
   }
 
-  private logger: ScopedLogger
-
-  constructor(public injector: Injector) {
-    this.logger = injector.logger.withScope(`@furystack/core/${this.constructor.name}`)
-  }
+  constructor(public injector: Injector) {}
 }
