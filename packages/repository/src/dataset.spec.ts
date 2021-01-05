@@ -4,7 +4,6 @@ import { InMemoryStore, WithOptionalId } from '@furystack/core'
 import { Repository } from './repository'
 import { AuthorizationResult, DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
-import '@furystack/logging'
 import './injector-extension'
 
 class TestClass {
@@ -16,16 +15,14 @@ describe('DataSet', () => {
   describe('Construction', () => {
     it('can be retrieved from an extension method with class', () => {
       using(new Injector(), (i) => {
-        i.useLogging()
-          .setupStores((stores) =>
-            stores.addStore(
-              new InMemoryStore({
-                model: TestClass,
-                primaryKey: 'id',
-              }),
-            ),
-          )
-          .setupRepository((r) => r.createDataSet(TestClass))
+        i.setupStores((stores) =>
+          stores.addStore(
+            new InMemoryStore({
+              model: TestClass,
+              primaryKey: 'id',
+            }),
+          ),
+        ).setupRepository((r) => r.createDataSet(TestClass))
         const dataSet: DataSet<TestClass> = i.getDataSetFor(TestClass)
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
@@ -33,16 +30,14 @@ describe('DataSet', () => {
 
     it('can be retrieved from an extension method with string', () => {
       using(new Injector(), (i) => {
-        i.useLogging()
-          .setupStores((stores) =>
-            stores.addStore(
-              new InMemoryStore({
-                model: TestClass,
-                primaryKey: 'id',
-              }),
-            ),
-          )
-          .setupRepository((r) => r.createDataSet(TestClass))
+        i.setupStores((stores) =>
+          stores.addStore(
+            new InMemoryStore({
+              model: TestClass,
+              primaryKey: 'id',
+            }),
+          ),
+        ).setupRepository((r) => r.createDataSet(TestClass))
         const dataSet = i.getDataSetFor(TestClass)
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
@@ -50,14 +45,12 @@ describe('DataSet', () => {
 
     it('Should throw if dataset is not registered through extension', () => {
       using(new Injector(), (i) => {
-        i.useLogging()
         expect(() => i.getDataSetFor(TestClass)).toThrowError('')
       })
     })
 
     it('Should throw if dataset is not registered through service', () => {
       using(new Injector(), (i) => {
-        i.useLogging()
         expect(() => i.getInstance(Repository).getDataSetFor(TestClass)).toThrowError('')
       })
     })
@@ -66,7 +59,7 @@ describe('DataSet', () => {
   describe('Authorizers', () => {
     describe('Add', () => {
       it('should add an entity if no settings are provided', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -79,7 +72,7 @@ describe('DataSet', () => {
       })
 
       it('should call the add async authorizer and add the entity on pass', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeAdd = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -93,7 +86,7 @@ describe('DataSet', () => {
       })
 
       it('should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeAdd = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -114,7 +107,7 @@ describe('DataSet', () => {
       })
 
       it('should modify an entity on add, if modifyOnAdd is provided', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const modifyOnAdd = jest.fn(
             async (options: { injector: Injector; entity: WithOptionalId<TestClass, 'id'> }) => ({
               ...options.entity,
@@ -135,7 +128,7 @@ describe('DataSet', () => {
       })
 
       it('should call the onEntityAdded callback if an entity has been added', async (done) => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass, {}))
@@ -153,7 +146,7 @@ describe('DataSet', () => {
 
     describe('Update', () => {
       it('should update an entity if no settings are provided', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -167,7 +160,7 @@ describe('DataSet', () => {
       })
 
       it('should call the authorizeUpdate authorizer and add the entity on pass', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeUpdate = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -182,7 +175,7 @@ describe('DataSet', () => {
       })
 
       it('should throw if the authorizeUpdateEntity returns a non-valid result and should not update a value to the store', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeUpdateEntity = jest.fn(
             async () => ({ isAllowed: false, message: '...' } as AuthorizationResult),
           )
@@ -205,7 +198,7 @@ describe('DataSet', () => {
         })
       })
       it('should call the authorizeUpdateEntity authorizer and add the entity on pass', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeUpdateEntity = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -220,7 +213,7 @@ describe('DataSet', () => {
       })
 
       it('should throw if the authorizeUpdate returns a non-valid result and should not update a value to the store', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeUpdate = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -242,7 +235,7 @@ describe('DataSet', () => {
       })
 
       it('should modify an entity on update, if modifyOnAdd is provided', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const modifyOnUpdate: DataSetSettings<TestClass, 'id'>['modifyOnUpdate'] = jest.fn(async (options) => ({
             ...options.entity,
             value: options.entity.value?.toUpperCase(),
@@ -262,7 +255,7 @@ describe('DataSet', () => {
       })
 
       it('should publish to the onEntityUpdated observable if an entity has been updated', async (done) => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -281,7 +274,7 @@ describe('DataSet', () => {
 
     describe('Count', () => {
       it('should return the count if no settings are provided', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -294,7 +287,7 @@ describe('DataSet', () => {
       })
 
       it('should return the count if authorizeGet returns valid result', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -308,7 +301,7 @@ describe('DataSet', () => {
       })
 
       it('should throw if authorizeGet returns invalid result', async () => {
-        await usingAsync(new Injector().useLogging(), async (i) => {
+        await usingAsync(new Injector(), async (i) => {
           const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -329,7 +322,7 @@ describe('DataSet', () => {
 
   describe('filter', () => {
     it('should return the unfiltered result if no settings are provided', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -342,7 +335,7 @@ describe('DataSet', () => {
     })
 
     it('should return the unfiltered result if authorizeGet returns valid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -356,7 +349,7 @@ describe('DataSet', () => {
     })
 
     it('should throw if authorizeGet returns invalid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -376,7 +369,7 @@ describe('DataSet', () => {
 
   describe('get', () => {
     it('should return the entity if no settings are provided', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -389,7 +382,7 @@ describe('DataSet', () => {
     })
 
     it('should return the entity if authorizeGet returns valid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -403,7 +396,7 @@ describe('DataSet', () => {
     })
 
     it('should throw if authorizeGet returns invalid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -421,7 +414,7 @@ describe('DataSet', () => {
     })
 
     it('should return the entity if authorizeGetEntity returns valid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGetEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -435,7 +428,7 @@ describe('DataSet', () => {
     })
 
     it('should throw if authorizeGetEntity returns invalid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeGetEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -454,7 +447,7 @@ describe('DataSet', () => {
   })
   describe('remove', () => {
     it('should remove the entity if no settings are provided', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass))
@@ -468,7 +461,7 @@ describe('DataSet', () => {
     })
 
     it('should remove the entity if authorizeRemove returns valid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeRemove = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -483,7 +476,7 @@ describe('DataSet', () => {
     })
 
     it('should throw if authorizeRemove returns invalid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authorizeRemove = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -503,7 +496,7 @@ describe('DataSet', () => {
     })
 
     it('should remove the entity if authroizeRemoveEntity returns valid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -518,7 +511,7 @@ describe('DataSet', () => {
     })
 
     it('should throw if authroizeRemoveEntity returns invalid result', async () => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
@@ -537,7 +530,7 @@ describe('DataSet', () => {
       })
     })
     it('should publish to the onEntityRemoved observable if an entity has been removed', async (done) => {
-      await usingAsync(new Injector().useLogging(), async (i) => {
+      await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass))

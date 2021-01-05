@@ -1,6 +1,5 @@
 import { Disposable } from '@furystack/utils'
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
+import { Injectable } from '@furystack/inject'
 import { connect, MongoClient, MongoClientOptions } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
@@ -33,23 +32,8 @@ export class MongoClientFactory implements Disposable {
       const client = await connect(url, options)
       this.connections.set(url, client)
       return client
-    } catch (error) {
-      this.logger.error({
-        message: `Error during initializing MongoDB connection`,
-        data: {
-          error,
-          url,
-          options,
-        },
-      })
-      throw error
     } finally {
       this.connectionLock.release()
     }
-  }
-
-  private logger: ScopedLogger
-  constructor(injector: Injector) {
-    this.logger = injector.logger.withScope('@furystack/mongodb-store')
   }
 }

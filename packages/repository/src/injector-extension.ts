@@ -14,7 +14,6 @@ declare module '@furystack/inject/dist/injector' {
      * usage example:
      * ````ts
      * injector
-     * .useLogging(ConsoleLogger)
      * .setupStores(sm => {
      *   sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
      *     .useMongoDb(User, 'mongodb://localhost:27017', 'test', 'users')

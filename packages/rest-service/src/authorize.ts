@@ -1,4 +1,3 @@
-import '@furystack/logging'
 import { sleepAsync } from '@furystack/utils'
 import { JsonResult, RequestAction, RequestOptions, RequestActionOptions, ActionResult } from '@furystack/rest'
 
@@ -7,19 +6,9 @@ export const Authorize = (...roles: string[]) => <T extends RequestActionOptions
 ): RequestAction<T> => {
   return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
     try {
-      const currentUser = await options.injector.getCurrentUser()
       const authorized = await options.injector.isAuthorized(...roles)
       if (!authorized) {
-        const { url } = options.request
         await sleepAsync(Math.random() * 1000)
-        options.injector.logger.warning({
-          scope: '@furystack/rest-service/@Authorize()',
-          message: `User '${currentUser.username}' has been tried to access to action '${url}' without the required roles.`,
-          data: {
-            user: currentUser,
-            requiredRoles: roles,
-          },
-        })
         return JsonResult({ error: 'forbidden' }, 403) as any
       }
     } catch (error) {

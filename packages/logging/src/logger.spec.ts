@@ -1,9 +1,7 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { LogLevel } from './log-entries'
-import { TestLogger } from './test-logger'
-import { LoggerCollection } from './logger-collection'
 import './injector-extensions'
+import { LogLevel, TestLogger, LoggerCollection } from './'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
 
 describe('Loggers', () => {
@@ -139,6 +137,20 @@ describe('Loggers', () => {
         scope: 'alma',
       })
     })
+  })
+
+  describe('Scoped Logger', () => {
+    const scopedConsoleLogger = new ConsoleLogger().withScope('scope')
+    it('Should print with addEntry', () =>
+      scopedConsoleLogger.addEntry({ message: 'Example Verbose Message', level: LogLevel.Verbose }))
+    it('Should print Verbose', () => scopedConsoleLogger.verbose({ message: 'Example Verbose Message' }))
+    it('Should print Debug', () => scopedConsoleLogger.debug({ message: 'Example Debug Message' }))
+    it('Should print Information', () => scopedConsoleLogger.information({ message: 'Example Information Message' }))
+    it('Should print Warning', () => scopedConsoleLogger.warning({ message: 'Example Warning Message' }))
+    it('Should print Error', () => scopedConsoleLogger.error({ message: 'Example Error Message' }))
+    it('Should print Fatal', () => scopedConsoleLogger.fatal({ message: 'Example Fatal Message' }))
+    it('Should print additional data', () =>
+      scopedConsoleLogger.fatal({ message: 'Example Fatal Message', data: { a: 1 } }))
   })
 
   describe('ConsoleLogger', () => {

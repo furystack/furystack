@@ -31,7 +31,6 @@
   "dependencies": {
     "@furystack/core": "^9.1.18",
     "@furystack/inject": "^4.0.46",
-    "@furystack/logging": "^2.0.53",
     "@furystack/utils": "^1.2.16",
     "path-to-regexp": "^6.2.0",
     "tslib": "^2.0.3",

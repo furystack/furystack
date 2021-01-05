@@ -10,7 +10,6 @@
     { "path": "../core" },
     { "path": "../rest-service" },
     { "path": "../inject" },
-    { "path": "../logging" },
     { "path": "../utils" }
   ]
 }

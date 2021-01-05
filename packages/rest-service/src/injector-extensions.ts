@@ -22,16 +22,7 @@ declare module '@furystack/inject/dist/injector' {
 }
 
 Injector.prototype.useRestService = async function (api) {
-  const logger = this.logger.withScope('@furystack/rest-service/useRestService')
-  logger.verbose({
-    message: 'Setting up Rest Service API...',
-    data: api,
-  })
   await this.getInstance(ApiManager).addApi({ ...api, injector: this })
-  logger.verbose({
-    message: `Rest Service API is listening at ${api.port}`,
-    data: api,
-  })
   return this
 }
 

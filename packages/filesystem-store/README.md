@@ -17,7 +17,6 @@ class MyModel {
 
 const myInjector = new Injector()
 myInjector
-  .useLogging()
   .setupStores((stores) => stores.useFileSystem({ model: MyModel, primaryKey: 'id', fileName: 'example.json' }))
 
 const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel)

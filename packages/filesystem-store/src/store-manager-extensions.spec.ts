@@ -5,7 +5,6 @@ import './store-manager-extensions'
 import { v4 } from 'uuid'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import '@furystack/logging'
 import { StoreManager } from '@furystack/core'
 
 describe('FileSystemStore store manager extensions', () => {
@@ -13,7 +12,7 @@ describe('FileSystemStore store manager extensions', () => {
 
   it('Should create a store with an extensions method from Store Manages', async () => {
     await usingAsync(new Injector(), async (i) => {
-      const storeManager = i.useLogging().getInstance(StoreManager)
+      const storeManager = i.getInstance(StoreManager)
       const fileName = `filestore-test-${v4()}.json`
       storeNames.push(fileName)
       const store = storeManager.useFileSystem({

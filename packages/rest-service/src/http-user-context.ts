@@ -1,7 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { PhysicalStore, User, StoreManager } from '@furystack/core'
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
+import { Injectable } from '@furystack/inject'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 
@@ -141,41 +140,19 @@ export class HttpUserContext {
     const sessionId = v1()
     await this.sessions.add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-    this.logger.information({
-      message: `User '${user.username}' logged in.`,
-      data: {
-        user,
-        sessionId,
-      },
-    })
     return user
   }
 
   public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const user = await this.authenticateRequest(request)
       await this.sessions.remove(sessionId)
       response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
-      this.logger.information({
-        message: `User '${user.username}' has been logged out.`,
-        data: {
-          user,
-          sessionId,
-        },
-      })
     }
   }
 
-  private readonly logger: ScopedLogger
-
-  constructor(
-    injector: Injector,
-    public readonly authentication: HttpAuthenticationSettings<User>,
-    storeManager: StoreManager,
-  ) {
+  constructor(public readonly authentication: HttpAuthenticationSettings<User>, storeManager: StoreManager) {
     this.users = authentication.getUserStore(storeManager)
     this.sessions = authentication.getSessionStore(storeManager)
-    this.logger = injector.logger.withScope(`@furystack/rest-service/${this.constructor.name}`)
   }
 }

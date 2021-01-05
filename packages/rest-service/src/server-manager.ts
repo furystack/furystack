@@ -1,9 +1,8 @@
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 import { Server, createServer } from 'http'
 import Semaphore from 'semaphore-async-await'
 import { IncomingMessage, ServerResponse } from 'http'
-import { ScopedLogger } from '@furystack/logging'
 import { Socket } from 'net'
 
 export interface ServerOptions {
@@ -59,40 +58,26 @@ export class ServerManager implements Disposable {
     if (!this.servers.has(url)) {
       await this.listenLock.acquire()
       if (!this.servers.has(url)) {
-        try {
-          await new Promise<void>((resolve, reject) => {
-            const apis: ServerRecord['apis'] = []
-            const server = createServer((req, res) => {
-              const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
-              if (apiMatch) {
-                apiMatch.onRequest({ req, res })
-              } else {
-                res.destroy()
-              }
-            })
-            server.on('connection', this.onConnection)
-            server
-              .listen(options.port, options.hostName)
-              .on('listening', () => resolve())
-              .on('error', (err) => reject(err))
-            this.servers.set(url, { server, apis })
+        await new Promise<void>((resolve, reject) => {
+          const apis: ServerRecord['apis'] = []
+          const server = createServer((req, res) => {
+            const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
+            if (apiMatch) {
+              apiMatch.onRequest({ req, res })
+            } else {
+              res.destroy()
+            }
           })
-        } catch (error) {
-          this.logger.error({
-            message: `There was an error during server creation at ${url}`,
-            data: { error, url, options },
-          })
-          throw error
-        }
+          server.on('connection', this.onConnection)
+          server
+            .listen(options.port, options.hostName)
+            .on('listening', () => resolve())
+            .on('error', (err) => reject(err))
+          this.servers.set(url, { server, apis })
+        })
       }
       this.listenLock.release()
     }
     return this.servers.get(url) as ServerRecord
-  }
-
-  private logger: ScopedLogger
-
-  constructor(injector: Injector) {
-    this.logger = injector.logger.withScope('@furystack/rest-service/server-manager')
   }
 }

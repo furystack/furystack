@@ -1,6 +1,6 @@
 import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
-import { JsonResult } from '@furystack/rest'
+import { BypassResult, JsonResult, PlainTextResult } from '@furystack/rest'
 import './server-response-extensions'
 
 describe('ServerResponse extensions', () => {
@@ -11,7 +11,7 @@ describe('ServerResponse extensions', () => {
       expect(typeof msg.sendActionResult).toBe('function')
     })
 
-    it('Should send the response with the correct Content Type header and default status', (done) => {
+    it('Should send the JSON response with the correct Content Type header and default status', (done) => {
       const jsonValue = { value: Math.random() }
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
@@ -23,6 +23,31 @@ describe('ServerResponse extensions', () => {
       }
 
       msg.sendActionResult(JsonResult(jsonValue))
+    })
+
+    it('Should send the plain TEXT response with the correct Content Type header and default status', (done) => {
+      const textValue = `${Math.random()}`
+      const socket = new Socket()
+      const msg = new ServerResponse(new IncomingMessage(socket))
+      msg.writeHead = jest.fn()
+      msg.end = (chunk?: any) => {
+        expect(chunk).toBe(textValue)
+        expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'plain/text' })
+        done()
+      }
+
+      msg.sendActionResult(PlainTextResult(textValue))
+    })
+
+    it('Should skip sending on BypassResult', () => {
+      const socket = new Socket()
+      const msg = new ServerResponse(new IncomingMessage(socket))
+      msg.writeHead = jest.fn()
+      msg.end = jest.fn()
+
+      msg.sendActionResult(BypassResult())
+      expect(msg.writeHead).not.toBeCalled()
+      expect(msg.end).not.toBeCalled()
     })
   })
 })

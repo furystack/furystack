@@ -5,7 +5,6 @@ import { User, StoreManager, InMemoryStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import { HttpUserContext } from './http-user-context'
 import './injector-extensions'
-import '@furystack/logging'
 
 export const prepareInjector = async (i: Injector) => {
   i.setupStores((sm) =>
