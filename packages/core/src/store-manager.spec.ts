@@ -1,8 +1,14 @@
-import { using } from '@furystack/utils'
+import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
 import './injector-extensions'
+import { AggregatedError } from './errors'
+
+class Test {
+  id!: number
+  value!: string
+}
 
 describe('StoreManager', () => {
   it('Can be retrieved from an injector', () => {
@@ -19,11 +25,6 @@ describe('StoreManager', () => {
   })
 
   it('Can set up stores with an extension method', () => {
-    class Test {
-      id!: number
-      value!: string
-    }
-
     using(new Injector(), (i) => {
       i.setupStores((stores) =>
         stores.addStore(
@@ -35,6 +36,28 @@ describe('StoreManager', () => {
       )
 
       expect(i.getInstance(StoreManager).getStoreFor(Test)).toBeInstanceOf(InMemoryStore)
+    })
+  })
+
+  it('Dispose should throw if failed to dispose one or more store', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const sm = i.getInstance(StoreManager)
+      const MockStore = class extends InMemoryStore<any> {
+        public dispose = () => Promise.reject(':(')
+      }
+
+      sm.addStore(
+        new MockStore({
+          model: Test,
+          primaryKey: 'id',
+        }),
+      )
+      try {
+        await sm.dispose()
+      } catch (error) {
+        expect(error).toBeInstanceOf(AggregatedError)
+        expect((error as AggregatedError).rejections).toHaveLength(1)
+      }
     })
   })
 })
