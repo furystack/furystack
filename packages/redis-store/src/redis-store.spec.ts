@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createClient, RedisClient } from 'redis'
 import { StoreManager } from '@furystack/core'
-import '@furystack/logging'
 import { v4 } from 'uuid'
 import { RedisStore } from '.'
 
@@ -17,7 +16,7 @@ describe('Redis Store', () => {
 
   beforeEach(async () => {
     client = createClient({ port: 6379, host: 'localhost' })
-    i = new Injector().useLogging().setupStores((sm) => sm.useRedis(ExampleClass, 'id', client))
+    i = new Injector().setupStores((sm) => sm.useRedis(ExampleClass, 'id', client))
     store = i.getInstance(StoreManager).getStoreFor(ExampleClass)
   })
 

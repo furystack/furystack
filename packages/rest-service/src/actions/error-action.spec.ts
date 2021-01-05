@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { ErrorAction } from './error-action'
-import '@furystack/logging'
 import { IncomingMessage } from 'http'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
@@ -12,7 +11,7 @@ describe('ErrorAction tests', () => {
   const response = {} as ServerResponse
 
   it('returns the error in the standard format', async () => {
-    await usingAsync(new Injector().useLogging(), async (i) => {
+    await usingAsync(new Injector(), async (i) => {
       const result = await ErrorAction({
         injector: i,
         getBody: async () => new Error('Something went wrong'),
@@ -26,7 +25,7 @@ describe('ErrorAction tests', () => {
   })
 
   it('returns the error code from request errors', async () => {
-    await usingAsync(new Injector().useLogging(), async (i) => {
+    await usingAsync(new Injector(), async (i) => {
       const result = await ErrorAction({
         request,
         response,
@@ -40,7 +39,7 @@ describe('ErrorAction tests', () => {
   })
 
   it('returns the 403 for authorization errors', async () => {
-    await usingAsync(new Injector().useLogging(), async (i) => {
+    await usingAsync(new Injector(), async (i) => {
       const result = await ErrorAction({
         request,
         response,

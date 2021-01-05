@@ -2,7 +2,6 @@ import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import { v4 } from 'uuid'
-import '@furystack/logging'
 import './store-manager-extensions'
 import { MongoClientFactory } from './mongo-client-factory'
 import { usingAsync } from '@furystack/utils'
@@ -26,7 +25,7 @@ describe('MongoDB Store', () => {
     typeName: 'mongodb-store',
     createStore: () => {
       const mongoOptions = getMongoOptions()
-      const i = new Injector().useLogging().setupStores((sm) => sm.useMongoDb(mongoOptions))
+      const i = new Injector().setupStores((sm) => sm.useMongoDb(mongoOptions))
       const store = i.getInstance(StoreManager).getStoreFor<TestClass>(TestClass)
       const oldDispose = store.dispose
       store.dispose = async () => {

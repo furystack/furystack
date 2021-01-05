@@ -2,12 +2,11 @@ import { parse } from 'url'
 import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injector } from '@furystack/inject'
-import { LoggerCollection, ScopedLogger } from '@furystack/logging'
 import { Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import { WebSocketAction } from './models'
-import { IdentityContext } from '@furystack/core'
+import { AggregatedError, IdentityContext } from '@furystack/core'
 import { WebsocketUserContext } from './websocket-user-context'
 
 /**
@@ -17,21 +16,10 @@ import { WebsocketUserContext } from './websocket-user-context'
 export class WebSocketApi implements Disposable {
   public readonly socket: WebSocketServer
   private readonly injector: Injector
-  private readonly logger: ScopedLogger
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 
-  constructor(
-    logger: LoggerCollection,
-    private settings: WebSocketApiSettings,
-    public serverManager: ServerManager,
-    parentInjector: Injector,
-  ) {
-    this.logger = logger.withScope(`@furystack/websocket-api/${this.constructor.name}`)
-    this.logger.verbose({
-      message: 'Initializating WebSocket API',
-      data: this.settings,
-    })
+  constructor(private settings: WebSocketApiSettings, public serverManager: ServerManager, parentInjector: Injector) {
     this.socket = new WebSocketServer({ noServer: true })
     this.injector = parentInjector.createChild({ owner: this })
     this.socket.on('connection', (websocket, msg) => {
@@ -39,32 +27,13 @@ export class WebSocketApi implements Disposable {
       connectionInjector.setExplicitInstance(websocket, ws)
       connectionInjector.setExplicitInstance(msg, IncomingMessage)
       connectionInjector.setExplicitInstance(new WebsocketUserContext(connectionInjector), IdentityContext)
-      this.logger.verbose({
-        message: 'Client connected to WebSocket',
-        data: {
-          url: msg.url,
-          remoteAddress: msg.socket.remoteAddress,
-        },
-      })
       this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
       websocket.on('message', (message) => {
-        this.logger.verbose({
-          message: 'Client Message received',
-          data: {
-            message,
-          },
-        })
         this.execute(message, connectionInjector)
       })
 
       websocket.on('close', () => {
         this.clients.delete(websocket)
-        this.logger.verbose({
-          message: 'Client disconnected',
-          data: {
-            address: msg.connection.address,
-          },
-        })
       })
     })
 
@@ -73,9 +42,6 @@ export class WebSocketApi implements Disposable {
         const { pathname } = parse(request.url)
         if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, (websocket) => {
-            this.logger.verbose({
-              message: `Client connected to socket at '${this.settings.path}'.`,
-            })
             this.socket.emit('connection', websocket, request)
           })
         }
@@ -102,7 +68,7 @@ export class WebSocketApi implements Disposable {
       }),
     )
     if (errors.length) {
-      this.logger.warning({ message: 'The Broadcast operation encountered some errors', data: { errors } })
+      throw new AggregatedError('The Broadcast operation encountered some errors', errors)
     }
   }
 

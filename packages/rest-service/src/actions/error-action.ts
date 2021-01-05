@@ -10,22 +10,9 @@ import { AuthorizationError } from '@furystack/core'
 export const ErrorAction: RequestAction<{
   body: Error
   result: { message: string; url?: string; stack?: string }
-}> = async ({ injector, getBody, request }) => {
+}> = async ({ getBody, request }) => {
   const body = await getBody()
   const errorCode = body instanceof RequestError ? body.responseCode : body instanceof AuthorizationError ? 403 : 500
-
-  if (errorCode >= 500 && errorCode <= 511) {
-    injector.logger.warning({
-      scope: '@furystack/rest-service',
-      message: `An action throwed error from '${request.url}'.`,
-      data: {
-        error: body,
-        message: body.message,
-        url: request.url,
-        stack: body.stack,
-      },
-    })
-  }
 
   return JsonResult({ message: body.message, url: request.url, stack: body.stack }, errorCode)
 }
