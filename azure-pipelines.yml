@@ -20,19 +20,33 @@ pool:
 
 jobs:
   - job: buildAndTest
-  
     strategy:
       matrix:
         node_14_x:
           node_version: 14.x
     displayName: Build and test
+    variables:
+      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     steps:
+
+      - checkout: self
+        fetchDepth: 20
+      
       - task: NodeTool@0
         inputs:
           versionSpec: $(node_version)
         displayName: Use Node.js $(node_version)
 
-      - script: yarn install
+      - task: Cache@2
+        inputs:
+          key: 'yarn | "$(Agent.OS)" | yarn.lock'
+          restoreKeys: |
+            yarn | "$(Agent.OS)"
+            yarn
+          path: $(YARN_CACHE_FOLDER)
+        displayName: Cache Yarn packages
+
+      - script: yarn install --fronzen-lockfile
         displayName: 'Install dependencies'
 
       - script: yarn lint
@@ -75,6 +89,8 @@ jobs:
     dependsOn: buildAndTest
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     timeoutInMinutes: 60
+    variables:
+      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     environment:
       name: NPM
     strategy:
@@ -82,11 +98,20 @@ jobs:
         deploy:
           steps:
             - checkout: self
+              fetchDepth: 20
             - task: NodeTool@0
               inputs:
                 versionSpec: '14.x'
               displayName: 'Install Node.js'
-            - script: yarn install
+            - task: Cache@2
+              inputs:
+                key: 'yarn | "$(Agent.OS)" | yarn.lock'
+                restoreKeys: |
+                  yarn | "$(Agent.OS)"
+                  yarn
+                path: $(YARN_CACHE_FOLDER)
+              displayName: Cache Yarn packages
+            - script: yarn install --frozen-lockfile
               displayName: 'Install'
             - script: yarn lint
               displayName: 'Lint'
