@@ -20,7 +20,6 @@ pool:
 
 jobs:
   - job: buildAndTest
-  
     strategy:
       matrix:
         node_14_x:
@@ -29,6 +28,10 @@ jobs:
     variables:
       YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     steps:
+
+      - checkout: self
+        fetchDepth: 20
+      
       - task: NodeTool@0
         inputs:
           versionSpec: $(node_version)
@@ -95,6 +98,7 @@ jobs:
         deploy:
           steps:
             - checkout: self
+              fetchDepth: 20
             - task: NodeTool@0
               inputs:
                 versionSpec: '14.x'
