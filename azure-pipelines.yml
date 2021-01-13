@@ -32,7 +32,16 @@ jobs:
           versionSpec: $(node_version)
         displayName: Use Node.js $(node_version)
 
-      - script: yarn install
+      - task: Cache@2
+        inputs:
+          key: 'yarn | "$(Agent.OS)" | yarn.lock'
+          restoreKeys: |
+            yarn | "$(Agent.OS)"
+            yarn
+          path: $(YARN_CACHE_FOLDER)
+        displayName: Cache Yarn packages
+
+      - script: yarn install --fronzen-lockfile
         displayName: 'Install dependencies'
 
       - script: yarn lint
@@ -86,7 +95,15 @@ jobs:
               inputs:
                 versionSpec: '14.x'
               displayName: 'Install Node.js'
-            - script: yarn install
+            - task: Cache@2
+              inputs:
+                key: 'yarn | "$(Agent.OS)" | yarn.lock'
+                restoreKeys: |
+                  yarn | "$(Agent.OS)"
+                  yarn
+                path: $(YARN_CACHE_FOLDER)
+              displayName: Cache Yarn packages
+            - script: yarn install --frozen-lockfile
               displayName: 'Install'
             - script: yarn lint
               displayName: 'Lint'
