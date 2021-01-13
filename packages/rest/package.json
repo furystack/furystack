@@ -30,7 +30,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/inject": "^4.0.47",
-    "tslib": "^2.0.3"
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.20"
