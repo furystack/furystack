@@ -26,6 +26,8 @@ jobs:
         node_14_x:
           node_version: 14.x
     displayName: Build and test
+    variables:
+      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     steps:
       - task: NodeTool@0
         inputs:
@@ -84,6 +86,8 @@ jobs:
     dependsOn: buildAndTest
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     timeoutInMinutes: 60
+    variables:
+      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     environment:
       name: NPM
     strategy:
