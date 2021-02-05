@@ -4,8 +4,7 @@
   "workspaces": {
     "packages": [
       "packages/*"
-    ],
-    "nohoist": []
+    ]
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.6",

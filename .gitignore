@@ -67,5 +67,10 @@ tsconfig.tsbuildinfo
 
 packages/**/dist
 
-.yarn/unplugged
-.yarn/build-state.yml
+# yarn pnp zero installs
+.yarn/*
+!.yarn/cache
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions

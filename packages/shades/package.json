@@ -28,10 +28,16 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "homepage": "https://github.com/furystack/furystack",
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "@types/jsdom": "^16.2.6",
+    "@types/uuid": "^8.3.0"
+  },
   "dependencies": {
     "@furystack/core": "^9.1.20",
     "@furystack/inject": "^4.0.48",
     "@furystack/utils": "^1.2.18",
+    "jsdom": "^16.4.0",
     "path-to-regexp": "^6.2.0",
     "tslib": "^2.1.0",
     "uuid": "^8.3.2"

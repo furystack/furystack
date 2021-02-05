@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "@furystack/shades": "^3.2.37",
-    "nipplejs": "^0.8.7"
+    "nipplejs": "^0.8.7",
+    "tslib": "^2.1.0"
   },
   "typings": "dist/index.d.ts",
   "main": "dist/index.js",
