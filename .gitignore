@@ -67,10 +67,10 @@ tsconfig.tsbuildinfo
 
 packages/**/dist
 
-# yarn pnp zero installs
+# yarn excludes
 .yarn/*
-!.yarn/cache
 !.yarn/releases
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+.pnp.*
