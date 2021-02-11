@@ -3,7 +3,9 @@ import { JsonResult, RequestAction, RequestOptions, ActionResult, RequestActionO
 import { HttpUserContext } from './http-user-context'
 
 export const Authenticate = () => <T extends RequestActionOptions>(action: RequestAction<T>): RequestAction<T> => {
-  return async (args: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
+  return async (
+    args: RequestOptions<T['query'], T['body'], T['urlParams'], T['headers']>,
+  ): Promise<ActionResult<T>> => {
     const authenticated = await args.injector.isAuthenticated()
     if (!authenticated) {
       await sleepAsync(Math.random() * 1000)

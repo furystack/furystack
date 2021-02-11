@@ -3,20 +3,26 @@ import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 import { compile } from 'path-to-regexp'
 
-export type BodyParameter<T> = T extends (options: RequestOptions<any, infer TBody, any>) => Promise<ActionResult<any>>
+export type BodyParameter<T> = T extends (
+  options: RequestOptions<any, infer TBody, any, any>,
+) => Promise<ActionResult<any>>
   ? TBody
   : unknown
 
 export type QueryParameter<T> = T extends (
-  options: RequestOptions<infer TQuery, any, any>,
+  options: RequestOptions<infer TQuery, any, any, any>,
 ) => Promise<ActionResult<any>>
   ? TQuery
   : unknown
 
 export type UrlParameter<T> = T extends (
-  options: RequestOptions<any, any, infer TUrlParams>,
+  options: RequestOptions<any, any, infer TUrlParams, any>,
 ) => Promise<ActionResult<any>>
   ? TUrlParams
+  : unknown
+
+export type Header<T> = T extends (options: RequestOptions<any, any, any, infer THeaders>) => Promise<ActionResult<any>>
+  ? THeaders
   : unknown
 
 export type ReturnType<T> = T extends (options: any) => Promise<ActionResult<infer TResult>> ? TResult : never
@@ -37,16 +43,18 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     TBodyType extends BodyParameter<T[TMethod][TAction]>,
     TQuery extends QueryParameter<T[TMethod][TAction]>,
     TUrlParams extends UrlParameter<T[TMethod][TAction]>,
-    TReturns extends ReturnType<T[TMethod][TAction]>
+    TReturns extends ReturnType<T[TMethod][TAction]>,
+    THeaders extends Header<T[TMethod][TAction]>
   >(
     options: {
       method: TMethod
       action: TAction
     } & (unknown extends TBodyType ? {} : { body: TBodyType }) &
       (unknown extends TQuery ? {} : { query: TQuery }) &
-      (unknown extends TUrlParams ? {} : { url: TUrlParams }),
+      (unknown extends TUrlParams ? {} : { url: TUrlParams }) &
+      (unknown extends THeaders ? {} : { headers: THeaders }),
   ): Promise<TReturns> => {
-    const { url, query, body } = options as any
+    const { url, query, body, headers } = options as any
 
     const urlToSend =
       (url ? compile(options.action as string)(url) : options.action) +
@@ -65,6 +73,14 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: body ? JSON.stringify(body) : undefined,
+      ...(headers
+        ? {
+            headers: {
+              ...clientOptions.requestInit?.headers,
+              ...headers,
+            },
+          }
+        : {}),
     })
     if (!result.ok) {
       throw new ResponseError(result.statusText, result)

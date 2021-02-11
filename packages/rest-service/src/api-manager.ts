@@ -120,7 +120,7 @@ export class ApiManager implements Disposable {
     return (Object.values(compiledEndpoint[method]).find((route) => (route as any).regex.test(fullUrl.pathname)) ||
       undefined) as
       | {
-          action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
+          action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {}; headers: {} }>
           regex: RegExp
           fullPath: string
         }
@@ -138,7 +138,7 @@ export class ApiManager implements Disposable {
     deserializeQueryParams,
   }: OnRequestOptions & {
     fullUrl: URL
-    action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
+    action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {}; headers: {} }>
     regex: RegExp
     fullPath: string
   }) {
@@ -159,6 +159,7 @@ export class ApiManager implements Disposable {
           response: res,
           injector: i,
           getBody: () => utils.readPostBody<any>(req),
+          headers: req.headers,
           getQuery: () => {
             return [...fullUrl.searchParams.keys()].reduce((last, current) => {
               const currentValue = fullUrl.searchParams.get(current) as string

@@ -135,4 +135,33 @@ describe('@furystack/rest-client-fetch', () => {
     })
     expect(json).toBeCalled()
   })
+
+  it('Should call a request with headers', async () => {
+    const json = jest.fn(async () => ({}))
+    const fetch: any = jest.fn(async () => ({
+      json,
+      ok: true,
+    }))
+
+    const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; headers: { token: string } }> } }>({
+      endpointUrl,
+      fetch,
+    })
+
+    await client({
+      action: '/test',
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+
+    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+    expect(json).toBeCalled()
+  })
 })
