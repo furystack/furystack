@@ -1,3 +1,3 @@
-# rest-client-fetch
+# rest-client-got
 
-REST Client package for @furystack/rest with native Fetch implementation
+REST Client package for @furystack/rest with GOT implementation
