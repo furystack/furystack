@@ -3,8 +3,9 @@ import { RequestAction, RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { RequestError } from 'got/dist/source'
-import { JsonResult } from 'request-action-implementation'
+import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
+import './injector-extensions'
 
 import schema from './validate.integration.spec.schema.json'
 
@@ -32,10 +33,10 @@ export const createValidateApi = async () => {
       },
     },
     port,
-    root: '/',
+    root: '/api',
   })
   const client = createClient<ValidationApi>({
-    endpointUrl: `http://localhost:${port}`,
+    endpointUrl: `http://localhost:${port}/api`,
   })
   return {
     dispose: injector.dispose.bind(injector),
@@ -46,7 +47,7 @@ export const createValidateApi = async () => {
 describe('Validation integration tests', () => {
   it('Should validate query', async () => {
     await usingAsync(await createValidateApi(), async ({ client }) => {
-      expect.assertions(2)
+      expect.assertions(3)
       try {
         await client({
           method: 'GET',
@@ -55,7 +56,10 @@ describe('Validation integration tests', () => {
         })
       } catch (error) {
         if (error instanceof RequestError) {
-          expect(error.message).toBe('')
+          expect(error.message).toBe('Response code 400 (Bad Request)')
+          expect(error.response?.statusCode).toBe(400)
+          const responseJson = JSON.parse(error.response?.body as string)
+          expect(responseJson.errors[0].params.missingProperty).toEqual('query')
         }
       }
     })
