@@ -1,5 +1,5 @@
 import { Disposable, PathHelper, usingAsync } from '@furystack/utils'
-import { RequestAction, RestApi } from '@furystack/rest'
+import { deserializeQueryString, RequestAction, RestApi } from '@furystack/rest'
 import { Injectable, Injector } from '@furystack/inject'
 import { ServerManager, OnRequest } from './server-manager'
 import { pathToRegexp, match } from 'path-to-regexp'
@@ -120,7 +120,7 @@ export class ApiManager implements Disposable {
     return (Object.values(compiledEndpoint[method]).find((route) => (route as any).regex.test(fullUrl.pathname)) ||
       undefined) as
       | {
-          action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
+          action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {}; headers: {} }>
           regex: RegExp
           fullPath: string
         }
@@ -138,7 +138,7 @@ export class ApiManager implements Disposable {
     deserializeQueryParams,
   }: OnRequestOptions & {
     fullUrl: URL
-    action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {} }>
+    action: RequestAction<{ body: {}; result: {}; query: {}; urlParams: {}; headers: {} }>
     regex: RegExp
     fullPath: string
   }) {
@@ -159,13 +159,9 @@ export class ApiManager implements Disposable {
           response: res,
           injector: i,
           getBody: () => utils.readPostBody<any>(req),
-          getQuery: () => {
-            return [...fullUrl.searchParams.keys()].reduce((last, current) => {
-              const currentValue = fullUrl.searchParams.get(current) as string
-              ;(last as any)[current] = deserializeQueryParams ? deserializeQueryParams(currentValue) : currentValue
-              return last
-            }, {})
-          },
+          headers: req.headers,
+          getQuery: () =>
+            deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
             if (!req.url || !regex) {
               throw new Error('Error parsing request parameters. Missing URL or RegExp.')

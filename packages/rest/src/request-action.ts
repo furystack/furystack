@@ -49,7 +49,7 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
-export type RequestOptions<TQuery, TBody, TUrlParams> = {
+export type RequestOptions<TQuery, TBody, TUrlParams, THeaders> = {
   // The injector in the scope of the current request
   injector: Injector
   request: import('http').IncomingMessage
@@ -71,13 +71,14 @@ export type RequestOptions<TQuery, TBody, TUrlParams> = {
     : {
         // Params from the URL (e.g. /api/collection/:entityId => {entityId: 'someEntityId'})
         getUrlParams: () => TUrlParams
-      })
+      }) &
+  (unknown extends THeaders ? {} : { headers: THeaders })
 
-export type RequestActionOptions = { result?: any; query?: any; body?: any; urlParams?: any }
+export type RequestActionOptions = { result?: any; query?: any; body?: any; urlParams?: any; headers?: any }
 
 /**
  * Interface for a HTTP Request action
  */
 export type RequestAction<TOptions extends RequestActionOptions> = (
-  options: RequestOptions<TOptions['query'], TOptions['body'], TOptions['urlParams']>,
+  options: RequestOptions<TOptions['query'], TOptions['body'], TOptions['urlParams'], TOptions['headers']>,
 ) => Promise<ActionResult<TOptions['result']>>

@@ -4,22 +4,20 @@ import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
 
-describe('@furystack/rest-client-fetch', () => {
+describe('@furystack/rest-client-got', () => {
   it('Should return a method', () => {
-    const result = createClient({ endpointUrl, fetch: () => undefined as any })
+    const result = createClient({ endpointUrl, got: (() => undefined) as any })
     expect(typeof result).toBe('function')
   })
 
   it('Should throw if request is not OK', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
-      json,
-      ok: false,
-    }))
+    const got: any = jest.fn(async () => {
+      throw Error('Something is wrong...')
+    })
 
     const client = createClient<{ GET: { '/test': RequestAction<{ result: { foo: number } }> } }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     await expect(
@@ -31,15 +29,11 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a simple GET request', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
-      json,
-      ok: true,
-    }))
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{ GET: { '/test': RequestAction<{ result: { value: number } }> } }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     const result = await client({
@@ -47,24 +41,18 @@ describe('@furystack/rest-client-fetch', () => {
       method: 'GET',
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), { method: 'GET', body: undefined })
-    expect(json).toBeCalled()
+    expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), { method: 'GET', body: undefined })
   })
 
   it('Should call a GET request with query parameters', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
-      json,
-      ok: true,
-    }))
-
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
     const client = createClient<{
       GET: { '/test': RequestAction<{ result: { value: number }; query: { value: string } }> }
     }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     const result = await client({
@@ -73,27 +61,22 @@ describe('@furystack/rest-client-fetch', () => {
       query: { value: 'asdasd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test?value=asdasd'), {
+    expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test?value=asdasd'), {
       method: 'GET',
       body: undefined,
     })
-    expect(json).toBeCalled()
   })
 
   it('Should call a GET request with URL parameters', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
-      json,
-      ok: true,
-    }))
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{
       GET: { '/test/:urlValue': RequestAction<{ result: { value: number }; url: { urlValue: string } }> }
     }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     const result = await client({
@@ -102,25 +85,22 @@ describe('@furystack/rest-client-fetch', () => {
       url: { urlValue: 'asd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test/asd'), {
+    expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test/asd'), {
       method: 'GET',
       body: undefined,
     })
-    expect(json).toBeCalled()
   })
 
   it('Should call a simple POST request with body', async () => {
-    const json = jest.fn(async () => ({}))
-    const fetch: any = jest.fn(async () => ({
-      json,
+    const got: any = jest.fn(async () => ({
       ok: true,
     }))
 
     const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; body: { foo: number } }> } }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     await client({
@@ -129,23 +109,20 @@ describe('@furystack/rest-client-fetch', () => {
       body: { foo: 3 },
     })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
       method: 'POST',
       body: JSON.stringify({ foo: 3 }),
     })
-    expect(json).toBeCalled()
   })
 
   it('Should call a request with headers', async () => {
-    const json = jest.fn(async () => ({}))
-    const fetch: any = jest.fn(async () => ({
-      json,
+    const got: any = jest.fn(async () => ({
       ok: true,
     }))
 
     const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; headers: { token: string } }> } }>({
       endpointUrl,
-      fetch,
+      got,
     })
 
     await client({
@@ -156,12 +133,11 @@ describe('@furystack/rest-client-fetch', () => {
       },
     })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
       method: 'POST',
       headers: {
         token: '123',
       },
     })
-    expect(json).toBeCalled()
   })
 })

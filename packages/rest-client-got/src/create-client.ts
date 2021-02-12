@@ -1,7 +1,7 @@
-import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
+import { RestApi, ActionResult, RequestOptions, serializeToQueryString } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
-import { ResponseError } from './response-error'
 import { compile } from 'path-to-regexp'
+import got, { Options as GotOptions, Response as GotResponse } from 'got'
 
 export type BodyParameter<T> = T extends (
   options: RequestOptions<any, infer TBody, any, any>,
@@ -29,14 +29,12 @@ export type ReturnType<T> = T extends (options: any) => Promise<ActionResult<inf
 
 export interface ClientOptions {
   endpointUrl: string
-  fetch?: typeof fetch
-  requestInit?: RequestInit
+  got?: typeof got
+  gotOptions?: GotOptions
   serializeQueryParams?: (param: any) => string
 }
 
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
-  const fetchMethod = clientOptions.fetch || fetch
-
   return async <
     TMethod extends keyof T,
     TAction extends keyof T[TMethod],
@@ -53,39 +51,37 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       (unknown extends TQuery ? {} : { query: TQuery }) &
       (unknown extends TUrlParams ? {} : { url: TUrlParams }) &
       (unknown extends THeaders ? {} : { headers: THeaders }),
-  ): Promise<TReturns> => {
+  ): Promise<{ response: GotResponse<TReturns>; getJson: () => TReturns }> => {
     const { url, query, body, headers } = options as any
 
     const urlToSend =
       (url ? compile(options.action as string)(url) : options.action) +
       (query
-        ? `?${Object.keys(query)
-            .map(
-              (key) =>
-                `${key}=${
-                  clientOptions.serializeQueryParams ? clientOptions.serializeQueryParams(query[key]) : query[key]
-                }`,
-            )
-            .join('&')}`
+        ? clientOptions.serializeQueryParams
+          ? clientOptions.serializeQueryParams(query)
+          : `?${serializeToQueryString(query)}`
         : '')
 
-    const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string), {
-      ...clientOptions.requestInit,
-      method: options.method.toString(),
-      body: body ? JSON.stringify(body) : undefined,
-      ...(headers
-        ? {
-            headers: {
-              ...clientOptions.requestInit?.headers,
-              ...headers,
-            },
-          }
-        : {}),
-    })
-    if (!result.ok) {
-      throw new ResponseError(result.statusText, result)
+    const response = (await (clientOptions?.got || got)(
+      PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string),
+      {
+        ...clientOptions.gotOptions,
+        method: options.method.toString() as any,
+        body: body ? JSON.stringify(body) : undefined,
+        ...(headers
+          ? {
+              headers: {
+                ...clientOptions.gotOptions?.headers,
+                ...headers,
+              },
+            }
+          : {}),
+      },
+    )) as GotResponse<TReturns>
+
+    return {
+      response,
+      getJson: () => JSON.parse(response.body as string) as TReturns,
     }
-    const responseBody = await result.json()
-    return responseBody
   }
 }

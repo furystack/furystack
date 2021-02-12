@@ -4,7 +4,9 @@ import { JsonResult, RequestAction, RequestOptions, RequestActionOptions, Action
 export const Authorize = (...roles: string[]) => <T extends RequestActionOptions>(
   action: RequestAction<T>,
 ): RequestAction<T> => {
-  return async (options: RequestOptions<T['query'], T['body'], T['urlParams']>): Promise<ActionResult<T>> => {
+  return async (
+    options: RequestOptions<T['query'], T['body'], T['urlParams'], T['headers']>,
+  ): Promise<ActionResult<T>> => {
     try {
       const authorized = await options.injector.isAuthorized(...roles)
       if (!authorized) {
