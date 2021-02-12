@@ -1,1 +1,1 @@
-export const methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'] as const
+export type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'

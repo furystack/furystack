@@ -1,9 +1,9 @@
 export type RequestActionOptions = {
-  result: any
-  url?: any
-  query?: any
-  body?: any
-  headers?: any
+  result: unknown
+  url?: unknown
+  query?: unknown
+  body?: unknown
+  headers?: unknown
 }
 
 export type RequestAction<TOptions extends RequestActionOptions> = {
@@ -25,14 +25,6 @@ export type RequestAction<TOptions extends RequestActionOptions> = {
          * Parameters in the Query String, e.g.: /api/my-entities?top=10
          */
         query: TOptions['query']
-      }
-    : unknown) &
-  (TOptions extends { errorResult: unknown }
-    ? {
-        /**
-         * The type of the error if the request fails
-         */
-        errorResult: TOptions['errorResult']
       }
     : unknown) &
   (TOptions extends { body: unknown }

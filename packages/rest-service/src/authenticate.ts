@@ -23,6 +23,6 @@ export const Authenticate = () => <T extends RequestActionOptions>(
           : {},
       ) as unknown) as ActionResult<T>
     }
-    return await action(args)
+    return (await action(args)) as any
   }
 }

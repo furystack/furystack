@@ -20,6 +20,6 @@ export const Authorize = (...roles: string[]) => <T extends RequestActionOptions
     } catch (error) {
       return JsonResult({ error: 'forbidden' }, 403) as any
     }
-    return await action(options)
+    return (await action(options)) as any
   }
 }
