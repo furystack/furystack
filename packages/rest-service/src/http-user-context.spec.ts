@@ -265,13 +265,13 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
-        ctx.sessions.add = jest.fn(async () => {
+        ctx.getSessionStore().add = jest.fn(async () => {
           return {} as any
         })
         const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
-        expect(ctx.sessions.add).toBeCalled()
+        expect(ctx.getSessionStore().add).toBeCalled()
       })
     })
   })
@@ -282,17 +282,17 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = jest.fn()
-        ctx.sessions.add = jest.fn(async () => {
+        ctx.getSessionStore().add = jest.fn(async () => {
           return {} as any
         })
         ctx.authenticateRequest = jest.fn(async () => testUser)
-        ctx.sessions.remove = jest.fn(async () => undefined)
+        ctx.getSessionStore().remove = jest.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
         response.setHeader = jest.fn(() => undefined)
         await ctx.cookieLogin(testUser, { setHeader } as any)
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
-        expect(ctx.sessions.remove).toBeCalled()
+        expect(ctx.getSessionStore().remove).toBeCalled()
       })
     })
   })

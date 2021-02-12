@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { PhysicalStore, User, StoreManager } from '@furystack/core'
+import { User, StoreManager } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
@@ -9,12 +9,9 @@ import { HttpAuthenticationSettings } from './http-authentication-settings'
  */
 @Injectable({ lifetime: 'scoped' })
 export class HttpUserContext {
-  public users: PhysicalStore<User & { password: string }>
+  public getUserStore = () => this.authentication.getUserStore(this.storeManager)
 
-  public sessions!: PhysicalStore<{
-    sessionId: string
-    username: string
-  }>
+  public getSessionStore = () => this.authentication.getSessionStore(this.storeManager)
 
   private user?: User
 
@@ -60,7 +57,7 @@ export class HttpUserContext {
     const match =
       (password &&
         password.length &&
-        (await this.users.find({
+        (await this.getUserStore().find({
           filter: {
             username: { $eq: userName },
             password: { $eq: this.authentication.hashMethod(password) },
@@ -111,9 +108,9 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const [session] = await this.sessions.find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
+      const [session] = await this.getSessionStore().find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
       if (session) {
-        const userResult = await this.users.find({
+        const userResult = await this.getUserStore().find({
           filter: {
             username: { $eq: session.username },
           },
@@ -138,7 +135,7 @@ export class HttpUserContext {
    */
   public async cookieLogin(user: User, serverResponse: ServerResponse): Promise<User> {
     const sessionId = v1()
-    await this.sessions.add({ sessionId, username: user.username })
+    await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     return user
   }
@@ -146,13 +143,13 @@ export class HttpUserContext {
   public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      await this.sessions.remove(sessionId)
+      await this.getSessionStore().remove(sessionId)
       response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
     }
   }
 
-  constructor(public readonly authentication: HttpAuthenticationSettings<User>, storeManager: StoreManager) {
-    this.users = authentication.getUserStore(storeManager)
-    this.sessions = authentication.getSessionStore(storeManager)
-  }
+  constructor(
+    public readonly authentication: HttpAuthenticationSettings<User>,
+    private readonly storeManager: StoreManager,
+  ) {}
 }

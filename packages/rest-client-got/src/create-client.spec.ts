@@ -29,7 +29,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a simple GET request', async () => {
-    const got: any = jest.fn(async () => ({ value: 1 }))
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{ GET: { '/test': RequestAction<{ result: { value: number } }> } }>({
       endpointUrl,
@@ -41,14 +41,13 @@ describe('@furystack/rest-client-got', () => {
       method: 'GET',
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
     expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), { method: 'GET', body: undefined })
   })
 
   it('Should call a GET request with query parameters', async () => {
-    const got: any = jest.fn(async () => ({ value: 1 }))
-
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
     const client = createClient<{
       GET: { '/test': RequestAction<{ result: { value: number }; query: { value: string } }> }
     }>({
@@ -62,7 +61,7 @@ describe('@furystack/rest-client-got', () => {
       query: { value: 'asdasd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
     expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test?value=asdasd'), {
       method: 'GET',
@@ -71,9 +70,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a GET request with URL parameters', async () => {
-    const got: any = jest.fn(async () => ({
-      value: 1,
-    }))
+    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{
       GET: { '/test/:urlValue': RequestAction<{ result: { value: number }; url: { urlValue: string } }> }
@@ -88,7 +85,7 @@ describe('@furystack/rest-client-got', () => {
       url: { urlValue: 'asd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.getJson()).toStrictEqual({ value: 1 })
 
     expect(got).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test/asd'), {
       method: 'GET',
