@@ -1,7 +1,8 @@
 import { Constructable } from '@furystack/inject'
-import { JsonResult, RequestError, PostEndpoint } from '@furystack/rest'
+import { RequestError, PostEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
+import { JsonResult, RequestActionImplementation } from '../request-action-implementation'
 /**
  * Creates a POST endpoint for updating entities
  *
@@ -10,7 +11,7 @@ import '../incoming-message-extensions'
  * @returns a boolean that indicates the success
  */
 export const createPostEndpoint = <T extends object>(options: { model: Constructable<T> }) => {
-  const endpoint: PostEndpoint<T> = async ({ injector, request }) => {
+  const endpoint: RequestActionImplementation<PostEndpoint<T>> = async ({ injector, request }) => {
     const entityToCreate = await request.readPostBody<T>()
     const dataSet = injector.getDataSetFor(options.model)
     const { created } = await dataSet.add(injector, entityToCreate)

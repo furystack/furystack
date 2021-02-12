@@ -11,7 +11,7 @@ export type GetEntityEndpoint<T> = RequestAction<{
      */
     select: FindOptions<T, Array<keyof T>>['select']
   }
-  urlParams: {
+  url: {
     /**
      * The entity's unique identifier
      */

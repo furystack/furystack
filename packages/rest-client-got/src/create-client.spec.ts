@@ -56,8 +56,8 @@ describe('@furystack/rest-client-got', () => {
     })
 
     const result = await client({
-      action: '/test',
       method: 'GET',
+      action: '/test',
       query: { value: 'asdasd' },
     })
 

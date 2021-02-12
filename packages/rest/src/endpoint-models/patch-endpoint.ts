@@ -5,6 +5,6 @@ import { RequestAction } from '../request-action'
  */
 export type PatchEndpoint<T> = RequestAction<{
   body: T
-  urlParams: { id: T[keyof T] }
+  url: { id: T[keyof T] }
   result: {}
 }>

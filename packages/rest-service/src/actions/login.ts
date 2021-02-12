@@ -1,8 +1,8 @@
 import { HttpUserContext } from '../http-user-context'
-import { RequestAction, JsonResult } from '@furystack/rest'
 import '../injector-extensions'
 import { User } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
+import { JsonResult, RequestActionImplementation } from '../request-action-implementation'
 
 /**
  * Action that logs in the current user
@@ -10,11 +10,10 @@ import { RequestError } from '@furystack/rest'
  * Returns the current user instance
  */
 
-export const LoginAction: RequestAction<{ result: User; body: { username: string; password: string } }> = async ({
-  injector,
-  getBody,
-  response,
-}) => {
+export const LoginAction: RequestActionImplementation<{
+  result: User
+  body: { username: string; password: string }
+}> = async ({ injector, getBody, response }) => {
   const userContext = injector.getInstance(HttpUserContext)
   const body = await getBody()
   try {

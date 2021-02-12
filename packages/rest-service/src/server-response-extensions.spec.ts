@@ -1,7 +1,7 @@
 import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
-import { BypassResult, JsonResult, PlainTextResult } from '@furystack/rest'
 import './server-response-extensions'
+import { BypassResult, JsonResult, PlainTextResult } from './request-action-implementation'
 
 describe('ServerResponse extensions', () => {
   describe('sendActionResult', () => {

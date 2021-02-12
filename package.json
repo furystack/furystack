@@ -23,8 +23,9 @@
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
+    "ts-json-schema-generator": "^0.84.0",
     "tslib": "^2.1.0",
-    "typescript": "^4.1.4"
+    "typescript": "^4.1.5"
   },
   "scripts": {
     "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags --force-publish",

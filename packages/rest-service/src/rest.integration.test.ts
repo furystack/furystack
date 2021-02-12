@@ -1,15 +1,16 @@
 import { Injector } from '@furystack/inject'
-import { JsonResult, RequestAction, RestApi } from '@furystack/rest'
+import { RequestAction, RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
+import { JsonResult } from './request-action-implementation'
 import { v4 } from 'uuid'
 import './injector-extensions'
 
 export interface EchoApi extends RestApi {
   GET: {
-    '/plain': RequestAction<{}>
+    '/plain': RequestAction<{ result: unknown }>
     '/headers': RequestAction<{ headers: { value?: string }; result: { headers: { value?: string } } }>
-    '/urlParams/:id': RequestAction<{ urlParams: { id: string }; result: { urlParams: { id: string } } }>
+    '/urlParams/:id': RequestAction<{ url: { id: string }; result: { urlParams: { id: string } } }>
     '/query': RequestAction<{
       query: { someObject: { foo: string } }
       result: { query: { someObject: { foo: string } } }

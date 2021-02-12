@@ -1,6 +1,7 @@
 import { Constructable } from '@furystack/inject'
-import { DeleteEndpoint, JsonResult } from '@furystack/rest'
+import { DeleteEndpoint } from '@furystack/rest'
 import '@furystack/repository'
+import { JsonResult, RequestActionImplementation } from '../request-action-implementation'
 
 /**
  * Creates a DELETE endpoint for removing entities
@@ -10,7 +11,7 @@ import '@furystack/repository'
  * @returns a boolean that indicates the success
  */
 export const createDeleteEndpoint = <T extends object>(options: { model: Constructable<T> }) => {
-  const endpoint: DeleteEndpoint<T> = async ({ injector, getUrlParams }) => {
+  const endpoint: RequestActionImplementation<DeleteEndpoint<T>> = async ({ injector, getUrlParams }) => {
     const { id } = getUrlParams()
     const dataSet = injector.getDataSetFor(options.model)
     await dataSet.remove(injector, id)

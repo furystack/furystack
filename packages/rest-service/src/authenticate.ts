@@ -1,11 +1,17 @@
 import { sleepAsync } from '@furystack/utils'
-import { JsonResult, RequestAction, RequestOptions, ActionResult, RequestActionOptions } from '@furystack/rest'
+import { RequestActionOptions } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
+import {
+  ActionResult,
+  JsonResult,
+  RequestActionImplementation,
+  RequestActionImplementationOptions,
+} from './request-action-implementation'
 
-export const Authenticate = () => <T extends RequestActionOptions>(action: RequestAction<T>): RequestAction<T> => {
-  return async (
-    args: RequestOptions<T['query'], T['body'], T['urlParams'], T['headers']>,
-  ): Promise<ActionResult<T>> => {
+export const Authenticate = () => <T extends RequestActionOptions>(
+  action: RequestActionImplementation<T>,
+): RequestActionImplementation<T> => {
+  return async (args: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
     const authenticated = await args.injector.isAuthenticated()
     if (!authenticated) {
       await sleepAsync(Math.random() * 1000)

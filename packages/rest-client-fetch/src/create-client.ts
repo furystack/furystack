@@ -1,31 +1,20 @@
-import { RestApi, ActionResult, RequestOptions } from '@furystack/rest'
+import { RequestAction, RestApi } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 import { compile } from 'path-to-regexp'
+export type BodyParameter<T> = T extends RequestAction<{ result: unknown; body: infer U }> ? { body: U } : unknown
 
-export type BodyParameter<T> = T extends (
-  options: RequestOptions<any, infer TBody, any, any>,
-) => Promise<ActionResult<any>>
-  ? TBody
+export type QueryParameter<T> = T extends RequestAction<{ result: unknown; query: infer U }> ? { query: U } : unknown
+
+export type UrlParameter<T> = T extends RequestAction<{ result: unknown; url: infer U }> ? { url: U } : unknown
+
+export type HeaderParameter<T> = T extends RequestAction<{ result: unknown; headers: infer U }>
+  ? { headers: U }
   : unknown
 
-export type QueryParameter<T> = T extends (
-  options: RequestOptions<infer TQuery, any, any, any>,
-) => Promise<ActionResult<any>>
-  ? TQuery
-  : unknown
+export type TActionReturns<T> = T extends RequestAction<{ result: infer U }> ? U : never
 
-export type UrlParameter<T> = T extends (
-  options: RequestOptions<any, any, infer TUrlParams, any>,
-) => Promise<ActionResult<any>>
-  ? TUrlParams
-  : unknown
-
-export type Header<T> = T extends (options: RequestOptions<any, any, any, infer THeaders>) => Promise<ActionResult<any>>
-  ? THeaders
-  : unknown
-
-export type ReturnType<T> = T extends (options: any) => Promise<ActionResult<infer TResult>> ? TResult : never
+export type ReturnType<T> = T extends { result: infer TResult } ? TResult : never
 
 export interface ClientOptions {
   endpointUrl: string
@@ -44,15 +33,15 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     TQuery extends QueryParameter<T[TMethod][TAction]>,
     TUrlParams extends UrlParameter<T[TMethod][TAction]>,
     TReturns extends ReturnType<T[TMethod][TAction]>,
-    THeaders extends Header<T[TMethod][TAction]>
+    THeaders extends HeaderParameter<T[TMethod][TAction]>
   >(
     options: {
       method: TMethod
       action: TAction
-    } & (unknown extends TBodyType ? {} : { body: TBodyType }) &
-      (unknown extends TQuery ? {} : { query: TQuery }) &
-      (unknown extends TUrlParams ? {} : { url: TUrlParams }) &
-      (unknown extends THeaders ? {} : { headers: THeaders }),
+    } & TBodyType &
+      TQuery &
+      TUrlParams &
+      THeaders,
   ): Promise<TReturns> => {
     const { url, query, body, headers } = options as any
 

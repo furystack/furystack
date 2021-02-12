@@ -3,8 +3,8 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { User, IdentityContext } from '@furystack/core'
 import { Authorize } from './authorize'
-import { EmptyResult } from '@furystack/rest'
 import { ServerResponse } from 'http'
+import { EmptyResult } from './request-action-implementation'
 
 describe('Authorize', () => {
   const response = ({} as any) as ServerResponse

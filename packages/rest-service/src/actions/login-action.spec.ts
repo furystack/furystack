@@ -24,7 +24,7 @@ describe('LoginAction', () => {
         response,
         injector: i,
         getBody: async () => ({ username: 'testuser', password: 'alma' }),
-      })
+      } as any)
       expect(result.chunk).toEqual(testUser)
       expect(result.statusCode).toBe(200)
     })

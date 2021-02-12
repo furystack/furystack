@@ -1,5 +1,5 @@
 import { HttpUserContext } from '../http-user-context'
-import { RequestAction, EmptyResult } from '@furystack/rest'
+import { EmptyResult, RequestActionImplementation } from '../request-action-implementation'
 
 /**
  * Action that logs out the current user
@@ -10,7 +10,11 @@ import { RequestAction, EmptyResult } from '@furystack/rest'
  * @param root0.response The Response object
  * @returns An empty result that indicates the success
  */
-export const LogoutAction: RequestAction<{}> = async ({ injector, request, response }) => {
+export const LogoutAction: RequestActionImplementation<{ result: unknown }> = async ({
+  injector,
+  request,
+  response,
+}) => {
   await injector.getInstance(HttpUserContext).cookieLogout(request, response)
   return EmptyResult()
 }

@@ -1,12 +1,16 @@
+import { RequestActionOptions } from '@furystack/rest'
 import { sleepAsync } from '@furystack/utils'
-import { JsonResult, RequestAction, RequestOptions, RequestActionOptions, ActionResult } from '@furystack/rest'
+import {
+  ActionResult,
+  JsonResult,
+  RequestActionImplementation,
+  RequestActionImplementationOptions,
+} from './request-action-implementation'
 
 export const Authorize = (...roles: string[]) => <T extends RequestActionOptions>(
-  action: RequestAction<T>,
-): RequestAction<T> => {
-  return async (
-    options: RequestOptions<T['query'], T['body'], T['urlParams'], T['headers']>,
-  ): Promise<ActionResult<T>> => {
+  action: RequestActionImplementation<T>,
+): RequestActionImplementation<T> => {
+  return async (options: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
     try {
       const authorized = await options.injector.isAuthorized(...roles)
       if (!authorized) {
