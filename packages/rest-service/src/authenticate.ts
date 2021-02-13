@@ -1,5 +1,4 @@
 import { sleepAsync } from '@furystack/utils'
-import { RequestActionOptions } from '@furystack/rest'
 import { HttpUserContext } from './http-user-context'
 import {
   ActionResult,
@@ -8,7 +7,7 @@ import {
   RequestActionImplementationOptions,
 } from './request-action-implementation'
 
-export const Authenticate = () => <T extends RequestActionOptions>(
+export const Authenticate = () => <T extends { result: unknown }>(
   action: RequestActionImplementation<T>,
 ): RequestActionImplementation<T> => {
   return async (args: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {

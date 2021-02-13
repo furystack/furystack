@@ -1,4 +1,3 @@
-import { RequestActionOptions } from '@furystack/rest'
 import { sleepAsync } from '@furystack/utils'
 import {
   ActionResult,
@@ -7,7 +6,7 @@ import {
   RequestActionImplementationOptions,
 } from './request-action-implementation'
 
-export const Authorize = (...roles: string[]) => <T extends RequestActionOptions>(
+export const Authorize = (...roles: string[]) => <T extends { result: unknown }>(
   action: RequestActionImplementation<T>,
 ): RequestActionImplementation<T> => {
   return async (options: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
