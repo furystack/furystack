@@ -41,7 +41,7 @@ export interface ValidationApi extends RestApi {
 
 export const createValidateApi = async () => {
   const injector = new Injector()
-  const port = Math.round(Math.random() * 1000) + 1000
+  const port = Math.round(Math.random() * 10000) + 1000
   injector.useRestService<ValidationApi>({
     api: {
       GET: {
