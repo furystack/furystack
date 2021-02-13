@@ -22,7 +22,7 @@ export interface EchoApi extends RestApi {
 }
 
 const createEchoApiServer = async () => {
-  const port = Math.round(Math.random() * 10000) + 1000
+  const port = Math.round(Math.random() * 1000) + 10000
   const root = '/api'
   const injector = new Injector()
   await injector.useRestService<EchoApi>({
