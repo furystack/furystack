@@ -1,19 +1,17 @@
-import { RestApi, RequestAction, serializeToQueryString } from '@furystack/rest'
+import { RestApi, serializeToQueryString } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { compile } from 'path-to-regexp'
 import got, { Options as GotOptions, Response as GotResponse } from 'got'
 
-export type BodyParameter<T> = T extends RequestAction<{ result: unknown; body: infer U }> ? { body: U } : unknown
+export type BodyParameter<T> = T extends { result: unknown; body: infer U } ? { body: U } : unknown
 
-export type QueryParameter<T> = T extends RequestAction<{ result: unknown; query: infer U }> ? { query: U } : unknown
+export type QueryParameter<T> = T extends { result: unknown; query: infer U } ? { query: U } : unknown
 
-export type UrlParameter<T> = T extends RequestAction<{ result: unknown; url: infer U }> ? { url: U } : unknown
+export type UrlParameter<T> = T extends { result: unknown; url: infer U } ? { url: U } : unknown
 
-export type HeaderParameter<T> = T extends RequestAction<{ result: unknown; headers: infer U }>
-  ? { headers: U }
-  : unknown
+export type HeaderParameter<T> = T extends { result: unknown; headers: infer U } ? { headers: U } : unknown
 
-export type TActionReturns<T> = T extends RequestAction<{ result: infer U }> ? U : never
+export type TActionReturns<T> = T extends { result: infer U } ? U : never
 
 export type ReturnType<T> = T extends { result: infer TResult } ? TResult : never
 

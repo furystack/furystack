@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import './injector-extensions'
 import { usingAsync, PathHelper } from '@furystack/utils'
 import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions'
-import { RestApi, RequestAction } from '@furystack/rest'
+import { RestApi } from '@furystack/rest'
 import { User, InMemoryStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import got from 'got'
@@ -10,15 +10,15 @@ import { JsonResult } from './request-action-implementation'
 
 interface IntegrationTestApi extends RestApi {
   GET: {
-    '/isAuthenticated': RequestAction<{ result: { isAuthenticated: boolean } }>
-    '/currentUser': RequestAction<{ result: User }>
-    '/testQuery': RequestAction<{ query: { param1: string }; result: { param1Value: string } }>
-    '/testUrlParams/:urlParam': RequestAction<{ url: { urlParam: string }; result: { urlParamValue: string } }>
+    '/isAuthenticated': { result: { isAuthenticated: boolean } }
+    '/currentUser': { result: User }
+    '/testQuery': { query: { param1: string }; result: { param1Value: string } }
+    '/testUrlParams/:urlParam': { url: { urlParam: string }; result: { urlParamValue: string } }
   }
   POST: {
-    '/login': RequestAction<{ result: User; body: { username: string; password: string } }>
-    '/logout': RequestAction<{ result: unknown }>
-    '/testPostBody': RequestAction<{ body: { value: string }; result: { bodyValue: string } }>
+    '/login': { result: User; body: { username: string; password: string } }
+    '/logout': { result: unknown }
+    '/testPostBody': { body: { value: string }; result: { bodyValue: string } }
   }
 }
 

@@ -1,4 +1,3 @@
-import { RequestAction } from '@furystack/rest'
 import {
   ActionResult,
   RequestActionImplementation,
@@ -17,7 +16,7 @@ export const Validate = <
    * Entity key from the JSON Schema object
    */
   schemaName: keyof TSchema['definitions']
-}) => <T extends RequestAction<any>>(action: RequestActionImplementation<T>): RequestActionImplementation<T> => {
+}) => <T extends { result: any }>(action: RequestActionImplementation<T>): RequestActionImplementation<T> => {
   const schema = { ...validationOptions.schema }
 
   Object.values(schema.definitions).forEach((definition) => {

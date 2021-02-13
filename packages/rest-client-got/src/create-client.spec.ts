@@ -1,5 +1,4 @@
 import { createClient } from './'
-import { RequestAction } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
@@ -15,7 +14,7 @@ describe('@furystack/rest-client-got', () => {
       throw Error('Something is wrong...')
     })
 
-    const client = createClient<{ GET: { '/test': RequestAction<{ result: { foo: number } }> } }>({
+    const client = createClient<{ GET: { '/test': { result: { foo: number } } } }>({
       endpointUrl,
       got,
     })
@@ -31,7 +30,7 @@ describe('@furystack/rest-client-got', () => {
   it('Should call a simple GET request', async () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
-    const client = createClient<{ GET: { '/test': RequestAction<{ result: { value: number } }> } }>({
+    const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
       endpointUrl,
       got,
     })
@@ -49,7 +48,7 @@ describe('@furystack/rest-client-got', () => {
   it('Should call a GET request with query parameters', async () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
     const client = createClient<{
-      GET: { '/test': RequestAction<{ result: { value: number }; query: { value: string } }> }
+      GET: { '/test': { result: { value: number }; query: { value: string } } }
     }>({
       endpointUrl,
       got,
@@ -73,7 +72,7 @@ describe('@furystack/rest-client-got', () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{
-      GET: { '/test/:urlValue': RequestAction<{ result: { value: number }; url: { urlValue: string } }> }
+      GET: { '/test/:urlValue': { result: { value: number }; url: { urlValue: string } } }
     }>({
       endpointUrl,
       got,
@@ -98,7 +97,7 @@ describe('@furystack/rest-client-got', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; body: { foo: number } }> } }>({
+    const client = createClient<{ POST: { '/test': { result: {}; body: { foo: number } } } }>({
       endpointUrl,
       got,
     })
@@ -120,7 +119,7 @@ describe('@furystack/rest-client-got', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; headers: { token: string } }> } }>({
+    const client = createClient<{ POST: { '/test': { result: {}; headers: { token: string } } } }>({
       endpointUrl,
       got,
     })

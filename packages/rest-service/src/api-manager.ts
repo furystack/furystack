@@ -1,5 +1,5 @@
 import { Disposable, PathHelper, usingAsync } from '@furystack/utils'
-import { deserializeQueryString, RequestAction, RestApi } from '@furystack/rest'
+import { deserializeQueryString, RestApi } from '@furystack/rest'
 import { Injectable, Injector } from '@furystack/inject'
 import { ServerManager, OnRequest } from './server-manager'
 import { pathToRegexp, match } from 'path-to-regexp'
@@ -14,7 +14,7 @@ import { RequestActionImplementation } from './request-action-implementation'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
-    [TUrl in keyof T[TMethod]]: T[TMethod][TUrl] extends RequestAction<any>
+    [TUrl in keyof T[TMethod]]: T[TMethod][TUrl] extends { result: unknown }
       ? RequestActionImplementation<T[TMethod][TUrl]>
       : never
   }

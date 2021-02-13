@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { RequestAction, RestApi } from '@furystack/rest'
+import { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { RequestError } from 'got/dist/source'
@@ -11,12 +11,12 @@ import schema from './validate.integration.spec.schema.json'
 
 export interface ValidationApi extends RestApi {
   GET: {
-    '/validate-query': RequestAction<{ query: { foo: string; bar: number; baz: boolean }; result: {} }>
-    // '/validate-url/:id': RequestAction<{ urlParams: { id: number }; result: {} }>
-    // '/validate-headers': RequestAction<{ headers: { foo: string; bar: number; baz: boolean }; result: {} }>
+    '/validate-query': { query: { foo: string; bar: number; baz: boolean }; result: {} }
+    // '/validate-url/:id': { urlParams: { id: number }; result: {} }
+    // '/validate-headers': { headers: { foo: string; bar: number; baz: boolean }; result: {} }
   }
   // POST: {
-  //   '/validate-body': RequestAction<{ body: { foo: string; bar: number; baz: boolean }; result: {} }>
+  //   '/validate-body': { body: { foo: string; bar: number; baz: boolean }; result: {} }
   // }
 }
 

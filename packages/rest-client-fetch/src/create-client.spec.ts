@@ -1,5 +1,4 @@
 import { createClient } from './'
-import { RequestAction } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
@@ -17,7 +16,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: false,
     }))
 
-    const client = createClient<{ GET: { '/test': RequestAction<{ result: { foo: number } }> } }>({
+    const client = createClient<{ GET: { '/test': { result: { foo: number } } } }>({
       endpointUrl,
       fetch,
     })
@@ -37,7 +36,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ GET: { '/test': RequestAction<{ result: { value: number } }> } }>({
+    const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
       endpointUrl,
       fetch,
     })
@@ -61,7 +60,7 @@ describe('@furystack/rest-client-fetch', () => {
     }))
 
     const client = createClient<{
-      GET: { '/test': RequestAction<{ result: { value: number }; query: { value: string } }> }
+      GET: { '/test': { result: { value: number }; query: { value: string } } }
     }>({
       endpointUrl,
       fetch,
@@ -90,7 +89,7 @@ describe('@furystack/rest-client-fetch', () => {
     }))
 
     const client = createClient<{
-      GET: { '/test/:urlValue': RequestAction<{ result: { value: number }; url: { urlValue: string } }> }
+      GET: { '/test/:urlValue': { result: { value: number }; url: { urlValue: string } } }
     }>({
       endpointUrl,
       fetch,
@@ -118,7 +117,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; body: { foo: number } }> } }>({
+    const client = createClient<{ POST: { '/test': { result: {}; body: { foo: number } } } }>({
       endpointUrl,
       fetch,
     })
@@ -143,7 +142,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': RequestAction<{ result: {}; headers: { token: string } }> } }>({
+    const client = createClient<{ POST: { '/test': { result: {}; headers: { token: string } } } }>({
       endpointUrl,
       fetch,
     })

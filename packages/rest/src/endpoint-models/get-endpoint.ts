@@ -1,10 +1,9 @@
 import { PartialResult, FindOptions } from '@furystack/core'
-import { RequestAction } from '../request-action'
 
 /**
  * Endpoint model for getting a single entity
  */
-export type GetEntityEndpoint<T> = RequestAction<{
+export type GetEntityEndpoint<T> = {
   query: {
     /**
      * The list of fields to select
@@ -18,4 +17,4 @@ export type GetEntityEndpoint<T> = RequestAction<{
     id: T[keyof T]
   }
   result: PartialResult<T, any>
-}>
+}

@@ -1,5 +1,4 @@
 import { Injector } from '@furystack/inject'
-import { RequestAction } from '@furystack/rest'
 import { ServerResponse } from 'http'
 import { IncomingMessage } from 'http'
 
@@ -52,20 +51,20 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
-export type RequestActionImplementationOptions<T extends RequestAction<any>> = {
+export type RequestActionImplementationOptions<T extends { result: unknown }> = {
   request: IncomingMessage
   response: ServerResponse
   injector: Injector
-} & (T extends RequestAction<{
+} & (T extends {
   result: unknown
   body: infer U
-}>
+}
   ? { getBody: () => Promise<U> }
   : unknown) &
-  (T extends RequestAction<{ result: unknown; url: infer U }> ? { getUrlParams: () => U } : unknown) &
-  (T extends RequestAction<{ result: unknown; query: infer U }> ? { getQuery: () => U } : unknown) &
-  (T extends RequestAction<{ result: unknown; headers: infer U }> ? { headers: U } : unknown)
+  (T extends { result: unknown; url: infer U } ? { getUrlParams: () => U } : unknown) &
+  (T extends { result: unknown; query: infer U } ? { getQuery: () => U } : unknown) &
+  (T extends { result: unknown; headers: infer U } ? { headers: U } : unknown)
 
-export type RequestActionImplementation<T extends RequestAction<any>> = (
+export type RequestActionImplementation<T extends { result: unknown }> = (
   options: RequestActionImplementationOptions<T>,
 ) => Promise<ActionResult<T['result']>>
