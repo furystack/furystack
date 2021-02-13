@@ -1,5 +1,5 @@
 import { HttpUserContext } from '../http-user-context'
-import { EmptyResult, RequestActionImplementation } from '../request-action-implementation'
+import { EmptyResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Action that logs out the current user
@@ -10,7 +10,7 @@ import { EmptyResult, RequestActionImplementation } from '../request-action-impl
  * @param root0.response The Response object
  * @returns An empty result that indicates the success
  */
-export const LogoutAction: RequestActionImplementation<{ result: unknown }> = async ({
+export const LogoutAction: RequestAction<{ result: unknown }> = async ({
   injector,
   request,
   response,

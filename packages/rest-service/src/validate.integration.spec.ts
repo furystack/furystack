@@ -16,7 +16,7 @@ export interface ValidateQuery {
   result: {}
 }
 export interface ValidateUrl {
-  urlParams: { id: number }
+  url: { id: number }
   result: {}
 }
 export interface ValidateHeaders {
@@ -31,12 +31,12 @@ export interface ValidateBody {
 export interface ValidationApi extends RestApi {
   GET: {
     '/validate-query': ValidateQuery
-    // '/validate-url/:id': ValidateUrl
-    // '/validate-headers': ValidateHeaders
+    '/validate-url/:id': ValidateUrl
+    '/validate-headers': ValidateHeaders
   }
-  // POST: {
-  //   '/validate-body': ValidateBody
-  // }
+  POST: {
+    '/validate-body': ValidateBody
+  }
 }
 
 export const createValidateApi = async () => {
@@ -48,6 +48,20 @@ export const createValidateApi = async () => {
         '/validate-query': Validate({
           schema,
           schemaName: 'ValidateQuery',
+        })(async () => JsonResult({})),
+        '/validate-url/:id': Validate({
+          schema,
+          schemaName: 'ValidateUrl',
+        })(async () => JsonResult({})),
+        '/validate-headers': Validate({
+          schema,
+          schemaName: 'ValidateHeaders',
+        })(async () => JsonResult({})),
+      },
+      POST: {
+        '/validate-body': Validate({
+          schema,
+          schemaName: 'ValidateBody',
         })(async () => JsonResult({})),
       },
     },
@@ -83,7 +97,63 @@ describe('Validation integration tests', () => {
       }
     })
   })
-  it.todo('Should validate url')
-  it.todo('Should validate headers')
-  it.todo('Should validate body')
+  it('Should validate url', async () => {
+    await usingAsync(await createValidateApi(), async ({ client }) => {
+      expect.assertions(3)
+      try {
+        await client({
+          method: 'GET',
+          action: '/validate-url/:id',
+          url: undefined as any,
+        })
+      } catch (error) {
+        if (error instanceof RequestError) {
+          expect(error.message).toBe('Response code 400 (Bad Request)')
+          expect(error.response?.statusCode).toBe(400)
+          const responseJson = JSON.parse(error.response?.body as string)
+          expect(responseJson.errors[0].params.missingProperty).toEqual('url')
+        }
+      }
+    })
+  })
+  it('Should validate headers', async () => {
+    await usingAsync(await createValidateApi(), async ({ client }) => {
+      expect.assertions(3)
+      try {
+        await client({
+          method: 'GET',
+          action: '/validate-headers',
+          headers: undefined as any,
+        })
+      } catch (error) {
+        if (error instanceof RequestError) {
+          expect(error.message).toBe('Response code 400 (Bad Request)')
+          expect(error.response?.statusCode).toBe(400)
+          const responseJson = JSON.parse(error.response?.body as string)
+          expect(
+            responseJson.errors.find((e: any) => e.keyword === 'required' && e.message.includes('foo')),
+          ).toBeDefined()
+        }
+      }
+    })
+  })
+  it('Should validate body', async () => {
+    await usingAsync(await createValidateApi(), async ({ client }) => {
+      expect.assertions(3)
+      try {
+        await client({
+          method: 'POST',
+          action: '/validate-body',
+          body: undefined as any,
+        })
+      } catch (error) {
+        if (error instanceof RequestError) {
+          expect(error.message).toBe('Response code 400 (Bad Request)')
+          expect(error.response?.statusCode).toBe(400)
+          const responseJson = JSON.parse(error.response?.body as string)
+          expect(responseJson.errors[0].params.missingProperty).toEqual('body')
+        }
+      }
+    })
+  })
 })

@@ -1,6 +1,6 @@
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
-import { JsonResult, RequestActionImplementation } from '../request-action-implementation'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 import { SchemaValidationError } from '../schema-validator'
 
 /**
@@ -8,7 +8,7 @@ import { SchemaValidationError } from '../schema-validator'
  * Returns a serialized error instance in JSON format.
  */
 
-export const ErrorAction: RequestActionImplementation<{
+export const ErrorAction: RequestAction<{
   body: Error
   result: { message: string; url?: string; stack?: string }
 }> = async ({ getBody, request }) => {

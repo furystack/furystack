@@ -110,7 +110,7 @@
           "additionalProperties": false,
           "type": "object"
         },
-        "urlParams": {
+        "url": {
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -124,7 +124,7 @@
         }
       },
       "required": [
-        "urlParams",
+        "url",
         "result"
       ],
       "type": "object"

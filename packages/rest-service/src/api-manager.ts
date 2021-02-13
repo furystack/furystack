@@ -10,12 +10,12 @@ import { ErrorAction } from './actions/error-action'
 import './server-response-extensions'
 import { IdentityContext, User } from '@furystack/core'
 import { HttpUserContext } from './http-user-context'
-import { RequestActionImplementation } from './request-action-implementation'
+import { RequestAction } from './request-action-implementation'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
     [TUrl in keyof T[TMethod]]: T[TMethod][TUrl] extends { result: unknown }
-      ? RequestActionImplementation<T[TMethod][TUrl]>
+      ? RequestAction<T[TMethod][TUrl]>
       : never
   }
 }
@@ -32,7 +32,7 @@ export interface ImplementApiOptions<T extends RestApi> {
 
 export type CompiledApi = {
   [K: string]: {
-    [R: string]: { fullPath: string; regex: RegExp; action: RequestActionImplementation<any> }
+    [R: string]: { fullPath: string; regex: RegExp; action: RequestAction<any> }
   }
 }
 
@@ -129,7 +129,7 @@ export class ApiManager implements Disposable {
     return (Object.values(compiledEndpoint[method]).find((route) => (route as any).regex.test(fullUrl.pathname)) ||
       undefined) as
       | {
-          action: RequestActionImplementation<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
+          action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
           regex: RegExp
           fullPath: string
         }
@@ -147,7 +147,7 @@ export class ApiManager implements Disposable {
     deserializeQueryParams,
   }: OnRequestOptions & {
     fullUrl: URL
-    action: RequestActionImplementation<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
+    action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
     regex: RegExp
     fullPath: string
   }) {

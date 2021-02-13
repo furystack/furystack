@@ -2,14 +2,14 @@ import { sleepAsync } from '@furystack/utils'
 import {
   ActionResult,
   JsonResult,
-  RequestActionImplementation,
-  RequestActionImplementationOptions,
+  RequestAction,
+  RequestActionOptions,
 } from './request-action-implementation'
 
 export const Authorize = (...roles: string[]) => <T extends { result: unknown }>(
-  action: RequestActionImplementation<T>,
-): RequestActionImplementation<T> => {
-  return async (options: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
+  action: RequestAction<T>,
+): RequestAction<T> => {
+  return async (options: RequestActionOptions<T>): Promise<ActionResult<T>> => {
     try {
       const authorized = await options.injector.isAuthorized(...roles)
       if (!authorized) {

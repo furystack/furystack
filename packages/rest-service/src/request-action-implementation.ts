@@ -51,7 +51,7 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
-export type RequestActionImplementationOptions<T extends { result: unknown }> = {
+export type RequestActionOptions<T extends { result: unknown }> = {
   request: IncomingMessage
   response: ServerResponse
   injector: Injector
@@ -65,6 +65,6 @@ export type RequestActionImplementationOptions<T extends { result: unknown }> = 
   (T extends { result: unknown; query: infer U } ? { getQuery: () => U } : unknown) &
   (T extends { result: unknown; headers: infer U } ? { headers: U } : unknown)
 
-export type RequestActionImplementation<T extends { result: unknown }> = (
-  options: RequestActionImplementationOptions<T>,
+export type RequestAction<T extends { result: unknown }> = (
+  options: RequestActionOptions<T>,
 ) => Promise<ActionResult<T['result']>>

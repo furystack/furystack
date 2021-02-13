@@ -2,7 +2,7 @@ import { Constructable } from '@furystack/inject'
 import { PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
-import { JsonResult, RequestActionImplementation } from '../request-action-implementation'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Creates a PATCH endpoint for updating entities
@@ -12,7 +12,7 @@ import { JsonResult, RequestActionImplementation } from '../request-action-imple
  * @returns a boolean that indicates the success
  */
 export const createPatchEndpoint = <T extends object>(options: { model: Constructable<T> }) => {
-  const endpoint: RequestActionImplementation<PatchEndpoint<T>> = async ({ injector, request, getUrlParams }) => {
+  const endpoint: RequestAction<PatchEndpoint<T>> = async ({ injector, request, getUrlParams }) => {
     const { id } = getUrlParams()
     const patchData = await request.readPostBody<T>()
     const dataSet = injector.getDataSetFor(options.model)

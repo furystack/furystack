@@ -1,8 +1,4 @@
-import {
-  ActionResult,
-  RequestActionImplementation,
-  RequestActionImplementationOptions,
-} from './request-action-implementation'
+import { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation'
 import { SchemaValidator } from './schema-validator'
 
 export const Validate = <
@@ -16,7 +12,7 @@ export const Validate = <
    * Entity key from the JSON Schema object
    */
   schemaName: keyof TSchema['definitions']
-}) => <T extends { result: any }>(action: RequestActionImplementation<T>): RequestActionImplementation<T> => {
+}) => <T extends { result: any }>(action: RequestAction<T>): RequestAction<T> => {
   const schema = { ...validationOptions.schema }
 
   Object.values(schema.definitions).forEach((definition) => {
@@ -30,9 +26,9 @@ export const Validate = <
 
   const validator = new SchemaValidator(schema, { coerceTypes: true })
 
-  return async (args: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
-    const { query, body, urlParams, headers } = args as any
-    validator.isValid({ query, body, urlParams, headers }, { schemaName: validationOptions.schemaName })
+  return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
+    const { query, body, url, headers } = args as any
+    validator.isValid({ query, body, url, headers }, { schemaName: validationOptions.schemaName })
     return await action(args)
   }
 }

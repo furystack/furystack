@@ -3,14 +3,14 @@ import { HttpUserContext } from './http-user-context'
 import {
   ActionResult,
   JsonResult,
-  RequestActionImplementation,
-  RequestActionImplementationOptions,
+  RequestAction,
+  RequestActionOptions,
 } from './request-action-implementation'
 
 export const Authenticate = () => <T extends { result: unknown }>(
-  action: RequestActionImplementation<T>,
-): RequestActionImplementation<T> => {
-  return async (args: RequestActionImplementationOptions<T>): Promise<ActionResult<T>> => {
+  action: RequestAction<T>,
+): RequestAction<T> => {
+  return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
     const authenticated = await args.injector.isAuthenticated()
     if (!authenticated) {
       await sleepAsync(Math.random() * 1000)

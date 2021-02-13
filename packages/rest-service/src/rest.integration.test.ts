@@ -10,7 +10,7 @@ export interface EchoApi extends RestApi {
   GET: {
     '/plain': { result: unknown }
     '/headers': { headers: { value?: string }; result: { headers: { value?: string } } }
-    '/urlParams/:id': { url: { id: string }; result: { urlParams: { id: string } } }
+    '/urlParams/:id': { url: { id: string }; result: { url: { id: string } } }
     '/query': {
       query: { someObject: { foo: string } }
       result: { query: { someObject: { foo: string } } }
@@ -33,7 +33,7 @@ const createEchoApiServer = async () => {
         '/plain': async () => JsonResult({}),
         '/headers': async ({ headers }) => JsonResult({ headers }),
         '/query': async ({ getQuery }) => JsonResult({ query: getQuery() }),
-        '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ urlParams: getUrlParams() }),
+        '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ url: getUrlParams() }),
       },
       POST: {
         '/body': async ({ getBody }) => JsonResult({ body: await getBody() }),
@@ -106,7 +106,7 @@ describe('REST Integration tests with GOT client', () => {
         },
       })
       expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().urlParams.id).toEqual(value)
+      expect(result.getJson().url.id).toEqual(value)
     })
   })
 })
