@@ -9,14 +9,33 @@ import './injector-extensions'
 
 import schema from './validate.integration.spec.schema.json'
 
+// To recreate: yarn ts-json-schema-generator -f tsconfig.json -p packages/rest-service/src/validate.integration.spec.ts -t ValidationApi -e none -o packages/rest-service/src/validate.integration.spec.schema.json
+
+export interface ValidateQuery {
+  query: { foo: string; bar: number; baz: boolean }
+  result: {}
+}
+export interface ValidateUrl {
+  urlParams: { id: number }
+  result: {}
+}
+export interface ValidateHeaders {
+  headers: { foo: string; bar: number; baz: boolean }
+  result: {}
+}
+export interface ValidateBody {
+  body: { foo: string; bar: number; baz: boolean }
+  result: {}
+}
+
 export interface ValidationApi extends RestApi {
   GET: {
-    '/validate-query': { query: { foo: string; bar: number; baz: boolean }; result: {} }
-    // '/validate-url/:id': { urlParams: { id: number }; result: {} }
-    // '/validate-headers': { headers: { foo: string; bar: number; baz: boolean }; result: {} }
+    '/validate-query': ValidateQuery
+    // '/validate-url/:id': ValidateUrl
+    // '/validate-headers': ValidateHeaders
   }
   // POST: {
-  //   '/validate-body': { body: { foo: string; bar: number; baz: boolean }; result: {} }
+  //   '/validate-body': ValidateBody
   // }
 }
 
@@ -28,7 +47,7 @@ export const createValidateApi = async () => {
       GET: {
         '/validate-query': Validate({
           schema,
-          schemaName: 'RequestAction<Query>',
+          schemaName: 'ValidateQuery',
         })(async () => JsonResult({})),
       },
     },

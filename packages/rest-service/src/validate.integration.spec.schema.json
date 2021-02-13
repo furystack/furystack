@@ -1,12 +1,11 @@
 {
-  "$ref": "#/definitions/ValidationApi",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "RequestAction<Query>": {
+    "ValidateBody": {
+      "additionalProperties": false,
       "properties": {
-        "query": {
+        "body": {
           "additionalProperties": false,
-          "description": "Parameters in the Query String, e.g.: /api/my-entities?top=10",
           "properties": {
             "bar": {
               "type": "number"
@@ -26,27 +25,18 @@
           "type": "object"
         },
         "result": {
-          "description": "The type of the response when the request succeeds"
+          "additionalProperties": false,
+          "type": "object"
         }
       },
       "required": [
-        "query",
+        "body",
         "result"
       ],
       "type": "object"
     },
-    "RequestAction<structure-1060104421-269-315-1060104421-254-316-1060104421-228-316-1060104421-116-435-1060104421-108-435-1060104421-56-562-1060104421-0-781>": {
-      "properties": {
-        "result": {
-          "description": "The type of the response when the request succeeds"
-        }
-      },
-      "required": [
-        "result"
-      ],
-      "type": "object"
-    },
-    "RequestAction<Headers>": {
+    "ValidateHeaders": {
+      "additionalProperties": false,
       "properties": {
         "headers": {
           "additionalProperties": false,
@@ -69,7 +59,8 @@
           "type": "object"
         },
         "result": {
-          "description": "The type of the response when the request succeeds"
+          "additionalProperties": false,
+          "type": "object"
         }
       },
       "required": [
@@ -78,11 +69,11 @@
       ],
       "type": "object"
     },
-    "RequestAction<structure-1060104421-484-553-1060104421-469-554-1060104421-446-554-1060104421-444-559-1060104421-435-559-1060104421-56-562-1060104421-0-781>": {
+    "ValidateQuery": {
+      "additionalProperties": false,
       "properties": {
-        "body": {
+        "query": {
           "additionalProperties": false,
-          "description": "The Request Body",
           "properties": {
             "bar": {
               "type": "number"
@@ -102,105 +93,39 @@
           "type": "object"
         },
         "result": {
-          "description": "The type of the response when the request succeeds"
+          "additionalProperties": false,
+          "type": "object"
         }
       },
       "required": [
-        "body",
+        "query",
         "result"
       ],
       "type": "object"
     },
-    "RequestAction<structure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284<\"DELETE\">>": {
-      "properties": {
-        "result": {
-          "description": "The type of the response when the request succeeds"
-        }
-      },
-      "required": [
-        "result"
-      ],
-      "type": "object"
-    },
-    "RequestAction<structure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284<\"PATCH\">>": {
-      "properties": {
-        "result": {
-          "description": "The type of the response when the request succeeds"
-        }
-      },
-      "required": [
-        "result"
-      ],
-      "type": "object"
-    },
-    "RequestAction<structure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284<\"PUT\">>": {
-      "properties": {
-        "result": {
-          "description": "The type of the response when the request succeeds"
-        }
-      },
-      "required": [
-        "result"
-      ],
-      "type": "object"
-    },
-    "ValidationApi": {
+    "ValidateUrl": {
       "additionalProperties": false,
       "properties": {
-        "DELETE": {
-          "additionalProperties": {
-            "$ref": "#/definitions/RequestAction%3Cstructure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284%3C%22DELETE%22%3E%3E"
-          },
+        "result": {
+          "additionalProperties": false,
           "type": "object"
         },
-        "GET": {
+        "urlParams": {
           "additionalProperties": false,
           "properties": {
-            "/validate-headers": {
-              "$ref": "#/definitions/RequestAction%3Cstructure-1060104421-357-429-1060104421-342-430-1060104421-316-430-1060104421-116-435-1060104421-108-435-1060104421-56-562-1060104421-0-781%3E"
-            },
-            "/validate-query": {
-              "$ref": "#/definitions/RequestAction%3Cstructure-1060104421-157-227-1060104421-142-228-1060104421-118-228-1060104421-116-435-1060104421-108-435-1060104421-56-562-1060104421-0-781%3E"
-            },
-            "/validate-url/:id": {
-              "$ref": "#/definitions/RequestAction%3Cstructure-1060104421-269-315-1060104421-254-316-1060104421-228-316-1060104421-116-435-1060104421-108-435-1060104421-56-562-1060104421-0-781%3E"
+            "id": {
+              "type": "number"
             }
           },
           "required": [
-            "/validate-query",
-            "/validate-url/:id",
-            "/validate-headers"
+            "id"
           ],
-          "type": "object"
-        },
-        "PATCH": {
-          "additionalProperties": {
-            "$ref": "#/definitions/RequestAction%3Cstructure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284%3C%22PATCH%22%3E%3E"
-          },
-          "type": "object"
-        },
-        "POST": {
-          "additionalProperties": false,
-          "properties": {
-            "/validate-body": {
-              "$ref": "#/definitions/RequestAction%3Cstructure-1060104421-484-553-1060104421-469-554-1060104421-446-554-1060104421-444-559-1060104421-435-559-1060104421-56-562-1060104421-0-781%3E"
-            }
-          },
-          "required": [
-            "/validate-body"
-          ],
-          "type": "object"
-        },
-        "PUT": {
-          "additionalProperties": {
-            "$ref": "#/definitions/RequestAction%3Cstructure-t-api.d.ts-188-230-t-api.d.ts-173-231-t-api.d.ts-148-232-t-api.d.ts-146-239-t-api.d.ts-117-243-t-api.d.ts-86-244-t-api.d.ts-0-284%3C%22PUT%22%3E%3E"
-          },
           "type": "object"
         }
       },
       "required": [
-        "GET",
-        "POST"
+        "urlParams",
+        "result"
       ],
       "type": "object"
     }
