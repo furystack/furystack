@@ -1,10 +1,5 @@
 import { sleepAsync } from '@furystack/utils'
-import {
-  ActionResult,
-  JsonResult,
-  RequestAction,
-  RequestActionOptions,
-} from './request-action-implementation'
+import { ActionResult, JsonResult, RequestAction, RequestActionOptions } from './request-action-implementation'
 
 export const Authorize = (...roles: string[]) => <T extends { result: unknown }>(
   action: RequestAction<T>,

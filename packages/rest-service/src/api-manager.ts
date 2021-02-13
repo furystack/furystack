@@ -14,9 +14,7 @@ import { RequestAction } from './request-action-implementation'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
-    [TUrl in keyof T[TMethod]]: T[TMethod][TUrl] extends { result: unknown }
-      ? RequestAction<T[TMethod][TUrl]>
-      : never
+    [TUrl in keyof T[TMethod]]: T[TMethod][TUrl] extends { result: unknown } ? RequestAction<T[TMethod][TUrl]> : never
   }
 }
 

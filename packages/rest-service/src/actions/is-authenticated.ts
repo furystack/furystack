@@ -7,9 +7,7 @@ import { JsonResult, RequestAction } from '../request-action-implementation'
  * @param options.injector The Injector from the current context
  * @returns A standard authentication result
  */
-export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({
-  injector,
-}) => {
+export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({ injector }) => {
   const isAuthenticated = await injector.isAuthenticated()
   return JsonResult({ isAuthenticated })
 }
