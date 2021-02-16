@@ -14,7 +14,7 @@ describe('@furystack/rest-client-got', () => {
       throw Error('Something is wrong...')
     })
 
-    const client = createClient<{ GET: { '/test': { result: { foo: number } } } }>({
+    const client = createClient<{ '/test': { GET: { result: { foo: number } } } }>({
       endpointUrl,
       got,
     })
@@ -30,7 +30,7 @@ describe('@furystack/rest-client-got', () => {
   it('Should call a simple GET request', async () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
-    const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
+    const client = createClient<{ '/test': { GET: { result: { value: number } } } }>({
       endpointUrl,
       got,
     })
@@ -48,7 +48,7 @@ describe('@furystack/rest-client-got', () => {
   it('Should call a GET request with query parameters', async () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
     const client = createClient<{
-      GET: { '/test': { result: { value: number }; query: { value: string } } }
+      '/test': { GET: { result: { value: number }; query: { value: string } } }
     }>({
       endpointUrl,
       got,
@@ -72,7 +72,7 @@ describe('@furystack/rest-client-got', () => {
     const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{
-      GET: { '/test/:urlValue': { result: { value: number }; url: { urlValue: string } } }
+      '/test/:urlValue': { GET: { result: { value: number }; url: { urlValue: string } } }
     }>({
       endpointUrl,
       got,
@@ -97,7 +97,7 @@ describe('@furystack/rest-client-got', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': { result: {}; body: { foo: number } } } }>({
+    const client = createClient<{ '/test': { POST: { result: {}; body: { foo: number } } } }>({
       endpointUrl,
       got,
     })
@@ -119,7 +119,7 @@ describe('@furystack/rest-client-got', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': { result: {}; headers: { token: string } } } }>({
+    const client = createClient<{ '/test': { POST: { result: {}; headers: { token: string } } } }>({
       endpointUrl,
       got,
     })

@@ -9,17 +9,13 @@ import got from 'got'
 import { JsonResult } from './request-action-implementation'
 
 interface IntegrationTestApi extends RestApi {
-  GET: {
-    '/isAuthenticated': { result: { isAuthenticated: boolean } }
-    '/currentUser': { result: User }
-    '/testQuery': { query: { param1: string }; result: { param1Value: string } }
-    '/testUrlParams/:urlParam': { url: { urlParam: string }; result: { urlParamValue: string } }
-  }
-  POST: {
-    '/login': { result: User; body: { username: string; password: string } }
-    '/logout': { result: unknown }
-    '/testPostBody': { body: { value: string }; result: { bodyValue: string } }
-  }
+  '/isAuthenticated': { GET: { result: { isAuthenticated: boolean } } }
+  '/currentUser': { GET: { result: User } }
+  '/testQuery': { GET: { query: { param1: string }; result: { param1Value: string } } }
+  '/testUrlParams/:urlParam': { GET: { url: { urlParam: string }; result: { urlParamValue: string } } }
+  '/login': { POST: { result: User; body: { username: string; password: string } } }
+  '/logout': { POST: { result: unknown } }
+  '/testPostBody': { POST: { body: { value: string }; result: { bodyValue: string } } }
 }
 
 const port = 19090
@@ -47,16 +43,16 @@ const prepareInjector = (i: Injector) =>
         headers: ['cache', 'content-type'],
       },
       api: {
-        GET: {
-          '/currentUser': GetCurrentUser,
-          '/isAuthenticated': IsAuthenticated,
-          '/testQuery': async (options) => JsonResult({ param1Value: options.getQuery().param1 }),
-          '/testUrlParams/:urlParam': async (options) => JsonResult({ urlParamValue: options.getUrlParams().urlParam }),
+        '/currentUser': { GET: GetCurrentUser },
+        '/isAuthenticated': { GET: IsAuthenticated },
+        '/testQuery': { GET: async (options) => JsonResult({ param1Value: options.getQuery().param1 }) },
+        '/testUrlParams/:urlParam': {
+          GET: async (options) => JsonResult({ urlParamValue: options.getUrlParams().urlParam }),
         },
-        POST: {
-          '/login': LoginAction,
-          '/logout': LogoutAction,
-          '/testPostBody': async (options) => {
+        '/login': { POST: LoginAction },
+        '/logout': { POST: LogoutAction },
+        '/testPostBody': {
+          POST: async (options) => {
             const body = await options.getBody()
             return JsonResult({ bodyValue: body.value })
           },

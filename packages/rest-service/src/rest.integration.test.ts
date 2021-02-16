@@ -7,18 +7,16 @@ import { v4 } from 'uuid'
 import './injector-extensions'
 
 export interface EchoApi extends RestApi {
-  GET: {
-    '/plain': { result: unknown }
-    '/headers': { headers: { value?: string }; result: { headers: { value?: string } } }
-    '/urlParams/:id': { url: { id: string }; result: { url: { id: string } } }
-    '/query': {
+  '/plain': { GET: { result: unknown } }
+  '/headers': { GET: { headers: { value: string }; result: { headers: { value: string } } } }
+  '/urlParams/:id': { GET: { url: { id: string }; result: { url: { id: string } } } }
+  '/query': {
+    GET: {
       query: { someObject: { foo: string } }
       result: { query: { someObject: { foo: string } } }
     }
   }
-  POST: {
-    '/body': { body: { foo: string; bar: number }; result: { body: { foo: string; bar: number } } }
-  }
+  '/body': { POST: { body: { foo: string; bar: number }; result: { body: { foo: string; bar: number } } } }
 }
 
 const createEchoApiServer = async () => {
@@ -29,15 +27,11 @@ const createEchoApiServer = async () => {
     port,
     root,
     api: {
-      GET: {
-        '/plain': async () => JsonResult({}),
-        '/headers': async ({ headers }) => JsonResult({ headers }),
-        '/query': async ({ getQuery }) => JsonResult({ query: getQuery() }),
-        '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ url: getUrlParams() }),
-      },
-      POST: {
-        '/body': async ({ getBody }) => JsonResult({ body: await getBody() }),
-      },
+      '/plain': { GET: async () => JsonResult({}) },
+      '/headers': { GET: async ({ headers }) => JsonResult({ headers }) },
+      '/query': { GET: async ({ getQuery }) => JsonResult({ query: getQuery() }) },
+      '/urlParams/:id': { GET: async ({ getUrlParams }) => JsonResult({ url: getUrlParams() }) },
+      '/body': { POST: async ({ getBody }) => JsonResult({ body: await getBody() }) },
     },
   })
   const client = createClient<EchoApi>({

@@ -9,12 +9,12 @@ describe('createDeleteEndpoint', () => {
   it('Should delete the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ DELETE: { '/:id': DeleteEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/:id': { DELETE: DeleteEndpoint<MockClass> } }>({
         root: '/api',
         port: 1111,
         api: {
-          DELETE: {
-            '/:id': createDeleteEndpoint({ model: MockClass }),
+          '/:id': {
+            DELETE: createDeleteEndpoint({ model: MockClass }),
           },
         },
       })

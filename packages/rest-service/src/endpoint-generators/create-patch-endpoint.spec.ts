@@ -9,13 +9,11 @@ describe('createPatchEndpoint', () => {
   it('Should update the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ PATCH: { '/:id': PatchEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/:id': { PATCH: PatchEndpoint<MockClass> } }>({
         root: '/api',
         port: 1116,
         api: {
-          PATCH: {
-            '/:id': createPatchEndpoint({ model: MockClass }),
-          },
+          '/:id': { PATCH: createPatchEndpoint({ model: MockClass }) },
         },
       })
       await i.getDataSetFor(MockClass).add(i, { id: 'mock', value: 'mock' })

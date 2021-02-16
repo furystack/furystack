@@ -9,13 +9,11 @@ describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ POST: { '/:id': PostEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/:id': { POST: PostEndpoint<MockClass> } }>({
         root: '/api',
         port: 1117,
         api: {
-          POST: {
-            '/:id': createPostEndpoint({ model: MockClass }),
-          },
+          '/:id': { POST: createPostEndpoint({ model: MockClass }) },
         },
       })
       const entityToPost = { id: 'mock', value: 'posted' }

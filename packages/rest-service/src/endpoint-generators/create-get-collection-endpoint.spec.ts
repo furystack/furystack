@@ -21,13 +21,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return the collection without filter / order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/entities': { GET: GetCollectionEndpoint<MockClass> } }>({
         root: '/api',
         port: 1112,
         api: {
-          GET: {
-            '/entities': createGetCollectionEndpoint({ model: MockClass }),
-          },
+          '/entities': { GET: createGetCollectionEndpoint({ model: MockClass }) },
         },
       })
       await addMockEntities(i)
@@ -45,13 +43,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities in order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/entities': { GET: GetCollectionEndpoint<MockClass> } }>({
         root: '/api',
         port: 1113,
         api: {
-          GET: {
-            '/entities': createGetCollectionEndpoint({ model: MockClass }),
-          },
+          '/entities': { GET: createGetCollectionEndpoint({ model: MockClass }) },
         },
       })
       await addMockEntities(i)
@@ -70,13 +66,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with filtering', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/entities': { GET: GetCollectionEndpoint<MockClass> } }>({
         root: '/api',
         port: 1113,
         api: {
-          GET: {
-            '/entities': createGetCollectionEndpoint({ model: MockClass }),
-          },
+          '/entities': { GET: createGetCollectionEndpoint({ model: MockClass }) },
         },
       })
       await addMockEntities(i)
@@ -101,13 +95,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with selecting specific fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/entities': { GET: GetCollectionEndpoint<MockClass> } }>({
         root: '/api',
         port: 1113,
         api: {
-          GET: {
-            '/entities': createGetCollectionEndpoint({ model: MockClass }),
-          },
+          '/entities': { GET: createGetCollectionEndpoint({ model: MockClass }) },
         },
       })
       await addMockEntities(i)
@@ -132,13 +124,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with top/skip', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
+      await i.useRestService<{ '/entities': { GET: GetCollectionEndpoint<MockClass> } }>({
         root: '/api',
         port: 1113,
         api: {
-          GET: {
-            '/entities': createGetCollectionEndpoint({ model: MockClass }),
-          },
+          '/entities': { GET: createGetCollectionEndpoint({ model: MockClass }) },
         },
       })
       await addMockEntities(i)
