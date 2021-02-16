@@ -24,13 +24,13 @@ export interface ClientOptions {
 
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   return async <
-    TAction extends keyof T,
-    TMethod extends keyof T[TAction],
-    TBodyType extends BodyParameter<T[TAction][TMethod]>,
-    TQuery extends QueryParameter<T[TAction][TMethod]>,
-    TUrlParams extends UrlParameter<T[TAction][TMethod]>,
-    TReturns extends ReturnType<T[TAction][TMethod]>,
-    THeaders extends HeaderParameter<T[TAction][TMethod]>
+    TMethod extends keyof T,
+    TAction extends keyof T[TMethod],
+    TBodyType extends BodyParameter<T[TMethod][TAction]>,
+    TQuery extends QueryParameter<T[TMethod][TAction]>,
+    TUrlParams extends UrlParameter<T[TMethod][TAction]>,
+    TReturns extends ReturnType<T[TMethod][TAction]>,
+    THeaders extends HeaderParameter<T[TMethod][TAction]>
   >(
     options: {
       method: TMethod

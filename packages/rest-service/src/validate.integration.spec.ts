@@ -29,10 +29,14 @@ export interface ValidateBody {
 }
 
 export interface ValidationApi extends RestApi {
-  '/validate-query': { GET: ValidateQuery }
-  '/validate-url/:id': { GET: ValidateUrl }
-  '/validate-headers': { GET: ValidateHeaders }
-  '/validate-body': { POST: ValidateBody }
+  GET: {
+    '/validate-query': ValidateQuery
+    '/validate-url/:id': ValidateUrl
+    '/validate-headers': ValidateHeaders
+  }
+  POST: {
+    '/validate-body': ValidateBody
+  }
 }
 
 export const createValidateApi = async () => {
@@ -40,26 +44,22 @@ export const createValidateApi = async () => {
   const port = Math.round(Math.random() * 1000) + 10000
   injector.useRestService<ValidationApi>({
     api: {
-      '/validate-query': {
-        GET: Validate({
+      GET: {
+        '/validate-query': Validate({
           schema,
           schemaName: 'ValidateQuery',
         })(async () => JsonResult({})),
-      },
-      '/validate-url/:id': {
-        GET: Validate({
+        '/validate-url/:id': Validate({
           schema,
           schemaName: 'ValidateUrl',
         })(async () => JsonResult({})),
-      },
-      '/validate-headers': {
-        GET: Validate({
+        '/validate-headers': Validate({
           schema,
           schemaName: 'ValidateHeaders',
         })(async () => JsonResult({})),
       },
-      '/validate-body': {
-        POST: Validate({
+      POST: {
+        '/validate-body': Validate({
           schema,
           schemaName: 'ValidateBody',
         })(async () => JsonResult({})),

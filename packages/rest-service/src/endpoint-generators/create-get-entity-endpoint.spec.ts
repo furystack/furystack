@@ -9,11 +9,13 @@ describe('createGetEntityEndpoint', () => {
   it('Should return the entity', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ '/:id': { GET: GetEntityEndpoint<MockClass> } }>({
+      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass> } }>({
         root: '/api',
         port: 1113,
         api: {
-          '/:id': { GET: createGetEntityEndpoint({ model: MockClass }) },
+          GET: {
+            '/:id': createGetEntityEndpoint({ model: MockClass }),
+          },
         },
       })
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
@@ -27,11 +29,13 @@ describe('createGetEntityEndpoint', () => {
   it('Should return the entity with the selected fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ '/:id': { GET: GetEntityEndpoint<MockClass> } }>({
+      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass> } }>({
         root: '/api',
         port: 1114,
         api: {
-          '/:id': { GET: createGetEntityEndpoint({ model: MockClass }) },
+          GET: {
+            '/:id': createGetEntityEndpoint({ model: MockClass }),
+          },
         },
       })
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
@@ -47,11 +51,13 @@ describe('createGetEntityEndpoint', () => {
   it('Should return 404 if no entity has been found', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ '/:id': { GET: GetEntityEndpoint<MockClass> } }>({
+      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass> } }>({
         root: '/api',
         port: 1115,
         api: {
-          '/:id': { GET: createGetEntityEndpoint({ model: MockClass }) },
+          GET: {
+            '/:id': createGetEntityEndpoint({ model: MockClass }),
+          },
         },
       })
       await new Promise<void>((resolve, reject) => {
