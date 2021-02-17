@@ -1,6 +1,6 @@
-import { RequestAction, JsonResult } from '@furystack/rest'
 import { User } from '@furystack/core'
 import { Authenticate } from '../authenticate'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Action that returns the current authenticated user

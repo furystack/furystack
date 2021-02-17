@@ -1,4 +1,6 @@
 import { Injector } from '@furystack/inject'
+import { ServerResponse } from 'http'
+import { IncomingMessage } from 'http'
 
 export interface ActionResult<T> {
   statusCode: number
@@ -49,35 +51,20 @@ export const BypassResult = () =>
     chunk: 'BypassResult',
   } as ActionResult<'BypassResult'>)
 
-export type RequestOptions<TQuery, TBody, TUrlParams> = {
-  // The injector in the scope of the current request
+export type RequestActionOptions<T extends { result: unknown }> = {
+  request: IncomingMessage
+  response: ServerResponse
   injector: Injector
-  request: import('http').IncomingMessage
-  response: import('http').ServerResponse
-} & (unknown extends TQuery
-  ? {}
-  : {
-      // Parameters from the Query object (e.g.: ?search=foo => {search: "foo"})
-      getQuery: () => TQuery
-    }) &
-  (unknown extends TBody
-    ? {}
-    : {
-        // The post body type
-        getBody: () => Promise<TBody>
-      }) &
-  (unknown extends TUrlParams
-    ? {}
-    : {
-        // Params from the URL (e.g. /api/collection/:entityId => {entityId: 'someEntityId'})
-        getUrlParams: () => TUrlParams
-      })
+} & (T extends {
+  result: unknown
+  body: infer U
+}
+  ? { getBody: () => Promise<U> }
+  : unknown) &
+  (T extends { result: unknown; url: infer U } ? { getUrlParams: () => U } : unknown) &
+  (T extends { result: unknown; query: infer U } ? { getQuery: () => U } : unknown) &
+  (T extends { result: unknown; headers: infer U } ? { headers: U } : unknown)
 
-export type RequestActionOptions = { result?: any; query?: any; body?: any; urlParams?: any }
-
-/**
- * Interface for a HTTP Request action
- */
-export type RequestAction<TOptions extends RequestActionOptions> = (
-  options: RequestOptions<TOptions['query'], TOptions['body'], TOptions['urlParams']>,
-) => Promise<ActionResult<TOptions['result']>>
+export type RequestAction<T extends { result: unknown }> = (
+  options: RequestActionOptions<T>,
+) => Promise<ActionResult<T['result']>>

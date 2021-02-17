@@ -1,6 +1,6 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "3.1.26",
+  "version": "3.1.27",
   "description": "MongoDB Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,18 +29,18 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^9.1.21",
-    "@furystack/inject": "^4.0.49",
-    "@furystack/logging": "^2.0.56",
-    "@furystack/utils": "^1.2.19",
-    "@types/mongodb": "^3.6.6",
+    "@furystack/core": "^9.1.22",
+    "@furystack/inject": "^4.0.50",
+    "@furystack/logging": "^2.0.57",
+    "@furystack/utils": "^1.2.20",
+    "@types/mongodb": "^3.6.7",
     "mongodb": "^3.6.4",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.25",
+    "@types/node": "^14.14.28",
     "@types/uuid": "^8.0.0",
     "got": "^11.8.1",
     "uuid": "^8.3.2"

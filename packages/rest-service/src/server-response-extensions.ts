@@ -1,5 +1,5 @@
 import http from 'http'
-import { ActionResult } from '@furystack/rest'
+import { ActionResult } from './request-action-implementation'
 
 export interface SendJsonOptions<T> {
   statusCode?: number

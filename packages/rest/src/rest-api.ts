@@ -1,8 +1,7 @@
-import { methods } from './methods'
-import { RequestAction } from './request-action'
+import { Method } from './methods'
 
 export type RestApi = {
-  [M in typeof methods[number]]?: {
-    [R: string]: RequestAction<any>
+  [TMethod in Method]?: {
+    [TUrl: string]: { result: unknown; url?: unknown; query?: unknown; body?: unknown; headers?: unknown }
   }
 }

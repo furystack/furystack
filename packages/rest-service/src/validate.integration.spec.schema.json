@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ValidateBody": {
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
+          "type": "object"
+        },
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        }
+      },
+      "required": [
+        "body",
+        "result"
+      ],
+      "type": "object"
+    },
+    "ValidateHeaders": {
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
+          "type": "object"
+        },
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        }
+      },
+      "required": [
+        "headers",
+        "result"
+      ],
+      "type": "object"
+    },
+    "ValidateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
+          "type": "object"
+        },
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        }
+      },
+      "required": [
+        "query",
+        "result"
+      ],
+      "type": "object"
+    },
+    "ValidateUrl": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "url": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "url",
+        "result"
+      ],
+      "type": "object"
+    }
+  }
+}
