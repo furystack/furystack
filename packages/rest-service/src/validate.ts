@@ -19,6 +19,7 @@ export const Validate = <
     if (definition.required && definition.required.includes('result')) {
       definition.required = definition.required.filter((value: any) => value !== 'result')
     }
+    definition.additionalProperties = true
     if (definition.properties?.headers) {
       definition.properties.headers.additionalProperties = true
     }
@@ -27,8 +28,33 @@ export const Validate = <
   const validator = new SchemaValidator(schema, { coerceTypes: true })
 
   return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
-    const { query, body, url, headers } = args as any
-    validator.isValid({ query, body, url, headers }, { schemaName: validationOptions.schemaName })
-    return await action(args)
+    const anyArgs = args as any
+    let body!: any
+    const { headers } = anyArgs
+    const query = anyArgs.getQuery?.()
+    const url = anyArgs.getUrlParams?.()
+    try {
+      body = await anyArgs.getBody?.()
+    } catch (error) {
+      // ignore
+    }
+    validator.isValid(
+      {
+        ...(query ? { query } : {}),
+        ...(body ? { body } : {}),
+        ...(url ? { url } : {}),
+        ...(headers ? { headers } : {}),
+      },
+      { schemaName: validationOptions.schemaName },
+    )
+    return await action({
+      request: args.request,
+      response: args.response,
+      injector: args.injector,
+      headers,
+      getQuery: () => query,
+      getUrlParams: () => url,
+      getBody: () => Promise.resolve(body),
+    } as any)
   }
 }
