@@ -8,7 +8,7 @@ export type GetEntityEndpoint<T> = {
     /**
      * The list of fields to select
      */
-    select: FindOptions<T, Array<keyof T>>['select']
+    select?: FindOptions<T, Array<keyof T>>['select']
   }
   url: {
     /**
