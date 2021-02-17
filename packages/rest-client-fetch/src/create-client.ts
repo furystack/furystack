@@ -1,4 +1,4 @@
-import { RestApi } from '@furystack/rest'
+import { RestApi, serializeToQueryString } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 import { compile } from 'path-to-regexp'
@@ -46,14 +46,9 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     const urlToSend =
       (url ? compile(options.action as string)(url) : options.action) +
       (query
-        ? `?${Object.keys(query)
-            .map(
-              (key) =>
-                `${key}=${
-                  clientOptions.serializeQueryParams ? clientOptions.serializeQueryParams(query[key]) : query[key]
-                }`,
-            )
-            .join('&')}`
+        ? clientOptions.serializeQueryParams
+          ? clientOptions.serializeQueryParams(query)
+          : `?${serializeToQueryString(query)}`
         : '')
 
     const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string), {
