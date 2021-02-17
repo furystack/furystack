@@ -1,4 +1,4 @@
-import { RequestAction, JsonResult } from '@furystack/rest'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Action that returns if the current user is authenticated

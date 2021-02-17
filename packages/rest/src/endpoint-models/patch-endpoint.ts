@@ -1,10 +1,8 @@
-import { RequestAction } from '../request-action'
-
 /**
  * Endpoint model for updating entities
  */
-export type PatchEndpoint<T> = RequestAction<{
+export type PatchEndpoint<T> = {
   body: T
-  urlParams: { id: T[keyof T] }
+  url: { id: T[keyof T] }
   result: {}
-}>
+}

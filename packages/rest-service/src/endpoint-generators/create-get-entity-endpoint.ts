@@ -1,6 +1,7 @@
 import { Constructable } from '@furystack/inject'
-import { JsonResult, RequestError, GetEntityEndpoint } from '@furystack/rest'
+import { RequestError, GetEntityEndpoint } from '@furystack/rest'
 import '@furystack/repository'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Creates a simple Get Entity endpoint for a specified model.
@@ -10,7 +11,7 @@ import '@furystack/repository'
  * @returns The generated endpoint
  */
 export const createGetEntityEndpoint = <T>(options: { model: Constructable<T> }) => {
-  const endpoint: GetEntityEndpoint<T> = async ({ injector, getUrlParams, getQuery }) => {
+  const endpoint: RequestAction<GetEntityEndpoint<T>> = async ({ injector, getUrlParams, getQuery }) => {
     const { id } = getUrlParams()
     const { select } = getQuery()
     const dataSet = injector.getDataSetFor(options.model)

@@ -2,10 +2,10 @@ import { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from './http-user-context'
-import { EmptyResult } from '@furystack/rest'
 import { Authenticate } from './authenticate'
 import { ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
+import { EmptyResult } from './request-action-implementation'
 
 describe('Authenticate', () => {
   const response = ({} as any) as ServerResponse

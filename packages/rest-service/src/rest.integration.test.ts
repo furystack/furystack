@@ -1,27 +1,28 @@
 import { Injector } from '@furystack/inject'
-import { JsonResult, RequestAction, RestApi } from '@furystack/rest'
+import { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
+import { JsonResult } from './request-action-implementation'
 import { v4 } from 'uuid'
 import './injector-extensions'
 
 export interface EchoApi extends RestApi {
   GET: {
-    '/plain': RequestAction<{}>
-    '/headers': RequestAction<{ headers: { value?: string }; result: { headers: { value?: string } } }>
-    '/urlParams/:id': RequestAction<{ urlParams: { id: string }; result: { urlParams: { id: string } } }>
-    '/query': RequestAction<{
+    '/plain': { result: unknown }
+    '/headers': { headers: { value?: string }; result: { headers: { value?: string } } }
+    '/urlParams/:id': { url: { id: string }; result: { url: { id: string } } }
+    '/query': {
       query: { someObject: { foo: string } }
       result: { query: { someObject: { foo: string } } }
-    }>
+    }
   }
   POST: {
-    '/body': RequestAction<{ body: { foo: string; bar: number }; result: { body: { foo: string; bar: number } } }>
+    '/body': { body: { foo: string; bar: number }; result: { body: { foo: string; bar: number } } }
   }
 }
 
 const createEchoApiServer = async () => {
-  const port = Math.round(Math.random() * 10000) + 1000
+  const port = Math.round(Math.random() * 1000) + 10000
   const root = '/api'
   const injector = new Injector()
   await injector.useRestService<EchoApi>({
@@ -32,7 +33,7 @@ const createEchoApiServer = async () => {
         '/plain': async () => JsonResult({}),
         '/headers': async ({ headers }) => JsonResult({ headers }),
         '/query': async ({ getQuery }) => JsonResult({ query: getQuery() }),
-        '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ urlParams: getUrlParams() }),
+        '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ url: getUrlParams() }),
       },
       POST: {
         '/body': async ({ getBody }) => JsonResult({ body: await getBody() }),
@@ -105,7 +106,7 @@ describe('REST Integration tests with GOT client', () => {
         },
       })
       expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().urlParams.id).toEqual(value)
+      expect(result.getJson().url.id).toEqual(value)
     })
   })
 })

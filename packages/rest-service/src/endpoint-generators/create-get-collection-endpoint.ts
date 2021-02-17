@@ -1,6 +1,7 @@
 import { Constructable } from '@furystack/inject'
-import { JsonResult, GetCollectionEndpoint } from '@furystack/rest'
+import { GetCollectionEndpoint } from '@furystack/rest'
 import '@furystack/repository'
+import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
  * Creates a GetCollection endpoint for the given model. The model should have a Repository DataSet
@@ -10,7 +11,7 @@ import '@furystack/repository'
  * @returns The created endpoint
  */
 export const createGetCollectionEndpoint = <T>(options: { model: Constructable<T> }) => {
-  const endpoint: GetCollectionEndpoint<T> = async ({ injector, getQuery }) => {
+  const endpoint: RequestAction<GetCollectionEndpoint<T>> = async ({ injector, getQuery }) => {
     const { findOptions } = getQuery()
     const dataSet = injector.getDataSetFor(options.model)
     const entriesPromise = dataSet.find<any>(injector, findOptions || {})
