@@ -137,6 +137,7 @@ export class HttpUserContext {
     const sessionId = v1()
     await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
+    this.user = user
     return user
   }
 
@@ -145,6 +146,7 @@ export class HttpUserContext {
     if (sessionId) {
       await this.getSessionStore().remove(sessionId)
       response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
+      this.user = undefined
     }
   }
 
