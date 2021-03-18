@@ -35,10 +35,10 @@
     "@furystack/rest-service": "^3.1.0",
     "@furystack/utils": "^1.2.24",
     "tslib": "^2.1.0",
-    "ws": "^7.4.3"
+    "ws": "^7.4.4"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^26.0.21",
     "@types/ws": "^7.4.0"
   },
   "typings": "./dist/index.d.ts",
