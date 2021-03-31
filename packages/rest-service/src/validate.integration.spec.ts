@@ -118,7 +118,7 @@ describe('Validation integration tests', () => {
             expect(error.response?.statusCode).toBe(400)
             const responseJson = JSON.parse(error.response?.body as string)
             expect(responseJson.errors[0].params.type).toEqual('number')
-            expect(responseJson.errors[0].dataPath).toEqual('/url/id')
+            expect(responseJson.errors[0].instancePath).toEqual('/url/id')
           }
         }
       })

@@ -36,7 +36,7 @@
     "tslib": "^2.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.21",
+    "@types/jest": "^26.0.22",
     "@types/redis": "^2.8.28",
     "@types/uuid": "^8.0.0",
     "uuid": "^8.3.2"
