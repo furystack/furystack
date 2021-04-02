@@ -14,10 +14,8 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Storage",
+    "MongoDB"
   ],
   "publishConfig": {
     "access": "public"
