@@ -15,7 +15,6 @@ export class TestEntry {
 }
 
 myInjector
-  .useLogging(ConsoleLogger)
   .setupStores(sm => {
     sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
 
