@@ -33,7 +33,7 @@
     "@furystack/inject": "^4.0.55",
     "@furystack/utils": "^1.2.25",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.1.0"
+    "tslib": "^2.2.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.22",

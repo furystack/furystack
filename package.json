@@ -8,10 +8,10 @@
     "nohoist": []
   },
   "devDependencies": {
-    "@types/jsdom": "^16.2.9",
-    "@typescript-eslint/eslint-plugin": "^4.20.0",
-    "@typescript-eslint/parser": "^4.20.0",
-    "ajv": "^8.0.2",
+    "@types/jsdom": "^16.2.10",
+    "@typescript-eslint/eslint-plugin": "^4.21.0",
+    "@typescript-eslint/parser": "^4.21.0",
+    "ajv": "^8.0.5",
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-jsdoc": "^32.3.0",
@@ -24,9 +24,9 @@
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-json-schema-generator": "^0.89.1",
-    "tslib": "^2.1.0",
-    "typescript": "^4.2.3"
+    "ts-json-schema-generator": "^0.89.2",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
   },
   "scripts": {
     "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags --force-publish",

@@ -33,10 +33,10 @@
     "@furystack/inject": "^4.0.55",
     "@furystack/logging": "^2.0.62",
     "@furystack/utils": "^1.2.25",
-    "@types/mongodb": "^3.6.11",
-    "mongodb": "^3.6.5",
+    "@types/mongodb": "^3.6.12",
+    "mongodb": "^3.6.6",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.1.0"
+    "tslib": "^2.2.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.22",
