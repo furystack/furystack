@@ -47,6 +47,6 @@ services:
     image: "redis"
     network_mode: service:db
     ports:
-      6379:6379
+       - 6379:6379
 volumes:
   mongodb-data:
