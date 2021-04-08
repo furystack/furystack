@@ -56,14 +56,24 @@ jobs:
         displayName: 'Build'
 
       - task: DockerCompose@0
-        displayName: Start services from docker-compose
+        displayName: Start MongoDB from docker-compose
         inputs:
           action: Run services
           dockerComposeFile: '$(System.DefaultWorkingDirectory)/.devcontainer/docker-compose.yml'
           projectName: $(Build.Repository.Name)
           detached: true
-          buildImages: true
-          serviceName: db redis
+          buildImages: false
+          serviceName: db
+
+      - task: DockerCompose@0
+        displayName: Start Redis from docker-compose
+        inputs:
+          action: Run services
+          dockerComposeFile: '$(System.DefaultWorkingDirectory)/.devcontainer/docker-compose.yml'
+          projectName: $(Build.Repository.Name)
+          detached: true
+          buildImages: false
+          serviceName: redis
 
 
       - script: yarn test
