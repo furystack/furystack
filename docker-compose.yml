@@ -4,7 +4,7 @@ services:
   app:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./.devcontainer/Dockerfile
       args:
         # [Choice] Node.js version: 14, 12, 10
         VARIANT: 14
@@ -13,7 +13,7 @@ services:
         USER_GID: 1000
 
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -32,8 +32,6 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb-data:/data/db
-    ports:
-      - 27017:27017
 
     # Uncomment to change startup options
     # environment:
@@ -46,7 +44,5 @@ services:
   redis:
     image: "redis"
     network_mode: service:db
-    ports:
-       - 6379:6379
 volumes:
   mongodb-data:

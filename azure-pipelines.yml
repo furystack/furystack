@@ -30,13 +30,8 @@ jobs:
     steps:
 
       - checkout: self
-        fetchDepth: 20
+        fetchDepth: 1
       
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(node_version)
-        displayName: Use Node.js $(node_version)
-
       - task: Cache@2
         inputs:
           key: 'yarn | "$(Agent.OS)" | yarn.lock'
@@ -45,15 +40,6 @@ jobs:
             yarn
           path: $(YARN_CACHE_FOLDER)
         displayName: Cache Yarn packages
-
-      - script: yarn install --fronzen-lockfile
-        displayName: 'Install dependencies'
-
-      - script: yarn lint
-        displayName: 'Lint'
-
-      - script: yarn build
-        displayName: 'Build'
 
       - task: DockerCompose@0
         displayName: Start services from docker-compose
@@ -64,9 +50,15 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: yarn test
-        timeoutInMinutes: 5
-        displayName: 'Yarn test'
+      - script: docker-compose exec app yarn lint
+        displayName: 'Lint'
+
+      # - script: yarn build
+      #   displayName: 'Build'
+
+      # - script: yarn test
+      #   timeoutInMinutes: 5
+      #   displayName: 'Yarn test'
 
       - script: bash <(curl -s https://codecov.io/bash)
         displayName: 'Publish test results to Codecov'
@@ -84,6 +76,7 @@ jobs:
         inputs:
           testRunner: JUnit
           testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+
   - deployment: deploy
     displayName: Deploy packages to NPM
     dependsOn: buildAndTest
@@ -111,12 +104,12 @@ jobs:
                   yarn
                 path: $(YARN_CACHE_FOLDER)
               displayName: Cache Yarn packages
-            - script: yarn install --frozen-lockfile
-              displayName: 'Install'
-            - script: yarn lint
-              displayName: 'Lint'
-            - script: yarn build
-              displayName: 'Build'
+            # - script: yarn install --frozen-lockfile
+            #   displayName: 'Install'
+            # - script: yarn lint
+            #   displayName: 'Lint'
+            # - script: yarn build
+            #   displayName: 'Build'
             - task: DockerCompose@0
               displayName: Start services from docker-compose
               inputs:
@@ -125,8 +118,8 @@ jobs:
                 projectName: $(Build.Repository.Name)
                 detached: true
                 buildImages: true
-            - script: yarn test
-              displayName: 'Run Tests'
+            # - script: yarn test
+            #   displayName: 'Run Tests'
             - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
               displayName: Publish packages to NPM
               env:
