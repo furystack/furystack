@@ -54,7 +54,7 @@ jobs:
           action: Run a specific service
           serviceName: app
           detached: false
-          entrypoint: yarn lint
+          containerCommand: yarn lint
 
       # - script: docker-compose exec app yarn lint
       #   displayName: 'Lint'
