@@ -45,13 +45,19 @@ jobs:
         displayName: Start services from docker-compose
         inputs:
           action: Run services
-          dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
-          projectName: $(Build.Repository.Name)
           detached: true
           buildImages: true
 
-      - script: docker-compose exec app yarn lint
-        displayName: 'Lint'
+      - task: DockerCompose@0
+        displayName: Run a specific service
+        inputs:
+          action: Run a specific service
+          serviceName: app
+          detached: false
+          entrypoint: yarn lint
+
+      # - script: docker-compose exec app yarn lint
+      #   displayName: 'Lint'
 
       # - script: yarn build
       #   displayName: 'Build'
