@@ -42,30 +42,14 @@ jobs:
         displayName: Cache Yarn packages
 
       - task: DockerCompose@0
-        displayName: Start MongoDB
+        displayName: Start services from docker-compose
         inputs:
-          action: Run a specific service
-          serviceName: db
+          action: Run services
           detached: true
-
-      - task: DockerCompose@0
-        displayName: Start Redis
-        inputs:
-          action: Run a specific service
-          serviceName: redis
-          detached: true
-
-      - task: DockerCompose@0
-        displayName: Run a specific service
-        inputs:
-          action: Run a specific service
-          serviceName: app
-          detached: false
           buildImages: true
-          entryPoint: yarn lint
 
-      # - script: docker-compose exec app yarn lint
-      #   displayName: 'Lint'
+      - script: docker-compose exec app yarn lint
+        displayName: 'Lint'
 
       # - script: yarn build
       #   displayName: 'Build'
