@@ -48,8 +48,17 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 readlink -f . && ls &&  yarn lint
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn install
+        displayName: 'Install'
+
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn lint
         displayName: 'Lint'
+
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn build
+        displayName: 'Build'
+
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn test
+        displayName: 'Test'
 
       # - script: yarn build
       #   displayName: 'Build'
