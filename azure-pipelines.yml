@@ -48,7 +48,7 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker-compose exec app yarn lint
+      - script: docker exec furystackfurystack_app_1 yarn lint
         displayName: 'Lint'
 
       # - script: yarn build
