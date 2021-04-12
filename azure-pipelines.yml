@@ -48,24 +48,17 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn install
+      - script: docker exec furystackfurystack_app_1 yarn install
         displayName: 'Install'
 
-      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn lint
+      - script: docker exec furystackfurystack_app_1 yarn lint
         displayName: 'Lint'
 
-      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn build
+      - script: docker exec furystackfurystack_app_1 yarn build
         displayName: 'Build'
 
-      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn test
+      - script: docker exec furystackfurystack_app_1 docker container ls -a && yarn test
         displayName: 'Test'
-
-      # - script: yarn build
-      #   displayName: 'Build'
-
-      # - script: yarn test
-      #   timeoutInMinutes: 5
-      #   displayName: 'Yarn test'
 
       - script: bash <(curl -s https://codecov.io/bash)
         displayName: 'Publish test results to Codecov'
