@@ -18,7 +18,7 @@ describe('ValidateSchema', () => {
         expect(error).toBeInstanceOf(SchemaValidationError)
         const { errors } = error as SchemaValidationError
         expect(errors).toHaveLength(1)
-        expect(errors[0].message).toEqual('should be equal to one of the allowed values')
+        expect(errors[0].message).toEqual('must be equal to one of the allowed values')
       }
     })
   })
@@ -31,7 +31,7 @@ describe('ValidateSchema', () => {
         expect(error).toBeInstanceOf(SchemaValidationError)
         const { errors } = error as SchemaValidationError
         expect(errors).toHaveLength(1)
-        expect(errors[0].message).toEqual('should be object')
+        expect(errors[0].message).toEqual('must be object')
       }
     })
 
@@ -45,7 +45,7 @@ describe('ValidateSchema', () => {
         expect(error).toBeInstanceOf(SchemaValidationError)
         const { errors } = error as SchemaValidationError
         expect(errors).toHaveLength(1)
-        expect(errors[0].message).toEqual('should NOT have additional properties')
+        expect(errors[0].message).toEqual('must NOT have additional properties')
       }
     })
 
