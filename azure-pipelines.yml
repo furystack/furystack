@@ -48,16 +48,16 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 yarn install
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn install
         displayName: 'Install'
 
-      - script: docker exec furystackfurystack_app_1 yarn lint
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn lint
         displayName: 'Lint'
 
-      - script: docker exec furystackfurystack_app_1 yarn build
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && yarn build
         displayName: 'Build'
 
-      - script: docker exec furystackfurystack_app_1 docker container ls -a && yarn test
+      - script: docker exec furystackfurystack_app_1 readlink -f . && ls && docker container ls -a && yarn test
         displayName: 'Test'
 
       - script: bash <(curl -s https://codecov.io/bash)
@@ -104,12 +104,12 @@ jobs:
                   yarn
                 path: $(YARN_CACHE_FOLDER)
               displayName: Cache Yarn packages
-            # - script: yarn install --frozen-lockfile
-            #   displayName: 'Install'
-            # - script: yarn lint
-            #   displayName: 'Lint'
-            # - script: yarn build
-            #   displayName: 'Build'
+            - script: yarn install --frozen-lockfile
+              displayName: 'Install'
+            - script: yarn lint
+              displayName: 'Lint'
+            - script: yarn build
+              displayName: 'Build'
             - task: DockerCompose@0
               displayName: Start services from docker-compose
               inputs:
@@ -118,8 +118,8 @@ jobs:
                 projectName: $(Build.Repository.Name)
                 detached: true
                 buildImages: true
-            # - script: yarn test
-            #   displayName: 'Run Tests'
+            - script: yarn test
+              displayName: 'Run Tests'
             - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
               displayName: Publish packages to NPM
               env:
