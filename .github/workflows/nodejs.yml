@@ -13,13 +13,13 @@ jobs:
       - name: Build the docker-compose stack
         run: docker-compose up -d     
       - name: Install dependencies
-        run: docker-compose exec app yarn install
+        run: docker-compose exec -T app yarn install
       - name: Lint
-        run: docker-compose exec app yarn lint
+        run: docker-compose exec -T app yarn lint
       - name: Build
-        run: docker-compose exec app yarn build
+        run: docker-compose exec -T app yarn build
       - name: Test
-        run: docker-compose exec app yarn test
+        run: docker-compose exec -T app yarn test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
