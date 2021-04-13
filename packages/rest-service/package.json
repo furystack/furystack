@@ -37,12 +37,12 @@
     "@furystack/repository": "^4.0.17",
     "@furystack/rest": "^2.0.5",
     "@furystack/utils": "^1.2.25",
-    "ajv": "^8.0.2",
-    "ajv-formats": "^2.0.1",
+    "ajv": "^8.1.0",
+    "ajv-formats": "^2.0.2",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.1.0",
+    "tslib": "^2.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
