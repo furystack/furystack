@@ -13,13 +13,13 @@ jobs:
       - name: Build the docker-compose stack
         run: docker-compose up -d     
       - name: Install dependencies
-        run: docker exec furystackfurystack_app_1 yarn install
+        run: docker-compose exec app yarn install
       - name: Lint
-        run: docker exec furystackfurystack_app_1 yarn lint
+        run: docker-compose exec app yarn lint
       - name: Build
-        run: docker exec furystackfurystack_app_1 yarn build
+        run: docker-compose exec app yarn build
       - name: Test
-        run: docker exec furystackfurystack_app_1 yarn test
+        run: docker-compose exec app yarn test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
