@@ -10,6 +10,11 @@ FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 #     && apt-get install -y mongodb-org-tools mongodb-org-shell \
 #     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
+RUN apt update && apt install -y git-flow
+
+RUN git flow init -d --feature feature/  --bugfix bugfix/ --release release/ --hotfix hotfix/ --support support/ -t ''
+
+
 # Update args in docker-compose.yaml to set the UID/GID of the "node" user.
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
