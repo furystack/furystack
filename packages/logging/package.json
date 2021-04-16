@@ -31,7 +31,7 @@
   "dependencies": {
     "@furystack/inject": "^4.0.55",
     "@furystack/utils": "^1.2.25",
-    "tslib": "^2.1.0"
+    "tslib": "^2.2.0"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
