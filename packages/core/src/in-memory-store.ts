@@ -94,10 +94,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   }
 
   public async find<TFields extends Array<keyof T>>(searchOptions: FindOptions<T, TFields>) {
-    let value: Array<PartialResult<T, TFields[number]>> = this.filterInternal(
-      [...this.cache.values()],
-      searchOptions.filter,
-    )
+    let value: Array<PartialResult<T, TFields>> = this.filterInternal([...this.cache.values()], searchOptions.filter)
 
     if (searchOptions.order) {
       for (const fieldName of Object.keys(searchOptions.order) as Array<keyof T>) {

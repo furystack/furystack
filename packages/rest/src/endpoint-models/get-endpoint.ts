@@ -1,4 +1,4 @@
-import { PartialResult, FindOptions } from '@furystack/core'
+import { PartialResult } from '@furystack/core'
 
 /**
  * Endpoint model for getting a single entity
@@ -8,7 +8,7 @@ export type GetEntityEndpoint<T> = {
     /**
      * The list of fields to select
      */
-    select?: FindOptions<T, Array<keyof T>>['select']
+    select?: Array<keyof T>
   }
   url: {
     /**
@@ -16,5 +16,5 @@ export type GetEntityEndpoint<T> = {
      */
     id: T[keyof T]
   }
-  result: PartialResult<T, any>
+  result: PartialResult<T, Array<keyof T>>
 }

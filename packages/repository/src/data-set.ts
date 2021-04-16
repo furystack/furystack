@@ -126,7 +126,7 @@ export class DataSet<T> implements Disposable {
   public async find<TFields extends Array<keyof T>>(
     injector: Injector,
     filter: FindOptions<T, TFields>,
-  ): Promise<Array<PartialResult<T, TFields[number]>>> {
+  ): Promise<Array<PartialResult<T, TFields>>> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {

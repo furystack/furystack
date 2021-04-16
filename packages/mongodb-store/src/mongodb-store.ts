@@ -116,7 +116,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
   }
   public async find<TFields extends Array<keyof T>>(
     filter: FindOptions<T, TFields>,
-  ): Promise<Array<PartialResult<T, TFields[number]>>> {
+  ): Promise<Array<PartialResult<T, TFields>>> {
     const collection = await this.getCollection()
 
     const sort = filter.order

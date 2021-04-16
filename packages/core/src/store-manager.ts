@@ -19,7 +19,7 @@ export class StoreManager implements Disposable {
       throw error
     }
   }
-  private stores: Map<Constructable<any>, PhysicalStore<any>> = new Map()
+  private stores: Map<Constructable<unknown>, PhysicalStore<unknown>> = new Map()
 
   /**
    * Returns a store model for a constructable object.
@@ -44,7 +44,7 @@ export class StoreManager implements Disposable {
    * @returns the StoreManager instance for chaining
    */
   public addStore<T>(store: PhysicalStore<T>) {
-    this.stores.set(store.model, store)
+    this.stores.set(store.model, store as PhysicalStore<unknown>)
     return this
   }
 
