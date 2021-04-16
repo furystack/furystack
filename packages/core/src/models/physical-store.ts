@@ -68,10 +68,10 @@ export interface FindOptions<T, TSelect extends Array<keyof T>> {
   filter?: FilterType<T>
 }
 
-export type PartialResult<T, TFields extends keyof T> = { [K in TFields]: T[K] }
+export type PartialResult<T, TFields extends Array<keyof T>> = { [K in TFields[number]]: T[K] }
 
 export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
-  const returnValue: PartialResult<T, TField[number]> = {} as any
+  const returnValue = {} as PartialResult<T, TField>
   Object.keys(entry).map((key) => {
     const field: TField[number] = key as TField[number]
     if (fields.includes(field)) {
@@ -120,9 +120,7 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param searchOptions An options object for the Search expression
    */
-  find<TSelect extends Array<keyof T>>(
-    findOptions: FindOptions<T, TSelect>,
-  ): Promise<Array<PartialResult<T, TSelect[number]>>>
+  find<TSelect extends Array<keyof T>>(findOptions: FindOptions<T, TSelect>): Promise<Array<PartialResult<T, TSelect>>>
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined
@@ -132,7 +130,7 @@ export interface PhysicalStore<T> extends Disposable {
   get<TSelect extends Array<keyof T>>(
     key: T[this['primaryKey']],
     select?: TSelect,
-  ): Promise<PartialResult<T, TSelect[number]> | undefined>
+  ): Promise<PartialResult<T, TSelect> | undefined>
 
   /**
    * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
