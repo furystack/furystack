@@ -17,7 +17,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-
 jobs:
   - job: buildAndTest
     strategy:
@@ -117,7 +116,7 @@ jobs:
                 dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
                 projectName: $(Build.Repository.Name)
                 detached: true
-                buildImages: true
+                buildImages: false
             - script: yarn test
               displayName: 'Run Tests'
             - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
