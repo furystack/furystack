@@ -100,7 +100,7 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposabl
    *
    * @param entries The data to be added
    */
-  add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>>
+  add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
@@ -108,7 +108,7 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposabl
    * @param id The primary key of the entry
    * @param data The data to be updated
    */
-  update(id: T[this['primaryKey']], data: Partial<T>): Promise<void>
+  update(id: T[TPrimaryKey], data: Partial<T>): Promise<void>
 
   /**
    * Returns a promise that will be resolved with the count of the elements
@@ -128,7 +128,7 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposabl
    * @param key The primary key of the entry
    */
   get<TSelect extends Array<keyof T>>(
-    key: T[this['primaryKey']],
+    key: T[TPrimaryKey],
     select?: TSelect,
   ): Promise<PartialResult<T, TSelect> | undefined>
 
@@ -137,5 +137,5 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposabl
    *
    * @param key The primary key of the entry to remove
    */
-  remove(...keys: Array<T[this['primaryKey']]>): Promise<void>
+  remove(...keys: Array<T[TPrimaryKey]>): Promise<void>
 }

@@ -26,7 +26,7 @@ export class StoreManager implements Disposable {
    * Throws error if no store is registered
    *
    * @param model The Constructable object
-   * @param _primaryKey The Primary Key field
+   * @param primaryKey The Primary Key field
    * @throws if the Store is not registered
    * @returns a Store object
    */
@@ -34,10 +34,13 @@ export class StoreManager implements Disposable {
     T,
     TPrimaryKey extends keyof T,
     TType extends PhysicalStore<T, TPrimaryKey> = PhysicalStore<T, TPrimaryKey>
-  >(model: Constructable<T>, _primaryKey: TPrimaryKey) {
+  >(model: Constructable<T>, primaryKey: TPrimaryKey) {
     const instance = this.stores.get(model)
     if (!instance) {
       throw Error(`Store not found for '${model.name}'`)
+    }
+    if (primaryKey !== instance.primaryKey) {
+      throw Error('Primary keys not match')
     }
     return instance as TType
   }

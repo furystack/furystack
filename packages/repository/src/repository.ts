@@ -14,14 +14,17 @@ export class Repository implements Disposable {
     this.dataSets.clear()
   }
 
-  private dataSets: Map<any, DataSet<any>> = new Map()
+  private dataSets: Map<any, DataSet<any, any>> = new Map()
 
-  public getDataSetFor<T>(model: Constructable<T>) {
+  public getDataSetFor<T, TPrimaryKey extends keyof T>(model: Constructable<T>, primaryKey: TPrimaryKey) {
     const instance = this.dataSets.get(model)
     if (!instance) {
       throw Error(`No DataSet found for '${model}'`)
     }
-    return instance as DataSet<T>
+    if (instance.primaryKey !== primaryKey) {
+      throw Error('Primary key mismatch')
+    }
+    return instance as DataSet<T, TPrimaryKey>
   }
   public createDataSet<T, TPrimaryKey extends keyof T>(
     model: Constructable<T>,

@@ -19,7 +19,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     return this.inMemoryStore.cache
   }
 
-  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
+  public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     await this.fileLock.execute(async () => {
       await this.inMemoryStore.remove(...keys)
     })
@@ -28,13 +28,13 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
 
   public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
   public hasChanges = false
-  public async get(key: T[this['primaryKey']], select?: Array<keyof T>) {
+  public async get(key: T[TPrimaryKey], select?: Array<keyof T>) {
     return await this.fileLock.execute(async () => {
       return await this.inMemoryStore.get(key, select)
     })
   }
 
-  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>) {
+  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>) {
     const result = await this.fileLock.execute(async () => {
       return await this.inMemoryStore.add(...entries)
     })
@@ -97,7 +97,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     }
   }
 
-  public async update(id: T[this['primaryKey']], data: T) {
+  public async update(id: T[TPrimaryKey], data: T) {
     await this.fileLock.execute(async () => {
       return this.inMemoryStore.update(id, data)
     })

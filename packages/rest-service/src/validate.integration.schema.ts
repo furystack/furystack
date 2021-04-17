@@ -35,16 +35,16 @@ export interface ValidationApi extends RestApi {
     '/validate-url/:id': ValidateUrl
     '/validate-headers': ValidateHeaders
     '/mock': GetCollectionEndpoint<Mock>
-    '/mock/:id': GetEntityEndpoint<Mock>
+    '/mock/:id': GetEntityEndpoint<Mock, 'id'>
   }
   POST: {
     '/validate-body': ValidateBody
     '/mock': PostEndpoint<Mock, 'id'>
   }
   PATCH: {
-    '/mock/:id': PatchEndpoint<Mock>
+    '/mock/:id': PatchEndpoint<Mock, 'id'>
   }
   DELETE: {
-    '/mock/:id': DeleteEndpoint<Mock>
+    '/mock/:id': DeleteEndpoint<Mock, 'id'>
   }
 }

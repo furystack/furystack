@@ -1,7 +1,7 @@
 /**
  * Endpoint model for getting a single entity
  */
-export type GetEntityEndpoint<T> = {
+export type GetEntityEndpoint<T, TPrimaryKey extends keyof T> = {
   query: {
     /**
      * The list of fields to select
@@ -12,7 +12,7 @@ export type GetEntityEndpoint<T> = {
     /**
      * The entity's unique identifier
      */
-    id: T[keyof T]
+    id: T[TPrimaryKey]
   }
   result: T
 }

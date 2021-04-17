@@ -14,7 +14,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   private initLock = new Semaphore(1)
   private collection?: Collection<T>
 
-  private createIdFilter(...values: Array<T[this['primaryKey']]>): FilterQuery<T> {
+  private createIdFilter(...values: Array<T[TPrimaryKey]>): FilterQuery<T> {
     return {
       [this.primaryKey]: {
         $in: this.primaryKey === '_id' ? values.map((value) => new ObjectId(value as any)) : values,
@@ -90,7 +90,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
-  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
+  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
     const result = await collection.insertMany(entries.map((e) => (({ ...e } as any) as OptionalId<T>)))
     return {
@@ -103,7 +103,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
             }) as any) as T[]),
     }
   }
-  public async update(id: T[this['primaryKey']], data: Partial<T>): Promise<void> {
+  public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data })
     if (updateResult.matchedCount < 1) {
@@ -145,7 +145,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     }
   }
 
-  public async get(key: T[this['primaryKey']], select?: Array<keyof T>): Promise<T | undefined> {
+  public async get(key: T[TPrimaryKey], select?: Array<keyof T>): Promise<T | undefined> {
     const collection = await this.getCollection()
     const projection = this.getProjection(select)
     const result = await collection.findOne(this.createIdFilter(key), {
@@ -153,7 +153,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     })
     return result ? this.stringifyResultId(result) : undefined
   }
-  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
+  public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const collection = await this.getCollection()
     await collection.deleteMany(this.createIdFilter(...keys))
   }

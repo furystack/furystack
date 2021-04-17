@@ -14,7 +14,7 @@ import { Disposable, ObservableValue } from '@furystack/utils'
  * An authorized Repository Store instance
  */
 @Injectable({ lifetime: 'transient' })
-export class DataSet<T> implements Disposable {
+export class DataSet<T, TPrimaryKey extends keyof T> implements Disposable {
   public dispose() {
     this.onEntityAdded.dispose()
     this.onEntityRemoved.dispose()
@@ -24,7 +24,7 @@ export class DataSet<T> implements Disposable {
   /**
    * Primary key of the contained entity
    */
-  public primaryKey: keyof T = this.settings.physicalStore.primaryKey
+  public primaryKey: TPrimaryKey = this.settings.physicalStore.primaryKey
 
   /**
    * Adds an entity to the DataSet
@@ -35,7 +35,7 @@ export class DataSet<T> implements Disposable {
    */
   public async add(
     injector: Injector,
-    ...entities: Array<WithOptionalId<T, this['primaryKey']>>
+    ...entities: Array<WithOptionalId<T, TPrimaryKey>>
   ): Promise<CreateResult<T>> {
     await Promise.all(
       entities.map(async (entity) => {
@@ -71,7 +71,7 @@ export class DataSet<T> implements Disposable {
    * @param id The identifier of the entity
    * @param change The update
    */
-  public async update(injector: Injector, id: T[this['primaryKey']], change: Partial<T>): Promise<void> {
+  public async update(injector: Injector, id: T[TPrimaryKey], change: Partial<T>): Promise<void> {
     if (this.settings.authorizeUpdate) {
       const result = await this.settings.authorizeUpdate({ injector, change })
       if (!result.isAllowed) {
@@ -146,7 +146,7 @@ export class DataSet<T> implements Disposable {
    *
    * @returns An item with the current unique key or Undefined
    */
-  public async get(injector: Injector, key: T[this['primaryKey']], select?: Array<keyof T>) {
+  public async get(injector: Injector, key: T[TPrimaryKey], select?: Array<keyof T>) {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
@@ -170,7 +170,7 @@ export class DataSet<T> implements Disposable {
    * @param key The primary key
    * @returns A promise that will be resolved / rejected based on the remove success
    */
-  public async remove(injector: Injector, key: T[this['primaryKey']]): Promise<void> {
+  public async remove(injector: Injector, key: T[TPrimaryKey]): Promise<void> {
     if (this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
@@ -195,8 +195,8 @@ export class DataSet<T> implements Disposable {
    */
   public readonly onEntityRemoved = new ObservableValue<{
     injector: Injector
-    key: T[keyof T]
+    key: T[TPrimaryKey]
   }>()
 
-  constructor(public readonly settings: DataSetSettings<T, keyof T>) {}
+  constructor(public readonly settings: DataSetSettings<T, TPrimaryKey>) {}
 }
