@@ -68,7 +68,7 @@ export interface FindOptions<T, TSelect extends Array<keyof T>> {
   filter?: FilterType<T>
 }
 
-export type PartialResult<T, TFields extends Array<keyof T>> = { [K in TFields[number]]: T[K] }
+export type PartialResult<T, TFields extends Array<keyof T>> = Pick<T, TFields[number]>
 
 export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
   const returnValue = {} as PartialResult<T, TField>
