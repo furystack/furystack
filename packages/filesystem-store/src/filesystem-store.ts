@@ -1,7 +1,7 @@
 import { FSWatcher, promises, watch } from 'fs'
 import { Constructable } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
-import { InMemoryStore, PhysicalStore, FindOptions, FilterType } from '@furystack/core'
+import { InMemoryStore, PhysicalStore, FindOptions, FilterType, WithOptionalId } from '@furystack/core'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -34,7 +34,7 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
     })
   }
 
-  public async add(...entries: T[]) {
+  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>) {
     const result = await this.fileLock.execute(async () => {
       return await this.inMemoryStore.add(...entries)
     })

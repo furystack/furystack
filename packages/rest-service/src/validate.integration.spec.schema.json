@@ -1,6 +1,485 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "DeleteEndpoint<Mock>": {
+      "additionalProperties": false,
+      "description": "Endpoint model for deleting entities",
+      "properties": {
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "url": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": [
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "url",
+        "result"
+      ],
+      "type": "object"
+    },
+    "FilterType<Mock>": {
+      "additionalProperties": false,
+      "properties": {
+        "$and": {
+          "items": {
+            "$ref": "#/definitions/FilterType%3CMock%3E"
+          },
+          "type": "array"
+        },
+        "$nor": {
+          "items": {
+            "$ref": "#/definitions/FilterType%3CMock%3E"
+          },
+          "type": "array"
+        },
+        "$not": {
+          "items": {
+            "$ref": "#/definitions/FilterType%3CMock%3E"
+          },
+          "type": "array"
+        },
+        "$or": {
+          "items": {
+            "$ref": "#/definitions/FilterType%3CMock%3E"
+          },
+          "type": "array"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$regex": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$eq": {
+                  "type": "string"
+                },
+                "$ne": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$in": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "$nin": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$regex": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$eq": {
+                  "type": "string"
+                },
+                "$ne": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "$in": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "$nin": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "FindOptions<Mock,(\"id\"|\"value\")[]>": {
+      "additionalProperties": false,
+      "description": "Type for default filtering model",
+      "properties": {
+        "filter": {
+          "$ref": "#/definitions/FilterType%3CMock%3E",
+          "description": "The fields should match this filter"
+        },
+        "order": {
+          "additionalProperties": false,
+          "description": "Sets up an order by a field and a direction",
+          "properties": {
+            "id": {
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            },
+            "value": {
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "select": {
+          "description": "The result set will be limited to these fields",
+          "items": {
+            "enum": [
+              "id",
+              "value"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "skip": {
+          "description": "Skips the first N hit",
+          "type": "number"
+        },
+        "top": {
+          "description": "Limits the hits",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "GetCollectionEndpoint<Mock>": {
+      "additionalProperties": false,
+      "description": "Rest endpoint model for getting / querying collections",
+      "properties": {
+        "query": {
+          "additionalProperties": false,
+          "properties": {
+            "findOptions": {
+              "$ref": "#/definitions/FindOptions%3CMock%2C(%22id%22%7C%22value%22)%5B%5D%3E"
+            }
+          },
+          "type": "object"
+        },
+        "result": {
+          "$ref": "#/definitions/GetCollectionResult%3CMock%3E"
+        }
+      },
+      "required": [
+        "query",
+        "result"
+      ],
+      "type": "object"
+    },
+    "GetCollectionResult<Mock>": {
+      "additionalProperties": false,
+      "description": "Response Model for GetCollection",
+      "properties": {
+        "count": {
+          "description": "The Total count of entities",
+          "type": "number"
+        },
+        "entries": {
+          "description": "List of the selected entities",
+          "items": {
+            "$ref": "#/definitions/Mock"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "entries"
+      ],
+      "type": "object"
+    },
+    "GetEntityEndpoint<Mock>": {
+      "additionalProperties": false,
+      "description": "Endpoint model for getting a single entity",
+      "properties": {
+        "query": {
+          "additionalProperties": false,
+          "properties": {
+            "select": {
+              "description": "The list of fields to select",
+              "items": {
+                "enum": [
+                  "id",
+                  "value"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "result": {
+          "$ref": "#/definitions/Mock"
+        },
+        "url": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "The entity's unique identifier",
+              "type": [
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "query",
+        "url",
+        "result"
+      ],
+      "type": "object"
+    },
+    "Mock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "value"
+      ],
+      "type": "object"
+    },
+    "PatchEndpoint<Mock>": {
+      "additionalProperties": false,
+      "description": "Endpoint model for updating entities",
+      "properties": {
+        "body": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "result": {
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "url": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": [
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "body",
+        "url",
+        "result"
+      ],
+      "type": "object"
+    },
+    "PostEndpoint<Mock,\"id\">": {
+      "additionalProperties": false,
+      "description": "Endpoint model for creating new entities",
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E"
+        },
+        "result": {
+          "$ref": "#/definitions/Mock"
+        }
+      },
+      "required": [
+        "body",
+        "result"
+      ],
+      "type": "object"
+    },
+    "RestApi": {
+      "additionalProperties": false,
+      "properties": {
+        "DELETE": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "GET": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "PATCH": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "POST": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "PUT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "ValidateBody": {
       "additionalProperties": false,
       "properties": {
@@ -26,6 +505,22 @@
         },
         "result": {
           "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
           "type": "object"
         }
       },
@@ -60,6 +555,22 @@
         },
         "result": {
           "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
           "type": "object"
         }
       },
@@ -94,6 +605,22 @@
         },
         "result": {
           "additionalProperties": false,
+          "properties": {
+            "bar": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            },
+            "foo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "foo",
+            "bar",
+            "baz"
+          ],
           "type": "object"
         }
       },
@@ -108,6 +635,14 @@
       "properties": {
         "result": {
           "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id"
+          ],
           "type": "object"
         },
         "url": {
@@ -126,6 +661,123 @@
       "required": [
         "url",
         "result"
+      ],
+      "type": "object"
+    },
+    "ValidationApi": {
+      "additionalProperties": false,
+      "properties": {
+        "DELETE": {
+          "additionalProperties": false,
+          "properties": {
+            "/mock/:id": {
+              "$ref": "#/definitions/DeleteEndpoint%3CMock%3E"
+            }
+          },
+          "required": [
+            "/mock/:id"
+          ],
+          "type": "object"
+        },
+        "GET": {
+          "additionalProperties": false,
+          "properties": {
+            "/mock": {
+              "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E"
+            },
+            "/mock/:id": {
+              "$ref": "#/definitions/GetEntityEndpoint%3CMock%3E"
+            },
+            "/validate-headers": {
+              "$ref": "#/definitions/ValidateHeaders"
+            },
+            "/validate-query": {
+              "$ref": "#/definitions/ValidateQuery"
+            },
+            "/validate-url/:id": {
+              "$ref": "#/definitions/ValidateUrl"
+            }
+          },
+          "required": [
+            "/validate-query",
+            "/validate-url/:id",
+            "/validate-headers",
+            "/mock",
+            "/mock/:id"
+          ],
+          "type": "object"
+        },
+        "PATCH": {
+          "additionalProperties": false,
+          "properties": {
+            "/mock/:id": {
+              "$ref": "#/definitions/PatchEndpoint%3CMock%3E"
+            }
+          },
+          "required": [
+            "/mock/:id"
+          ],
+          "type": "object"
+        },
+        "POST": {
+          "additionalProperties": false,
+          "properties": {
+            "/mock": {
+              "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E"
+            },
+            "/validate-body": {
+              "$ref": "#/definitions/ValidateBody"
+            }
+          },
+          "required": [
+            "/validate-body",
+            "/mock"
+          ],
+          "type": "object"
+        },
+        "PUT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+              },
+              "headers": {
+              },
+              "query": {
+              },
+              "result": {
+              },
+              "url": {
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "type": "object"
+    },
+    "WithOptionalId<Mock,\"id\">": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
       ],
       "type": "object"
     }

@@ -1,4 +1,4 @@
-import { PhysicalStore, CreateResult } from '@furystack/core'
+import { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
 import { RedisClient } from 'redis'
 
@@ -20,13 +20,13 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
-  public async add(...entries: T[]): Promise<CreateResult<T>> {
+  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
         return await new Promise<T>((resolve, reject) =>
           this.options.client.set((key as any).toString(), JSON.stringify(entry), (err) => {
-            err ? reject(err) : resolve(entry)
+            err ? reject(err) : resolve(entry as T)
           }),
         )
       }),

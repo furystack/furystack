@@ -8,6 +8,7 @@ import {
   FilterType,
   isOperator,
   CreateResult,
+  WithOptionalId,
 } from './models/physical-store'
 
 export class InMemoryStore<T> implements PhysicalStore<T> {
@@ -19,9 +20,9 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     keys.map((key) => this.cache.delete(key))
   }
 
-  public async add(...entries: T[]): Promise<CreateResult<T>> {
+  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
-      const entry = { ...e }
+      const entry = { ...e } as T
       if (entry[this.primaryKey] === undefined) {
         entry[this.primaryKey] = v4() as any
       }

@@ -92,7 +92,7 @@ export class MongodbStore<T> implements PhysicalStore<T> {
   }
   public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
-    const result = await collection.insertMany(entries.map((e) => ({ ...e })) as Array<OptionalId<T>>)
+    const result = await collection.insertMany(entries.map((e) => (({ ...e } as any) as OptionalId<T>)))
     return {
       created:
         this.primaryKey === '_id'
