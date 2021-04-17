@@ -11,7 +11,7 @@ import {
   WithOptionalId,
 } from './models/physical-store'
 
-export class InMemoryStore<T> implements PhysicalStore<T> {
+export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   /**
    *
    * @param keys The keys to remove from the store
@@ -139,7 +139,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     this.cache.clear()
   }
 
-  public readonly primaryKey: keyof T
+  public readonly primaryKey: TPrimaryKey
   public readonly model: Constructable<T>
 
   /**
@@ -153,7 +153,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     /**
      * The name of the Primary Key property
      */
-    primaryKey: keyof T
+    primaryKey: TPrimaryKey
     /**
      * The model constructor
      */

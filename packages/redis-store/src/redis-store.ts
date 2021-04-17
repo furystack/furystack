@@ -5,7 +5,7 @@ import { RedisClient } from 'redis'
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
+export class RedisStore<T, K extends keyof T> implements PhysicalStore<T, K> {
   public primaryKey!: K
 
   public readonly model: Constructable<T>

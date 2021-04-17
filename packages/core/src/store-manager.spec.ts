@@ -20,7 +20,14 @@ describe('StoreManager', () => {
   it('Should throw if trying to retrieve a non-existing store', () => {
     using(new Injector(), (i) => {
       const sm = i.getInstance(StoreManager)
-      expect(() => sm.getStoreFor(class {})).toThrow()
+      expect(() =>
+        sm.getStoreFor(
+          class {
+            t!: number
+          },
+          't',
+        ),
+      ).toThrow()
     })
   })
 
@@ -35,14 +42,14 @@ describe('StoreManager', () => {
         ),
       )
 
-      expect(i.getInstance(StoreManager).getStoreFor(Test)).toBeInstanceOf(InMemoryStore)
+      expect(i.getInstance(StoreManager).getStoreFor(Test, 'id')).toBeInstanceOf(InMemoryStore)
     })
   })
 
   it('Dispose should throw if failed to dispose one or more store', async () => {
     await usingAsync(new Injector(), async (i) => {
       const sm = i.getInstance(StoreManager)
-      const MockStore = class extends InMemoryStore<any> {
+      const MockStore = class extends InMemoryStore<any, any> {
         public dispose = () => Promise.reject(':(')
       }
 

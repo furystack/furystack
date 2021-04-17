@@ -6,14 +6,14 @@ import { InMemoryStore, PhysicalStore, FindOptions, FilterType, WithOptionalId }
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileSystemStore<T> implements PhysicalStore<T> {
+export class FileSystemStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   private readonly watcher?: FSWatcher
 
   public readonly model: Constructable<T>
 
-  public readonly primaryKey: keyof T
+  public readonly primaryKey: TPrimaryKey
 
-  private readonly inMemoryStore: InMemoryStore<T>
+  private readonly inMemoryStore: InMemoryStore<T, TPrimaryKey>
 
   private get cache() {
     return this.inMemoryStore.cache
@@ -110,7 +110,7 @@ export class FileSystemStore<T> implements PhysicalStore<T> {
   constructor(
     private readonly options: {
       fileName: string
-      primaryKey: keyof T
+      primaryKey: TPrimaryKey
       tickMs?: number
       model: Constructable<T>
     },

@@ -23,9 +23,14 @@ export class Repository implements Disposable {
     }
     return instance as DataSet<T>
   }
-  public createDataSet<T>(model: Constructable<T>, settings?: Partial<DataSetSettings<T, keyof T>>) {
+  public createDataSet<T, TPrimaryKey extends keyof T>(
+    model: Constructable<T>,
+    primaryKey: TPrimaryKey,
+    settings?: Partial<DataSetSettings<T, keyof T>>,
+  ) {
     const physicalStore =
-      (settings && settings.physicalStore) || (this.storeManager.getStoreFor(model) as PhysicalStore<T>)
+      (settings && settings.physicalStore) ||
+      (this.storeManager.getStoreFor(model, primaryKey) as PhysicalStore<T, TPrimaryKey>)
     const instance = new DataSet({
       ...settings,
       physicalStore,

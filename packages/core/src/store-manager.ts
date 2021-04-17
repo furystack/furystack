@@ -19,17 +19,22 @@ export class StoreManager implements Disposable {
       throw error
     }
   }
-  private stores: Map<Constructable<unknown>, PhysicalStore<unknown>> = new Map()
+  private stores: Map<Constructable<unknown>, PhysicalStore<any, any>> = new Map()
 
   /**
    * Returns a store model for a constructable object.
    * Throws error if no store is registered
    *
    * @param model The Constructable object
+   * @param _primaryKey The Primary Key field
    * @throws if the Store is not registered
    * @returns a Store object
    */
-  public getStoreFor<T, TType extends PhysicalStore<T> = PhysicalStore<T>>(model: Constructable<T>) {
+  public getStoreFor<
+    T,
+    TPrimaryKey extends keyof T,
+    TType extends PhysicalStore<T, TPrimaryKey> = PhysicalStore<T, TPrimaryKey>
+  >(model: Constructable<T>, _primaryKey: TPrimaryKey) {
     const instance = this.stores.get(model)
     if (!instance) {
       throw Error(`Store not found for '${model.name}'`)
@@ -43,8 +48,8 @@ export class StoreManager implements Disposable {
    * @param store The store to add
    * @returns the StoreManager instance for chaining
    */
-  public addStore<T>(store: PhysicalStore<T>) {
-    this.stores.set(store.model, store as PhysicalStore<unknown>)
+  public addStore<T, TPrimaryKey extends keyof T>(store: PhysicalStore<T, TPrimaryKey>) {
+    this.stores.set(store.model, store as PhysicalStore<any, any>)
     return this
   }
 

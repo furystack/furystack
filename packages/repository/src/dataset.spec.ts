@@ -22,7 +22,7 @@ describe('DataSet', () => {
               primaryKey: 'id',
             }),
           ),
-        ).setupRepository((r) => r.createDataSet(TestClass))
+        ).setupRepository((r) => r.createDataSet(TestClass, 'id'))
         const dataSet: DataSet<TestClass> = i.getDataSetFor(TestClass)
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
@@ -37,7 +37,7 @@ describe('DataSet', () => {
               primaryKey: 'id',
             }),
           ),
-        ).setupRepository((r) => r.createDataSet(TestClass))
+        ).setupRepository((r) => r.createDataSet(TestClass, 'id'))
         const dataSet = i.getDataSetFor(TestClass)
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
@@ -62,7 +62,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -76,7 +76,7 @@ describe('DataSet', () => {
           const authorizeAdd = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeAdd }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeAdd }))
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
           expect(authorizeAdd).toBeCalled()
@@ -90,7 +90,7 @@ describe('DataSet', () => {
           const authorizeAdd = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeAdd }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeAdd }))
 
           const dataSet = await i.getDataSetFor(TestClass)
 
@@ -117,7 +117,7 @@ describe('DataSet', () => {
 
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { modifyOnAdd }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { modifyOnAdd }))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -131,7 +131,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, {}))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', {}))
 
           i.getDataSetFor(TestClass).onEntityAdded.subscribe(({ entity }) => {
             expect(entity.value).toBe('asd')
@@ -149,7 +149,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -164,7 +164,7 @@ describe('DataSet', () => {
           const authorizeUpdate = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeUpdate }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeUpdate }))
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
@@ -181,7 +181,7 @@ describe('DataSet', () => {
           )
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeUpdateEntity }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeUpdateEntity }))
 
           const dataSet = await i.getDataSetFor(TestClass)
 
@@ -202,7 +202,7 @@ describe('DataSet', () => {
           const authorizeUpdateEntity = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeUpdateEntity }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeUpdateEntity }))
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
@@ -217,7 +217,7 @@ describe('DataSet', () => {
           const authorizeUpdate = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeUpdate }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeUpdate }))
 
           const dataSet = await i.getDataSetFor(TestClass)
 
@@ -243,7 +243,7 @@ describe('DataSet', () => {
 
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { modifyOnUpdate }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { modifyOnUpdate }))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -258,7 +258,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
           i.getDataSetFor(TestClass).onEntityUpdated.subscribe(({ change }) => {
             expect(change).toEqual({ id: 1, value: 'asd2' })
@@ -277,7 +277,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -291,7 +291,7 @@ describe('DataSet', () => {
           const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -305,7 +305,7 @@ describe('DataSet', () => {
           const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-          ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+          ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
           const dataSet = i.getDataSetFor(TestClass)
           await dataSet.add(i, { id: 1, value: 'asd' })
@@ -325,7 +325,7 @@ describe('DataSet', () => {
       await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -339,7 +339,7 @@ describe('DataSet', () => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -353,7 +353,7 @@ describe('DataSet', () => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -372,7 +372,7 @@ describe('DataSet', () => {
       await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -386,7 +386,7 @@ describe('DataSet', () => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -400,7 +400,7 @@ describe('DataSet', () => {
         const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGet }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGet }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -418,7 +418,7 @@ describe('DataSet', () => {
         const authorizeGetEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGetEntity }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGetEntity }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -432,7 +432,7 @@ describe('DataSet', () => {
         const authorizeGetEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeGetEntity }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeGetEntity }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -450,7 +450,7 @@ describe('DataSet', () => {
       await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -465,7 +465,7 @@ describe('DataSet', () => {
         const authorizeRemove = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeRemove }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeRemove }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -480,7 +480,7 @@ describe('DataSet', () => {
         const authorizeRemove = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authorizeRemove }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authorizeRemove }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -500,7 +500,7 @@ describe('DataSet', () => {
         const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authroizeRemoveEntity }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authroizeRemoveEntity }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -515,7 +515,7 @@ describe('DataSet', () => {
         const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass, { authroizeRemoveEntity }))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', { authroizeRemoveEntity }))
 
         const dataSet = i.getDataSetFor(TestClass)
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -533,7 +533,7 @@ describe('DataSet', () => {
       await usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
-        ).setupRepository((repo) => repo.createDataSet(TestClass))
+        ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
         i.getDataSetFor(TestClass).onEntityRemoved.subscribe(({ key }) => {
           expect(key).toEqual(1)

@@ -12,7 +12,7 @@ describe('Repository', () => {
       }
       i.setupStores((sm) =>
         sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' })),
-      ).setupRepository((r) => r.createDataSet(ExampleClass, {}))
+      ).setupRepository((r) => r.createDataSet(ExampleClass, 'id', {}))
 
       const dataSet = i.getDataSetFor(ExampleClass)
       expect(dataSet).toBeInstanceOf(DataSet)

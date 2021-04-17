@@ -36,7 +36,7 @@ export interface CreateResult<T> {
   created: T[]
 }
 
-export type WithOptionalId<T, TPrimaryKey = any> = TPrimaryKey extends keyof T ? Omit<T, TPrimaryKey> & Partial<T> : T
+export type WithOptionalId<T, TPrimaryKey> = TPrimaryKey extends keyof T ? Omit<T, TPrimaryKey> & Partial<T> : T
 
 /**
  * Type for default filtering model
@@ -84,11 +84,11 @@ export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fiel
 /**
  * Interface that defines a physical store implementation
  */
-export interface PhysicalStore<T> extends Disposable {
+export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposable {
   /**
    * The Primary key field name
    */
-  readonly primaryKey: keyof T
+  readonly primaryKey: TPrimaryKey
 
   /**
    * A constructable model

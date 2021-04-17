@@ -26,7 +26,7 @@ describe('MongoDB Store', () => {
     createStore: () => {
       const mongoOptions = getMongoOptions()
       const i = new Injector().setupStores((sm) => sm.useMongoDb(mongoOptions))
-      const store = i.getInstance(StoreManager).getStoreFor<TestClass>(TestClass)
+      const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
       const oldDispose = store.dispose
       store.dispose = async () => {
         const client = await i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
@@ -42,7 +42,7 @@ describe('MongoDB Store', () => {
   it('Should retrieve an entity with its id', async () => {
     await usingAsync(new Injector(), async (injector) => {
       injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
       const { created } = await store.add({ value: 'value1' })
 
       expect(typeof created[0]._id).toBe('string')
@@ -55,7 +55,7 @@ describe('MongoDB Store', () => {
   it('Should retrieve more entities with theis ids', async () => {
     await usingAsync(new Injector(), async (injector) => {
       injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId)
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
       const retrieved = await store.find({ filter: { _id: { $in: created.map((c) => c._id) } } })
       expect(retrieved.length).toBe(3)
