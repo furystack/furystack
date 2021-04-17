@@ -56,6 +56,9 @@ jobs:
       - script: docker exec furystackfurystack_app_1 yarn build
         displayName: 'Build'
 
+      - script: docker exec furystackfurystack_app_1 yarn create-schemas
+        displayName: Recreate JSON Schemas
+
       - script: docker exec furystackfurystack_app_1 yarn test
         displayName: 'Test'
 

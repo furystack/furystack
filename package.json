@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0-2021-04-16",
+  "version": "1.0.0-2021-04-17",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -35,7 +35,8 @@
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest --verbose",
-    "test:debug": "jest --verbose"
+    "test:debug": "jest --verbose",
+    "create-schemas": "yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json"
   },
   "husky": {
     "hooks": {

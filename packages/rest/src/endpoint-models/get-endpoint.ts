@@ -1,5 +1,3 @@
-import { PartialResult } from '@furystack/core'
-
 /**
  * Endpoint model for getting a single entity
  */
@@ -16,5 +14,5 @@ export type GetEntityEndpoint<T> = {
      */
     id: T[keyof T]
   }
-  result: PartialResult<T, Array<keyof T>>
+  result: T
 }
