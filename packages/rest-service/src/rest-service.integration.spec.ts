@@ -8,6 +8,10 @@ import { DefaultSession } from './models/default-session'
 import got from 'got'
 import { JsonResult } from './request-action-implementation'
 
+class UserWithPassword extends User {
+  password!: string
+}
+
 interface IntegrationTestApi extends RestApi {
   GET: {
     '/isAuthenticated': { result: { isAuthenticated: boolean } }
@@ -34,7 +38,7 @@ const prepareInjector = (i: Injector) =>
         .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
     )
     .useHttpAuthentication({
-      getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+      getUserStore: (sm) => sm.getStoreFor(UserWithPassword, 'username'),
       getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
     })
     .useRestService<IntegrationTestApi>({
