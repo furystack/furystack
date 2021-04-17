@@ -8,12 +8,16 @@ import { JsonResult, RequestAction } from '../request-action-implementation'
  *
  * @param options The options for endpoint creation
  * @param options.model The Model class
+ * @param options.primaryKey The field used as primary key on the model
  * @returns a boolean that indicates the success
  */
-export const createDeleteEndpoint = <T extends object>(options: { model: Constructable<T> }) => {
-  const endpoint: RequestAction<DeleteEndpoint<T>> = async ({ injector, getUrlParams }) => {
+export const createDeleteEndpoint = <T extends object, TPrimaryKey extends keyof T>(options: {
+  model: Constructable<T>
+  primaryKey: TPrimaryKey
+}) => {
+  const endpoint: RequestAction<DeleteEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams }) => {
     const { id } = getUrlParams()
-    const dataSet = injector.getDataSetFor(options.model)
+    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
     await dataSet.remove(injector, id)
     return JsonResult({}, 204)
   }

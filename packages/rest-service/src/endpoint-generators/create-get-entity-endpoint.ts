@@ -8,13 +8,17 @@ import { JsonResult, RequestAction } from '../request-action-implementation'
  *
  * @param options The options for endpoint creation
  * @param options.model The entity model, should have a Repository DataSet
+ * @param options.primaryKey The field name used as primary key on the model
  * @returns The generated endpoint
  */
-export const createGetEntityEndpoint = <T>(options: { model: Constructable<T> }) => {
-  const endpoint: RequestAction<GetEntityEndpoint<T>> = async ({ injector, getUrlParams, getQuery }) => {
+export const createGetEntityEndpoint = <T extends object, TPrimaryKey extends keyof T>(options: {
+  model: Constructable<T>
+  primaryKey: TPrimaryKey
+}) => {
+  const endpoint: RequestAction<GetEntityEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams, getQuery }) => {
     const { id } = getUrlParams()
     const { select } = getQuery()
-    const dataSet = injector.getDataSetFor(options.model)
+    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
     const entry = await dataSet.get(injector, id, select)
     if (!entry) {
       throw new RequestError('Entity not found', 404)

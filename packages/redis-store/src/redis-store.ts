@@ -5,8 +5,8 @@ import { RedisClient } from 'redis'
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
-  public primaryKey!: K
+export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+  public primaryKey!: TPrimaryKey
 
   public readonly model: Constructable<T>
 
@@ -14,13 +14,13 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
     private readonly options: {
       model: Constructable<T>
       client: RedisClient
-      primaryKey: K
+      primaryKey: TPrimaryKey
     },
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
-  public async add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>> {
+  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
@@ -35,7 +35,7 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
       created,
     }
   }
-  public async update(id: T[this['primaryKey']], data: T): Promise<void> {
+  public async update(id: T[TPrimaryKey], data: T): Promise<void> {
     return await new Promise((resolve, reject) =>
       this.options.client.set((id as any).toString(), JSON.stringify(data), (err) => {
         err ? reject(err) : resolve()
@@ -48,14 +48,14 @@ export class RedisStore<T, K extends keyof T> implements PhysicalStore<T> {
   public async find(): Promise<T[]> {
     throw Error('Not supported :(')
   }
-  public async get(key: T[this['primaryKey']]): Promise<T | undefined> {
+  public async get(key: T[TPrimaryKey]): Promise<T | undefined> {
     return await new Promise((resolve, reject) =>
       this.options.client.get((key as any).toString(), (err, val) => {
         err ? reject(err) : resolve(JSON.parse(val as string) as T)
       }),
     )
   }
-  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
+  public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     await Promise.all(
       keys.map(
         async (key) =>

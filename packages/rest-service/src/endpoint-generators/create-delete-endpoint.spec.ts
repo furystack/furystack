@@ -9,25 +9,25 @@ describe('createDeleteEndpoint', () => {
   it('Should delete the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ DELETE: { '/:id': DeleteEndpoint<MockClass> } }>({
+      await i.useRestService<{ DELETE: { '/:id': DeleteEndpoint<MockClass, 'id'> } }>({
         root: '/api',
         port: 1111,
         api: {
           DELETE: {
-            '/:id': createDeleteEndpoint({ model: MockClass }),
+            '/:id': createDeleteEndpoint({ model: MockClass, primaryKey: 'id' }),
           },
         },
       })
-      await i.getDataSetFor(MockClass).add(i, { id: 'mock', value: 'mock' })
+      await i.getDataSetFor(MockClass, 'id').add(i, { id: 'mock', value: 'mock' })
 
-      const countBeforeDelete = await i.getDataSetFor(MockClass).count(i)
+      const countBeforeDelete = await i.getDataSetFor(MockClass, 'id').count(i)
       expect(countBeforeDelete).toBe(1)
 
       const response = await got('http://127.0.0.1:1111/api/mock', { method: 'DELETE' })
       expect(response.statusCode).toBe(204)
       expect(response.body).toBe('')
 
-      const countAfterDelete = await i.getDataSetFor(MockClass).count(i)
+      const countAfterDelete = await i.getDataSetFor(MockClass, 'id').count(i)
       expect(countAfterDelete).toBe(0)
     })
   })

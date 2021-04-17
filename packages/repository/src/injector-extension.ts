@@ -3,7 +3,6 @@ import { Injector } from '@furystack/inject/dist/injector'
 import { DataSet } from './data-set'
 import { Repository } from './repository'
 
-// tslint:disable-next-line: no-unused-expression
 declare module '@furystack/inject/dist/injector' {
   /**
    * Defines an extended Injector instance
@@ -29,7 +28,10 @@ declare module '@furystack/inject/dist/injector' {
     /**
      * Returns a DataSet for a specific model
      */
-    getDataSetFor: <T>(model: Constructable<T>) => DataSet<T>
+    getDataSetFor: <T, TPrimaryKey extends keyof T>(
+      model: Constructable<T>,
+      primaryKey: TPrimaryKey,
+    ) => DataSet<T, TPrimaryKey>
   }
 }
 
@@ -38,7 +40,6 @@ Injector.prototype.setupRepository = function (builder) {
   return this
 }
 
-// tslint:disable-next-line: no-unnecessary-type-annotation
-Injector.prototype.getDataSetFor = function <T>(model: Constructable<T>) {
-  return this.getInstance(Repository).getDataSetFor<T>(model)
+Injector.prototype.getDataSetFor = function (model, primaryKey) {
+  return this.getInstance(Repository).getDataSetFor(model, primaryKey)
 }

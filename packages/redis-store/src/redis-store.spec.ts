@@ -17,7 +17,7 @@ describe('Redis Store', () => {
   beforeEach(async () => {
     client = createClient({ port: 6379, host: 'localhost' })
     i = new Injector().setupStores((sm) => sm.useRedis(ExampleClass, 'id', client))
-    store = i.getInstance(StoreManager).getStoreFor(ExampleClass)
+    store = i.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
   })
 
   afterEach(async () => {

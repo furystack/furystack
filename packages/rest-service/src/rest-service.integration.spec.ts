@@ -34,8 +34,8 @@ const prepareInjector = (i: Injector) =>
         .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
     )
     .useHttpAuthentication({
-      getUserStore: (sm) => sm.getStoreFor<User & { password: string }>(User as any),
-      getSessionStore: (sm) => sm.getStoreFor(DefaultSession),
+      getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+      getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
     })
     .useRestService<IntegrationTestApi>({
       root,
