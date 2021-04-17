@@ -33,10 +33,7 @@ export class DataSet<T, TPrimaryKey extends keyof T> implements Disposable {
    * @param entities The entities to add
    * @returns The CreateResult with the created entities
    */
-  public async add(
-    injector: Injector,
-    ...entities: Array<WithOptionalId<T, TPrimaryKey>>
-  ): Promise<CreateResult<T>> {
+  public async add(injector: Injector, ...entities: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     await Promise.all(
       entities.map(async (entity) => {
         if (this.settings.authorizeAdd) {
