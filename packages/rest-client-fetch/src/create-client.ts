@@ -40,7 +40,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       TQuery &
       TUrlParams &
       THeaders,
-  ): Promise<TReturns> => {
+  ): Promise<{ response: Response; result: TReturns }> => {
     const { url, query, body, headers } = options as any
 
     const urlToSend =
@@ -51,7 +51,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           : `?${serializeToQueryString(query)}`
         : '')
 
-    const result = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string), {
+    const response = await fetchMethod(PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string), {
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: body ? JSON.stringify(body) : undefined,
@@ -64,10 +64,27 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           }
         : {}),
     })
-    if (!result.ok) {
-      throw new ResponseError(result.statusText, result)
+    if (!response.ok) {
+      throw new ResponseError(response.statusText, response)
     }
-    const responseBody = await result.json()
-    return responseBody
+
+    const contentType = response.headers.get('Content-Type')
+
+    if (contentType?.startsWith('text/')) {
+      const result = (await response.text()) as TReturns
+      return { response, result }
+    }
+
+    if (contentType === 'application/json') {
+      const result = (await response.json()) as TReturns
+      return { response, result }
+    }
+
+    if (contentType === 'form/multipart') {
+      const result = (await response.formData()) as TReturns
+      return { response, result }
+    }
+
+    return { response, result: null as TReturns }
   }
 }
