@@ -68,15 +68,10 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       throw new ResponseError(response.statusText, response)
     }
 
-    const contentType = response.headers.get('Content-Type')
+    const contentType = response.headers?.get?.('Content-Type')
 
     if (contentType?.startsWith('text/')) {
       const result = (await response.text()) as TReturns
-      return { response, result }
-    }
-
-    if (contentType === 'application/json') {
-      const result = (await response.json()) as TReturns
       return { response, result }
     }
 
@@ -85,6 +80,11 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       return { response, result }
     }
 
-    return { response, result: null as TReturns }
+    try {
+      const result = (await response.json()) as TReturns
+      return { response, result }
+    } catch (error) {
+      return { response, result: null as TReturns }
+    }
   }
 }

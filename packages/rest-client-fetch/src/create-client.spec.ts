@@ -46,7 +46,7 @@ describe('@furystack/rest-client-fetch', () => {
       method: 'GET',
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.result).toStrictEqual({ value: 1 })
 
     expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), { method: 'GET', body: undefined })
     expect(json).toBeCalled()
@@ -72,7 +72,7 @@ describe('@furystack/rest-client-fetch', () => {
       query: { value: 'asdasd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.result).toStrictEqual({ value: 1 })
 
     expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test?value=asdasd'), {
       method: 'GET',
@@ -101,7 +101,7 @@ describe('@furystack/rest-client-fetch', () => {
       url: { urlValue: 'asd' },
     })
 
-    expect(result).toStrictEqual({ value: 1 })
+    expect(result.result).toStrictEqual({ value: 1 })
 
     expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test/asd'), {
       method: 'GET',
