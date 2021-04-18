@@ -35,7 +35,7 @@
     "@furystack/rest-service": "^4.0.1",
     "@furystack/utils": "^1.2.30",
     "tslib": "^2.2.0",
-    "ws": "^7.4.4"
+    "ws": "^7.4.5"
   },
   "devDependencies": {
     "@types/jest": "^26.0.22",

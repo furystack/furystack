@@ -146,7 +146,9 @@ export class HttpUserContext {
   public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      await this.getSessionStore().remove(sessionId)
+      const sessionStore = this.getSessionStore()
+      const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } } })
+      await this.getSessionStore().remove(...sessions.map((s) => s[sessionStore.primaryKey]))
       response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
       this.user = undefined
     }
