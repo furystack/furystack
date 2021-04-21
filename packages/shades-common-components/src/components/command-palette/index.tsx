@@ -16,6 +16,7 @@ export interface CommandPaletteProps {
   commandProviders: CommandProvider[]
   defaultPrefix: string
   style?: Partial<CSSStyleDeclaration>
+  fullScreenSuggestions?: boolean
 }
 
 export interface CommandPaletteState {
@@ -164,7 +165,7 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
             </div>
           </div>
         </div>
-        <CommandPaletteSuggestionList manager={manager} />
+        <CommandPaletteSuggestionList manager={manager} fullScreenSuggestions={props.fullScreenSuggestions} />
       </div>
     )
   },
