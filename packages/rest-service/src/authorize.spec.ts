@@ -7,7 +7,7 @@ import { ServerResponse } from 'http'
 import { EmptyResult } from './request-action-implementation'
 
 describe('Authorize', () => {
-  const response = ({} as any) as ServerResponse
+  const response = {} as any as ServerResponse
   const request = { url: 'http://google.com' } as IncomingMessage
 
   it('Should return 403 when failed to get current user', async () => {

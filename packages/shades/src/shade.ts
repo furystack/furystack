@@ -52,7 +52,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
   if (!existing) {
     customElements.define(
       customElementName,
-      (class extends HTMLElement implements JSX.Element {
+      class extends HTMLElement implements JSX.Element {
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
           this.callConstructed()
@@ -93,7 +93,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = () => {
           const props = this.props.getValue() || {}
           const getState = () => this.state.getValue()
-          return ({
+          return {
             props,
             getState,
             injector: this.injector,
@@ -103,7 +103,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             },
             children: this.shadeChildren.getValue(),
             element: this,
-          } as any) as RenderOptions<TProps, TState>
+          } as any as RenderOptions<TProps, TState>
         }
 
         /**
@@ -185,7 +185,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           this.props = new ObservableValue()
           this.state = new ObservableValue()
         }
-      } as any) as CustomElementConstructor,
+      } as any as CustomElementConstructor,
     )
   }
 
