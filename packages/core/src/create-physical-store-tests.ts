@@ -24,12 +24,12 @@ export const createMockEntity = (part?: Partial<TestClass>) =>
     ...part,
   } as TestClass)
 
-export interface StoreTestOptions<T> {
+export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string
-  createStore: () => PhysicalStore<T>
+  createStore: () => PhysicalStore<T, TPrimaryKey>
 }
 
-export const createStoreTest = (options: StoreTestOptions<TestClass>) => {
+export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
   describe(`Standard Physical Store tests for '${options.typeName}'`, () => {
     describe('General CRUD', () => {
       it('Should be created with empty by default', async () => {

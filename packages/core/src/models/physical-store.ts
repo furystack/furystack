@@ -36,7 +36,7 @@ export interface CreateResult<T> {
   created: T[]
 }
 
-export type WithOptionalId<T, K extends keyof T> = Omit<T, K> & Partial<T>
+export type WithOptionalId<T, TPrimaryKey> = TPrimaryKey extends keyof T ? Omit<T, TPrimaryKey> & Partial<T> : T
 
 /**
  * Type for default filtering model
@@ -68,10 +68,10 @@ export interface FindOptions<T, TSelect extends Array<keyof T>> {
   filter?: FilterType<T>
 }
 
-export type PartialResult<T, TFields extends keyof T> = { [K in TFields]: T[K] }
+export type PartialResult<T, TFields extends Array<keyof T>> = Pick<T, TFields[number]>
 
 export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
-  const returnValue: PartialResult<T, TField[number]> = {} as any
+  const returnValue = {} as PartialResult<T, TField>
   Object.keys(entry).map((key) => {
     const field: TField[number] = key as TField[number]
     if (fields.includes(field)) {
@@ -84,11 +84,11 @@ export const selectFields = <T, TField extends Array<keyof T>>(entry: T, ...fiel
 /**
  * Interface that defines a physical store implementation
  */
-export interface PhysicalStore<T> extends Disposable {
+export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposable {
   /**
    * The Primary key field name
    */
-  readonly primaryKey: keyof T
+  readonly primaryKey: TPrimaryKey
 
   /**
    * A constructable model
@@ -100,7 +100,7 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param entries The data to be added
    */
-  add(...entries: Array<WithOptionalId<T, this['primaryKey']>>): Promise<CreateResult<T>>
+  add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
@@ -108,7 +108,7 @@ export interface PhysicalStore<T> extends Disposable {
    * @param id The primary key of the entry
    * @param data The data to be updated
    */
-  update(id: T[this['primaryKey']], data: Partial<T>): Promise<void>
+  update(id: T[TPrimaryKey], data: Partial<T>): Promise<void>
 
   /**
    * Returns a promise that will be resolved with the count of the elements
@@ -120,9 +120,7 @@ export interface PhysicalStore<T> extends Disposable {
    *
    * @param searchOptions An options object for the Search expression
    */
-  find<TSelect extends Array<keyof T>>(
-    findOptions: FindOptions<T, TSelect>,
-  ): Promise<Array<PartialResult<T, TSelect[number]>>>
+  find<TSelect extends Array<keyof T>>(findOptions: FindOptions<T, TSelect>): Promise<Array<PartialResult<T, TSelect>>>
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined
@@ -130,14 +128,14 @@ export interface PhysicalStore<T> extends Disposable {
    * @param key The primary key of the entry
    */
   get<TSelect extends Array<keyof T>>(
-    key: T[this['primaryKey']],
+    key: T[TPrimaryKey],
     select?: TSelect,
-  ): Promise<PartialResult<T, TSelect[number]> | undefined>
+  ): Promise<PartialResult<T, TSelect> | undefined>
 
   /**
    * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
    *
    * @param key The primary key of the entry to remove
    */
-  remove(...keys: Array<T[this['primaryKey']]>): Promise<void>
+  remove(...keys: Array<T[TPrimaryKey]>): Promise<void>
 }

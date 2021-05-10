@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0-2021-02-10",
+  "version": "1.0.0-2021-04-18-02",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -8,25 +8,25 @@
     "nohoist": []
   },
   "devDependencies": {
-    "@types/jsdom": "^16.2.9",
-    "@typescript-eslint/eslint-plugin": "^4.20.0",
-    "@typescript-eslint/parser": "^4.20.0",
-    "ajv": "^8.0.2",
-    "eslint": "^7.23.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-jsdoc": "^32.3.0",
-    "eslint-plugin-prettier": "^3.3.1",
+    "@types/jsdom": "^16.2.10",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
+    "ajv": "^8.3.0",
+    "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jsdoc": "^33.1.1",
+    "eslint-plugin-prettier": "^3.4.0",
     "got": "^11.8.2",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jest-junit": "^12.0.0",
     "lerna": "^4.0.0",
-    "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
-    "ts-json-schema-generator": "^0.89.1",
-    "tslib": "^2.1.0",
-    "typescript": "^4.2.3"
+    "ts-json-schema-generator": "^0.92.0",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
   },
   "scripts": {
     "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags --force-publish",
@@ -35,7 +35,8 @@
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest --verbose",
-    "test:debug": "jest --verbose"
+    "test:debug": "jest --verbose",
+    "create-schemas": "yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json"
   },
   "husky": {
     "hooks": {

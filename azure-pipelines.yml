@@ -17,7 +17,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-
 jobs:
   - job: buildAndTest
     strategy:
@@ -25,48 +24,30 @@ jobs:
         node_14_x:
           node_version: 14.x
     displayName: Build and test
-    variables:
-      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     steps:
-
       - checkout: self
-        fetchDepth: 20
-      
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(node_version)
-        displayName: Use Node.js $(node_version)
-
-      - task: Cache@2
-        inputs:
-          key: 'yarn | "$(Agent.OS)" | yarn.lock'
-          restoreKeys: |
-            yarn | "$(Agent.OS)"
-            yarn
-          path: $(YARN_CACHE_FOLDER)
-        displayName: Cache Yarn packages
-
-      - script: yarn install --fronzen-lockfile
-        displayName: 'Install dependencies'
-
-      - script: yarn lint
-        displayName: 'Lint'
-
-      - script: yarn build
-        displayName: 'Build'
-
+        fetchDepth: 1
       - task: DockerCompose@0
         displayName: Start services from docker-compose
         inputs:
           action: Run services
-          dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
-          projectName: $(Build.Repository.Name)
           detached: true
           buildImages: true
 
-      - script: yarn test
-        timeoutInMinutes: 5
-        displayName: 'Yarn test'
+      - script: docker exec furystackfurystack_app_1 yarn install --frozen-lockfile
+        displayName: 'Install'
+
+      - script: docker exec furystackfurystack_app_1 yarn lint
+        displayName: 'Lint'
+
+      - script: docker exec furystackfurystack_app_1 yarn build
+        displayName: 'Build'
+
+      - script: docker exec furystackfurystack_app_1 yarn create-schemas
+        displayName: Recreate JSON Schemas
+
+      - script: docker exec furystackfurystack_app_1 yarn test
+        displayName: 'Test'
 
       - script: bash <(curl -s https://codecov.io/bash)
         displayName: 'Publish test results to Codecov'
@@ -84,13 +65,12 @@ jobs:
         inputs:
           testRunner: JUnit
           testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+
   - deployment: deploy
     displayName: Deploy packages to NPM
     dependsOn: buildAndTest
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     timeoutInMinutes: 60
-    variables:
-      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     environment:
       name: NPM
     strategy:
@@ -103,30 +83,10 @@ jobs:
               inputs:
                 versionSpec: '14.x'
               displayName: 'Install Node.js'
-            - task: Cache@2
-              inputs:
-                key: 'yarn | "$(Agent.OS)" | yarn.lock'
-                restoreKeys: |
-                  yarn | "$(Agent.OS)"
-                  yarn
-                path: $(YARN_CACHE_FOLDER)
-              displayName: Cache Yarn packages
             - script: yarn install --frozen-lockfile
               displayName: 'Install'
-            - script: yarn lint
-              displayName: 'Lint'
             - script: yarn build
               displayName: 'Build'
-            - task: DockerCompose@0
-              displayName: Start services from docker-compose
-              inputs:
-                action: Run services
-                dockerComposeFile: '$(System.DefaultWorkingDirectory)/docker-compose.yml'
-                projectName: $(Build.Repository.Name)
-                detached: true
-                buildImages: true
-            - script: yarn test
-              displayName: 'Run Tests'
             - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
               displayName: Publish packages to NPM
               env:

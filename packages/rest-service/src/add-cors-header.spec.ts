@@ -4,12 +4,12 @@ import { Utils } from './utils'
 describe('AddCorsHeaders', () => {
   const utils = new Utils()
   it('Should NOT add headers for non-cross-site requests', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://localhost' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {
@@ -24,12 +24,12 @@ describe('AddCorsHeaders', () => {
   })
 
   it('Should NOT add headers for not-enabled hosts', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://google.com' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {
@@ -44,12 +44,12 @@ describe('AddCorsHeaders', () => {
   })
 
   it('Should add allow-origin header for enabled hosts', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {
@@ -63,12 +63,12 @@ describe('AddCorsHeaders', () => {
   })
 
   it('Should add allow-credentials header if enabled', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {
@@ -88,12 +88,12 @@ describe('AddCorsHeaders', () => {
   })
 
   it('Should add allow-headers header if enabled', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {
@@ -111,12 +111,12 @@ describe('AddCorsHeaders', () => {
   })
 
   it('Should add allow-methods header if enabled', () => {
-    const req: IncomingMessage = ({
+    const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
-    } as any) as IncomingMessage
-    const resp: ServerResponse = ({
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
       setHeader: jest.fn(),
-    } as unknown) as ServerResponse
+    } as unknown as ServerResponse
 
     utils.addCorsHeaders(
       {

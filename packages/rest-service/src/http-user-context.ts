@@ -3,6 +3,7 @@ import { User, StoreManager } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
+import { DefaultSession } from 'models/default-session'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -114,6 +115,7 @@ export class HttpUserContext {
           filter: {
             username: { $eq: session.username },
           },
+          top: 2,
         })
         if (userResult.length === 1) {
           const { password, ...user } = userResult[0]
@@ -143,15 +145,17 @@ export class HttpUserContext {
 
   public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(request)
+    response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
+    this.user = undefined
     if (sessionId) {
-      await this.getSessionStore().remove(sessionId)
-      response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
-      this.user = undefined
+      const sessionStore = this.getSessionStore()
+      const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } } })
+      await this.getSessionStore().remove(...sessions.map((s) => s[sessionStore.primaryKey]))
     }
   }
 
   constructor(
-    public readonly authentication: HttpAuthenticationSettings<User>,
+    public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>,
     private readonly storeManager: StoreManager,
   ) {}
 }

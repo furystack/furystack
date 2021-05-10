@@ -1,9 +1,9 @@
-import { PartialResult, FindOptions } from '@furystack/core'
+import { FindOptions } from '@furystack/core'
 
 /**
  * Response Model for GetCollection
  */
-export type GetCollectionResult<T, TFields extends keyof T> = {
+export type GetCollectionResult<T> = {
   /**
    * The Total count of entities
    */
@@ -11,7 +11,7 @@ export type GetCollectionResult<T, TFields extends keyof T> = {
   /**
    * List of the selected entities
    */
-  entries: Array<PartialResult<T, TFields>>
+  entries: T[]
 }
 
 /**
@@ -19,5 +19,5 @@ export type GetCollectionResult<T, TFields extends keyof T> = {
  */
 export type GetCollectionEndpoint<T> = {
   query: { findOptions?: FindOptions<T, Array<keyof T>> }
-  result: GetCollectionResult<T, keyof T>
+  result: GetCollectionResult<T>
 }

@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject/dist/injector'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { RestApi } from '@furystack/rest'
 import { ApiManager, ImplementApiOptions } from './api-manager'
+import { DefaultSession } from 'models/default-session'
 
 declare module '@furystack/inject/dist/injector' {
   /**
@@ -17,7 +18,9 @@ declare module '@furystack/inject/dist/injector' {
     /**
      * Sets up the HTTP Authentication
      */
-    useHttpAuthentication: <TUser extends User>(settings?: Partial<HttpAuthenticationSettings<TUser>>) => this
+    useHttpAuthentication: <TUser extends User, TSession extends DefaultSession>(
+      settings?: Partial<HttpAuthenticationSettings<TUser, TSession>>,
+    ) => this
   }
 }
 

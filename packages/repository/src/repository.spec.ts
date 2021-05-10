@@ -10,11 +10,11 @@ describe('Repository', () => {
       class ExampleClass {
         id!: number
       }
-      i.setupStores((sm) =>
-        sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' })),
-      ).setupRepository((r) => r.createDataSet(ExampleClass, {}))
+      i.setupStores((sm) => sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }))).setupRepository(
+        (r) => r.createDataSet(ExampleClass, 'id', {}),
+      )
 
-      const dataSet = i.getDataSetFor(ExampleClass)
+      const dataSet = i.getDataSetFor(ExampleClass, 'id')
       expect(dataSet).toBeInstanceOf(DataSet)
     })
   })

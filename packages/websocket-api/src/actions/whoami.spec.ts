@@ -6,13 +6,13 @@ import { IncomingMessage } from 'http'
 
 describe('Whoami action', () => {
   const currentUser = { username: 'testuser' }
-  const contextMock: HttpUserContext = ({ getCurrentUser: async () => currentUser } as unknown) as HttpUserContext
+  const contextMock: HttpUserContext = { getCurrentUser: async () => currentUser } as unknown as HttpUserContext
 
   const request = { url: 'https://google.com' } as IncomingMessage
 
-  const wsMock: ws = ({
+  const wsMock: ws = {
     send: jest.fn(() => undefined),
-  } as unknown) as ws
+  } as unknown as ws
 
   it('cannot be executed if data does not match', () => {
     expect(WhoAmI.canExecute({ request, data: 'asd' })).toBeFalsy()

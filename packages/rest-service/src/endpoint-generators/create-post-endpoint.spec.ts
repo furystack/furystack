@@ -9,12 +9,12 @@ describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ POST: { '/:id': PostEndpoint<MockClass> } }>({
+      await i.useRestService<{ POST: { '/:id': PostEndpoint<MockClass, 'id'> } }>({
         root: '/api',
         port: 1117,
         api: {
           POST: {
-            '/:id': createPostEndpoint({ model: MockClass }),
+            '/:id': createPostEndpoint({ model: MockClass, primaryKey: 'id' }),
           },
         },
       })
@@ -25,7 +25,7 @@ describe('createPostEndpoint', () => {
       })
       expect(response.statusCode).toBe(201)
       expect(JSON.parse(response.body)).toStrictEqual(entityToPost)
-      const posted = await i.getDataSetFor(MockClass).get(i, entityToPost.id)
+      const posted = await i.getDataSetFor(MockClass, 'id').get(i, entityToPost.id)
       expect(posted?.value).toBe('posted')
     })
   })

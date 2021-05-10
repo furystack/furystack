@@ -5,7 +5,7 @@ import { CommandPaletteManager } from './command-palette-manager'
 import { ThemeProviderService } from '../../services/theme-provider-service'
 
 export const CommandPaletteSuggestionList = Shade<
-  { manager: CommandPaletteManager },
+  { manager: CommandPaletteManager; fullScreenSuggestions?: boolean },
   { suggestions: CommandPaletteSuggestionResult[] }
 >({
   shadowDomName: 'shade-command-palette-suggestion-list',
@@ -71,11 +71,14 @@ export const CommandPaletteSuggestionList = Shade<
           borderRadius: '0px 0px 5px 5px',
           marginLeft: '14px',
           overflow: 'hidden',
+          overflowY: 'auto',
+          maxHeight: `${window.innerHeight * 0.8}px`,
           zIndex: '1',
           left: 'auto',
           backgroundColor: injector.getInstance(ThemeProviderService).theme.getValue().background.paper,
           boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
+          ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),
         }}>
         {getState().suggestions.map((s, i) => (
           <div

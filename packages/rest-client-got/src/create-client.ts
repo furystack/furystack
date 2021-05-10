@@ -30,7 +30,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     TQuery extends QueryParameter<T[TMethod][TAction]>,
     TUrlParams extends UrlParameter<T[TMethod][TAction]>,
     TReturns extends ReturnType<T[TMethod][TAction]>,
-    THeaders extends HeaderParameter<T[TMethod][TAction]>
+    THeaders extends HeaderParameter<T[TMethod][TAction]>,
   >(
     options: {
       method: TMethod

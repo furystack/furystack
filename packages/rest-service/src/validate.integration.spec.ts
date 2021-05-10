@@ -1,5 +1,4 @@
 import { Injector } from '@furystack/inject'
-import { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { RequestError } from 'got/dist/source'
@@ -8,36 +7,9 @@ import { Validate } from './validate'
 import './injector-extensions'
 
 import schema from './validate.integration.spec.schema.json'
+import { ValidationApi } from 'validate.integration.schema'
 
-// To recreate: yarn ts-json-schema-generator -f tsconfig.json -p packages/rest-service/src/validate.integration.spec.ts -t ValidationApi -e none -o packages/rest-service/src/validate.integration.spec.schema.json
-
-export interface ValidateQuery {
-  query: { foo: string; bar: number; baz: boolean }
-  result: { foo: string; bar: number; baz: boolean }
-}
-export interface ValidateUrl {
-  url: { id: number }
-  result: { id: number }
-}
-export interface ValidateHeaders {
-  headers: { foo: string; bar: number; baz: boolean }
-  result: { foo: string; bar: number; baz: boolean }
-}
-export interface ValidateBody {
-  body: { foo: string; bar: number; baz: boolean }
-  result: { foo: string; bar: number; baz: boolean }
-}
-
-export interface ValidationApi extends RestApi {
-  GET: {
-    '/validate-query': ValidateQuery
-    '/validate-url/:id': ValidateUrl
-    '/validate-headers': ValidateHeaders
-  }
-  POST: {
-    '/validate-body': ValidateBody
-  }
-}
+// To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
 export const createValidateApi = async () => {
   const injector = new Injector()
@@ -57,6 +29,8 @@ export const createValidateApi = async () => {
           schema,
           schemaName: 'ValidateHeaders',
         })(async ({ headers }) => JsonResult({ ...headers })),
+        '/mock': undefined as any, // ToDo: Generator and test
+        '/mock/:id': undefined as any, // ToDo: Generator and test
       },
       POST: {
         '/validate-body': Validate({
@@ -66,6 +40,13 @@ export const createValidateApi = async () => {
           const body = await getBody()
           return JsonResult({ ...body })
         }),
+        '/mock': undefined as any, // ToDo: Generator and test
+      },
+      PATCH: {
+        '/mock/:id': undefined as any, // ToDo: Generator and test
+      },
+      DELETE: {
+        '/mock/:id': undefined as any, // ToDo: Generator and test
       },
     },
     port,

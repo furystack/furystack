@@ -20,7 +20,7 @@ describe('FileSystemStore store manager extensions', () => {
         fileName,
         primaryKey: 'id',
       })
-      expect(store.getStoreFor(TestClass)).toBeInstanceOf(FileSystemStore)
+      expect(store.getStoreFor(TestClass, 'id')).toBeInstanceOf(FileSystemStore)
     })
   })
 

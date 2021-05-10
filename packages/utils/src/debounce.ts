@@ -12,7 +12,7 @@ export const debounce = <TArgs extends unknown[], TReturns>(method: (...args: TA
     }
     timeout = setTimeout(() => {
       method(...args)
-      clearTimeout(timeout as any)
+      timeout ?? clearTimeout(timeout)
       timeout = undefined
     }, debounceMs)
   }) as (...args: TArgs) => TReturns

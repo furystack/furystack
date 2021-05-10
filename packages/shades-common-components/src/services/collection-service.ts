@@ -9,7 +9,7 @@ export interface CollectionData<T> {
 
 export type EntryLoader<T> = <TFields extends Array<keyof T>>(
   searchOptions: FindOptions<T, TFields>,
-) => Promise<CollectionData<PartialResult<T, TFields[number]>>>
+) => Promise<CollectionData<PartialResult<T, TFields>>>
 
 export class CollectionService<T> implements Disposable {
   public dispose() {

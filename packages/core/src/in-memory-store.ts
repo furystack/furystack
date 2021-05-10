@@ -8,20 +8,21 @@ import {
   FilterType,
   isOperator,
   CreateResult,
+  WithOptionalId,
 } from './models/physical-store'
 
-export class InMemoryStore<T> implements PhysicalStore<T> {
+export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   /**
    *
    * @param keys The keys to remove from the store
    */
-  public async remove(...keys: Array<T[this['primaryKey']]>): Promise<void> {
+  public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     keys.map((key) => this.cache.delete(key))
   }
 
-  public async add(...entries: T[]): Promise<CreateResult<T>> {
+  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
-      const entry = { ...e }
+      const entry = { ...e } as T
       if (entry[this.primaryKey] === undefined) {
         entry[this.primaryKey] = v4() as any
       }
@@ -34,8 +35,8 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     return { created }
   }
 
-  public cache: Map<T[this['primaryKey']], T> = new Map()
-  public get = async (key: T[this['primaryKey']], select?: Array<keyof T>) => {
+  public cache: Map<T[TPrimaryKey], T> = new Map()
+  public get = async (key: T[TPrimaryKey], select?: Array<keyof T>) => {
     const item = this.cache.get(key)
     return item && select ? selectFields(item, ...select) : item
   }
@@ -94,10 +95,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
   }
 
   public async find<TFields extends Array<keyof T>>(searchOptions: FindOptions<T, TFields>) {
-    let value: Array<PartialResult<T, TFields[number]>> = this.filterInternal(
-      [...this.cache.values()],
-      searchOptions.filter,
-    )
+    let value: Array<PartialResult<T, TFields>> = this.filterInternal([...this.cache.values()], searchOptions.filter)
 
     if (searchOptions.order) {
       for (const fieldName of Object.keys(searchOptions.order) as Array<keyof T>) {
@@ -127,7 +125,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     return this.filterInternal([...this.cache.values()], filter).length
   }
 
-  public async update(id: T[this['primaryKey']], data: T) {
+  public async update(id: T[TPrimaryKey], data: T) {
     if (!this.cache.has(id)) {
       throw Error(`Entity not found with id '${id}', cannot update!`)
     }
@@ -141,7 +139,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     this.cache.clear()
   }
 
-  public readonly primaryKey: keyof T
+  public readonly primaryKey: TPrimaryKey
   public readonly model: Constructable<T>
 
   /**
@@ -155,7 +153,7 @@ export class InMemoryStore<T> implements PhysicalStore<T> {
     /**
      * The name of the Primary Key property
      */
-    primaryKey: keyof T
+    primaryKey: TPrimaryKey
     /**
      * The model constructor
      */
