@@ -3070,10 +3070,10 @@ eslint-config-prettier@^8.3.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.3.0.tgz#f7471b20b6fe8a9a9254cc684454202886a2dd7a"
   integrity sha512-BgZuLUSeKzvlL/VUjx/Yb787VQ26RU3gGjA3iiFvdsp/2bMfVIWUVP7tjxtjS0e+HP409cPlPvNkQloz8C91ew==
 
-eslint-plugin-jsdoc@^33.1.1:
-  version "33.1.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-33.1.1.tgz#f3e6d74a6a3bd9624d54e1a9ccbd83a30ddb0824"
-  integrity sha512-6Avc2czg/mh0zmuU3H4v2xTXOALl9OiMGpn55nBDydhU684cVgvn2VtXm1JgH+2TW5SxEDnX3o/FUgda7LgVYA==
+eslint-plugin-jsdoc@^33.3.0:
+  version "33.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-33.3.0.tgz#a287db838d2cac4b36b76d99213901be6a31e9f5"
+  integrity sha512-wt6I9X8JoOyUtnsafM7AWBEfLCD3BI1wR5/vTu0hti4CoZc37bB4ZX9A7DsWKbEC/xROAAcBV2VAT638w9VKyQ==
   dependencies:
     "@es-joy/jsdoccomment" "^0.4.4"
     comment-parser "1.1.5"
