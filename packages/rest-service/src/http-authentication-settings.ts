@@ -15,7 +15,7 @@ export class HttpAuthenticationSettings<TUser extends User, TSession extends Def
   ) => sm.getStoreFor<TUser & { password: string }, keyof TUser>(User as any, 'username')
 
   public getSessionStore: (storeManager: StoreManager) => PhysicalStore<TSession, keyof TSession> = (sm) =>
-    (sm.getStoreFor(DefaultSession, 'sessionId') as unknown) as PhysicalStore<TSession, keyof TSession>
+    sm.getStoreFor(DefaultSession, 'sessionId') as unknown as PhysicalStore<TSession, keyof TSession>
 
   public cookieName = 'fss'
   public hashMethod: (plain: string) => string = (plain) => sha256().update(plain).digest('hex')

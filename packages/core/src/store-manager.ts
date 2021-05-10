@@ -33,7 +33,7 @@ export class StoreManager implements Disposable {
   public getStoreFor<
     T,
     TPrimaryKey extends keyof T,
-    TType extends PhysicalStore<T, TPrimaryKey> = PhysicalStore<T, TPrimaryKey>
+    TType extends PhysicalStore<T, TPrimaryKey> = PhysicalStore<T, TPrimaryKey>,
   >(model: Constructable<T>, primaryKey: TPrimaryKey) {
     const instance = this.stores.get(model)
     if (!instance) {

@@ -37,8 +37,8 @@
     "@furystack/repository": "^5.0.2",
     "@furystack/rest": "^3.0.2",
     "@furystack/utils": "^1.2.31",
-    "ajv": "^8.1.0",
-    "ajv-formats": "^2.0.2",
+    "ajv": "^8.3.0",
+    "ajv-formats": "^2.1.0",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
     "semaphore-async-await": "^1.5.1",
@@ -46,8 +46,8 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.22",
-    "@types/node": "^14.14.41",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.2",
     "@types/uuid": "^8.0.0",
     "got": "^11.8.2"
   },

@@ -24,22 +24,9 @@ jobs:
         node_14_x:
           node_version: 14.x
     displayName: Build and test
-    variables:
-      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     steps:
-
       - checkout: self
         fetchDepth: 1
-      
-      - task: Cache@2
-        inputs:
-          key: 'yarn | "$(Agent.OS)" | yarn.lock'
-          restoreKeys: |
-            yarn | "$(Agent.OS)"
-            yarn
-          path: $(YARN_CACHE_FOLDER)
-        displayName: Cache Yarn packages
-
       - task: DockerCompose@0
         displayName: Start services from docker-compose
         inputs:
@@ -47,7 +34,7 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 yarn install
+      - script: docker exec furystackfurystack_app_1 yarn install --frozen-lockfile
         displayName: 'Install'
 
       - script: docker exec furystackfurystack_app_1 yarn lint
@@ -84,8 +71,6 @@ jobs:
     dependsOn: buildAndTest
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     timeoutInMinutes: 60
-    variables:
-      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
     environment:
       name: NPM
     strategy:
@@ -98,14 +83,6 @@ jobs:
               inputs:
                 versionSpec: '14.x'
               displayName: 'Install Node.js'
-            - task: Cache@2
-              inputs:
-                key: 'yarn | "$(Agent.OS)" | yarn.lock'
-                restoreKeys: |
-                  yarn | "$(Agent.OS)"
-                  yarn
-                path: $(YARN_CACHE_FOLDER)
-              displayName: Cache Yarn packages
             - script: yarn install --frozen-lockfile
               displayName: 'Install'
             - script: yarn build

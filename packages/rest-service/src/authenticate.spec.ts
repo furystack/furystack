@@ -8,7 +8,7 @@ import { IdentityContext } from '@furystack/core'
 import { EmptyResult } from './request-action-implementation'
 
 describe('Authenticate', () => {
-  const response = ({} as any) as ServerResponse
+  const response = {} as any as ServerResponse
   const request = { url: 'http://google.com' } as IncomingMessage
 
   it('Should return 403 w/o basic auth header, when unauthorized and basic auth is disabled', async () => {

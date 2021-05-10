@@ -92,15 +92,15 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
-    const result = await collection.insertMany(entries.map((e) => (({ ...e } as any) as OptionalId<T>)))
+    const result = await collection.insertMany(entries.map((e) => ({ ...e } as any as OptionalId<T>)))
     return {
       created:
         this.primaryKey === '_id'
           ? (result.ops.map((entity) => this.stringifyResultId(entity)) as T[])
-          : ((result.ops.map((entity) => {
+          : (result.ops.map((entity) => {
               const { _id, ...r } = entity
               return r
-            }) as any) as T[]),
+            }) as any as T[]),
     }
   }
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {

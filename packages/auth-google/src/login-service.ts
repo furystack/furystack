@@ -25,21 +25,21 @@ export interface GoogleApiPayload {
 export class GoogleLoginSettings {
   public get = get
 
-  public getUserFromGooglePayload: (
-    payload: GoogleApiPayload,
-    injector: Injector,
-  ) => Promise<User | undefined> = async (payload, injector) => {
-    const userStore = injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager))
-    const users = await userStore.find({
-      top: 2,
-      filter: {
-        username: { $eq: payload.email },
-      },
-    })
-    if (users.length === 1) {
-      return users[0]
+  public getUserFromGooglePayload: (payload: GoogleApiPayload, injector: Injector) => Promise<User | undefined> =
+    async (payload, injector) => {
+      const userStore = injector
+        .getInstance(HttpAuthenticationSettings)
+        .getUserStore(injector.getInstance(StoreManager))
+      const users = await userStore.find({
+        top: 2,
+        filter: {
+          username: { $eq: payload.email },
+        },
+      })
+      if (users.length === 1) {
+        return users[0]
+      }
     }
-  }
 }
 
 /**

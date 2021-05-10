@@ -19,7 +19,7 @@ export const prepareInjector = async (i: Injector) => {
 
 describe('HttpUserContext', () => {
   const request = { headers: {} } as IncomingMessage
-  const response = ({} as any) as ServerResponse
+  const response = {} as any as ServerResponse
 
   const testUser: User = { username: 'testUser', roles: ['grantedRole1', 'grantedRole2'] }
 
@@ -148,7 +148,7 @@ describe('HttpUserContext', () => {
     it('Should return null if no session ID cookie present', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
-        const requestWithCookie = ({ ...request, cookie: 'a=2;b=3;c=4;' } as unknown) as IncomingMessage
+        const requestWithCookie = { ...request, cookie: 'a=2;b=3;c=4;' } as unknown as IncomingMessage
         const ctx = i.getInstance(HttpUserContext)
         const sid = ctx.getSessionIdFromRequest(requestWithCookie)
         expect(sid).toBeNull()
@@ -158,10 +158,10 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const requestWithAuthCookie = ({
+        const requestWithAuthCookie = {
           ...request,
           headers: { cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;` },
-        } as unknown) as IncomingMessage
+        } as unknown as IncomingMessage
 
         const sid = ctx.getSessionIdFromRequest(requestWithAuthCookie)
         expect(sid).toBe('666')

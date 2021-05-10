@@ -5,9 +5,7 @@ import { SchemaValidationError } from './schema-validation-error'
 describe('ValidateSchema', () => {
   describe('String Literal checks', () => {
     it('Should pass on valid string literal parameters', () => {
-      expect(
-        new SchemaValidator(exampleSchema).isValid<Language>('en', { schemaName: 'Language' }),
-      ).toBeTruthy()
+      expect(new SchemaValidator(exampleSchema).isValid<Language>('en', { schemaName: 'Language' })).toBeTruthy()
     })
 
     it('Should throw a ValidationError on Age parameters', () => {
@@ -65,9 +63,7 @@ describe('ValidateSchema', () => {
   describe('Multiple checks per validator instance', () => {
     it('Should pass with multiple types from schema per validator instance', () => {
       const validator = new SchemaValidator(exampleSchema)
-      expect(
-        validator.isValid<Language>('en', { schemaName: 'Language' }),
-      ).toBeTruthy()
+      expect(validator.isValid<Language>('en', { schemaName: 'Language' })).toBeTruthy()
       expect(
         new SchemaValidator(exampleSchema).isValid<BodyParameters>({}, { schemaName: 'BodyParameters' }),
       ).toBeTruthy()
