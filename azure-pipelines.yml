@@ -47,7 +47,7 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 yarn install --frozen-lockfile --cache-folder .yarn
+      - script: docker exec furystackfurystack_app_1 yarn install --frozen-lockfile --cache-folder $(YARN_CACHE_FOLDER)
         displayName: 'Install'
 
       - script: docker exec furystackfurystack_app_1 yarn lint
