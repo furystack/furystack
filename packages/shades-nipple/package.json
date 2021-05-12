@@ -16,7 +16,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@furystack/shades": "^3.2.51",
+    "@furystack/shades": "^3.3.0",
     "nipplejs": "^0.9.0"
   },
   "typings": "dist/index.d.ts",
