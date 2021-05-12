@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "DeleteEndpoint<Mock>": {
+    "DeleteEndpoint<Mock,\"id\">": {
       "additionalProperties": false,
       "description": "Endpoint model for deleting entities",
       "properties": {
@@ -13,9 +13,7 @@
           "additionalProperties": false,
           "properties": {
             "id": {
-              "type": [
-                "string"
-              ]
+              "type": "string"
             }
           },
           "required": [
@@ -242,7 +240,7 @@
       ],
       "type": "object"
     },
-    "GetEntityEndpoint<Mock>": {
+    "GetEntityEndpoint<Mock,\"id\">": {
       "additionalProperties": false,
       "description": "Endpoint model for getting a single entity",
       "properties": {
@@ -271,9 +269,7 @@
           "properties": {
             "id": {
               "description": "The entity's unique identifier",
-              "type": [
-                "string"
-              ]
+              "type": "string"
             }
           },
           "required": [
@@ -305,7 +301,7 @@
       ],
       "type": "object"
     },
-    "PatchEndpoint<Mock>": {
+    "PatchEndpoint<Mock,\"id\">": {
       "additionalProperties": false,
       "description": "Endpoint model for updating entities",
       "properties": {
@@ -329,9 +325,7 @@
           "additionalProperties": false,
           "properties": {
             "id": {
-              "type": [
-                "string"
-              ]
+              "type": "string"
             }
           },
           "required": [
@@ -671,7 +665,7 @@
           "additionalProperties": false,
           "properties": {
             "/mock/:id": {
-              "$ref": "#/definitions/DeleteEndpoint%3CMock%3E"
+              "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E"
             }
           },
           "required": [
@@ -686,7 +680,7 @@
               "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E"
             },
             "/mock/:id": {
-              "$ref": "#/definitions/GetEntityEndpoint%3CMock%3E"
+              "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E"
             },
             "/validate-headers": {
               "$ref": "#/definitions/ValidateHeaders"
@@ -711,7 +705,7 @@
           "additionalProperties": false,
           "properties": {
             "/mock/:id": {
-              "$ref": "#/definitions/PatchEndpoint%3CMock%3E"
+              "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E"
             }
           },
           "required": [
