@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api'
 import './injector-extensions'
@@ -45,6 +45,7 @@ describe('WebSocketApi', () => {
     await usingAsync(new Injector(), async (i) => {
       expect.assertions(1)
       const data = { value: 'alma' }
+      @Injectable()
       class ExampleWsAction implements WebSocketAction {
         public dispose() {
           /** */
