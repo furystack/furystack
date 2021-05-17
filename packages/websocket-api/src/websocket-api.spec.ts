@@ -1,8 +1,9 @@
-import { Injector } from '@furystack/inject'
+import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api'
 import './injector-extensions'
 import WebSocket from 'ws'
+import { WebSocketAction } from './models'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
@@ -20,6 +21,7 @@ describe('WebSocketApi', () => {
 
   it('Should broadcast messages', async () => {
     await usingAsync(new Injector(), async (i) => {
+      expect.assertions(4) // All 4 clients should receive the message
       i.useWebsockets({ path: '/web-socket', port: 19994 })
       const api = i.getInstance(WebSocketApi)
       await Promise.all(
@@ -36,6 +38,36 @@ describe('WebSocketApi', () => {
           await new Promise<void>((resolve) => client.once('close', () => resolve()))
         }),
       )
+    })
+  })
+
+  it('Should receive client messages', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      expect.assertions(1)
+      const data = { value: 'alma' }
+      @Injectable()
+      class ExampleWsAction implements WebSocketAction {
+        public dispose() {
+          /** */
+        }
+        public static canExecute() {
+          return true
+        }
+
+        public async execute(incomingData: any) {
+          expect(JSON.parse(incomingData.data.toString())).toEqual(data)
+        }
+      }
+
+      i.useWebsockets({ path: '/web-socket', port: 19995, actions: [ExampleWsAction] })
+      const client = new WebSocket('ws://localhost:19995/web-socket')
+      await new Promise<void>((resolve) => client.once('open', () => resolve()))
+
+      await new Promise<void>((resolve, reject) =>
+        client.send(JSON.stringify(data), (err) => (err ? reject(err) : resolve())),
+      )
+      client.close()
+      await new Promise<void>((resolve) => client.once('close', () => resolve()))
     })
   })
 })

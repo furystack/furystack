@@ -110,8 +110,8 @@ declare global {
       dd: PartialElement<HTMLElement>
       /**
        * The <del> tag defines text that has been deleted from a document.
-       * **Tip:** Also look at the <ins> tag to markup inserted text.
-       * **Tip:** Use <del> and <ins> to markup updates and modifications in a document. Browsers will normally strike a line through deleted text and underline inserted text.
+       * Tip:** Also look at the <ins> tag to markup inserted text.
+       * Tip:** Use <del> and <ins> to markup updates and modifications in a document. Browsers will normally strike a line through deleted text and underline inserted text.
        */
       del: PartialElement<HTMLElement>
       /**
@@ -149,7 +149,7 @@ declare global {
       dt: PartialElement<HTMLElement>
       /**
        * The <em> tag is a phrase tag. It renders as emphasized text.
-       * **Tip:** This tag is not deprecated, but it is possible to achieve richer effect with CSS.
+       * Tip:** This tag is not deprecated, but it is possible to achieve richer effect with CSS.
        */
       em: PartialElement<HTMLElement>
       /**
@@ -316,7 +316,7 @@ declare global {
       p: PartialElement<HTMLParagraphElement>
       /**
        * The <param> tag is used to define parameters for plugins embedded with an <object> element.
-       * **Tip:** HTML 5 also includes two new elements for playing audio or video: The <audio> and <video> tags.
+       * Tip:** HTML 5 also includes two new elements for playing audio or video: The <audio> and <video> tags.
        */
       param: PartialElement<HTMLParamElement>
       /**
