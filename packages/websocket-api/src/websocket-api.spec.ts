@@ -55,7 +55,7 @@ describe('WebSocketApi', () => {
         }
 
         public async execute(incomingData: any) {
-          expect(JSON.parse(incomingData.toString())).toEqual(data)
+          expect(JSON.parse(incomingData.data.toString())).toEqual(data)
         }
       }
 
