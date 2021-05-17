@@ -61,16 +61,13 @@ describe('WebSocketApi', () => {
 
       i.useWebsockets({ path: '/web-socket', port: 19995, actions: [ExampleWsAction] })
       const client = new WebSocket('ws://localhost:19995/web-socket')
-      try {
-        await new Promise<void>((resolve) => client.once('open', () => resolve()))
+      await new Promise<void>((resolve) => client.once('open', () => resolve()))
 
-        await new Promise((resolve, reject) =>
-          client.send(JSON.stringify(data), (err) => (err ? reject(err) : resolve)),
-        )
-      } finally {
-        client.close()
-        await new Promise<void>((resolve) => client.once('close', () => resolve()))
-      }
+      await new Promise<void>((resolve, reject) =>
+        client.send(JSON.stringify(data), (err) => (err ? reject(err) : resolve())),
+      )
+      client.close()
+      await new Promise<void>((resolve) => client.once('close', () => resolve()))
     })
   })
 })
