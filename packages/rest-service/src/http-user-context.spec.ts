@@ -288,7 +288,7 @@ describe('HttpUserContext', () => {
         ctx.authenticateRequest = jest.fn(async () => testUser)
         ctx.getSessionStore().remove = jest.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
-        response.setHeader = jest.fn(() => undefined)
+        response.setHeader = jest.fn(() => response)
         await ctx.cookieLogin(testUser, { setHeader } as any)
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
