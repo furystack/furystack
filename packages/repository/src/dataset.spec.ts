@@ -126,8 +126,8 @@ describe('DataSet', () => {
         })
       })
 
-      it('should call the onEntityAdded callback if an entity has been added', async (done) => {
-        await usingAsync(new Injector(), async (i) => {
+      it('should call the onEntityAdded callback if an entity has been added', (done) => {
+        usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', {}))
@@ -253,8 +253,8 @@ describe('DataSet', () => {
         })
       })
 
-      it('should publish to the onEntityUpdated observable if an entity has been updated', async (done) => {
-        await usingAsync(new Injector(), async (i) => {
+      it('should publish to the onEntityUpdated observable if an entity has been updated', (done) => {
+        usingAsync(new Injector(), async (i) => {
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
@@ -528,8 +528,8 @@ describe('DataSet', () => {
         expect(count).toBe(1)
       })
     })
-    it('should publish to the onEntityRemoved observable if an entity has been removed', async (done) => {
-      await usingAsync(new Injector(), async (i) => {
+    it('should publish to the onEntityRemoved observable if an entity has been removed', (done) => {
+      usingAsync(new Injector(), async (i) => {
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
