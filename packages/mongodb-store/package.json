@@ -34,7 +34,7 @@
     "@furystack/logging": "^2.0.72",
     "@furystack/utils": "^1.2.35",
     "@types/mongodb": "^3.6.16",
-    "mongodb": "^3.6.8",
+    "mongodb": "^3.6.9",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.2.0"
   },
