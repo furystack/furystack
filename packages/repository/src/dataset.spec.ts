@@ -126,15 +126,15 @@ describe('DataSet', () => {
         })
       })
 
-      it('should call the onEntityAdded callback if an entity has been added', async (done) => {
+      it('should call the onEntityAdded callback if an entity has been added', async () => {
         await usingAsync(new Injector(), async (i) => {
+          expect.assertions(1)
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass, 'id', {}))
 
           i.getDataSetFor(TestClass, 'id').onEntityAdded.subscribe(({ entity }) => {
             expect(entity.value).toBe('asd')
-            done()
           })
 
           const dataSet = i.getDataSetFor(TestClass, 'id')
@@ -253,15 +253,15 @@ describe('DataSet', () => {
         })
       })
 
-      it('should publish to the onEntityUpdated observable if an entity has been updated', async (done) => {
+      it('should publish to the onEntityUpdated observable if an entity has been updated', async () => {
         await usingAsync(new Injector(), async (i) => {
+          expect.assertions(1)
           i.setupStores((stores) =>
             stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
           ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
           i.getDataSetFor(TestClass, 'id').onEntityUpdated.subscribe(({ change }) => {
             expect(change).toEqual({ id: 1, value: 'asd2' })
-            done()
           })
 
           const dataSet = i.getDataSetFor(TestClass, 'id')
@@ -528,15 +528,15 @@ describe('DataSet', () => {
         expect(count).toBe(1)
       })
     })
-    it('should publish to the onEntityRemoved observable if an entity has been removed', async (done) => {
+    it('should publish to the onEntityRemoved observable if an entity has been removed', async () => {
       await usingAsync(new Injector(), async (i) => {
+        expect.assertions(1)
         i.setupStores((stores) =>
           stores.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' })),
         ).setupRepository((repo) => repo.createDataSet(TestClass, 'id'))
 
         i.getDataSetFor(TestClass, 'id').onEntityRemoved.subscribe(({ key }) => {
           expect(key).toEqual(1)
-          done()
         })
 
         const dataSet = i.getDataSetFor(TestClass, 'id')
