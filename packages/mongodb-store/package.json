@@ -33,14 +33,14 @@
     "@furystack/inject": "^4.0.65",
     "@furystack/logging": "^2.0.72",
     "@furystack/utils": "^1.2.35",
-    "@types/mongodb": "^3.6.16",
-    "mongodb": "^3.6.8",
+    "@types/mongodb": "^3.6.17",
+    "mongodb": "^3.6.9",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.2.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
-    "@types/node": "^15.6.0",
+    "@types/node": "^15.12.1",
     "@types/uuid": "^8.0.0",
     "got": "^11.8.2",
     "uuid": "^8.3.2"
