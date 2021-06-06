@@ -140,7 +140,6 @@ export class DataSet<T, TPrimaryKey extends keyof T> implements Disposable {
    * @param injector The injector from the context
    * @param key The identifier of the entity
    * @param select A field list used for projection
-   *
    * @returns An item with the current unique key or Undefined
    */
   public async get(injector: Injector, key: T[TPrimaryKey], select?: Array<keyof T>) {

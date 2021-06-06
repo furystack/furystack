@@ -34,7 +34,6 @@ export class HttpUserContext {
    *
    * @param request The request to be authenticated
    * @param roles The list of roles to authorize
-   *
    * @returns a boolean value that indicates if the user is authenticated
    */
   public async isAuthorized(request: IncomingMessage, ...roles: string[]): Promise<boolean> {
