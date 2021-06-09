@@ -25,9 +25,16 @@ describe('WebSocketApi', () => {
       i.useWebsockets({ path: '/web-socket', port: 19994 })
       const api = i.getInstance(WebSocketApi)
       await Promise.all(
-        [1, 2, 3, 4].map(async () => {
+        [1, 2, 3, 4, 5].map(async (idx) => {
           const client = new WebSocket('ws://localhost:19994/web-socket')
-          await new Promise<void>((resolve) => client.once('open', () => resolve()))
+          await new Promise<void>((resolve) =>
+            client.once('open', () => {
+              if (idx === 5) {
+                client.close() //
+              }
+              resolve()
+            }),
+          )
           client.once('message', (data) => {
             expect(data.toString()).toBe('alma')
           })
