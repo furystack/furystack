@@ -59,13 +59,15 @@ export class WebSocketApi implements Disposable {
   ) {
     const errors: any[] = []
     await Promise.all(
-      [...this.clients.values()].map(async (client) => {
-        try {
-          await callback(client)
-        } catch (error) {
-          errors.push({ message: error.message, stack: error.stack })
-        }
-      }),
+      [...this.clients.values()]
+        .filter((client) => client.ws.readyState === WebSocket.OPEN)
+        .map(async (client) => {
+          try {
+            await callback(client)
+          } catch (error) {
+            errors.push({ message: error.message, stack: error.stack })
+          }
+        }),
     )
     if (errors.length) {
       throw new AggregatedError('The Broadcast operation encountered some errors', errors)
