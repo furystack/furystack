@@ -17,6 +17,7 @@ class TestSequelizeClass extends Model implements TestClass {
 describe('Sequelize Store', () => {
   createStoreTest({
     typeName: 'sequelize-store',
+    skipRegexTests: true,
     createStore: () => {
       const i = new Injector().setupStores((sm) =>
         sm.useSequelize({
