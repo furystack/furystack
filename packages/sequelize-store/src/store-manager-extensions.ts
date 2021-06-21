@@ -1,5 +1,5 @@
 import { StoreManager } from '@furystack/core/dist/store-manager'
-import { Options, ModelCtor, Model } from 'sequelize'
+import { Options, ModelCtor, Model, Sequelize } from 'sequelize'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import { SequelizeStore } from './sequelize-store'
 
@@ -24,18 +24,19 @@ declare module '@furystack/core/dist/store-manager' {
        * Optional options for the MongoDb Client
        */
       options: Options
+
+      initModel?: (sequelize: Sequelize) => Promise<void>
     }) => this
   }
 }
 
-StoreManager.prototype.useSequelize = function ({ model, primaryKey, db, collection, url, options }) {
+StoreManager.prototype.useSequelize = function ({ model, primaryKey, options, initModel }) {
   const clientFactory = this.injector.getInstance(SequelizeClientFactory)
   const store = new SequelizeStore({
     model,
     primaryKey,
-    db,
-    collection,
-    mongoClient: async () => await clientFactory.getClientFor(options),
+    getSequelizeClient: async () => await clientFactory.getSequelizeClient(options),
+    initModel,
   })
   this.addStore(store)
   return this
