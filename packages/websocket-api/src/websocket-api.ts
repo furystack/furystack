@@ -60,7 +60,7 @@ export class WebSocketApi implements Disposable {
     const errors: any[] = []
     await Promise.all(
       [...this.clients.values()]
-        .filter((client) => client.ws.readyState === WebSocket.OPEN)
+        .filter((client) => client.ws.readyState === ws.OPEN)
         .map(async (client) => {
           try {
             await callback(client)
