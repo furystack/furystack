@@ -44,12 +44,17 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
     }
     try {
       const client = await this.options.getSequelizeClient()
-      const model = client.model(this.options.model.constructor.name) as ModelCtor<T> | undefined
+
+      if (this.options.initModel) {
+        await this.options.initModel(client)
+        await client.sync()
+      }
+
+      const model = client.model(this.options.model.name) as ModelCtor<T> | undefined
 
       if (!model) {
-        throw Error(`'No initialized Sequelize model found for '${this.options.model.constructor.name}'`)
+        throw Error(`'No initialized Sequelize model found for '${this.options.model.name}'`)
       }
-      await this.options.initModel?.(client)
 
       this.initializedModel = model
       return model
@@ -66,12 +71,16 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
     const model = await this.getModel()
     const created = await model.bulkCreate(entries)
     return {
-      created,
+      created: created.map((c) => c.toJSON() as T),
     }
   }
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const model = await this.getModel()
-    await model.update(data, { where: { [this.primaryKey]: id } as any })
+
+    const result = await model.update(data, { where: { [this.primaryKey]: id } as any })
+    if (result[0] < 1) {
+      throw Error('Entity not found')
+    }
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const model = await this.getModel()
@@ -98,12 +107,12 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
       limit: filter.top,
       offset: filter.skip,
     })
-    return result
+    return result.map((r) => r.toJSON() as T)
   }
 
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>): Promise<T | undefined> {
     const model = await this.getModel()
-    return await model.findByPk(key as any, { attributes: select } as any)
+    return (await (await model.findByPk(key as any, { attributes: select } as any))?.toJSON()) as T
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const model = await this.getModel()

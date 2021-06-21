@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import './store-manager-extensions'
-import { DataTypes, Model } from 'sequelize/types'
+import { DataTypes, Model } from 'sequelize'
 
 class TestSequelizeClass extends Model implements TestClass {
   id!: number
@@ -14,9 +14,9 @@ class TestSequelizeClass extends Model implements TestClass {
   dateValue!: Date
 }
 
-describe('MongoDB Store', () => {
+describe('Sequelize Store', () => {
   createStoreTest({
-    typeName: 'mongodb-store',
+    typeName: 'sequelize-store',
     createStore: () => {
       const i = new Injector().setupStores((sm) =>
         sm.useSequelize({
@@ -47,22 +47,19 @@ describe('MongoDB Store', () => {
                 numberValue2: {
                   type: DataTypes.INTEGER,
                 },
-                booleanValue2: {
+                booleanValue: {
                   type: DataTypes.BOOLEAN,
                 },
                 dateValue: {
                   type: DataTypes.DATE,
                 },
               },
-              { sequelize },
+              { sequelize, timestamps: false },
             )
           },
         }),
       )
-      const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
-      store.dispose = async () => {
-        await i.dispose()
-      }
+      const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       return store
     },
   })
