@@ -30,13 +30,16 @@
       "path": "./rest"
     },
     {
-      "path": "./rest-service"
-    },
-    {
       "path": "./rest-client-fetch"
     },
     {
       "path": "./rest-client-got"
+    },
+    {
+      "path": "./rest-service"
+    },
+    {
+      "path": "./sequelize-store"
     },
     {
       "path": "./utils"

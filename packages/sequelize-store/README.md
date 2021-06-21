@@ -1,14 +1,14 @@
 # mongodb-store
 
-MongoDB Physical Store implementation for FuryStack.
+Sequelize Physical Store implementation for FuryStack.
 
 Initialization
 
 ```ts
 
-import '@furystack/mongodb-store'
+import '@furystack/sequelize-store'
 
-export class TestEntry {
+export class TestEntry extends Model<...,...> {
   // tslint:disable-next-line: naming-convention
   public _id!: string
   public value!: string
@@ -16,7 +16,7 @@ export class TestEntry {
 
 myInjector
   .setupStores(sm => {
-    sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+    sm.useSequelize(TestEntry, '...other Sequelize-related options...')
 
 
 const myStore: IPhysicalStore<TestEntry> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)

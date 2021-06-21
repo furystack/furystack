@@ -27,6 +27,7 @@ export const createMockEntity = (part?: Partial<TestClass>) =>
 export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string
   createStore: () => PhysicalStore<T, TPrimaryKey>
+  skipRegexTests?: boolean
 }
 
 export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
@@ -296,19 +297,21 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
       })
 
-      it('filter should return the corresponding entries with $regex', async () => {
-        await usingAsync(options.createStore(), async (store) => {
-          await store.add(
-            createMockEntity({ id: 1, stringValue1: 'asd' }),
-            createMockEntity({ id: 2, stringValue1: 'aaa' }),
-            createMockEntity({ id: 3, stringValue1: 'bbb' }),
-          )
+      if (!options.skipRegexTests) {
+        it('filter should return the corresponding entries with $regex', async () => {
+          await usingAsync(options.createStore(), async (store) => {
+            await store.add(
+              createMockEntity({ id: 1, stringValue1: 'asd' }),
+              createMockEntity({ id: 2, stringValue1: 'aaa' }),
+              createMockEntity({ id: 3, stringValue1: 'bbb' }),
+            )
 
-          const result = await store.find({ filter: { stringValue1: { $regex: '([a])' } } })
-          expect(result.length).toBe(2)
-          expect(result.map((r) => r.stringValue1)).toEqual(['asd', 'aaa'])
+            const result = await store.find({ filter: { stringValue1: { $regex: '([a])' } } })
+            expect(result.length).toBe(2)
+            expect(result.map((r) => r.stringValue1)).toEqual(['asd', 'aaa'])
+          })
         })
-      })
+      }
     })
 
     describe('Count', () => {
