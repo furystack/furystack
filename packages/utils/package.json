@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "1.2.36",
+  "version": "1.2.37",
   "description": "General utilities",
   "main": "dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -30,7 +30,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
-    "tslib": "^2.2.0"
+    "tslib": "^2.3.0"
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
