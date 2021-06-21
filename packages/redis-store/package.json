@@ -35,7 +35,7 @@
     "@furystack/utils": "^1.2.37",
     "redis": "^3.1.2",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.2.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

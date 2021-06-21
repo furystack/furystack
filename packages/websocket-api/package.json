@@ -34,12 +34,12 @@
     "@furystack/logging": "^2.0.74",
     "@furystack/rest-service": "^4.0.8",
     "@furystack/utils": "^1.2.37",
-    "tslib": "^2.2.0",
-    "ws": "^7.4.6"
+    "tslib": "^2.3.0",
+    "ws": "^7.5.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
-    "@types/ws": "^7.4.4"
+    "@types/ws": "^7.4.5"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
