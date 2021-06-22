@@ -6,7 +6,7 @@ Core package for FuryStack with some generic type and interface definitions and 
 
 ### Physical Store
 
-A physical store represents how do you store data - it can contain an abstraction between FuryStack and e.g. an external ORM, In Memory Store or any other data provider
+In **FuryStack**, the preferred mode of accessing data is via physical stores. A physical store is a bare minimum interface that a store should do. A store is always bound to a collection with a specified type of entities. It can only do the basic CRUD operations (create, get by Id, filter, delete, count). These stores should not have a concept about relations, indexes and other storage-specific stuff. Data stores doesn't care about permission, role or session checking.
 
 ### Identity Context
 
