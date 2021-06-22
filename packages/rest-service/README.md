@@ -65,10 +65,7 @@ If you want to implement an endpoint with custom logic, you can define it in the
 import { Injector } from '@furystack/inject'
 import { RestApi } from '@furystack/rest'
 
-/** In a Common module */
-export interface MyApiWithCustomEndpoint extends RestApi {
-  POST: {
-    '/my-custom-request-action/:entityId': {
+export type MyCustomRequestAction = {
       /** The request should contain this POST Body structure */
       body: {
         foo: string
@@ -91,6 +88,11 @@ export interface MyApiWithCustomEndpoint extends RestApi {
         success: boolean
       }
     }
+
+/** In a Common module */
+export interface MyApiWithCustomEndpoint extends RestApi {
+  POST: {
+    '/my-custom-request-action/:entityId': MyCustomRequestAction
   }
 }
 
@@ -172,6 +174,23 @@ getResult().then((data) => {
 ```
 
 ### Payload validation
+
+Type-safe APIs does **NOT** comes with built-in validation by default - but you can use the JSON Schema for full payload validation.
+The prefferred way is:
+1. Create your API interface
+1. Create JSON Schemas from the API (The `ts-json-schema-generator` package is the best solution nowdays, you can check how it works, [here](https://github.com/furystack/furystack/blob/develop/package.json#L39))
+1. Use the Validate middleware, as shown in the following example:
+
+```ts
+import schema from './path-to-my/generated-schema.json'
+const myValidatedApi = Validate({
+  schema,
+  schemaName: 'MyCustomRequestAction' // As defined in the example above
+})(...myApiImplementation...)
+
+```
+
+In that way, you will get full validation for _all_ defined endpoint data (header, body, url parameters, query string) with verbose error messages from `ajv` (see [integration tests](https://github.com/furystack/furystack/blob/develop/packages/rest-service/src/validate.integration.spec.ts))
 
 
 ### Authentication and HttpUserContext
