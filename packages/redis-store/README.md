@@ -1,6 +1,6 @@
 # redis-store
 
-Redis Physical Store implementation for FuryStack. `filter()` and `count()` is not supported at the moment.
+Redis Physical Store implementation for FuryStack. `filter()` and `count()` is not supported.
 
 An usage example:
 
@@ -19,5 +19,5 @@ class MyModel {
 const myInjector = new Injector()
 myInjector.useLogging().setupStores(stores => stores.useRedis(MyModel, 'id', createClient()))
 
-const myStore: IPhysicalStore<MyModel> = myInjector.getInstance(StoreManager).getStoreFor(MyModel)
+const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel)
 ```
