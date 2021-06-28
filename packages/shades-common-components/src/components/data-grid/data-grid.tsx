@@ -47,16 +47,20 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
     return () => Promise.all(subscriptions.map((s) => s.dispose()))
   },
   render: ({ props, getState, injector }) => {
-    const theme = injector.getInstance(ThemeProviderService).theme.getValue()
+    const tp = injector.getInstance(ThemeProviderService)
+    const theme = tp.theme.getValue()
     const state = getState()
     if (state.error) {
       return <div style={{ color: colors.error.main }}>{JSON.stringify(state.error)}</div>
     }
 
+    const { r, g, b } = tp.getRgbFromColorString(theme.background.paper)
     const headerStyle: Partial<CSSStyleDeclaration> = {
-      padding: '1em 3em',
-      backgroundColor: theme.background.paper,
+      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.3)`,
+      backdropFilter: 'blur(10px)',
+      padding: '12px 0',
       color: theme.text.secondary,
+      alignItems: 'center',
       borderRadius: '2px',
       top: '0',
       position: 'sticky',
@@ -76,7 +80,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           overflow: 'auto',
           zIndex: '1',
         }}>
-        <table style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <table style={{ width: '100%', height: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
             <tr>
               {props.columns.map((column: any) => {

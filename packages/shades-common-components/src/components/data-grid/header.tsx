@@ -54,23 +54,30 @@ export const DataGridHeader: <T, K extends keyof T>(
       }, 1)
       return (
         <Input
+          style={{ padding: '0px' }}
           value={filterValue}
           placeholder={props.field}
           autofocus
           onblur={() => updateState({ isSearchOpened: false })}
           onkeyup={(ev) => currentState.updateSearchValue((ev.target as HTMLInputElement).value)}
+          labelProps={{
+            style: { padding: '0px 2em' },
+          }}
         />
       )
     }
 
     return (
-      <div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'space-evenly' }}>
+      <div
+        style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'space-around' }}
+        onclick={() => updateState({ isSearchOpened: true })}>
         <div>{props.field}</div>
         <div className="header-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <div
             title="Change order"
             style={{ padding: '0 1em', cursor: 'pointer', opacity: currentOrder === props.field ? '1' : '0.5' }}
-            onclick={() => {
+            onclick={(ev) => {
+              ev.stopPropagation()
               let newDirection: 'ASC' | 'DESC' = 'ASC'
               const newOrder: { [K in keyof any]: 'ASC' | 'DESC' } = {}
 
@@ -84,12 +91,6 @@ export const DataGridHeader: <T, K extends keyof T>(
               })
             }}>
             {(currentOrder === props.field && (currentOrderDirection === 'ASC' ? '⬇' : '⬆')) || '↕'}
-          </div>
-          <div
-            style={{ cursor: 'pointer', opacity: filterValue ? '1' : '0.5' }}
-            title="Search"
-            onclick={() => updateState({ isSearchOpened: true })}>
-            🔍
           </div>
         </div>
       </div>
