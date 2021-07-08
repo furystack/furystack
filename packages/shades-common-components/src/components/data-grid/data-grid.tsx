@@ -20,8 +20,8 @@ export interface DataGridProps<T> {
   service: CollectionService<T>
   headerComponents: DataHeaderCells<T>
   rowComponents: DataRowCells<T>
-  onFocusChange: (entry?: T) => void
-  onSelectionChange: (selection: T[]) => void
+  onFocusChange?: (entry?: T) => void
+  onSelectionChange?: (selection: T[]) => void
   onDoubleClick?: (entry: T) => void
 }
 
