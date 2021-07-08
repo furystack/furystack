@@ -20,6 +20,8 @@ export interface DataGridProps<T> {
   service: CollectionService<T>
   headerComponents: DataHeaderCells<T>
   rowComponents: DataRowCells<T>
+  onFocusChange: (entry?: T) => void
+  onSelectionChange: (selection: T[]) => void
   onDoubleClick?: (entry: T) => void
 }
 
@@ -34,15 +36,19 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   shadowDomName: 'shade-data-grid',
   getInitialState: () => ({}),
   constructed: ({ props, updateState, injector, element }) => {
+    const tp = injector.getInstance(ThemeProviderService)
     const subscriptions = [
       props.service.error.subscribe((error) => updateState({ error })),
-      injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
+      tp.theme.subscribe((t) => {
         const headers = element.querySelectorAll('th')
+        const { r, g, b } = tp.getRgbFromColorString(t.background.paper)
         headers.forEach((header) => {
           header.style.color = t.text.secondary
-          header.style.background = t.background.paper
+          header.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.3)`
         })
       }),
+      props.service.focus.subscribe((f) => props.onFocusChange?.(f)),
+      props.service.selection.subscribe((f) => props.onSelectionChange?.(f)),
     ]
     return () => Promise.all(subscriptions.map((s) => s.dispose()))
   },
