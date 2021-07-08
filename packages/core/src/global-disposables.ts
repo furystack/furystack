@@ -17,16 +17,19 @@ export const exitHandler = (async () => {
 }).bind(null)
 
 // do something when app is closing
-process.on('exit', exitHandler)
+globalThis.process?.on?.('exit', exitHandler)
 
 // catches ctrl+c event
-process.on('SIGINT', exitHandler)
+globalThis.process?.on?.('SIGINT', exitHandler)
 
-process.once('SIGTERM', () => exitHandler)
+globalThis.process?.on?.('SIGTERM', () => exitHandler)
 
 // catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', exitHandler)
-process.on('SIGUSR2', exitHandler)
+globalThis.process?.on?.('SIGUSR1', exitHandler)
+globalThis.process?.on?.('SIGUSR2', exitHandler)
 
 // catches uncaught exceptions
-process.on('uncaughtException', exitHandler)
+globalThis.process?.on?.('uncaughtException', exitHandler)
+
+// Browser environment
+;(globalThis as any).window?.addEventListener('beforeunload', exitHandler)
