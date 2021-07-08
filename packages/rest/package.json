@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest",
-  "version": "3.0.11",
+  "version": "3.0.12",
   "description": "Generic REST package",
   "main": "dist/index.js",
   "files": [
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^4.0.70",
+    "@furystack/inject": "^4.0.71",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
