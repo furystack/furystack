@@ -31,15 +31,15 @@
     "@furystack/inject": "^4.0.69",
     "@furystack/logging": "^2.0.76",
     "@furystack/utils": "^1.2.39",
-    "@types/mongodb": "^3.6.18",
-    "mongodb": "^3.6.9",
+    "@types/mongodb": "^3.6.20",
+    "mongodb": "^3.6.10",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.4",
-    "@types/uuid": "^8.0.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.0.1",
+    "@types/uuid": "^8.3.1",
     "uuid": "^8.3.2"
   },
   "typings": "./dist/index.d.ts",
