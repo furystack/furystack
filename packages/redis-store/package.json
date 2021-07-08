@@ -38,9 +38,9 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/redis": "^2.8.29",
-    "@types/uuid": "^8.0.0",
+    "@types/jest": "^26.0.24",
+    "@types/redis": "^2.8.31",
+    "@types/uuid": "^8.3.1",
     "uuid": "^8.3.2"
   },
   "typings": "./dist/index.d.ts",
