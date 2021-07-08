@@ -42,3 +42,16 @@ const dataSet = myInjector.getDataSetFor(MyModel)
 dataSet.add(myInjector, { id: 1, value: 'foo' }) // <-- this will log to a logger
 dataSet.update(myInjector, 1, { id: 1, value: 'bar' }) // <--- this one will be rejected
 ```
+
+### Events
+Events are great for logging / monitoring DataSet changes or distribute changes to clients. They are simple optional callbacks - if they are defined, they will be called on a specific event. These events are `onEntityAdded`, `onEntityUpdated` and `onEntityRemoved`
+
+### Authorizing operations
+**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These `areauthorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authroizeRemoveEntity` (also needs reloading), `authorizeGet`,`authorizeGetEntity` (also needs reloading),
+
+### Modifiers and additional filters
+There are some callbacks that modifies an entity before persisting (like `modifyOnAdd` or `modifyOnUpdate`). For example, you can fill createdByUser or lastModifiedByUser fields with these.
+There is an additional property called `addFilter`, you can use that to add a pre-filter condition **before** a filter expression will be evaluated in the data store - ensuring e.g. that the user can _retrieve_ only suff from the physical store that she has enough permission.
+
+### Getting the Context
+All methods above has an _injector instance_ on the call parameter - you can use that injector to get service instances from the right caller context. It means that you can use e.g.: HttpUserContext to getting the current user.
