@@ -28,8 +28,8 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.4"
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.0.1"
   },
   "dependencies": {
     "@furystack/inject": "^4.0.69",

@@ -37,7 +37,7 @@
     "@furystack/repository": "^5.0.10",
     "@furystack/rest": "^3.0.10",
     "@furystack/utils": "^1.2.39",
-    "ajv": "^8.6.0",
+    "ajv": "^8.6.1",
     "ajv-formats": "^2.1.0",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
@@ -46,9 +46,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.4",
-    "@types/uuid": "^8.0.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.0.1",
+    "@types/uuid": "^8.3.1",
     "got": "^11.8.2"
   },
   "typings": "./dist/index.d.ts",
