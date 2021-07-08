@@ -20,6 +20,8 @@ export interface DataGridProps<T> {
   service: CollectionService<T>
   headerComponents: DataHeaderCells<T>
   rowComponents: DataRowCells<T>
+  onFocusChange: (entry?: T) => void
+  onSelectionChange: (selection: T[]) => void
   onDoubleClick?: (entry: T) => void
 }
 
@@ -34,29 +36,37 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   shadowDomName: 'shade-data-grid',
   getInitialState: () => ({}),
   constructed: ({ props, updateState, injector, element }) => {
+    const tp = injector.getInstance(ThemeProviderService)
     const subscriptions = [
       props.service.error.subscribe((error) => updateState({ error })),
-      injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
+      tp.theme.subscribe((t) => {
         const headers = element.querySelectorAll('th')
+        const { r, g, b } = tp.getRgbFromColorString(t.background.paper)
         headers.forEach((header) => {
           header.style.color = t.text.secondary
-          header.style.background = t.background.paper
+          header.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.3)`
         })
       }),
+      props.service.focus.subscribe((f) => props.onFocusChange?.(f)),
+      props.service.selection.subscribe((f) => props.onSelectionChange?.(f)),
     ]
     return () => Promise.all(subscriptions.map((s) => s.dispose()))
   },
   render: ({ props, getState, injector }) => {
-    const theme = injector.getInstance(ThemeProviderService).theme.getValue()
+    const tp = injector.getInstance(ThemeProviderService)
+    const theme = tp.theme.getValue()
     const state = getState()
     if (state.error) {
       return <div style={{ color: colors.error.main }}>{JSON.stringify(state.error)}</div>
     }
 
+    const { r, g, b } = tp.getRgbFromColorString(theme.background.paper)
     const headerStyle: Partial<CSSStyleDeclaration> = {
-      padding: '1em 3em',
-      backgroundColor: theme.background.paper,
+      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.3)`,
+      backdropFilter: 'blur(10px)',
+      padding: '12px 0',
       color: theme.text.secondary,
+      alignItems: 'center',
       borderRadius: '2px',
       top: '0',
       position: 'sticky',
@@ -76,7 +86,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           overflow: 'auto',
           zIndex: '1',
         }}>
-        <table style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <table style={{ width: '100%', height: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
             <tr>
               {props.columns.map((column: any) => {
