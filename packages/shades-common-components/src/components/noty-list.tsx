@@ -78,7 +78,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
           backgroundColor: colors.main,
           color: textColor,
           margin: '8px',
-          borderRadius: '4px',
+          overflow: 'hidden',
+          borderRadius: '6px',
           boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
         }}>
         <div
@@ -86,9 +87,10 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '6px 16px',
+            padding: '0px 0px 0px 16px',
             backgroundColor: colors.dark,
             color: headerTextColor,
+            fontSize: '1.3em',
           }}>
           <h5
             style={{
@@ -100,11 +102,19 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             title={props.model.title}>
             {props.model.title}
           </h5>
-          <Button className="dismissNoty" onclick={removeSelf}>
+          <Button
+            className="dismissNoty"
+            onclick={removeSelf}
+            title="Close Notification"
+            variant="contained"
+            color={props.model.type}
+            style={{
+              padding: '6px',
+            }}>
             ✖
           </Button>
         </div>
-        <div style={{ padding: '6px 16px' }}>{props.model.body}</div>
+        <div style={{ padding: '16px 16px' }}>{props.model.body}</div>
       </div>
     )
   },

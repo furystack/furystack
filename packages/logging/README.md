@@ -1,10 +1,10 @@
 # @furystack/logging
 
-Logging package for FuryStack
+Generic Logging package for FuryStack
 
 ## Initializing with @furystack/inject
 
-You can start using the Logging service with an injector in the following way
+You can start using the Logging service with an injector in the following way:
 
 ```ts
 import { ConsoleLogger } from '@furystack/logging'
@@ -16,6 +16,12 @@ You can retrieve the Logger instance with
 
 ```ts
 const myLogger = myInjector.logger
+```
+
+...or with a specific scope:
+
+```ts
+myInjector.getLogger.withScope('CustomScope')
 ```
 
 ## Logging events

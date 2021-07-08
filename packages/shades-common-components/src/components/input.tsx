@@ -6,11 +6,13 @@ export interface InputProps extends PartialElement<HTMLInputElement> {
   onTextChange?: (text: string) => void
   labelTitle?: string
   multiLine?: false
+  labelProps?: PartialElement<HTMLLabelElement>
 }
 
 export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
   labelTitle?: string
   multiLine: true
+  labelProps?: PartialElement<HTMLLabelElement>
 }
 
 export type TextInputProps = InputProps | TextAreaProps
@@ -20,6 +22,7 @@ export const Input = Shade<TextInputProps>({
   render: ({ props, element }) => {
     return (
       <label
+        {...props.labelProps}
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -29,6 +32,7 @@ export const Input = Shade<TextInputProps>({
           color: props.disabled ? 'rgb(170, 170, 170)' : '#bbb',
           marginBottom: '1em',
           padding: '1em',
+          ...props.labelProps?.style,
         }}>
         {props.labelTitle}
         {props.multiLine ? (

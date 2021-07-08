@@ -75,3 +75,11 @@ class MyService {
 
 myInjector.setExplicitInstance(new MyService('bar'))
 ```
+
+### Extension methods
+A simple injector can easily extended from 3rd party packages with extension methods, just like the FuryStack packages. These extension methods usually provides a shortcut of an instance or sets up a preconfigured explicit instance of a service. You can build clean and nice fluent API-s in that way - you can check this [logger extension method](https://github.com/furystack/furystack/blob/develop/packages/logging/src/injector-extensions.ts) for the idea
+
+### A few things to care about
+**Circular imports:** If two of your services are importing each other, one of them will be ignored by CommonJs. Typescript won't complain at compile time, but if you get this:
+`Uncaught TypeError: SomeService is not a constructor` - you should start reviewing how your injectables depends on each other.
+**There is also a limitation by design:** A service can depend only a service with a higher or equal lifetime then it's lifetime. That means a _singleton_ can not depend on a _transient_ or scoped service - you should get an exception at runtime if you try it.

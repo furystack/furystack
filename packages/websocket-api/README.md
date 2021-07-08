@@ -8,10 +8,8 @@ You can initialize the WebSocket package in the following way
 
 ```ts
 const myInjector = new Injector()
-  .useHttpApi()
-  .listenHttp()
   .useWebsockets({
-    path: 'sockets',
+    path: '/api/sockets',
     actions: [WhoAmI],
   })
 ```
@@ -29,7 +27,7 @@ import * as ws from 'ws'
 import { IWebSocketAction } from '../models/IWebSocketAction'
 
 @Injectable({ lifetime: 'transient' })
-export class WhoAmI implements IWebSocketAction {
+export class WhoAmI implements WebSocketAction {
   public dispose() {
     /** */
   }
