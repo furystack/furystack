@@ -1,6 +1,6 @@
 import { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
-import { connect, MongoClient, MongoClientOptions } from 'mongodb'
+import { MongoClient, MongoClientOptions } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -29,7 +29,7 @@ export class MongoClientFactory implements Disposable {
       if (existingCreated) {
         return existingCreated
       }
-      const client = await connect(url, options)
+      const client = await new MongoClient(url, options)
       this.connections.set(url, client)
       return client
     } finally {

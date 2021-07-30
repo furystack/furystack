@@ -19,7 +19,7 @@ describe('MongoDB Store', () => {
     collection: `furystack-mongo-store-tests-${v4()}`,
     db: `furystack-mongo-store-tests-${dbIdx++}`,
     url: 'mongodb://localhost:27017',
-    options: { useUnifiedTopology: true },
+    options: {},
   })
   createStoreTest({
     typeName: 'mongodb-store',

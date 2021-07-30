@@ -1,6 +1,6 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { MongoClient, FilterQuery, Collection, OptionalId, ObjectId } from 'mongodb'
+import { MongoClient, Filter, Collection, OptionalId, ObjectId, Projection, Sort } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -14,12 +14,12 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   private initLock = new Semaphore(1)
   private collection?: Collection<T>
 
-  private createIdFilter(...values: Array<T[TPrimaryKey]>): FilterQuery<T> {
+  private createIdFilter(...values: Array<T[TPrimaryKey]>): Filter<T> {
     return {
       [this.primaryKey]: {
         $in: this.primaryKey === '_id' ? values.map((value) => new ObjectId(value as any)) : values,
       },
-    } as FilterQuery<T>
+    } as Filter<T>
   }
 
   private stringifyResultId(item: any): T {
@@ -32,7 +32,10 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     return item
   }
 
-  private parseFilter(filter: FilterType<T>): FilterType<T> {
+  private parseFilter(filter?: FilterType<T>): Filter<T> {
+    if (!filter) {
+      return {}
+    }
     if (Object.keys(filter).includes('_id')) {
       const f = { ...(filter as any) }
       if (typeof f._id === 'string') {
@@ -96,8 +99,9 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     return {
       created:
         this.primaryKey === '_id'
-          ? (result.ops.map((entity) => this.stringifyResultId(entity)) as T[])
-          : (result.ops.map((entity) => {
+          ? (Object.values(result.insertedIds).map((entity) => this.stringifyResultId(entity)) as T[])
+          : (Object.values(result.insertedIds).map((insertedId, index) => {
+              const entity = { _id: insertedId, ...entries[index] }
               const { _id, ...r } = entity
               return r
             }) as any as T[]),
@@ -112,24 +116,24 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const collection = await this.getCollection()
-    return await collection.countDocuments(filter && (this.parseFilter(filter) as FilterQuery<T>))
+    return await collection.countDocuments(this.parseFilter(filter), {})
   }
   public async find<TFields extends Array<keyof T>>(
     filter: FindOptions<T, TFields>,
   ): Promise<Array<PartialResult<T, TFields>>> {
     const collection = await this.getCollection()
 
-    const sort = filter.order
-      ? [
-          ...Object.keys(filter.order).map<[string, number]>((key) => [
+    const sort: Sort = filter.order
+      ? Object.fromEntries([
+          ...Object.keys(filter.order).map((key) => [
             key,
-            (filter.order as any)[key] === 'ASC' ? 1 : -1,
+            (filter.order as any)[key] === 'ASC' ? (1 as const) : (-1 as const),
           ]),
-        ]
-      : []
+        ])
+      : {}
 
     const result = await collection
-      .find(filter.filter && (this.parseFilter(filter.filter) as FilterQuery<T>))
+      .find(this.parseFilter(filter.filter))
       .project(this.getProjection(filter.select))
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
@@ -138,7 +142,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     return result.map((entity) => this.stringifyResultId(entity))
   }
 
-  private getProjection(fields?: Array<keyof T>) {
+  private getProjection(fields?: Array<keyof T>): Projection<T> {
     return {
       ...(this.primaryKey !== '_id' ? { _id: 0 } : {}),
       ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
