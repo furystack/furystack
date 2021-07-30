@@ -99,7 +99,9 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     return {
       created:
         this.primaryKey === '_id'
-          ? (Object.values(result.insertedIds).map((entity) => this.stringifyResultId(entity)) as T[])
+          ? Object.values(result.insertedIds).map((insertedId, index) =>
+              this.stringifyResultId({ _id: insertedId, ...entries[index] }),
+            )
           : (Object.values(result.insertedIds).map((insertedId, index) => {
               const entity = { _id: insertedId, ...entries[index] }
               const { _id, ...r } = entity

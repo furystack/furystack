@@ -29,7 +29,8 @@ export class MongoClientFactory implements Disposable {
       if (existingCreated) {
         return existingCreated
       }
-      const client = await new MongoClient(url, options)
+      const client = new MongoClient(url, options)
+      await client.connect()
       this.connections.set(url, client)
       return client
     } finally {
