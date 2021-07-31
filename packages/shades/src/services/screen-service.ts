@@ -9,7 +9,7 @@ export type Breakpoint = { name: ScreenSize; minSize: number; maxSize?: number }
 
 @Injectable({ lifetime: 'singleton' })
 export class Screen implements Disposable {
-  private getOrientation = () => (window.matchMedia('(orientation: lanscape').matches ? 'landscape' : 'portrait')
+  private getOrientation = () => (window.matchMedia('(orientation:landscape').matches ? 'landscape' : 'portrait')
 
   public readonly breakpoints: { [K in ScreenSize]: { minSize: number } } = {
     xl: { minSize: 1920 },
