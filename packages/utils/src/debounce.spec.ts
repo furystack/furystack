@@ -1,5 +1,5 @@
 import { debounce } from './debounce'
-import { sleepAsync } from '.'
+import { sleepAsync } from './sleep-async'
 
 /**
  * Tests for debounce
