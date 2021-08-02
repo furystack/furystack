@@ -29,7 +29,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^26.0.24",
-    "@types/node": "^16.4.7"
+    "@types/node": "^16.4.10"
   },
   "dependencies": {
     "@furystack/inject": "^4.0.73",
