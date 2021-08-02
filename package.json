@@ -32,7 +32,7 @@
   "scripts": {
     "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags",
     "build": "tsc -b packages",
-    "lint": "eslint . --ext .tsx --ext .ts",
+    "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
     "test": "jest --verbose",
