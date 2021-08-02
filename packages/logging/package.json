@@ -2,7 +2,12 @@
   "name": "@furystack/logging",
   "version": "2.0.80",
   "description": "Logging API for FuryStack package",
-  "main": "dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
+  },
   "files": [
     "dist",
     "src"
@@ -33,6 +38,6 @@
     "@furystack/utils": "^1.2.43",
     "tslib": "^2.3.0"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./dist/cjs/index.d.ts",
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }

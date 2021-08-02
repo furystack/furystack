@@ -31,7 +31,9 @@
   },
   "scripts": {
     "bumpVersions": "lerna version --no-git-tag-version --include-merged-tags",
-    "build": "tsc -b packages",
+    "build:commonjs": "tsc -b packages",
+    "build:esm": "yarn workspaces run tsc --module ES2015 --outDir ./dist/esm --moduleResolution node",
+    "build": "yarn build:commonjs && yarn build:esm",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",

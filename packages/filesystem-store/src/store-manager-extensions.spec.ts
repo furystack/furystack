@@ -1,6 +1,6 @@
 import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './index'
-import { TestClass } from '@furystack/core/dist/create-physical-store-tests'
+import { TestClass } from '@furystack/core/dist/cjs/create-physical-store-tests'
 import './store-manager-extensions'
 import { v4 } from 'uuid'
 import { usingAsync } from '@furystack/utils'

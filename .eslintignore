@@ -2,3 +2,5 @@ packages/**/node_modules/*
 examples/**/node_modules/*
 examples/**/dist/*
 packages/**/dist/*
+packages/**/cjs/*
+packages/**/esm/*

@@ -1,10 +1,10 @@
-import { Injector } from '@furystack/inject/dist/injector'
+import { Injector } from '@furystack/inject/dist/cjs/injector'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
 import { IdentityContext } from './identity-context'
 import { User } from './models/user'
 
-declare module '@furystack/inject/dist/injector' {
+declare module '@furystack/inject/dist/cjs/injector' {
   /**
    * Defines an extended Injector instance
    */

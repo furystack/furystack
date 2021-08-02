@@ -1,9 +1,9 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject/dist/injector'
+import { Injector } from '@furystack/inject/dist/cjs/injector'
 import { DataSet } from './data-set'
 import { Repository } from './repository'
 
-declare module '@furystack/inject/dist/injector' {
+declare module '@furystack/inject/dist/cjs/injector' {
   /**
    * Defines an extended Injector instance
    */

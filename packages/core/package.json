@@ -2,7 +2,12 @@
   "name": "@furystack/core",
   "version": "10.2.0",
   "description": "Core FuryStack package",
-  "main": "dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
+  },
   "files": [
     "dist",
     "src"
@@ -37,6 +42,6 @@
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.3.0"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./dist/cjs/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

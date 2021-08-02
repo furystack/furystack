@@ -1,9 +1,9 @@
-import { StoreManager } from '@furystack/core/dist/store-manager'
+import { StoreManager } from '@furystack/core/dist/cjs/store-manager'
 import { Options, ModelCtor, Model, Sequelize } from 'sequelize'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import { SequelizeStore } from './sequelize-store'
 
-declare module '@furystack/core/dist/store-manager' {
+declare module '@furystack/core/dist/cjs/store-manager' {
   /**
    * Defines an extended Injector instance
    */
