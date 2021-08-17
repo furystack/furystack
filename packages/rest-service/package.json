@@ -38,16 +38,16 @@
     "@furystack/rest": "^3.0.14",
     "@furystack/utils": "^1.2.43",
     "ajv": "^8.6.2",
-    "ajv-formats": "^2.1.0",
+    "ajv-formats": "^2.1.1",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.3.0",
+    "tslib": "^2.3.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.24",
-    "@types/node": "^16.4.10",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^16.6.1",
     "@types/uuid": "^8.3.1",
     "got": "^11.8.2"
   },
