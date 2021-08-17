@@ -1,9 +1,9 @@
-import { StoreManager } from '@furystack/core/dist/cjs/store-manager'
+import { StoreManager } from '@furystack/core/dist/esm/store-manager'
 import { Constructable } from '@furystack/inject'
 import { RedisClient } from 'redis'
 import { RedisStore } from './redis-store'
 
-declare module '@furystack/core/dist/cjs/store-manager' {
+declare module '@furystack/core/dist/esm/store-manager' {
   /**
    * Defines an extended Injector instance
    */

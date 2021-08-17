@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { LocationService } from './'
+import { LocationService } from './location-service'
 import { JSDOM } from 'jsdom'
 
 describe('LocationService', () => {

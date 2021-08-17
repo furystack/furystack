@@ -1,9 +1,9 @@
 import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject/dist/cjs/injector'
+import { Injector } from '@furystack/inject/dist/esm/injector'
 import { Logger } from './logger'
 import { LoggerCollection } from './logger-collection'
 
-declare module '@furystack/inject/dist/cjs/injector' {
+declare module '@furystack/inject/dist/esm/injector' {
   /**
    * Defines an extended Injector instance
    */

@@ -2,12 +2,8 @@
   "name": "@furystack/shades",
   "version": "3.5.0",
   "description": "Google Authentication Provider for FuryStack",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "exports": {
-    "require": "./dist/cjs/index.js",
-    "import": "./dist/esm/index.js"
-  },
+  "main": "./dist/esm/index.js",
+  "type": "module",
   "files": [
     "dist",
     "src"
@@ -41,6 +37,6 @@
     "tslib": "^2.3.0",
     "uuid": "^8.3.2"
   },
-  "typings": "./dist/cjs/index.d.ts",
+  "typings": "./dist/esm/index.d.ts",
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }

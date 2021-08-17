@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
-import { RequestError } from 'got/dist/source'
+import { RequestError } from 'got'
 import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
 import './injector-extensions'

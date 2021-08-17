@@ -2,12 +2,8 @@
   "name": "@furystack/inject",
   "version": "4.0.73",
   "description": "Core FuryStack package",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "exports": {
-    "require": "./dist/cjs/index.js",
-    "import": "./dist/esm/index.js"
-  },
+  "main": "./dist/esm/index.js",
+  "type": "module",
   "files": [
     "dist",
     "src"
@@ -37,6 +33,6 @@
   "devDependencies": {
     "@types/jest": "^26.0.24"
   },
-  "typings": "./dist/cjs/index.d.ts",
+  "typings": "./dist/esm/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

@@ -1,10 +1,10 @@
-import { StoreManager } from '@furystack/core/dist/cjs/store-manager'
+import { StoreManager } from '@furystack/core/dist/esm/store-manager'
 import { Constructable } from '@furystack/inject'
 import { MongoClientOptions } from 'mongodb'
 import { MongoClientFactory } from './mongo-client-factory'
 import { MongodbStore } from './mongodb-store'
 
-declare module '@furystack/core/dist/cjs/store-manager' {
+declare module '@furystack/core/dist/esm/store-manager' {
   /**
    * Defines an extended Injector instance
    */

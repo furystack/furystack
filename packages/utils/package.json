@@ -2,13 +2,9 @@
   "name": "@furystack/utils",
   "version": "1.2.43",
   "description": "General utilities",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "exports": {
-    "require": "./dist/cjs/index.js",
-    "import": "./dist/esm/index.js"
-  },
-  "typings": "./dist/cjs/index.d.ts",
+  "main": "./dist/esm/index.js",
+  "type": "module",
+  "typings": "./dist/esm/index.d.ts",
   "files": [
     "dist",
     "src",

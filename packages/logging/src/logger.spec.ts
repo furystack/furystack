@@ -1,8 +1,10 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import './injector-extensions'
-import { LogLevel, TestLogger, LoggerCollection } from './'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
+import { LoggerCollection } from './logger-collection'
+import { LogLevel } from './log-entries'
+import { TestLogger } from './test-logger'
 
 describe('Loggers', () => {
   it('Can be set up with an extension method', () => {

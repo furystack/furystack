@@ -1,4 +1,4 @@
-import { createClient } from './'
+import { createClient } from './create-client'
 import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
