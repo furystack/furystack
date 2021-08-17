@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import { Socket } from 'net'
 import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/rest-service'
@@ -39,7 +40,8 @@ export class WebSocketApi implements Disposable {
 
     serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then((server) => {
       server.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-        if (request.url === this.settings.path) {
+        const { pathname } = new URL(request.url as string, `http://${request.headers.host}`)
+        if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, (websocket) => {
             this.socket.emit('connection', websocket, request)
           })
