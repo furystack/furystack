@@ -89,21 +89,25 @@ describe('@furystack/rest-service inregration tests', () => {
   it('Should respond with 401 for unauthorized request errors', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      await expect(got(PathHelper.joinPaths(apiUrl, 'currentUser'))).rejects.toThrow('Response code 401 (Unauthorized)')
+      await expect(got(PathHelper.joinPaths(apiUrl, 'currentUser'), { retry: 0 })).rejects.toThrow(
+        'Response code 401 (Unauthorized)',
+      )
     })
   })
 
   it('Should respond with 401 for unauthorized request errors', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      await expect(got(PathHelper.joinPaths(apiUrl, 'currentUser'))).rejects.toThrow('Response code 401 (Unauthorized)')
+      await expect(got(PathHelper.joinPaths(apiUrl, 'currentUser'), { retry: 0 })).rejects.toThrow(
+        'Response code 401 (Unauthorized)',
+      )
     })
   })
 
   it('Should respond with the correct result body', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      const response = await got(PathHelper.joinPaths(apiUrl, 'isAuthenticated'))
+      const response = await got(PathHelper.joinPaths(apiUrl, 'isAuthenticated'), { retry: 0 })
       expect(response.statusCode).toBe(200)
       expect(JSON.parse(response.body)).toStrictEqual({ isAuthenticated: false })
     })
@@ -112,7 +116,7 @@ describe('@furystack/rest-service inregration tests', () => {
   it('Should be able to read query parameters', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      const response = await got(PathHelper.joinPaths(apiUrl, 'testQuery?param1=foo'))
+      const response = await got(PathHelper.joinPaths(apiUrl, 'testQuery?param1=foo'), { retry: 0 })
       expect(response.statusCode).toBe(200)
       expect(JSON.parse(response.body)).toStrictEqual({ param1Value: 'foo' })
     })
@@ -121,7 +125,7 @@ describe('@furystack/rest-service inregration tests', () => {
   it('Should be able to read url parameters', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      const response = await got(PathHelper.joinPaths(apiUrl, 'testUrlParams/bar'))
+      const response = await got(PathHelper.joinPaths(apiUrl, 'testUrlParams/bar'), { retry: 0 })
       expect(response.statusCode).toBe(200)
       expect(JSON.parse(response.body)).toStrictEqual({ urlParamValue: 'bar' })
     })
@@ -133,6 +137,7 @@ describe('@furystack/rest-service inregration tests', () => {
       const response = await got(PathHelper.joinPaths(apiUrl, 'testPostBody'), {
         method: 'POST',
         body: JSON.stringify({ value: 'baz' }),
+        retry: 0,
       })
       expect(response.statusCode).toBe(200)
       expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz' })
@@ -144,6 +149,7 @@ describe('@furystack/rest-service inregration tests', () => {
       await prepareInjector(i)
       const response = await got(PathHelper.joinPaths(apiUrl, 'testPostBody'), {
         method: 'OPTIONS',
+        retry: 0,
       })
       expect(response.statusCode).toBe(200)
     })
@@ -152,9 +158,9 @@ describe('@furystack/rest-service inregration tests', () => {
   it('Should reject requests outside of the API Root', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
-      await expect(got(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'))).rejects.toThrowError(
-        'socket hang up',
-      )
+      await expect(
+        got(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'), { retry: 0 }),
+      ).rejects.toThrowError('socket hang up')
     })
   })
 })
