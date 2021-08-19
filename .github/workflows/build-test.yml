@@ -6,23 +6,12 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
 
-    permissions:
-      pull-requests: write
-
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Yarn Lock Changes
-        uses: Simek/yarn-lock-changes@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          collapsibleThreshold: 25
-          failOnDowngrade: false
-          path: yarn.lock
-          updateComment: true
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
