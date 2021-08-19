@@ -2,7 +2,8 @@ name: Release packages to NPM
 on:
   workflow_run:
     workflows: ["Build and execute tests"]
-    branches: [master]
+    branches: 
+      - master
     types: 
       - completed
 jobs:
