@@ -6,6 +6,9 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
 
+    permissions:
+      pull-requests: write
+
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
