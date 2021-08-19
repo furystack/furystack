@@ -1,0 +1,28 @@
+name: Release packages to NPM
+on:
+  workflow_run:
+    workflows: ["Build and execute tests"]
+    branches: [master]
+    types: 
+      - completed
+jobs:
+  on-success:
+    name: Deploy packages to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build
+      - name: Create .npmrc
+        run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc
+      - name: Publish to NPM with Lerna
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn lerna publish from-package -y
+

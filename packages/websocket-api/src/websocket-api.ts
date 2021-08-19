@@ -1,4 +1,5 @@
-import { parse } from 'url'
+import { URL } from 'url'
+import { Socket } from 'net'
 import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injector } from '@furystack/inject'
@@ -38,8 +39,8 @@ export class WebSocketApi implements Disposable {
     })
 
     serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then((server) => {
-      server.server.on('upgrade', (request, socket, head) => {
-        const { pathname } = parse(request.url)
+      server.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
+        const { pathname } = new URL(request.url as string, `http://${request.headers.host}`)
         if (pathname === this.settings.path) {
           this.socket.handleUpgrade(request, socket, head, (websocket) => {
             this.socket.emit('connection', websocket, request)
