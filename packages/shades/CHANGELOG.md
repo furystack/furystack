@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.6.1](https://github.com/furystack/furystack/compare/@furystack/shades@3.6.0...@furystack/shades@3.6.1) (2021-08-19)
+
+**Note:** Version bump only for package @furystack/shades
+
+
+
+
+
+
 ## [3.6.0](https://github.com/furystack/furystack/compare/@furystack/shades@3.2.10...@furystack/shades@3.6.0) (2021-08-19)
 
 

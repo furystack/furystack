@@ -18,7 +18,7 @@ export const createMockEntity = (part?: Partial<TestClass>) =>
     stringValue1: 'foo',
     stringValue2: 'bar',
     numberValue1: Math.round(Math.random() * 1000),
-    numberValue2: Math.random() * 100,
+    numberValue2: Math.round(Math.random() * 10000) / 100,
     booleanValue: true,
     dateValue: new Date(),
     ...part,
