@@ -12,6 +12,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Yarn Lock Changes
+        uses: Simek/yarn-lock-changes@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          collapsibleThreshold: 25
+          failOnDowngrade: false
+          path: yarn.lock
+          updateComment: true
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -23,7 +31,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Recreate JSON Schemas
-        run: yarn create-schemas
+        run: yarn create-schemas && yarn build # an incremental rebuild is neccessary to use the updated schema
       - name: Build the docker-compose stack
         run: docker-compose up -d     
       - name: Test
@@ -32,7 +40,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: JEST Tests
+          name: Jest test results
           path: coverage/junit.xml
           reporter: jest-junit
       - uses: codecov/codecov-action@v1
