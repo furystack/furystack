@@ -30,10 +30,10 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/inject": "^4.0.73",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@types/node": "^16.4.10"
+    "@types/node": "^16.6.1"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

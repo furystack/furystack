@@ -30,10 +30,10 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.1"
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^26.0.24"
+    "@types/jest": "^27.0.1"
   }
 }
