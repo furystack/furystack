@@ -34,19 +34,19 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: docker exec furystackfurystack_app_1 yarn install --frozen-lockfile
+      - script: yarn install --frozen-lockfile
         displayName: 'Install'
 
-      - script: docker exec furystackfurystack_app_1 yarn lint
+      - script: yarn lint
         displayName: 'Lint'
 
-      - script: docker exec furystackfurystack_app_1 yarn build
+      - script: yarn build
         displayName: 'Build'
 
-      - script: docker exec furystackfurystack_app_1 yarn create-schemas
+      - script: yarn create-schemas
         displayName: Recreate JSON Schemas
 
-      - script: docker exec furystackfurystack_app_1 yarn test
+      - script: yarn test
         displayName: 'Test'
 
       # - script: bash <(curl -s https://codecov.io/bash)
@@ -66,6 +66,7 @@ jobs:
           testRunner: JUnit
           testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
 
+  # Deprecated - Moving to GH Actions
   # - deployment: deploy
   #   displayName: Deploy packages to NPM
   #   dependsOn: buildAndTest
