@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Create .npmrc
-        run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami
+        run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc
       - name: Lerna publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
