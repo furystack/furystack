@@ -49,8 +49,8 @@ jobs:
       - script: docker exec furystackfurystack_app_1 yarn test
         displayName: 'Test'
 
-      - script: bash <(curl -s https://codecov.io/bash)
-        displayName: 'Publish test results to Codecov'
+      # - script: bash <(curl -s https://codecov.io/bash)
+      #   displayName: 'Publish test results to Codecov'
 
       - task: PublishCodeCoverageResults@1
         displayName: 'Publish test coverage results'
@@ -66,31 +66,31 @@ jobs:
           testRunner: JUnit
           testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
 
-  - deployment: deploy
-    displayName: Deploy packages to NPM
-    dependsOn: buildAndTest
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    timeoutInMinutes: 60
-    environment:
-      name: NPM
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - checkout: self
-              fetchDepth: 20
-            - task: NodeTool@0
-              inputs:
-                versionSpec: '14.x'
-              displayName: 'Install Node.js'
-            - script: yarn install --frozen-lockfile
-              displayName: 'Install'
-            - script: yarn build
-              displayName: 'Build'
-            - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
-              displayName: Publish packages to NPM
-              env:
-                NPM_TOKEN: $(NPM_TOKEN)
+  # - deployment: deploy
+  #   displayName: Deploy packages to NPM
+  #   dependsOn: buildAndTest
+  #   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  #   timeoutInMinutes: 60
+  #   environment:
+  #     name: NPM
+  #   strategy:
+  #     runOnce:
+  #       deploy:
+  #         steps:
+  #           - checkout: self
+  #             fetchDepth: 20
+  #           - task: NodeTool@0
+  #             inputs:
+  #               versionSpec: '14.x'
+  #             displayName: 'Install Node.js'
+  #           - script: yarn install --frozen-lockfile
+  #             displayName: 'Install'
+  #           - script: yarn build
+  #             displayName: 'Build'
+  #           - script: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc && npm whoami && yarn lerna publish from-package -y
+  #             displayName: Publish packages to NPM
+  #             env:
+  #               NPM_TOKEN: $(NPM_TOKEN)
 
             
             
