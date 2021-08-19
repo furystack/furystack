@@ -1,16 +1,14 @@
 name: Release packages to NPM
-
 on:
   workflow_run:
     workflows: ["Build and execute tests"]
     branches: [master]
     types: 
       - completed
-
 jobs:
   deploy:
+    name: Deploy packages to NPM
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js LTS
