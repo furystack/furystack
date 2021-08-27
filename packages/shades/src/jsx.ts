@@ -234,7 +234,7 @@ declare global {
       /**
        * The <input> tag specifies an input field where the user can enter data.
        */
-      input: PartialElement<HTMLInputElement>
+      input: PartialElement<HTMLInputElement & { autofocus?: boolean }>
       /**
        * The <ins> tag defines a text that has been inserted into a document.
        */
