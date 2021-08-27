@@ -26,7 +26,7 @@ export interface DataGridProps<T> {
 }
 
 export interface DataGridState {
-  error?: Error
+  error?: unknown
 }
 
 export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<

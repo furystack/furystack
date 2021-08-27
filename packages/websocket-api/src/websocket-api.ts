@@ -66,7 +66,7 @@ export class WebSocketApi implements Disposable {
           try {
             await callback(client)
           } catch (error) {
-            errors.push({ message: error.message, stack: error.stack })
+            errors.push(error)
           }
         }),
     )
