@@ -7,12 +7,14 @@ export interface InputProps extends PartialElement<HTMLInputElement> {
   labelTitle?: string
   multiLine?: false
   labelProps?: PartialElement<HTMLLabelElement>
+  autofocus?: boolean
 }
 
 export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
   labelTitle?: string
   multiLine: true
   labelProps?: PartialElement<HTMLLabelElement>
+  autofocus?: boolean
 }
 
 export type TextInputProps = InputProps | TextAreaProps

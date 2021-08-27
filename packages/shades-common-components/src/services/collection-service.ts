@@ -25,7 +25,7 @@ export class CollectionService<T> implements Disposable {
 
   public data = new ObservableValue<CollectionData<T>>({ count: 0, entries: [] })
 
-  public error = new ObservableValue<Error | undefined>(undefined)
+  public error = new ObservableValue<unknown | undefined>(undefined)
 
   public isLoading = new ObservableValue<boolean>(false)
 

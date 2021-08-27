@@ -2,13 +2,13 @@ import { Shade } from '../shade'
 
 export interface LazyLoadProps {
   loader: JSX.Element
-  error?: (error: Error, retry: () => void) => JSX.Element
+  error?: (error: unknown, retry: () => void) => JSX.Element
   component: () => Promise<JSX.Element>
 }
 
 export interface LazyLoadState {
   component?: JSX.Element
-  error?: Error
+  error?: unknown
 }
 
 export const LazyLoad = Shade<LazyLoadProps, LazyLoadState>({
