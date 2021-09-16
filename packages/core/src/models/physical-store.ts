@@ -21,8 +21,7 @@ export type FilterType<T> = {
     | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : never)
     | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
     | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
-} &
-  { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
+} & { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
 export const isOperator = (propertyString: string): propertyString is typeof allOperators[number] =>
   allOperators.includes(propertyString as typeof allOperators[number])
 
