@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.50](https://github.com/furystack/furystack/compare/@furystack/websocket-api@7.0.49...@furystack/websocket-api@7.0.50) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/websocket-api
+
+
+
+
+
+
 ### [7.0.49](https://github.com/furystack/furystack/compare/@furystack/websocket-api@7.0.48...@furystack/websocket-api@7.0.49) (2021-09-16)
 
 **Note:** Version bump only for package @furystack/websocket-api
