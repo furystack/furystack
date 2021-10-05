@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.82](https://github.com/furystack/furystack/compare/@furystack/logging@2.0.81...@furystack/logging@2.0.82) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/logging
+
+
+
+
+
+
 ### [2.0.81](https://github.com/furystack/furystack/compare/@furystack/logging@2.0.51...@furystack/logging@2.0.81) (2021-08-19)
 
 **Note:** Version bump only for package @furystack/logging
