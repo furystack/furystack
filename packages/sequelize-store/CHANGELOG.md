@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.11](https://github.com/furystack/core/compare/@furystack/sequelize-store@0.3.10...@furystack/sequelize-store@0.3.11) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/sequelize-store
+
+
+
+
+
+
 ### [0.3.10](https://github.com/furystack/core/compare/@furystack/sequelize-store@0.3.9...@furystack/sequelize-store@0.3.10) (2021-09-16)
 
 **Note:** Version bump only for package @furystack/sequelize-store
