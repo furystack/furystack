@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.7.5](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.4...@furystack/shades-common-components@1.7.5) (2021-10-15)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
 ### [1.7.4](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.3...@furystack/shades-common-components@1.7.4) (2021-10-05)
 
 **Note:** Version bump only for package @furystack/shades-common-components

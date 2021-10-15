@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.20](https://github.com/furystack/furystack/compare/@furystack/repository@5.0.19...@furystack/repository@5.0.20) (2021-10-15)
+
+**Note:** Version bump only for package @furystack/repository
+
+
+
+
+
+
 ### [5.0.19](https://github.com/furystack/furystack/compare/@furystack/repository@5.0.18...@furystack/repository@5.0.19) (2021-10-05)
 
 **Note:** Version bump only for package @furystack/repository
