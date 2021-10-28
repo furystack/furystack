@@ -25,7 +25,7 @@ export const Validate =
       }
     })
 
-    const validator = new SchemaValidator(schema, { coerceTypes: true })
+    const validator = new SchemaValidator(schema, { coerceTypes: true, strict: false })
 
     return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
       const anyArgs = args as any
