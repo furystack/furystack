@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/furystack/furystack/compare/@furystack/rest-service@4.0.21...@furystack/rest-service@4.1.0) (2021-11-09)
+
+
+### 🚀 What's new
+
+* **@furystack/rest-service:** disabled strict mode for schema validation ([20a9bad](https://github.com/furystack/furystack/commit/20a9bad9368b06b6b3186273b767dbb690e6473a))
+
+
+
+
 ### [4.0.21](https://github.com/furystack/furystack/compare/@furystack/rest-service@4.0.20...@furystack/rest-service@4.0.21) (2021-10-15)
 
 **Note:** Version bump only for package @furystack/rest-service
