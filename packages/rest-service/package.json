@@ -37,7 +37,7 @@
     "@furystack/repository": "^5.0.20",
     "@furystack/rest": "^3.0.20",
     "@furystack/utils": "^1.2.45",
-    "ajv": "^8.6.3",
+    "ajv": "^8.7.1",
     "ajv-formats": "^2.1.1",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.6",
+    "@types/node": "^16.11.7",
     "@types/uuid": "^8.3.1",
     "got": "^11.8.2"
   },
