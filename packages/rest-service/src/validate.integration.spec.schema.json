@@ -365,16 +365,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -387,16 +382,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -409,16 +399,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -431,16 +416,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -453,16 +433,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -733,16 +708,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
