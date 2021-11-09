@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.3.6](https://github.com/furystack/furystack/compare/@furystack/core@10.3.5...@furystack/core@10.3.6) (2021-11-09)
+
+**Note:** Version bump only for package @furystack/core
+
+
+
+
+
+
 ### [10.3.5](https://github.com/furystack/furystack/compare/@furystack/core@10.3.4...@furystack/core@10.3.5) (2021-10-15)
 
 **Note:** Version bump only for package @furystack/core
