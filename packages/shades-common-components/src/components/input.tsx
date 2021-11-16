@@ -1,6 +1,6 @@
 import { Shade, PartialElement, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '..'
 import { promisifyAnimation } from '../utils/promisify-animation'
-import { colors } from './styles'
 
 export interface InputProps extends PartialElement<HTMLInputElement> {
   onTextChange?: (text: string) => void
@@ -18,10 +18,13 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
 }
 
 export type TextInputProps = InputProps | TextAreaProps
-
 export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
-  render: ({ props, element }) => {
+  render: ({ props, element, injector }) => {
+    const themeProvider = injector.getInstance(ThemeProviderService)
+    const theme = themeProvider.theme.getValue()
+    const { palette } = theme
+
     return (
       <label
         {...props.labelProps}
@@ -62,7 +65,7 @@ export const Input = Shade<TextInputProps>({
               if (!props.disabled) {
                 promisifyAnimation(
                   element.querySelector('label'),
-                  [{ color: '#bbb' }, { color: colors.primary.main }],
+                  [{ color: themeProvider.getTextColor(theme.background.default) }, { color: palette.primary.main }],
                   {
                     duration: 500,
                     easing: 'cubic-bezier(0.455, 0.030, 0.515, 0.955)',
@@ -73,7 +76,7 @@ export const Input = Shade<TextInputProps>({
                   element.querySelector('input'),
                   [
                     { boxShadow: '0px 0px 0px rgba(128,128,128,0.1)' },
-                    { boxShadow: `0px 3px 0px ${colors.primary.dark}` },
+                    { boxShadow: `0px 3px 0px ${palette.primary.main}` },
                   ],
                   {
                     duration: 200,
@@ -86,7 +89,7 @@ export const Input = Shade<TextInputProps>({
               if (!props.disabled) {
                 promisifyAnimation(
                   element.querySelector('label'),
-                  [{ color: colors.primary.main }, { color: '#bbb' }],
+                  [{ color: palette.primary.main }, { color: themeProvider.getTextColor(theme.background.default) }],
                   {
                     duration: 200,
                     easing: 'cubic-bezier(0.455, 0.030, 0.515, 0.955)',
