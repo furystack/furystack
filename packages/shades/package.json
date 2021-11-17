@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "3.6.6",
+  "version": "3.7.0",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
