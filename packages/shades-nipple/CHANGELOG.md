@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.3.7](https://github.com/furystack/furystack/compare/@furystack/shades-nipple@1.3.6...@furystack/shades-nipple@1.3.7) (2021-11-17)
+
+**Note:** Version bump only for package @furystack/shades-nipple
+
+
+
+
+
+
 ### [1.3.6](https://github.com/furystack/furystack/compare/@furystack/shades-nipple@1.3.5...@furystack/shades-nipple@1.3.6) (2021-11-09)
 
 **Note:** Version bump only for package @furystack/shades-nipple

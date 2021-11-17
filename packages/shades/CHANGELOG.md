@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.7.0](https://github.com/furystack/furystack/compare/@furystack/shades@3.6.6...@furystack/shades@3.7.0) (2021-11-17)
+
+
+### 🚀 What's new
+
+* **@furystack/shades:** Attach Data attributes to native elements ([6225bcb](https://github.com/furystack/furystack/commit/6225bcb0cb6fd311f6761317a86d4d0e5b30bb3e))
+
+
+
+
 ### [3.6.6](https://github.com/furystack/furystack/compare/@furystack/shades@3.6.5...@furystack/shades@3.6.6) (2021-11-09)
 
 **Note:** Version bump only for package @furystack/shades

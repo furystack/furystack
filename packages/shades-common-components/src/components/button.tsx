@@ -27,24 +27,26 @@ const getHoveredBackground = (buttonProps: ButtonProps, theme: Theme, fallback: 
       : theme.text.secondary
     : fallback()
 
-const getBorder = (buttonProps: ButtonProps, theme: Theme) =>
+const getBoxShadow = (buttonProps: ButtonProps, theme: Theme) =>
   buttonProps.variant === 'outlined'
     ? buttonProps.color
-      ? `1px solid ${
+      ? `0px 0px 0px 1px ${
           buttonProps.disabled ? theme.palette[buttonProps.color].dark : theme.palette[buttonProps.color].main
         }`
-      : `1px solid ${buttonProps.disabled ? theme.button.disabledBackground : theme.text.secondary}`
+      : `0px 0px 0px 1px ${buttonProps.disabled ? theme.button.disabledBackground : theme.text.secondary}`
     : 'none'
 
-const getHoveredBorder = (buttonProps: ButtonProps, theme: Theme) =>
+const getHoveredBoxShadow = (buttonProps: ButtonProps, theme: Theme) =>
   buttonProps.variant === 'outlined'
     ? buttonProps.color
-      ? `1px solid ${buttonProps.disabled ? theme.button.disabledBackground : theme.palette[buttonProps.color].light}`
-      : `1px solid ${buttonProps.disabled ? theme.button.disabledBackground : theme.text.primary}`
+      ? `0px 0px 0px 1px ${
+          buttonProps.disabled ? theme.button.disabledBackground : theme.palette[buttonProps.color].light
+        }`
+      : `0px 0px 0px 1px ${buttonProps.disabled ? theme.button.disabledBackground : theme.text.primary}`
     : 'none'
 
 const getTextColor = (buttonProps: ButtonProps, theme: Theme, fallback: () => string) =>
-  !buttonProps.variant
+  buttonProps.variant !== 'contained'
     ? buttonProps.color
       ? buttonProps.disabled
         ? theme.palette[buttonProps.color].dark
@@ -53,7 +55,7 @@ const getTextColor = (buttonProps: ButtonProps, theme: Theme, fallback: () => st
     : fallback()
 
 const getHoveredTextColor = (buttonProps: ButtonProps, theme: Theme, fallback: () => string) =>
-  !buttonProps.variant
+  buttonProps.variant !== 'contained'
     ? buttonProps.color
       ? buttonProps.disabled
         ? theme.palette[buttonProps.color].dark
@@ -65,14 +67,34 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
   getInitialState: ({ injector }) => ({
     theme: injector.getInstance(ThemeProviderService).theme.getValue(),
   }),
-  constructed: ({ injector, updateState }) => {
+  constructed: ({ injector, updateState, element }) => {
     const observer = injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
       updateState({ theme })
     })
-    return () => observer.dispose()
+
+    const mouseUp = () =>
+      promisifyAnimation(
+        element.firstChild as Element,
+        [
+          {
+            filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
+            transform: 'scale(1)',
+          },
+        ],
+        { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+      )
+
+    document.addEventListener('mouseup', mouseUp)
+
+    return () => {
+      observer.dispose()
+      document.removeEventListener('mouseup', mouseUp)
+    }
   },
   shadowDomName: 'shade-button',
   render: ({ props, children, getState, injector }) => {
+    const mouseDownHandler = props.onmousedown
+    const mouseUpHandler = props.onmouseup
     const { theme } = getState()
     const background = getBackground(props, theme)
     const hoveredBackground = getHoveredBackground(props, theme, () => {
@@ -81,8 +103,8 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         .getRgbFromColorString((props.color && theme.palette[props.color].main) || theme.text.primary)
       return `rgba(${r}, ${g}, ${b}, 0.1)`
     })
-    const border = getBorder(props, theme)
-    const hoveredBorder = getHoveredBorder(props, theme)
+    const boxShadow = getBoxShadow(props, theme)
+    const hoveredBoxShadow = getHoveredBoxShadow(props, theme)
     const textColor = getTextColor(props, theme, () =>
       injector.getInstance(ThemeProviderService).getTextColor(background),
     )
@@ -92,6 +114,22 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
 
     return (
       <button
+        onmousedown={function (ev) {
+          mouseDownHandler?.call(this, ev)
+          promisifyAnimation(
+            ev.currentTarget as Element,
+            [
+              {
+                filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
+                transform: 'scale(0.98)',
+              },
+            ],
+            { duration: 250, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+          )
+        }}
+        onmouseup={function (ev) {
+          mouseUpHandler?.call(this, ev)
+        }}
         onmouseenter={(ev) => {
           {
             promisifyAnimation(
@@ -99,12 +137,12 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
               [
                 {
                   background,
-                  border,
+                  boxShadow,
                   color: textColor,
                 },
                 {
                   background: hoveredBackground,
-                  border: hoveredBorder,
+                  boxShadow: hoveredBoxShadow,
                   color: hoveredTextColor,
                 },
               ],
@@ -112,12 +150,12 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
             )
           }
         }}
-        onmouseleave={(ev) => {
+        onmouseout={(ev) => {
           promisifyAnimation(
             ev.target as any,
             [
-              { background: hoveredBackground, border: hoveredBorder, color: hoveredTextColor },
-              { background, border, color: textColor },
+              { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: hoveredTextColor },
+              { background, boxShadow, color: textColor },
             ],
             {
               duration: 500,
@@ -130,12 +168,15 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         style={{
           cursor: props.disabled ? 'inherits' : 'pointer',
           background,
-          border,
+          boxShadow,
           margin: '8px',
           padding: '6px 16px',
+          border: 'none',
           borderRadius: '4px',
           textTransform: 'uppercase',
           color: textColor,
+          filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
+          backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
           ...props.style,
         }}>
         {children}
