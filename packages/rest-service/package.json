@@ -46,10 +46,10 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.7",
-    "@types/uuid": "^8.3.1",
-    "got": "^11.8.2"
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.8",
+    "@types/uuid": "^8.3.3",
+    "got": "^11.8.3"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

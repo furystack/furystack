@@ -1,6 +1,6 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { MongoClient, Filter, Collection, OptionalId, ObjectId, Projection, Sort } from 'mongodb'
+import { MongoClient, Filter, Collection, OptionalId, ObjectId, Projection, Sort, WithId } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -135,7 +135,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
       : {}
 
     const result = await collection
-      .find(this.parseFilter(filter.filter))
+      .find(this.parseFilter(filter.filter) as Filter<WithId<T>>)
       .project(this.getProjection(filter.select))
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
