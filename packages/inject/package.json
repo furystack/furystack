@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "4.0.75",
+  "version": "4.0.76",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/utils": "^1.2.45",
+    "@furystack/utils": "^1.2.46",
     "tslib": "^2.3.1"
   },
   "devDependencies": {

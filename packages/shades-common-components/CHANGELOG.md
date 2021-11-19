@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.8.1](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.0...@furystack/shades-common-components@1.8.1) (2021-11-19)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
 ## [1.8.0](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.6...@furystack/shades-common-components@1.8.0) (2021-11-17)
 
 
