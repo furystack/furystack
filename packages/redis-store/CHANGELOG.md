@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.22](https://github.com/furystack/furystack/compare/@furystack/redis-store@4.0.21...@furystack/redis-store@4.0.22) (2021-11-19)
+
+**Note:** Version bump only for package @furystack/redis-store
+
+
+
+
+
+
 ### [4.0.21](https://github.com/furystack/furystack/compare/@furystack/redis-store@4.0.20...@furystack/redis-store@4.0.21) (2021-11-09)
 
 **Note:** Version bump only for package @furystack/redis-store
