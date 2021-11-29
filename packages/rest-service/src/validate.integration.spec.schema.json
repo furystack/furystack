@@ -361,6 +361,23 @@
     "RestApi": {
       "additionalProperties": false,
       "properties": {
+        "CONNECT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "DELETE": {
           "additionalProperties": {
             "additionalProperties": false,
@@ -379,6 +396,23 @@
           "type": "object"
         },
         "GET": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "HEAD": {
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
@@ -430,6 +464,23 @@
           "type": "object"
         },
         "PUT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "TRACE": {
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
@@ -636,6 +687,23 @@
     "ValidationApi": {
       "additionalProperties": false,
       "properties": {
+        "CONNECT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "DELETE": {
           "additionalProperties": false,
           "properties": {
@@ -676,6 +744,23 @@
           ],
           "type": "object"
         },
+        "HEAD": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "PATCH": {
           "additionalProperties": false,
           "properties": {
@@ -705,6 +790,23 @@
           "type": "object"
         },
         "PUT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "TRACE": {
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
