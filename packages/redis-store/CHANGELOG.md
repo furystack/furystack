@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/furystack/furystack/compare/@furystack/redis-store@4.0.22...@furystack/redis-store@5.0.0) (2021-11-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **@furystack/redis-store:** Updated dependencies, Redis to ^4.0.0
+
+* **@furystack/redis-store:** Updated dependencies, Redis to ^4.0.0 ([2e9a113](https://github.com/furystack/furystack/commit/2e9a113435120e28fb4853e3f3ea74756af650ea))
+
+
+
+
 ### [4.0.22](https://github.com/furystack/furystack/compare/@furystack/redis-store@4.0.21...@furystack/redis-store@4.0.22) (2021-11-19)
 
 **Note:** Version bump only for package @furystack/redis-store

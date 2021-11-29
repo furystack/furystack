@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-lottie",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "Lottie animation player wrapper for FuryStack Shades",
   "scripts": {
     "build": "tsc --b",
@@ -16,8 +16,8 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@furystack/shades": "^3.7.1",
-    "@lottiefiles/lottie-player": "^1.4.5"
+    "@furystack/shades": "^3.7.2",
+    "@lottiefiles/lottie-player": "^1.5.1"
   },
   "typings": "dist/index.d.ts",
   "main": "dist/index.js",

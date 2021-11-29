@@ -1,8 +1,9 @@
 import { Injector } from '@furystack/inject'
-import { createClient, RedisClient } from 'redis'
+import { createClient } from 'redis'
 import { StoreManager } from '@furystack/core'
 import { v4 } from 'uuid'
-import { RedisStore } from '.'
+import { RedisStore } from './redis-store'
+import './store-manager-extensions'
 
 describe('Redis Store', () => {
   class ExampleClass {
@@ -12,16 +13,17 @@ describe('Redis Store', () => {
 
   let i!: Injector
   let store!: RedisStore<ExampleClass, 'id'>
-  let client!: RedisClient
+  let client!: ReturnType<typeof createClient>
 
   beforeEach(async () => {
-    client = createClient({ port: 6379, host: 'localhost' })
+    client = createClient({ url: 'redis://localhost:6379' })
     i = new Injector().setupStores((sm) => sm.useRedis(ExampleClass, 'id', client))
     store = i.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
+    await client.connect()
   })
 
   afterEach(async () => {
-    client.end(false)
+    await client.quit()
     await store.dispose()
     await i.dispose()
   })
