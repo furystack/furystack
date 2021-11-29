@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.3](https://github.com/furystack/furystack/compare/@furystack/rest-service@4.1.2...@furystack/rest-service@4.1.3) (2021-11-29)
+
+**Note:** Version bump only for package @furystack/rest-service
+
+
+
+
+
+
 ### [4.1.2](https://github.com/furystack/furystack/compare/@furystack/rest-service@4.1.1...@furystack/rest-service@4.1.2) (2021-11-19)
 
 **Note:** Version bump only for package @furystack/rest-service
