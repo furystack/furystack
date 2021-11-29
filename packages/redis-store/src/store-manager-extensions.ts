@@ -1,6 +1,6 @@
 import { StoreManager } from '@furystack/core/dist/store-manager'
 import { Constructable } from '@furystack/inject'
-import { RedisClient } from 'redis'
+import { createClient } from 'redis'
 import { RedisStore } from './redis-store'
 
 declare module '@furystack/core/dist/store-manager' {
@@ -19,7 +19,7 @@ declare module '@furystack/core/dist/store-manager' {
      *    .setupStores(sm => sm.useRedis(SessionModel, 'sessionId', createClient())
      * ````
      */
-    useRedis: <T>(model: Constructable<T>, primaryKey: keyof T, client: RedisClient) => this
+    useRedis: <T>(model: Constructable<T>, primaryKey: keyof T, client: ReturnType<typeof createClient>) => this
   }
 }
 
