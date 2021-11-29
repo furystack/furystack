@@ -28,6 +28,7 @@ export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string
   createStore: () => PhysicalStore<T, TPrimaryKey>
   skipRegexTests?: boolean
+  skipAdvancedTests?: boolean
 }
 
 export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
@@ -283,6 +284,62 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
       })
 
+      it('filter should return the corresponding entries with $lt statement', async () => {
+        await usingAsync(options.createStore(), async (store) => {
+          const { created } = await store.add(
+            createMockEntity({ id: 1, numberValue1: 1 }),
+            createMockEntity({ id: 2, numberValue1: 2 }),
+            createMockEntity({ id: 3, numberValue1: 3 }),
+          )
+
+          const result = await store.find({ filter: { numberValue1: { $lt: 2 } } })
+          expect(result.length).toBe(1)
+          expect(result).toEqual([created[0]])
+        })
+      })
+
+      it('filter should return the corresponding entries with $lte statement', async () => {
+        await usingAsync(options.createStore(), async (store) => {
+          const { created } = await store.add(
+            createMockEntity({ id: 1, numberValue1: 1 }),
+            createMockEntity({ id: 2, numberValue1: 2 }),
+            createMockEntity({ id: 3, numberValue1: 3 }),
+          )
+
+          const result = await store.find({ filter: { numberValue1: { $lte: 2 } } })
+          expect(result.length).toBe(2)
+          expect(result).toEqual([created[0], created[1]])
+        })
+      })
+
+      it('filter should return the corresponding entries with $gt statement', async () => {
+        await usingAsync(options.createStore(), async (store) => {
+          const { created } = await store.add(
+            createMockEntity({ id: 1, numberValue1: 1 }),
+            createMockEntity({ id: 2, numberValue1: 2 }),
+            createMockEntity({ id: 3, numberValue1: 3 }),
+          )
+
+          const result = await store.find({ filter: { numberValue1: { $gt: 2 } } })
+          expect(result.length).toBe(1)
+          expect(result).toEqual([created[2]])
+        })
+      })
+
+      it('filter should return the corresponding entries with $gte statement', async () => {
+        await usingAsync(options.createStore(), async (store) => {
+          const { created } = await store.add(
+            createMockEntity({ id: 1, numberValue1: 1 }),
+            createMockEntity({ id: 2, numberValue1: 2 }),
+            createMockEntity({ id: 3, numberValue1: 3 }),
+          )
+
+          const result = await store.find({ filter: { numberValue1: { $gte: 2 } } })
+          expect(result.length).toBe(2)
+          expect(result).toEqual([created[1], created[2]])
+        })
+      })
+
       it('filter should return the corresponding entries with $in AND $eq statement', async () => {
         await usingAsync(options.createStore(), async (store) => {
           await store.add(
@@ -296,6 +353,131 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           expect(result.map((r) => r.stringValue1)).toEqual(['asd'])
         })
       })
+
+      if (!options.skipAdvancedTests) {
+        describe('logical $and statements', () => {
+          it('should filter $and logical statements with $eq statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, numberValue1: 1, numberValue2: 1 }),
+                createMockEntity({ id: 2, numberValue1: 2, numberValue2: 1 }),
+                createMockEntity({ id: 3, numberValue1: 3, numberValue2: 1 }),
+              )
+              const result = await store.find({
+                filter: { $and: [{ numberValue1: { $eq: 2 } }, { numberValue2: { $eq: 1 } }] },
+              })
+              expect(result.length).toBe(1)
+              expect(result[0]).toEqual(created[1])
+            })
+          })
+
+          it('should filter $and logical statements with $ne statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, numberValue1: 1, numberValue2: 2 }),
+                createMockEntity({ id: 2, numberValue1: 2, numberValue2: 3 }),
+                createMockEntity({ id: 3, numberValue1: 3, numberValue2: 1 }),
+              )
+              const result = await store.find({
+                filter: { $and: [{ numberValue1: { $ne: 2 } }, { numberValue2: { $ne: 1 } }] },
+              })
+              expect(result.length).toBe(1)
+              expect(result[0]).toEqual(created[0])
+            })
+          })
+
+          it('should filter $and logical statements with $lt/$gt statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, numberValue1: 1, numberValue2: 2 }),
+                createMockEntity({ id: 2, numberValue1: 2, numberValue2: 3 }),
+                createMockEntity({ id: 3, numberValue1: 3, numberValue2: 1 }),
+              )
+              const result = await store.find({
+                filter: { $and: [{ numberValue1: { $lt: 3 } }, { numberValue2: { $gt: 2 } }] },
+              })
+              expect(result.length).toBe(1)
+              expect(result[0]).toEqual(created[1])
+            })
+          })
+
+          it('should filter $and logical statements with $lte/$gte statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, numberValue1: 1, numberValue2: 1 }),
+                createMockEntity({ id: 2, numberValue1: 2, numberValue2: 2 }),
+                createMockEntity({ id: 3, numberValue1: 3, numberValue2: 3 }),
+              )
+              const result = await store.find({
+                filter: { $and: [{ numberValue1: { $lte: 2 } }, { numberValue2: { $gte: 2 } }] },
+              })
+              expect(result.length).toBe(1)
+              expect(result[0]).toEqual(created[1])
+            })
+          })
+        })
+
+        describe('logical $or statements', () => {
+          it('should filter logical $or statements with $eq statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, stringValue1: 'asd' }),
+                createMockEntity({ id: 2, stringValue1: 'aaa' }),
+                createMockEntity({ id: 3, stringValue1: 'bbb' }),
+              )
+
+              const result = await store.find({
+                filter: { $or: [{ stringValue1: { $eq: 'aaa' } }, { stringValue1: { $eq: 'bbb' } }] },
+              })
+              expect(result.length).toBe(2)
+              expect(result).toEqual([created[1], created[2]])
+            })
+          })
+
+          it('should filter logical $or statements with $neq statements', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, stringValue1: 'asd' }),
+                createMockEntity({ id: 2, stringValue1: 'aaa' }),
+                createMockEntity({ id: 3, stringValue1: 'bbb' }),
+              )
+
+              const result = await store.find({
+                filter: { $or: [{ stringValue1: { $ne: 'aaa' } }, { stringValue1: { $ne: 'bbb' } }] },
+              })
+              expect(result.length).toBe(3)
+              expect(result).toEqual(created)
+            })
+          })
+        })
+
+        describe('Nested $or and $and logical operators', () => {
+          it('should filter $and operators inside $or-s', async () => {
+            await usingAsync(options.createStore(), async (store) => {
+              const { created } = await store.add(
+                createMockEntity({ id: 1, numberValue1: 1, numberValue2: 3, booleanValue: true }),
+                createMockEntity({ id: 2, numberValue1: 2, numberValue2: 2, booleanValue: false }),
+                createMockEntity({ id: 3, numberValue1: 3, numberValue2: 1, booleanValue: true }),
+              )
+
+              const result = await store.find({
+                filter: {
+                  $or: [
+                    {
+                      $and: [{ numberValue1: { $ne: 2 } }, { numberValue2: { $eq: 1 } }],
+                    },
+                    {
+                      $and: [{ numberValue1: { $ne: 3 } }, { booleanValue: { $ne: true } }],
+                    },
+                  ],
+                },
+              })
+              expect(result.length).toBe(2)
+              expect(result).toEqual([created[1], created[2]])
+            })
+          })
+        })
+      }
 
       if (!options.skipRegexTests) {
         it('filter should return the corresponding entries with $regex', async () => {

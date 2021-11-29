@@ -7,6 +7,7 @@ describe('InMemoryStore', () => {
   createStoreTest({
     createStore,
     typeName: 'InMemoryStore',
+    // skipAdvancedTests: true, // TODO
   })
 
   it('dispose should empty the cache', async () => {
