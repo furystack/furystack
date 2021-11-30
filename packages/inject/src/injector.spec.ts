@@ -110,6 +110,28 @@ describe('Injector', () => {
     })
   })
 
+  it('Should throw if failed to dispose one or more entries', async () => {
+    expect.assertions(1)
+
+    @Injectable({ lifetime: 'singleton' })
+    class TestDisposableThrows implements Disposable {
+      public dispose() {
+        throw Error(':(')
+      }
+    }
+
+    const i = new Injector()
+    i.getInstance(TestDisposableThrows)
+
+    try {
+      await i.dispose()
+    } catch (error) {
+      expect((error as Error).message).toBe(
+        "There was an error during disposing '1' global disposable objects: Error: :(",
+      )
+    }
+  })
+
   it('Should dispose cached entries on dispose and tolerate non-disposable ones', (done) => {
     class TestDisposable implements Disposable {
       public dispose() {
