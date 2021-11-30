@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [10.4.0](https://github.com/furystack/furystack/compare/@furystack/core@10.3.8...@furystack/core@10.4.0) (2021-11-30)
+
+
+### 🚀 What's new
+
+* **@furystack/core:** Advanced filters for InMemory store ([bc89ecc](https://github.com/furystack/furystack/commit/bc89ecc49781d9f6ec1b772662e00d3467b15227))
+
+
+
+
 ### [10.3.8](https://github.com/furystack/furystack/compare/@furystack/core@10.3.7...@furystack/core@10.3.8) (2021-11-29)
 
 **Note:** Version bump only for package @furystack/core

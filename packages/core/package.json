@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "10.3.8",
+  "version": "10.4.0",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
