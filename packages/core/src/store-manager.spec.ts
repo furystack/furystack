@@ -65,6 +65,7 @@ describe('StoreManager', () => {
         expect(error).toBeInstanceOf(AggregatedError)
         expect((error as AggregatedError).rejections).toHaveLength(1)
       }
+      i.cachedSingletons.clear()
     })
   })
 })
