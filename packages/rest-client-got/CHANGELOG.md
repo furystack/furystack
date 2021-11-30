@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.33](https://github.com/furystack/furystack/compare/@furystack/rest-client-got@1.0.32...@furystack/rest-client-got@1.0.33) (2021-11-30)
+
+**Note:** Version bump only for package @furystack/rest-client-got
+
+
+
+
+
+
 ### [1.0.32](https://github.com/furystack/furystack/compare/@furystack/rest-client-got@1.0.31...@furystack/rest-client-got@1.0.32) (2021-11-29)
 
 **Note:** Version bump only for package @furystack/rest-client-got
