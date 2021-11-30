@@ -3,9 +3,16 @@ import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
 
+globalThis.fetch = (globalThis as any).fecth || (() => null)
+
 describe('@furystack/rest-client-fetch', () => {
   it('Should return a method', () => {
     const result = createClient({ endpointUrl, fetch: () => undefined as any })
+    expect(typeof result).toBe('function')
+  })
+
+  it('Should create with native Fetch by default', () => {
+    const result = createClient({ endpointUrl })
     expect(typeof result).toBe('function')
   })
 
@@ -162,5 +169,78 @@ describe('@furystack/rest-client-fetch', () => {
       },
     })
     expect(json).toBeCalled()
+  })
+
+  it('Should parse a response with text/ headers', async () => {
+    const text = jest.fn(async () => 'alma')
+    const fetch: any = jest.fn(async () => ({
+      text,
+      headers: {
+        get: () => 'text/plain',
+      },
+      ok: true,
+    }))
+
+    const client = createClient<{
+      POST: { '/test': { result: string; headers: { token: string } } }
+    }>({
+      endpointUrl,
+      fetch,
+    })
+
+    const result = await client({
+      action: '/test',
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+
+    expect(result.result).toBe('alma')
+
+    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+    expect(text).toBeCalled()
+  })
+
+  it('Should parse a response with form/multipart headers', async () => {
+    const exampleValue = { foo: 1, bar: 'alma' }
+    const formData = jest.fn(async () => exampleValue)
+    const fetch: any = jest.fn(async () => ({
+      formData,
+      headers: {
+        get: () => 'form/multipart',
+      },
+      ok: true,
+    }))
+
+    const client = createClient<{
+      POST: { '/test': { result: string; headers: { token: string } } }
+    }>({
+      endpointUrl,
+      fetch,
+    })
+
+    const result = await client({
+      action: '/test',
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+
+    expect(result.result).toBe(exampleValue)
+
+    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+      method: 'POST',
+      headers: {
+        token: '123',
+      },
+    })
+    expect(formData).toBeCalled()
   })
 })
