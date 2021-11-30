@@ -178,7 +178,8 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
           backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
           ...props.style,
-        }}>
+        }}
+      >
         {children}
       </button>
     )

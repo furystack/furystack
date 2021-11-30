@@ -45,7 +45,8 @@ export const Tabs = Shade<
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', ...props.containerStyle }}>
         <div
           className="shade-tabs-header-container"
-          style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}>
+          style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}
+        >
           {props.tabs.map((tab, index) => {
             const isActive = index === getState().activeIndex
             const jsxElement = (
@@ -63,7 +64,8 @@ export const Tabs = Shade<
                   props.onChange && props.onChange(index)
                   window.history.pushState({}, '', `#tab-${index}`)
                   updateState({ activeIndex: index })
-                }}>
+                }}
+              >
                 {tab.header}
               </div>
             )

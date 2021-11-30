@@ -40,7 +40,8 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
           justifyContent: 'flex-end',
           padding: '1em',
           alignItems: 'center',
-        }}>
+        }}
+      >
         <div>
           Goto page
           <select
@@ -49,7 +50,8 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
               const value = parseInt((ev.target as any).value, 10)
               const currentQuery = props.service.querySettings.getValue()
               props.service.querySettings.setValue({ ...currentQuery, skip: (currentQuery.top || 0) * value })
-            }}>
+            }}
+          >
             {[...new Array(Math.ceil(state.data.count / (props.service.querySettings.getValue().top || Infinity)))].map(
               (_val, index) => (
                 <option value={index.toString()} selected={currentPage === index}>
@@ -71,7 +73,8 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
                 top: value,
                 skip: currentPage * value,
               })
-            }}>
+            }}
+          >
             {dataGridItemsPerPage.map((no) => (
               <option value={no.toString()} selected={no === currentQuerySettings.top}>
                 {no.toString()}

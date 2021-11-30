@@ -74,7 +74,8 @@ export const SuggestionList: <T>(
           boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
           backdropFilter: 'blur(15px)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
-        }}>
+        }}
+      >
         {getState().suggestions.map((s, i) => (
           <div
             className="suggestion-item"
@@ -85,7 +86,8 @@ export const SuggestionList: <T>(
               padding: '1em',
               cursor: 'default',
               background: i === manager.selectedIndex.getValue() ? 'rgba(128,128,128,0.2)' : 'rgba(96,96,96,0.2)',
-            }}>
+            }}
+          >
             {s.element}
           </div>
         ))}

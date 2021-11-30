@@ -111,7 +111,8 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
           }
 
           manager.getSuggestion({ injector, term: (ev.target as any).value })
-        }}>
+        }}
+      >
         <div
           className="input-container"
           style={{
@@ -122,7 +123,8 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
             borderRadius: '5px',
             position: 'relative',
             ...props.style,
-          }}>
+          }}
+        >
           <div
             className="term-icon"
             style={{
@@ -131,7 +133,8 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
               fontWeight: 'bolder',
               textShadow: '0 0 1px #aaa',
             }}
-            onclick={() => manager.isOpened.setValue(true)}>
+            onclick={() => manager.isOpened.setValue(true)}
+          >
             {props.defaultPrefix}
           </div>
           <CommandPaletteInput manager={manager} />
@@ -143,10 +146,12 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
               justifyContent: 'space-between',
               width: manager.isOpened.getValue() ? '50px' : '0px',
               overflow: 'hidden',
-            }}>
+            }}
+          >
             <div
               className="loader-container"
-              style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}>
+              style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
+            >
               <Loader style={{ width: '100%', height: '100%' }} />
             </div>
             <div
@@ -160,7 +165,8 @@ export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-              }}>
+              }}
+            >
               ✖
             </div>
           </div>

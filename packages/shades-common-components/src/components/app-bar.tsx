@@ -34,7 +34,8 @@ export const AppBar = Shade({
           opacity: '0',
           position: 'fixed',
           zIndex: '1',
-        }}>
+        }}
+      >
         {children}
       </div>
     )

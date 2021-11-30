@@ -70,7 +70,8 @@ export const DataGridHeader: <T, K extends keyof T>(
     return (
       <div
         style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'space-around' }}
-        onclick={() => updateState({ isSearchOpened: true })}>
+        onclick={() => updateState({ isSearchOpened: true })}
+      >
         <div>{props.field}</div>
         <div className="header-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <div
@@ -89,7 +90,8 @@ export const DataGridHeader: <T, K extends keyof T>(
                 ...currentState.querySettings,
                 order: newOrder,
               })
-            }}>
+            }}
+          >
             {(currentOrder === props.field && (currentOrderDirection === 'ASC' ? '⬇' : '⬆')) || '↕'}
           </div>
         </div>

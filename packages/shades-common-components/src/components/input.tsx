@@ -38,7 +38,8 @@ export const Input = Shade<TextInputProps>({
           marginBottom: '1em',
           padding: '1em',
           ...props.labelProps?.style,
-        }}>
+        }}
+      >
         {props.labelTitle}
         {props.multiLine ? (
           <div
@@ -52,7 +53,8 @@ export const Input = Shade<TextInputProps>({
               width: '100%',
               textOverflow: 'ellipsis',
               ...props.style,
-            }}>
+            }}
+          >
             {props.value}
           </div>
         ) : (

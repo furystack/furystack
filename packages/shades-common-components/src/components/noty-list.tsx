@@ -81,7 +81,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
           overflow: 'hidden',
           borderRadius: '6px',
           boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
-        }}>
+        }}
+      >
         <div
           style={{
             display: 'flex',
@@ -91,7 +92,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             backgroundColor: colors.dark,
             color: headerTextColor,
             fontSize: '1.3em',
-          }}>
+          }}
+        >
           <h5
             style={{
               whiteSpace: 'nowrap',
@@ -99,7 +101,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
               textOverflow: 'ellipsis',
               margin: '0',
             }}
-            title={props.model.title}>
+            title={props.model.title}
+          >
             {props.model.title}
           </h5>
           <Button
@@ -110,7 +113,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             color={props.model.type}
             style={{
               padding: '6px',
-            }}>
+            }}
+          >
             ✖
           </Button>
         </div>
@@ -148,7 +152,8 @@ export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
           right: '1em',
           display: 'flex',
           flexDirection: 'column',
-        }}>
+        }}
+      >
         {getState().currentNotys.map((n) => (
           <NotyComponent model={n} onDismiss={() => injector.getInstance(NotyService).removeNoty(n)} />
         ))}

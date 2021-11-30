@@ -35,7 +35,8 @@ export const NippleComponent = Shade<NippleComponentProps>({
           height: '100%',
           position: 'relative',
           ...props.style,
-        }}>
+        }}
+      >
         {children}
       </div>
     )

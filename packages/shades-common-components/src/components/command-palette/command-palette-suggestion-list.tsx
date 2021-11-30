@@ -79,7 +79,8 @@ export const CommandPaletteSuggestionList = Shade<
           boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),
-        }}>
+        }}
+      >
         {getState().suggestions.map((s, i) => (
           <div
             className="suggestion-item"
@@ -90,7 +91,8 @@ export const CommandPaletteSuggestionList = Shade<
               padding: '1em',
               cursor: 'default',
               background: i === manager.selectedIndex.getValue() ? 'rgba(128,128,128,0.2)' : 'transparent',
-            }}>
+            }}
+          >
             {s.element}
           </div>
         ))}
