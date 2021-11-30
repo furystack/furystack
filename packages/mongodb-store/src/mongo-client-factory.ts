@@ -13,8 +13,13 @@ export class MongoClientFactory implements Disposable {
   private readonly connectionLock = new Semaphore(1)
 
   public async dispose() {
-    await Promise.all([...this.connections.values()].map((c) => c.close()))
-    this.connections.clear()
+    try {
+      await this.connectionLock.acquire()
+      await Promise.all([...this.connections.values()].map((c) => c.close()))
+      this.connections.clear()
+    } finally {
+      this.connectionLock.release()
+    }
   }
 
   public async getClientFor(url: string, options?: MongoClientOptions) {

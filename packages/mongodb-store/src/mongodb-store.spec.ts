@@ -28,17 +28,16 @@ describe('MongoDB Store', () => {
   })
   createStoreTest({
     typeName: 'mongodb-store',
-    createStore: () => {
+    createStore: (i) => {
       const mongoOptions = getMongoOptions()
-      const i = new Injector().setupStores((sm) => sm.useMongoDb(mongoOptions))
+      i.setupStores((sm) => sm.useMongoDb(mongoOptions))
       const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
-      const oldDispose = store.dispose
-      store.dispose = async () => {
+      const oldDispose = i.dispose
+      i.dispose = async () => {
         const client = await i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
         const db = client.db(mongoOptions.db)
         await db.dropDatabase()
-        store.dispose = oldDispose
-        await i.dispose()
+        i.dispose = oldDispose
       }
       return store
     },
