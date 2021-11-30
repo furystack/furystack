@@ -9,8 +9,8 @@
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.13",
-    "@typescript-eslint/eslint-plugin": "^5.4.0",
-    "@typescript-eslint/parser": "^5.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
     "ajv": "^8.8.2",
     "conventional-changelog-conventionalcommits": "^4.6.1",
     "eslint": "^8.3.0",

@@ -9,6 +9,7 @@ import {
   isOperator,
   CreateResult,
   WithOptionalId,
+  isLogicalOperator,
 } from './models/physical-store'
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
@@ -47,7 +48,23 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
     }
     return values.filter((item) => {
       for (const key in filter) {
-        if (typeof (filter as any)[key] === 'object') {
+        if (isLogicalOperator(key)) {
+          const filterValue = (filter as any)[key] as Array<FilterType<T>>
+          switch (key) {
+            case '$and':
+              if (filterValue.some((v: FilterType<T>) => !this.filterInternal([item], v).length)) {
+                return false
+              }
+              break
+            case '$or':
+              if (filterValue.some((v: FilterType<T>) => this.filterInternal([item], v).length)) {
+                break
+              }
+              return false
+            default:
+              throw new Error(`The logical operation '${key}' is not a valid operation`)
+          }
+        } else if (typeof (filter as any)[key] === 'object') {
           for (const filterKey in (filter as any)[key]) {
             if (isOperator(filterKey)) {
               const itemValue = (item as any)[key]
@@ -74,13 +91,33 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
                     return false
                   }
                   break
+                case '$lt':
+                  if (itemValue < filterValue) {
+                    break
+                  }
+                  return false
+                case '$lte':
+                  if (itemValue <= filterValue) {
+                    break
+                  }
+                  return false
+                case '$gt':
+                  if (itemValue > filterValue) {
+                    break
+                  }
+                  return false
+                case '$gte':
+                  if (itemValue >= filterValue) {
+                    break
+                  }
+                  return false
                 case '$regex':
                   if (!new RegExp(filterValue).test((itemValue as any).toString())) {
                     return false
                   }
                   break
                 default:
-                  throw new Error(`The expression (${key}) is not supported by '${this.constructor.name}'!`)
+                  throw new Error(`The expression (${filterKey}) is not supported by '${this.constructor.name}'!`)
               }
             } else {
               throw new Error(`The filter key '${filterKey}' is not a valid operation`)

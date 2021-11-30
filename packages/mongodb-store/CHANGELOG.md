@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.24](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.23...@furystack/mongodb-store@4.0.24) (2021-11-30)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
 ### [4.0.23](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.22...@furystack/mongodb-store@4.0.23) (2021-11-29)
 
 **Note:** Version bump only for package @furystack/mongodb-store
