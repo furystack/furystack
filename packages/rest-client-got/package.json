@@ -2,7 +2,13 @@
   "name": "@furystack/rest-client-got",
   "version": "1.0.33",
   "description": "got-based REST client for FuryStack REST APIs",
-  "main": "dist/cjs/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "sideEffects": [],
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
+  },
   "files": [
     "dist",
     "src"

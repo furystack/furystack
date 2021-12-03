@@ -1,0 +1,63 @@
+{
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./auth-google/tsconfig-esm.json"
+    },
+    {
+      "path": "./core/tsconfig-esm.json"
+    },
+    {
+      "path": "./filesystem-store/tsconfig-esm.json"
+    },
+    {
+      "path": "./inject/tsconfig-esm.json"
+    },
+    {
+      "path": "./logging/tsconfig-esm.json"
+    },
+    {
+      "path": "./mongodb-store/tsconfig-esm.json"
+    },
+    {
+      "path": "./redis-store/tsconfig-esm.json"
+    },
+    {
+      "path": "./repository/tsconfig-esm.json"
+    },
+    {
+      "path": "./rest/tsconfig-esm.json"
+    },
+    {
+      "path": "./rest-client-fetch/tsconfig-esm.json"
+    },
+    {
+      "path": "./rest-client-got/tsconfig-esm.json"
+    },
+    {
+      "path": "./rest-service/tsconfig-esm.json"
+    },
+    {
+      "path": "./sequelize-store/tsconfig-esm.json"
+    },
+    {
+      "path": "./utils/tsconfig-esm.json"
+    },
+    {
+      "path": "./websocket-api/tsconfig-esm.json"
+    },
+    {
+      "path": "./shades/tsconfig-esm.json"
+    },
+    {
+      "path": "./shades-common-components/tsconfig-esm.json"
+    },
+    {
+      "path": "./shades-nipple/tsconfig-esm.json"
+    },
+    {
+      "path": "./shades-lottie/tsconfig-esm.json"
+    }
+  ]
+}

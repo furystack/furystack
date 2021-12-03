@@ -31,7 +31,9 @@
   },
   "scripts": {
     "bumpVersions": "lerna version --include-merged-tags --create-release github",
-    "build": "tsc -b packages",
+    "build": "yarn build:cjs && echo yarn build:esm",
+    "build:cjs": "tsc -b packages",
+    "build:esm": "tsc -b packages/tsconfig-esm.json",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",

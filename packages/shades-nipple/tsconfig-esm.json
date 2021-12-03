@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2015",
+    "moduleResolution": "Node",
+    "outDir": "./dist/esm",
+    "composite": true,
+    "rootDir": "./src",
+    "jsx": "react",
+    "jsxFactory": "createComponent"
+  },
+  "include": ["src"],
+  "references": [{ "path": "../shades/tsconfig-esm.json" }]
+}
