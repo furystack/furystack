@@ -1,6 +1,6 @@
 import { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { RedisClient } from 'redis'
+import { createClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -13,7 +13,7 @@ export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore
   constructor(
     private readonly options: {
       model: Constructable<T>
-      client: RedisClient
+      client: ReturnType<typeof createClient>
       primaryKey: TPrimaryKey
     },
   ) {
@@ -24,23 +24,17 @@ export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
-        return await new Promise<T>((resolve, reject) =>
-          this.options.client.set((key as any).toString(), JSON.stringify(entry), (err) => {
-            err ? reject(err) : resolve(entry as T)
-          }),
-        )
+        this.options.client.set((key as any).toString(), JSON.stringify(entry))
+        return entry
       }),
     )
+
     return {
-      created,
+      created: created as T[],
     }
   }
   public async update(id: T[TPrimaryKey], data: T): Promise<void> {
-    return await new Promise((resolve, reject) =>
-      this.options.client.set((id as any).toString(), JSON.stringify(data), (err) => {
-        err ? reject(err) : resolve()
-      }),
-    )
+    await this.options.client.set((id as any).toString(), JSON.stringify(data))
   }
   public async count(): Promise<number> {
     throw Error('Not supported :(')
@@ -49,23 +43,11 @@ export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore
     throw Error('Not supported :(')
   }
   public async get(key: T[TPrimaryKey]): Promise<T | undefined> {
-    return await new Promise((resolve, reject) =>
-      this.options.client.get((key as any).toString(), (err, val) => {
-        err ? reject(err) : resolve(JSON.parse(val as string) as T)
-      }),
-    )
+    const value = await this.options.client.get((key as any).toString())
+    return value ? JSON.parse(value) : undefined
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
-    await Promise.all(
-      keys.map(
-        async (key) =>
-          await new Promise<void>((resolve, reject) =>
-            this.options.client.del((key as any).toString(), [], (err) => {
-              err ? reject(err) : resolve()
-            }),
-          ),
-      ),
-    )
+    await Promise.all(keys.map(async (key) => await this.options.client.del((key as any).toString(), [])))
   }
   public async dispose() {
     /** */

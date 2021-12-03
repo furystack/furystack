@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "2.0.81",
+  "version": "2.0.83",
   "description": "Logging API for FuryStack package",
   "main": "./dist/esm/index.js",
   "type": "module",
@@ -26,12 +26,12 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.1"
+    "@types/jest": "^27.0.3"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^4.0.74",
-    "@furystack/utils": "^1.2.44",
+    "@furystack/inject": "^4.0.76",
+    "@furystack/utils": "^1.2.46",
     "tslib": "^2.3.1"
   },
   "typings": "./dist/esm/index.d.ts",

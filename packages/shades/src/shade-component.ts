@@ -37,6 +37,13 @@ export const attachStyles = (el: HTMLElement, props: any) => {
     }
 }
 
+export const attachDataAttributes = (el: HTMLElement, props: any) => {
+  props &&
+    Object.entries(props)
+      .filter(([key]) => key.startsWith('data-'))
+      .forEach(([key, value]) => el.setAttribute(key, (value as string) || ''))
+}
+
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
  *
@@ -57,6 +64,7 @@ export const createComponent = <TProps>(
     if (props && (props as any).style) {
       attachStyles(el, props)
     }
+    attachDataAttributes(el, props)
     if (children) {
       appendChild(el, children)
     }

@@ -9,7 +9,7 @@ import { SchemaValidationError } from '../schema-validator'
  */
 
 export const ErrorAction: RequestAction<{
-  body: Error
+  body: unknown
   result: { message: string; url?: string; stack?: string }
 }> = async ({ getBody, request }) => {
   const body = await getBody()
@@ -18,7 +18,17 @@ export const ErrorAction: RequestAction<{
     return JsonResult({ message: body.message, stack: body.stack, errors: body.errors }, 400)
   }
 
-  const errorCode = body instanceof RequestError ? body.responseCode : body instanceof AuthorizationError ? 403 : 500
+  if (body instanceof RequestError) {
+    return JsonResult({ message: body.message, url: request.url, stack: body.stack }, body.responseCode)
+  }
 
-  return JsonResult({ message: body.message, url: request.url, stack: body.stack }, errorCode)
+  if (body instanceof AuthorizationError) {
+    return JsonResult({ message: body.message, url: request.url, stack: body.stack }, 403)
+  }
+
+  if (body instanceof Error) {
+    return JsonResult({ message: body.message, url: request.url, stack: body.stack }, 500)
+  }
+
+  return JsonResult({ message: 'An unexpected error happened' }, 500)
 }

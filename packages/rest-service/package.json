@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "4.0.16",
+  "version": "4.1.4",
   "description": "Repository implementation for FuryStack",
   "main": "./dist/esm/index.js",
   "type": "module",
@@ -32,13 +32,13 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^10.3.1",
-    "@furystack/inject": "^4.0.74",
-    "@furystack/logging": "^2.0.81",
-    "@furystack/repository": "^5.0.16",
-    "@furystack/rest": "^3.0.16",
-    "@furystack/utils": "^1.2.44",
-    "ajv": "^8.6.2",
+    "@furystack/core": "^10.4.0",
+    "@furystack/inject": "^4.0.76",
+    "@furystack/logging": "^2.0.83",
+    "@furystack/repository": "^5.0.24",
+    "@furystack/rest": "^3.1.2",
+    "@furystack/utils": "^1.2.46",
+    "ajv": "^8.8.2",
     "ajv-formats": "^2.1.1",
     "hash.js": "^1.1.7",
     "path-to-regexp": "^6.2.0",
@@ -47,10 +47,10 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.1",
-    "@types/node": "^16.6.2",
-    "@types/uuid": "^8.3.1",
-    "got": "^11.8.2"
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.11",
+    "@types/uuid": "^8.3.3",
+    "got": "^11.8.3"
   },
   "typings": "./dist/esm/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

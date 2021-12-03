@@ -3,6 +3,89 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.8.3](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.2...@furystack/shades-common-components@1.8.3) (2021-11-30)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.8.2](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.1...@furystack/shades-common-components@1.8.2) (2021-11-29)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.8.1](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.0...@furystack/shades-common-components@1.8.1) (2021-11-19)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+## [1.8.0](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.6...@furystack/shades-common-components@1.8.0) (2021-11-17)
+
+
+### 🚀 What's new
+
+* **@furystack/shades-common-components:** improved button theme look and feel ([c117e5e](https://github.com/furystack/furystack/commit/c117e5eaf3fe2cd9553357e06ec6bd6a43cf0f50))
+* **@furystack/shades-common-components:** input theme from provider ([4cdc6bc](https://github.com/furystack/furystack/commit/4cdc6bc60525b04a1aefa4e4a3438db730e63b68))
+
+
+
+
+### [1.7.6](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.5...@furystack/shades-common-components@1.7.6) (2021-11-09)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.7.5](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.4...@furystack/shades-common-components@1.7.5) (2021-10-15)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.7.4](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.3...@furystack/shades-common-components@1.7.4) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.7.3](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.2...@furystack/shades-common-components@1.7.3) (2021-09-16)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
+### [1.7.2](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.1...@furystack/shades-common-components@1.7.2) (2021-08-27)
+
+**Note:** Version bump only for package @furystack/shades-common-components
+
+
+
+
+
+
 ### [1.7.1](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.7.0...@furystack/shades-common-components@1.7.1) (2021-08-19)
 
 **Note:** Version bump only for package @furystack/shades-common-components

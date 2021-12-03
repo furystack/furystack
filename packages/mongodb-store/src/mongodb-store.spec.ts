@@ -1,3 +1,8 @@
+import { TextEncoder, TextDecoder } from 'util'
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as any
+
 import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/dist/esm/create-physical-store-tests'

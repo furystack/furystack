@@ -361,20 +361,32 @@
     "RestApi": {
       "additionalProperties": false,
       "properties": {
+        "CONNECT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "DELETE": {
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -387,16 +399,28 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "HEAD": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -409,16 +433,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -431,16 +450,11 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -453,16 +467,28 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "TRACE": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"
@@ -661,6 +687,23 @@
     "ValidationApi": {
       "additionalProperties": false,
       "properties": {
+        "CONNECT": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "DELETE": {
           "additionalProperties": false,
           "properties": {
@@ -701,6 +744,23 @@
           ],
           "type": "object"
         },
+        "HEAD": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "PATCH": {
           "additionalProperties": false,
           "properties": {
@@ -733,16 +793,28 @@
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
-              "body": {
-              },
-              "headers": {
-              },
-              "query": {
-              },
-              "result": {
-              },
-              "url": {
-              }
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "TRACE": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
             },
             "required": [
               "result"

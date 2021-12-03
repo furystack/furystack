@@ -3,6 +3,78 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.24](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.23...@furystack/mongodb-store@4.0.24) (2021-11-30)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.23](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.22...@furystack/mongodb-store@4.0.23) (2021-11-29)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.22](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.21...@furystack/mongodb-store@4.0.22) (2021-11-19)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.21](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.20...@furystack/mongodb-store@4.0.21) (2021-11-09)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.20](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.19...@furystack/mongodb-store@4.0.20) (2021-10-15)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.19](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.18...@furystack/mongodb-store@4.0.19) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.18](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.17...@furystack/mongodb-store@4.0.18) (2021-09-16)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
+### [4.0.17](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.16...@furystack/mongodb-store@4.0.17) (2021-08-27)
+
+**Note:** Version bump only for package @furystack/mongodb-store
+
+
+
+
+
+
 ### [4.0.16](https://github.com/furystack/core/compare/@furystack/mongodb-store@4.0.15...@furystack/mongodb-store@4.0.16) (2021-08-19)
 
 **Note:** Version bump only for package @furystack/mongodb-store

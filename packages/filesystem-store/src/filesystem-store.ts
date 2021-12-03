@@ -89,7 +89,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
       }
     } catch (err) {
       // ignore if file not exists yet
-      if (err.code !== 'ENOENT') {
+      if (err instanceof Error && (err as any).code !== 'ENOENT') {
         throw err
       }
     } finally {

@@ -3,6 +3,87 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.3.10](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.9...@furystack/shades-lottie@1.3.10) (2021-11-30)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.9](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.8...@furystack/shades-lottie@1.3.9) (2021-11-29)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.8](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.7...@furystack/shades-lottie@1.3.8) (2021-11-19)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.7](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.6...@furystack/shades-lottie@1.3.7) (2021-11-17)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.6](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.5...@furystack/shades-lottie@1.3.6) (2021-11-09)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.5](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.4...@furystack/shades-lottie@1.3.5) (2021-10-15)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.4](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.3...@furystack/shades-lottie@1.3.4) (2021-10-05)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.3](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.2...@furystack/shades-lottie@1.3.3) (2021-09-16)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
+### [1.3.2](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.1...@furystack/shades-lottie@1.3.2) (2021-08-27)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
 ### [1.3.1](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.0...@furystack/shades-lottie@1.3.1) (2021-08-19)
 
 **Note:** Version bump only for package @furystack/shades-lottie
