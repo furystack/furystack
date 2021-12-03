@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { IdentityContext } from './identity-context'
 import './injector-extensions'
+import { getCurrentUser, isAuthenticated, isAuthorized } from './injector-extensions'
 
 describe('IdentityContext', () => {
   it('Should be retrieved from an Injector', () => {
@@ -15,8 +16,8 @@ describe('IdentityContext', () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'isAuthenticated')
-      const isAuthenticated = await i.isAuthenticated()
-      expect(isAuthenticated).toBeFalsy()
+      const is = await isAuthenticated(i)
+      expect(is).toBeFalsy()
       expect(spy).toBeCalledTimes(1)
     })
   })
@@ -25,8 +26,8 @@ describe('IdentityContext', () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'isAuthorized')
-      const isAuthorized = await i.isAuthorized()
-      expect(isAuthorized).toBeFalsy()
+      const is = await isAuthorized(i)
+      expect(is).toBeFalsy()
       expect(spy).toBeCalledTimes(1)
     })
   })
@@ -35,7 +36,7 @@ describe('IdentityContext', () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'getCurrentUser')
-      await expect(i.getCurrentUser()).rejects.toThrowError('')
+      await expect(getCurrentUser(i)).rejects.toThrowError('')
       expect(spy).toBeCalledTimes(1)
     })
   })

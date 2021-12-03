@@ -4,6 +4,7 @@ import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
 import './injector-extensions'
 import { AggregatedError } from './errors'
+import { setupStores } from './injector-extensions'
 
 class Test {
   id!: number
@@ -33,7 +34,7 @@ describe('StoreManager', () => {
 
   it('Can set up stores with an extension method', () => {
     using(new Injector(), (i) => {
-      i.setupStores((stores) =>
+      setupStores(i, (stores) =>
         stores.addStore(
           new InMemoryStore({
             model: Test,

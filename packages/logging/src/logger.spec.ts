@@ -3,12 +3,13 @@ import { Injector } from '@furystack/inject'
 import './injector-extensions'
 import { LogLevel, TestLogger, LoggerCollection } from './'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
+import { getLogger, useLogging } from './injector-extensions'
 
 describe('Loggers', () => {
   it('Can be set up with an extension method', () => {
     using(new Injector(), (i) => {
-      i.useLogging()
-      expect(i.logger).toBeInstanceOf(LoggerCollection)
+      useLogging(i)
+      expect(getLogger(i)).toBeInstanceOf(LoggerCollection)
     })
   })
 

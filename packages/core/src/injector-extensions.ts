@@ -1,68 +1,27 @@
-import { Injector } from '@furystack/inject/dist/cjs/injector'
+import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { globalDisposables } from './global-disposables'
 import { IdentityContext } from './identity-context'
 import { User } from './models/user'
 
-declare module '@furystack/inject/dist/cjs/injector' {
-  /**
-   * Defines an extended Injector instance
-   */
-  export interface Injector {
-    /**
-     * Registers a store instance to the StoreManager.
-     *
-     * Usage example:
-     * ````ts
-     * myInjector.setupStores(sm => sm.addStore(new InMemoryStore({ model: TestEntry, primaryKey: "_id" })))
-     * ````
-     * You can get the store later from the StoreManager:
-     * ````ts
-     * const myStore: IPhysicalStore<TestEntry> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
-     * ````
-     */
-    setupStores: (builder: (storeManager: StoreManager) => void) => this
-
-    /**
-     * The disposable will be disposed on process exit
-     */
-    disposeOnProcessExit: () => this
-
-    /**
-     *  returns the current authentication status from the identity context
-     */
-    isAuthenticated: () => Promise<boolean>
-
-    /**
-     *  returns the current authorization status from the identity context
-     */
-    isAuthorized: (...roles: string[]) => Promise<boolean>
-
-    /**
-     *
-     */
-    getCurrentUser: <TUser extends User>() => Promise<TUser>
-  }
+export const setupStores = (injector: Injector, builder: (sm: StoreManager) => void) => {
+  builder(injector.getInstance(StoreManager))
+  return injector
 }
 
-Injector.prototype.setupStores = function (builder) {
-  builder(this.getInstance(StoreManager))
-  return this
+export const disposeOnProcessExit = (injector: Injector) => {
+  globalDisposables.add(injector)
+  return injector
 }
 
-Injector.prototype.disposeOnProcessExit = function () {
-  globalDisposables.add(this)
-  return this
+export const isAuthenticated = async (injector: Injector) => {
+  return injector.getInstance(IdentityContext).isAuthenticated()
 }
 
-Injector.prototype.isAuthenticated = async function () {
-  return this.getInstance(IdentityContext).isAuthenticated()
+export const isAuthorized = async function (injector: Injector, ...roles: string[]) {
+  return injector.getInstance(IdentityContext).isAuthorized(...roles)
 }
 
-Injector.prototype.isAuthorized = async function (...roles) {
-  return this.getInstance(IdentityContext).isAuthorized(...roles)
-}
-
-Injector.prototype.getCurrentUser = async function <TUser extends User>() {
-  return this.getInstance(IdentityContext).getCurrentUser<TUser>()
+export const getCurrentUser = async <TUser extends User>(injector: Injector) => {
+  return injector.getInstance(IdentityContext).getCurrentUser<TUser>()
 }
