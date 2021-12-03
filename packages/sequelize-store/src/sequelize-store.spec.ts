@@ -1,5 +1,5 @@
 import { StoreManager } from '@furystack/core'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
+import { TestClass, createStoreTest } from '@furystack/core/dist/cjs/create-physical-store-tests'
 import './store-manager-extensions'
 import { DataTypes, Model } from 'sequelize'
 

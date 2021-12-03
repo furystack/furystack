@@ -2,7 +2,7 @@
   "name": "@furystack/repository",
   "version": "5.0.24",
   "description": "Repository implementation for FuryStack",
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
   "files": [
     "dist",
     "src"
@@ -38,6 +38,6 @@
   "devDependencies": {
     "@types/jest": "^27.0.3"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./dist/cjs/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

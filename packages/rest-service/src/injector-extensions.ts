@@ -1,11 +1,11 @@
 import { User } from '@furystack/core'
-import { Injector } from '@furystack/inject/dist/injector'
+import { Injector } from '@furystack/inject/dist/cjs/injector'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { RestApi } from '@furystack/rest'
 import { ApiManager, ImplementApiOptions } from './api-manager'
 import { DefaultSession } from 'models/default-session'
 
-declare module '@furystack/inject/dist/injector' {
+declare module '@furystack/inject/dist/cjs/injector' {
   /**
    * Extended Injector with Http API related methods
    */

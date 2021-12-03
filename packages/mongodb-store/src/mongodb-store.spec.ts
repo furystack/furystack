@@ -5,7 +5,7 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
+import { TestClass, createStoreTest } from '@furystack/core/dist/cjs/create-physical-store-tests'
 import { v4 } from 'uuid'
 import './store-manager-extensions'
 import { MongoClientFactory } from './mongo-client-factory'
