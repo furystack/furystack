@@ -31,7 +31,7 @@
   },
   "scripts": {
     "bumpVersions": "lerna version --include-merged-tags --create-release github",
-    "build": "yarn build:cjs && echo yarn build:esm",
+    "build": "yarn build:cjs && yarn build:esm",
     "build:cjs": "tsc -b packages",
     "build:esm": "tsc -b packages/tsconfig-esm.json",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
