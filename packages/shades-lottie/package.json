@@ -19,7 +19,7 @@
     "@furystack/shades": "^3.7.3",
     "@lottiefiles/lottie-player": "^1.5.2"
   },
-  "typings": "dist/index.d.ts",
+  "typings": "./dist/cjs/index.d.ts",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "sideEffects": [],
