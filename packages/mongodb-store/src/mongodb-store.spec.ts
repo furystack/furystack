@@ -37,7 +37,7 @@ describe('MongoDB Store', () => {
         const client = await i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
         const db = client.db(mongoOptions.db)
         await db.dropDatabase()
-        i.dispose = oldDispose
+        oldDispose.call(i)
       }
       return store
     },
