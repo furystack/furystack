@@ -1,6 +1,6 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { MongoClient, Filter, Collection, OptionalId, ObjectId, Projection, Sort, WithId } from 'mongodb'
+import { MongoClient, Filter, Collection, OptionalId, ObjectId, Sort } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -57,7 +57,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
       }
       return f
     }
-    return filter
+    return filter as Filter<T>
   }
 
   public async getCollection(): Promise<Collection<T>> {
@@ -135,7 +135,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
       : {}
 
     const result = await collection
-      .find(this.parseFilter(filter.filter) as Filter<WithId<T>>)
+      .find(this.parseFilter(filter.filter))
       .project(this.getProjection(filter.select))
       .skip(filter.skip || 0)
       .limit(filter.top || Number.MAX_SAFE_INTEGER)
@@ -144,7 +144,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
     return result.map((entity) => this.stringifyResultId(entity))
   }
 
-  private getProjection(fields?: Array<keyof T>): Projection<T> {
+  private getProjection(fields?: Array<keyof T>) {
     return {
       ...(this.primaryKey !== '_id' ? { _id: 0 } : {}),
       ...(fields ? Object.fromEntries(fields.map((field) => [field, 1])) : {}),
