@@ -47,7 +47,7 @@ describe('Shades integration tests', () => {
       shadowDomName: 'shades-example-2',
     })
 
-    const ExampleSubs = Shade<{ no: number }>({
+    const ExampleSubs = Shade<{ no: number }, unknown, undefined>({
       render: ({ props }) => <div>{props.no}</div>,
       shadowDomName: 'shades-example-sub',
     })
@@ -117,7 +117,7 @@ describe('Shades integration tests', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const ExampleComponent = Shade<{}, { count: number }>({
+    const ExampleComponent = Shade({
       getInitialState: () => ({ count: 0 }),
       render: ({ getState, updateState }) => {
         const { count } = getState()

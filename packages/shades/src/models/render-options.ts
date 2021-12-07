@@ -3,7 +3,7 @@ import { PartialElement } from './partial-element'
 import { ChildrenList } from './children-list'
 import { CurrentValuesFromObservables, Observables } from './observables'
 
-export type RenderOptions<TProps, TState, TObservables extends Observables> = {
+export type RenderOptions<TProps, TState, TObservables> = {
   readonly props: TProps
 
   injector: Injector
@@ -15,8 +15,4 @@ export type RenderOptions<TProps, TState, TObservables extends Observables> = {
       getState: () => TState
       updateState: (newState: PartialElement<TState>, skipRender?: boolean) => void
     }) &
-  (unknown extends TObservables
-    ? {}
-    : {
-        getObservableValues: () => CurrentValuesFromObservables<TObservables>
-      })
+  (TObservables extends Observables ? { getObservableValues: () => CurrentValuesFromObservables<TObservables> } : {})

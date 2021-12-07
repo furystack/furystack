@@ -1,12 +1,10 @@
-import { ObservableValue, ValueObserver } from '@furystack/utils'
+import { Disposable, ObservableValue, ValueObserver } from '@furystack/utils'
 import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
 import { ChildrenList, PartialElement, RenderOptions } from './models'
 import { CurrentValuesFromObservables, Observables } from './models/observables'
 
-export type ShadeOptions<TProps, TState, TObservables extends Observables = {}> = {
-  observables?: (options: RenderOptions<TProps, TState, TObservables>) => TObservables
-
+export type ShadeOptions<TProps, TState, TObservables> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -39,7 +37,10 @@ export type ShadeOptions<TProps, TState, TObservables extends Observables = {}> 
        * The initial state of the component
        */
       getInitialState: (options: { injector: Injector; props: TProps }) => TState
-    })
+    }) &
+  (TObservables extends Observables
+    ? { observables?: (options: RenderOptions<TProps, TState, TObservables>) => TObservables }
+    : {})
 
 /**
  * Factory method for creating Shade components
@@ -47,7 +48,7 @@ export type ShadeOptions<TProps, TState, TObservables extends Observables = {}> 
  * @param o for component creation
  * @returns the JSX element
  */
-export const Shade = <TProps, TState = unknown, TObservables extends Observables = {}>(
+export const Shade = <TProps, TState = unknown, TObservables = unknown>(
   o: ShadeOptions<TProps, TState, TObservables>,
 ) => {
   // register shadow-dom element
@@ -69,7 +70,7 @@ export const Shade = <TProps, TState = unknown, TObservables extends Observables
           this.state.dispose()
           this.shadeChildren.dispose()
           this.cleanup && this.cleanup()
-          Object.values(this.observableSubscriptions).forEach((s) => s?.dispose())
+          Object.values(this.observableSubscriptions).forEach((s) => (s as Disposable)?.dispose())
         }
 
         /**
@@ -103,7 +104,7 @@ export const Shade = <TProps, TState = unknown, TObservables extends Observables
             this.state.setValue({ ...this.state.getValue(), ...newState })
             !skipRender && this.updateComponent()
           }
-          const getObservableValues = o.observables
+          const getObservableValues = (o as any).observables
             ? () => {
                 const keys = Object.keys(this.observableSubscriptions) as Array<keyof TObservables>
                 return Object.fromEntries(
@@ -113,7 +114,7 @@ export const Shade = <TProps, TState = unknown, TObservables extends Observables
                       key as keyof typeof this.observableSubscriptions
                     ]?.observable.getValue(),
                   ]),
-                ) as CurrentValuesFromObservables<TObservables>
+                ) as TObservables extends Observables ? CurrentValuesFromObservables<TObservables> : never
               }
             : undefined
 
@@ -124,7 +125,7 @@ export const Shade = <TProps, TState = unknown, TObservables extends Observables
             updateState,
             children: this.shadeChildren.getValue(),
             element: this,
-            ...((o.observables ? { getObservableValues } : {}) as any),
+            ...(((o as any).observables ? { getObservableValues } : {}) as any),
           }
 
           return returnValue
@@ -133,8 +134,11 @@ export const Shade = <TProps, TState = unknown, TObservables extends Observables
         private updateObservables() {
           this.observableSubscriptions = Object.fromEntries(
             Object.entries(
-              o.observables?.(this.getRenderOptions()) || ({} as { [K: string]: ObservableValue<any> }),
-            ).map(([key, observableValue]) => [key, observableValue.subscribe(() => this.updateComponent(), false)]),
+              (o as any).observables?.(this.getRenderOptions()) || ({} as { [K: string]: ObservableValue<any> }),
+            ).map(([key, observableValue]) => [
+              key,
+              (observableValue as ObservableValue<any>).subscribe(() => this.updateComponent(), false),
+            ]),
           ) as any
         }
 
