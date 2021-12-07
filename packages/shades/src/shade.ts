@@ -1,9 +1,12 @@
-import { ObservableValue } from '@furystack/utils'
+import { ObservableValue, ValueObserver } from '@furystack/utils'
 import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
-import { ChildrenList, RenderOptions } from './models'
+import { ChildrenList, PartialElement, RenderOptions } from './models'
+import { CurrentValuesFromObservables, Observables } from './models/observables'
 
-export type ShadeOptions<TProps, TState> = {
+export type ShadeOptions<TProps, TState, TObservables extends Observables = {}> = {
+  observables?: (options: RenderOptions<TProps, TState, TObservables>) => TObservables
+
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -11,24 +14,24 @@ export type ShadeOptions<TProps, TState> = {
   /**
    * Render hook, this method will be executed on each and every render.
    */
-  render: (options: RenderOptions<TProps, TState>) => JSX.Element
+  render: (options: RenderOptions<TProps, TState, TObservables>) => JSX.Element
 
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
    */
   constructed?: (
-    options: RenderOptions<TProps, TState>,
+    options: RenderOptions<TProps, TState, TObservables>,
   ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
 
   /**
    * Will be executed when the element is attached to the DOM.
    */
-  onAttach?: (options: RenderOptions<TProps, TState>) => void
+  onAttach?: (options: RenderOptions<TProps, TState, TObservables>) => void
 
   /**
    * Will be executed when the element is detached from the DOM.
    */
-  onDetach?: (options: RenderOptions<TProps, TState>) => void
+  onDetach?: (options: RenderOptions<TProps, TState, TObservables>) => void
 } & (unknown extends TState
   ? {}
   : {
@@ -44,7 +47,9 @@ export type ShadeOptions<TProps, TState> = {
  * @param o for component creation
  * @returns the JSX element
  */
-export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>) => {
+export const Shade = <TProps, TState = unknown, TObservables extends Observables = {}>(
+  o: ShadeOptions<TProps, TState, TObservables>,
+) => {
   // register shadow-dom element
   const customElementName = o.shadowDomName || `shade-${v4()}`
 
@@ -64,6 +69,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           this.state.dispose()
           this.shadeChildren.dispose()
           this.cleanup && this.cleanup()
+          Object.values(this.observableSubscriptions).forEach((s) => s?.dispose())
         }
 
         /**
@@ -85,7 +91,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * @param options Options for rendering the component
          * @returns the JSX element
          */
-        public render = (options: RenderOptions<TProps, TState>) => o.render(options)
+        public render = (options: RenderOptions<TProps, TState, TObservables>) => o.render(options)
 
         /**
          * @returns values for the current render options
@@ -93,17 +99,43 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = () => {
           const props = this.props.getValue() || {}
           const getState = () => this.state.getValue()
-          return {
+          const updateState = (newState: PartialElement<TState>, skipRender?: boolean) => {
+            this.state.setValue({ ...this.state.getValue(), ...newState })
+            !skipRender && this.updateComponent()
+          }
+          const getObservableValues = o.observables
+            ? () => {
+                const keys = Object.keys(this.observableSubscriptions) as Array<keyof TObservables>
+                return Object.fromEntries(
+                  keys.map((key) => [
+                    key,
+                    this.observableSubscriptions[
+                      key as keyof typeof this.observableSubscriptions
+                    ]?.observable.getValue(),
+                  ]),
+                ) as CurrentValuesFromObservables<TObservables>
+              }
+            : undefined
+
+          const returnValue: RenderOptions<TProps, TState, TObservables> = {
             props,
             getState,
             injector: this.injector,
-            updateState: (newState: TState, skipRender: boolean) => {
-              this.state.setValue({ ...this.state.getValue(), ...newState })
-              !skipRender && this.updateComponent()
-            },
+            updateState,
             children: this.shadeChildren.getValue(),
             element: this,
-          } as any as RenderOptions<TProps, TState>
+            ...((o.observables ? { getObservableValues } : {}) as any),
+          }
+
+          return returnValue
+        }
+
+        private updateObservables() {
+          this.observableSubscriptions = Object.fromEntries(
+            Object.entries(
+              o.observables?.(this.getRenderOptions()) || ({} as { [K: string]: ObservableValue<any> }),
+            ).map(([key, observableValue]) => [key, observableValue.subscribe(() => this.updateComponent(), false)]),
+          ) as any
         }
 
         /**
@@ -128,6 +160,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public callConstructed() {
           ;(o as any).getInitialState &&
             this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
+
+          this.updateObservables()
 
           this.updateComponent()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
@@ -179,6 +213,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public set injector(i: Injector) {
           this._injector = i
         }
+
+        private observableSubscriptions: { [K in keyof TObservables]?: ValueObserver<any> } = {}
 
         constructor(_props: TProps) {
           super()
