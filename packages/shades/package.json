@@ -28,6 +28,9 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "homepage": "https://github.com/furystack/furystack",
+  "devDependencies": {
+    "jsdom": "^19.0.0"
+  },
   "dependencies": {
     "@furystack/core": "^10.4.0",
     "@furystack/inject": "^4.0.76",

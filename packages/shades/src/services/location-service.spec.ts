@@ -1,3 +1,8 @@
+import { TextEncoder, TextDecoder } from 'util'
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as any
+
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { LocationService } from './'
