@@ -8,7 +8,7 @@ import { usingAsync } from '@furystack/utils'
 import { ScreenService } from './screen-service'
 import { JSDOM } from 'jsdom'
 
-describe('LocationService', () => {
+describe('ScreenService', () => {
   const oldDoc = document
 
   beforeAll(() => {
