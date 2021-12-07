@@ -53,6 +53,9 @@ describe('Router', () => {
           <RouteLink id="b" href="/route-b">
             b
           </RouteLink>
+          <RouteLink id="b-with-id" href="/route-b/123">
+            b-with-id
+          </RouteLink>
           <RouteLink id="c" href="/route-c">
             c
           </RouteLink>
@@ -62,8 +65,12 @@ describe('Router', () => {
           <Router
             routes={[
               { url: '/route-a', component: () => <div id="content">route-a</div>, onVisit, onLeave },
-              { url: '/route-b', component: () => <div id="content">route-b</div> },
-              { url: '/route-c', component: () => <div id="content">route-c</div>, onLeave: onLastLeave },
+              { url: '/route-b/:id?', component: ({ match }) => <div id="content">route-b{match.params.id}</div> },
+              {
+                url: '/route-c',
+                component: () => <div id="content">route-c</div>,
+                onLeave: onLastLeave,
+              },
               { url: '/', component: () => <div id="content">home</div> },
             ]}
             notFound={() => <div id="content">not found</div>}
@@ -102,6 +109,11 @@ describe('Router', () => {
 
     expect(getContent()).toBe('route-b')
     expect(getLocation()).toBe('/route-b')
+
+    clickOn('b-with-id')
+    await sleepAsync(100)
+    expect(getContent()).toBe('route-b123')
+    expect(getLocation()).toBe('/route-b/123')
 
     clickOn('c')
     await sleepAsync(100)
