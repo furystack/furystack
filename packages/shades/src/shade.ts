@@ -109,7 +109,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Updates the component in the DOM.
          */
-        public async updateComponent() {
+        public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
 
           // const selectionState = this.getSelectionState()
