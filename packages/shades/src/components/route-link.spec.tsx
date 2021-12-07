@@ -45,6 +45,6 @@ describe('RouteLink', () => {
     )
     expect(onRouteChange).not.toBeCalled()
     document.getElementById('route')?.click()
-    expect(onRouteChange).toBeCalledTimes(2) // 1. Pushstate, 2. Explicit
+    expect(onRouteChange).toBeCalledTimes(1)
   })
 })

@@ -8,6 +8,7 @@ import { Router } from './router'
 import { JSDOM } from 'jsdom'
 import { createComponent, initializeShadeRoot, LocationService } from '..'
 import { RouteLink } from '.'
+import { sleepAsync } from '@furystack/utils'
 
 describe('Router', () => {
   const oldDoc = document
@@ -25,7 +26,11 @@ describe('Router', () => {
   afterEach(() => (document.body.innerHTML = ''))
 
   it('Shuld display the loader and completed state', async () => {
-    history.pushState(null, '/')
+    history.pushState(null, '', '/')
+
+    const onVisit = jest.fn()
+    const onLeave = jest.fn()
+    const onLastLeave = jest.fn()
 
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
@@ -56,9 +61,9 @@ describe('Router', () => {
           </RouteLink>
           <Router
             routes={[
-              { url: '/route-a', component: () => <div id="content">route-a</div> },
+              { url: '/route-a', component: () => <div id="content">route-a</div>, onVisit, onLeave },
               { url: '/route-b', component: () => <div id="content">route-b</div> },
-              { url: '/route-c', component: () => <div id="content">route-c</div> },
+              { url: '/route-c', component: () => <div id="content">route-c</div>, onLeave: onLastLeave },
               { url: '/', component: () => <div id="content">home</div> },
             ]}
             notFound={() => <div id="content">not found</div>}
@@ -72,24 +77,42 @@ describe('Router', () => {
 
     const clickOn = (name: string) => document.getElementById(name)?.click()
 
+    await sleepAsync(100)
+
     expect(getLocation()).toBe('/')
     expect(getContent()).toBe('home')
 
+    expect(onVisit).not.toBeCalled()
+
     clickOn('a')
+    await sleepAsync(100)
     expect(getContent()).toBe('route-a')
     expect(getLocation()).toBe('/route-a')
-    expect(onRouteChange).toBeCalledTimes(2)
+    expect(onRouteChange).toBeCalledTimes(1)
+    expect(onVisit).toBeCalledTimes(1)
+
+    clickOn('a')
+    await sleepAsync(100)
+    expect(onVisit).toBeCalledTimes(1)
+    expect(onLeave).not.toBeCalled()
 
     clickOn('b')
+    await sleepAsync(100)
+    expect(onLeave).toBeCalledTimes(1)
+
     expect(getContent()).toBe('route-b')
     expect(getLocation()).toBe('/route-b')
 
     clickOn('c')
+    await sleepAsync(100)
     expect(getContent()).toBe('route-c')
     expect(getLocation()).toBe('/route-c')
 
+    expect(onLastLeave).not.toBeCalled()
     clickOn('x')
+    await sleepAsync(100)
     expect(getContent()).toBe('not found')
     expect(getLocation()).toBe('/route-x')
+    expect(onLastLeave).toBeCalledTimes(1)
   })
 })
