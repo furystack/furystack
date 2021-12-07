@@ -76,4 +76,41 @@ describe('Lazy Load', () => {
     document.getElementById('retry')?.click()
     expect(load).toBeCalledTimes(2)
   })
+
+  it('Shuld display the failed state with a retryer', async () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+    let counter = 0
+
+    const load = jest.fn(async () => {
+      if (!counter) {
+        counter += 1
+        throw Error(':(')
+      }
+      return <div>success</div>
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: (
+        <LazyLoad
+          loader={<div>Loading...</div>}
+          component={load}
+          error={(e, retry) => (
+            <button id="retry" onclick={retry}>
+              {(e as Error).message}
+            </button>
+          )}
+        />
+      ),
+    })
+    expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>Loading...</div></lazy-load></div>')
+    await sleepAsync(1)
+    expect(load).toBeCalledTimes(1)
+    expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><button id="retry">:(</button></lazy-load></div>')
+    document.getElementById('retry')?.click()
+    expect(load).toBeCalledTimes(2)
+    expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>success</div></lazy-load></div>')
+  })
 })
