@@ -74,7 +74,6 @@ describe('Lazy Load', () => {
     expect(load).toBeCalledTimes(1)
     expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><button id="retry">:(</button></lazy-load></div>')
     document.getElementById('retry')?.click()
-    await sleepAsync(1)
     expect(load).toBeCalledTimes(2)
   })
 
@@ -112,6 +111,7 @@ describe('Lazy Load', () => {
     expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><button id="retry">:(</button></lazy-load></div>')
     document.getElementById('retry')?.click()
     expect(load).toBeCalledTimes(2)
+    await sleepAsync(1)
     expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>success</div></lazy-load></div>')
   })
 })
