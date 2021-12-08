@@ -1,9 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { PartialElement } from './partial-element'
 import { ChildrenList } from './children-list'
-import { CurrentValuesFromObservables, Observables } from './observables'
 
-export type RenderOptions<TProps, TState, TObservables> = {
+export type RenderOptions<TProps, TState> = {
   readonly props: TProps
 
   injector: Injector
@@ -14,5 +13,4 @@ export type RenderOptions<TProps, TState, TObservables> = {
   : {
       getState: () => TState
       updateState: (newState: PartialElement<TState>, skipRender?: boolean) => void
-    }) &
-  (TObservables extends Observables ? { getObservableValues: () => CurrentValuesFromObservables<TObservables> } : {})
+    })

@@ -47,7 +47,7 @@ describe('Shades integration tests', () => {
       shadowDomName: 'shades-example-2',
     })
 
-    const ExampleSubs = Shade<{ no: number }, unknown, undefined>({
+    const ExampleSubs = Shade<{ no: number }>({
       render: ({ props }) => <div>{props.no}</div>,
       shadowDomName: 'shades-example-sub',
     })

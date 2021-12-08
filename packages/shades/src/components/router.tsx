@@ -9,8 +9,8 @@ export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
   routingOptions?: TokensToRegexpOptions
-  onVisit?: (options: Omit<RenderOptions<RouterProps, RouterState, {}>, 'getObservableValues'>) => Promise<void>
-  onLeave?: (options: Omit<RenderOptions<RouterProps, RouterState, {}>, 'getObservableValues'>) => Promise<void>
+  onVisit?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
+  onLeave?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
 }
 
 export interface RouterProps {

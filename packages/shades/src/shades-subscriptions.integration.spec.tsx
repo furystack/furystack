@@ -33,14 +33,9 @@ describe('Shades integration tests', () => {
     const obs2 = new ObservableValue('a')
 
     const ExampleComponent = Shade({
-      observables: () => ({ value1: obs1, value2: obs2 }),
-      render: ({ getObservableValues }) => {
-        const { value1, value2 } = getObservableValues()
-        return (
-          <div>
-            {value1.toString()} - {value2}
-          </div>
-        )
+      resources: () => [obs1.subscribe(() => undefined), obs2.subscribe(() => undefined)],
+      render: () => {
+        return <div>example</div>
       },
       shadowDomName: 'shades-example',
     })
@@ -53,16 +48,16 @@ describe('Shades integration tests', () => {
       rootElement,
       jsxElement: <ExampleComponent />,
     })
-    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>0 - a</div></shades-example></div>')
+    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>example</div></shades-example></div>')
 
     expect(obs1.getObservers().length).toBe(1)
     expect(obs2.getObservers().length).toBe(1)
 
     obs1.setValue(1)
-    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>1 - a</div></shades-example></div>')
+    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>example</div></shades-example></div>')
 
     obs2.setValue('b')
-    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>1 - b</div></shades-example></div>')
+    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>example</div></shades-example></div>')
 
     document.body.innerHTML = ''
 
