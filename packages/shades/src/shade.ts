@@ -140,9 +140,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           ;(o as any).getInitialState &&
             this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
 
-          this.createResources()
-
           this.updateComponent()
+          this.createResources()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
             cleanupResult.then((cleanup) => (this.cleanup = cleanup))
