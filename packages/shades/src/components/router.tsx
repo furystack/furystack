@@ -30,8 +30,8 @@ export const Router = Shade<RouterProps, RouterState>({
   getInitialState: () => ({
     lock: new Semaphore(1),
   }),
-  constructed: ({ children, props, injector, updateState, getState, element }) => {
-    const subscription = injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
+  resources: ({ children, props, injector, updateState, getState, element }) => [
+    injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
       const { activeRoute: lastRoute, activeRouteParams: lastParams, lock } = getState()
       try {
         await lock.acquire()
@@ -63,9 +63,8 @@ export const Router = Shade<RouterProps, RouterState>({
       } finally {
         lock.release()
       }
-    }, true)
-    return () => subscription.dispose()
-  },
+    }, true),
+  ],
   render: ({ getState }) => {
     const { jsx } = getState()
     if (jsx) {
