@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.3.11](https://github.com/furystack/furystack/compare/@furystack/shades-nipple@1.3.10...@furystack/shades-nipple@1.3.11) (2021-12-08)
+
+
+### 🐛 Bug Fixes
+
+* **@furystack/shades-nipple:** fix passing down managerOptions ([#163](https://github.com/furystack/furystack/issues/163)) ([928f44a](https://github.com/furystack/furystack/commit/928f44a13c4e2159ff61848b699e295988693239))
+
+
+
+
 ### [1.3.10](https://github.com/furystack/furystack/compare/@furystack/shades-nipple@1.3.9...@furystack/shades-nipple@1.3.10) (2021-11-30)
 
 **Note:** Version bump only for package @furystack/shades-nipple

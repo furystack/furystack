@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.17](https://github.com/furystack/core/compare/@furystack/sequelize-store@0.3.16...@furystack/sequelize-store@0.3.17) (2021-12-08)
+
+
+### 🐛 Bug Fixes
+
+* **@furystack/sequelize-store:** Connection lock on store dispose ([e9a2c0f](https://github.com/furystack/core/commit/e9a2c0f711a3d6661229c7cbb69368f32d35de67))
+
+
+
+
 ### [0.3.16](https://github.com/furystack/core/compare/@furystack/sequelize-store@0.3.15...@furystack/sequelize-store@0.3.16) (2021-11-30)
 
 **Note:** Version bump only for package @furystack/sequelize-store

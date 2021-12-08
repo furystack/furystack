@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.3...@furystack/shades-common-components@2.0.0) (2021-12-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **@furystack/shades:** Disposable resources on Shade Components (#165)
+* **@furystack/shades:** Routing based on pathname, add basic unit tests for component factory (#164)
+
+* **@furystack/shades:** Routing based on pathname, add basic unit tests for component factory ([#164](https://github.com/furystack/furystack/issues/164)) ([3221e0c](https://github.com/furystack/furystack/commit/3221e0ce60d3532b6e5f570db64d211e479673ec))
+
+
+### 🚀 What's new
+
+* **@furystack/shades:** Disposable resources on Shade Components ([#165](https://github.com/furystack/furystack/issues/165)) ([8567e7e](https://github.com/furystack/furystack/commit/8567e7e2e01cec232a5f4448dfc0833c1f183229))
+
+
+
+
 ### [1.8.3](https://github.com/furystack/furystack/compare/@furystack/shades-common-components@1.8.2...@furystack/shades-common-components@1.8.3) (2021-11-30)
 
 **Note:** Version bump only for package @furystack/shades-common-components
