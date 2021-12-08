@@ -111,7 +111,6 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     const hoveredTextColor = getHoveredTextColor(props, theme, () =>
       injector.getInstance(ThemeProviderService).getTextColor(background),
     )
-
     return (
       <button
         onmousedown={function (ev) {

@@ -11,51 +11,47 @@ export const SuggestionList: <T>(
   getInitialState: ({ props }) => ({
     suggestions: props.manager.currentSuggestions.getValue().map((v) => v.suggestion),
   }),
-  constructed: ({ updateState, element, props }) => {
-    const { manager } = props
-    const subscriptions = [
-      manager.currentSuggestions.subscribe((s) => {
-        updateState({ suggestions: s.map((ss) => ss.suggestion) })
-      }),
-      manager.isOpened.subscribe(async (isOpened) => {
-        const container = element.firstElementChild as HTMLDivElement
-        if (isOpened) {
-          container.style.zIndex = '1'
-          container.style.width = `calc(${Math.round(
-            element.parentElement?.getBoundingClientRect().width || 200,
-          )}px - 3em)`
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 0, transform: 'translate(0, -50px)' },
-              { opacity: 1, transform: 'translate(0, 0)' },
-            ],
-            { fill: 'forwards', duration: 500 },
-          )
+  resources: ({ updateState, element, props }) => [
+    props.manager.currentSuggestions.subscribe((s) => {
+      updateState({ suggestions: s.map((ss) => ss.suggestion) })
+    }),
+    props.manager.isOpened.subscribe(async (isOpened) => {
+      const container = element.firstElementChild as HTMLDivElement
+      if (isOpened) {
+        container.style.zIndex = '1'
+        container.style.width = `calc(${Math.round(
+          element.parentElement?.getBoundingClientRect().width || 200,
+        )}px - 3em)`
+        await promisifyAnimation(
+          container,
+          [
+            { opacity: 0, transform: 'translate(0, -50px)' },
+            { opacity: 1, transform: 'translate(0, 0)' },
+          ],
+          { fill: 'forwards', duration: 500 },
+        )
+      } else {
+        await promisifyAnimation(
+          container,
+          [
+            { opacity: 1, transform: 'translate(0, 0)' },
+            { opacity: 0, transform: 'translate(0, -50px)' },
+          ],
+          { fill: 'forwards', duration: 200 },
+        )
+        container.style.zIndex = '-1'
+      }
+    }, true), // TODO: Check initial state
+    props.manager.selectedIndex.subscribe((idx) => {
+      ;[...element.querySelectorAll('.suggestion-item')].map((s, i) => {
+        if (i === idx) {
+          ;(s as HTMLDivElement).style.background = 'rgba(128,128,128,0.2)'
         } else {
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 1, transform: 'translate(0, 0)' },
-              { opacity: 0, transform: 'translate(0, -50px)' },
-            ],
-            { fill: 'forwards', duration: 200 },
-          )
-          container.style.zIndex = '-1'
+          ;(s as HTMLDivElement).style.background = 'rgba(96,96,96,0.2)'
         }
-      }),
-      manager.selectedIndex.subscribe((idx) => {
-        ;[...element.querySelectorAll('.suggestion-item')].map((s, i) => {
-          if (i === idx) {
-            ;(s as HTMLDivElement).style.background = 'rgba(128,128,128,0.2)'
-          } else {
-            ;(s as HTMLDivElement).style.background = 'rgba(96,96,96,0.2)'
-          }
-        })
-      }),
-    ]
-    return () => subscriptions.map((s) => s.dispose())
-  },
+      })
+    }),
+  ],
   render: ({ element, getState, props }) => {
     const { manager } = props
     return (
@@ -64,7 +60,6 @@ export const SuggestionList: <T>(
         style={{
           borderTop: 'none',
           position: 'absolute',
-          opacity: manager.isOpened.getValue() ? '1' : '0',
           borderRadius: '0px 0px 5px 5px',
           marginLeft: '14px',
           overflow: 'hidden',

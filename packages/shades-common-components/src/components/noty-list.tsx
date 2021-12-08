@@ -111,9 +111,6 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             title="Close Notification"
             variant="contained"
             color={props.model.type}
-            style={{
-              padding: '6px',
-            }}
           >
             ✖
           </Button>

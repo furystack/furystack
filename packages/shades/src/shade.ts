@@ -96,9 +96,13 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = () => {
           const props = this.props.getValue() || {}
           const getState = () => this.state.getValue()
-          const updateState = (newState: PartialElement<TState>, skipRender?: boolean) => {
-            this.state.setValue({ ...this.state.getValue(), ...newState })
-            !skipRender && this.updateComponent()
+          const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
+            const currentState = this.state.getValue()
+            const newState = { ...currentState, ...stateChanges }
+            if (JSON.stringify(currentState) !== JSON.stringify(newState)) {
+              this.state.setValue(newState)
+              !skipRender && this.updateComponent()
+            }
           }
 
           const returnValue: RenderOptions<TProps, TState> = {
