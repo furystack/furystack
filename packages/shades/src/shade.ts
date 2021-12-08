@@ -1,7 +1,7 @@
-import { ObservableValue } from '@furystack/utils'
+import { Disposable, ObservableValue } from '@furystack/utils'
 import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
-import { ChildrenList, RenderOptions } from './models'
+import { ChildrenList, PartialElement, RenderOptions } from './models'
 
 export type ShadeOptions<TProps, TState> = {
   /**
@@ -29,6 +29,8 @@ export type ShadeOptions<TProps, TState> = {
    * Will be executed when the element is detached from the DOM.
    */
   onDetach?: (options: RenderOptions<TProps, TState>) => void
+
+  resources?: (options: RenderOptions<TProps, TState>) => Disposable[]
 } & (unknown extends TState
   ? {}
   : {
@@ -64,6 +66,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           this.state.dispose()
           this.shadeChildren.dispose()
           this.cleanup && this.cleanup()
+          Object.values(this.resources).forEach((s) => s.dispose())
         }
 
         /**
@@ -93,17 +96,29 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = () => {
           const props = this.props.getValue() || {}
           const getState = () => this.state.getValue()
-          return {
+          const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
+            const currentState = this.state.getValue()
+            const newState = { ...currentState, ...stateChanges }
+            if (JSON.stringify(currentState) !== JSON.stringify(newState)) {
+              this.state.setValue(newState)
+              !skipRender && this.updateComponent()
+            }
+          }
+
+          const returnValue: RenderOptions<TProps, TState> = {
             props,
             getState,
             injector: this.injector,
-            updateState: (newState: TState, skipRender: boolean) => {
-              this.state.setValue({ ...this.state.getValue(), ...newState })
-              !skipRender && this.updateComponent()
-            },
+            updateState,
             children: this.shadeChildren.getValue(),
             element: this,
-          } as any as RenderOptions<TProps, TState>
+          }
+
+          return returnValue
+        }
+
+        private createResources() {
+          this.resources.push(...(o.resources?.(this.getRenderOptions()) || []))
         }
 
         /**
@@ -130,6 +145,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
 
           this.updateComponent()
+          this.createResources()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
             cleanupResult.then((cleanup) => (this.cleanup = cleanup))
@@ -179,6 +195,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public set injector(i: Injector) {
           this._injector = i
         }
+
+        private resources: Disposable[] = []
 
         constructor(_props: TProps) {
           super()
