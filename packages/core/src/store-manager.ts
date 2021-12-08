@@ -15,7 +15,10 @@ export class StoreManager implements Disposable {
     const result = await Promise.allSettled([...this.stores.entries()].map(async ([_model, store]) => store.dispose()))
     const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
     if (fails && fails.length) {
-      const error = new AggregatedError(`There was an error during disposing ${fails.length} stores.`, fails)
+      const error = new AggregatedError(
+        `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason)}`,
+        fails,
+      )
       throw error
     }
   }

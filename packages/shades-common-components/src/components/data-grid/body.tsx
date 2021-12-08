@@ -71,7 +71,8 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
                 props.service.selection.setValue([entry])
               }
             }}
-            ondblclick={() => props.onDoubleClick?.(entry)}>
+            ondblclick={() => props.onDoubleClick?.(entry)}
+          >
             {props.columns.map((column: any) => (
               <td style={{ padding: '0.5em', ...props.style }}>
                 {props.rowComponents?.[column]?.(entry, state) || props.rowComponents?.default?.(entry, state) || (

@@ -21,9 +21,10 @@ export const Tabs = Shade<
   getInitialState: ({ props }) => ({ activeIndex: props.activeTab || 0 }),
   constructed: ({ injector, updateState, element }) => {
     const subscriptions = [
-      injector.getInstance(LocationService).onLocationChanged.subscribe((loc) => {
-        if (loc.hash && loc.hash.startsWith('#tab-')) {
-          const page = parseInt(loc.hash.replace('#tab-', ''), 10)
+      injector.getInstance(LocationService).onLocationChanged.subscribe(() => {
+        const { hash } = location
+        if (hash && hash.startsWith('#tab-')) {
+          const page = parseInt(hash.replace('#tab-', ''), 10)
           page && updateState({ activeIndex: page })
         }
       }, true),
@@ -45,7 +46,8 @@ export const Tabs = Shade<
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', ...props.containerStyle }}>
         <div
           className="shade-tabs-header-container"
-          style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}>
+          style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}
+        >
           {props.tabs.map((tab, index) => {
             const isActive = index === getState().activeIndex
             const jsxElement = (
@@ -63,7 +65,8 @@ export const Tabs = Shade<
                   props.onChange && props.onChange(index)
                   window.history.pushState({}, '', `#tab-${index}`)
                   updateState({ activeIndex: index })
-                }}>
+                }}
+              >
                 {tab.header}
               </div>
             )

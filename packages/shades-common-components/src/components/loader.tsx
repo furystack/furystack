@@ -7,7 +7,8 @@ export const Loader = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
       <div
         style={{
           ...((props && props.style) || {}),
-        }}>
+        }}
+      >
         <style>
           {`/* LOADER 1 */
 
@@ -51,7 +52,8 @@ export const Loader = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
             position: 'relative',
             width: '100%',
             height: '100%',
-          }}>
+          }}
+        >
           <div className="three col">
             <div className="loader" id="loader-1"></div>
           </div>

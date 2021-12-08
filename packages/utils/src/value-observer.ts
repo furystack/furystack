@@ -37,5 +37,5 @@ export class ValueObserver<T> implements Disposable {
    * @param observable The related Observable object
    * @param callback The callback that will be fired on change
    */
-  constructor(private readonly observable: ObservableValue<T>, public callback: ValueChangeCallback<T>) {}
+  constructor(public readonly observable: ObservableValue<T>, public callback: ValueChangeCallback<T>) {}
 }

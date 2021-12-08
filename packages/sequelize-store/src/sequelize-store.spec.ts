@@ -1,4 +1,3 @@
-import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import './store-manager-extensions'
@@ -18,8 +17,8 @@ describe('Sequelize Store', () => {
   createStoreTest({
     typeName: 'sequelize-store',
     skipRegexTests: true,
-    createStore: () => {
-      const i = new Injector().setupStores((sm) =>
+    createStore: (i) => {
+      i.setupStores((sm) =>
         sm.useSequelize({
           model: TestSequelizeClass,
           primaryKey: 'id',

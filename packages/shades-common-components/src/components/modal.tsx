@@ -14,7 +14,8 @@ export const Modal = Shade<{ isVisible: boolean; onClose?: () => void }>({
           position: 'fixed',
           top: '0',
           left: '0',
-        }}>
+        }}
+      >
         {children}
       </div>
     ) : (

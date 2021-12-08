@@ -17,7 +17,8 @@ export const Avatar = Shade<AvatarProps>({
           boxShadow: '0px 0px 8px 3px rgba(128,128,128,0.2)',
           backgroundColor: 'rgba(128,128,128,0.3)',
           ...(props.style || {}),
-        }}>
+        }}
+      >
         <img
           style={{ width: '100%', height: '100%' }}
           alt={'avatar image'}

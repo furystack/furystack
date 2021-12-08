@@ -45,7 +45,7 @@ const operatorsAliases = {
 }
 
 /**
- * Factory for instantiating MongoDb clients
+ * Factory for instantiating Sequelize clients
  */
 @Injectable({ lifetime: 'singleton' })
 export class SequelizeClientFactory implements Disposable {
@@ -54,8 +54,13 @@ export class SequelizeClientFactory implements Disposable {
   private readonly connectionLock = new Semaphore(1)
 
   public async dispose() {
-    await Promise.all([...this.connections.values()].map((c) => c.close()))
-    this.connections.clear()
+    try {
+      await this.connectionLock.acquire()
+      await Promise.all([...this.connections.values()].map((c) => c.close()))
+      this.connections.clear()
+    } finally {
+      this.connectionLock.release()
+    }
   }
 
   public async getSequelizeClient(options: Options) {

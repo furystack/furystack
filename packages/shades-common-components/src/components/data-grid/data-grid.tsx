@@ -85,7 +85,8 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           height: '100%',
           overflow: 'auto',
           zIndex: '1',
-        }}>
+        }}
+      >
         <table style={{ width: '100%', height: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
             <tr>

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.96](https://github.com/furystack/furystack/compare/@furystack/auth-google@4.0.95...@furystack/auth-google@4.0.96) (2021-12-08)
+
+**Note:** Version bump only for package @furystack/auth-google
+
+
+
+
+
+
 ### [4.0.95](https://github.com/furystack/furystack/compare/@furystack/auth-google@4.0.94...@furystack/auth-google@4.0.95) (2021-11-30)
 
 **Note:** Version bump only for package @furystack/auth-google

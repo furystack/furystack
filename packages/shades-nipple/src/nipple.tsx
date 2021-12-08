@@ -19,6 +19,7 @@ export const NippleComponent = Shade<NippleComponentProps>({
     }
     const manager = create({
       zone: nippleElement,
+      ...props.managerOptions,
     })
     props.onStart && manager.on('start', props.onStart)
     props.onEnd && manager.on('end', props.onEnd)
@@ -35,7 +36,8 @@ export const NippleComponent = Shade<NippleComponentProps>({
           height: '100%',
           position: 'relative',
           ...props.style,
-        }}>
+        }}
+      >
         {children}
       </div>
     )

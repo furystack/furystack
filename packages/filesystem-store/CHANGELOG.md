@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.25](https://github.com/furystack/furystack/compare/@furystack/filesystem-store@2.0.24...@furystack/filesystem-store@2.0.25) (2021-12-08)
+
+**Note:** Version bump only for package @furystack/filesystem-store
+
+
+
+
+
+
 ### [2.0.24](https://github.com/furystack/furystack/compare/@furystack/filesystem-store@2.0.23...@furystack/filesystem-store@2.0.24) (2021-11-30)
 
 **Note:** Version bump only for package @furystack/filesystem-store

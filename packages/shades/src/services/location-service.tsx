@@ -7,13 +7,14 @@ export class LocationService implements Disposable {
     window.removeEventListener('hashchange', this.updateState)
     this.pushStateTracer.dispose()
     this.replaceStateTracer.dispose()
+    this.onLocationChanged.dispose()
   }
 
-  public onLocationChanged = new ObservableValue<URL>(new URL(location.href))
+  public onLocationChanged = new ObservableValue(new URL(location.href).pathname)
 
   public updateState() {
     const newUrl = new URL(location.href)
-    this.onLocationChanged.setValue(newUrl)
+    this.onLocationChanged.setValue(newUrl.pathname)
   }
 
   private pushStateTracer: Disposable

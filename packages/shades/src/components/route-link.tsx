@@ -13,7 +13,8 @@ export const RouteLink = Shade<PartialElement<HTMLAnchorElement>>({
           ev.preventDefault()
           history.pushState('', props.title || '', props.href)
           injector.getInstance(LocationService).updateState()
-        }}>
+        }}
+      >
         {children}
       </a>
     )
