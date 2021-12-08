@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.4.1](https://github.com/furystack/furystack/compare/@furystack/core@10.4.0...@furystack/core@10.4.1) (2021-12-08)
+
+
+### 🐛 Bug Fixes
+
+* **@furystack/core:** Store manager error details when failed to disposed a store ([267b846](https://github.com/furystack/furystack/commit/267b8464f18b3470c0400c229b526165e17bcef8))
+
+
+
+
 ## [10.4.0](https://github.com/furystack/furystack/compare/@furystack/core@10.3.8...@furystack/core@10.4.0) (2021-11-30)
 
 
