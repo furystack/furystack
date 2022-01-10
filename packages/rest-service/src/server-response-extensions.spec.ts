@@ -16,11 +16,11 @@ describe('ServerResponse extensions', () => {
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
       msg.writeHead = jest.fn()
-      msg.end = (chunk?: any) => {
+      msg.end = ((chunk: any) => {
         expect(chunk).toBe(JSON.stringify(jsonValue))
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'application/json' })
         done()
-      }
+      }) as typeof msg['end']
 
       msg.sendActionResult(JsonResult(jsonValue))
     })
@@ -30,11 +30,11 @@ describe('ServerResponse extensions', () => {
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
       msg.writeHead = jest.fn()
-      msg.end = (chunk?: any) => {
+      msg.end = ((chunk: any) => {
         expect(chunk).toBe(textValue)
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'plain/text' })
         done()
-      }
+      }) as typeof msg['end']
 
       msg.sendActionResult(PlainTextResult(textValue))
     })

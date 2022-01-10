@@ -1,6 +1,6 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { MongoClient, Filter, Collection, OptionalId, ObjectId, Sort } from 'mongodb'
+import { MongoClient, Filter, Collection, ObjectId, Sort, OptionalUnlessRequiredId } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -95,7 +95,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
-    const result = await collection.insertMany(entries.map((e) => ({ ...e } as any as OptionalId<T>)))
+    const result = await collection.insertMany(entries.map((e) => ({ ...e } as any as OptionalUnlessRequiredId<T>)))
     return {
       created:
         this.primaryKey === '_id'
