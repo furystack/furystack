@@ -47,8 +47,8 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.7",
-    "@types/uuid": "^8.3.3",
+    "@types/node": "^17.0.8",
+    "@types/uuid": "^8.3.4",
     "got": "^11.8.3"
   },
   "typings": "./dist/index.d.ts",
