@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.2](https://github.com/furystack/furystack/compare/@furystack/inject@5.0.0...@furystack/inject@5.0.2) (2022-01-10)
+
+**Note:** Version bump only for package @furystack/inject
+
+
+
+
+
+
 ### [5.0.1](https://github.com/furystack/furystack/compare/@furystack/inject@5.0.0...@furystack/inject@5.0.1) (2022-01-10)
 
 **Note:** Version bump only for package @furystack/inject

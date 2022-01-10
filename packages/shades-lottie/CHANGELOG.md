@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.3.14](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.12...@furystack/shades-lottie@1.3.14) (2022-01-10)
+
+**Note:** Version bump only for package @furystack/shades-lottie
+
+
+
+
+
+
 ### [1.3.13](https://github.com/furystack/furystack/compare/@furystack/shades-lottie@1.3.12...@furystack/shades-lottie@1.3.13) (2022-01-10)
 
 **Note:** Version bump only for package @furystack/shades-lottie
