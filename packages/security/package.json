@@ -1,0 +1,39 @@
+{
+  "name": "@furystack/security",
+  "version": "0.1.0",
+  "description": "Security, password management and authorization related stuff for FuryStack",
+  "main": "dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "test"
+  ],
+  "scripts": {
+    "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
+    "build": "tsc -b"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "furystack",
+    "security"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "dependencies": {
+    "tslib": "^2.3.1"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "devDependencies": {
+    "@types/jest": "^27.4.0"
+  }
+}

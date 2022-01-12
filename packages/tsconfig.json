@@ -39,6 +39,9 @@
       "path": "./rest-service"
     },
     {
+      "path": "./security"
+    },
+    {
       "path": "./sequelize-store"
     },
     {
