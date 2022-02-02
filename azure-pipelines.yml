@@ -21,8 +21,8 @@ jobs:
   - job: buildAndTest
     strategy:
       matrix:
-        node_14_x:
-          node_version: 14.x
+        node_16_x:
+          node_version: 16.x
     displayName: Build and test
     steps:
       - checkout: self
