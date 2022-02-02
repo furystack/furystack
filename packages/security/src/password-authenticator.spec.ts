@@ -1,9 +1,12 @@
 import { InMemoryStore, StoreManager, User } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { createMinLengthComplexityRule, PasswordAuthenticator, PasswordCredential, SecurityPolicyManager } from '.'
+
 import { v4 } from 'uuid'
-import { PasswordCheckFailedResult } from './models/password-check-result'
+import { PasswordCheckFailedResult, PasswordCredential } from './models'
+import { PasswordAuthenticator } from './password-authenticator'
+import { createMinLengthComplexityRule } from './password-complexity-rules'
+import { SecurityPolicyManager } from './security-policy-manager'
 
 describe('PasswordAuthenticator', () => {
   it('Should be instantiated', () => {

@@ -1,4 +1,4 @@
-import { PasswordComplexityFailedResult } from '..'
+import { PasswordComplexityFailedResult } from '../models'
 import { createMaxLengthComplexityRule } from './max-length'
 
 describe('max-length', () => {

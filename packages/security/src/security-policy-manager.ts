@@ -1,6 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { PasswordCredential } from '.'
-
+import { PasswordCredential } from './models'
 import { SecurityPolicy } from './security-policy'
 
 @Injectable({ lifetime: 'singleton' })

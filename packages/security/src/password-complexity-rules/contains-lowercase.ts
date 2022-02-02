@@ -1,4 +1,4 @@
-import { PasswordComplexityRule } from '../models/password-complexity-rule'
+import { PasswordComplexityRule } from '../models'
 
 /**
  * @param lowerCaseCount The minimum lower case characters length

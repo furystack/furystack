@@ -1,4 +1,4 @@
-import type { PasswordComplexityRule } from '../models/password-complexity-rule'
+import type { PasswordComplexityRule } from '../models'
 
 /**
  * @param minLength The minimum password length

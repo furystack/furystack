@@ -4,7 +4,7 @@ export class PasswordResetToken {
    */
   userName!: string
   /**
-   * The Token value
+   * The Token value - should be some kind of generated UUID that can be included e.g. in URLs
    */
   token!: string
   /**

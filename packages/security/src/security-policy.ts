@@ -1,8 +1,13 @@
 import { Constructable, Injectable } from '@furystack/inject'
-import { CryptoPasswordHasher, PasswordComplexityRule, PasswordHasher } from '.'
+import { CryptoPasswordHasher } from './crypto-password-hasher'
+import { PasswordComplexityRule } from './models'
+import { PasswordHasher } from './password-hasher'
 
 @Injectable({ lifetime: 'singleton' })
 export class SecurityPolicy {
+  /**
+   * A Hasher instance for password hash generation
+   */
   hasher: Constructable<PasswordHasher> = CryptoPasswordHasher
 
   /**
