@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "",
   "scripts": {
     "build": "tsc --b",
@@ -13,10 +13,10 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@furystack/shades": "^4.0.3",
+    "@furystack/shades": "^4.0.4",
     "uuid": "^8.3.2"
   },
   "typings": "dist/index.d.ts",
