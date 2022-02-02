@@ -15,7 +15,7 @@ export class PasswordAuthenticator {
   private readonly getTokenStore = () =>
     this.injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
 
-  private readonly getHasher = () => this.injector.getInstance(this.policyManager.policy.hasher)
+  public readonly getHasher = () => this.injector.getInstance(this.policyManager.policy.hasher)
 
   /**
    * @param userName The User's unique name

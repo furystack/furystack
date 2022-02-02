@@ -1,13 +1,7 @@
 import { InMemoryStore, StoreManager, User } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import {
-  createMinLengthComplexityRule,
-  CryptoPasswordHasher,
-  PasswordAuthenticator,
-  PasswordCredential,
-  SecurityPolicyManager,
-} from '.'
+import { createMinLengthComplexityRule, PasswordAuthenticator, PasswordCredential, SecurityPolicyManager } from '.'
 import { v4 } from 'uuid'
 import { PasswordCheckFailedResult } from './models/password-check-result'
 
@@ -30,7 +24,7 @@ describe('PasswordAuthenticator', () => {
     })
   })
 
-  it('Should be able to set the last password for the user', async () => {
+  it('Should be able to set the  password for the user using the last password', async () => {
     await usingAsync(new Injector(), async (i) => {
       const userName = v4()
       const lastPassword = v4()
@@ -41,8 +35,8 @@ describe('PasswordAuthenticator', () => {
           .addStore(new InMemoryStore({ model: User, primaryKey: 'username' })),
       )
       i.usePasswordPolicy({})
-      const hasher = i.getInstance(CryptoPasswordHasher)
       const authenticator = i.getInstance(PasswordAuthenticator)
+      const hasher = authenticator.getHasher()
       const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
       const policyManager = i.getInstance(SecurityPolicyManager)
       const pmSpy = jest.spyOn(policyManager, 'matchPasswordComplexityRules')
