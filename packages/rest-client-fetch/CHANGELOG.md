@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.28](https://github.com/furystack/furystack/compare/@furystack/rest-client-fetch@3.0.27...@furystack/rest-client-fetch@3.0.28) (2022-02-02)
+
+**Note:** Version bump only for package @furystack/rest-client-fetch
+
+
+
+
+
+
 ### [3.0.27](https://github.com/furystack/furystack/compare/@furystack/rest-client-fetch@3.0.25...@furystack/rest-client-fetch@3.0.27) (2022-01-10)
 
 **Note:** Version bump only for package @furystack/rest-client-fetch
