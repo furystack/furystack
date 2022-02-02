@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.1.7](https://github.com/furystack/furystack/compare/@furystack/rest@3.1.6...@furystack/rest@3.1.7) (2022-02-02)
+
+**Note:** Version bump only for package @furystack/rest
+
+
+
+
+
+
 ### [3.1.6](https://github.com/furystack/furystack/compare/@furystack/rest@3.1.4...@furystack/rest@3.1.6) (2022-01-10)
 
 **Note:** Version bump only for package @furystack/rest
