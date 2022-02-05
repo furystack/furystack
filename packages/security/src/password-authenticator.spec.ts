@@ -1,7 +1,7 @@
 import { InMemoryStore, StoreManager, User } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-
+import './injector-extensions'
 import { v4 } from 'uuid'
 import { PasswordCheckFailedResult, PasswordCredential } from './models'
 import { PasswordAuthenticator } from './password-authenticator'
