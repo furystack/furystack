@@ -37,6 +37,7 @@ The **@furystack/shades** package contains a router component, a router-link com
 
 - Shade is close to the DOM and the natives. You are encouraged to use native browser methods while you can
 - You can use small independent services for state tracking with the _injector_
-- Use observable values. Subscribe in the `constructed()` method and dispose them on the callback that it returns.
+- ~~Use observable values. Subscribe in the `constructed()` method and dispose them on the callback that it returns.~~
+- You can use resources (valueobservers) that will be disposed automatically when your component will be removed from DOM.
 - Re-render **can** be skipped on state update. E.g. Why should you break a whole form with a re-render? Why should you update a complete _grid_ if only on item's one field has been changed?
 - Nothing is true, everything is permitted 🗡

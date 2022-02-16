@@ -1,6 +1,8 @@
 # repository
 
-Repository implementation for FuryStack
+Repository implementation for FuryStack.
+With a repository, you can implement entity-level business logic in an easy and structured way.
+You can authorize, manipulate and observe CRUD operations.
 
 ## Setting up a repository
 
