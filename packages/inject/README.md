@@ -1,6 +1,6 @@
 # @furystack/inject
 
-dependency injection provider for FuryStack
+Dependency injection / Inversion of control package for FuryStack
 
 ## Injector
 
