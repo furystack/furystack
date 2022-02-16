@@ -1,6 +1,6 @@
 # filesystem-store
 
-Filesystem Store implementation for FuryStack. Recommended for experimenting / tryout, not for production.
+Filesystem Store implementation for FuryStack. Recommended for lightweight usage, embedded operations, experimenting / tryout, not for production.
 
 An usage example:
 
