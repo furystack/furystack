@@ -55,7 +55,7 @@ export const pathHelperTests = describe('PathHelper', () => {
 
   describe('#getSegments()', () => {
     it('Should split the path to segments', () => {
-      expect(PathHelper.getSegments("Root/Example('Content1')")).toEqual(['Root', 'Example', "('Content1')"])
+      expect(PathHelper.getSegments("Root/Example/('Content1')")).toEqual(['Root', 'Example', "('Content1')"])
     })
   })
 

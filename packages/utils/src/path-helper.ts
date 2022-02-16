@@ -22,23 +22,13 @@ export class PathHelper {
 
   /**
    * Splits a full path into path segments,
-   * e.g.: /Root/Example('Content1') will be ["Root", "Example", "('Content1')"]
+   * e.g.: /Root/Example/stuff
    *
    * @param path The path to be splitted
    * @returns {string[]} the segments for the path
    */
   public static getSegments(path: string): string[] {
-    return path
-      .split(/\/|[(][']|[(]/g)
-      .filter((segment) => segment && segment.length)
-      .map((segment) => {
-        if (segment.endsWith("')")) {
-          segment = `('${segment}`
-        } else if (segment.endsWith(')')) {
-          segment = `(${segment}`
-        }
-        return segment
-      })
+    return path.split('/').filter((segment) => segment && segment.length)
   }
 
   /**
