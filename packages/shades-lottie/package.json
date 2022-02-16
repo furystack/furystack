@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@furystack/shades": "^4.0.4",
-    "@lottiefiles/lottie-player": "^1.5.4"
+    "@lottiefiles/lottie-player": "^1.5.5"
   },
   "typings": "dist/index.d.ts",
   "main": "dist/index.js",
