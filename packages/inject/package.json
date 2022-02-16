@@ -13,8 +13,11 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "dependency injection"
+    "FuryStack",
+    "Dependency injection",
+    "Inversion of control",
+    "DI",
+    "IOC"
   ],
   "publishConfig": {
     "access": "public"

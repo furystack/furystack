@@ -14,10 +14,10 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Storage",
+    "File system",
+    "Embedded",
+    "Lightweight"
   ],
   "publishConfig": {
     "access": "public"

@@ -15,7 +15,9 @@
   "keywords": [
     "FuryStack",
     "Storage",
-    "MongoDB"
+    "MongoDB",
+    "NoSQL",
+    "Document store"
   ],
   "publishConfig": {
     "access": "public"
@@ -37,7 +39,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.14",
+    "@types/node": "^17.0.18",
     "@types/uuid": "^8.3.4",
     "uuid": "^8.3.2"
   },

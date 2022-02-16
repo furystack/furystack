@@ -17,7 +17,7 @@ describe('Authorize', () => {
         { isAuthorized: isAuthorizedAction, getCurrentUser: () => Promise.reject(':(') },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -37,7 +37,7 @@ describe('Authorize', () => {
         },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -57,7 +57,7 @@ describe('Authorize', () => {
         },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
       const params = { injector: i, body: undefined, query: undefined, request, response }
       const result = await authorized(params)

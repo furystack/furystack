@@ -14,10 +14,9 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Storage",
+    "Redis",
+    "Key/Value store"
   ],
   "publishConfig": {
     "access": "public"

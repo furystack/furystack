@@ -14,10 +14,7 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "WebSocket"
   ],
   "publishConfig": {
     "access": "public"
@@ -35,7 +32,7 @@
     "@furystack/rest-service": "^4.1.9",
     "@furystack/utils": "^2.0.2",
     "tslib": "^2.3.1",
-    "ws": "^8.4.2"
+    "ws": "^8.5.0"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",

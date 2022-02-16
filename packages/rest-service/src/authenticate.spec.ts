@@ -26,7 +26,7 @@ describe('Authenticate', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async () => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -48,7 +48,7 @@ describe('Authenticate', () => {
         },
         HttpUserContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async () => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -66,7 +66,7 @@ describe('Authenticate', () => {
         { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
         IdentityContext,
       )
-      const exampleAuthenticatedAction = jest.fn(async (_args: any) => EmptyResult())
+      const exampleAuthenticatedAction = jest.fn(async () => EmptyResult())
       const authorized = Authenticate()(exampleAuthenticatedAction)
       const params = { injector: i, body: undefined, query: undefined, request, response }
       const result = await authorized(params)

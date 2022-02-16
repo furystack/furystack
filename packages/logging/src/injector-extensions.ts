@@ -14,9 +14,15 @@ declare module '@furystack/inject/dist/injector' {
     useLogging: (...loggers: Array<Constructable<Logger>>) => this
 
     /**
+     * @deprecated use getLogger()
      * Returns the registered Logger instance
      */
     readonly logger: Logger
+
+    /**
+     * Returns the logger instance
+     */
+    getLogger: () => Logger
   }
 }
 
@@ -26,6 +32,10 @@ Injector.prototype.useLogging = function (...loggers) {
   collection.attachLogger(...loggerInstances)
   this.setExplicitInstance(collection, LoggerCollection)
   return this
+}
+
+Injector.prototype.getLogger = function () {
+  return this.getInstance(LoggerCollection)
 }
 
 Object.defineProperty(Injector.prototype, 'logger', {
