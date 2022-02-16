@@ -1,6 +1,5 @@
 export * from './disposable'
 export * from './deep-merge'
-export * from './filter-async'
 export * from './debounce'
 export * from './observable-value'
 export * from './retrier'
