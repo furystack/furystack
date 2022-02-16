@@ -4,32 +4,6 @@ import { PathHelper } from './path-helper'
  * Path Helper tests
  */
 export const pathHelperTests = describe('PathHelper', () => {
-  describe('#isItemSegment()', () => {
-    it('Should return true for item segments with string key "(\'Item1\')"', () => {
-      expect(PathHelper.isItemSegment("('Item1')")).toBe(true)
-    })
-
-    it('Should return true for item segments with numeric key "(42)"', () => {
-      expect(PathHelper.isItemSegment('(42)')).toBe(true)
-    })
-
-    it('Should return false for string keys w/o quotes', () => {
-      expect(PathHelper.isItemSegment('(invalidValue)')).toBe(false)
-    })
-
-    it('Should return false for invalid string keys', () => {
-      expect(PathHelper.isItemSegment('(123invalidValue)')).toBe(false)
-    })
-
-    it('Should return false for non-item segments', () => {
-      expect(PathHelper.isItemSegment('Item1')).toBe(false)
-    })
-
-    it('Should return false for inconsistent quotation', () => {
-      expect(PathHelper.isItemSegment("('123invalidValue)")).toBe(false)
-    })
-  })
-
   describe('#trimSlashes()', () => {
     it('should trim from the beginning of the segment', () => {
       expect(PathHelper.trimSlashes('/segment')).toBe('segment')
@@ -45,75 +19,6 @@ export const pathHelperTests = describe('PathHelper', () => {
 
     it('should trim multiple slashes from the end of the segment', () => {
       expect(PathHelper.trimSlashes('segment///')).toBe('segment')
-    })
-  })
-
-  describe('#isItemPath()', () => {
-    it('should return true for item paths', () => {
-      const isAnItem = PathHelper.isItemPath("/workspace('project')")
-      expect(isAnItem).toBe(true)
-    })
-
-    it('should return false for collection paths', () => {
-      const isNotAnItem = PathHelper.isItemPath('/workspace/project')
-      expect(isNotAnItem).toBe(false)
-    })
-
-    it('should return true for reference paths', () => {
-      const isAnItem = PathHelper.isItemPath("/workspace/('project')/CustomAction")
-      expect(isAnItem).toBe(true)
-    })
-
-    it('should return true for reference paths with ids', () => {
-      const isAnItem = PathHelper.isItemPath('/workspaces/(22)/CustomAction')
-      expect(isAnItem).toBe(true)
-    })
-  })
-
-  describe('#getContentUrlbyId()', () => {
-    it('should return by path if the provided value is a path', () => {
-      const url = PathHelper.getContentUrl('/workspace/project')
-      expect(url).toBe("workspace/('project')")
-    })
-
-    it('should return by id if the provided value is id', () => {
-      const contentUrl = PathHelper.getContentUrl(1)
-      expect(contentUrl).toBe('content(1)')
-    })
-  })
-
-  describe('#getContentUrlbyId()', () => {
-    it('should create the path with the correct format', () => {
-      const contentUrl = PathHelper.getContentUrlbyId(1)
-      expect(contentUrl).toBe('content(1)')
-    })
-  })
-
-  describe('#getContentUrlByPath()', () => {
-    it('should return a proper item path by the given path', () => {
-      const contentUrl = PathHelper.getContentUrlByPath('/workspace/project')
-      expect(contentUrl).toBe("workspace/('project')")
-    })
-
-    it('should return the path itself if it is an item path already', () => {
-      const contentUrl = PathHelper.getContentUrlByPath("/workspace('project')")
-      expect(contentUrl).toBe("workspace/('project')")
-    })
-
-    it('should return the path itself for reference paths', () => {
-      const contentUrl = PathHelper.getContentUrlByPath("/workspace('project')/Owner")
-      expect(contentUrl).toBe("workspace/('project')/Owner")
-    })
-
-    it('should return an error message if the given argument is an empty string', () => {
-      expect(() => {
-        PathHelper.getContentUrlByPath('')
-      }).toThrow()
-    })
-
-    it('should return a proper item path for Root only', () => {
-      const path = PathHelper.getContentUrlByPath('/Root')
-      expect(path).toBe("('Root')")
     })
   })
 
