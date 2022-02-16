@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -13,8 +13,11 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "dependency injection"
+    "FuryStack",
+    "Dependency injection",
+    "Inversion of control",
+    "DI",
+    "IOC"
   ],
   "publishConfig": {
     "access": "public"
@@ -26,7 +29,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/utils": "^2.0.2",
+    "@furystack/utils": "^2.0.3",
     "tslib": "^2.3.1"
   },
   "devDependencies": {

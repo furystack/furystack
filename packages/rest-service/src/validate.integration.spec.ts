@@ -11,7 +11,7 @@ import { ValidationApi } from 'validate.integration.schema'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
-export const createValidateApi = async () => {
+const createValidateApi = async () => {
   const injector = new Injector()
   const port = Math.round(Math.random() * 1000) + 10000
   injector.useRestService<ValidationApi>({

@@ -1,12 +1,16 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "",
-  "scripts": {
-    "build": "tsc --b",
-    "clean": "rimraf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "keywords": [
+    "FuryStack",
+    "Shades",
+    "Input",
+    "Button",
+    "Data Grid",
+    "AppBar",
+    "Autocomplete"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +20,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@furystack/shades": "^4.0.4",
+    "@furystack/shades": "^4.0.5",
     "uuid": "^8.3.2"
   },
   "typings": "dist/index.d.ts",

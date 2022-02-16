@@ -1,6 +1,6 @@
 # @furystack/logging
 
-Generic Logging package for FuryStack
+Logging package for FuryStack
 
 ## Initializing with @furystack/inject
 
@@ -15,13 +15,13 @@ const myInjector = new Injector().useLogging(ConsoleLogger, Logger1, Logger2 /**
 You can retrieve the Logger instance with
 
 ```ts
-const myLogger = myInjector.logger
+const myLogger = myInjector.getLogger()
 ```
 
 ...or with a specific scope:
 
 ```ts
-myInjector.getLogger.withScope('CustomScope')
+myInjector.getLogger().withScope('CustomScope')
 ```
 
 ## Logging events

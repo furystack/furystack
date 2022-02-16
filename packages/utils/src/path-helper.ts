@@ -22,88 +22,13 @@ export class PathHelper {
 
   /**
    * Splits a full path into path segments,
-   * e.g.: /Root/Example('Content1') will be ["Root", "Example", "('Content1')"]
+   * e.g.: /Root/Example/stuff
    *
    * @param path The path to be splitted
    * @returns {string[]} the segments for the path
    */
   public static getSegments(path: string): string[] {
-    return path
-      .split(/\/|[(][']|[(]/g)
-      .filter((segment) => segment && segment.length)
-      .map((segment) => {
-        if (segment.endsWith("')")) {
-          segment = `('${segment}`
-        } else if (segment.endsWith(')')) {
-          segment = `(${segment}`
-        }
-        return segment
-      })
-  }
-
-  /**
-   * Checks if a specific segment is an Item segment or not (like "('Content1')"" or "(654)")
-   *
-   * @param segment The segment to be examined
-   * @returns a boolean value that indicates if the segment is an item segment
-   */
-  public static isItemSegment(segment: string): boolean {
-    return RegExp(/^\('+[\s\S]+'\)$/).test(segment) || RegExp(/^\(+\d+\)$/).test(segment)
-  }
-
-  /**
-   * Method that tells if a path is an item path or an item reference path (e.g. contains an Item segment).
-   *
-   * @param {string} path Path that you want to test.
-   * @returns {boolean} Returns if the given path is a path of a Content or not.
-   */
-  public static isItemPath(path: string): boolean {
-    const segments = this.getSegments(path)
-    const itemSegment = segments.find((s) => this.isItemSegment(s))
-    return itemSegment && itemSegment.length ? true : false
-  }
-
-  /**
-   * Returns the full path for a content based on its Id or Path
-   *
-   * @param {string | number} idOrPath the Id Or Path of the content
-   * @returns A full Id or Path-based url of the content (e.g.  *'/content(1)'* or *'/Root/Example/('Content')'*)
-   */
-  public static getContentUrl(idOrPath: string | number): string {
-    const parsed = parseInt(idOrPath as string, 10)
-    if (isNaN(parsed)) {
-      return this.getContentUrlByPath(idOrPath.toString())
-    } else {
-      return this.getContentUrlbyId(parsed)
-    }
-  }
-
-  /**
-   * Method that gets the URL that refers to a single item in the Sense/Net Content Repository
-   *
-   * @param {string} path Path that you want to format.
-   * @returns {string} Path in entity format e.g. /workspaces('project') from /workspaces/project
-   */
-  public static getContentUrlByPath(path: string): string {
-    if (!path) {
-      throw Error('Path is empty')
-    }
-
-    const segments = this.getSegments(path)
-    if (!this.isItemPath(path)) {
-      segments[segments.length - 1] = `('${segments[segments.length - 1]}')`
-    }
-    return segments.join('/')
-  }
-
-  /**
-   * Method that gets the URL that refers to a single item in the Sense/Net Content Repository by its Id
-   *
-   * @param id {number} Id of the Content.
-   * @returns {string} e.g. /content(123)
-   */
-  public static getContentUrlbyId(id: number): string {
-    return `content(${id})`
+    return path.split('/').filter((segment) => segment && segment.length)
   }
 
   /**
