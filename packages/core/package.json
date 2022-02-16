@@ -13,9 +13,7 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "REST",
-    "API",
+    "FuryStack",
     "framework"
   ],
   "publishConfig": {

@@ -14,10 +14,9 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Authentication",
+    "OAuth",
+    "Google"
   ],
   "publishConfig": {
     "access": "public"

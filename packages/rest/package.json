@@ -17,7 +17,7 @@
     "HTTP",
     "REST",
     "API",
-    "Actions"
+    "Typed API"
   ],
   "publishConfig": {
     "access": "public"

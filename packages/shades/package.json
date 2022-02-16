@@ -14,10 +14,10 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Shades",
+    "UI",
+    "JSX",
+    "WebApp"
   ],
   "publishConfig": {
     "access": "public"

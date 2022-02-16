@@ -14,10 +14,7 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "WebSocket"
   ],
   "publishConfig": {
     "access": "public"

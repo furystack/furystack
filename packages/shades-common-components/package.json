@@ -2,11 +2,15 @@
   "name": "@furystack/shades-common-components",
   "version": "2.0.4",
   "description": "",
-  "scripts": {
-    "build": "tsc --b",
-    "clean": "rimraf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "keywords": [
+    "FuryStack",
+    "Shades",
+    "Input",
+    "Button",
+    "Data Grid",
+    "AppBar",
+    "Autocomplete"
+  ],
   "publishConfig": {
     "access": "public"
   },

@@ -14,10 +14,10 @@
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Repository",
+    "Content",
+    "Business logic",
+    "Content authorization"
   ],
   "publishConfig": {
     "access": "public"

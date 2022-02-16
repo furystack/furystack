@@ -15,7 +15,9 @@
   "keywords": [
     "FuryStack",
     "Storage",
-    "MongoDB"
+    "MongoDB",
+    "NoSQL",
+    "Document store"
   ],
   "publishConfig": {
     "access": "public"
