@@ -1,19 +1,11 @@
 # @furystack/auth-google
 
-Google Authentication for FuryStack
+Google Authentication package for FuryStack
 
-Usage example:
+Use the injectable `GoogleLoginService` with a retrieved id_token to get Google User Data.
 
 ```ts
-const myInjector = new Injector()
-myInjector.useHttpApi().addHttpRouting(msg => {
-  const urlPathName = parse(msg.url || '', true).pathname
-  if (urlPathName === '/googleLogin') {
-    return GoogleLoginAction
-  }
-})
+const googleUserData = await injector.getInstance(GoogleLoginService).getGoogleUserData(loginData.token)
 ```
 
-A POST request with a {'token': 'google-id-token-value'} body will log in the user with Google Oauth
-
-The GoogleLoginService will add the user to the default User store, if not exists.
+Check the example `GoogleLoginAction` to get the idea
