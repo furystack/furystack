@@ -7,7 +7,6 @@
     "dist",
     "src"
   ],
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/furystack.git"
@@ -33,7 +32,9 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@types/node": "^17.0.18"
+    "@furystack/core": "workspace:^",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^17.0.19"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

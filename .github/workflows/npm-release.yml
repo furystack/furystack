@@ -21,8 +21,9 @@ jobs:
         run: yarn build
       - name: Create .npmrc
         run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc
-      - name: Publish to NPM with Lerna
+      # TODO: Publish with Yarn
+      - name: Publish to NPM with Yarn
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn lerna publish from-package -y
+        run: yarn workspaces foreach npm publish --tolerate-republish ## yarn lerna publish from-package -y
 
