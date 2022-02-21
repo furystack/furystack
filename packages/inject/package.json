@@ -1,13 +1,12 @@
 {
   "name": "@furystack/inject",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
     "dist",
     "src"
   ],
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/furystack.git"

@@ -1,0 +1,31 @@
+name: Version checks
+on: 
+  push:
+    branches-ignore:
+      - "release/**"
+      - "master"
+      - "develop"
+jobs:
+  build:
+    name: Check version bumps
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Check version bumps
+        run: yarn version check
+        env:
+          CI: true
+  
