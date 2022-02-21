@@ -7,7 +7,6 @@
     "dist",
     "src"
   ],
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/furystack.git"
@@ -38,7 +37,6 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@types/redis": "^4.0.11",
     "@types/uuid": "^8.3.4",
     "uuid": "^8.3.2"
   },
