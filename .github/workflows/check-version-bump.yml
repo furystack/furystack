@@ -1,4 +1,4 @@
-name: Check version
+name: Version checks
 on: [push]
 jobs:
   build:
@@ -19,8 +19,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      # - name: Install dependencies
-      #   run: yarn install
       - name: Check version bumps
         run: yarn version check
         env:
