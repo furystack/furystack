@@ -1,5 +1,10 @@
 name: Version checks
-on: [push]
+on: 
+  push:
+    branches-ignore:
+      - "release/**"
+      - "master"
+      - "develop"
 jobs:
   build:
     name: Check version bumps
