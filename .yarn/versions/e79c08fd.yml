@@ -1,0 +1,22 @@
+releases:
+  "@furystack/auth-google": minor
+  "@furystack/core": minor
+  "@furystack/filesystem-store": minor
+  "@furystack/inject": minor
+  "@furystack/logging": minor
+  "@furystack/mongodb-store": minor
+  "@furystack/redis-store": minor
+  "@furystack/repository": minor
+  "@furystack/rest": minor
+  "@furystack/rest-client-fetch": minor
+  "@furystack/rest-client-got": minor
+  "@furystack/rest-service": minor
+  "@furystack/sequelize-store": minor
+  "@furystack/shades": minor
+  "@furystack/shades-common-components": minor
+  "@furystack/shades-lottie": minor
+  "@furystack/shades-nipple": minor
+  "@furystack/websocket-api": minor
+
+declined:
+  - furystack

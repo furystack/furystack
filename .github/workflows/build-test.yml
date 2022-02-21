@@ -18,6 +18,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn install
+      - name: Check version bumps
+        run: yarn version check
       - name: Lint
         run: yarn lint
       - name: Build
