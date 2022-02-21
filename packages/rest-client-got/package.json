@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-client-got",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "description": "got-based REST client for FuryStack REST APIs",
   "main": "dist/index.js",
   "files": [
@@ -28,10 +28,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^5.0.4",
-    "@furystack/logging": "^2.0.88",
-    "@furystack/rest": "^3.1.9",
-    "@furystack/utils": "^2.0.3",
+    "@furystack/inject": "^5.0.5",
+    "@furystack/logging": "^2.0.89",
+    "@furystack/rest": "^3.1.10",
+    "@furystack/utils": "^2.0.4",
     "got": "^11.8.3",
     "path-to-regexp": "^6.2.0",
     "tslib": "^2.3.1"
