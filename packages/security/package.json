@@ -30,6 +30,9 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
+    "@furystack/core": "^10.4.8",
+    "@furystack/inject": "^5.0.5",
+    "@furystack/utils": "^2.0.4",
     "tslib": "^2.3.1"
   },
   "homepage": "https://github.com/furystack/furystack",
