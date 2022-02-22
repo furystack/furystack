@@ -19,12 +19,13 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-      - name: Create .npmrc
+      # - name: Create .npmrc
         # run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc
-        run: "echo npmAlwaysAuth: true >> .yarnrc.yml && echo npmAuthToken: ${NPM_TOKEN} >> .yarnrc.yml"
+        # run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
       # TODO: Publish with Yarn
       - name: Publish to NPM with Yarn
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn workspaces foreach npm publish --tolerate-republish ## yarn lerna publish from-package -y
 
