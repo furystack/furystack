@@ -33,8 +33,8 @@
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
-    "test": "jest --verbose",
-    "test:debug": "jest --verbose",
+    "test": "yarn run jest --runInBand",
+    "test:debug": "yarn run --inspect-brk jest --runInBand",
     "create-schemas": "yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json"
   },
   "husky": {
