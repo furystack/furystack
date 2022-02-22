@@ -21,10 +21,10 @@ jobs:
         run: yarn build
       - name: Create .npmrc
         # run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc && echo 'always-auth=true' >> .npmrc
-        run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${{ secrets.NPM_TOKEN }}' >> .yarnrc.yml"
+        run: "echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
       # TODO: Publish with Yarn
       - name: Publish to NPM with Yarn
-        # env:
-        #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn npm whoami && yarn workspaces foreach npm publish --tolerate-republish ## yarn lerna publish from-package -y
 
