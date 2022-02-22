@@ -1,23 +1,21 @@
 {
   "name": "@furystack/auth-google",
-  "version": "4.0.100",
+  "version": "4.0.103",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
     "dist",
     "src"
   ],
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
     "FuryStack",
-    "HTTP",
-    "REST",
-    "API",
-    "Actions"
+    "Authentication",
+    "OAuth",
+    "Google"
   ],
   "publishConfig": {
     "access": "public"
@@ -29,16 +27,16 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^10.4.5",
-    "@furystack/inject": "^5.0.2",
-    "@furystack/rest": "^3.1.7",
-    "@furystack/rest-service": "^4.1.9",
-    "@furystack/utils": "^2.0.2",
+    "@furystack/core": "^10.4.8",
+    "@furystack/inject": "^5.0.5",
+    "@furystack/rest": "^3.1.10",
+    "@furystack/rest-service": "^4.1.12",
+    "@furystack/utils": "^2.0.4",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.14"
+    "@types/node": "^17.0.19"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
