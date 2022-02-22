@@ -1,5 +1,3 @@
 releases:
   "@furystack/security": major
-
-undecided:
-  - furystack
+  furystack: patch
