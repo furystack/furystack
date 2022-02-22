@@ -609,6 +609,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/security@workspace:packages/security":
+  version: 0.0.0-use.local
+  resolution: "@furystack/security@workspace:packages/security"
+  dependencies:
+    "@types/jest": ^27.4.0
+    tslib: ^2.3.1
+  languageName: unknown
+  linkType: soft
+
 "@furystack/sequelize-store@workspace:packages/sequelize-store":
   version: 0.0.0-use.local
   resolution: "@furystack/sequelize-store@workspace:packages/sequelize-store"
