@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "",
   "keywords": [
     "FuryStack",
@@ -18,12 +18,12 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "@types/uuid": "^8.3.4",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
-    "@furystack/shades": "^4.0.7",
+    "@furystack/shades": "^4.0.8",
     "@furystack/utils": "workspace:^",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.3.1",

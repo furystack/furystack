@@ -6,8 +6,15 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "lib": ["ES2019", "ES2020.Promise", "DOM", "DOM.Iterable"],
-    "resolveJsonModule":true,
+    "resolveJsonModule": true
   },
   "include": ["src", "src/*.json"],
-  "references": [{ "path": "../rest" }, { "path": "../rest-client-got" }, { "path": "../inject" }, { "path": "../utils" }, { "path": "../repository" }]
+  "references": [
+    { "path": "../rest" },
+    { "path": "../rest-client-got" },
+    { "path": "../inject" },
+    { "path": "../utils" },
+    { "path": "../repository" },
+    { "path": "../security" }
+  ]
 }
