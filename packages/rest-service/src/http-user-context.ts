@@ -4,6 +4,7 @@ import { Injectable } from '@furystack/inject'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { DefaultSession } from 'models/default-session'
+import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -54,21 +55,16 @@ export class HttpUserContext {
    * @returns the authenticated User
    */
   public async authenticateUser(userName: string, password: string) {
-    const match =
-      (password &&
-        password.length &&
-        (await this.getUserStore().find({
-          filter: {
-            username: { $eq: userName },
-            password: { $eq: this.authentication.hashMethod(password) },
-          },
-        }))) ||
-      []
-    if (match.length === 1) {
-      const { password: pw, ...user } = match[0]
-      return user
+    const result = await this.authenticator.checkPasswordForUser(userName, password)
+
+    if (!result.isValid) {
+      throw new UnauthenticatedError()
     }
-    throw Error('Failed to authenticate.')
+    const user = await this.getUserStore().get(userName)
+    if (!user) {
+      throw new UnauthenticatedError()
+    }
+    return user
   }
 
   public async getCurrentUser(request: IncomingMessage) {
@@ -108,23 +104,16 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const [session] = await this.getSessionStore().find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
+      const session = await this.getSessionStore().get(sessionId)
       if (session) {
-        const userResult = await this.getUserStore().find({
-          filter: {
-            username: { $eq: session.username },
-          },
-          top: 2,
-        })
-        if (userResult.length === 1) {
-          const { password, ...user } = userResult[0]
+        const user = await this.getUserStore().get(session.username)
+        if (user) {
           return user
         }
-        throw Error('Inconsistent session result')
       }
     }
 
-    throw Error('Failed to authenticate request')
+    throw new UnauthenticatedError()
   }
 
   /**
@@ -156,5 +145,6 @@ export class HttpUserContext {
   constructor(
     public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>,
     private readonly storeManager: StoreManager,
+    private readonly authenticator: PasswordAuthenticator,
   ) {}
 }
