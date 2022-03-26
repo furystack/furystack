@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { PasswordCredential } from './models'
+import { PasswordCredential, PasswordResetToken } from './models'
 import { SecurityPolicy } from './security-policy'
 
 @Injectable({ lifetime: 'singleton' })
@@ -27,10 +27,23 @@ export class SecurityPolicyManager {
   }
 
   public hasPasswordExpired(credential: PasswordCredential) {
+    if (!this.policy.passwordExpirationDays) {
+      return false
+    }
     const credentialExpiration = new Date(credential.creationDate)
     credentialExpiration.setDate(credentialExpiration.getDate() + this.policy.passwordExpirationDays)
     const now = new Date()
-    return now < credentialExpiration
+    return now > credentialExpiration
+  }
+
+  public hasTokenExpired(token: PasswordResetToken) {
+    if (!this.policy.resetTokenExpirationSeconds) {
+      return false
+    }
+    const tokenExpiration = new Date(token.createdAt)
+    tokenExpiration.setSeconds(tokenExpiration.getSeconds() + this.policy.resetTokenExpirationSeconds)
+    const now = new Date()
+    return now > tokenExpiration
   }
 
   /**

@@ -71,8 +71,13 @@ export class PasswordAuthenticator {
    */
   public async resetPasswordForUser(resetToken: string, plainPassword: string): Promise<void> {
     const token = await this.getTokenStore().get(resetToken)
-    const tokenExpired = false // TODO
-    if (!token || tokenExpired) {
+
+    if (!token) {
+      throw new UnauthenticatedError()
+    }
+
+    if (this.policyManager.hasTokenExpired(token)) {
+      await this.getTokenStore().remove(resetToken) // clean up token
       throw new UnauthenticatedError()
     }
 
