@@ -69,7 +69,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const model = await this.getModel()
-    const created = await model.bulkCreate(entries)
+    const created = await model.bulkCreate(entries as any)
     return {
       created: created.map((c) => c.toJSON() as T),
     }

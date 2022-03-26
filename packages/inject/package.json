@@ -32,7 +32,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.0"
+    "@types/jest": "^27.4.1"
   },
   "typings": "./dist/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
