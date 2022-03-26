@@ -27,7 +27,7 @@ describe('PasswordAuthenticator', () => {
     })
   })
 
-  it('Should be able to set the  password for the user using the last password', async () => {
+  it('Should be able to set the password for the user using the last password', async () => {
     await usingAsync(new Injector(), async (i) => {
       const userName = v4()
       const lastPassword = v4()
