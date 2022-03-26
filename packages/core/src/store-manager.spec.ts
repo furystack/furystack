@@ -4,6 +4,7 @@ import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
 import './injector-extensions'
 import { AggregatedError } from './errors'
+import { TestClass } from './create-physical-store-tests'
 
 class Test {
   id!: number
@@ -28,6 +29,14 @@ describe('StoreManager', () => {
           't',
         ),
       ).toThrow()
+    })
+  })
+
+  it('Should throw if trying to retrieve an existing store with a different primary key', () => {
+    using(new Injector(), (i) => {
+      const sm = i.getInstance(StoreManager)
+      sm.addStore(new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+      expect(() => sm.getStoreFor(TestClass, 'booleanValue')).toThrowError('Primary keys not match')
     })
   })
 

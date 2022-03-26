@@ -18,6 +18,7 @@ module.exports = {
     '<rootDir>/packages/shades-common-components',
     '<rootDir>/packages/shades-lottie',
     '<rootDir>/packages/shades-nipple',
+    '<rootDir>/packages/security',
     '<rootDir>/packages/sequelize-store',
   ],
   testEnvironment: 'jsdom',

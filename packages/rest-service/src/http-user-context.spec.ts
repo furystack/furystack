@@ -5,16 +5,27 @@ import { User, StoreManager, InMemoryStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import { HttpUserContext } from './http-user-context'
 import './injector-extensions'
+import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
 
 export const prepareInjector = async (i: Injector) => {
   i.setupStores((sm) =>
     sm
       .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' })),
   )
 
   i.useHttpAuthentication()
   // await i.getInstance(ServerManager).getOrCreate({ port: 19999 })
+}
+
+const setupUser = async (i: Injector, userName: string, password: string) => {
+  const sm = i.getInstance(StoreManager)
+  const pw = i.getInstance(PasswordAuthenticator)
+  const hasher = pw.getHasher()
+  const cred = await hasher.createCredential(userName, password)
+  await sm.getStoreFor(PasswordCredential, 'userName').add(cred)
+  await sm.getStoreFor(User, 'username').add({ username: userName, roles: [] })
 }
 
 describe('HttpUserContext', () => {
@@ -85,52 +96,58 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        await expect(ctx.authenticateUser('user', 'password')).rejects.toThrow('')
+        await expect(ctx.authenticateUser('user', 'password')).rejects.toThrowError(UnauthenticatedError)
       })
     })
 
     it('Should fail when the password not equals', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication
-          .getUserStore(i.getInstance(StoreManager))
-          .add({ username: 'user', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        await expect(ctx.authenticateUser('user', 'pass321')).rejects.toThrow('')
+        await setupUser(i, 'user', 'pass123')
+        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass321')).rejects.toThrowError(
+          UnauthenticatedError,
+        )
       })
     })
 
     it('Should fail when the username not equals', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication
-          .getUserStore(i.getInstance(StoreManager))
-          .add({ username: 'otherUser', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        expect(ctx.authenticateUser('user', 'pass123')).rejects.toThrow('')
+        await setupUser(i, 'otherUser', 'pass123')
+        expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
+          UnauthenticatedError,
+        )
       })
     })
 
     it('Should fail when password not provided', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication
-          .getUserStore(i.getInstance(StoreManager))
-          .add({ username: 'otherUser', password: ctx.authentication.hashMethod('pass123'), roles: [] })
-        await expect(ctx.authenticateUser('user', '')).rejects.toThrow('')
+        await setupUser(i, 'user', 'pass123')
+        await expect(i.getInstance(HttpUserContext).authenticateUser('user', '')).rejects.toThrowError(
+          UnauthenticatedError,
+        )
       })
     })
 
-    it('Should return the user without the password hash when the username and password matches', async () => {
+    it('Should fail when the user is not in the user store', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
+        await setupUser(i, 'user', 'pass123')
+        await i.getInstance(StoreManager).getStoreFor(User, 'username').remove('user')
+        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
+          UnauthenticatedError,
+        )
+      })
+    })
+
+    it('Should return the user when the username and password matches', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        await setupUser(i, 'user', 'pass123')
         const ctx = i.getInstance(HttpUserContext)
-        const store = ctx.authentication.getUserStore(i.getInstance(StoreManager))
-        const loginUser = { username: 'user', roles: [] }
-        store.add({ ...loginUser, password: ctx.authentication.hashMethod('pass123') })
         const value = await ctx.authenticateUser('user', 'pass123')
-        expect(value).toEqual(loginUser)
+        expect(value).toEqual({ username: 'user', roles: [] })
       })
     })
   })
@@ -193,7 +210,7 @@ describe('HttpUserContext', () => {
           ctx.authenticateRequest({
             headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
           } as IncomingMessage),
-        ).rejects.toThrow('')
+        ).rejects.toThrowError(UnauthenticatedError)
         expect(ctx.authenticateUser).not.toBeCalled()
       })
     })
@@ -206,7 +223,7 @@ describe('HttpUserContext', () => {
           ctx.authenticateRequest({
             headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
           } as IncomingMessage),
-        ).rejects.toThrow('')
+        ).rejects.toThrowError(UnauthenticatedError)
       })
     })
 
@@ -221,19 +238,20 @@ describe('HttpUserContext', () => {
           ctx.authenticateRequest({
             headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
           } as IncomingMessage),
-        ).rejects.toThrow('')
+        ).rejects.toThrowError(UnauthenticatedError)
       })
     })
 
     it('Should authenticate with cookie, if the session IDs matches', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
+
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
 
-        ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser, password: '' })
+        ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser })
 
         const result = await ctx.authenticateRequest({
           headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },

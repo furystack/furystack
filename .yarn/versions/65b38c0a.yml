@@ -10,7 +10,8 @@ releases:
   "@furystack/rest": patch
   "@furystack/rest-client-fetch": patch
   "@furystack/rest-client-got": patch
-  "@furystack/rest-service": patch
+  "@furystack/rest-service": major
+  "@furystack/security": major
   "@furystack/sequelize-store": patch
   "@furystack/shades": patch
   "@furystack/shades-common-components": patch
