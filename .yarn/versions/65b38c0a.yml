@@ -18,4 +18,5 @@ releases:
   "@furystack/shades-nipple": patch
   "@furystack/utils": patch
   "@furystack/websocket-api": patch
+  "@furystack/security": major
   furystack: patch
