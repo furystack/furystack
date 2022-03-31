@@ -1,0 +1,4 @@
+releases:
+  "@furystack/rest-service": patch
+  "@furystack/shades-nipple": patch
+  furystack: patch
