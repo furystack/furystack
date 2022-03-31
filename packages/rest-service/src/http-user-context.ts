@@ -24,6 +24,15 @@ export class HttpUserContext {
     return users[0]
   }
 
+  private getSessionById = async (sessionId: string) => {
+    const sessionStore = this.getSessionStore()
+    const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
+    if (sessions.length !== 1) {
+      throw new UnauthenticatedError()
+    }
+    return sessions[0]
+  }
+
   private user?: User
 
   /**
@@ -113,7 +122,7 @@ export class HttpUserContext {
     // Cookie auth
     const sessionId = this.getSessionIdFromRequest(request)
     if (sessionId) {
-      const session = await this.getSessionStore().get(sessionId)
+      const session = await this.getSessionById(sessionId)
       if (session) {
         const user = await this.getUserByName(session.username)
         if (user) {
