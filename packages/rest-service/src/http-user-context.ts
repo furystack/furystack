@@ -15,6 +15,15 @@ export class HttpUserContext {
 
   public getSessionStore = () => this.authentication.getSessionStore(this.storeManager)
 
+  private getUserByName = async (userName: string) => {
+    const userStore = this.getUserStore()
+    const users = await userStore.find({ filter: { username: { $eq: userName } }, top: 2 })
+    if (users.length !== 1) {
+      throw new UnauthenticatedError()
+    }
+    return users[0]
+  }
+
   private user?: User
 
   /**
@@ -60,7 +69,7 @@ export class HttpUserContext {
     if (!result.isValid) {
       throw new UnauthenticatedError()
     }
-    const user = await this.getUserStore().get(userName)
+    const user = await this.getUserByName(userName)
     if (!user) {
       throw new UnauthenticatedError()
     }
@@ -106,7 +115,7 @@ export class HttpUserContext {
     if (sessionId) {
       const session = await this.getSessionStore().get(sessionId)
       if (session) {
-        const user = await this.getUserStore().get(session.username)
+        const user = await this.getUserByName(session.username)
         if (user) {
           return user
         }
