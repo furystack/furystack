@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
