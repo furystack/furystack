@@ -31,7 +31,7 @@
     "@furystack/inject": "^5.0.6",
     "@furystack/logging": "^2.0.90",
     "@furystack/utils": "^2.0.5",
-    "redis": "^4.0.4",
+    "redis": "^4.0.6",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.3.1"
   },
