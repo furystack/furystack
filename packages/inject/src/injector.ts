@@ -1,4 +1,10 @@
-import { Disposable } from '@furystack/utils'
+import {
+  Disposable,
+  HealthCheckable,
+  HealthCheckResult,
+  HealthCheckUnhealthyResult,
+  isHealthCheckable,
+} from '@furystack/utils'
 import { defaultInjectableOptions } from './injectable'
 import { Constructable } from './types/constructable'
 
@@ -147,5 +153,41 @@ export class Injector implements Disposable {
     i.options = i.options || options
     i.options.parent = this
     return i
+  }
+
+  /**
+   * Executes a health check on the cached singletons in the injector
+   *
+   * @returns An aggregated list with the cached singleton's keys and healthcheck results
+   */
+  public async executeHealthChecks(): Promise<
+    Array<{ key: Constructable<HealthCheckable>; result: HealthCheckResult }>
+  > {
+    const healthCheckables = [...this.cachedSingletons.entries()].filter(([, obj]) => isHealthCheckable(obj)) as Array<
+      [Constructable<HealthCheckable>, HealthCheckable]
+    >
+
+    const promises = healthCheckables.map(async ([key, obj]) => {
+      try {
+        const result = await obj.checkHealth()
+        return {
+          key,
+          result,
+        }
+      } catch (error) {
+        return {
+          key,
+          result: {
+            healthy: 'unhealthy',
+            reason: {
+              message: 'checkHealth() has been rejected with an error',
+              error,
+            },
+          } as HealthCheckUnhealthyResult,
+        }
+      }
+    })
+
+    return await Promise.all(promises)
   }
 }

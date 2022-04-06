@@ -1,4 +1,4 @@
-import { Disposable, using, usingAsync } from '@furystack/utils'
+import { Disposable, HealthCheckable, HealthCheckResult, using, usingAsync } from '@furystack/utils'
 import { Injectable } from './injectable'
 import { Injector } from './injector'
 
@@ -215,6 +215,69 @@ describe('Injector', () => {
       expect(() => i.getInstance(Sc2)).toThrowError(
         `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
       )
+    })
+  })
+
+  describe('executeHealthChecks', () => {
+    it('Should skip instances that are not health checkable', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'singleton' })
+        class NonHealthCheckableTestClass {}
+        i.getInstance(NonHealthCheckableTestClass)
+        expect(i.cachedSingletons.size).toBe(1)
+        const result = await i.executeHealthChecks()
+        expect(result).toEqual([])
+      })
+    })
+
+    it('Should execute health checks on instances that are health checkable', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'singleton' })
+        class HealthCheckableTestClass implements HealthCheckable {
+          public async checkHealth(): Promise<HealthCheckResult> {
+            return {
+              healthy: 'healthy',
+            }
+          }
+        }
+        i.getInstance(HealthCheckableTestClass)
+        expect(i.cachedSingletons.size).toBe(1)
+        const result = await i.executeHealthChecks()
+        expect(result).toEqual([
+          {
+            key: HealthCheckableTestClass,
+            result: {
+              healthy: 'healthy',
+            },
+          },
+        ])
+      })
+    })
+
+    it('Should should report an unhealthy state if checkHealth throws an error', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'singleton' })
+        class HealthCheckableTestClass implements HealthCheckable {
+          public async checkHealth(): Promise<HealthCheckResult> {
+            throw Error(':(')
+          }
+        }
+        i.getInstance(HealthCheckableTestClass)
+        expect(i.cachedSingletons.size).toBe(1)
+        const result = await i.executeHealthChecks()
+        expect(result).toEqual([
+          {
+            key: HealthCheckableTestClass,
+            result: {
+              healthy: 'unhealthy',
+              reason: {
+                error: Error(':('),
+                message: 'checkHealth() has been rejected with an error',
+              },
+            },
+          },
+        ])
+      })
     })
   })
 })
