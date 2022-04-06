@@ -30,6 +30,8 @@ Injector.prototype.useRestService = async function (api) {
 }
 
 Injector.prototype.useHttpAuthentication = function (s) {
-  this.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...s }, HttpAuthenticationSettings)
+  const authSettings = new HttpAuthenticationSettings(this)
+  Object.assign(authSettings, s)
+  this.setExplicitInstance(authSettings)
   return this
 }

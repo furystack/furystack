@@ -76,7 +76,6 @@ export class SequelizeClientFactory implements Disposable {
       if (existingCreated) {
         return existingCreated
       }
-      // const client = await connect(url, options)
       const client = new Sequelize({ ...options, operatorsAliases })
       this.connections.set(key, client)
       return client
