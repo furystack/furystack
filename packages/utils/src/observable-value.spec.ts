@@ -87,6 +87,18 @@ export const observableTests = describe('Observable', () => {
       expect(v.getObservers().length).toBe(0)
     })
 
+    it('should throw an error for setValue() when the observer has been disposed', () => {
+      const v = new ObservableValue(1)
+      v.dispose()
+      expect(() => v.setValue(3)).toThrowError('ObservableValue is already disposed')
+    })
+
+    it('should throw an error for setValue() when the observer has been disposed', () => {
+      const v = new ObservableValue(1)
+      v.dispose()
+      expect(() => v.getValue()).toThrowError('ObservableValue is already disposed')
+    })
+
     it('should remove the subscription only from the disposed Observer', (done) => {
       class Alma {
         public Callback() {

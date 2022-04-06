@@ -28,11 +28,18 @@ export type ValueChangeCallback<T> = (next: T) => void
  * @param T Generic argument to indicate the value type
  */
 export class ObservableValue<T> implements Disposable {
+  public get isDisposed(): boolean {
+    return this._isDisposed
+  }
+
+  private _isDisposed = false
+
   /**
    * Disposes the ObservableValue object, removes all observers
    */
   public dispose() {
     this.observers.clear()
+    this._isDisposed = true
   }
   private observers: Set<ValueObserver<T>> = new Set()
   private currentValue!: T
@@ -69,6 +76,9 @@ export class ObservableValue<T> implements Disposable {
    * @returns The current value
    */
   public getValue(): T {
+    if (this._isDisposed) {
+      throw new Error('ObservableValue is already disposed')
+    }
     return this.currentValue
   }
 
@@ -78,6 +88,9 @@ export class ObservableValue<T> implements Disposable {
    * @param newValue The new value to be set
    */
   public setValue(newValue: T) {
+    if (this._isDisposed) {
+      throw new Error('ObservableValue is already disposed')
+    }
     if (this.currentValue !== newValue) {
       this.currentValue = newValue
       for (const subscription of this.observers) {
