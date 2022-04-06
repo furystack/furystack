@@ -1,5 +1,5 @@
 import { Constructable, Injectable, Injector } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
+import { Disposable, HealthCheckable, HealthCheckResult, isHealthCheckable } from '@furystack/utils'
 import { AggregatedError } from './errors'
 import { PhysicalStore } from './models/physical-store'
 
@@ -7,7 +7,7 @@ import { PhysicalStore } from './models/physical-store'
  * Manager class for store instances
  */
 @Injectable({ lifetime: 'singleton' })
-export class StoreManager implements Disposable {
+export class StoreManager implements Disposable, HealthCheckable {
   /**
    * Disposes the StoreManager and all store instances
    */
@@ -60,4 +60,39 @@ export class StoreManager implements Disposable {
   }
 
   constructor(public injector: Injector) {}
+  public async checkHealth(): Promise<HealthCheckResult> {
+    const healthCheckableStores = [...this.stores.entries()].filter(([, s]) => isHealthCheckable(s)) as Array<
+      [Constructable<unknown>, PhysicalStore<any, any> & HealthCheckable]
+    >
+    const promises = healthCheckableStores.map(async ([model, store]) => {
+      const result = await store.checkHealth()
+      return { model, store, result }
+    })
+    const healthCheckResults = await Promise.all(promises)
+
+    const unhealthies = healthCheckResults.filter((hcr) => hcr.result.healthy === 'unhealthy')
+    if (unhealthies.length) {
+      return {
+        healthy: 'unhealthy',
+        reason: {
+          message: 'There are some unhealthy stores in the StoreManager',
+          stores: unhealthies,
+        },
+      }
+    }
+
+    const unknowns = healthCheckResults.filter((hcr) => hcr.result.healthy === 'unknown')
+    if (unknowns.length) {
+      return {
+        healthy: 'unknown',
+        reason: {
+          message: 'There are some unknown stores in the StoreManager',
+          stores: unknowns,
+        },
+      }
+    }
+    return {
+      healthy: 'healthy',
+    }
+  }
 }
