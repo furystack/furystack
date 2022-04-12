@@ -1,13 +1,13 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { Sequelize, ModelCtor, Model } from 'sequelize'
+import { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
 import Semaphore from 'semaphore-async-await'
 
 export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends keyof T> {
   /**
    * The Sequelize Model class
    */
-  model: ModelCtor<T> & Constructable<T>
+  model: ModelStatic<T> & Constructable<T>
   /**
    * The Primary key field
    */
@@ -28,13 +28,13 @@ export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends key
 export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   public readonly primaryKey: TPrimaryKey
 
-  public readonly model: ModelCtor<T> & Constructable<T>
+  public readonly model: ModelStatic<T> & Constructable<T>
 
   private initLock = new Semaphore(1)
 
-  private initializedModel?: ModelCtor<T>
+  private initializedModel?: ModelStatic<T>
 
-  public async getModel(): Promise<ModelCtor<T>> {
+  public async getModel(): Promise<ModelStatic<T>> {
     if (this.initializedModel) {
       return this.initializedModel
     }
@@ -50,7 +50,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
         await client.sync()
       }
 
-      const model = client.model(this.options.model.name) as ModelCtor<T> | undefined
+      const model = client.model(this.options.model.name) as ModelStatic<T> | undefined
 
       if (!model) {
         throw Error(`'No initialized Sequelize model found for '${this.options.model.name}'`)
@@ -84,7 +84,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const model = await this.getModel()
-    return await model.count({ where: filter })
+    return await model.count({ where: filter as WhereOptions<T> })
   }
   public async find<TFields extends Array<keyof T>>(
     filter: FindOptions<T, TFields>,
@@ -101,8 +101,8 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
       : []
 
     const result = await model.findAll({
-      where: filter.filter,
-      attributes: filter.select as any,
+      where: filter.filter as WhereOptions<T>,
+      attributes: filter.select as Attributes<T>,
       order,
       limit: filter.top,
       offset: filter.skip,
