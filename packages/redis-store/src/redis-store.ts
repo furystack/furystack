@@ -1,17 +1,18 @@
 import { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
+import { HealthCheckable, HealthCheckResult } from '@furystack/utils'
 import { createClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey>, HealthCheckable {
   public primaryKey!: TPrimaryKey
 
   public readonly model: Constructable<T>
 
   constructor(
-    private readonly options: {
+    public readonly options: {
       model: Constructable<T>
       client: ReturnType<typeof createClient>
       primaryKey: TPrimaryKey
@@ -19,6 +20,21 @@ export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore
   ) {
     this.primaryKey = options.primaryKey
     this.model = options.model
+  }
+  public async checkHealth(): Promise<HealthCheckResult> {
+    try {
+      await this.options.client.ping()
+      return {
+        healthy: 'healthy',
+      }
+    } catch (error) {
+      return {
+        healthy: 'unhealthy',
+        reason: {
+          message: (error as Error).toString(),
+        },
+      }
+    }
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const created = await Promise.all(

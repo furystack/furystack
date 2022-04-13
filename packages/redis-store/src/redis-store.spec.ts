@@ -52,4 +52,16 @@ describe('Redis Store', () => {
   it('Should throw on search', async () => {
     await expect(store.find()).rejects.toThrow()
   })
+
+  it('Should report a healthy status', async () => {
+    const status = await store.checkHealth()
+    expect(status.healthy).toBe('healthy')
+  })
+
+  it('Should report an unhealthy status once disconnected', async () => {
+    await store.options.client.quit()
+    const status = await store.checkHealth()
+    expect(status.healthy).toBe('unhealthy')
+    await store.options.client.connect()
+  })
 })
