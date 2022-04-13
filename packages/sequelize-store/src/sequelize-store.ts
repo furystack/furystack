@@ -1,7 +1,8 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
+import { Constructable, Injector } from '@furystack/inject'
 import { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
 import Semaphore from 'semaphore-async-await'
+import { HealthCheckable, HealthCheckResult } from '@furystack/utils'
 
 export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends keyof T> {
   /**
@@ -19,14 +20,17 @@ export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends key
   /**
    * Optional calback that will initialize the Model for the Sequelize instance
    */
-  initModel?: (sequelize: Sequelize) => Promise<void>
+  initModel?: (sequelize: Sequelize, injector: Injector) => Promise<void>
 }
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T>
+  implements PhysicalStore<T, TPrimaryKey>, HealthCheckable
+{
   public readonly primaryKey: TPrimaryKey
+  private readonly injector: Injector
 
   public readonly model: ModelStatic<T> & Constructable<T>
 
@@ -46,7 +50,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
       const client = await this.options.getSequelizeClient()
 
       if (this.options.initModel) {
-        await this.options.initModel(client)
+        await this.options.initModel(client, this.injector)
         await client.sync()
       }
 
@@ -63,9 +67,25 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
     }
   }
 
-  constructor(private readonly options: SequelizeStoreSettings<T, TPrimaryKey>) {
+  constructor(private readonly options: SequelizeStoreSettings<T, TPrimaryKey>, injector: Injector) {
     this.primaryKey = options.primaryKey
     this.model = options.model
+    this.injector = injector.createChild({ owner: this })
+  }
+  public async checkHealth(): Promise<HealthCheckResult> {
+    try {
+      await this.getModel()
+      return {
+        healthy: 'healthy',
+      }
+    } catch (error) {
+      return {
+        healthy: 'unhealthy',
+        reason: {
+          message: (error as Error).toString(),
+        },
+      }
+    }
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const model = await this.getModel()
