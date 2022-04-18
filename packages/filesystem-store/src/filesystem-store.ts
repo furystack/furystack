@@ -96,6 +96,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
         this.fileLock.release()
         await this.saveChanges()
         await this.fileLock.acquire()
+        this.tryAttachWatcher()
       } else {
         throw err
       }
@@ -123,16 +124,20 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     this.model = options.model
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
-    this.reloadData().then(() => {
-      try {
-        this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-          this.reloadData()
-        })
-      } catch (error) {
-        // Failed to register watcher
-      }
-    })
+    this.reloadData()
+    this.tryAttachWatcher()
   }
+
+  private tryAttachWatcher() {
+    try {
+      this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
+        this.reloadData()
+      })
+    } catch (error) {
+      // ignore
+    }
+  }
+
   public async checkHealth(): Promise<HealthCheckResult> {
     const problems: string[] = []
 
