@@ -1,13 +1,15 @@
-import { FSWatcher, promises, watch } from 'fs'
+import { constants, FSWatcher, watch } from 'fs'
 import { Constructable } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
 import { InMemoryStore, PhysicalStore, FindOptions, FilterType, WithOptionalId } from '@furystack/core'
+import { HealthCheckable, HealthCheckResult } from '@furystack/utils'
+import { access, readFile, writeFile } from 'fs/promises'
 
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileSystemStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
-  private readonly watcher?: FSWatcher
+export class FileSystemStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey>, HealthCheckable {
+  private watcher?: FSWatcher
 
   public readonly model: Constructable<T>
 
@@ -65,7 +67,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
       for (const key of this.cache.keys()) {
         values.push(this.cache.get(key) as T)
       }
-      await this.writeFile(this.options.fileName, JSON.stringify(values))
+      await writeFile(this.options.fileName, JSON.stringify(values))
       this.hasChanges = false
     } finally {
       this.fileLock.release()
@@ -73,23 +75,28 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
   }
 
   public async dispose() {
-    await this.saveChanges()
     this.watcher && this.watcher.close()
     clearInterval(this.tick)
+    await this.saveChanges()
   }
 
   public async reloadData() {
     try {
       await this.fileLock.acquire()
-      const data = await this.readFile(this.options.fileName)
+      const data = await readFile(this.options.fileName)
       const json = (data ? JSON.parse(data.toString()) : []) as T[]
       this.cache.clear()
       for (const entity of json) {
         this.cache.set(entity[this.primaryKey], entity)
       }
     } catch (err) {
-      // ignore if file not exists yet
-      if (err instanceof Error && (err as any).code !== 'ENOENT') {
+      if ((err as any).code === 'ENOENT') {
+        // File doesn't exists yet, try to save it
+        this.hasChanges = true
+        this.fileLock.release()
+        await this.saveChanges()
+        await this.fileLock.acquire()
+      } else {
         throw err
       }
     } finally {
@@ -104,9 +111,6 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     this.hasChanges = true
   }
 
-  public readFile = promises.readFile
-  public writeFile = promises.writeFile
-
   constructor(
     private readonly options: {
       fileName: string
@@ -119,13 +123,36 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     this.model = options.model
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
 
+    this.reloadData().then(() => {
+      try {
+        this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
+          this.reloadData()
+        })
+      } catch (error) {
+        // Failed to register watcher
+      }
+    })
+  }
+  public async checkHealth(): Promise<HealthCheckResult> {
+    const problems: string[] = []
+
     try {
-      this.reloadData()
-      this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-        this.reloadData()
-      })
+      await access(this.options.fileName, constants.R_OK | constants.W_OK)
     } catch (error) {
-      // Error registering file watcher for store. External updates won't be updated.
+      problems.push(`File ${this.options.fileName} is not accessible for reading and writing.`)
+    }
+
+    if (!this.watcher) {
+      problems.push('File watcher not registered')
+    }
+    if (problems.length) {
+      return {
+        healthy: 'unhealthy',
+        reason: problems,
+      }
+    }
+    return {
+      healthy: 'healthy',
     }
   }
 }

@@ -59,6 +59,16 @@ describe('FileSystemStore', () => {
     await store.dispose()
   })
 
+  it('Should report a healthy status when no problem has been detected', async () => {
+    const fileName = `filestore-test-${v4()}.json`
+    storeNames.push(fileName)
+    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
+    await store.reloadData()
+    const result = await store.checkHealth()
+    expect(result).toStrictEqual({ healthy: 'healthy' })
+    await store.dispose()
+  })
+
   afterAll(async () => {
     await Promise.all(
       storeNames.map(async (fileName) => {
