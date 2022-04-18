@@ -1,8 +1,8 @@
-import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './filesystem-store'
 import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
 import { v4 } from 'uuid'
 import { sleepAsync } from '@furystack/utils'
+import { unlink } from 'fs/promises'
 
 describe('FileSystemStore', () => {
   const storeNames: string[] = []
@@ -72,8 +72,12 @@ describe('FileSystemStore', () => {
   afterAll(async () => {
     await Promise.all(
       storeNames.map(async (fileName) => {
-        if (existsSync(fileName)) {
-          await promises.unlink(fileName)
+        try {
+          await unlink(fileName)
+        } catch (error) {
+          if ((error as any).code !== 'ENOENT') {
+            throw error
+          }
         }
       }),
     )
