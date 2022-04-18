@@ -5,11 +5,12 @@ import { sleepAsync } from '@furystack/utils'
 import { unlink } from 'fs/promises'
 
 describe('FileSystemStore', () => {
-  const storeNames: string[] = []
+  const stores: Array<FileSystemStore<TestClass, 'id'>> = []
   const createStore = () => {
     const fileName = `filestore-test-${v4()}.json`
-    storeNames.push(fileName)
-    return new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' })
+    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' })
+    stores.push(store)
+    return store
   }
 
   createStoreTest({
@@ -18,11 +19,8 @@ describe('FileSystemStore', () => {
   })
 
   it('Should save data on tick', async () => {
-    const fileName = `filestore-test-${v4()}.json`
-    storeNames.push(fileName)
-    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
+    const store = createStore()
     store.saveChanges = jest.fn(store.saveChanges.bind(store))
-
     await store.add({
       id: 1,
       dateValue: new Date(),
@@ -34,14 +32,10 @@ describe('FileSystemStore', () => {
     })
     await sleepAsync(501)
     expect(store.saveChanges).toHaveBeenCalled()
-
-    await store.dispose()
   })
 
   it('Should reload data from disk', async () => {
-    const fileName = `filestore-test-${v4()}.json`
-    storeNames.push(fileName)
-    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
+    const store = createStore()
     await store.add({
       id: 1,
       dateValue: new Date(),
@@ -56,24 +50,21 @@ describe('FileSystemStore', () => {
     await store.reloadData()
     const count = await store.count()
     expect(count).toBe(1)
-    await store.dispose()
   })
 
   it('Should report a healthy status when no problem has been detected', async () => {
-    const fileName = `filestore-test-${v4()}.json`
-    storeNames.push(fileName)
-    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
+    const store = createStore()
     await store.reloadData()
     const result = await store.checkHealth()
     expect(result).toStrictEqual({ healthy: 'healthy' })
-    await store.dispose()
   })
 
   afterAll(async () => {
     await Promise.all(
-      storeNames.map(async (fileName) => {
+      stores.map(async (store) => {
         try {
-          await unlink(fileName)
+          await store.dispose()
+          await unlink(store.options.fileName)
         } catch (error) {
           if ((error as any).code !== 'ENOENT') {
             throw error

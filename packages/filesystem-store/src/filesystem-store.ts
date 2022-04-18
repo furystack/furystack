@@ -92,8 +92,8 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     } catch (err) {
       if ((err as any).code === 'ENOENT') {
         // File doesn't exists yet, try to save it
-        this.hasChanges = true
         this.fileLock.release()
+        this.hasChanges = true
         await this.saveChanges()
         await this.fileLock.acquire()
         this.tryAttachWatcher()
@@ -113,7 +113,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
   }
 
   constructor(
-    private readonly options: {
+    public readonly options: {
       fileName: string
       primaryKey: TPrimaryKey
       tickMs?: number
@@ -129,6 +129,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
   }
 
   private tryAttachWatcher() {
+    this.watcher && this.watcher.close()
     try {
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
         this.reloadData()
