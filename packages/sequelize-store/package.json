@@ -40,5 +40,5 @@
     "@types/node": "^17.0.30",
     "sqlite3": "^5.0.6"
   },
-  "typings": "./dist/index.d.ts"
+  "typings": "./types/index.d.ts"
 }

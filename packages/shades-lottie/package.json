@@ -21,7 +21,7 @@
     "@furystack/shades": "^5.0.0",
     "@lottiefiles/lottie-player": "^1.5.7"
   },
-  "typings": "dist/index.d.ts",
+  "typings": "types/index.d.ts",
   "main": "dist/index.js",
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }
