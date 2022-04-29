@@ -1,6 +1,5 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import { v4 } from 'uuid'
 import { usePasswordPolicy } from './helpers'
 import { SecurityPolicyManager } from './security-policy-manager'
 
@@ -10,7 +9,7 @@ describe('SecurityPolicyManager', () => {
       usePasswordPolicy(i, { resetTokenExpirationSeconds: 0 })
       const result = i
         .getInstance(SecurityPolicyManager)
-        .hasTokenExpired({ createdAt: new Date().toISOString(), token: v4(), userName: v4() })
+        .hasTokenExpired({ createdAt: new Date().toISOString(), token: 'token', userName: 'user' })
       expect(result).toBeFalsy()
     })
   })

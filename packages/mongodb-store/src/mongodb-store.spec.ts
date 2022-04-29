@@ -5,7 +5,6 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
-import { v4 } from 'uuid'
 import { useMongoDb } from './store-manager-helpers'
 import { MongoClientFactory } from './mongo-client-factory'
 import { usingAsync } from '@furystack/utils'
@@ -15,13 +14,15 @@ class TestClassWithId {
   value!: string
 }
 
+let storeCount = 0
+
 describe('MongoDB Store', () => {
   let dbIdx = 0
   const getMongoOptions = (injector: Injector) => ({
     injector,
     model: TestClass,
     primaryKey: 'id' as const,
-    collection: `furystack-mongo-store-tests-${v4()}`,
+    collection: `furystack-mongo-store-tests-${storeCount++}`,
     db: `furystack-mongo-store-tests-${dbIdx++}`,
     url: 'mongodb://localhost:27017',
     options: {},

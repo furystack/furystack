@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createClient } from 'redis'
 import { StoreManager } from '@furystack/core'
-import { v4 } from 'uuid'
 import { RedisStore } from './redis-store'
 import './store-manager-helpers'
 import { useRedis } from './store-manager-helpers'
@@ -35,7 +34,7 @@ describe('Redis Store', () => {
   })
 
   it('Should add an entity', async () => {
-    const entityToAdd: ExampleClass = { id: v4(), value: v4() }
+    const entityToAdd: ExampleClass = { id: 'something', value: 'value' }
     await store.add(entityToAdd)
     const retrieved = await store.get(entityToAdd.id)
     expect(retrieved).toStrictEqual(entityToAdd)

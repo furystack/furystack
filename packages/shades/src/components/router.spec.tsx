@@ -5,23 +5,11 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { Router } from './router'
-import { JSDOM } from 'jsdom'
 import { createComponent, initializeShadeRoot, LocationService } from '..'
 import { RouteLink } from '.'
 import { sleepAsync } from '@furystack/utils'
 
 describe('Router', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-    window.matchMedia = () => ({ matches: true } as any)
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 

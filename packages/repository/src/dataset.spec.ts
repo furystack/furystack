@@ -3,7 +3,7 @@ import { using, usingAsync } from '@furystack/utils'
 import { InMemoryStore, WithOptionalId, addStore } from '@furystack/core'
 import { Repository } from './repository'
 import { AuthorizationResult, DataSetSettings } from './data-set-setting'
-import { getRepository } from './helpers'
+import { getDataSetFor, getRepository } from './helpers'
 
 class TestClass {
   public id = 1
@@ -22,7 +22,7 @@ describe('DataSet', () => {
           }),
         )
         getRepository(i).createDataSet(TestClass, 'id')
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
     })
@@ -37,14 +37,14 @@ describe('DataSet', () => {
           }),
         )
         getRepository(i).createDataSet(TestClass, 'id')
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         expect(dataSet.settings.physicalStore.model).toBe(TestClass)
       })
     })
 
     it('Should throw if dataset is not registered through extension', () => {
       using(new Injector(), (i) => {
-        expect(() => getRepository(i).getDataSetFor(TestClass, 'id')).toThrowError('')
+        expect(() => getDataSetFor(i, TestClass, 'id')).toThrowError('')
       })
     })
 
@@ -63,7 +63,7 @@ describe('DataSet', () => {
 
           getRepository(i).createDataSet(TestClass, 'id')
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           const result = await dataSet.get(i, 1)
           expect(result && result.value).toBe('asd')
@@ -76,7 +76,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           expect(authorizeAdd).toBeCalled()
           const added = await dataSet.get(i, 1)
@@ -91,7 +91,7 @@ describe('DataSet', () => {
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
 
-          const dataSet = await getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = await getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })
@@ -117,7 +117,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { modifyOnAdd })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           const result = await dataSet.get(i, 1)
           expect(modifyOnAdd).toBeCalled()
@@ -138,7 +138,7 @@ describe('DataSet', () => {
               expect(entity.value).toBe('asd')
             })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
         })
       })
@@ -150,7 +150,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id')
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
           const result = await dataSet.get(i, 1)
@@ -163,7 +163,7 @@ describe('DataSet', () => {
           const authorizeUpdate = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
           expect(authorizeUpdate).toBeCalled()
@@ -180,7 +180,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
 
-          const dataSet = await getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = await getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })
@@ -199,7 +199,7 @@ describe('DataSet', () => {
           const authorizeUpdateEntity = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
           expect(authorizeUpdateEntity).toBeCalled()
@@ -214,7 +214,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
 
-          const dataSet = await getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = await getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })
@@ -239,7 +239,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { modifyOnUpdate })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
           const result = await dataSet.get(i, 1)
@@ -260,7 +260,7 @@ describe('DataSet', () => {
               expect(change).toEqual({ id: 1, value: 'asd2' })
             })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           await dataSet.update(i, 1, { id: 1, value: 'asd2' })
         })
@@ -273,7 +273,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id')
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           const result = await dataSet.count(i)
           expect(result).toBe(1)
@@ -286,7 +286,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           const result = await dataSet.count(i)
           expect(result).toBe(1)
@@ -299,7 +299,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-          const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
           await dataSet.add(i, { id: 1, value: 'asd' })
           try {
             await dataSet.count(i)
@@ -318,7 +318,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id')
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         const result = await dataSet.find(i, {})
         expect(result.length).toBe(1)
@@ -331,7 +331,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         const result = await dataSet.find(i, {})
         expect(result.length).toBe(1)
@@ -344,7 +344,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
           await dataSet.find(i, {})
@@ -362,7 +362,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id')
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         const result = await dataSet.get(i, 1)
         expect(result && result.id).toBe(1)
@@ -375,7 +375,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         const result = await dataSet.get(i, 1)
         expect(result && result.id).toBe(1)
@@ -388,7 +388,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
           await dataSet.get(i, 1)
@@ -405,7 +405,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         const result = await dataSet.get(i, 1)
         expect(result && result.id).toBe(1)
@@ -418,7 +418,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
           await dataSet.get(i, 1)
@@ -435,7 +435,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id')
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         await dataSet.remove(i, 1)
         const countValue = await dataSet.count(i)
@@ -449,7 +449,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeRemove })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         await dataSet.remove(i, 1)
         const count = await dataSet.count(i)
@@ -463,7 +463,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeRemove })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
           await dataSet.remove(i, 1)
@@ -482,7 +482,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         await dataSet.remove(i, 1)
         const count = await dataSet.count(i)
@@ -496,7 +496,7 @@ describe('DataSet', () => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         try {
           await dataSet.remove(i, 1)
@@ -520,7 +520,7 @@ describe('DataSet', () => {
             expect(key).toEqual(1)
           })
 
-        const dataSet = getRepository(i).getDataSetFor(TestClass, 'id')
+        const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         await dataSet.remove(i, 1)
       })

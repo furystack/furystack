@@ -5,22 +5,11 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
-import { JSDOM } from 'jsdom'
 import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
 import { createComponent } from './shade-component'
 
 describe('Shades integration tests', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 
@@ -76,6 +65,7 @@ describe('Shades integration tests', () => {
 
     const ExampleComponent = Shade({
       constructed,
+      shadowDomName: 'example-component-1',
       render: () => <div>Hello</div>,
     })
 
@@ -99,6 +89,7 @@ describe('Shades integration tests', () => {
     const ExampleComponent = Shade({
       onAttach,
       onDetach,
+      shadowDomName: 'example-component-2',
       render: () => <div>Hello</div>,
     })
 
@@ -118,6 +109,7 @@ describe('Shades integration tests', () => {
     const rootElement = document.getElementById('root') as HTMLDivElement
 
     const ExampleComponent = Shade({
+      shadowDomName: 'example-component-3',
       getInitialState: () => ({ count: 0 }),
       render: ({ getState, updateState }) => {
         const { count } = getState()

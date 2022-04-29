@@ -5,7 +5,7 @@ import { createPostEndpoint } from './create-post-endpoint'
 import got from 'got'
 import { MockClass, setupContext } from './utils'
 import { useRestService } from '../helpers'
-import { getRepository } from '@furystack/repository'
+import { getDataSetFor } from '@furystack/repository'
 
 describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {
@@ -28,7 +28,7 @@ describe('createPostEndpoint', () => {
       })
       expect(response.statusCode).toBe(201)
       expect(JSON.parse(response.body)).toStrictEqual(entityToPost)
-      const posted = await getRepository(i).getDataSetFor(MockClass, 'id').get(i, entityToPost.id)
+      const posted = await getDataSetFor(i, MockClass, 'id').get(i, entityToPost.id)
       expect(posted?.value).toBe('posted')
     })
   })

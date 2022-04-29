@@ -5,7 +5,7 @@ import { MockClass, setupContext } from './utils'
 import { createGetCollectionEndpoint } from './create-get-collection-endpoint'
 import { GetCollectionEndpoint, GetCollectionResult, serializeToQueryString } from '@furystack/rest'
 import { FindOptions } from '@furystack/core'
-import { getRepository } from '@furystack/repository'
+import { getDataSetFor, getRepository } from '@furystack/repository'
 import { useRestService } from '../helpers'
 
 const addMockEntities = async (i: Injector) =>
@@ -35,8 +35,8 @@ describe('createGetCollectionEndpoint', () => {
       })
       await addMockEntities(i)
 
-      const count = await getRepository(i).getDataSetFor(MockClass, 'id').count(i)
-      const allEntities = await getRepository(i).getDataSetFor(MockClass, 'id').find(i, {})
+      const count = await getDataSetFor(i, MockClass, 'id').count(i)
+      const allEntities = await getDataSetFor(i, MockClass, 'id').find(i, {})
 
       const response = await got('http://127.0.0.1:1112/api/entities', { method: 'GET' })
       const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
@@ -60,8 +60,8 @@ describe('createGetCollectionEndpoint', () => {
       })
       await addMockEntities(i)
       const findOptions: FindOptions<MockClass, Array<keyof MockClass>> = { order: { value: 'ASC' } }
-      const count = await getRepository(i).getDataSetFor(MockClass, 'id').count(i, findOptions.filter)
-      const orderedEntities = await getRepository(i).getDataSetFor(MockClass, 'id').find(i, findOptions)
+      const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
+      const orderedEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
       const response = await got(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
@@ -89,8 +89,8 @@ describe('createGetCollectionEndpoint', () => {
         filter: { id: { $ne: 'mock2' } },
       }
 
-      const count = await getRepository(i).getDataSetFor(MockClass, 'id').count(i, findOptions.filter)
-      const filteredEntities = await getRepository(i).getDataSetFor(MockClass, 'id').find(i, findOptions)
+      const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
+      const filteredEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
 
       expect(filteredEntities).not.toContainEqual({ id: 'mock2', value: '3' })
 
@@ -121,8 +121,8 @@ describe('createGetCollectionEndpoint', () => {
         select: ['id'],
       }
 
-      const count = await getRepository(i).getDataSetFor(MockClass, 'id').count(i, findOptions.filter)
-      const selectedEntities = await getRepository(i).getDataSetFor(MockClass, 'id').find(i, findOptions)
+      const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
+      const selectedEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
 
       selectedEntities.forEach((e) => expect(e.value).toBeUndefined())
 
@@ -154,8 +154,8 @@ describe('createGetCollectionEndpoint', () => {
         top: 2,
       }
 
-      const count = await getRepository(i).getDataSetFor(MockClass, 'id').count(i, findOptions.filter)
-      const topSkipEntities = await getRepository(i).getDataSetFor(MockClass, 'id').find(i, findOptions)
+      const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
+      const topSkipEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
 
       expect(topSkipEntities).not.toContainEqual({ id: 'mock1', value: '4' })
       expect(topSkipEntities).not.toContainEqual({ id: 'mock4', value: '1' })

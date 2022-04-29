@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { v4 } from 'uuid'
 import { Input, InputProps } from './input'
 
 export const Autocomplete = Shade<
@@ -7,7 +6,7 @@ export const Autocomplete = Shade<
   { dataListId: string }
 >({
   getInitialState: () => ({
-    dataListId: v4(),
+    dataListId: (Math.random() + 1).toString(36).substring(3),
   }),
   constructed: ({ getState, element }) => {
     const { dataListId } = getState()
