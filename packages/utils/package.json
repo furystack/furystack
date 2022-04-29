@@ -6,8 +6,7 @@
   "typings": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
-    "test"
+    "src"
   ],
   "scripts": {
     "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
