@@ -9,7 +9,6 @@ Initialization
 import '@furystack/sequelize-store'
 
 export class TestEntry extends Model<...,...> {
-  // tslint:disable-next-line: naming-convention
   public _id!: string
   public value!: string
 }

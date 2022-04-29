@@ -39,7 +39,6 @@ Injector.prototype.getLogger = function () {
 }
 
 Object.defineProperty(Injector.prototype, 'logger', {
-  // tslint:disable-next-line: object-literal-shorthand
   get() {
     return this.getInstance(LoggerCollection)
   },
