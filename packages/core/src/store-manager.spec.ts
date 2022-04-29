@@ -2,7 +2,6 @@ import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
-import './injector-extensions'
 import { AggregatedError } from './errors'
 import { TestClass } from './create-physical-store-tests'
 
@@ -42,13 +41,11 @@ describe('StoreManager', () => {
 
   it('Can set up stores with an extension method', () => {
     using(new Injector(), (i) => {
-      i.setupStores((stores) =>
-        stores.addStore(
-          new InMemoryStore({
-            model: Test,
-            primaryKey: 'id',
-          }),
-        ),
+      i.getInstance(StoreManager).addStore(
+        new InMemoryStore({
+          model: Test,
+          primaryKey: 'id',
+        }),
       )
 
       expect(i.getInstance(StoreManager).getStoreFor(Test, 'id')).toBeInstanceOf(InMemoryStore)

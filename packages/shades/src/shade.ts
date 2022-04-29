@@ -1,5 +1,4 @@
 import { Disposable, ObservableValue } from '@furystack/utils'
-import { v4 } from 'uuid'
 import { Injector } from '@furystack/inject'
 import { ChildrenList, PartialElement, RenderOptions } from './models'
 
@@ -7,7 +6,7 @@ export type ShadeOptions<TProps, TState> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
-  shadowDomName?: string
+  shadowDomName: string
   /**
    * Render hook, this method will be executed on each and every render.
    */
@@ -48,7 +47,7 @@ export type ShadeOptions<TProps, TState> = {
  */
 export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>) => {
   // register shadow-dom element
-  const customElementName = o.shadowDomName || `shade-${v4()}`
+  const customElementName = o.shadowDomName
 
   const existing = customElements.get(customElementName)
   if (!existing) {

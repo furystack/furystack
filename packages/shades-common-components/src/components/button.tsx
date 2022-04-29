@@ -92,7 +92,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     }
   },
   shadowDomName: 'shade-button',
-  render: ({ props, children, getState, injector }) => {
+  render: ({ props, children, getState, injector, element }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
     const { theme } = getState()
@@ -111,12 +111,13 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     const hoveredTextColor = getHoveredTextColor(props, theme, () =>
       injector.getInstance(ThemeProviderService).getTextColor(background),
     )
+    const el = element.firstElementChild
     return (
       <button
         onmousedown={function (ev) {
           mouseDownHandler?.call(this, ev)
           promisifyAnimation(
-            ev.currentTarget as Element,
+            el,
             [
               {
                 filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
@@ -129,10 +130,10 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         onmouseup={function (ev) {
           mouseUpHandler?.call(this, ev)
         }}
-        onmouseenter={(ev) => {
+        onmouseenter={() => {
           {
             promisifyAnimation(
-              ev.target as any,
+              el as any,
               [
                 {
                   background,
@@ -149,9 +150,9 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
             )
           }
         }}
-        onmouseout={(ev) => {
+        onmouseout={() => {
           promisifyAnimation(
-            ev.target as any,
+            el,
             [
               { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: hoveredTextColor },
               { background, boxShadow, color: textColor },

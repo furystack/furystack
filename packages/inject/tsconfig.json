@@ -2,10 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "declarationDir": "./types",
     "rootDir": "./src",
     "composite": true,
     "lib": ["ES2019", "ES2020.Promise", "DOM"]
   },
-  "references": [{ "path": "../utils" }],
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "../utils" }]
 }

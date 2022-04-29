@@ -3,6 +3,7 @@ import { PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
 import { JsonResult, RequestAction } from '../request-action-implementation'
+import { getRepository } from '@furystack/repository'
 
 /**
  * Creates a PATCH endpoint for updating entities
@@ -19,7 +20,7 @@ export const createPatchEndpoint = <T extends object, TPrimaryKey extends keyof 
   const endpoint: RequestAction<PatchEndpoint<T, TPrimaryKey>> = async ({ injector, request, getUrlParams }) => {
     const { id } = getUrlParams()
     const patchData = await request.readPostBody<T>()
-    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
+    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
     await dataSet.update(injector, id, patchData)
     return JsonResult({})
   }

@@ -1,11 +1,11 @@
 import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './index'
-import { TestClass } from '@furystack/core/dist/create-physical-store-tests'
-import './store-manager-extensions'
-import { v4 } from 'uuid'
+import { useFileSystemStore } from './store-manager-helpers'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { StoreManager } from '@furystack/core'
+import { StoreManager, TestClass } from '@furystack/core'
+
+let storeCount = 0
 
 describe('FileSystemStore store manager extensions', () => {
   const storeNames: string[] = []
@@ -13,14 +13,15 @@ describe('FileSystemStore store manager extensions', () => {
   it('Should create a store with an extensions method from Store Manages', async () => {
     await usingAsync(new Injector(), async (i) => {
       const storeManager = i.getInstance(StoreManager)
-      const fileName = `filestore-test-${v4()}.json`
+      const fileName = `filestore-test-${storeCount++}.json`
       storeNames.push(fileName)
-      const store = storeManager.useFileSystem({
+      useFileSystemStore({
+        injector: i,
         model: TestClass,
         fileName,
         primaryKey: 'id',
       })
-      expect(store.getStoreFor(TestClass, 'id')).toBeInstanceOf(FileSystemStore)
+      expect(storeManager.getStoreFor(TestClass, 'id')).toBeInstanceOf(FileSystemStore)
     })
   })
 

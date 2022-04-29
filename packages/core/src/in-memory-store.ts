@@ -1,5 +1,4 @@
 import { Constructable } from '@furystack/inject'
-import { v4 } from 'uuid'
 import {
   PhysicalStore,
   FindOptions,
@@ -24,9 +23,6 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
       const entry = { ...e } as T
-      if (entry[this.primaryKey] === undefined) {
-        entry[this.primaryKey] = v4() as any
-      }
       if (this.cache.has(entry[this.primaryKey])) {
         throw new Error('Item with the primary key already exists.')
       }

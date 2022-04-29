@@ -1,6 +1,5 @@
 import { Injectable } from './injectable'
 
-// tslint:disable:max-classes-per-file
 describe('Tests', () => {
   it('Should decorate classes', () => {
     @Injectable()

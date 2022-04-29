@@ -1,4 +1,4 @@
-import './injector-extensions'
+export * from './helpers'
 export * from './api-manager'
 export * from './actions'
 export * from './authenticate'

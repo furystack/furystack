@@ -20,6 +20,8 @@
     "importHelpers": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "jsx": "react",
+    "jsxFactory": "createComponent"
   }
 }

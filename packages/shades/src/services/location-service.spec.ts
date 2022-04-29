@@ -6,19 +6,8 @@ global.TextDecoder = TextDecoder as any
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { LocationService } from './'
-import { JSDOM } from 'jsdom'
 
 describe('LocationService', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 

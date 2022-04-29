@@ -1,6 +1,5 @@
-import { StoreManager } from '@furystack/core'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
-import './store-manager-extensions'
+import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
+import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HealthCheckUnhealthyResult, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
@@ -52,36 +51,63 @@ describe('Sequelize Store', () => {
     typeName: 'sequelize-store',
     skipRegexTests: true,
     createStore: (i) => {
-      i.setupStores((sm) =>
-        sm.useSequelize({
-          model: TestSequelizeClass,
-          primaryKey: 'id',
-          options: {
-            dialect: 'sqlite',
-            storage: ':memory:',
-            logging: false,
-          },
-          initModel,
-        }),
-      )
+      useSequelize({
+        injector: i,
+        model: TestSequelizeClass,
+        primaryKey: 'id',
+        options: {
+          dialect: 'sqlite',
+          storage: ':memory:',
+          logging: false,
+        },
+        initModel: async (sequelize) => {
+          TestSequelizeClass.init(
+            {
+              id: {
+                type: DataTypes.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+              },
+              stringValue1: {
+                type: DataTypes.STRING,
+              },
+              stringValue2: {
+                type: DataTypes.STRING,
+              },
+              numberValue1: {
+                type: DataTypes.INTEGER,
+              },
+              numberValue2: {
+                type: DataTypes.INTEGER,
+              },
+              booleanValue: {
+                type: DataTypes.BOOLEAN,
+              },
+              dateValue: {
+                type: DataTypes.DATE,
+              },
+            },
+            { sequelize, timestamps: false },
+          )
+        },
+      })
       const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       return store
     },
   })
   it('should report healthy status if the model can be retrieved', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.setupStores((sm) =>
-        sm.useSequelize({
-          model: TestSequelizeClass,
-          primaryKey: 'id',
-          initModel,
-          options: {
-            dialect: 'sqlite',
-            storage: ':memory:',
-            logging: false,
-          },
-        }),
-      )
+      useSequelize({
+        injector: i,
+        model: TestSequelizeClass,
+        primaryKey: 'id',
+        initModel,
+        options: {
+          dialect: 'sqlite',
+          storage: ':memory:',
+          logging: false,
+        },
+      })
 
       const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       const healthCheckResult = await (store as SequelizeStore<TestSequelizeClass, 'id'>).checkHealth()
@@ -91,20 +117,19 @@ describe('Sequelize Store', () => {
 
   it('should report unhealthy status if the model cannot be retrieved', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.setupStores((sm) =>
-        sm.useSequelize({
-          model: TestSequelizeClass,
-          primaryKey: 'id',
-          initModel: () => {
-            throw Error(':(')
-          },
-          options: {
-            dialect: 'sqlite',
-            storage: ':memory:',
-            logging: false,
-          },
-        }),
-      )
+      useSequelize({
+        injector: i,
+        model: TestSequelizeClass,
+        primaryKey: 'id',
+        initModel: () => {
+          throw Error(':(')
+        },
+        options: {
+          dialect: 'sqlite',
+          storage: ':memory:',
+          logging: false,
+        },
+      })
 
       const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       const healthCheckResult = await (store as SequelizeStore<TestSequelizeClass, 'id'>).checkHealth()

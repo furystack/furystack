@@ -1,13 +1,14 @@
 import { FileSystemStore } from './filesystem-store'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
-import { v4 } from 'uuid'
+import { TestClass, createStoreTest } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
 import { unlink } from 'fs/promises'
+
+let storeCount = 0
 
 describe('FileSystemStore', () => {
   const stores: Array<FileSystemStore<TestClass, 'id'>> = []
   const createStore = () => {
-    const fileName = `filestore-test-${v4()}.json`
+    const fileName = `filestore-test-${storeCount++}.json`
     const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' })
     stores.push(store)
     return store

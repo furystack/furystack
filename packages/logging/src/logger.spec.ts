@@ -1,14 +1,16 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import './injector-extensions'
-import { LogLevel, TestLogger, LoggerCollection } from './'
+import { getLogger, useLogging } from './helpers'
+import { LogLevel } from './log-entries'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
+import { LoggerCollection } from './logger-collection'
+import { TestLogger } from './test-logger'
 
 describe('Loggers', () => {
-  it('Can be set up with an extension method', () => {
+  it('Can be set up and retrieved with a helper', () => {
     using(new Injector(), (i) => {
-      i.useLogging()
-      expect(i.logger).toBeInstanceOf(LoggerCollection)
+      useLogging(i)
+      expect(getLogger(i)).toBeInstanceOf(LoggerCollection)
     })
   })
 

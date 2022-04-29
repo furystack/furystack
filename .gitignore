@@ -66,6 +66,7 @@ data
 tsconfig.tsbuildinfo
 
 packages/**/dist
+packages/**/types
 
 .yarn/unplugged
 .yarn/build-state.yml
