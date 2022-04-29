@@ -35,7 +35,7 @@
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/(types|dist|tsconfig.tsbuildinfo)",
-    "test": "yarn run jest --runInBand",
+    "test": "yarn run jest",
     "test:debug": "yarn run --inspect-brk jest --runInBand",
     "create-schemas": "yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json"
   },
