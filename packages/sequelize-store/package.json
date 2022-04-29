@@ -1,6 +1,6 @@
 {
   "name": "@furystack/sequelize-store",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sequelize-based Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -40,5 +40,5 @@
     "@types/node": "^17.0.30",
     "sqlite3": "^5.0.6"
   },
-  "typings": "./dist/index.d.ts"
+  "typings": "./types/index.d.ts"
 }
