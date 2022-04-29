@@ -1,10 +1,11 @@
 {
   "name": "@furystack/rest-client-got",
-  "version": "1.0.43",
+  "version": "2.0.0",
   "description": "got-based REST client for FuryStack REST APIs",
   "main": "dist/index.js",
   "files": [
     "dist",
+    "types",
     "src"
   ],
   "repository": {
@@ -28,17 +29,17 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^5.0.7",
-    "@furystack/logging": "^2.0.91",
-    "@furystack/rest": "^3.1.12",
-    "@furystack/utils": "^2.1.0",
+    "@furystack/inject": "^6.0.0",
+    "@furystack/logging": "^3.0.0",
+    "@furystack/rest": "^4.0.0",
+    "@furystack/utils": "^3.0.0",
     "got": "^11.8.3",
     "path-to-regexp": "^6.2.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

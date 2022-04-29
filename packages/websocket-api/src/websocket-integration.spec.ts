@@ -1,9 +1,10 @@
 import { Injector } from '@furystack/inject'
 import { WhoAmI } from './actions/whoami'
-import '.'
 import ws from 'ws'
-import { InMemoryStore, User } from '@furystack/core'
-import { DefaultSession, ServerManager } from '@furystack/rest-service'
+import { addStore, InMemoryStore, User } from '@furystack/core'
+import { DefaultSession, ServerManager, useHttpAuthentication } from '@furystack/rest-service'
+import { useRestService } from '@furystack/rest-service'
+import { useWebsockets } from './helpers'
 
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'
@@ -14,19 +15,18 @@ describe('WebSocket Integration tests', () => {
 
   beforeEach((done) => {
     i = new Injector()
-    i.useRestService({
+    useRestService({
+      injector: i,
       api: {},
       root: '',
       port,
       hostName: host,
     })
-    i.setupStores((sm) =>
-      sm
-        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-        .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
+    addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+      new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
     )
-      .useHttpAuthentication({})
-      .useWebsockets({ actions: [WhoAmI], path, port, host })
+    useHttpAuthentication(i, {})
+    useWebsockets(i, { actions: [WhoAmI], path, port, host })
     i.getInstance(ServerManager)
       .getOrCreate({ port })
       .then(() => {

@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { globalDisposables, exitHandler } from './global-disposables'
-import './injector-extensions'
+import { disposeOnProcessExit } from './helpers'
 
 describe('Global Disposables', () => {
   it('Should be empty by default', () => {
@@ -18,14 +18,14 @@ describe('Global Disposables', () => {
 
   it('Should be filled from an injector extension', () => {
     using(new Injector(), (i) => {
-      i.disposeOnProcessExit()
+      disposeOnProcessExit(i)
       expect(globalDisposables).toContain(i)
     })
   })
   it('Should dispose the injector on exit', async () => {
     usingAsync(new Injector(), async (i) => {
       i.dispose = jest.fn(i.dispose)
-      i.disposeOnProcessExit()
+      disposeOnProcessExit(i)
       await exitHandler()
       expect(i.dispose).toBeCalled()
     })

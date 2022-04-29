@@ -1,3 +1,4 @@
+import { isAuthenticated } from '@furystack/core'
 import { JsonResult, RequestAction } from '../request-action-implementation'
 
 /**
@@ -8,6 +9,6 @@ import { JsonResult, RequestAction } from '../request-action-implementation'
  * @returns A standard authentication result
  */
 export const IsAuthenticated: RequestAction<{ result: { isAuthenticated: boolean } }> = async ({ injector }) => {
-  const isAuthenticated = await injector.isAuthenticated()
-  return JsonResult({ isAuthenticated })
+  const isAuthenticatedResult = await isAuthenticated(injector)
+  return JsonResult({ isAuthenticated: isAuthenticatedResult })
 }

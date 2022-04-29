@@ -1,12 +1,13 @@
 import { Injector } from '@furystack/inject'
-import './injector-extensions'
+import './helpers'
 import { usingAsync, PathHelper } from '@furystack/utils'
 import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions'
 import { RestApi } from '@furystack/rest'
-import { User, InMemoryStore } from '@furystack/core'
+import { User, InMemoryStore, addStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import got from 'got'
 import { JsonResult } from './request-action-implementation'
+import { useHttpAuthentication, useRestService } from './helpers'
 
 class UserWithPassword extends User {
   password!: string
@@ -30,43 +31,42 @@ const port = 19090
 const hostName = 'localhost'
 const root = 'test-api'
 
-const prepareInjector = (i: Injector) =>
-  i
-    .setupStores((sm) =>
-      sm
-        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-        .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' })),
-    )
-    .useHttpAuthentication({
-      getUserStore: (sm) => sm.getStoreFor(UserWithPassword, 'username'),
-      getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
-    })
-    .useRestService<IntegrationTestApi>({
-      root,
-      port,
-      hostName,
-      cors: {
-        credentials: true,
-        origins: ['http://localhost:8080'],
-        headers: ['cache', 'content-type'],
+const prepareInjector = async (i: Injector) => {
+  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+    new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+  )
+  useHttpAuthentication(i, {
+    getUserStore: (sm) => sm.getStoreFor(UserWithPassword, 'username'),
+    getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
+  })
+  await useRestService<IntegrationTestApi>({
+    injector: i,
+    root,
+    port,
+    hostName,
+    cors: {
+      credentials: true,
+      origins: ['http://localhost:8080'],
+      headers: ['cache', 'content-type'],
+    },
+    api: {
+      GET: {
+        '/currentUser': GetCurrentUser,
+        '/isAuthenticated': IsAuthenticated,
+        '/testQuery': async (options) => JsonResult({ param1Value: options.getQuery().param1 }),
+        '/testUrlParams/:urlParam': async (options) => JsonResult({ urlParamValue: options.getUrlParams().urlParam }),
       },
-      api: {
-        GET: {
-          '/currentUser': GetCurrentUser,
-          '/isAuthenticated': IsAuthenticated,
-          '/testQuery': async (options) => JsonResult({ param1Value: options.getQuery().param1 }),
-          '/testUrlParams/:urlParam': async (options) => JsonResult({ urlParamValue: options.getUrlParams().urlParam }),
-        },
-        POST: {
-          '/login': LoginAction,
-          '/logout': LogoutAction,
-          '/testPostBody': async (options) => {
-            const body = await options.getBody()
-            return JsonResult({ bodyValue: body.value })
-          },
+      POST: {
+        '/login': LoginAction,
+        '/logout': LogoutAction,
+        '/testPostBody': async (options) => {
+          const body = await options.getBody()
+          return JsonResult({ bodyValue: body.value })
         },
       },
-    })
+    },
+  })
+}
 
 const apiUrl = PathHelper.joinPaths(`http://${hostName}:${port}`, root)
 

@@ -1,2 +1,2 @@
 export * from './sequelize-store'
-import './store-manager-extensions'
+export * from './store-manager-helpers'

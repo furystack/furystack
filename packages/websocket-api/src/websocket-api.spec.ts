@@ -1,20 +1,20 @@
 import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api'
-import './injector-extensions'
 import WebSocket from 'ws'
 import { WebSocketAction } from './models'
+import { useWebsockets } from './helpers'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.useWebsockets({ port: 19998 })
+      useWebsockets(i, { port: 19998 })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
   it('Should be built with settings', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.useWebsockets({ path: '/web-socket', port: 19996 })
+      useWebsockets(i, { path: '/web-socket', port: 19996 })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
@@ -22,7 +22,7 @@ describe('WebSocketApi', () => {
   it('Should broadcast messages', async () => {
     await usingAsync(new Injector(), async (i) => {
       expect.assertions(4) // All 4 clients should receive the message
-      i.useWebsockets({ path: '/web-socket', port: 19994 })
+      useWebsockets(i, { path: '/web-socket', port: 19994 })
       const api = i.getInstance(WebSocketApi)
       await Promise.all(
         [1, 2, 3, 4, 5].map(async (idx) => {
@@ -67,7 +67,7 @@ describe('WebSocketApi', () => {
         }
       }
 
-      i.useWebsockets({ path: '/web-socket', port: 19995, actions: [ExampleWsAction] })
+      useWebsockets(i, { path: '/web-socket', port: 19995, actions: [ExampleWsAction] })
       const client = new WebSocket('ws://localhost:19995/web-socket')
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
 

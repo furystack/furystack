@@ -1,13 +1,13 @@
 {
   "name": "@furystack/utils",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "General utilities",
   "main": "dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "files": [
     "dist",
-    "src",
-    "test"
+    "types",
+    "src"
   ],
   "scripts": {
     "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
@@ -30,7 +30,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {

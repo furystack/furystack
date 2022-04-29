@@ -5,21 +5,9 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { RouteLink } from './route-link'
-import { JSDOM } from 'jsdom'
 import { createComponent, initializeShadeRoot, LocationService } from '..'
 
 describe('RouteLink', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-    window.matchMedia = () => ({ matches: true } as any)
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 

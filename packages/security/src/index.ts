@@ -6,4 +6,4 @@ export * from './password-complexity-rules'
 export * from './password-hasher'
 export * from './security-policy-manager'
 
-import './injector-extensions'
+export * from './helpers'

@@ -5,23 +5,12 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
-import { JSDOM } from 'jsdom'
 import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
 import { createComponent } from './shade-component'
 import { ObservableValue } from '@furystack/utils'
 
 describe('Shade Resources integration tests', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 
