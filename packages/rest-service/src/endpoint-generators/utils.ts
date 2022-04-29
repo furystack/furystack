@@ -1,8 +1,9 @@
 import { Injector } from '@furystack/inject'
-import { InMemoryStore, User } from '@furystack/core'
+import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from '../models/default-session'
 import '@furystack/repository'
-import '../injector-extensions'
+import '../helpers'
+import { getRepository } from '@furystack/repository'
 
 export class MockClass {
   id!: string
@@ -10,25 +11,24 @@ export class MockClass {
 }
 
 export const setupContext = (i: Injector) => {
-  i.setupStores((b) =>
-    b
-      .addStore(
-        new InMemoryStore({
-          model: MockClass,
-          primaryKey: 'id',
-        }),
-      )
-      .addStore(
-        new InMemoryStore({
-          model: User,
-          primaryKey: 'username',
-        }),
-      )
-      .addStore(
-        new InMemoryStore({
-          model: DefaultSession,
-          primaryKey: 'sessionId',
-        }),
-      ),
-  ).setupRepository((r) => r.createDataSet(MockClass, 'id'))
+  addStore(
+    i,
+    new InMemoryStore({
+      model: MockClass,
+      primaryKey: 'id',
+    }),
+  )
+    .addStore(
+      new InMemoryStore({
+        model: User,
+        primaryKey: 'username',
+      }),
+    )
+    .addStore(
+      new InMemoryStore({
+        model: DefaultSession,
+        primaryKey: 'sessionId',
+      }),
+    )
+  getRepository(i).createDataSet(MockClass, 'id')
 }

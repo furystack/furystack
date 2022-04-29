@@ -6,21 +6,9 @@ global.TextDecoder = TextDecoder as any
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
 import { LazyLoad } from './lazy-load'
-import { JSDOM } from 'jsdom'
 import { createComponent, initializeShadeRoot } from '..'
 
 describe('Lazy Load', () => {
-  const oldDoc = document
-
-  beforeAll(() => {
-    globalThis.document = new JSDOM().window.document
-    window.matchMedia = () => ({ matches: true } as any)
-  })
-
-  afterAll(() => {
-    globalThis.document = oldDoc
-  })
-
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 

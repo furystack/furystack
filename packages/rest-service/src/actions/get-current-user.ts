@@ -1,4 +1,4 @@
-import { User } from '@furystack/core'
+import { getCurrentUser, User } from '@furystack/core'
 import { Authenticate } from '../authenticate'
 import { JsonResult, RequestAction } from '../request-action-implementation'
 
@@ -10,6 +10,6 @@ import { JsonResult, RequestAction } from '../request-action-implementation'
 export const GetCurrentUser: RequestAction<{
   result: User
 }> = Authenticate()(async ({ injector }) => {
-  const user = await injector.getCurrentUser()
+  const user = await getCurrentUser(injector)
   return JsonResult(user)
 })

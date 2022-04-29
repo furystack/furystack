@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { User, StoreManager } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
-import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
-import { DefaultSession } from 'models/default-session'
+import { DefaultSession } from './models/default-session'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
+import { randomBytes } from 'crypto'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -142,7 +142,7 @@ export class HttpUserContext {
    * @returns the current User
    */
   public async cookieLogin(user: User, serverResponse: ServerResponse): Promise<User> {
-    const sessionId = v1()
+    const sessionId = randomBytes(32).toString('hex')
     await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     this.user = user

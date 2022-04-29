@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "files": [
     "dist",
+    "types",
     "src"
   ],
   "repository": {
@@ -30,8 +31,8 @@
   "dependencies": {
     "@furystack/inject": "^5.0.7",
     "@furystack/utils": "^2.1.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }

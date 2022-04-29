@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "files": [
     "dist",
+    "types",
     "src"
   ],
   "repository": {
@@ -39,16 +40,14 @@
     "ajv-formats": "^2.1.1",
     "path-to-regexp": "^6.2.0",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.3.1",
-    "uuid": "^8.3.2"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@furystack/rest-client-got": "workspace:^",
     "@types/jest": "^27.4.1",
-    "@types/node": "^17.0.23",
-    "@types/uuid": "^8.3.4",
+    "@types/node": "^17.0.30",
     "got": "^11.8.3"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

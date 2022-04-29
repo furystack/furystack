@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { IdentityContext } from './identity-context'
-import './injector-extensions'
+import { isAuthorized, isAuthenticated, getCurrentUser } from './helpers'
 
 describe('IdentityContext', () => {
   it('Should be retrieved from an Injector', () => {
@@ -11,31 +11,31 @@ describe('IdentityContext', () => {
     })
   })
 
-  it('isAuthenticated should be called from extension', async () => {
+  it('isAuthenticated should be called from helper', async () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'isAuthenticated')
-      const isAuthenticated = await i.isAuthenticated()
-      expect(isAuthenticated).toBeFalsy()
+      const isAuth = await isAuthenticated(i)
+      expect(isAuth).toBeFalsy()
       expect(spy).toBeCalledTimes(1)
     })
   })
 
-  it('isAuthorized should be called from extension', async () => {
+  it('isAuthorized should be called from helper', async () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'isAuthorized')
-      const isAuthorized = await i.isAuthorized()
-      expect(isAuthorized).toBeFalsy()
+      const isAuth = await isAuthorized(i)
+      expect(isAuth).toBeFalsy()
       expect(spy).toBeCalledTimes(1)
     })
   })
 
-  it('getCurrentUser should be called from extension', async () => {
+  it('getCurrentUser should be called from helper', async () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = jest.spyOn(ctx, 'getCurrentUser')
-      await expect(i.getCurrentUser()).rejects.toThrowError('')
+      await expect(getCurrentUser(i)).rejects.toThrowError('')
       expect(spy).toBeCalledTimes(1)
     })
   })

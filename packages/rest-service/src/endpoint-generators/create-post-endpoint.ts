@@ -4,6 +4,7 @@ import '@furystack/repository'
 import '../incoming-message-extensions'
 import { JsonResult, RequestAction } from '../request-action-implementation'
 import { WithOptionalId } from '@furystack/core'
+import { getRepository } from '@furystack/repository'
 /**
  * Creates a POST endpoint for updating entities
  *
@@ -17,7 +18,7 @@ export const createPostEndpoint = <T extends object, TPrimaryKey extends keyof T
   primaryKey: TPrimaryKey
 }) => {
   const endpoint: RequestAction<PostEndpoint<T, TPrimaryKey>> = async ({ injector, request }) => {
-    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
+    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
 
     const entityToCreate = await request.readPostBody<WithOptionalId<T, typeof dataSet['primaryKey']>>()
     const { created } = await dataSet.add(injector, entityToCreate)

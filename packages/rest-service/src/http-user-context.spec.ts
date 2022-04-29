@@ -1,22 +1,18 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { User, StoreManager, InMemoryStore } from '@furystack/core'
+import { User, StoreManager, InMemoryStore, addStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import { HttpUserContext } from './http-user-context'
-import './injector-extensions'
 import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
+import { useHttpAuthentication } from './helpers'
 
 export const prepareInjector = async (i: Injector) => {
-  i.setupStores((sm) =>
-    sm
-      .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' })),
-  )
+  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
 
-  i.useHttpAuthentication()
-  // await i.getInstance(ServerManager).getOrCreate({ port: 19999 })
+  useHttpAuthentication(i)
 }
 
 const setupUser = async (i: Injector, userName: string, password: string) => {

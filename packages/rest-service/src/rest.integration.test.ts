@@ -3,8 +3,8 @@ import { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'
-import { v4 } from 'uuid'
-import './injector-extensions'
+import './helpers'
+import { useRestService } from './helpers'
 
 export interface EchoApi extends RestApi {
   GET: {
@@ -25,7 +25,8 @@ const createEchoApiServer = async () => {
   const port = Math.round(Math.random() * 1000) + 10000
   const root = '/api'
   const injector = new Injector()
-  await injector.useRestService<EchoApi>({
+  await useRestService<EchoApi>({
+    injector,
     port,
     root,
     api: {
@@ -65,7 +66,7 @@ describe('REST Integration tests with GOT client', () => {
 
   it('Should execute a request with headers', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = v4()
+      const value = 'value'
       const result = await client({
         method: 'GET',
         action: '/headers',
@@ -80,7 +81,7 @@ describe('REST Integration tests with GOT client', () => {
 
   it('Should execute a request with query', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = v4()
+      const value = 'value2'
       const result = await client({
         method: 'GET',
         action: '/query',
@@ -97,7 +98,7 @@ describe('REST Integration tests with GOT client', () => {
 
   it('Should execute a request with URL parameters', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = v4()
+      const value = 'value3'
       const result = await client({
         method: 'GET',
         action: '/urlParams/:id',

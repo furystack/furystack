@@ -1,5 +1,5 @@
 import { Injector } from './injector'
-import { Constructable } from './types/constructable'
+import { Constructable } from './models/constructable'
 
 import './reflect-metadata-polyfill'
 

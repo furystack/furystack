@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "files": [
     "dist",
+    "types",
     "src"
   ],
   "repository": {
@@ -33,13 +34,11 @@
     "@furystack/utils": "^2.1.0",
     "redis": "^4.0.6",
     "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.1",
-    "@types/uuid": "^8.3.4",
-    "uuid": "^8.3.2"
+    "@types/jest": "^27.4.1"
   },
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
