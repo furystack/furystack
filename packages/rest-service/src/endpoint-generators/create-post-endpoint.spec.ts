@@ -4,12 +4,15 @@ import { PostEndpoint } from '@furystack/rest'
 import { createPostEndpoint } from './create-post-endpoint'
 import got from 'got'
 import { MockClass, setupContext } from './utils'
+import { useRestService } from '../helpers'
+import { getRepository } from '@furystack/repository'
 
 describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ POST: { '/:id': PostEndpoint<MockClass, 'id'> } }>({
+      await useRestService<{ POST: { '/:id': PostEndpoint<MockClass, 'id'> } }>({
+        injector: i,
         root: '/api',
         port: 1117,
         api: {
@@ -25,7 +28,7 @@ describe('createPostEndpoint', () => {
       })
       expect(response.statusCode).toBe(201)
       expect(JSON.parse(response.body)).toStrictEqual(entityToPost)
-      const posted = await i.getDataSetFor(MockClass, 'id').get(i, entityToPost.id)
+      const posted = await getRepository(i).getDataSetFor(MockClass, 'id').get(i, entityToPost.id)
       expect(posted?.value).toBe('posted')
     })
   })

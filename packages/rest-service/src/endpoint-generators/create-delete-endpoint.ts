@@ -2,6 +2,7 @@ import { Constructable } from '@furystack/inject'
 import { DeleteEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import { JsonResult, RequestAction } from '../request-action-implementation'
+import { getRepository } from '@furystack/repository'
 
 /**
  * Creates a DELETE endpoint for removing entities
@@ -17,7 +18,7 @@ export const createDeleteEndpoint = <T extends object, TPrimaryKey extends keyof
 }) => {
   const endpoint: RequestAction<DeleteEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams }) => {
     const { id } = getUrlParams()
-    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
+    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
     await dataSet.remove(injector, id)
     return JsonResult({}, 204)
   }

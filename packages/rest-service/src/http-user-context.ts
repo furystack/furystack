@@ -3,7 +3,7 @@ import { User, StoreManager } from '@furystack/core'
 import { Injectable } from '@furystack/inject'
 import { v1 } from 'uuid'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
-import { DefaultSession } from 'models/default-session'
+import { DefaultSession } from './models/default-session'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 
 /**

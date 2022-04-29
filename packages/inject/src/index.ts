@@ -1,3 +1,3 @@
 export * from './injectable'
 export * from './injector'
-export * from './types'
+export * from './models'

@@ -1,8 +1,8 @@
-import { StoreManager } from '@furystack/core/dist/store-manager'
+import { StoreManager } from '@furystack/core/types/store-manager'
 import { Constructable } from '@furystack/inject'
 import { FileSystemStore } from './filesystem-store'
 
-declare module '@furystack/core/dist/store-manager' {
+declare module '@furystack/core/types/store-manager' {
   /**
    * Defines an extended Injector instance
    */

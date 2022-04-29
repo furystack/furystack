@@ -1,2 +1,2 @@
 export * from './redis-store'
-import './store-manager-extensions'
+export * from './store-manager-helpers'

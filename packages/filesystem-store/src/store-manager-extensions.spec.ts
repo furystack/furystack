@@ -1,11 +1,10 @@
 import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './index'
-import { TestClass } from '@furystack/core/dist/create-physical-store-tests'
 import './store-manager-extensions'
 import { v4 } from 'uuid'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { StoreManager } from '@furystack/core'
+import { StoreManager, TestClass } from '@furystack/core'
 
 describe('FileSystemStore store manager extensions', () => {
   const storeNames: string[] = []

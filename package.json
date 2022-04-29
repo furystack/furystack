@@ -7,6 +7,7 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "@types/jsdom": "^16.2.14",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
@@ -33,7 +34,7 @@
     "build": "tsc -b packages",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
-    "clean": "yarn rimraf ./packages/**/dist && yarn rimraf ./packages/**/tsconfig.tsbuildinfo",
+    "clean": "yarn rimraf ./packages/**/(types|dist|tsconfig.tsbuildinfo)",
     "test": "yarn run jest --runInBand",
     "test:debug": "yarn run --inspect-brk jest --runInBand",
     "create-schemas": "yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json"

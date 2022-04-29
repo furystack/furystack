@@ -1,6 +1,5 @@
-import { StoreManager } from '@furystack/core'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
-import './store-manager-extensions'
+import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
+import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
 
 class TestSequelizeClass extends Model implements TestClass {
@@ -18,47 +17,46 @@ describe('Sequelize Store', () => {
     typeName: 'sequelize-store',
     skipRegexTests: true,
     createStore: (i) => {
-      i.setupStores((sm) =>
-        sm.useSequelize({
-          model: TestSequelizeClass,
-          primaryKey: 'id',
-          options: {
-            dialect: 'sqlite',
-            storage: ':memory:',
-            logging: false,
-          },
-          initModel: async (sequelize) => {
-            TestSequelizeClass.init(
-              {
-                id: {
-                  type: DataTypes.INTEGER,
-                  autoIncrement: true,
-                  primaryKey: true,
-                },
-                stringValue1: {
-                  type: DataTypes.STRING,
-                },
-                stringValue2: {
-                  type: DataTypes.STRING,
-                },
-                numberValue1: {
-                  type: DataTypes.INTEGER,
-                },
-                numberValue2: {
-                  type: DataTypes.INTEGER,
-                },
-                booleanValue: {
-                  type: DataTypes.BOOLEAN,
-                },
-                dateValue: {
-                  type: DataTypes.DATE,
-                },
+      useSequelize({
+        injector: i,
+        model: TestSequelizeClass,
+        primaryKey: 'id',
+        options: {
+          dialect: 'sqlite',
+          storage: ':memory:',
+          logging: false,
+        },
+        initModel: async (sequelize) => {
+          TestSequelizeClass.init(
+            {
+              id: {
+                type: DataTypes.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
               },
-              { sequelize, timestamps: false },
-            )
-          },
-        }),
-      )
+              stringValue1: {
+                type: DataTypes.STRING,
+              },
+              stringValue2: {
+                type: DataTypes.STRING,
+              },
+              numberValue1: {
+                type: DataTypes.INTEGER,
+              },
+              numberValue2: {
+                type: DataTypes.INTEGER,
+              },
+              booleanValue: {
+                type: DataTypes.BOOLEAN,
+              },
+              dateValue: {
+                type: DataTypes.DATE,
+              },
+            },
+            { sequelize, timestamps: false },
+          )
+        },
+      })
       const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       return store
     },

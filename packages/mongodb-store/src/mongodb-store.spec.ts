@@ -4,10 +4,9 @@ global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
-import { StoreManager } from '@furystack/core'
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
+import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
 import { v4 } from 'uuid'
-import './store-manager-extensions'
+import { useMongoDb } from './store-manager-helpers'
 import { MongoClientFactory } from './mongo-client-factory'
 import { usingAsync } from '@furystack/utils'
 
@@ -18,7 +17,8 @@ class TestClassWithId {
 
 describe('MongoDB Store', () => {
   let dbIdx = 0
-  const getMongoOptions = () => ({
+  const getMongoOptions = (injector: Injector) => ({
+    injector,
     model: TestClass,
     primaryKey: 'id' as const,
     collection: `furystack-mongo-store-tests-${v4()}`,
@@ -29,8 +29,8 @@ describe('MongoDB Store', () => {
   createStoreTest({
     typeName: 'mongodb-store',
     createStore: (i) => {
-      const mongoOptions = getMongoOptions()
-      i.setupStores((sm) => sm.useMongoDb(mongoOptions))
+      const mongoOptions = getMongoOptions(i)
+      useMongoDb(mongoOptions)
       const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
       const oldDispose = i.dispose
       i.dispose = async () => {
@@ -45,7 +45,7 @@ describe('MongoDB Store', () => {
 
   it('Should retrieve an entity with its id', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
       const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
       const { created } = await store.add({ value: 'value1' })
 
@@ -58,7 +58,7 @@ describe('MongoDB Store', () => {
 
   it('Should retrieve more entities with theis ids', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      injector.setupStores((sm) => sm.useMongoDb({ ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' }))
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
       const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
       const retrieved = await store.find({ filter: { _id: { $in: created.map((c) => c._id) } } })

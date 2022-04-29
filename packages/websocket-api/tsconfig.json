@@ -2,14 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "declarationDir": "./types",
     "composite": true,
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [
-    { "path": "../core" },
-    { "path": "../rest-service" },
-    { "path": "../inject" },
-    { "path": "../utils" }
-  ]
+  "references": [{ "path": "../core" }, { "path": "../rest-service" }, { "path": "../inject" }, { "path": "../utils" }]
 }

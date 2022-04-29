@@ -4,17 +4,19 @@ import { usingAsync } from '@furystack/utils'
 import { RequestError } from 'got/dist/source'
 import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
-import './injector-extensions'
+import './helpers'
 
 import schema from './validate.integration.spec.schema.json'
-import { ValidationApi } from 'validate.integration.schema'
+import { ValidationApi } from './validate.integration.schema'
+import { useRestService } from './helpers'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
 const createValidateApi = async () => {
   const injector = new Injector()
   const port = Math.round(Math.random() * 1000) + 10000
-  injector.useRestService<ValidationApi>({
+  useRestService<ValidationApi>({
+    injector,
     api: {
       GET: {
         '/validate-query': Validate({

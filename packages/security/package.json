@@ -3,9 +3,10 @@
   "version": "1.0.1",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "main": "dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "typings": "./types/index.d.ts",
   "files": [
     "dist",
+    "types",
     "src"
   ],
   "scripts": {

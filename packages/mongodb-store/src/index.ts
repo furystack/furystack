@@ -1,2 +1,2 @@
 export * from './mongodb-store'
-import './store-manager-extensions'
+export * from './store-manager-helpers'

@@ -1,6 +1,6 @@
 /* eslint-disable no-redeclare */
 /* eslint-disable @typescript-eslint/no-namespace */
-import { Constructable } from './types/constructable'
+import { Constructable } from './models/constructable'
 
 declare global {
   namespace Reflect {

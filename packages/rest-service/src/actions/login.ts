@@ -1,5 +1,5 @@
 import { HttpUserContext } from '../http-user-context'
-import '../injector-extensions'
+import '../helpers'
 import { User } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
 import { JsonResult, RequestAction } from '../request-action-implementation'

@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import './injector-extension'
-import { InMemoryStore } from '@furystack/core'
+import { getRepository } from './helpers'
+import { addStore, InMemoryStore } from '@furystack/core'
 import { DataSet } from './data-set'
 
 describe('Repository', () => {
@@ -10,11 +10,10 @@ describe('Repository', () => {
       class ExampleClass {
         id!: number
       }
-      i.setupStores((sm) => sm.addStore(new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }))).setupRepository(
-        (r) => r.createDataSet(ExampleClass, 'id', {}),
-      )
+      addStore(i, new InMemoryStore({ model: ExampleClass, primaryKey: 'id' }))
+      getRepository(i).createDataSet(ExampleClass, 'id', {})
 
-      const dataSet = i.getDataSetFor(ExampleClass, 'id')
+      const dataSet = getRepository(i).getDataSetFor(ExampleClass, 'id')
       expect(dataSet).toBeInstanceOf(DataSet)
     })
   })

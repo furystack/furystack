@@ -2,6 +2,7 @@ import { Constructable } from '@furystack/inject'
 import { RequestError, GetEntityEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import { JsonResult, RequestAction } from '../request-action-implementation'
+import { getRepository } from '@furystack/repository'
 
 /**
  * Creates a simple Get Entity endpoint for a specified model.
@@ -18,7 +19,7 @@ export const createGetEntityEndpoint = <T extends object, TPrimaryKey extends ke
   const endpoint: RequestAction<GetEntityEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams, getQuery }) => {
     const { id } = getUrlParams()
     const { select } = getQuery()
-    const dataSet = injector.getDataSetFor(options.model, options.primaryKey)
+    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
     const entry = await dataSet.get(injector, id, select)
     if (!entry) {
       throw new RequestError('Entity not found', 404)

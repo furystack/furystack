@@ -3,7 +3,8 @@ import { createClient } from 'redis'
 import { StoreManager } from '@furystack/core'
 import { v4 } from 'uuid'
 import { RedisStore } from './redis-store'
-import './store-manager-extensions'
+import './store-manager-helpers'
+import { useRedis } from './store-manager-helpers'
 
 describe('Redis Store', () => {
   class ExampleClass {
@@ -17,7 +18,8 @@ describe('Redis Store', () => {
 
   beforeEach(async () => {
     client = createClient({ url: 'redis://localhost:6379' })
-    i = new Injector().setupStores((sm) => sm.useRedis(ExampleClass, 'id', client))
+    i = new Injector()
+    useRedis({ injector: i, model: ExampleClass, primaryKey: 'id', client })
     store = i.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
     await client.connect()
   })

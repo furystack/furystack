@@ -4,12 +4,15 @@ import { GetEntityEndpoint, serializeToQueryString } from '@furystack/rest'
 import got, { HTTPError } from 'got'
 import { MockClass, setupContext } from './utils'
 import { createGetEntityEndpoint } from './create-get-entity-endpoint'
+import { getRepository } from '@furystack/repository'
+import { useRestService } from '../helpers'
 
 describe('createGetEntityEndpoint', () => {
   it('Should return the entity', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+      await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+        injector: i,
         root: '/api',
         port: 1113,
         api: {
@@ -19,7 +22,7 @@ describe('createGetEntityEndpoint', () => {
         },
       })
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
-      await i.getDataSetFor(MockClass, 'id').add(i, mockEntity)
+      await getRepository(i).getDataSetFor(MockClass, 'id').add(i, mockEntity)
 
       const response = await got('http://127.0.0.1:1113/api/mock', { method: 'GET' })
       expect(JSON.parse(response.body)).toStrictEqual(mockEntity)
@@ -29,7 +32,8 @@ describe('createGetEntityEndpoint', () => {
   it('Should return the entity with the selected fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+      await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+        injector: i,
         root: '/api',
         port: 1114,
         api: {
@@ -39,7 +43,7 @@ describe('createGetEntityEndpoint', () => {
         },
       })
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
-      await i.getDataSetFor(MockClass, 'id').add(i, mockEntity)
+      await getRepository(i).getDataSetFor(MockClass, 'id').add(i, mockEntity)
 
       const response = await got(`http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
         method: 'GET',
@@ -51,7 +55,8 @@ describe('createGetEntityEndpoint', () => {
   it('Should return 404 if no entity has been found', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
-      await i.useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+      await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
+        injector: i,
         root: '/api',
         port: 1115,
         api: {
