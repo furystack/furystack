@@ -71,17 +71,24 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
   ],
   constructed: ({ element }) => {
-    const mouseUp = () =>
-      promisifyAnimation(
-        element.firstChild as Element,
-        [
-          {
-            filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
-            transform: 'scale(1)',
-          },
-        ],
-        { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
-      )
+    /**
+     * @param this The Document instance
+     * @param ev The Mouse event
+     */
+    function mouseUp(this: Document, ev: MouseEvent) {
+      if (ev.target === element.firstElementChild) {
+        promisifyAnimation(
+          element.firstChild as Element,
+          [
+            {
+              filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
+              transform: 'scale(1)',
+            },
+          ],
+          { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+        )
+      }
+    }
 
     document.addEventListener('mouseup', mouseUp)
 
@@ -127,7 +134,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
                 transform: 'scale(0.98)',
               },
             ],
-            { duration: 250, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+            { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
           )
         }}
         onmouseup={function (ev) {
@@ -167,7 +174,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         }}
         {...props}
         style={{
-          cursor: props.disabled ? 'inherits' : 'pointer',
+          cursor: props.disabled ? 'not-allowed' : 'pointer',
           background,
           boxShadow,
           margin: '8px',
@@ -178,6 +185,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           color: textColor,
           filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
           backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
+          userSelect: 'none',
           ...props.style,
         }}
       >
