@@ -4,6 +4,7 @@ import { LocationService } from '../services'
 import { match, MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { RenderOptions } from '../models'
 import Semaphore from 'semaphore-async-await'
+import { ObservableAlreadyDisposedError } from '@furystack/utils'
 
 export interface Route<TMatchResult extends object> {
   url: string
@@ -35,23 +36,18 @@ export const Router = Shade<RouterProps, RouterState>({
       const { activeRoute: lastRoute, activeRouteParams: lastParams, lock } = getState()
       try {
         await lock.acquire()
-
         for (const route of props.routes) {
           const matchFn = match(route.url, route.routingOptions)
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
             if (route !== lastRoute || JSON.stringify(lastParams) !== JSON.stringify(matchResult.params)) {
-              if (lastRoute?.onLeave) {
-                await lastRoute.onLeave({ children, props, injector, updateState, getState, element })
-              }
+              await lastRoute?.onLeave?.({ children, props, injector, updateState, getState, element })
               updateState({
                 jsx: route.component({ currentUrl, match: matchResult }),
                 activeRoute: route,
                 activeRouteParams: matchResult.params,
               })
-              if (route.onVisit) {
-                await route.onVisit({ children, props, injector, updateState, getState, element })
-              }
+              await route.onVisit?.({ children, props, injector, updateState, getState, element })
             }
             return
           }
@@ -60,6 +56,11 @@ export const Router = Shade<RouterProps, RouterState>({
           await lastRoute.onLeave({ children, props, injector, updateState, getState, element })
         }
         updateState({ jsx: props.notFound?.(currentUrl), activeRoute: undefined })
+      } catch (e) {
+        // as path updates can be async, this can be safely ignored
+        if (!(e instanceof ObservableAlreadyDisposedError)) {
+          throw e
+        }
       } finally {
         lock.release()
       }

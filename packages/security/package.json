@@ -1,6 +1,6 @@
 {
   "name": "@furystack/security",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -30,9 +30,9 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "dependencies": {
-    "@furystack/core": "^11.0.1",
-    "@furystack/inject": "^6.0.1",
-    "@furystack/utils": "^3.0.1",
+    "@furystack/core": "^11.0.2",
+    "@furystack/inject": "^6.0.2",
+    "@furystack/utils": "^3.0.2",
     "tslib": "^2.4.0"
   },
   "homepage": "https://github.com/furystack/furystack",

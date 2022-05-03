@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^6.0.1",
+    "@furystack/inject": "^6.0.2",
     "tslib": "^2.4.0"
   },
   "devDependencies": {

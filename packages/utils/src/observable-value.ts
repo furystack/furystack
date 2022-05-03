@@ -2,6 +2,15 @@ import { Disposable } from './disposable'
 import { ValueObserver } from './value-observer'
 
 /**
+ * Error thrown when you try to retrieve or set an observable value that is already disposed.
+ */
+export class ObservableAlreadyDisposedError extends Error {
+  constructor() {
+    super('Observable already disposed')
+  }
+}
+
+/**
  * Callback type for observable value changes
  */
 export type ValueChangeCallback<T> = (next: T) => void
@@ -77,7 +86,7 @@ export class ObservableValue<T> implements Disposable {
    */
   public getValue(): T {
     if (this._isDisposed) {
-      throw new Error('ObservableValue is already disposed')
+      throw new ObservableAlreadyDisposedError()
     }
     return this.currentValue
   }
@@ -89,7 +98,7 @@ export class ObservableValue<T> implements Disposable {
    */
   public setValue(newValue: T) {
     if (this._isDisposed) {
-      throw new Error('ObservableValue is already disposed')
+      throw new ObservableAlreadyDisposedError()
     }
     if (this.currentValue !== newValue) {
       this.currentValue = newValue
