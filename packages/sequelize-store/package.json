@@ -1,6 +1,6 @@
 {
   "name": "@furystack/sequelize-store",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Sequelize-based Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -27,10 +27,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.0.1",
-    "@furystack/inject": "^6.0.1",
-    "@furystack/logging": "^3.0.1",
-    "@furystack/utils": "^3.0.1",
+    "@furystack/core": "^11.0.2",
+    "@furystack/inject": "^6.0.2",
+    "@furystack/logging": "^3.0.2",
+    "@furystack/utils": "^3.0.2",
     "semaphore-async-await": "^1.5.1",
     "sequelize": "^6.19.0",
     "tslib": "^2.4.0"
