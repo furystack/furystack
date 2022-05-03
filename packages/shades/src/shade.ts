@@ -125,12 +125,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
-
-          // const selectionState = this.getSelectionState()
-
           if (this.hasChildNodes()) {
             this.replaceChild(newJsx, this.firstChild as Node)
-            // selectionState && this.restoreSelectionState(selectionState)
           } else {
             this.append(newJsx)
           }
