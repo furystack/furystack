@@ -2,8 +2,6 @@ import { Injectable } from '@furystack/inject'
 import { DeepPartial, deepMerge, ObservableValue } from '@furystack/utils'
 import { defaultDarkTheme } from './default-dark-theme'
 
-export type ThemeType = 'light' | 'dark'
-
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
 
 export type ColorVariants = {
@@ -48,14 +46,29 @@ export interface Theme {
   divider: Color
 }
 
+/**
+ * Service class for theme-related operations
+ */
 @Injectable({ lifetime: 'singleton' })
 export class ThemeProviderService {
-  public getTextColor(color: string) {
+  /**
+   *
+   * @param color The background color
+   * @param bright The Bright color
+   * @param dark The Dark color
+   * @returns The bright or dark color variant that fits the background color
+   */
+  public getTextColor(color: string, bright = '#000000', dark = '#FFFFFF') {
     const { r, g, b } = this.getRgbFromColorString(color)
     const yiq = (r * 299 + g * 587 + b * 114) / 1000
-    return yiq >= 128 ? '#000000' : '#FFFFFF'
+    return yiq >= 128 ? bright : dark
   }
 
+  /**
+   *
+   * @param color The color string
+   * @returns The parsed R,G,B, A values
+   */
   public getRgbFromColorString(color: string) {
     if (color.startsWith('#')) {
       if (color.length === 7) {
@@ -80,6 +93,7 @@ export class ThemeProviderService {
           r: parseInt(result.groups.red, 10),
           g: parseInt(result.groups.green, 10),
           b: parseInt(result.groups.blue, 10),
+          a: parseInt(result.groups.alpha, 10),
         }
       }
     }

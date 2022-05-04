@@ -57,7 +57,7 @@ export const Router = Shade<RouterProps, RouterState>({
         }
         updateState({ jsx: props.notFound?.(currentUrl), activeRoute: undefined })
       } catch (e) {
-        // as path updates can be async, this can be safely ignored
+        // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
           throw e
         }
