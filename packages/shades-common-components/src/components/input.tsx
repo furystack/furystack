@@ -1,5 +1,6 @@
 import { Shade, PartialElement, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '..'
+import { Theme } from '../services'
 import { promisifyAnimation } from '../utils/promisify-animation'
 
 export interface InputProps extends PartialElement<HTMLInputElement> {
@@ -18,11 +19,22 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
 }
 
 export type TextInputProps = InputProps | TextAreaProps
-export const Input = Shade<TextInputProps>({
+
+export type TextInputState = {
+  theme: Theme
+}
+
+export const Input = Shade<TextInputProps, TextInputState>({
   shadowDomName: 'shade-input',
-  render: ({ props, element, injector }) => {
+  getInitialState: ({ injector }) => ({
+    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
+  }),
+  resources: ({ injector, updateState }) => [
+    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
+  ],
+  render: ({ props, element, injector, getState }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const theme = themeProvider.theme.getValue()
+    const { theme } = getState()
     const { palette } = theme
 
     return (
