@@ -11,6 +11,7 @@ import { WebSocketApiSettings } from './websocket-api-settings'
  *    actions: [...my custom actions]
  * })
  * ````
+ *
  * @param injector The injector instance
  * @param settings The Settings object for the WebSocket API
  */
