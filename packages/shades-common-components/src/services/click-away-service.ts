@@ -1,6 +1,6 @@
 export class ClickAwayService<T extends HTMLElement> {
   public dispose() {
-    window.removeEventListener('click', this.clickOutsideListener)
+    window.removeEventListener('click', this.clickOutsideListener, true)
   }
 
   public clickOutsideListener = ((ev: MouseEvent) => {

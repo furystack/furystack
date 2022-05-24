@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "3.0.0",
+  "version": "3.0.3",
   "description": "General utilities",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -34,6 +34,6 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^27.5.0"
+    "@types/jest": "^27.5.1"
   }
 }

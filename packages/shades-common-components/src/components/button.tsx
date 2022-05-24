@@ -67,27 +67,32 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
   getInitialState: ({ injector }) => ({
     theme: injector.getInstance(ThemeProviderService).theme.getValue(),
   }),
-  constructed: ({ injector, updateState, element }) => {
-    const observer = injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
-      updateState({ theme })
-    })
-
-    const mouseUp = () =>
-      promisifyAnimation(
-        element.firstChild as Element,
-        [
-          {
-            filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
-            transform: 'scale(1)',
-          },
-        ],
-        { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
-      )
+  resources: ({ injector, updateState }) => [
+    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
+  ],
+  constructed: ({ element }) => {
+    /**
+     * @param this The Document instance
+     * @param ev The Mouse event
+     */
+    function mouseUp(this: Document, ev: MouseEvent) {
+      if (ev.target === element.firstElementChild) {
+        promisifyAnimation(
+          element.firstChild as Element,
+          [
+            {
+              filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
+              transform: 'scale(1)',
+            },
+          ],
+          { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+        )
+      }
+    }
 
     document.addEventListener('mouseup', mouseUp)
 
     return () => {
-      observer.dispose()
       document.removeEventListener('mouseup', mouseUp)
     }
   },
@@ -96,35 +101,40 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
     const { theme } = getState()
+    const themeProvider = injector.getInstance(ThemeProviderService)
     const background = getBackground(props, theme)
+
     const hoveredBackground = getHoveredBackground(props, theme, () => {
-      const { r, g, b } = injector
-        .getInstance(ThemeProviderService)
-        .getRgbFromColorString((props.color && theme.palette[props.color].main) || theme.text.primary)
+      const { r, g, b } = themeProvider.getRgbFromColorString(
+        (props.color && theme.palette[props.color].main) || theme.text.primary,
+      )
       return `rgba(${r}, ${g}, ${b}, 0.1)`
     })
     const boxShadow = getBoxShadow(props, theme)
     const hoveredBoxShadow = getHoveredBoxShadow(props, theme)
-    const textColor = getTextColor(props, theme, () =>
-      injector.getInstance(ThemeProviderService).getTextColor(background),
-    )
-    const hoveredTextColor = getHoveredTextColor(props, theme, () =>
-      injector.getInstance(ThemeProviderService).getTextColor(background),
-    )
-    const el = element.firstElementChild
+    const textColor = getTextColor(props, theme, () => themeProvider.getTextColor(background))
+    const hoveredTextColor = getHoveredTextColor(props, theme, () => themeProvider.getTextColor(background))
+
+    const tryAnimate = async (
+      keyframes: PropertyIndexedKeyframes | Keyframe[] | null,
+      options?: number | KeyframeAnimationOptions | undefined,
+    ) => {
+      const el = element.firstElementChild
+      el && promisifyAnimation(el, keyframes, options)
+    }
+
     return (
       <button
         onmousedown={function (ev) {
           mouseDownHandler?.call(this, ev)
-          promisifyAnimation(
-            el,
+          tryAnimate(
             [
               {
                 filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
                 transform: 'scale(0.98)',
               },
             ],
-            { duration: 250, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+            { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
           )
         }}
         onmouseup={function (ev) {
@@ -132,8 +142,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         }}
         onmouseenter={() => {
           {
-            promisifyAnimation(
-              el as any,
+            tryAnimate(
               [
                 {
                   background,
@@ -151,8 +160,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           }
         }}
         onmouseout={() => {
-          promisifyAnimation(
-            el,
+          tryAnimate(
             [
               { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: hoveredTextColor },
               { background, boxShadow, color: textColor },
@@ -166,7 +174,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
         }}
         {...props}
         style={{
-          cursor: props.disabled ? 'inherits' : 'pointer',
+          cursor: props.disabled ? 'not-allowed' : 'pointer',
           background,
           boxShadow,
           margin: '8px',
@@ -177,6 +185,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           color: textColor,
           filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
           backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
+          userSelect: 'none',
           ...props.style,
         }}
       >

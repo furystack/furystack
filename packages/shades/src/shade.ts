@@ -7,10 +7,11 @@ export type ShadeOptions<TProps, TState> = {
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
   shadowDomName: string
+
   /**
    * Render hook, this method will be executed on each and every render.
    */
-  render: (options: RenderOptions<TProps, TState>) => JSX.Element
+  render: (options: RenderOptions<TProps, TState>) => JSX.Element | string | null
 
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
@@ -29,7 +30,15 @@ export type ShadeOptions<TProps, TState> = {
    */
   onDetach?: (options: RenderOptions<TProps, TState>) => void
 
+  /**
+   * A factory method that creates a list of disposable resources that will be disposed when the element is detached.
+   */
   resources?: (options: RenderOptions<TProps, TState>) => Disposable[]
+
+  /**
+   * An optional method that checks the state for changes and returns true if the element should be rerendered.
+   */
+  compareState?: (oldState: TState, newState: TState) => boolean
 } & (unknown extends TState
   ? {}
   : {
@@ -54,6 +63,12 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
+        private compareState =
+          o.compareState ||
+          ((oldState: TState, newState: TState) =>
+            Object.entries(oldState).some(([key, value]) => value !== newState[key as keyof TState]) ||
+            Object.entries(newState).some(([key, value]) => value !== oldState[key as keyof TState]))
+
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
           this.callConstructed()
@@ -61,11 +76,11 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
         public disconnectedCallback() {
           o.onDetach && o.onDetach(this.getRenderOptions())
+          Object.values(this.resources).forEach((s) => s.dispose())
+          this.cleanup && this.cleanup()
+          this.shadeChildren.dispose()
           this.props.dispose()
           this.state.dispose()
-          this.shadeChildren.dispose()
-          this.cleanup && this.cleanup()
-          Object.values(this.resources).forEach((s) => s.dispose())
         }
 
         /**
@@ -98,7 +113,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
             const currentState = this.state.getValue()
             const newState = { ...currentState, ...stateChanges }
-            if (JSON.stringify(currentState) !== JSON.stringify(newState)) {
+            if (this.compareState(currentState, newState)) {
               this.state.setValue(newState)
               !skipRender && this.updateComponent()
             }
@@ -125,14 +140,14 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         public updateComponent() {
           const newJsx = this.render(this.getRenderOptions())
-
-          // const selectionState = this.getSelectionState()
-
-          if (this.hasChildNodes()) {
-            this.replaceChild(newJsx, this.firstChild as Node)
-            // selectionState && this.restoreSelectionState(selectionState)
-          } else {
-            this.append(newJsx)
+          if (newJsx) {
+            if (typeof newJsx === 'string') {
+              this.innerHTML = newJsx
+            } else if (this.hasChildNodes()) {
+              this.replaceChild(newJsx, this.firstChild as Node)
+            } else {
+              this.append(newJsx)
+            }
           }
         }
 
@@ -140,6 +155,10 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
+          if (this.props.isDisposed) {
+            return
+          }
+
           ;(o as any).getInitialState &&
             this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
 
@@ -188,7 +207,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             this._injector = fromParent
             return fromParent
           }
-          throw Error('Injector not set explicitly and not found on parents!')
+          // Injector not set explicitly and not found on parents!
+          return new Injector()
         }
 
         public set injector(i: Injector) {

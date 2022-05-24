@@ -1,5 +1,6 @@
 import { Shade, PartialElement, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '..'
+import { Theme } from '../services'
 import { promisifyAnimation } from '../utils/promisify-animation'
 
 export interface InputProps extends PartialElement<HTMLInputElement> {
@@ -18,11 +19,24 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
 }
 
 export type TextInputProps = InputProps | TextAreaProps
-export const Input = Shade<TextInputProps>({
+
+export type TextInputState = {
+  theme: Theme
+  value?: string
+}
+
+export const Input = Shade<TextInputProps, TextInputState>({
   shadowDomName: 'shade-input',
-  render: ({ props, element, injector }) => {
+  getInitialState: ({ injector, props }) => ({
+    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
+    value: props.value,
+  }),
+  resources: ({ injector, updateState }) => [
+    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
+  ],
+  render: ({ props, element, injector, getState, updateState }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const theme = themeProvider.theme.getValue()
+    const { theme, value } = getState()
     const { palette } = theme
 
     return (
@@ -55,12 +69,14 @@ export const Input = Shade<TextInputProps>({
               ...props.style,
             }}
           >
-            {props.value}
+            {value}
           </div>
         ) : (
           <input
             onchange={(ev) => {
-              props.onTextChange && props.onTextChange((ev.target as any).value)
+              const newValue = (ev.target as HTMLInputElement).value
+              updateState({ value: newValue }, true)
+              props.onTextChange && props.onTextChange(newValue)
               props.onchange && (props.onchange as any)(ev)
             }}
             onfocus={() => {
@@ -123,6 +139,7 @@ export const Input = Shade<TextInputProps>({
               padding: '0.6em 0',
               ...props.style,
             }}
+            value={value}
           />
         )}
       </label>

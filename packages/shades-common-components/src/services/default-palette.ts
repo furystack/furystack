@@ -14,7 +14,7 @@ export const defaultPalette: Palette = {
   error: {
     light: '#e57373',
     main: '#f44336',
-    dark: '#d32f2f',
+    dark: '#a31f1f',
   },
   warning: {
     light: '#ffb74d',
