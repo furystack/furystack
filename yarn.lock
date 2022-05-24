@@ -471,7 +471,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@^3.0.3, @furystack/logging@workspace:packages/logging":
+"@furystack/logging@^3.0.3, @furystack/logging@workspace:^, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
@@ -526,7 +526,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
+"@furystack/rest-client-fetch@workspace:^, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
@@ -620,7 +620,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@workspace:^, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
@@ -634,7 +634,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-lottie@workspace:packages/shades-lottie":
+"@furystack/shades-lottie@workspace:^, @furystack/shades-lottie@workspace:packages/shades-lottie":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-lottie@workspace:packages/shades-lottie"
   dependencies:
@@ -644,7 +644,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-nipple@workspace:packages/shades-nipple":
+"@furystack/shades-nipple@workspace:^, @furystack/shades-nipple@workspace:packages/shades-nipple":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-nipple@workspace:packages/shades-nipple"
   dependencies:
@@ -655,7 +655,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades@^5.0.4, @furystack/shades@workspace:packages/shades":
+"@furystack/shades-showcase-app@workspace:packages/shades-showcase-app":
+  version: 0.0.0-use.local
+  resolution: "@furystack/shades-showcase-app@workspace:packages/shades-showcase-app"
+  dependencies:
+    "@furystack/core": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/logging": "workspace:^"
+    "@furystack/rest-client-fetch": "workspace:^"
+    "@furystack/shades": "workspace:^"
+    "@furystack/shades-common-components": "workspace:^"
+    "@furystack/shades-lottie": "workspace:^"
+    "@furystack/shades-nipple": "workspace:^"
+    "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.6
+    esbuild: ^0.14.39
+    typescript: ^4.6.4
+  languageName: unknown
+  linkType: soft
+
+"@furystack/shades@^5.0.4, @furystack/shades@workspace:^, @furystack/shades@workspace:packages/shades":
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
@@ -1580,6 +1598,17 @@ __metadata:
     "@typescript-eslint/types": 5.26.0
     eslint-visitor-keys: ^3.3.0
   checksum: 4a5085d19e677f3b44ca4455bba85fd1a3be4d7d2e96bb22738a7497f6f4d16bfdee51059454a78b1e108d8e1593b1a31be40764a66448945118277cff5eff02
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/esbuild-plugin-pnp@npm:^3.0.0-rc.6":
+  version: 3.0.0-rc.6
+  resolution: "@yarnpkg/esbuild-plugin-pnp@npm:3.0.0-rc.6"
+  dependencies:
+    tslib: ^1.13.0
+  peerDependencies:
+    esbuild: ">=0.10.0"
+  checksum: dec5edd1a0c8fb31179e12e5496ed8574d648828af60f16ad55c0d7498469ec2708897611b745af22143f1a90cb7a82f596219d735d2baf3b263614bc8283afb
   languageName: node
   linkType: hard
 
@@ -2637,6 +2666,217 @@ __metadata:
   dependencies:
     is-arrayish: ^0.2.1
   checksum: c1c2b8b65f9c91b0f9d75f0debaa7ec5b35c266c2cac5de412c1a6de86d4cbae04ae44e510378cb14d032d0645a36925d0186f8bb7367bcc629db256b743a001
+  languageName: node
+  linkType: hard
+
+"esbuild-android-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-android-64@npm:0.14.39"
+  conditions: os=android & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-android-arm64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-android-arm64@npm:0.14.39"
+  conditions: os=android & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-darwin-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-darwin-64@npm:0.14.39"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-darwin-arm64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-darwin-arm64@npm:0.14.39"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-freebsd-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-freebsd-64@npm:0.14.39"
+  conditions: os=freebsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-freebsd-arm64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-freebsd-arm64@npm:0.14.39"
+  conditions: os=freebsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-32@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-32@npm:0.14.39"
+  conditions: os=linux & cpu=ia32
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-64@npm:0.14.39"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-arm64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-arm64@npm:0.14.39"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-arm@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-arm@npm:0.14.39"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-mips64le@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-mips64le@npm:0.14.39"
+  conditions: os=linux & cpu=mips64el
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-ppc64le@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-ppc64le@npm:0.14.39"
+  conditions: os=linux & cpu=ppc64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-riscv64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-riscv64@npm:0.14.39"
+  conditions: os=linux & cpu=riscv64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-s390x@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-linux-s390x@npm:0.14.39"
+  conditions: os=linux & cpu=s390x
+  languageName: node
+  linkType: hard
+
+"esbuild-netbsd-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-netbsd-64@npm:0.14.39"
+  conditions: os=netbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-openbsd-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-openbsd-64@npm:0.14.39"
+  conditions: os=openbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-sunos-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-sunos-64@npm:0.14.39"
+  conditions: os=sunos & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-windows-32@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-windows-32@npm:0.14.39"
+  conditions: os=win32 & cpu=ia32
+  languageName: node
+  linkType: hard
+
+"esbuild-windows-64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-windows-64@npm:0.14.39"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-windows-arm64@npm:0.14.39":
+  version: 0.14.39
+  resolution: "esbuild-windows-arm64@npm:0.14.39"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild@npm:^0.14.39":
+  version: 0.14.39
+  resolution: "esbuild@npm:0.14.39"
+  dependencies:
+    esbuild-android-64: 0.14.39
+    esbuild-android-arm64: 0.14.39
+    esbuild-darwin-64: 0.14.39
+    esbuild-darwin-arm64: 0.14.39
+    esbuild-freebsd-64: 0.14.39
+    esbuild-freebsd-arm64: 0.14.39
+    esbuild-linux-32: 0.14.39
+    esbuild-linux-64: 0.14.39
+    esbuild-linux-arm: 0.14.39
+    esbuild-linux-arm64: 0.14.39
+    esbuild-linux-mips64le: 0.14.39
+    esbuild-linux-ppc64le: 0.14.39
+    esbuild-linux-riscv64: 0.14.39
+    esbuild-linux-s390x: 0.14.39
+    esbuild-netbsd-64: 0.14.39
+    esbuild-openbsd-64: 0.14.39
+    esbuild-sunos-64: 0.14.39
+    esbuild-windows-32: 0.14.39
+    esbuild-windows-64: 0.14.39
+    esbuild-windows-arm64: 0.14.39
+  dependenciesMeta:
+    esbuild-android-64:
+      optional: true
+    esbuild-android-arm64:
+      optional: true
+    esbuild-darwin-64:
+      optional: true
+    esbuild-darwin-arm64:
+      optional: true
+    esbuild-freebsd-64:
+      optional: true
+    esbuild-freebsd-arm64:
+      optional: true
+    esbuild-linux-32:
+      optional: true
+    esbuild-linux-64:
+      optional: true
+    esbuild-linux-arm:
+      optional: true
+    esbuild-linux-arm64:
+      optional: true
+    esbuild-linux-mips64le:
+      optional: true
+    esbuild-linux-ppc64le:
+      optional: true
+    esbuild-linux-riscv64:
+      optional: true
+    esbuild-linux-s390x:
+      optional: true
+    esbuild-netbsd-64:
+      optional: true
+    esbuild-openbsd-64:
+      optional: true
+    esbuild-sunos-64:
+      optional: true
+    esbuild-windows-32:
+      optional: true
+    esbuild-windows-64:
+      optional: true
+    esbuild-windows-arm64:
+      optional: true
+  bin:
+    esbuild: bin/esbuild
+  checksum: 400d97fb3ede3bdd6a50f28fd7d18d9a009a46dcf59c3988b87842f421ae36fa9a3c81bb0acd6ab07059143bc4b5f0c429f8a4129d1dc687e00aa497eb10f77b
   languageName: node
   linkType: hard
 
@@ -6161,7 +6401,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.8.1":
+"tslib@npm:^1.13.0, tslib@npm:^1.8.1":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd

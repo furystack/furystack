@@ -1,0 +1,28 @@
+{
+  "name": "@furystack/shades-showcase-app",
+  "version": "1.0.1",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "yarn node scripts/build.mjs",
+    "build:stats": "echo todo",
+    "start": "yarn node scripts/start.mjs"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.14.39",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@furystack/core": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/logging": "workspace:^",
+    "@furystack/rest-client-fetch": "workspace:^",
+    "@furystack/shades": "workspace:^",
+    "@furystack/shades-common-components": "workspace:^",
+    "@furystack/shades-lottie": "workspace:^",
+    "@furystack/shades-nipple": "workspace:^",
+    "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.6"
+  }
+}
