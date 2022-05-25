@@ -1,5 +1,5 @@
-import { createComponent, LazyLoad, RouteLink, Router, Shade } from '@furystack/shades'
-import { AppBar } from '@furystack/shades-common-components'
+import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
+import { AppBar, AppBarLink } from '@furystack/shades-common-components'
 import { HomePage } from './pages/home'
 
 export const App = Shade({
@@ -16,8 +16,15 @@ export const App = Shade({
         }}
       >
         <AppBar>
-          Showcase App
-          <RouteLink href="/buttons">Buttons</RouteLink>
+          <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
+          <div style={{ display: 'flex', height: '32px', paddingLeft: '16px', gap: '4px' }}>
+            <AppBarLink href="/">Home</AppBarLink>
+            <AppBarLink href="/buttons">Buttons</AppBarLink>
+            <AppBarLink href="/inputs">Inputs</AppBarLink>
+            <AppBarLink href="/nipple">Nipple</AppBarLink>
+            <AppBarLink href="/lottie">Lottie</AppBarLink>
+            <AppBarLink href="/monaco">Monaco</AppBarLink>
+          </div>
         </AppBar>
         <div
           style={{
@@ -27,6 +34,7 @@ export const App = Shade({
             left: '0',
             overflow: 'auto',
             height: 'calc(100% - 48px)',
+            width: '100%',
           }}
         >
           <Router
