@@ -24,6 +24,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/shades": "^5.0.4",
     "@furystack/utils": "workspace:^",
+    "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.4.0"
   },
