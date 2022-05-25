@@ -3,7 +3,9 @@ import { PartialElement } from '../models'
 import { LocationService } from '../services'
 import { createComponent } from '..'
 
-export const RouteLink = Shade<PartialElement<HTMLAnchorElement>>({
+export type RouteLinkProps = PartialElement<HTMLAnchorElement>
+
+export const RouteLink = Shade<RouteLinkProps>({
   shadowDomName: 'route-link',
   render: ({ children, props, injector }) => {
     return (
