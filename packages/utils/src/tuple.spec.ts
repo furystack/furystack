@@ -1,4 +1,5 @@
 import { tuple } from './tuple'
+import 'jest'
 
 describe('Tuple', () => {
   it('Should return a Tuple object', () => {
