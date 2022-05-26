@@ -192,11 +192,11 @@ __metadata:
   linkType: hard
 
 "@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.16.7, @babel/parser@npm:^7.18.0":
-  version: 7.18.0
-  resolution: "@babel/parser@npm:7.18.0"
+  version: 7.18.3
+  resolution: "@babel/parser@npm:7.18.3"
   bin:
     parser: ./bin/babel-parser.js
-  checksum: 253b5828bf4a0b443301baedc5993d6f7f35aa0d81cf8f2f2f53940904b7067eab7bd2380aee4b3be1d8efd5ae1008eb0fad19bde28f5fbc213c0fdf9a414466
+  checksum: 6894b3266f84b6c6b52bf09e7f61526efc35d8afa72ff0ad9aecb27a4b6de02d1ebc7f61fc3ae7c0fd8ecb5ac17083d1f27c1b3176e5eac41131d7160a9a7d88
   languageName: node
   linkType: hard
 
@@ -2108,9 +2108,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001342
-  resolution: "caniuse-lite@npm:1.0.30001342"
-  checksum: 9ad47aec82e85017c59aaa0acee8027d910a715c7481cf66c9b4e296f3d10cc5d96df86d3c3033326b0110f5792b3f117a1dc935e3299abf2139fa345bb326f1
+  version: 1.0.30001343
+  resolution: "caniuse-lite@npm:1.0.30001343"
+  checksum: b8770c0be83e8f1bf52b26d2c9564796195c268bda995ccebc5e67bcb5540cbed9fb03a33500c954628fa99735cddb9c69c54c2af15c37da487cebbdba1f5c60
   languageName: node
   linkType: hard
 
@@ -2570,9 +2570,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.118":
-  version: 1.4.138
-  resolution: "electron-to-chromium@npm:1.4.138"
-  checksum: 071ae40ede544890a3da8e392affb8b9851e52ad6a2674b4de7ef95da660c66f753844cb3cb1890a26e0cbcb0795a9821402e2adec4b9510ab0f315e124a32e9
+  version: 1.4.139
+  resolution: "electron-to-chromium@npm:1.4.139"
+  checksum: b0156f56db6a84b471bdacaecc5779952c9e4612cbe29867a818c5799ff2cd6a83617b68c3c020ce94b7a396b8288db8236a23d52148a05f567fa19ee309c9c1
   languageName: node
   linkType: hard
 
@@ -3111,7 +3111,7 @@ __metadata:
     rimraf: ^3.0.2
     ts-json-schema-generator: ^1.0.0
     tslib: ^2.4.0
-    typescript: ^4.7.2
+    typescript: 4.6.4
   languageName: unknown
   linkType: soft
 
@@ -3268,8 +3268,8 @@ __metadata:
   linkType: hard
 
 "got@npm:^11.8.3":
-  version: 11.8.3
-  resolution: "got@npm:11.8.3"
+  version: 11.8.5
+  resolution: "got@npm:11.8.5"
   dependencies:
     "@sindresorhus/is": ^4.0.0
     "@szmarczak/http-timer": ^4.0.5
@@ -3282,7 +3282,7 @@ __metadata:
     lowercase-keys: ^2.0.0
     p-cancelable: ^2.0.0
     responselike: ^2.0.0
-  checksum: 3b6db107d9765470b18e4cb22f7c7400381be7425b9be5823f0168d6c21b5d6b28b023c0b3ee208f73f6638c3ce251948ca9b54a1e8f936d3691139ac202d01b
+  checksum: 2de8a1bbda4e9b6b2b72b2d2100bc055a59adc1740529e631f61feb44a8b9a1f9f8590941ed9da9df0090b6d6d0ed8ffee94cd9ac086ec3409b392b33440f7d2
   languageName: node
   linkType: hard
 
@@ -4460,22 +4460,22 @@ __metadata:
   linkType: hard
 
 "lit-html@npm:^2.2.0":
-  version: 2.2.4
-  resolution: "lit-html@npm:2.2.4"
+  version: 2.2.5
+  resolution: "lit-html@npm:2.2.5"
   dependencies:
     "@types/trusted-types": ^2.0.2
-  checksum: 1337a25c09b5d31eb7e0de672b1b63f19586cf37d063620e3f8807522a710db727b6fcc0007a18cd8049f06f8e369dd65611e484ecc6bfcfc7833d7c0fb229f6
+  checksum: 688fed0a5cf16cd08d837ba89c894162e38798117bcdf8c588254920b4a5448c1a367c2f0ca5e88307a9b1293995de335cf60f0a43b4d6c521089ac3ae0154b1
   languageName: node
   linkType: hard
 
 "lit@npm:^2.1.2":
-  version: 2.2.4
-  resolution: "lit@npm:2.2.4"
+  version: 2.2.5
+  resolution: "lit@npm:2.2.5"
   dependencies:
     "@lit/reactive-element": ^1.3.0
     lit-element: ^3.2.0
     lit-html: ^2.2.0
-  checksum: da491106bb155fee6bedf3545aa19e224299b7d6019e462da2b16bc9ac5b008de63338f4dbcf82c53c79ce74fd115c10b8ab870486b2fc127e6c21418234aafb
+  checksum: 0d3298ae9d333eef3cd30e9e76003a74db080831e64cc893964e119df0a99d26fe97114bae4bdea365ee93d0ee55f71379e1b004a475cd3ff3c8f28ad2bc152b
   languageName: node
   linkType: hard
 
@@ -6232,6 +6232,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:4.6.4, typescript@npm:~4.6.2":
+  version: 4.6.4
+  resolution: "typescript@npm:4.6.4"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^4.7.2":
   version: 4.7.2
   resolution: "typescript@npm:4.7.2"
@@ -6242,13 +6252,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~4.6.2":
+"typescript@patch:typescript@4.6.4#~builtin<compat/typescript>, typescript@patch:typescript@~4.6.2#~builtin<compat/typescript>":
   version: 4.6.4
-  resolution: "typescript@npm:4.6.4"
+  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=bda367"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
+  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
   languageName: node
   linkType: hard
 
@@ -6259,16 +6269,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 09d93fc0983d38eadd9b0427f790b49b4437f45002a87d447be3fbe53120880e87a91dd03e1d900498f99205d6e0b7c9784fe41fca11d56f4bbce371f74bb160
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@~4.6.2#~builtin<compat/typescript>":
-  version: 4.6.4
-  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=bda367"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
   languageName: node
   linkType: hard
 
