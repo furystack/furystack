@@ -1,9 +1,15 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
-import { AppBar, AppBarLink } from '@furystack/shades-common-components'
+import { AppBar, AppBarLink, Paper, ThemeProviderService } from '@furystack/shades-common-components'
+import { ThemeSwitch } from './components/theme-switch'
 import { HomePage } from './pages/home'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
+  resources: ({ injector, element }) => [
+    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
+      ;(element.firstElementChild as HTMLDivElement).style.backgroundColor = theme.background.default
+    }, true),
+  ],
   render: () => {
     return (
       <div
@@ -13,6 +19,8 @@ export const App = Shade({
           position: 'fixed',
           top: '0',
           left: '0',
+          padding: '0',
+          margin: '0',
         }}
       >
         <AppBar>
@@ -25,16 +33,20 @@ export const App = Shade({
             <AppBarLink href="/lottie">Lottie</AppBarLink>
             <AppBarLink href="/monaco">Monaco</AppBarLink>
           </div>
+          <ThemeSwitch />
         </AppBar>
-        <div
+        <Paper
+          elevation={3}
           style={{
-            paddingTop: '48px',
+            paddingTop: '32px',
+            // paddingBottom: '24px',
             position: 'fixed',
             top: '0',
             left: '0',
             overflow: 'auto',
-            height: 'calc(100% - 48px)',
-            width: '100%',
+            height: 'calc(100% - 64px)',
+            width: 'calc(100% - 48px)',
+            textAlign: 'justify',
           }}
         >
           <Router
@@ -54,7 +66,7 @@ export const App = Shade({
             ]}
             notFound={() => <HomePage />}
           />
-        </div>
+        </Paper>
       </div>
     )
   },
