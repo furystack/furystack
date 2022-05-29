@@ -19,6 +19,7 @@ export const ButtonsPage = Shade<unknown, { disabled: boolean }>({
           flexDirection: 'column',
         }}
       >
+        <h1>Buttons</h1>
         <div>
           <div>
             <Button onclick={onclick} disabled={disabled}>

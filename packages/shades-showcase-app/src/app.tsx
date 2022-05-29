@@ -63,6 +63,30 @@ export const App = Shade({
                   />
                 ),
               },
+              // {
+              //   url: '/inputs',
+              //   component: () => (
+              //     <LazyLoad
+              //       loader={<div>loading...</div>}
+              //       component={async () => {
+              //         const { InputsPage } = await import('./pages/inputs')
+              //         return <InputsPage />
+              //       }}
+              //     />
+              //   ),
+              // },
+              {
+                url: '/nipple',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { NipplePage } = await import('./pages/nipple')
+                      return <NipplePage />
+                    }}
+                  />
+                ),
+              },
             ]}
             notFound={() => <HomePage />}
           />
