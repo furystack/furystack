@@ -31,6 +31,7 @@ jobs:
           name: Jest test results
           path: packages/shades-showcase-app/test-results.xml
           reporter: jest-junit
-        env:
-          CI: true
-  
+      - uses: actions/upload-artifact@v2
+        with:
+          path: packages/shades-showcase-app/test-results
+          name: Download-screenshots  
