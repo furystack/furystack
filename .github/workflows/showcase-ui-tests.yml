@@ -32,6 +32,7 @@ jobs:
           path: packages/shades-showcase-app/test-results.xml
           reporter: jest-junit
       - uses: actions/upload-artifact@v2
+        if: success() || failure()
         with:
           path: packages/shades-showcase-app/test-results
           name: Download-screenshots  
