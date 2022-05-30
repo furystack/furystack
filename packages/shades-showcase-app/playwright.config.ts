@@ -7,7 +7,7 @@ const config: PlaywrightTestConfig = {
   testDir: 'e2e',
   fullyParallel: true,
   retries: isInCi ? 2 : 0,
-  reporter: isInCi ? [['dot'], ['github']] : 'line',
+  reporter: isInCi ? 'github' : 'line',
   expect: {
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.05,
