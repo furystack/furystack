@@ -1,0 +1,68 @@
+<testsuites id="" name="" tests="30" failures="0" skipped="0" errors="0" time="14.149">
+<testsuite name="navigation.spec.ts" timestamp="1653895200440" hostname="" tests="10" failures="0" skipped="0" time="13.57" errors="0">
+<testcase name="Navigation Buttons Should be available from Navigation menu" classname="[chromium] › navigation.spec.ts:41:5 › Navigation › Buttons Should be available from Navigation menu" time="1.094">
+</testcase>
+<testcase name="Navigation Buttons Should be available from URL" classname="[chromium] › navigation.spec.ts:59:5 › Navigation › Buttons Should be available from URL" time="2.36">
+</testcase>
+<testcase name="Navigation Inputs Should be available from Navigation menu" classname="[chromium] › navigation.spec.ts:41:5 › Navigation › Inputs Should be available from Navigation menu" time="1.021">
+</testcase>
+<testcase name="Navigation Inputs Should be available from URL" classname="[chromium] › navigation.spec.ts:59:5 › Navigation › Inputs Should be available from URL" time="2.155">
+</testcase>
+<testcase name="Navigation Nipple Should be available from Navigation menu" classname="[chromium] › navigation.spec.ts:41:5 › Navigation › Nipple Should be available from Navigation menu" time="1.059">
+</testcase>
+<testcase name="Navigation Nipple Should be available from URL" classname="[chromium] › navigation.spec.ts:59:5 › Navigation › Nipple Should be available from URL" time="2.129">
+</testcase>
+<testcase name="Navigation Lottie Should be available from Navigation menu" classname="[chromium] › navigation.spec.ts:41:5 › Navigation › Lottie Should be available from Navigation menu" time="0.402">
+</testcase>
+<testcase name="Navigation Lottie Should be available from URL" classname="[chromium] › navigation.spec.ts:59:5 › Navigation › Lottie Should be available from URL" time="1.498">
+</testcase>
+<testcase name="Navigation Monaco Should be available from Navigation menu" classname="[chromium] › navigation.spec.ts:41:5 › Navigation › Monaco Should be available from Navigation menu" time="0.317">
+</testcase>
+<testcase name="Navigation Monaco Should be available from URL" classname="[chromium] › navigation.spec.ts:59:5 › Navigation › Monaco Should be available from URL" time="1.535">
+</testcase>
+</testsuite>
+<testsuite name="navigation.spec.ts" timestamp="1653895200440" hostname="" tests="10" failures="0" skipped="0" time="24.736" errors="0">
+<testcase name="Navigation Buttons Should be available from Navigation menu" classname="[firefox] › navigation.spec.ts:41:5 › Navigation › Buttons Should be available from Navigation menu" time="2.257">
+</testcase>
+<testcase name="Navigation Buttons Should be available from URL" classname="[firefox] › navigation.spec.ts:59:5 › Navigation › Buttons Should be available from URL" time="3.951">
+</testcase>
+<testcase name="Navigation Inputs Should be available from Navigation menu" classname="[firefox] › navigation.spec.ts:41:5 › Navigation › Inputs Should be available from Navigation menu" time="2.946">
+</testcase>
+<testcase name="Navigation Inputs Should be available from URL" classname="[firefox] › navigation.spec.ts:59:5 › Navigation › Inputs Should be available from URL" time="4.07">
+</testcase>
+<testcase name="Navigation Nipple Should be available from Navigation menu" classname="[firefox] › navigation.spec.ts:41:5 › Navigation › Nipple Should be available from Navigation menu" time="2.996">
+</testcase>
+<testcase name="Navigation Nipple Should be available from URL" classname="[firefox] › navigation.spec.ts:59:5 › Navigation › Nipple Should be available from URL" time="3.762">
+</testcase>
+<testcase name="Navigation Lottie Should be available from Navigation menu" classname="[firefox] › navigation.spec.ts:41:5 › Navigation › Lottie Should be available from Navigation menu" time="0.958">
+</testcase>
+<testcase name="Navigation Lottie Should be available from URL" classname="[firefox] › navigation.spec.ts:59:5 › Navigation › Lottie Should be available from URL" time="1.659">
+</testcase>
+<testcase name="Navigation Monaco Should be available from Navigation menu" classname="[firefox] › navigation.spec.ts:41:5 › Navigation › Monaco Should be available from Navigation menu" time="0.555">
+</testcase>
+<testcase name="Navigation Monaco Should be available from URL" classname="[firefox] › navigation.spec.ts:59:5 › Navigation › Monaco Should be available from URL" time="1.582">
+</testcase>
+</testsuite>
+<testsuite name="navigation.spec.ts" timestamp="1653895200440" hostname="" tests="10" failures="0" skipped="0" time="17.109" errors="0">
+<testcase name="Navigation Buttons Should be available from Navigation menu" classname="[webkit] › navigation.spec.ts:41:5 › Navigation › Buttons Should be available from Navigation menu" time="2.014">
+</testcase>
+<testcase name="Navigation Buttons Should be available from URL" classname="[webkit] › navigation.spec.ts:59:5 › Navigation › Buttons Should be available from URL" time="2.367">
+</testcase>
+<testcase name="Navigation Inputs Should be available from Navigation menu" classname="[webkit] › navigation.spec.ts:41:5 › Navigation › Inputs Should be available from Navigation menu" time="1.712">
+</testcase>
+<testcase name="Navigation Inputs Should be available from URL" classname="[webkit] › navigation.spec.ts:59:5 › Navigation › Inputs Should be available from URL" time="2.202">
+</testcase>
+<testcase name="Navigation Nipple Should be available from Navigation menu" classname="[webkit] › navigation.spec.ts:41:5 › Navigation › Nipple Should be available from Navigation menu" time="1.33">
+</testcase>
+<testcase name="Navigation Nipple Should be available from URL" classname="[webkit] › navigation.spec.ts:59:5 › Navigation › Nipple Should be available from URL" time="2.074">
+</testcase>
+<testcase name="Navigation Lottie Should be available from Navigation menu" classname="[webkit] › navigation.spec.ts:41:5 › Navigation › Lottie Should be available from Navigation menu" time="1.142">
+</testcase>
+<testcase name="Navigation Lottie Should be available from URL" classname="[webkit] › navigation.spec.ts:59:5 › Navigation › Lottie Should be available from URL" time="1.733">
+</testcase>
+<testcase name="Navigation Monaco Should be available from Navigation menu" classname="[webkit] › navigation.spec.ts:41:5 › Navigation › Monaco Should be available from Navigation menu" time="0.904">
+</testcase>
+<testcase name="Navigation Monaco Should be available from URL" classname="[webkit] › navigation.spec.ts:59:5 › Navigation › Monaco Should be available from URL" time="1.631">
+</testcase>
+</testsuite>
+</testsuites>

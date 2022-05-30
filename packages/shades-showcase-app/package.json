@@ -9,12 +9,14 @@
     "start": "yarn node scripts/start.mjs",
     "e2e:install": "yarn playwright install",
     "e2e:test": "yarn playwright test",
-    "e2e": "yarn playwright"
+    "e2e": "yarn playwright",
+    "e2e:ci": "concurrently --kill-others \"yarn workspace @furystack/shades-showcase-app start\" \"yarn workspace @furystack/shades-showcase-app e2e:test\" --success first "
   },
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.22.2",
+    "concurrently": "^7.2.1",
     "esbuild": "^0.14.42",
     "typescript": "^4.6.4"
   },

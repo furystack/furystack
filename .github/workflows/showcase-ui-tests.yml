@@ -1,0 +1,34 @@
+name: UI tests for Showcase app
+on: [push]
+jobs:
+  build:
+    name: Lint, Build and test
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build
+      - name: execute tests
+        run: yarn workspace @furystack/shades-showcase-app
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Jest test results
+          path: packages/shades-showcase-app/test-results.xml
+          reporter: jest-junit
+        env:
+          CI: true
+  
