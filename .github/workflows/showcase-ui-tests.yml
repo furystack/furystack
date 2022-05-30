@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Install Playwright browsers
-        run: yarn workspace @furystack/shades-showcase-app e2e install
+        run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
       - name: execute tests
         run: yarn workspace @furystack/shades-showcase-app e2e:ci
       - uses: actions/upload-artifact@v2
