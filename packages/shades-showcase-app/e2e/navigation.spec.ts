@@ -1,4 +1,5 @@
 import { test, expect, Locator, Page } from '@playwright/test'
+import { sleepAsync } from '@furystack/utils'
 
 const pages: Array<{ name: string; url: string }> = [
   {
@@ -59,6 +60,7 @@ test.describe('Navigation', () => {
       await page.goto(url)
       const menuEntry = await getNavigationEntry(page, name)
       await expectSelected(menuEntry)
+      await sleepAsync(1000)
       await expect(page).toHaveScreenshot()
     })
   })

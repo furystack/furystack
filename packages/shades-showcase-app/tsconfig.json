@@ -6,9 +6,10 @@
     "composite": true,
     "rootDir": "./src",
     "jsx": "react",
-    "jsxFactory": "createComponent"
+    "jsxFactory": "createComponent",
+    "resolveJsonModule": true
   },
-  "include": ["src"],
+  "include": ["src", "src/**/*.json"],
   "references": [
     {
       "path": "../core"

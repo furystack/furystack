@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig = {
   expect: {
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.05,
+      threshold: 0.3,
     },
   },
   use: {

@@ -63,18 +63,18 @@ export const App = Shade({
                   />
                 ),
               },
-              // {
-              //   url: '/inputs',
-              //   component: () => (
-              //     <LazyLoad
-              //       loader={<div>loading...</div>}
-              //       component={async () => {
-              //         const { InputsPage } = await import('./pages/inputs')
-              //         return <InputsPage />
-              //       }}
-              //     />
-              //   ),
-              // },
+              {
+                url: '/inputs',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { InputsPage } = await import('./pages/inputs')
+                      return <InputsPage />
+                    }}
+                  />
+                ),
+              },
               {
                 url: '/nipple',
                 component: () => (
@@ -83,6 +83,18 @@ export const App = Shade({
                     component={async () => {
                       const { NipplePage } = await import('./pages/nipple')
                       return <NipplePage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/lottie',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { LottiePage } = await import('./pages/lottie')
+                      return <LottiePage />
                     }}
                   />
                 ),
