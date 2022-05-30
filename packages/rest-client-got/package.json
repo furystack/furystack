@@ -33,7 +33,7 @@
     "@furystack/logging": "^3.0.3",
     "@furystack/rest": "^4.0.2",
     "@furystack/utils": "^3.0.3",
-    "got": "^11.8.3",
+    "got": "^11.8.5",
     "path-to-regexp": "^6.2.1",
     "tslib": "^2.4.0"
   },
