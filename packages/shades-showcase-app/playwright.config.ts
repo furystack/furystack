@@ -1,11 +1,13 @@
 import { PlaywrightTestConfig, devices } from '@playwright/test'
 
+const isInCi = !!process.env.CI
+
 const config: PlaywrightTestConfig = {
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isInCi,
   testDir: 'e2e',
   fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
-  reporter: [['list'], ['junit', { outputFile: 'test-results.xml', suiteName: 'Shades Showcase App' }]],
+  retries: isInCi ? 2 : 0,
+  reporter: isInCi ? [['dot'], ['github']] : 'line',
   expect: {
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.05,
