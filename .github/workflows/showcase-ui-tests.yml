@@ -22,8 +22,11 @@ jobs:
         run: yarn build
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+      - name: Serve Bundle
+        run: lighttpd -f lighttpd.conf
+        working-directory: packages/shades-showcase-app
       - name: execute tests
-        run: yarn workspace @furystack/shades-showcase-app e2e:ci
+        run: apt add lighttpd -y && yarn workspace @furystack/shades-showcase-app e2e test
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
