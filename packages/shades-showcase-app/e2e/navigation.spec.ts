@@ -11,6 +11,10 @@ const pages: Array<{ name: string; url: string }> = [
     url: 'http://localhost:8080/inputs',
   },
   {
+    name: 'Grid',
+    url: 'http://localhost:8080/grid',
+  },
+  {
     name: 'Nipple',
     url: 'http://localhost:8080/nipple',
   },

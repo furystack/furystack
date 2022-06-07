@@ -1,4 +1,4 @@
-import { build, serve } from 'esbuild'
+import { build } from 'esbuild'
 import { pnpPlugin } from '@yarnpkg/esbuild-plugin-pnp'
 
 build({
