@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { addStore, InMemoryStore, TestClass } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'
-import { CollectionService, DataGrid, EntryLoader } from '@furystack/shades-common-components'
+import { CollectionService, DataGrid, EntryLoader, SelectionCell } from '@furystack/shades-common-components'
 
 @Injectable({ lifetime: 'singleton' })
 class GridPageService {
@@ -73,6 +73,7 @@ export const GridPage = Shade<{}, { service: GridPageService }>({
           service={getState().service.collectionService}
           headerComponents={{}}
           rowComponents={{
+            id: (entry) => <SelectionCell entry={entry} service={getState().service.collectionService} />,
             booleanValue: ({ booleanValue }) => <span>{booleanValue ? `✅` : `❌`}</span>,
             dateValue: ({ dateValue }) => <span>{dateValue.toLocaleString()}</span>,
             numberValue1: ({ numberValue1 }) => <span>{numberValue1.toFixed(2)}</span>,

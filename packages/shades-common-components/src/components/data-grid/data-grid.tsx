@@ -4,7 +4,7 @@ import { GridProps } from '../grid'
 import { DataGridHeader } from './header'
 import { DataGridBody } from './body'
 import { DataGridFooter } from './footer'
-import { ThemeProviderService } from '../../services'
+import { ClickAwayService, ThemeProviderService } from '../../services'
 import { DataGridRowState } from './data-grid-row'
 
 export type DataHeaderCells<T> = {
@@ -20,13 +20,14 @@ export interface DataGridProps<T> {
   service: CollectionService<T>
   headerComponents: DataHeaderCells<T>
   rowComponents: DataRowCells<T>
+  autofocus?: boolean
 }
 
 export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',
-  resources: ({ injector, element }) => {
+  resources: ({ injector, element, props }) => {
     const tp = injector.getInstance(ThemeProviderService)
     return [
       tp.theme.subscribe((t) => {
@@ -37,7 +38,15 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           header.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.3)`
         })
       }),
+      new ClickAwayService(element, () => {
+        props.service.hasFocus.setValue(false)
+      }),
     ]
+  },
+  constructed: ({ props }) => {
+    window.addEventListener('keydown', (ev) => {
+      props.service.handleKeyDown(ev)
+    })
   },
   render: ({ props, injector }) => {
     const tp = injector.getInstance(ThemeProviderService)
@@ -69,8 +78,11 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           overflow: 'auto',
           zIndex: '1',
         }}
+        onclick={() => {
+          props.service.hasFocus.setValue(true)
+        }}
       >
-        <table style={{ width: '100%', height: 'calc(100% - 4em)', position: 'relative' }}>
+        <table style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
             <tr>
               {props.columns.map((column: any) => {
