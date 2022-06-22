@@ -9,13 +9,7 @@
       "request": "launch",
       "name": "Debug All Jest tests",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": [
-        "node",
-        "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
-        "--runInBand",
-        "--testTimeout=99999999"
-      ],
+      "runtimeArgs": ["run", "--inspect-brk", "jest", "--runInBand", "--testTimeout=99999999"],
       "skipFiles": ["<node_internals>/**"]
     },
     {
@@ -24,9 +18,9 @@
       "name": "Debug Current Jest tests",
       "runtimeExecutable": "yarn",
       "runtimeArgs": [
-        "node",
+        "run",
         "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "jest",
 
         "${fileBasenameNoExtension}",
         "--runInBand",

@@ -1,4 +1,4 @@
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { PasswordCredential, PasswordResetToken } from './models'
 import { SecurityPolicy } from './security-policy'
 
@@ -46,8 +46,6 @@ export class SecurityPolicyManager {
     return now > tokenExpiration
   }
 
-  /**
-   * @param policy The related Password Policy object
-   */
-  constructor(public readonly policy: SecurityPolicy) {}
+  @Injected(SecurityPolicy)
+  public readonly policy!: SecurityPolicy
 }

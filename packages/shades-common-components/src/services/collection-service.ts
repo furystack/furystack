@@ -40,10 +40,10 @@ export class CollectionService<T> implements Disposable {
     this.getEntries = debounce(async (options) => {
       await this.loadLock.acquire()
       try {
+        this.error.setValue(undefined)
         this.isLoading.setValue(true)
         const result = await fetch(options)
         this.data.setValue(result)
-        this.error.setValue(undefined)
         return result
       } catch (error) {
         this.error.setValue(error)

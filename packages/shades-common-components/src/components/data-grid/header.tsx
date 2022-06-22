@@ -29,7 +29,7 @@ export const DataGridHeader: <T, K extends keyof T>(
         ...currentSettings,
         filter: {
           ...currentSettings.filter,
-          [props.field]: value ? { $regex: value } : undefined,
+          [props.field]: { $regex: value },
         },
       }
       props.collectionService.querySettings.setValue(newSettings)

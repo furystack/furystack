@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { User, StoreManager } from '@furystack/core'
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { DefaultSession } from './models/default-session'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
@@ -160,9 +160,12 @@ export class HttpUserContext {
     }
   }
 
-  constructor(
-    public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>,
-    private readonly storeManager: StoreManager,
-    private readonly authenticator: PasswordAuthenticator,
-  ) {}
+  @Injected(HttpAuthenticationSettings)
+  public readonly authentication!: HttpAuthenticationSettings<User, DefaultSession>
+
+  @Injected(StoreManager)
+  private readonly storeManager!: StoreManager
+
+  @Injected(PasswordAuthenticator)
+  private readonly authenticator!: PasswordAuthenticator
 }
