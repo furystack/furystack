@@ -13,7 +13,7 @@ serve(
     jsxFactory: 'createComponent',
     outdir: 'bundle/js',
     bundle: true,
-    minify: true,
+    minify: false,
     sourcemap: true,
     splitting: true,
     platform: 'browser',

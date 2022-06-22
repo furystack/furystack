@@ -7,6 +7,7 @@
     "rootDir": "./src",
     "jsx": "react",
     "jsxFactory": "createComponent",
+    "jsxFragmentFactory": "createFragment",
     "resolveJsonModule": true
   },
   "include": ["src", "src/**/*.json"],

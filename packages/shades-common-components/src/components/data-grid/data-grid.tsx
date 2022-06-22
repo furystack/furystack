@@ -2,15 +2,16 @@ import { ChildrenList, createComponent, Shade } from '@furystack/shades'
 import { CollectionService } from '../../services/collection-service'
 import { GridProps } from '../grid'
 import { DataGridHeader } from './header'
-import { DataGridBody, DataGridBodyState } from './body'
+import { DataGridBody } from './body'
 import { DataGridFooter } from './footer'
 import { ThemeProviderService } from '../../services'
+import { DataGridRowState } from './data-grid-row'
 
 export type DataHeaderCells<T> = {
   [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element
 }
 export type DataRowCells<T> = {
-  [TKey in keyof T | 'default']?: (element: T, state: DataGridBodyState<T>) => JSX.Element
+  [TKey in keyof T | 'default']?: (element: T, state: DataGridRowState<T>) => JSX.Element
 }
 
 export interface DataGridProps<T> {
@@ -19,16 +20,13 @@ export interface DataGridProps<T> {
   service: CollectionService<T>
   headerComponents: DataHeaderCells<T>
   rowComponents: DataRowCells<T>
-  onFocusChange?: (entry?: T) => void
-  onSelectionChange?: (selection: T[]) => void
-  onDoubleClick?: (entry: T) => void
 }
 
 export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',
-  resources: ({ props, injector, element }) => {
+  resources: ({ injector, element }) => {
     const tp = injector.getInstance(ThemeProviderService)
     return [
       tp.theme.subscribe((t) => {
@@ -39,8 +37,6 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           header.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.3)`
         })
       }),
-      props.service.focus.subscribe((f) => props.onFocusChange?.(f)),
-      props.service.selection.subscribe((f) => props.onSelectionChange?.(f)),
     ]
   },
   render: ({ props, injector }) => {
@@ -93,7 +89,6 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             service={props.service}
             rowComponents={props.rowComponents}
             style={props.styles?.cell}
-            onDoubleClick={props.onDoubleClick}
           />
         </table>
         <DataGridFooter service={props.service} />
