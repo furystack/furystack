@@ -24,7 +24,7 @@ export const Paper = Shade<PartialElement<HTMLDivElement> & { elevation?: 1 | 2 
           color: themeProvider.theme.getValue().text.secondary,
           margin: '8px',
           padding: '6px 16px',
-          ...(props ? props.style : {}),
+          ...props?.style,
         }}
       >
         {children}

@@ -1,5 +1,5 @@
 import { HttpUserContext } from '@furystack/rest-service'
-import { Injectable } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import ws, { Data } from 'ws'
 import { WebSocketAction } from '../models/websocket-action'
 import { IncomingMessage } from 'http'
@@ -25,5 +25,9 @@ export class WhoAmI implements WebSocketAction {
     }
   }
 
-  constructor(private httpUserContext: HttpUserContext, private websocket: ws) {}
+  @Injected(HttpUserContext)
+  private readonly httpUserContext!: HttpUserContext
+
+  @Injected(ws)
+  private readonly websocket!: ws
 }

@@ -4,37 +4,12 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-  {
-    "name": "Attach by Process ID",
-    "processId": "${command:PickProcess}",
-    "request": "attach",
-    "skipFiles": [
-      "<node_internals>/**"
-    ],
-    "type": "pwa-node"
-  },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch via YARN",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": ["node", "--inspect-brk", "packages/rest-service/dist/mock.js"],
-      "port": 9229,
-      "skipFiles": ["<node_internals>/**"]
-    },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug All Jest tests",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": [
-        "node",
-        "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
-        "--runInBand",
-        "--testTimeout=99999999"
-      ],
-      "port": 9229,
+      "runtimeArgs": ["run", "--inspect-brk", "jest", "--runInBand", "--testTimeout=99999999"],
       "skipFiles": ["<node_internals>/**"]
     },
     {
@@ -43,15 +18,14 @@
       "name": "Debug Current Jest tests",
       "runtimeExecutable": "yarn",
       "runtimeArgs": [
-        "node",
+        "run",
         "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "jest",
 
         "${fileBasenameNoExtension}",
         "--runInBand",
         "--testTimeout=99999999"
       ],
-      "port": 9229,
       "skipFiles": ["<node_internals>/**"]
     }
   ]

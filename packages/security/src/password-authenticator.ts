@@ -1,5 +1,5 @@
 import { StoreManager } from '@furystack/core'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected, Injector } from '@furystack/inject'
 import { SecurityPolicyManager } from './security-policy-manager'
 import { UnauthenticatedError } from './errors'
 import { PasswordCheckResult, PasswordCredential, PasswordResetToken } from './models'
@@ -93,9 +93,9 @@ export class PasswordAuthenticator {
     await store.add(newCredential)
   }
 
-  /**
-   * @param injector The Injector instance
-   * @param policyManager The Password Policy Manager instance
-   */
-  constructor(private readonly injector: Injector, public policyManager: SecurityPolicyManager) {}
+  @Injected(Injector)
+  private readonly injector!: Injector
+
+  @Injected(SecurityPolicyManager)
+  public policyManager!: SecurityPolicyManager
 }

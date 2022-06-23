@@ -43,10 +43,10 @@
     "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@furystack/rest-client-got": "workspace:^",
-    "@types/jest": "^27.5.1",
-    "@types/node": "^17.0.35",
-    "got": "^11.8.3"
+    "@furystack/rest-client-got": "^2.0.4",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^17.0.40",
+    "got": "^11.8.5"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

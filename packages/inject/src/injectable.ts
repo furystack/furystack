@@ -1,8 +1,6 @@
 import { Injector } from './injector'
 import { Constructable } from './models/constructable'
 
-import './reflect-metadata-polyfill'
-
 /**
  * Options for the injectable instance
  */
@@ -25,16 +23,9 @@ export const defaultInjectableOptions: InjectableOptions = {
  */
 export const Injectable = (options?: Partial<InjectableOptions>) => {
   return <T extends Constructable<any>>(ctor: T) => {
-    const meta = Reflect.getMetadata('design:paramtypes', ctor)
-    const metaValue = {
-      dependencies:
-        (meta &&
-          (meta as any[]).map((param) => {
-            return param
-          })) ||
-        [],
-      options: { ...defaultInjectableOptions, ...options },
-    }
-    Injector.meta.set(ctor, metaValue)
+    Injector.options.set(ctor, {
+      ...defaultInjectableOptions,
+      ...options,
+    })
   }
 }

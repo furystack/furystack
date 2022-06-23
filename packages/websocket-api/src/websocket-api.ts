@@ -2,7 +2,7 @@ import { URL } from 'url'
 import { Socket } from 'net'
 import { IncomingMessage } from 'http'
 import { ServerManager } from '@furystack/rest-service'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected, Injector } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 import ws, { Data, Server as WebSocketServer } from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
@@ -15,39 +15,50 @@ import { WebsocketUserContext } from './websocket-user-context'
  */
 @Injectable({ lifetime: 'scoped' })
 export class WebSocketApi implements Disposable {
-  public readonly socket: WebSocketServer
-  private readonly injector: Injector
+  public readonly socket = new WebSocketServer({ noServer: true })
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 
-  constructor(private settings: WebSocketApiSettings, public serverManager: ServerManager, parentInjector: Injector) {
-    this.socket = new WebSocketServer({ noServer: true })
-    this.injector = parentInjector.createChild({ owner: this })
-    this.socket.on('connection', (websocket, msg) => {
-      const connectionInjector = this.injector.createChild({ owner: msg })
-      connectionInjector.setExplicitInstance(websocket, ws)
-      connectionInjector.setExplicitInstance(msg, IncomingMessage)
-      connectionInjector.setExplicitInstance(new WebsocketUserContext(connectionInjector), IdentityContext)
-      this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
-      websocket.on('message', (message) => {
-        this.execute(message, connectionInjector)
+  @Injected(WebSocketApiSettings)
+  private readonly settings!: WebSocketApiSettings
+
+  @Injected(ServerManager)
+  private readonly serverManager!: ServerManager
+
+  @Injected(Injector)
+  private readonly injector!: Injector
+
+  private isInitialized = false
+  public init() {
+    if (!this.isInitialized) {
+      this.socket.on('connection', (websocket, msg) => {
+        const connectionInjector = this.injector.createChild({ owner: msg })
+        connectionInjector.setExplicitInstance(websocket, ws)
+        connectionInjector.setExplicitInstance(msg, IncomingMessage)
+        connectionInjector.setExplicitInstance(connectionInjector.getInstance(WebsocketUserContext), IdentityContext)
+        this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
+        websocket.on('message', (message) => {
+          this.execute(message, connectionInjector)
+        })
+
+        websocket.on('close', () => {
+          this.clients.delete(websocket)
+        })
       })
 
-      websocket.on('close', () => {
-        this.clients.delete(websocket)
+      this.serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then((server) => {
+        server.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
+          const { pathname } = new URL(request.url as string, `http://${request.headers.host}`)
+          if (pathname === this.settings.path) {
+            this.socket.handleUpgrade(request, socket, head, (websocket) => {
+              this.socket.emit('connection', websocket, request)
+            })
+          }
+        })
       })
-    })
-
-    serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host }).then((server) => {
-      server.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-        const { pathname } = new URL(request.url as string, `http://${request.headers.host}`)
-        if (pathname === this.settings.path) {
-          this.socket.handleUpgrade(request, socket, head, (websocket) => {
-            this.socket.emit('connection', websocket, request)
-          })
-        }
-      })
-    })
+    } else {
+      throw Error('WebSocket API is already initialized')
+    }
   }
   public async dispose() {
     this.socket.clients.forEach((client) => client.close())

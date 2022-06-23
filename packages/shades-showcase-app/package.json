@@ -1,0 +1,35 @@
+{
+  "name": "@furystack/shades-showcase-app",
+  "version": "1.0.1",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "yarn node scripts/build.mjs",
+    "build:stats": "echo todo",
+    "start": "yarn node scripts/start.mjs",
+    "assertListening": "yarn node scripts/assertListening.mjs",
+    "e2e": "yarn playwright"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.22.2",
+    "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.6",
+    "esbuild": "^0.14.42",
+    "typescript": "^4.7.3"
+  },
+  "dependencies": {
+    "@furystack/core": "^11.0.3",
+    "@furystack/inject": "^6.0.3",
+    "@furystack/logging": "^3.0.3",
+    "@furystack/repository": "^6.0.3",
+    "@furystack/rest-client-fetch": "^4.0.4",
+    "@furystack/shades": "^5.0.4",
+    "@furystack/shades-common-components": "^3.0.4",
+    "@furystack/shades-lottie": "^2.0.5",
+    "@furystack/shades-nipple": "^2.0.5",
+    "@furystack/utils": "^3.0.3",
+    "@lottiefiles/lottie-player": "^1.5.7",
+    "tslib": "^2.4.0"
+  }
+}
