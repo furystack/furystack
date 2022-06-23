@@ -32,7 +32,7 @@
     "@types/jest": "^27.5.2",
     "@types/jsdom": "^16.2.14",
     "@types/node": "^18.0.0",
-    "jsdom": "^19.0.0"
+    "jsdom": "^20.0.0"
   },
   "dependencies": {
     "@furystack/core": "^11.0.3",
