@@ -20,6 +20,8 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
+      - name: Create Bundle
+        run: yarn workspace @furystack/shades-showcase-app build
       - name: Serve Bundle
         run: sudo apt install lighttpd -y && lighttpd -f lighttpd.conf && curl http://localhost:8080
         working-directory: packages/shades-showcase-app
