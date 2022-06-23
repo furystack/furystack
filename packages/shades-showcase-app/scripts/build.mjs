@@ -5,7 +5,6 @@ build({
   plugins: [pnpPlugin()],
   entryPoints: ['./src/index.tsx'],
   jsxFactory: 'createComponent',
-  jsxFragmentFactory: 'createFragment',
   outdir: 'bundle/js',
   bundle: true,
   minify: true,
