@@ -43,7 +43,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     const { url, query, body, headers } = options as any
 
     const urlToSend =
-      (url ? compile(options.action as string)(url) : options.action) +
+      (url ? compile(options.action as string)(url) : (options.action as string)) +
       (query
         ? clientOptions.serializeQueryParams
           ? clientOptions.serializeQueryParams(query)

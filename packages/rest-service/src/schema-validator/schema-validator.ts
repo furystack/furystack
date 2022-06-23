@@ -19,7 +19,7 @@ export class SchemaValidator<TSchema extends { definitions: {} }> {
    * @returns true in case of validation success
    */
   public isValid<T>(data: any, options: { schemaName: keyof TSchema['definitions'] }): data is T {
-    const schema = { ...this.schema, $ref: `#/definitions/${options.schemaName}` }
+    const schema = { ...this.schema, $ref: `#/definitions/${options.schemaName as string}` }
     const validatorFn = this.ajv.compile(schema)
     const isValid = validatorFn(data)
     if (!isValid) {
