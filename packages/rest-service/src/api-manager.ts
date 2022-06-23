@@ -1,6 +1,6 @@
 import { Disposable, PathHelper, usingAsync } from '@furystack/utils'
 import { deserializeQueryString, RestApi } from '@furystack/rest'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected, Injector } from '@furystack/inject'
 import { ServerManager, OnRequest } from './server-manager'
 import { pathToRegexp, match } from 'path-to-regexp'
 import { NotFoundAction } from './actions/not-found-action'
@@ -218,5 +218,6 @@ export class ApiManager implements Disposable {
     }
   }
 
-  constructor(private readonly serverManager: ServerManager) {}
+  @Injected(ServerManager)
+  private readonly serverManager!: ServerManager
 }

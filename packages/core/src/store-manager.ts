@@ -1,4 +1,4 @@
-import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Constructable, Injectable } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 import { AggregatedError } from './errors'
 import { PhysicalStore } from './models/physical-store'
@@ -58,6 +58,4 @@ export class StoreManager implements Disposable {
     this.stores.set(store.model, store as PhysicalStore<any, any>)
     return this
   }
-
-  constructor(public injector: Injector) {}
 }

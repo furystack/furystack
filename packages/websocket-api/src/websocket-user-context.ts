@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'http'
 import { IdentityContext, User } from '@furystack/core'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected, Injector } from '@furystack/inject'
 import { HttpUserContext } from '@furystack/rest-service'
 
 @Injectable({ lifetime: 'scoped' })
@@ -32,5 +32,6 @@ export class WebsocketUserContext implements IdentityContext {
     return user as TUser
   }
 
-  constructor(private readonly injector: Injector) {}
+  @Injected(Injector)
+  private readonly injector!: Injector
 }

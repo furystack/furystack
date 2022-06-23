@@ -1,7 +1,7 @@
 import { get } from 'https'
 import { User, StoreManager } from '@furystack/core'
 import { HttpAuthenticationSettings, Utils } from '@furystack/rest-service'
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injector, Injected } from '@furystack/inject'
 
 /**
  * Payload model from Google
@@ -47,11 +47,15 @@ export class GoogleLoginSettings {
  */
 @Injectable({ lifetime: 'transient' })
 export class GoogleLoginService {
-  constructor(
-    private readonly settings: GoogleLoginSettings,
-    public readonly utils: Utils,
-    private injector: Injector,
-  ) {}
+  @Injected(GoogleLoginSettings)
+  private readonly settings!: GoogleLoginSettings
+
+  @Injected(Utils)
+  public readonly utils!: Utils
+
+  @Injected(Injector)
+  private readonly injector!: Injector
+
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
   /**

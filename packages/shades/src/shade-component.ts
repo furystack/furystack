@@ -75,3 +75,9 @@ export const createComponent = <TProps>(
     return el
   }
 }
+
+export const createFragment = (_props: any, ...children: [[ShadeComponent[]]]) => {
+  const fragment = document.createDocumentFragment()
+  fragment.append(...(children[0].flat() as any))
+  return fragment
+}

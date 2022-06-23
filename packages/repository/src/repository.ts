@@ -1,5 +1,5 @@
 import { PhysicalStore, StoreManager } from '@furystack/core'
-import { Constructable, Injectable } from '@furystack/inject'
+import { Constructable, Injectable, Injected } from '@furystack/inject'
 import { Disposable } from '@furystack/utils'
 import { DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
@@ -42,5 +42,6 @@ export class Repository implements Disposable {
     return this
   }
 
-  constructor(private readonly storeManager: StoreManager) {}
+  @Injected(StoreManager)
+  private readonly storeManager!: StoreManager
 }

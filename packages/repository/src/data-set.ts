@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@furystack/inject'
+import { Injector } from '@furystack/inject'
 import {
   AuthorizationError,
   FindOptions,
@@ -13,7 +13,6 @@ import { Disposable, ObservableValue } from '@furystack/utils'
 /**
  * An authorized Repository Store instance
  */
-@Injectable({ lifetime: 'transient' })
 export class DataSet<T, TPrimaryKey extends keyof T> implements Disposable {
   public dispose() {
     this.onEntityAdded.dispose()

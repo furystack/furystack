@@ -22,6 +22,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "jsx": "react",
-    "jsxFactory": "createComponent"
+    "jsxFactory": "createComponent",
+    "jsxFragmentFactory": "createFragment"
   }
 }

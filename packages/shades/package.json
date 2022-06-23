@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "5.0.4",
+  "version": "6.0.0",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,15 +29,15 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^27.5.0",
+    "@types/jest": "^27.5.2",
     "@types/jsdom": "^16.2.14",
-    "@types/node": "^17.0.31",
-    "jsdom": "^19.0.0"
+    "@types/node": "^18.0.0",
+    "jsdom": "^20.0.0"
   },
   "dependencies": {
-    "@furystack/core": "^11.0.3",
-    "@furystack/inject": "^6.0.3",
-    "@furystack/utils": "^3.0.3",
+    "@furystack/core": "^11.0.4",
+    "@furystack/inject": "^7.0.0",
+    "@furystack/utils": "^3.0.4",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.4.0"
