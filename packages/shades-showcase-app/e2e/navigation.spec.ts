@@ -40,6 +40,8 @@ const expectSelected = async (menuEntry: Locator) =>
 const expectNotSelected = async (menuEntry: Locator) =>
   await expect(menuEntry).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0.54)')
 
+const expectPageTitle = async (page: Page, title: string) => await page.locator('shade-router h1', { hasText: title })
+
 test.describe('Navigation', () => {
   pages.forEach(({ name, url }) => {
     test(`${name} Should be available from Navigation menu`, async ({ page }) => {
@@ -64,8 +66,7 @@ test.describe('Navigation', () => {
       await page.goto(url)
       const menuEntry = await getNavigationEntry(page, name)
       await expectSelected(menuEntry)
-      await sleepAsync(1000)
-      await expect(page).toHaveScreenshot()
+      await expectPageTitle(page, name)
     })
   })
 })

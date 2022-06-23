@@ -66,7 +66,7 @@ export const GridPage = Shade<{}, { service: GridPageService }>({
           height: 'calc(100% - 96px)',
         }}
       >
-        <h1>Grid page</h1>
+        <h1>Grid</h1>
         <DataGrid<TestClass>
           columns={['id', 'stringValue1', 'stringValue2', 'booleanValue', 'dateValue', 'numberValue1', 'numberValue2']}
           styles={undefined}
