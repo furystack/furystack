@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Serve Bundle
-        run: sudo apt install lighttpd -y && lighttpd -f lighttpd.conf
+        run: sudo apt install lighttpd -y && lighttpd -f lighttpd.conf && curl http://localhost:8080
         working-directory: packages/shades-showcase-app
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
