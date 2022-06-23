@@ -32,12 +32,12 @@
     "@furystack/logging": "^3.0.3",
     "@furystack/utils": "^3.0.3",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.20.1",
+    "sequelize": "^6.21.0",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@types/jest": "^27.5.2",
-    "@types/node": "^17.0.40",
+    "@types/node": "^18.0.0",
     "sqlite3": "^5.0.8"
   },
   "typings": "./types/index.d.ts"
