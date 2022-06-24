@@ -1,27 +1,20 @@
 import { serve } from 'esbuild'
 import { createServer, request } from 'http'
-import { pnpPlugin } from '@yarnpkg/esbuild-plugin-pnp'
+import { getBundleBuildOptions } from './build-defaults.mjs'
 
-serve(
+const serveBundle = serve(
   {
     servedir: 'bundle',
     port: 8079,
   },
   {
-    plugins: [pnpPlugin()],
-    entryPoints: ['./src/index.tsx'],
-    jsxFactory: 'createComponent',
-    outdir: 'bundle/js',
-    bundle: true,
-    minify: false,
-    sourcemap: true,
-    splitting: true,
-    platform: 'browser',
-    format: 'esm',
+    ...getBundleBuildOptions(),
   },
-).then((result) => {
+)
+
+Promise.all([serveBundle]).then(([bundleResult]) => {
   // The result tells us where esbuild's local server is
-  const { host, port } = result
+  const { host, port } = bundleResult
 
   // Then start a proxy server on port 3000
   const proxy = createServer((req, res) => {

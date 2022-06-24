@@ -1,18 +1,10 @@
 import { build } from 'esbuild'
-import { pnpPlugin } from '@yarnpkg/esbuild-plugin-pnp'
+import { getBundleBuildOptions } from './build-defaults.mjs'
 
 build({
-  plugins: [pnpPlugin()],
-  entryPoints: ['./src/index.tsx'],
-  jsxFactory: 'createComponent',
-  outdir: 'bundle/js',
-  bundle: true,
+  ...getBundleBuildOptions(),
   minify: true,
-  logLevel: 'debug',
-  sourcemap: true,
-  splitting: true,
-  platform: 'browser',
-  format: 'esm',
+  keepNames: true,
 })
   .then((result) => {
     console.log('Build successful', result)
