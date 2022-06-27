@@ -612,7 +612,7 @@ __metadata:
     "@types/jest": ^27.5.2
     "@types/node": ^18.0.0
     semaphore-async-await: ^1.5.1
-    sequelize: ^6.21.0
+    sequelize: ^6.21.1
     sqlite3: ^5.0.8
     tslib: ^2.4.0
   languageName: unknown
@@ -670,7 +670,7 @@ __metadata:
     "@furystack/utils": ^3.0.4
     "@lottiefiles/lottie-player": ^1.5.7
     "@playwright/test": ^1.22.2
-    "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.9
+    "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.10
     esbuild: ^0.14.47
     monaco-editor: ^0.33.0
     tslib: ^2.4.0
@@ -1618,14 +1618,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yarnpkg/esbuild-plugin-pnp@npm:^3.0.0-rc.9":
-  version: 3.0.0-rc.9
-  resolution: "@yarnpkg/esbuild-plugin-pnp@npm:3.0.0-rc.9"
+"@yarnpkg/esbuild-plugin-pnp@npm:^3.0.0-rc.10":
+  version: 3.0.0-rc.10
+  resolution: "@yarnpkg/esbuild-plugin-pnp@npm:3.0.0-rc.10"
   dependencies:
     tslib: ^1.13.0
   peerDependencies:
     esbuild: ">=0.10.0"
-  checksum: d018f0ece938f338b02b41837030ab7ec230d191a3a3c37628843bb73bbe73d3daadc986e20565472e4071cf1ea0aa5e64eeacf5c849ba70b70cd8aad3764ca8
+  checksum: 9084f150d22e2b6492cef01cc72ebfb4b49ba230a9849d132d0803f63cb1d64403af8f9d5ee7bdc69a08325d7ab694a430824ed57109e4761d0be2ffce278f1f
   languageName: node
   linkType: hard
 
@@ -3381,7 +3381,7 @@ __metadata:
     husky: ^8.0.1
     jest: ^27.5.1
     jest-junit: ^13.2.0
-    lint-staged: ^13.0.2
+    lint-staged: ^13.0.3
     prettier: ^2.7.1
     rimraf: ^3.0.2
     ts-json-schema-generator: ^1.0.0
@@ -4693,9 +4693,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^13.0.2":
-  version: 13.0.2
-  resolution: "lint-staged@npm:13.0.2"
+"lint-staged@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "lint-staged@npm:13.0.3"
   dependencies:
     cli-truncate: ^3.1.0
     colorette: ^2.0.17
@@ -4712,7 +4712,7 @@ __metadata:
     yaml: ^2.1.1
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: b5ccf8e11b69f6fd8b79b629580c1463524aeca069a8f97a28291de2fafa474c28871428b56f251cf95a02d84e7b0fc0dfd6443532e16fdac3f9cba9228cfc9e
+  checksum: 53d585007df06e162febab6b0836b55016d902586a267823c8a1158529d8c742dc7297e523f7023dff02250bef3eb0d6934f4ec4f9961adfc2ebbed5f54162d0
   languageName: node
   linkType: hard
 
@@ -5974,9 +5974,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sequelize@npm:^6.21.0":
-  version: 6.21.0
-  resolution: "sequelize@npm:6.21.0"
+"sequelize@npm:^6.21.1":
+  version: 6.21.1
+  resolution: "sequelize@npm:6.21.1"
   dependencies:
     "@types/debug": ^4.1.7
     "@types/validator": ^13.7.1
@@ -6011,7 +6011,7 @@ __metadata:
       optional: true
     tedious:
       optional: true
-  checksum: b863771d59343b57bfbdf4ab86cbc724719f4350f3053da0ed4942987e8a3c9bf8c18b7ebc9361be9216455988790bee501264ee0cba8b4caf28a8727a66459d
+  checksum: f8d15f656655c20b38c7684e13102c9a762c563462f1590671d299c2a72f2aa3f1d219df053ce225b469ba1d486f8fe819b6c607acd9d7aa47ee7b32d730434b
   languageName: node
   linkType: hard
 
