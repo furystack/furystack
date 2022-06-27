@@ -1,43 +1,41 @@
 import { Shade } from '@furystack/shades'
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api'
-import type { EditorLanguage } from 'monaco-editor/esm/metadata'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import 'monaco-editor/esm/vs/editor/editor.main'
+
+import { EditorLanguage } from 'monaco-editor/esm/metadata'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 self.MonacoEnvironment = {
   getWorkerUrl(_moduleId: any, label: EditorLanguage) {
     if (label === 'json') {
-      return '/js/monaco-editor/esm/vs/language/json/json.worker.js'
+      return '/js/monaco-editor/language/json/json.worker.js'
     }
     if (label === 'css' || label === 'scss' || label === 'less') {
-      return './css.worker.js'
+      return '/js/monaco-editor/language/css/css.worker.js'
     }
     if (label === 'html' || label === 'handlebars' || label === 'razor') {
-      return './html.worker.js'
+      return '/js/monaco-editor/language/html/html.worker.js'
     }
     if (label === 'typescript' || label === 'javascript') {
-      return './ts.worker.js'
+      return '/js/monaco-editor/language/typescript/ts.worker.js'
     }
-    return '/js/monaco-editor/esm/vs/editor.worker.js'
+    return '/js/monaco-editor/editor/editor.worker.js'
+  },
+  getWorker: (moduleId: string, label: string) => {
+    return new Worker((self as any).MonacoEnvironment.getWorkerUrl(moduleId, label), { type: 'module' })
   },
 }
 
-editor
-  .createWebWorker({
-    moduleId: '/js/monaco-editor/esm/vs/language/json/json.worker.js',
-    label: 'json',
-  })
-  .getProxy()
-
 export interface MonacoEditorProps {
-  options: editor.IStandaloneEditorConstructionOptions
+  options: monaco.editor.IStandaloneEditorConstructionOptions
   value?: string
   onchange?: (value: string) => void
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
   constructed: ({ element, props }) => {
-    const editorInstance = editor.create(element as HTMLElement, props.options)
+    const editorInstance = monaco.editor.create(element as HTMLElement, props.options)
     editorInstance.setValue(props.value || '')
     props.onchange &&
       editorInstance.onKeyUp(() => {
@@ -47,9 +45,10 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
     return () => editorInstance.dispose()
   },
   render: ({ element }) => {
-    element.style.width = '500px'
-    element.style.height = '500px'
-    element.style.flexGrow = '1'
+    element.style.display = 'block'
+    element.style.height = 'calc(100% - 96px)'
+    element.style.width = '100%'
+    element.style.position = 'relative'
     return null
   },
 })

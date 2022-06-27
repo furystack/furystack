@@ -11,17 +11,12 @@ export const MonacoEditorPage = Shade({
           top: '64px',
           height: 'calc(100% - 96px)',
           width: 'calc(100% - 48px)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignContent: 'center',
-          justifyContent: 'center',
-          alignItems: 'center',
         }}
       >
         <h1>Monaco Editor</h1>
         <MonacoEditor
           options={{
-            language: 'json',
+            language: 'typescript',
             theme: 'vs-dark',
             automaticLayout: true,
           }}
