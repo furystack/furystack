@@ -612,13 +612,13 @@ __metadata:
     "@types/jest": ^27.5.2
     "@types/node": ^18.0.0
     semaphore-async-await: ^1.5.1
-    sequelize: ^6.21.0
+    sequelize: ^6.21.1
     sqlite3: ^5.0.8
     tslib: ^2.4.0
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^3.1.0, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^3.1.1, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
@@ -664,14 +664,15 @@ __metadata:
     "@furystack/repository": ^6.0.4
     "@furystack/rest-client-fetch": ^4.0.5
     "@furystack/shades": ^6.0.0
-    "@furystack/shades-common-components": ^3.1.0
+    "@furystack/shades-common-components": ^3.1.1
     "@furystack/shades-lottie": ^2.0.6
     "@furystack/shades-nipple": ^2.0.6
     "@furystack/utils": ^3.0.4
     "@lottiefiles/lottie-player": ^1.5.7
     "@playwright/test": ^1.22.2
-    "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.9
+    "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.10
     esbuild: ^0.14.47
+    monaco-editor: ^0.33.0
     tslib: ^2.4.0
     typescript: ^4.7.4
   languageName: unknown
@@ -1617,14 +1618,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yarnpkg/esbuild-plugin-pnp@npm:^3.0.0-rc.9":
-  version: 3.0.0-rc.9
-  resolution: "@yarnpkg/esbuild-plugin-pnp@npm:3.0.0-rc.9"
+"@yarnpkg/esbuild-plugin-pnp@npm:^3.0.0-rc.10":
+  version: 3.0.0-rc.10
+  resolution: "@yarnpkg/esbuild-plugin-pnp@npm:3.0.0-rc.10"
   dependencies:
     tslib: ^1.13.0
   peerDependencies:
     esbuild: ">=0.10.0"
-  checksum: d018f0ece938f338b02b41837030ab7ec230d191a3a3c37628843bb73bbe73d3daadc986e20565472e4071cf1ea0aa5e64eeacf5c849ba70b70cd8aad3764ca8
+  checksum: 9084f150d22e2b6492cef01cc72ebfb4b49ba230a9849d132d0803f63cb1d64403af8f9d5ee7bdc69a08325d7ab694a430824ed57109e4761d0be2ffce278f1f
   languageName: node
   linkType: hard
 
@@ -2970,9 +2971,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "eslint-plugin-prettier@npm:4.0.0"
+"eslint-plugin-prettier@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "eslint-plugin-prettier@npm:4.1.0"
   dependencies:
     prettier-linter-helpers: ^1.0.0
   peerDependencies:
@@ -2981,7 +2982,7 @@ __metadata:
   peerDependenciesMeta:
     eslint-config-prettier:
       optional: true
-  checksum: 03d69177a3c21fa2229c7e427ce604429f0b20ab7f411e2e824912f572a207c7f5a41fd1f0a95b9b8afe121e291c1b1f1dc1d44c7aad4b0837487f9c19f5210d
+  checksum: 3f731b9988383851f1a42bd67a093461886fc56dc5d0ca4c72bdd0755dc0f843faedde843c1812710a75782a9711096aad22b6140fe7d6f996cc4a672c8b3643
   languageName: node
   linkType: hard
 
@@ -3375,12 +3376,12 @@ __metadata:
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-jsdoc: ^39.3.3
-    eslint-plugin-prettier: ^4.0.0
+    eslint-plugin-prettier: ^4.1.0
     got: ^11.8.5
     husky: ^8.0.1
     jest: ^27.5.1
-    jest-junit: ^13.2.0
-    lint-staged: ^13.0.2
+    jest-junit: ^14.0.0
+    lint-staged: ^13.0.3
     prettier: ^2.7.1
     rimraf: ^3.0.2
     ts-json-schema-generator: ^1.0.0
@@ -4184,15 +4185,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-junit@npm:^13.2.0":
-  version: 13.2.0
-  resolution: "jest-junit@npm:13.2.0"
+"jest-junit@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "jest-junit@npm:14.0.0"
   dependencies:
     mkdirp: ^1.0.4
     strip-ansi: ^6.0.1
     uuid: ^8.3.2
     xml: ^1.0.1
-  checksum: 0a42447e0c9ae689ae43275944a72587216cb028d45f2bd54bfc9e7e38f90bb03caa571e58ac16fba44c121c7c5f6ae766c50833851f23153f7430b1b3b317c2
+  checksum: 89d6755f895360be9440d0feacc1a7da9adf23fa9a58746f6f80946cd55d91ba3d32314698615090682684d8315518a166fe46a60cdbd16b38e0c5c8d6418e55
   languageName: node
   linkType: hard
 
@@ -4692,9 +4693,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^13.0.2":
-  version: 13.0.2
-  resolution: "lint-staged@npm:13.0.2"
+"lint-staged@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "lint-staged@npm:13.0.3"
   dependencies:
     cli-truncate: ^3.1.0
     colorette: ^2.0.17
@@ -4711,7 +4712,7 @@ __metadata:
     yaml: ^2.1.1
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: b5ccf8e11b69f6fd8b79b629580c1463524aeca069a8f97a28291de2fafa474c28871428b56f251cf95a02d84e7b0fc0dfd6443532e16fdac3f9cba9228cfc9e
+  checksum: 53d585007df06e162febab6b0836b55016d902586a267823c8a1158529d8c742dc7297e523f7023dff02250bef3eb0d6934f4ec4f9961adfc2ebbed5f54162d0
   languageName: node
   linkType: hard
 
@@ -5097,6 +5098,13 @@ __metadata:
   version: 2.29.3
   resolution: "moment@npm:2.29.3"
   checksum: 2e780e36d9a1823c08a1b6313cbb08bd01ecbb2a9062095820a34f42c878991ccba53abaa6abb103fd5c01e763724f295162a8c50b7e95b4f1c992ef0772d3f0
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:^0.33.0":
+  version: 0.33.0
+  resolution: "monaco-editor@npm:0.33.0"
+  checksum: f88fd1c9be0d6845436aa92ee7f7bcc49f9e9bf452f73bb5efbbe52e50678d1c2aec4d612a943310f5e2282c1d9fcc41b792b65a5b9008e6054908e7e10311ea
   languageName: node
   linkType: hard
 
@@ -5966,9 +5974,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sequelize@npm:^6.21.0":
-  version: 6.21.0
-  resolution: "sequelize@npm:6.21.0"
+"sequelize@npm:^6.21.1":
+  version: 6.21.1
+  resolution: "sequelize@npm:6.21.1"
   dependencies:
     "@types/debug": ^4.1.7
     "@types/validator": ^13.7.1
@@ -6003,7 +6011,7 @@ __metadata:
       optional: true
     tedious:
       optional: true
-  checksum: b863771d59343b57bfbdf4ab86cbc724719f4350f3053da0ed4942987e8a3c9bf8c18b7ebc9361be9216455988790bee501264ee0cba8b4caf28a8727a66459d
+  checksum: f8d15f656655c20b38c7684e13102c9a762c563462f1590671d299c2a72f2aa3f1d219df053ce225b469ba1d486f8fe819b6c607acd9d7aa47ee7b32d730434b
   languageName: node
   linkType: hard
 

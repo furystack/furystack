@@ -1,0 +1,5 @@
+undecided:
+  - furystack
+  - "@furystack/sequelize-store"
+  - "@furystack/shades-common-components"
+  - "@furystack/shades-showcase-app"
