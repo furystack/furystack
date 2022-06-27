@@ -32,7 +32,7 @@
     "@furystack/logging": "^3.0.4",
     "@furystack/utils": "^3.0.4",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.21.0",
+    "sequelize": "^6.21.1",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
