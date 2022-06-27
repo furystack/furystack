@@ -20,24 +20,20 @@ export const getBundleBuildOptions = () => ({
   platform: 'browser',
   format: 'esm',
   loader: {
-    '.png': 'dataurl',
-    '.woff': 'dataurl',
-    '.woff2': 'dataurl',
-    '.eot': 'dataurl',
     '.ttf': 'dataurl',
-    '.svg': 'dataurl',
     '.css': 'css',
   },
+  external: ['data:image'],
 })
 
 /**
  * Returns the default Monaco build options
  *
- * @returns {import('esbuild').BuildOptions}
+ * @returns {import('esbuild').BuildOptions} The generated Build options
  */
 export const getMonacoBuildOptions = () => ({
   ...getBundleBuildOptions(),
+  outbase: 'monaco-editor/esm/vs',
+  outdir: 'bundle/js/monaco-editor',
   entryPoints: workerEntryPoints.map((entry) => `monaco-editor/esm/vs/${entry}`),
-  splitting: false,
-  format: 'iife',
 })
