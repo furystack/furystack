@@ -44,9 +44,11 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
     ]
   },
   constructed: ({ props }) => {
-    window.addEventListener('keydown', (ev) => {
-      props.service.handleKeyDown(ev)
-    })
+    const listener = (ev: KeyboardEvent) => props.service.handleKeyDown(ev)
+
+    window.addEventListener('keydown', listener)
+
+    return () => window.removeEventListener('keydown', listener)
   },
   render: ({ props, injector }) => {
     const tp = injector.getInstance(ThemeProviderService)
