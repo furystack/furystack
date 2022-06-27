@@ -672,6 +672,7 @@ __metadata:
     "@playwright/test": ^1.22.2
     "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.9
     esbuild: ^0.14.47
+    monaco-editor: ^0.33.0
     tslib: ^2.4.0
     typescript: ^4.7.4
   languageName: unknown
@@ -5097,6 +5098,13 @@ __metadata:
   version: 2.29.3
   resolution: "moment@npm:2.29.3"
   checksum: 2e780e36d9a1823c08a1b6313cbb08bd01ecbb2a9062095820a34f42c878991ccba53abaa6abb103fd5c01e763724f295162a8c50b7e95b4f1c992ef0772d3f0
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:^0.33.0":
+  version: 0.33.0
+  resolution: "monaco-editor@npm:0.33.0"
+  checksum: f88fd1c9be0d6845436aa92ee7f7bcc49f9e9bf452f73bb5efbbe52e50678d1c2aec4d612a943310f5e2282c1d9fcc41b792b65a5b9008e6054908e7e10311ea
   languageName: node
   linkType: hard
 

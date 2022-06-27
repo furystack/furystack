@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Showcase app Start",
+      "request": "launch",
+      // "runtimeArgs": ["run-script", "debug"],
+      "runtimeExecutable": "yarn",
+      "args": ["workspace", "@furystack/shades-showcase-app", "start"],
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug All Jest tests",

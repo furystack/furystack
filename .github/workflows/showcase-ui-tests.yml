@@ -28,7 +28,7 @@ jobs:
         run: lighttpd -f lighttpd.conf
         working-directory: ./packages/shades-showcase-app
       - name: Check dev server
-        run: yarn workspace @furystack/shades-showcase-app assertListening
+        run: yarn workspace @furystack/shades-showcase-app assert-listening
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
       - name: execute tests

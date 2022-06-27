@@ -112,6 +112,18 @@ export const App = Shade({
                   />
                 ),
               },
+              {
+                url: '/monaco',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { MonacoEditorPage } = await import('./pages/monaco')
+                      return <MonacoEditorPage />
+                    }}
+                  />
+                ),
+              },
             ]}
             notFound={() => <HomePage />}
           />

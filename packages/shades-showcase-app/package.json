@@ -7,7 +7,7 @@
     "build": "yarn node scripts/build.mjs",
     "build:stats": "echo todo",
     "start": "yarn node scripts/start.mjs",
-    "assertListening": "yarn node scripts/assertListening.mjs",
+    "assert-listening": "yarn node scripts/assert-listening.mjs",
     "e2e": "yarn playwright"
   },
   "author": "gallay.lajos@gmail.com",
@@ -30,6 +30,7 @@
     "@furystack/shades-nipple": "^2.0.6",
     "@furystack/utils": "^3.0.4",
     "@lottiefiles/lottie-player": "^1.5.7",
+    "monaco-editor": "^0.33.0",
     "tslib": "^2.4.0"
   }
 }
