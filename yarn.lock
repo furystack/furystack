@@ -618,7 +618,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^3.1.0, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^3.1.1, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
@@ -664,7 +664,7 @@ __metadata:
     "@furystack/repository": ^6.0.4
     "@furystack/rest-client-fetch": ^4.0.5
     "@furystack/shades": ^6.0.0
-    "@furystack/shades-common-components": ^3.1.0
+    "@furystack/shades-common-components": ^3.1.1
     "@furystack/shades-lottie": ^2.0.6
     "@furystack/shades-nipple": ^2.0.6
     "@furystack/utils": ^3.0.4
