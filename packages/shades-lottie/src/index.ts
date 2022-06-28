@@ -1,4 +1,4 @@
-import '@lottiefiles/lottie-player'
+import '@furystack/shades'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

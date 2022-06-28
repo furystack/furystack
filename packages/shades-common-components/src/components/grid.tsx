@@ -64,7 +64,7 @@ export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Eleme
                   <th style={headerStyle}>
                     {props.headerComponents?.[column]?.(column) || props.headerComponents?.default?.(column) || (
                       <span>{column}</span>
-                    )}{' '}
+                    )}
                   </th>
                 )
               })}

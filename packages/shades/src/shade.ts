@@ -139,14 +139,21 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * Updates the component in the DOM.
          */
         public updateComponent() {
-          const newJsx = this.render(this.getRenderOptions())
-          if (newJsx) {
-            if (typeof newJsx === 'string') {
-              this.innerHTML = newJsx
-            } else if (this.hasChildNodes()) {
-              this.replaceChild(newJsx, this.firstChild as Node)
+          const renderResult = this.render(this.getRenderOptions())
+
+          if (typeof renderResult === 'string') {
+            this.innerHTML = renderResult
+          }
+
+          if (renderResult instanceof DocumentFragment) {
+            this.replaceChildren(...renderResult.children)
+          }
+
+          if (renderResult instanceof HTMLElement) {
+            if (this.hasChildNodes()) {
+              this.replaceChild(renderResult, this.firstChild as Node)
             } else {
-              this.append(newJsx)
+              this.append(renderResult)
             }
           }
         }

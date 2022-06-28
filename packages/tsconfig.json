@@ -61,6 +61,9 @@
     },
     {
       "path": "./shades-lottie"
+    },
+    {
+      "path": "./shades-showcase-app"
     }
   ]
 }

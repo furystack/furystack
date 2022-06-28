@@ -1,4 +1,4 @@
-import { Constructable, Injectable, Injector } from '@furystack/inject'
+import { Constructable, Injectable } from '@furystack/inject'
 import { Disposable, HealthCheckable, HealthCheckResult, isHealthCheckable } from '@furystack/utils'
 import { AggregatedError } from './errors'
 import { PhysicalStore } from './models/physical-store'
@@ -58,8 +58,6 @@ export class StoreManager implements Disposable, HealthCheckable {
     this.stores.set(store.model, store as PhysicalStore<any, any>)
     return this
   }
-
-  constructor(public injector: Injector) {}
   public async checkHealth(): Promise<HealthCheckResult> {
     const healthCheckableStores = [...this.stores.entries()].filter(([, s]) => isHealthCheckable(s)) as Array<
       [Constructable<unknown>, PhysicalStore<any, any> & HealthCheckable]

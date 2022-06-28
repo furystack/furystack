@@ -3,6 +3,7 @@ import { HttpUserContext } from '@furystack/rest-service'
 import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
 import { IncomingMessage } from 'http'
+import { Injector } from '@furystack/inject'
 
 describe('Whoami action', () => {
   const currentUser = { username: 'testuser' }
@@ -27,7 +28,11 @@ describe('Whoami action', () => {
   })
 
   it('Should return the current user', async () => {
-    await usingAsync(new WhoAmI(contextMock, wsMock), async (instance) => {
+    await usingAsync(new Injector(), async (injector) => {
+      injector.setExplicitInstance(contextMock, HttpUserContext)
+      injector.setExplicitInstance(wsMock, ws)
+      const instance = injector.getInstance(WhoAmI)
+
       await instance.execute({ request, data: '' })
       expect(wsMock.send).toBeCalledWith(JSON.stringify({ currentUser }))
     })

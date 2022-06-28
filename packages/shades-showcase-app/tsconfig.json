@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declarationDir": "./types",
+    "composite": true,
+    "rootDir": "./src",
+    "jsx": "react",
+    "jsxFactory": "createComponent",
+    "jsxFragmentFactory": "createFragment",
+    "resolveJsonModule": true
+  },
+  "include": ["src", "src/**/*.json"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../inject"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
+}

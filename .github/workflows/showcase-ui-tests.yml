@@ -1,0 +1,40 @@
+name: UI tests for Showcase app
+on: [push]
+jobs:
+  build:
+    name: Build and run UI tests
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build
+      - name: Create Bundle
+        run: yarn workspace @furystack/shades-showcase-app build
+      - name: Install Lighttpd
+        run: sudo apt install lighttpd
+      - name: Start Lighttpd
+        run: lighttpd -f lighttpd.conf
+        working-directory: ./packages/shades-showcase-app
+      - name: Check dev server
+        run: yarn workspace @furystack/shades-showcase-app assert-listening
+      - name: Install Playwright browsers
+        run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+      - name: execute tests
+        run: yarn workspace @furystack/shades-showcase-app e2e test
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          path: packages/shades-showcase-app/test-results
+          name: Download-screenshots  

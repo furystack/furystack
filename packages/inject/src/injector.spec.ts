@@ -1,5 +1,6 @@
 import { Disposable, HealthCheckable, HealthCheckResult, using, usingAsync } from '@furystack/utils'
 import { Injectable } from './injectable'
+import { Injected } from './injected'
 import { Injector } from './injector'
 
 describe('Injector', () => {
@@ -8,7 +9,7 @@ describe('Injector', () => {
     expect(i).toBeInstanceOf(Injector)
   })
 
-  it('Parent should be the default instance, if not specified', () => {
+  it('Parent should be undefined by default', () => {
     const i = new Injector()
     expect(i.options.parent).toBeUndefined()
   })
@@ -17,11 +18,10 @@ describe('Injector', () => {
     const i = new Injector()
     @Injectable()
     class InstanceClass {
-      constructor(public ohgodno: InstanceClass) {
-        /** */
-      }
+      @Injected(InstanceClass)
+      public ohgodno!: InstanceClass
     }
-    expect(() => i.getInstance(InstanceClass)).toThrow()
+    expect(() => i.getInstance(InstanceClass)).toThrowError('Circular dependencies found.')
   })
 
   it('Should set and return instance from cache', () => {
@@ -69,13 +69,18 @@ describe('Injector', () => {
 
     @Injectable()
     class InstanceClass {
-      constructor(public injected1: Injected1, public injected2: Injected2) {
-        /** */
-      }
+      @Injected(Injected1)
+      public injected1!: Injected1
+
+      @Injected(Injected2)
+      public injected2!: Injected2
     }
-    expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-    expect(i.getInstance(InstanceClass).injected1).toBeInstanceOf(Injected1)
-    expect(i.getInstance(InstanceClass).injected2).toBeInstanceOf(Injected2)
+
+    const instance = i.getInstance(InstanceClass)
+
+    expect(instance).toBeInstanceOf(InstanceClass)
+    expect(instance.injected1).toBeInstanceOf(Injected1)
+    expect(instance.injected2).toBeInstanceOf(Injected2)
   })
 
   it('Should resolve parameters recursively', () => {
@@ -85,14 +90,14 @@ describe('Injector', () => {
     class Injected1 {}
     @Injectable()
     class Injected2 {
-      constructor(public injected1: Injected1) {}
+      @Injected(Injected1)
+      public injected1!: Injected1
     }
 
     @Injectable()
     class InstanceClass {
-      constructor(public injected2: Injected2) {
-        /** */
-      }
+      @Injected(Injected2)
+      public injected2!: Injected2
     }
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
@@ -169,7 +174,8 @@ describe('Injector', () => {
 
     @Injectable({ lifetime: 'singleton' })
     class St1 {
-      constructor(public lt: Trs1) {}
+      @Injected(Trs1)
+      lt!: Trs1
     }
 
     using(new Injector(), (i) => {
@@ -185,7 +191,8 @@ describe('Injector', () => {
 
     @Injectable({ lifetime: 'singleton' })
     class St2 {
-      constructor(public sc: Sc1) {}
+      @Injected(Sc1)
+      public sc!: Sc1
     }
 
     using(new Injector(), (i) => {
@@ -201,7 +208,8 @@ describe('Injector', () => {
 
     @Injectable({ lifetime: 'scoped' })
     class Sc2 {
-      constructor(public sc: Tr2) {}
+      @Injected(Tr2)
+      public sc!: Tr2
     }
 
     using(new Injector(), (i) => {

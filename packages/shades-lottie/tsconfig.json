@@ -6,7 +6,8 @@
     "composite": true,
     "rootDir": "./src",
     "jsx": "react",
-    "jsxFactory": "createComponent"
+    "jsxFactory": "createComponent",
+    "jsxFragmentFactory": "createFragment"
   },
   "include": ["src"],
   "references": [{ "path": "../shades" }]
