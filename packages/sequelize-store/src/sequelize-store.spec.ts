@@ -5,6 +5,13 @@ import { HealthCheckUnhealthyResult, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { SequelizeStore } from './sequelize-store'
 
+jest.mock('uuid', () => {
+  return {
+    v1: jest.fn(() => 'uuid'),
+    v4: jest.fn(() => 'uuid'),
+  }
+})
+
 class TestSequelizeClass extends Model implements TestClass {
   id!: number
   stringValue1!: string
