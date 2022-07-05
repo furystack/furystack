@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@furystack/rest-client-got": "^2.0.5",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.4",
     "@types/node": "^18.0.1",
     "got": "^11.8.5"
   },

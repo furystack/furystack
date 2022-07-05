@@ -36,9 +36,10 @@
     "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.4",
     "@types/node": "^18.0.1",
-    "sqlite3": "^5.0.8"
+    "sqlite3": "^5.0.8",
+    "uuid": "^8.3.2"
   },
   "typings": "./types/index.d.ts"
 }
