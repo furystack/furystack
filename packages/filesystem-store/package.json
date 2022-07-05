@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-store",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Simple File System store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.0.4",
-    "@furystack/inject": "^7.0.0",
-    "@furystack/utils": "^3.0.4",
+    "@furystack/core": "^11.0.5",
+    "@furystack/inject": "^7.0.1",
+    "@furystack/utils": "^3.0.5",
     "semaphore-async-await": "^1.5.1",
     "tslib": "^2.4.0"
   },
