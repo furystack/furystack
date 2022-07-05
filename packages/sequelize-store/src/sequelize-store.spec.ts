@@ -2,6 +2,13 @@ import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
 
+jest.mock('uuid', () => {
+  return {
+    v1: jest.fn(() => 'uuid'),
+    v4: jest.fn(() => 'uuid'),
+  }
+})
+
 class TestSequelizeClass extends Model implements TestClass {
   id!: number
   stringValue1!: string
