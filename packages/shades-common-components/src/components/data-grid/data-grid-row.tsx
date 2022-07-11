@@ -7,6 +7,7 @@ export interface DataGridRowProps<T> {
   columns: Array<keyof T>
   service: CollectionService<T>
   rowComponents?: DataRowCells<T>
+  onRowClick?: (row: T, event: MouseEvent) => void
 }
 
 export interface DataGridRowState<T> {
@@ -65,18 +66,13 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
   render: ({ getState, props, element }) => {
     const state = getState()
     const { entry, rowComponents, columns } = props
-
     element.style.display = 'table-row'
     element.style.cursor = 'default'
     element.style.userSelect = 'none'
-
-    element.onclick = () => {
-      props.service.focusedEntry.setValue(props.entry)
-    }
     return (
       <>
         {columns.map((column) => (
-          <td style={{ padding: '0.5em' }}>
+          <td style={{ padding: '0.5em' }} onclick={(ev) => props.onRowClick?.(entry, ev)}>
             {rowComponents?.[column]?.(entry, state) || rowComponents?.default?.(entry, state) || (
               <span>{entry[column]}</span>
             )}
