@@ -6,7 +6,8 @@ import { DataGridRow } from './data-grid-row'
 
 export interface DataGridBodyProps<T> {
   service: CollectionService<T>
-  onDoubleClick?: (entry: T) => void
+  onRowClick?: (row: T, ev: MouseEvent) => void
+  onRowDoubleClick?: (entry: T) => void
   columns: Array<keyof T>
   rowComponents?: DataRowCells<T>
   style?: Partial<CSSStyleDeclaration>
@@ -55,6 +56,7 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
             entry={entry}
             service={props.service}
             rowComponents={props.rowComponents}
+            onRowClick={props.onRowClick}
           ></DataGridRow>
         ))}
       </>

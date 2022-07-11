@@ -109,19 +109,52 @@ export class CollectionService<T> implements Disposable {
         break
       }
       default:
-        if (ev.key.length === 1 && new RegExp(/[a-zA-z0-9]/).test(ev.key)) {
+        if (this.searchField && ev.key.length === 1) {
           const newSearchExpression = searchTerm + ev.key
-          // TODO: implement search
-          // const newFocusedEntry = entries.find((e) => e.name.startsWith(newSearchExpression))
-          // this.focus.setValue(newFocusedEntry)
+          const newFocusedEntry = entries.find(
+            (e) => this.searchField && (e[this.searchField] as any)?.toString().startsWith(newSearchExpression),
+          )
+          this.focusedEntry.setValue(newFocusedEntry)
           this.searchTerm.setValue(newSearchExpression)
         } else {
-          console.log(`Handler for '${ev.key}' not registered`)
+          console.debug(`Handler for '${ev.key}' not registered`)
         }
     }
   }
 
-  constructor(fetch: EntryLoader<T>, defaultSettings: FindOptions<T, Array<keyof T>>) {
+  public handleRowClick(entry: T, ev: MouseEvent) {
+    const currentSelectionValue = this.selection.getValue()
+    const lastFocused = this.focusedEntry.getValue()
+    if (ev.ctrlKey) {
+      if (currentSelectionValue.includes(entry)) {
+        this.selection.setValue(currentSelectionValue.filter((s) => s !== entry))
+      } else {
+        this.selection.setValue([...currentSelectionValue, entry])
+      }
+    }
+    if (ev.shiftKey) {
+      const lastFocusedIndex = this.data.getValue().entries.findIndex((e) => e === lastFocused)
+      const entryIndex = this.data.getValue().entries.findIndex((e) => e === entry)
+      const selection = [...currentSelectionValue]
+      if (lastFocusedIndex > entryIndex) {
+        for (let i = entryIndex; i <= lastFocusedIndex; i++) {
+          selection.push(this.data.getValue().entries[i])
+        }
+      } else {
+        for (let i = lastFocusedIndex; i <= entryIndex; i++) {
+          selection.push(this.data.getValue().entries[i])
+        }
+      }
+      this.selection.setValue(selection)
+    }
+    this.focusedEntry.setValue(entry)
+  }
+
+  constructor(
+    fetch: EntryLoader<T>,
+    defaultSettings: FindOptions<T, Array<keyof T>>,
+    private readonly searchField?: keyof T,
+  ) {
     this.querySettings = new ObservableValue<FindOptions<T, Array<keyof T>>>(defaultSettings)
     this.getEntries = debounce(async (options) => {
       await this.loadLock.acquire()
