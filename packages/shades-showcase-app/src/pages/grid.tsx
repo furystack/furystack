@@ -17,7 +17,11 @@ class GridPageService {
     return this
   }
 
-  public readonly collectionService = new CollectionService<TestClass>((options) => this.entityLoader(options), {})
+  public readonly collectionService = new CollectionService<TestClass>(
+    (options) => this.entityLoader(options),
+    {},
+    'stringValue1',
+  )
   private fillStore = async (count = 100) => {
     const store = getDataSetFor(this.injector, TestClass, 'id')
     const entries = new Array(count).fill(null).map(() => this.createTestClassInstance())

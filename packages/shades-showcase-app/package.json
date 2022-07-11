@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "private": true,
   "scripts": {
@@ -13,21 +13,21 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.23.1",
+    "@playwright/test": "^1.23.2",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.11",
-    "esbuild": "^0.14.48",
+    "esbuild": "^0.14.49",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@furystack/core": "^11.0.5",
+    "@furystack/core": "^11.0.6",
     "@furystack/inject": "^7.0.1",
     "@furystack/logging": "^3.0.5",
-    "@furystack/repository": "^6.0.5",
-    "@furystack/rest-client-fetch": "^4.0.6",
-    "@furystack/shades": "^6.0.1",
-    "@furystack/shades-common-components": "^3.1.2",
-    "@furystack/shades-lottie": "^2.0.7",
-    "@furystack/shades-nipple": "^2.0.7",
+    "@furystack/repository": "^6.0.6",
+    "@furystack/rest-client-fetch": "^4.0.7",
+    "@furystack/shades": "^6.0.2",
+    "@furystack/shades-common-components": "^3.2.0",
+    "@furystack/shades-lottie": "^2.0.8",
+    "@furystack/shades-nipple": "^2.0.8",
     "@furystack/utils": "^3.0.5",
     "@lottiefiles/lottie-player": "^1.5.7",
     "monaco-editor": "^0.33.0",
