@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/jest": "^28.1.6",
     "@types/node": "^18.0.5",
-    "sqlite3": "^5.0.8",
+    "sqlite3": "5.0.8",
     "uuid": "^8.3.2"
   },
   "typings": "./types/index.d.ts"
