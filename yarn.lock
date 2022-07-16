@@ -613,7 +613,7 @@ __metadata:
     "@types/node": ^18.0.5
     semaphore-async-await: ^1.5.1
     sequelize: ^6.21.3
-    sqlite3: ^5.0.9
+    sqlite3: ^5.0.8
     tslib: ^2.4.0
     uuid: ^8.3.2
   languageName: unknown
@@ -6139,7 +6139,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sqlite3@npm:^5.0.9":
+"sqlite3@npm:^5.0.8":
   version: 5.0.9
   resolution: "sqlite3@npm:5.0.9"
   dependencies:
