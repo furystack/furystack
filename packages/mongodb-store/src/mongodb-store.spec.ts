@@ -18,6 +18,7 @@ let storeCount = 0
 
 describe('MongoDB Store', () => {
   let dbIdx = 0
+
   const getMongoOptions = (injector: Injector) => ({
     injector,
     model: TestClass,
