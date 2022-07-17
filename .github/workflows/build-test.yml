@@ -27,7 +27,7 @@ jobs:
       - name: Build the docker-compose stack
         run: docker-compose up -d     
       - name: Test
-        run: yarn test
+        run: yarn test --forceExit # MongoDB close bug: https://jira.mongodb.org/browse/NODE-3263
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()
