@@ -40,7 +40,7 @@ jobs:
       - script: yarn create-schemas
         displayName: Recreate JSON Schemas
 
-      - script: yarn test
+      - script: yarn test --forceExit
         displayName: 'Test'
 
       # - script: bash <(curl -s https://codecov.io/bash)
