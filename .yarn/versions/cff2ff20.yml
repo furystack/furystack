@@ -1,22 +1,23 @@
 releases:
   "@furystack/auth-google": patch
-  "@furystack/core": patch
-  "@furystack/filesystem-store": patch
+  "@furystack/core": minor
+  "@furystack/filesystem-store": minor
   "@furystack/inject": minor
   "@furystack/logging": patch
   "@furystack/mongodb-store": patch
-  "@furystack/redis-store": patch
+  "@furystack/redis-store": minor
   "@furystack/repository": patch
   "@furystack/rest": patch
   "@furystack/rest-client-fetch": patch
   "@furystack/rest-client-got": patch
-  "@furystack/rest-service": patch
+  "@furystack/rest-service": minor
   "@furystack/security": patch
-  "@furystack/sequelize-store": patch
+  "@furystack/sequelize-store": minor
   "@furystack/shades": patch
   "@furystack/shades-common-components": patch
   "@furystack/shades-lottie": patch
   "@furystack/shades-nipple": patch
+  "@furystack/shades-showcase-app": patch
   "@furystack/utils": minor
   "@furystack/websocket-api": patch
-  furystack: patch
+  furystack: minor
