@@ -1,6 +1,6 @@
 import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { Constructable } from '@furystack/inject'
-import { MongoClient, Filter, Collection, ObjectId, Sort, OptionalUnlessRequiredId } from 'mongodb'
+import { MongoClient, Filter, Collection, ObjectId, Sort, OptionalUnlessRequiredId, UpdateFilter } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
 /**
@@ -111,7 +111,7 @@ export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalSto
   }
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
-    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data })
+    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
     if (updateResult.matchedCount < 1) {
       throw Error(`Entity not found with id '${id}', cannot update!`)
     }
