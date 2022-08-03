@@ -1,7 +1,6 @@
 import { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 import { MongoClient, MongoClientOptions } from 'mongodb'
-import Semaphore from 'semaphore-async-await'
 
 /**
  * Factory for instantiating MongoDb clients
@@ -10,16 +9,9 @@ import Semaphore from 'semaphore-async-await'
 export class MongoClientFactory implements Disposable {
   private connections: Map<string, MongoClient> = new Map()
 
-  private readonly connectionLock = new Semaphore(1)
-
   public async dispose() {
-    try {
-      await this.connectionLock.acquire()
-      await Promise.all([...this.connections.values()].map((c) => c.close()))
-      this.connections.clear()
-    } finally {
-      this.connectionLock.release()
-    }
+    await Promise.all([...this.connections.values()].map((c) => c.close(true)))
+    this.connections.clear()
   }
 
   public async getClientFor(url: string, options?: MongoClientOptions) {
@@ -28,18 +20,8 @@ export class MongoClientFactory implements Disposable {
       return existing
     }
 
-    try {
-      await this.connectionLock.acquire()
-      const existingCreated = this.connections.get(url)
-      if (existingCreated) {
-        return existingCreated
-      }
-      const client = new MongoClient(url, options)
-      await client.connect()
-      this.connections.set(url, client)
-      return client
-    } finally {
-      this.connectionLock.release()
-    }
+    const client = new MongoClient(url, options)
+    this.connections.set(url, client)
+    return client
   }
 }

@@ -45,9 +45,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   },
   constructed: ({ props }) => {
     const listener = (ev: KeyboardEvent) => props.service.handleKeyDown(ev)
-
     window.addEventListener('keydown', listener)
-
     return () => window.removeEventListener('keydown', listener)
   },
   render: ({ props, injector }) => {
@@ -102,6 +100,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             columns={props.columns}
             service={props.service}
             rowComponents={props.rowComponents}
+            onRowClick={(entry, ev) => props.service.handleRowClick(entry, ev)}
             style={props.styles?.cell}
           />
         </table>
