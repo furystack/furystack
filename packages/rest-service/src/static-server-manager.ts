@@ -1,8 +1,7 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { PathHelper } from '@furystack/utils'
 import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
-import { ServerResponse } from 'http'
+import { IncomingMessage, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types'
 import { join, sep } from 'path'
 import { ServerManager } from './server-manager'
@@ -32,34 +31,40 @@ export class StaticServerManager {
     createReadStream(filePath, { autoClose: true }).pipe(res)
   }
 
+  public shouldExec =
+    (baseUrl: string) =>
+    ({ req }: { req: Pick<IncomingMessage, 'url' | 'method'> }) =>
+      req.url &&
+      req.method?.toUpperCase() === 'GET' &&
+      (req.url === baseUrl || req.url.startsWith(baseUrl[baseUrl.length - 1] === '/' ? baseUrl : `${baseUrl}/`))
+        ? true
+        : false
+
+  private onRequest =
+    (path: string, baseUrl: string, fallback?: string) =>
+    async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
+      const rootPath = join(process.cwd(), path)
+      const filePath = (req.url as string).substring(baseUrl.length - 1).replace('/', sep)
+      const fullPath = join(rootPath, filePath)
+
+      try {
+        await this.sendFile(fullPath, res)
+      } catch (error) {
+        if (fallback) {
+          await this.sendFile(join(rootPath, fallback), res)
+        } else {
+          res.writeHead(404, { 'Content-Type': 'text/plain' })
+          res.end('Not found')
+        }
+      }
+    }
+
   public async addStaticSite(options: StaticServerOptions) {
     const server = await this.serverManager.getOrCreate({ hostName: options.hostName, port: options.port })
 
     server.apis.push({
-      shouldExec: ({ req }) =>
-        req.url &&
-        req.method?.toUpperCase() === 'GET' &&
-        `/${PathHelper.normalize(req.url).startsWith(options.baseUrl)}`
-          ? true
-          : false,
-      onRequest: async ({ req, res }) => {
-        const rootPath = join(process.cwd(), options.path)
-        const filePath = PathHelper.normalize(req.url as string)
-          .replace(options.baseUrl, '')
-          .replace('/', sep)
-        const fullPath = join(rootPath, filePath)
-
-        try {
-          await this.sendFile(fullPath, res)
-        } catch (error) {
-          if (options.fallback) {
-            await this.sendFile(join(rootPath, options.fallback), res)
-          } else {
-            res.writeHead(404, { 'Content-Type': 'text/plain' })
-            res.end('Not found')
-          }
-        }
-      },
+      shouldExec: this.shouldExec(options.baseUrl),
+      onRequest: this.onRequest(options.path, options.baseUrl, options.fallback),
     })
   }
 }
