@@ -11,7 +11,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           port: 1234,
@@ -35,7 +34,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           fallback: 'package.json',
@@ -53,7 +51,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           port: 1234,
@@ -70,7 +67,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           port: 1234,
@@ -89,7 +85,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/bundle',
           path: '.',
           port: 1234,
@@ -112,7 +107,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/bundle',
           path: '.',
           port: 1234,
@@ -136,7 +130,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/bundle',
           path: '.',
           fallback: 'package.json',
@@ -154,7 +147,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           port: 1234,
@@ -171,7 +163,6 @@ describe('StaticServerManager', () => {
         const staticServerManager = injector.getInstance(StaticServerManager)
 
         await staticServerManager.addStaticSite({
-          hostName: 'localhost',
           baseUrl: '/',
           path: '.',
           port: 1234,
