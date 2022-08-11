@@ -44,7 +44,7 @@ export class StaticServerManager {
     (path: string, baseUrl: string, fallback?: string) =>
     async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       const rootPath = join(process.cwd(), path)
-      const filePath = (req.url as string).substring(baseUrl.length - 1).replace('/', sep)
+      const filePath = (req.url as string).substring(baseUrl.length - 1).replaceAll('/', sep)
       const fullPath = join(rootPath, filePath)
 
       try {
