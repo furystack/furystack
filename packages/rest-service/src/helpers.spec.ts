@@ -18,7 +18,7 @@ describe('Injector extensions', () => {
   describe('useRestService()', () => {
     it('Should set up a REST service', async () => {
       await usingAsync(new Injector(), async (i) => {
-        await useRestService({ injector: i, api: {}, root: '/', port: 123 })
+        await useRestService({ injector: i, api: {}, root: '/', port: 1234 })
         expect(i.cachedSingletons.get(ApiManager)).toBeDefined()
       })
     })
