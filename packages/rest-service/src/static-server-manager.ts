@@ -3,7 +3,7 @@ import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
 import { IncomingMessage, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types'
-import { join, sep } from 'path'
+import { join, normalize, sep } from 'path'
 import { ServerManager } from './server-manager'
 
 export interface StaticServerOptions {
@@ -40,24 +40,23 @@ export class StaticServerManager {
         ? true
         : false
 
-  private onRequest =
-    (path: string, baseUrl: string, fallback?: string) =>
-    async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
-      const rootPath = join(process.cwd(), path)
+  private onRequest = (path: string, baseUrl: string, fallback?: string) => {
+    return async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       const filePath = (req.url as string).substring(baseUrl.length - 1).replaceAll('/', sep)
-      const fullPath = join(rootPath, filePath)
+      const fullPath = normalize(join(path, filePath))
 
       try {
         await this.sendFile(fullPath, res)
       } catch (error) {
         if (fallback) {
-          await this.sendFile(join(rootPath, fallback), res)
+          await this.sendFile(join(path, fallback), res)
         } else {
           res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
         }
       }
     }
+  }
 
   public async addStaticSite(options: StaticServerOptions) {
     const server = await this.serverManager.getOrCreate({ hostName: options.hostName, port: options.port })
