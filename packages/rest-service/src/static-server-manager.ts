@@ -1,5 +1,5 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { createReadStream } from 'fs'
+import { createReadStream, readdirSync } from 'fs'
 import { stat } from 'fs/promises'
 import { IncomingMessage, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types'
@@ -51,7 +51,8 @@ export class StaticServerManager {
         if (fallback) {
           await this.sendFile(join(path, fallback), res)
         } else {
-          console.error({ message: (error as any).message, filePath, path, fullPath })
+          const files = readdirSync('.')
+          console.error({ message: (error as any).message, filePath, path, fullPath, files })
           res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
         }
