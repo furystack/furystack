@@ -56,7 +56,7 @@ describe('StaticServerManager', () => {
           port: 1234,
         })
 
-        const result = await got.get('http://localhost:1234/readme.md')
+        const result = await got.get('http://localhost:1234/README.md')
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -72,7 +72,7 @@ describe('StaticServerManager', () => {
           port: 1234,
         })
 
-        const result = await got.get('http://localhost:1234/packages/utils/readme.md')
+        const result = await got.get('http://localhost:1234/packages/utils/README.md')
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -152,7 +152,7 @@ describe('StaticServerManager', () => {
           port: 1234,
         })
 
-        const result = await got.get('http://localhost:1234/readme.md')
+        const result = await got.get('http://localhost:1234/README.md')
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -168,7 +168,7 @@ describe('StaticServerManager', () => {
           port: 1234,
         })
 
-        const result = await got.get('http://localhost:1234/packages/utils/readme.md')
+        const result = await got.get('http://localhost:1234/packages/utils/README.md')
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
