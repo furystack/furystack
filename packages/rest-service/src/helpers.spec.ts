@@ -1,24 +1,35 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { useHttpAuthentication } from './helpers'
+import { ApiManager } from './api-manager'
+import { HttpAuthenticationSettings } from './http-authentication-settings'
+import { useHttpAuthentication, useRestService, useStaticFiles } from './helpers'
+import { StaticServerManager } from './static-server-manager'
 
 describe('Injector extensions', () => {
   describe('useHttpAuthentication', () => {
     it('Should set up HTTP Authentication', async () => {
       await usingAsync(new Injector(), async (i) => {
         useHttpAuthentication(i)
-        // TODO: Check if HTTP Auth has been set up
+        expect(i.cachedSingletons.get(HttpAuthenticationSettings)).toBeDefined()
       })
     })
   })
 
   describe('useRestService()', () => {
-    it.todo(
-      'Should set up a REST service',
-      // await usingAsync(new Injector(), async (i) => {
-      //   useRestService({ injector: i, api: {},  })
-      //   TODO: Assert if REST service has been set up
-      // })
-    )
+    it('Should set up a REST service', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await useRestService({ injector: i, api: {}, root: '/', port: 1234 })
+        expect(i.cachedSingletons.get(ApiManager)).toBeDefined()
+      })
+    })
+  })
+
+  describe('useRestService()', () => {
+    it('Should set up a REST service', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await useStaticFiles({ injector: i, baseUrl: '/', path: '.', port: 1234 })
+        expect(i.cachedSingletons.get(StaticServerManager)).toBeDefined()
+      })
+    })
   })
 })
