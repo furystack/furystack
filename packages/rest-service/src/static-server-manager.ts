@@ -51,7 +51,7 @@ export class StaticServerManager {
         if (fallback) {
           await this.sendFile(join(path, fallback), res)
         } else {
-          console.error((error as any).message)
+          console.error({ message: (error as any).message, filePath, path, fullPath })
           res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
         }
