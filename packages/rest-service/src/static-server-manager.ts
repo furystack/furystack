@@ -1,7 +1,7 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { createReadStream, readdirSync } from 'fs'
+import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
-import { IncomingMessage, ServerResponse } from 'http'
+import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types'
 import { join, normalize, sep } from 'path'
 import { ServerManager } from './server-manager'
@@ -12,6 +12,7 @@ export interface StaticServerOptions {
   hostName?: string
   port: number
   fallback?: string
+  headers?: OutgoingHttpHeaders
 }
 
 @Injectable({ lifetime: 'singleton' })
@@ -19,16 +20,25 @@ export class StaticServerManager {
   @Injected(ServerManager)
   private readonly serverManager!: ServerManager
 
-  private async sendFile(filePath: string, res: ServerResponse) {
-    const { size } = await stat(filePath)
+  private async sendFile({
+    fullPath,
+    headers,
+    res,
+  }: {
+    fullPath: string
+    res: ServerResponse
+    headers?: OutgoingHttpHeaders
+  }) {
+    const { size } = await stat(fullPath)
 
     const head = {
+      ...headers,
       'Content-Length': size,
-      'Content-Type': getMimeForFile(filePath),
+      'Content-Type': getMimeForFile(fullPath),
     }
 
     res.writeHead(200, head)
-    createReadStream(filePath, { autoClose: true }).pipe(res)
+    createReadStream(fullPath, { autoClose: true }).pipe(res)
   }
 
   public shouldExec =
@@ -40,19 +50,27 @@ export class StaticServerManager {
         ? true
         : false
 
-  private onRequest = (path: string, baseUrl: string, fallback?: string) => {
+  private onRequest = ({
+    path,
+    baseUrl,
+    fallback,
+    headers,
+  }: {
+    path: string
+    baseUrl: string
+    fallback?: string
+    headers?: OutgoingHttpHeaders
+  }) => {
     return async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       const filePath = (req.url as string).substring(baseUrl.length - 1).replaceAll('/', sep)
       const fullPath = normalize(join(path, filePath))
 
       try {
-        await this.sendFile(fullPath, res)
+        await this.sendFile({ fullPath, res, headers })
       } catch (error) {
         if (fallback) {
-          await this.sendFile(join(path, fallback), res)
+          await this.sendFile({ fullPath: join(path, fallback), res, headers })
         } else {
-          const files = readdirSync('.')
-          console.error({ message: (error as any).message, filePath, path, fullPath, files })
           res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
         }
@@ -65,7 +83,7 @@ export class StaticServerManager {
 
     server.apis.push({
       shouldExec: this.shouldExec(options.baseUrl),
-      onRequest: this.onRequest(options.path, options.baseUrl, options.fallback),
+      onRequest: this.onRequest({ ...options }),
     })
   }
 }

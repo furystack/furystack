@@ -38,11 +38,15 @@ describe('StaticServerManager', () => {
           path: '.',
           fallback: 'package.json',
           port: 1234,
+          headers: {
+            'custom-header': 'custom-value',
+          },
         })
 
         const result = await got.get('http://localhost:1234/not-found.html')
 
         expect(result.headers['content-type']).toBe('application/json')
+        expect(result.headers['custom-header']).toBe('custom-value')
       })
     })
 
@@ -54,11 +58,15 @@ describe('StaticServerManager', () => {
           baseUrl: '/',
           path: '.',
           port: 1234,
+          headers: {
+            'custom-header': 'custom-value',
+          },
         })
 
         const result = await got.get('http://localhost:1234/README.md')
 
         expect(result.headers['content-type']).toBe('text/markdown')
+        expect(result.headers['custom-header']).toBe('custom-value')
       })
     })
 
