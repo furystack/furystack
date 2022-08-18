@@ -14,6 +14,23 @@
       "type": "node"
     },
     {
+      "name": "Debug current Showcase App Playwright tests",
+      "type": "node",
+      "runtimeExecutable": "yarn",
+      "request": "launch",
+      // "program": "${file}",
+      "runtimeArgs": [
+        "workspace",
+        "@furystack/shades-showcase-app",
+        "playwright",
+        "test",
+        "--headed",
+        "--timeout=3000000",
+        "--project=chromium"
+      ]
+    },
+
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug All Jest tests",

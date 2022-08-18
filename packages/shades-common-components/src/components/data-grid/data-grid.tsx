@@ -15,12 +15,46 @@ export type DataRowCells<T> = {
 }
 
 export interface DataGridProps<T> {
+  /**
+   * A list of columns to display
+   */
   columns: Array<keyof T>
+  /**
+   * Optional style overrides for the grid
+   */
   styles: GridProps<T>['styles']
+  /**
+   * A collection service to use for data source
+   */
   service: CollectionService<T>
+  /**
+   * A list of custom header components to use
+   */
   headerComponents: DataHeaderCells<T>
+  /**
+   * A list of custom row components to use
+   */
   rowComponents: DataRowCells<T>
+  /**
+   * Optional autoFocus property to set the grid as focused
+   */
   autofocus?: boolean
+  /**
+   * Optional style to attach to grid rows when the row is focused
+   */
+  focusedRowStyle?: Partial<CSSStyleDeclaration>
+  /**
+   * Optional style to attach to grid rows when the row is not focused
+   */
+  unfocusedRowStyle?: Partial<CSSStyleDeclaration>
+  /**
+   * Optional style to attach to grid rows when the row is selected
+   */
+  selectedRowStyle?: Partial<CSSStyleDeclaration>
+  /**
+   * Optional style to attach to grid rows when the row is not selected
+   */
+  unselectedRowStyle?: Partial<CSSStyleDeclaration>
 }
 
 export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
@@ -102,6 +136,10 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             rowComponents={props.rowComponents}
             onRowClick={(entry, ev) => props.service.handleRowClick(entry, ev)}
             style={props.styles?.cell}
+            focusedRowStyle={props.focusedRowStyle}
+            selectedRowStyle={props.selectedRowStyle}
+            unfocusedRowStyle={props.unfocusedRowStyle}
+            unselectedRowStyle={props.unselectedRowStyle}
           />
         </table>
         <DataGridFooter service={props.service} />
