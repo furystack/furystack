@@ -1,32 +1,5 @@
 import { test, expect, Locator, Page } from '@playwright/test'
-import { sleepAsync } from '@furystack/utils'
-
-const pages: Array<{ name: string; url: string }> = [
-  {
-    name: 'Buttons',
-    url: 'http://localhost:8080/buttons',
-  },
-  {
-    name: 'Inputs',
-    url: 'http://localhost:8080/inputs',
-  },
-  {
-    name: 'Grid',
-    url: 'http://localhost:8080/grid',
-  },
-  {
-    name: 'Nipple',
-    url: 'http://localhost:8080/nipple',
-  },
-  {
-    name: 'Lottie',
-    url: 'http://localhost:8080/lottie',
-  },
-  {
-    name: 'Monaco',
-    url: 'http://localhost:8080/monaco',
-  },
-]
+import { pages } from './pages'
 
 const getNavigationEntry = async (page: Page, entryName: string) => {
   const appBar = await page.locator('shade-app-bar')
@@ -43,9 +16,9 @@ const expectNotSelected = async (menuEntry: Locator) =>
 const expectPageTitle = async (page: Page, title: string) => await page.locator('shade-router h1', { hasText: title })
 
 test.describe('Navigation', () => {
-  pages.forEach(({ name, url }) => {
+  Object.values(pages).forEach(({ name, url }) => {
     test(`${name} Should be available from Navigation menu`, async ({ page }) => {
-      await page.goto('http://localhost:8080')
+      await page.goto('http://localhost:8080/')
       const homePageTitle = await page.locator('shades-showcase-home')
       await expect(homePageTitle).toBeVisible()
 

@@ -1,4 +1,4 @@
-import { ChildrenList, createComponent, createFragment, Shade } from '@furystack/shades'
+import { attachStyles, ChildrenList, createComponent, createFragment, Shade } from '@furystack/shades'
 import { CollectionService } from '../../services/collection-service'
 import { DataRowCells } from './data-grid'
 
@@ -8,6 +8,10 @@ export interface DataGridRowProps<T> {
   service: CollectionService<T>
   rowComponents?: DataRowCells<T>
   onRowClick?: (row: T, event: MouseEvent) => void
+  focusedRowStyle?: Partial<CSSStyleDeclaration>
+  selectedRowStyle?: Partial<CSSStyleDeclaration>
+  unfocusedRowStyle?: Partial<CSSStyleDeclaration>
+  unselectedRowStyle?: Partial<CSSStyleDeclaration>
 }
 
 export interface DataGridRowState<T> {
@@ -27,8 +31,12 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
   resources: ({ props, element }) => [
     props.service.focusedEntry.subscribe((newEntry) => {
       if (newEntry === props.entry) {
-        element.style.filter = 'brightness(1.5)'
-        element.style.fontWeight = 'bolder'
+        attachStyles(element, {
+          style: props.focusedRowStyle || {
+            filter: 'brightness(1.5)',
+            fontWeight: 'bolder',
+          },
+        })
 
         const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
 
@@ -42,25 +50,27 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
         const footerHeight =
           element.closest('shade-data-grid')?.querySelector('shade-data-grid-footer')?.getBoundingClientRect().height ||
           42
-        const visibleMaxTop = parent.clientHeight - footerHeight // parent.getBoundingClientRect().height - footerHeight - headerHeight
+        const visibleMaxTop = parent.clientHeight - footerHeight
         const desiredMaxTop = element.offsetTop + element.clientHeight
         if (desiredMaxTop > visibleMaxTop) {
           parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
         }
-
-        // ;(element as any).scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' })
       } else {
-        element.style.filter = 'brightness(1)'
-        element.style.fontWeight = 'inherit'
+        attachStyles(element, {
+          style: props.unfocusedRowStyle || {
+            filter: 'brightness(1)',
+            fontWeight: 'inherit',
+          },
+        })
       }
-    }),
+    }, true),
     props.service.selection.subscribe((selection) => {
       if (selection.includes(props.entry)) {
-        element.style.background = 'rgba(128,128,128,0.1)'
+        attachStyles(element, { style: props.selectedRowStyle || { backgroundColor: 'rgba(128,128,128,0.1)' } })
       } else {
-        element.style.background = 'none'
+        attachStyles(element, { style: props.unselectedRowStyle || { backgroundColor: 'transparent' } })
       }
-    }),
+    }, true),
   ],
 
   render: ({ getState, props, element }) => {
