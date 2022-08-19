@@ -1,5 +1,4 @@
 import { Locator, Page, test } from '@playwright/test'
-import { sleepAsync } from '@furystack/utils'
 import { pages } from './pages'
 
 const getGrid = async (page: Page) => {
@@ -17,10 +16,12 @@ test.describe('Data Grid component', () => {
     test.expect(await focusedEntry.inputValue()).toBe(await rowTextCell.textContent())
   }
 
-  const expectRowIsSelected = async (rowNumber: number) => {
-    const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
-    test.expect(await checkbox.isChecked()).toBe(true)
+  const expectRowIsSelected = async (...rowNumbers: number[]) => {
+    for (const rowNumber of rowNumbers) {
+      const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
+      const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
+      test.expect(await checkbox.isChecked()).toBe(true)
+    }
   }
 
   const expectRowIsUnselected = async (rowNumber: number) => {
@@ -33,9 +34,9 @@ test.describe('Data Grid component', () => {
     test.expect(await selectionCount.inputValue()).toBe(count.toString())
   }
 
-  const clickOnRow = async (rowNumber: number) => {
+  const clickOnRow = async (rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
     const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    await row.click()
+    await row.click({ modifiers })
   }
 
   test.beforeEach(async ({ page }) => {
@@ -130,7 +131,7 @@ test.describe('Data Grid component', () => {
       test('plus should select all rows', async ({ page }) => {
         await clickOnRow(1)
         await page.keyboard.press('+', {
-          delay: 10,
+          delay: 25,
         })
         await expectSelectionCount(100)
       })
@@ -160,10 +161,31 @@ test.describe('Data Grid component', () => {
   test.describe('Gestures', async () => {
     test('CTRL+click should toggle selection', async ({ page }) => {
       /** TODO */
+      await clickOnRow(1, ['Control'])
+      await expectRowHasFocus(1)
+      await expectRowIsSelected(1)
+      await expectSelectionCount(1)
+
+      await clickOnRow(2, ['Control'])
+      await expectRowHasFocus(2)
+      await expectRowIsSelected(2)
+      await expectSelectionCount(2)
+
+      await clickOnRow(2, ['Control'])
+      await expectRowHasFocus(2)
+      await expectRowIsUnselected(2)
+      await expectSelectionCount(1)
     })
 
     test('SHIFT+click should select range', async ({ page }) => {
-      /** TODO */
+      await clickOnRow(1)
+      await expectRowHasFocus(1)
+      await expectSelectionCount(0)
+
+      await clickOnRow(4, ['Shift'])
+
+      await expectRowIsSelected(1, 2, 3, 4)
+      await expectRowHasFocus(4)
     })
   })
 })
