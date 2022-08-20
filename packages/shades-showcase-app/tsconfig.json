@@ -20,6 +20,12 @@
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../shades"
+    },
+    {
+      "path": "../shades-common-components"
     }
   ]
 }
