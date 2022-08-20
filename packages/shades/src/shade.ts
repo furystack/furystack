@@ -1,6 +1,6 @@
 import { Disposable, ObservableValue } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { ChildrenList, PartialElement, RenderOptions } from './models'
+import { ChildrenList, PartialElement, RenderOptions, ShadeComponent } from './models'
 
 export type ShadeOptions<TProps, TState> = {
   /**
@@ -96,7 +96,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Will be updated when on children change
          */
-        public shadeChildren = new ObservableValue<ChildrenList>([])
+        public shadeChildren = new ObservableValue<ChildrenList | undefined>([])
 
         /**
          * @param options Options for rendering the component
@@ -235,7 +235,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
   }
 
-  return (props: TProps, children: ChildrenList) => {
+  const comp: ShadeComponent<TProps> = (props: TProps, children?: ChildrenList) => {
     const el = document.createElement(customElementName, {
       ...props,
     }) as JSX.Element<TProps, TState>
@@ -244,4 +244,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     el.shadeChildren.setValue(children)
     return el as JSX.Element
   }
+  comp.isShadeComponent = true
+
+  return comp
 }

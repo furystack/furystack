@@ -10,7 +10,7 @@ declare global {
       state: ObservableValue<TState>
       props: ObservableValue<TProps>
       updateComponent: () => void
-      shadeChildren: ObservableValue<ChildrenList>
+      shadeChildren: ObservableValue<ChildrenList | undefined>
       callConstructed: () => void
     }
 
