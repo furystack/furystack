@@ -83,7 +83,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Will be triggered when updating the external props object
          */
-        public props: ObservableValue<TProps & { children?: JSX.Element[] }>
+        public props: TProps & { children?: JSX.Element[] }
 
         /**
          * Will be triggered on state update
@@ -93,7 +93,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Will be updated when on children change
          */
-        public shadeChildren = new ObservableValue<ChildrenList>([])
+        public shadeChildren?: ChildrenList
 
         /**
          * @param options Options for rendering the component
@@ -105,7 +105,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * @returns values for the current render options
          */
         private getRenderOptions = () => {
-          const props = this.props.getValue()
+          const props: TProps = { ...this.props }
           const getState = () => this.state.getValue()
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
             const currentState = this.state.getValue()
@@ -121,7 +121,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             getState,
             injector: this.injector,
             updateState,
-            children: this.shadeChildren.getValue(),
+            children: this.shadeChildren,
             element: this,
           }
 
@@ -163,12 +163,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
-          if (this.props.isDisposed) {
-            return
-          }
-
           ;(o as any).getInitialState &&
-            this.state.setValue((o as any).getInitialState({ props: this.props.getValue(), injector: this.injector }))
+            this.state.setValue((o as any).getInitialState({ props: { ...this.props }, injector: this.injector }))
 
           this.updateComponent()
           this.createResources()
@@ -205,7 +201,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             return fromState
           }
 
-          const fromProps = (this.props.getValue() as any)?.injector
+          const fromProps = (this.props as any)?.injector
           if (fromProps && fromProps instanceof Injector) {
             return fromProps
           }
@@ -227,7 +223,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
         constructor(_props: TProps) {
           super()
-          this.props = new ObservableValue()
+          this.props = _props
           this.state = new ObservableValue()
         }
       } as any as CustomElementConstructor,
@@ -240,9 +236,9 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     const el = document.createElement(customElementName, {
       ...props,
     }) as JSX.Element<TProps, TState>
-    el.props.setValue(props)
+    el.props = props
 
-    el.shadeChildren.setValue(children)
+    el.shadeChildren = children
     return el as JSX.Element
   }
 }

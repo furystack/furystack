@@ -8,9 +8,9 @@ declare global {
     interface Element<TProps = any, TState = any> extends HTMLElement {
       injector: Injector
       state: ObservableValue<TState>
-      props: ObservableValue<TProps>
+      props: TProps
       updateComponent: () => void
-      shadeChildren: ObservableValue<ChildrenList>
+      shadeChildren?: ChildrenList
       callConstructed: () => void
     }
 
