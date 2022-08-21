@@ -1,4 +1,3 @@
-import { ObservableValue } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { ChildrenList, PartialElement } from './models'
 
@@ -7,7 +6,7 @@ declare global {
   export namespace JSX {
     interface Element<TProps = any, TState = any> extends HTMLElement {
       injector: Injector
-      state: ObservableValue<TState>
+      state: TState
       props: TProps
       updateComponent: () => void
       shadeChildren?: ChildrenList

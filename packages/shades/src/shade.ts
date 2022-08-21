@@ -1,4 +1,4 @@
-import { Disposable, ObservableValue } from '@furystack/utils'
+import { Disposable } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { ChildrenList, PartialElement, RenderOptions } from './models'
 
@@ -88,7 +88,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Will be triggered on state update
          */
-        public state: ObservableValue<TState>
+        public state!: TState
 
         /**
          * Will be updated when on children change
@@ -106,12 +106,12 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         private getRenderOptions = () => {
           const props: TProps = { ...this.props }
-          const getState = () => this.state.getValue()
+          const getState = () => ({ ...this.state })
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
-            const currentState = this.state.getValue()
+            const currentState = { ...this.state }
             const newState = { ...currentState, ...stateChanges }
             if (this.compareState(currentState, newState)) {
-              this.state.setValue(newState)
+              this.state = newState
               !skipRender && this.updateComponent()
             }
           }
@@ -164,7 +164,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         public callConstructed() {
           ;(o as any).getInitialState &&
-            this.state.setValue((o as any).getInitialState({ props: { ...this.props }, injector: this.injector }))
+            (this.state = (o as any).getInitialState({ props: { ...this.props }, injector: this.injector }))
 
           this.updateComponent()
           this.createResources()
@@ -196,7 +196,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             return this._injector
           }
 
-          const fromState = (this.state.getValue() as any)?.injector
+          const fromState = (this.state as any)?.injector
           if (fromState && fromState instanceof Injector) {
             return fromState
           }
@@ -224,7 +224,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         constructor(_props: TProps) {
           super()
           this.props = _props
-          this.state = new ObservableValue()
         }
       } as any as CustomElementConstructor,
     )

@@ -60,7 +60,7 @@ describe('Shades Component Factory', () => {
 
       const shade = component.firstElementChild as JSX.Element
       expect(shade.props).toBe(null)
-      expect(shade.state.getValue()).toBe(undefined)
+      expect(shade.state).toBe(undefined)
       expect(shade.shadeChildren).toStrictEqual([])
     })
 
@@ -81,7 +81,7 @@ describe('Shades Component Factory', () => {
       shade.callConstructed()
 
       expect(shade.props.foo).toStrictEqual('example')
-      expect(shade.state.getValue()).toBe(undefined)
+      expect(shade.state).toBe(undefined)
       expect(shade.shadeChildren).toStrictEqual([])
 
       expect(shade.innerHTML).toBe('<div>example</div>')
@@ -102,7 +102,7 @@ describe('Shades Component Factory', () => {
 
       const shade = component.firstElementChild as JSX.Element
       shade.callConstructed()
-      expect(shade.state.getValue()).toStrictEqual({ foo: 'example' })
+      expect(shade.state).toStrictEqual({ foo: 'example' })
       expect(shade.shadeChildren).toStrictEqual([])
     })
   })
