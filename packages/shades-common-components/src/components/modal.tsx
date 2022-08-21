@@ -4,7 +4,6 @@ import { ObservableValue } from '@furystack/utils'
 export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>
   isVisible: ObservableValue<boolean>
-  content: () => JSX.Element
   onClose?: () => void
   showAnimation?: (el: Element | null) => Promise<void>
   hideAnimation?: (el: Element | null) => Promise<void>
@@ -24,7 +23,7 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
     }, true),
   ],
 
-  render: ({ props, getState }) => {
+  render: ({ props, getState, children }) => {
     const { isVisible } = getState()
     return isVisible ? (
       <div
@@ -42,7 +41,7 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
           ...props.backdropStyle,
         }}
       >
-        {props.content()}
+        {children}
       </div>
     ) : (
       <div />

@@ -108,8 +108,9 @@ export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean>
           }}
           showAnimation={(el) => animations.fadeIn(el)}
           hideAnimation={(el) => animations.fadeOut(el)}
-          content={() => <Wizard steps={[Step1, Step2, Step3]} onFinish={() => isOpened.setValue(false)} />}
-        />
+        >
+          <Wizard steps={[Step1, Step2, Step3]} onFinish={() => isOpened.setValue(false)} />
+        </Modal>
       </span>
     )
   },

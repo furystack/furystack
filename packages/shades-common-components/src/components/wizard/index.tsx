@@ -1,4 +1,4 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { ChildrenList, createComponent, Shade } from '@furystack/shades'
 import { Paper } from '../paper'
 
 export interface WizardStepProps {
@@ -9,7 +9,7 @@ export interface WizardStepProps {
 }
 
 export interface WizardProps {
-  steps: Array<(props: WizardStepProps) => JSX.Element<any, any>>
+  steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element<any, any>>
   isOpened?: boolean
   onFinish?: () => void
 }
@@ -25,22 +25,9 @@ export const Wizard = Shade<WizardProps, WizardState>({
   }),
   render: ({ props, getState, updateState }) => {
     const { currentPage } = getState()
-    const currentStep = props.steps[currentPage]?.({
-      currentPage,
-      maxPages: props.steps.length,
-      onNext: () => {
-        if (currentPage < props.steps.length - 1) {
-          updateState({ currentPage: currentPage + 1 })
-        } else {
-          props.onFinish?.()
-        }
-      },
-      onPrev: () => {
-        if (currentPage > 0) {
-          updateState({ currentPage: currentPage - 1 })
-        }
-      },
-    })
+
+    const CurrentPage = props.steps[currentPage]
+
     return (
       <div
         style={{
@@ -52,7 +39,22 @@ export const Wizard = Shade<WizardProps, WizardState>({
         }}
       >
         <Paper elevation={3} onclick={(ev) => ev.stopPropagation()}>
-          {currentStep}
+          <CurrentPage
+            currentPage={currentPage}
+            maxPages={props.steps.length}
+            onNext={() => {
+              if (currentPage < props.steps.length - 1) {
+                updateState({ currentPage: currentPage + 1 })
+              } else {
+                props.onFinish?.()
+              }
+            }}
+            onPrev={() => {
+              if (currentPage > 0) {
+                updateState({ currentPage: currentPage - 1 })
+              }
+            }}
+          />
         </Paper>
       </div>
     )
