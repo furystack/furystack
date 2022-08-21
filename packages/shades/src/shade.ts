@@ -78,9 +78,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           o.onDetach && o.onDetach(this.getRenderOptions())
           Object.values(this.resources).forEach((s) => s.dispose())
           this.cleanup && this.cleanup()
-          this.shadeChildren.dispose()
-          this.props.dispose()
-          this.state.dispose()
         }
 
         /**
@@ -108,7 +105,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * @returns values for the current render options
          */
         private getRenderOptions = () => {
-          const props = this.props.getValue() || {}
+          const props = this.props.getValue()
           const getState = () => this.state.getValue()
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
             const currentState = this.state.getValue()
@@ -140,6 +137,10 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         public updateComponent() {
           const renderResult = this.render(this.getRenderOptions())
+
+          if (renderResult === null) {
+            this.innerHTML = ''
+          }
 
           if (typeof renderResult === 'string') {
             this.innerHTML = renderResult
