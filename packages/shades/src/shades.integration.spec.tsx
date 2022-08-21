@@ -81,6 +81,35 @@ describe('Shades integration tests', () => {
     )
   })
 
+  it('Should mount a custom component with a document fragment that contains custom components', () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const CustomComponent = Shade({
+      shadowDomName: 'shades-fragment-test-custom-component',
+      render: () => <p>Hello</p>,
+    })
+
+    const ExampleComponent = Shade({
+      render: () => (
+        <>
+          <CustomComponent />
+          <CustomComponent />
+        </>
+      ),
+      shadowDomName: 'shades-fragment-render-result-2',
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+    expect(document.body.innerHTML).toBe(
+      '<div id="root"><shades-fragment-render-result-2><shades-fragment-test-custom-component><p>Hello</p></shades-fragment-test-custom-component><shades-fragment-test-custom-component><p>Hello</p></shades-fragment-test-custom-component></shades-fragment-render-result-2></div>',
+    )
+  })
+
   it('Should mount nested Shades components', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement

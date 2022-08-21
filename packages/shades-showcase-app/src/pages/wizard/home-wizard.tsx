@@ -1,4 +1,4 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { createComponent, createFragment, Shade } from '@furystack/shades'
 import { animations, Button, Input, Modal, Wizard, WizardStepProps } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
@@ -96,7 +96,7 @@ export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean>
   render: ({ getState }) => {
     const { isOpened } = getState()
     return (
-      <span>
+      <>
         <Button onclick={() => isOpened.setValue(true)}>Open Wizard</Button>
         <Modal
           isVisible={isOpened}
@@ -110,7 +110,7 @@ export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean>
         >
           <Wizard steps={[Step1, Step2, Step3]} onFinish={() => isOpened.setValue(false)} />
         </Modal>
-      </span>
+      </>
     )
   },
 })
