@@ -45,4 +45,19 @@ export const animations = {
         easing: 'cubic-bezier(0.165, 0.840, 0.440, 1.000)',
       }))
   },
+  showParallax: async (element?: Element | null) => {
+    element &&
+      (await promisifyAnimation(
+        element,
+        [
+          { transform: 'translate(50px, 0)', opacity: 0 },
+          { transform: 'translate(0, 0)', opacity: 1 },
+        ],
+        {
+          duration: 900,
+          easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
+          fill: 'forwards',
+        },
+      ))
+  },
 }

@@ -1,11 +1,16 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { WelcomeWizard } from './home-wizard'
 
-export const HomePage = Shade({
+export const HomePage = Shade<unknown, { isWizardOpened?: boolean }>({
   shadowDomName: 'shades-showcase-home',
+  getInitialState: () => ({ isWizardOpened: false }),
+
   render: () => {
     return (
       <div>
-        <h1>Home</h1>
+        <h1>
+          Home <WelcomeWizard />
+        </h1>
         <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
         magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
