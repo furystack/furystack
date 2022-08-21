@@ -2,9 +2,9 @@ import { createComponent, Shade } from '@furystack/shades'
 import { animations, Button, Input, Modal, Wizard, WizardStepProps } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
-export const WizardStep = Shade<{ title: string; content?: () => JSX.Element } & WizardStepProps>({
+export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
-  render: ({ props, element }) => {
+  render: ({ props, element, children }) => {
     setTimeout(() => animations.showParallax(element.querySelector('h1')), 1)
     return (
       <form
@@ -14,19 +14,18 @@ export const WizardStep = Shade<{ title: string; content?: () => JSX.Element } &
         }}
         style={{
           width: '800px',
-          height: '350px',
+          height: '450px',
           padding: '32px',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         <h1>{props.title}</h1>
-        <div> {props.content?.()}</div>
+        <div> {children}</div>
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            borderTop: '1px solid rgba(0, 0, 0, 0.12)',
             paddingTop: '12px',
           }}
         >
@@ -50,18 +49,18 @@ export const WizardStep = Shade<{ title: string; content?: () => JSX.Element } &
 
 export const Step1 = Shade<WizardStepProps>({
   shadowDomName: 'shades-wiz-step1',
+  constructed: ({ element }) => {
+    element.querySelector('input')?.focus()
+  },
   render: ({ props }) => {
     return (
-      <WizardStep
-        title="Step 1"
-        {...props}
-        content={() => (
-          <div>
-            <p>Welcome in the Wizard Component. Click on the "Next" button to continue</p>
-            <Input labelTitle="Please enter your name" required autofocus />
-          </div>
-        )}
-      ></WizardStep>
+      <WizardStep title="Step 1" {...props}>
+        <div>
+          <p>Welcome in the Wizard Component. Click on the "Next" button to continue</p>
+          <Input labelTitle="Please enter your name" required autofocus name="username" value="" />
+          <input type="submit" style={{ display: 'none' }} />
+        </div>
+      </WizardStep>
     )
   },
 })

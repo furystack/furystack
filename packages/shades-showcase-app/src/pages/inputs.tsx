@@ -14,7 +14,7 @@ export const InputsPage = Shade({
         }}
       >
         <h1>Inputs</h1>
-        <Input labelTitle="Test Input Field" value={'Test value'} autofocus />
+        <Input autofocus labelTitle="Test Input Field" value={'Test value'} />
       </div>
     )
   },
