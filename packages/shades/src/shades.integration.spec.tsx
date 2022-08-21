@@ -7,7 +7,7 @@ global.TextDecoder = TextDecoder as any
 
 import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
-import { createComponent } from './shade-component'
+import { createComponent, createFragment } from './shade-component'
 
 describe('Shades integration tests', () => {
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
@@ -25,6 +25,60 @@ describe('Shades integration tests', () => {
       jsxElement: <ExampleComponent />,
     })
     expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>Hello</div></shades-example></div>')
+  })
+
+  it('Should mount a custom component with a string render result', () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const ExampleComponent = Shade({ render: () => 'Hello', shadowDomName: 'shades-string-render-result' })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+    expect(document.body.innerHTML).toBe(
+      '<div id="root"><shades-string-render-result>Hello</shades-string-render-result></div>',
+    )
+  })
+
+  it('Should mount a custom component with null render result', () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const ExampleComponent = Shade({ render: () => null, shadowDomName: 'shades-null-render-result' })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+    expect(document.body.innerHTML).toBe('<div id="root"><shades-null-render-result></shades-null-render-result></div>')
+  })
+
+  it('Should mount a custom component with a document fragment render result', () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const ExampleComponent = Shade({
+      render: () => (
+        <>
+          <p>1</p>
+          <p>2</p>
+        </>
+      ),
+      shadowDomName: 'shades-fragment-render-result',
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+    expect(document.body.innerHTML).toBe(
+      '<div id="root"><shades-fragment-render-result><p>1</p><p>2</p></shades-fragment-render-result></div>',
+    )
   })
 
   it('Should mount nested Shades components', () => {
