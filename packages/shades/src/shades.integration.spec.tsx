@@ -134,15 +134,89 @@ describe('Shades integration tests', () => {
 
     const plus = () => document.getElementById('plus')?.click()
     const minus = () => document.getElementById('minus')?.click()
+    const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
-    expect(document.body.innerHTML).toContain('Count is 0')
+    expectCount(0)
     plus()
-    expect(document.body.innerHTML).toContain('Count is 1')
+    expectCount(1)
     plus()
-    expect(document.body.innerHTML).toContain('Count is 2')
+    expectCount(2)
 
     minus()
     minus()
-    expect(document.body.innerHTML).toContain('Count is 0')
+    expectCount(0)
+  })
+
+  it('Should allow children update after unmount and remount', () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+    const Parent = Shade<unknown, { areChildrenVisible: boolean }>({
+      shadowDomName: 'shade-remount-parent',
+      getInitialState: () => ({ areChildrenVisible: true }),
+      render: ({ children, getState, updateState }) => (
+        <div>
+          <button
+            id="showHideChildren"
+            onclick={() => {
+              updateState({ areChildrenVisible: !getState().areChildrenVisible })
+            }}
+          >
+            Toggle
+          </button>
+          {getState().areChildrenVisible ? children : <div />}
+        </div>
+      ),
+    })
+
+    const Child = Shade({
+      shadowDomName: 'example-remount-child',
+      getInitialState: () => ({ count: 0 }),
+      render: ({ getState, updateState }) => {
+        const { count } = getState()
+        return (
+          <div>
+            Count is {getState().count.toString()}
+            <button id="plus" onclick={() => updateState({ count: count + 1 })}>
+              +
+            </button>
+            <button id="minus" onclick={() => updateState({ count: count - 1 })}>
+              -
+            </button>
+          </div>
+        )
+      },
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: (
+        <Parent>
+          <Child />
+        </Parent>
+      ),
+    })
+
+    const plus = () => document.getElementById('plus')?.click()
+    const minus = () => document.getElementById('minus')?.click()
+    const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
+    const toggleChildren = () => document.getElementById('showHideChildren')?.click()
+
+    expectCount(0)
+    plus()
+    expectCount(1)
+
+    toggleChildren()
+
+    expect(document.getElementById('plus')).toBeNull()
+
+    toggleChildren()
+    expect(document.getElementById('plus')).toBeDefined()
+
+    // expectCount(0)
+    plus()
+    expectCount(1)
+    minus()
+    expectCount(0)
   })
 })
