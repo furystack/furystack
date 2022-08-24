@@ -20,7 +20,7 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
       } else {
         await props.hideAnimation?.(element).finally(() => updateState({ isVisible: visible }))
       }
-    }, true),
+    }),
   ],
 
   render: ({ props, getState, children }) => {
@@ -43,8 +43,6 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
       >
         {children}
       </div>
-    ) : (
-      <div />
-    )
+    ) : null
   },
 })

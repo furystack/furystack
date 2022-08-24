@@ -5,7 +5,11 @@ import { ObservableValue } from '@furystack/utils'
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
   render: ({ props, element, children }) => {
-    setTimeout(() => animations.showParallax(element.querySelector('h1')), 1)
+    setTimeout(() => {
+      animations.showParallax(element.querySelector('h1'))
+      animations.showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
+      animations.showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
+    }, 1)
     return (
       <form
         onsubmit={(ev) => {
@@ -14,26 +18,30 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
         }}
         style={{
           width: '800px',
-          height: '450px',
           padding: '32px',
           display: 'flex',
           flexDirection: 'column',
+          height: '430px',
+          justifyContent: 'space-between',
         }}
       >
-        <h1>{props.title}</h1>
-        <div> {children}</div>
+        <h1 style={{ opacity: '0' }}>{props.title}</h1>
+        <div style={{ opacity: '0' }} className="content">
+          {children}
+        </div>
         <div
+          className="actions"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             paddingTop: '12px',
+            opacity: '0',
           }}
         >
           <Button onclick={() => props.onPrev?.()} disabled={props.currentPage < 1} variant="outlined">
             Previous
           </Button>
           <Button
-            autofocus
             type="submit"
             disabled={props.currentPage > props.maxPages - 1}
             variant="contained"
@@ -56,8 +64,8 @@ export const Step1 = Shade<WizardStepProps>({
     return (
       <WizardStep title="Step 1" {...props}>
         <div>
-          <p>Welcome in the Wizard Component. Click on the "Next" button to continue</p>
-          <Input labelTitle="Please enter your name" required autofocus name="username" value="" />
+          <p>Welcome in the Wizard Component Demo. Please enter your name and click on the "Next" button to continue</p>
+          <Input labelTitle="Please enter your name" required name="username" value="" />
           <input type="submit" style={{ display: 'none' }} />
         </div>
       </WizardStep>
@@ -70,7 +78,7 @@ export const Step2 = Shade<WizardStepProps>({
   render: ({ props }) => {
     return (
       <WizardStep title="Step 2" {...props}>
-        <p>You can go back or forward...</p>
+        <p>This is the second step. You can go back or forward by clicking on the navigation buttons.</p>
       </WizardStep>
     )
   },
@@ -81,7 +89,7 @@ export const Step3 = Shade<WizardStepProps>({
   render: ({ props }) => {
     return (
       <WizardStep title="Step 3" {...props}>
-        <p>Click on Finish to close the Wizard</p>
+        <p>All Done, click on Finish to close the Wizard</p>
       </WizardStep>
     )
   },
