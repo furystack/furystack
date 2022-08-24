@@ -1,45 +1,30 @@
-import { Shade, PartialElement, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '..'
-import { Theme } from '../services'
-import { promisifyAnimation } from '../utils/promisify-animation'
+import { createComponent, PartialElement, Shade } from '@furystack/shades'
+import { Theme, ThemeProviderService } from '../services'
+import { promisifyAnimation } from '../utils'
 
-export interface TextInputProps extends PartialElement<HTMLInputElement> {
-  onTextChange?: (text: string) => void
+export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
   labelTitle?: string
   labelProps?: PartialElement<HTMLLabelElement>
   autofocus?: boolean
   variant?: 'contained' | 'outlined'
-  getValidityErrorMessage?: (validity: ValidityState) => string
 }
 
-export type TextInputState = {
+export type TextAreaInputState = {
   theme: Theme
   value?: string
-  focused?: boolean
-  validity?: ValidityState
 }
 
-export const Input = Shade<TextInputProps, TextInputState>({
-  shadowDomName: 'shade-input',
+export const TextArea = Shade<TextAreaProps, TextAreaInputState>({
+  shadowDomName: 'shade-text-area',
   getInitialState: ({ injector, props }) => ({
     theme: injector.getInstance(ThemeProviderService).theme.getValue(),
     value: props.value,
-    focused: props.autofocus || false,
-    validity: { valid: true } as ValidityState,
   }),
-  resources: ({ injector, updateState }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
-  ],
-  compareState: ({ oldState, newState, element, injector }) => {
-    const theme = injector.getInstance(ThemeProviderService).theme.getValue()
-
-    if (!oldState.focused && newState.focused) {
-      console.log('focus')
-    }
-
-    return false
+  resources: ({ injector, updateState }) => {
+    const themeProvider = injector.getInstance(ThemeProviderService)
+    return [themeProvider.theme.subscribe((theme) => updateState({ theme }))]
   },
-  render: ({ props, element, injector, getState, updateState }) => {
+  render: ({ props, element, injector, getState }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const { theme, value } = getState()
     const { palette } = theme
@@ -63,21 +48,17 @@ export const Input = Shade<TextInputProps, TextInputState>({
       >
         <span>{props.labelTitle}</span>
 
-        <input
-          onchange={(ev) => {
-            const el = ev.target as HTMLInputElement
-            const newValue = el.value
-            updateState({ value: newValue }, true)
-            props.onTextChange && props.onTextChange(newValue)
-            props.onchange && (props.onchange as any)(ev)
-            if (!el?.validity?.valid) {
-              console.log(el.validity)
-              promisifyAnimation(
-                el.parentElement,
-                [{ color: palette.primary.main }, { color: themeProvider.getTextColor(palette.error.main) }],
-                { duration: 500, easing: 'ease-in-out', fill: 'forwards' },
-              )
-            }
+        <div
+          contentEditable={props.readOnly === true || props.disabled === true ? 'inherit' : 'true'}
+          {...props}
+          style={{
+            border: 'none',
+            backgroundColor: 'transparent',
+            outline: 'none',
+            fontSize: '12px',
+            width: '100%',
+            textOverflow: 'ellipsis',
+            ...props.style,
           }}
           onfocus={() => {
             if (!props.disabled) {
@@ -91,7 +72,7 @@ export const Input = Shade<TextInputProps, TextInputState>({
                 },
               )
               promisifyAnimation(
-                element.querySelector('input'),
+                element.querySelector('div[contenteditable="true"]'),
                 [
                   { boxShadow: '0px 0px 0px rgba(128,128,128,0.1)' },
                   { boxShadow: `0px 3px 0px ${palette.primary.main}` },
@@ -115,7 +96,7 @@ export const Input = Shade<TextInputProps, TextInputState>({
                 },
               )
               promisifyAnimation(
-                element.querySelector('input'),
+                element.querySelector('div[contenteditable="true"]'),
                 [
                   { boxShadow: '0px 3px 0px rgba(128,128,128,0.4)' },
                   { boxShadow: '0px 0px 0px rgba(128,128,128,0.1)' },
@@ -127,20 +108,9 @@ export const Input = Shade<TextInputProps, TextInputState>({
               )
             }
           }}
-          {...props}
-          style={{
-            color: 'inherit',
-            border: 'none',
-            backgroundColor: 'transparent',
-            outline: 'none',
-            fontSize: '12px',
-            width: '100%',
-            textOverflow: 'ellipsis',
-            padding: '0.6em 0',
-            ...props.style,
-          }}
-          value={value}
-        />
+        >
+          {value}
+        </div>
       </label>
     )
   },
