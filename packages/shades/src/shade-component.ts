@@ -70,7 +70,7 @@ export const createComponent = <TProps>(
     }
     return el
   } else if (isShadeComponent(elementType)) {
-    const el = (elementType as ShadeComponent<TProps>)(props, children)
+    const el = elementType(props, children)
     attachStyles(el, props)
     return el
   }

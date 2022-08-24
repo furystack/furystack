@@ -11,6 +11,10 @@ export interface DataGridBodyProps<T> {
   columns: Array<keyof T>
   rowComponents?: DataRowCells<T>
   style?: Partial<CSSStyleDeclaration>
+  focusedRowStyle?: Partial<CSSStyleDeclaration>
+  unfocusedRowStyle?: Partial<CSSStyleDeclaration>
+  selectedRowStyle?: Partial<CSSStyleDeclaration>
+  unselectedRowStyle?: Partial<CSSStyleDeclaration>
 }
 
 export interface DataGridBodyState<T> {
@@ -57,6 +61,10 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
             service={props.service}
             rowComponents={props.rowComponents}
             onRowClick={props.onRowClick}
+            focusedRowStyle={props.focusedRowStyle}
+            unfocusedRowStyle={props.unfocusedRowStyle}
+            selectedRowStyle={props.selectedRowStyle}
+            unselectedRowStyle={props.unselectedRowStyle}
           ></DataGridRow>
         ))}
       </>

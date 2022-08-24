@@ -6,7 +6,7 @@ export type RenderOptions<TProps, TState> = {
   readonly props: TProps
 
   injector: Injector
-  children: ChildrenList
+  children?: ChildrenList
   element: JSX.Element<TProps, TState>
 } & (unknown extends TState
   ? {}
