@@ -23,4 +23,8 @@ export const pages = {
     name: 'Monaco',
     url: 'http://localhost:8080/monaco',
   },
+  wizard: {
+    name: 'Wizard',
+    url: 'http://localhost:8080/wizard',
+  },
 }

@@ -1,4 +1,4 @@
-import { Locator, Page, test } from '@playwright/test'
+import { Locator, Page, test, expect } from '@playwright/test'
 import { pages } from './pages'
 
 const getGrid = async (page: Page) => {
@@ -13,25 +13,25 @@ test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (rowNumber: number) => {
     const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
     const rowTextCell = await row.locator('td:nth-child(2)')
-    test.expect(await focusedEntry.inputValue()).toBe(await rowTextCell.textContent())
+    expect(await focusedEntry.inputValue()).toBe(await rowTextCell.textContent())
   }
 
   const expectRowIsSelected = async (...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
       const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
       const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
-      test.expect(await checkbox.isChecked()).toBe(true)
+      expect(await checkbox.isChecked()).toBe(true)
     }
   }
 
   const expectRowIsUnselected = async (rowNumber: number) => {
     const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
     const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
-    test.expect(await checkbox.isChecked()).toBe(false)
+    expect(await checkbox.isChecked()).toBe(false)
   }
 
   const expectSelectionCount = async (count: number) => {
-    test.expect(await selectionCount.inputValue()).toBe(count.toString())
+    expect(await selectionCount.inputValue()).toBe(count.toString())
   }
 
   const clickOnRow = async (rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
