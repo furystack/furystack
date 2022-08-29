@@ -34,8 +34,7 @@
     "@furystack/rest": "^4.0.8",
     "@furystack/utils": "^3.0.7",
     "got": "^11.8.5",
-    "path-to-regexp": "^6.2.1",
-    "tslib": "^2.4.0"
+    "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
     "@types/jest": "^28.1.8"
