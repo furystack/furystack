@@ -39,8 +39,7 @@
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
     "path-to-regexp": "^6.2.1",
-    "semaphore-async-await": "^1.5.1",
-    "tslib": "^2.4.0"
+    "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
     "@furystack/rest-client-got": "^2.0.10",

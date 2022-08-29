@@ -6,7 +6,7 @@ import Semaphore from 'semaphore-async-await'
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class MongodbStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class MongodbStore<T extends object, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   public readonly primaryKey: TPrimaryKey
 
   public readonly model: Constructable<T>
