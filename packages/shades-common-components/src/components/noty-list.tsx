@@ -131,7 +131,7 @@ export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
       }),
       notyService.onNotyRemoved.subscribe((n) => {
         element.querySelectorAll('shade-noty').forEach((e) => {
-          if ((e as any).props.getValue().model === n) {
+          if ((e as JSX.Element).props.model === n) {
             e.remove()
           }
         })
