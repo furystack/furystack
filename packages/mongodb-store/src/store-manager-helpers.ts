@@ -4,7 +4,7 @@ import { MongoClientOptions } from 'mongodb'
 import { MongoClientFactory } from './mongo-client-factory'
 import { MongodbStore } from './mongodb-store'
 
-export const useMongoDb = <T>({
+export const useMongoDb = <T extends object>({
   injector,
   model,
   primaryKey,
