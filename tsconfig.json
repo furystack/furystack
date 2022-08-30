@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "pretty": true,
-    "target": "ES2019",
+    "target": "ES2021",
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
@@ -17,7 +17,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "declarationMap": true,
-    "importHelpers": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "skipLibCheck": true,

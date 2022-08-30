@@ -71,9 +71,9 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
       class extends HTMLElement implements JSX.Element {
         private compareState =
           o.compareState ||
-          (({ oldState, newState }: { oldState: TState; newState: TState }) =>
-            Object.entries(oldState).some(([key, value]) => value !== newState[key as keyof TState]) ||
-            Object.entries(newState).some(([key, value]) => value !== oldState[key as keyof TState]))
+          ((oldState: TState, newState: TState) =>
+            Object.entries(oldState as object).some(([key, value]) => value !== newState[key as keyof TState]) ||
+            Object.entries(newState as object).some(([key, value]) => value !== oldState[key as keyof TState]))
 
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
@@ -110,7 +110,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * @returns values for the current render options
          */
-        private getRenderOptions = () => {
+        private getRenderOptions = (): RenderOptions<TProps, TState> => {
           const props: TProps = { ...this.props }
           const getState = () => ({ ...this.state })
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
@@ -130,7 +130,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             }
           }
 
-          return {
+          const returnValue: RenderOptions<TProps, TState> = {
             props,
             getState,
             injector: this.injector,
@@ -233,7 +233,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
         private resources: Disposable[] = []
 
-        constructor(_props: TProps) {
+        constructor(_props: TProps & { children?: JSX.Element[] }) {
           super()
           this.props = _props
         }
@@ -245,7 +245,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
   return (props: TProps, children: ChildrenList) => {
     const el = document.createElement(customElementName, {
-      ...props,
+      ...(props as TProps & ElementCreationOptions),
     }) as JSX.Element<TProps, TState>
     el.props = props
 

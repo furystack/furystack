@@ -10,7 +10,7 @@ export const serializeValue = ([key, value]: [key: string, value: any]) => {
   return `${key}=${encodeURIComponent(value)}`
 }
 
-export const serializeToQueryString = <T>(query: T): string => {
+export const serializeToQueryString = <T extends object>(query: T): string => {
   return Object.entries(query)
     .filter(([, value]) => value !== undefined)
     .map(serializeValue)
