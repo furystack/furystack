@@ -36,7 +36,7 @@ export type ShadeOptions<TProps, TState> = {
   resources?: (options: RenderOptions<TProps, TState>) => Disposable[]
 
   /**
-   * An optional method that checks the state for changes and returns true if the element should be rerendered.
+   * An optional method that checks the state for changes and returns true if the element should be rerendered. This will not be called if `skipRender` is set to true in the relevant `updateState()` call.
    */
   compareState?: (options: {
     oldState: TState
@@ -71,7 +71,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
       class extends HTMLElement implements JSX.Element {
         private compareState =
           o.compareState ||
-          ((oldState: TState, newState: TState) =>
+          (({ oldState, newState }: { oldState: TState; newState: TState }) =>
             Object.entries(oldState as object).some(([key, value]) => value !== newState[key as keyof TState]) ||
             Object.entries(newState as object).some(([key, value]) => value !== oldState[key as keyof TState]))
 
@@ -116,7 +116,11 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
             const oldState = { ...this.state }
             const newState = { ...oldState, ...stateChanges }
+
+            this.state = newState
+
             if (
+              !skipRender &&
               this.compareState({
                 oldState,
                 newState,
@@ -125,19 +129,27 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
                 injector: this.injector,
               })
             ) {
-              this.state = newState
-              !skipRender && this.updateComponent()
+              this.updateComponent()
             }
           }
 
-          const returnValue: RenderOptions<TProps, TState> = {
-            props,
-            getState,
-            injector: this.injector,
-            updateState,
-            children: this.shadeChildren,
-            element: this,
-          }
+          const returnValue = {
+            ...{
+              props,
+              injector: this.injector,
+
+              children: this.shadeChildren,
+              element: this,
+            },
+            ...((o as any).getInitialState
+              ? {
+                  getState,
+                  updateState,
+                }
+              : {}),
+          } as any as RenderOptions<TProps, TState>
+
+          return returnValue
         }
 
         private createResources() {
