@@ -27,4 +27,8 @@ export const pages = {
     name: 'Wizard',
     url: 'http://localhost:8080/wizard',
   },
+  notys: {
+    name: 'Notys',
+    url: 'http://localhost:8080/notys',
+  },
 }
