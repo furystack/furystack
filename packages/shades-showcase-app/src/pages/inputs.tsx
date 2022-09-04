@@ -1,4 +1,4 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { createComponent, createFragment, Shade } from '@furystack/shades'
 import { Input, TextArea } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
@@ -18,7 +18,21 @@ export const InputsPage = Shade({
           {([undefined, 'outlined', 'contained'] as const).map((variant) => (
             <div>
               <h3>{variant || 'default'}</h3>
-              <Input variant={variant} labelTitle="Test Input Field" value={'Test value'} />
+              <Input
+                variant={variant}
+                labelTitle={
+                  <span>
+                    <>
+                      <p>a</p>
+                      <p>b</p>
+                      <p>c</p>
+                    </>
+                    Test Input Field <a href="http://google.com">alma</a>
+                  </span>
+                }
+                value={'Test value'}
+                getHelperText={() => <>A simple test input field</>}
+              />
               <Input
                 variant={variant}
                 labelTitle="Required Input Field"
@@ -26,7 +40,10 @@ export const InputsPage = Shade({
                 required
                 pattern="[a-zA-Z0-9]{3,}"
               />
-              <TextArea variant={variant} labelTitle="Text Area" value={'Test value'} />
+              <>
+                <Input variant={variant} labelTitle="Disabled Input Field" value={'Test value'} disabled />
+                <TextArea variant={variant} labelTitle="Text Area" value={'Test value'} />
+              </>
             </div>
           ))}
         </div>
