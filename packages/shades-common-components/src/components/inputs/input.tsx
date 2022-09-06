@@ -102,11 +102,16 @@ export const Input = Shade<TextInputProps, TextInputState>({
         {props.labelTitle}
 
         <input
+          oninvalid={(ev) => {
+            ev.preventDefault()
+            const el = ev.target as HTMLInputElement
+            updateState({ validity: el.validity })
+          }}
           onchange={(ev) => {
             const el = ev.target as HTMLInputElement
             const newValue = el.value
             updateState({ value: newValue, validity: el?.validity })
-            props.onTextChange && props.onTextChange(newValue)
+            props.onTextChange?.(newValue)
             props.onchange && (props.onchange as any)(ev)
           }}
           onfocus={() => {
