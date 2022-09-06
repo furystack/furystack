@@ -17,6 +17,7 @@ declare global {
         renderer?: 'svg' | 'canvas'
         speed?: number
         style?: Partial<CSSStyleDeclaration>
+        onclick?: (e: MouseEvent) => void
       }
     }
   }
