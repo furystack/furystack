@@ -1,6 +1,6 @@
 import { Shade, PartialElement, createComponent, attachStyles } from '@furystack/shades'
-import { ThemeProviderService } from '..'
-import { Theme } from '../services'
+import { ThemeProviderService } from '../..'
+import { Theme } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
   onTextChange?: (text: string) => void

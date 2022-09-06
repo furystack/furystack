@@ -2,7 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { Input, TextInputProps } from './input'
 
 export const Autocomplete = Shade<
-  { inputProps?: TextInputProps; suggestions: string[]; strict?: boolean; onchange: (value: string) => void },
+  { inputProps?: TextInputProps; suggestions: string[]; strict?: boolean; onchange?: (value: string) => void },
   { dataListId: string }
 >({
   getInitialState: () => ({
@@ -30,7 +30,7 @@ export const Autocomplete = Shade<
                 return
               }
             }
-            props.onchange(value)
+            props.onchange?.(value)
           }}
         />
         <datalist id={dataListId}>
