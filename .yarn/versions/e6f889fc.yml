@@ -12,9 +12,9 @@ releases:
   "@furystack/security": patch
   "@furystack/sequelize-store": patch
   "@furystack/shades": patch
-  "@furystack/shades-common-components": patch
+  "@furystack/shades-common-components": minor
   "@furystack/shades-lottie": patch
   "@furystack/shades-nipple": patch
-  "@furystack/shades-showcase-app": patch
+  "@furystack/shades-showcase-app": minor
   "@furystack/websocket-api": patch
   furystack: patch

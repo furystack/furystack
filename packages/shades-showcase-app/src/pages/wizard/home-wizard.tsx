@@ -65,7 +65,21 @@ export const Step1 = Shade<WizardStepProps>({
       <WizardStep title="Step 1" {...props}>
         <div>
           <p>Welcome in the Wizard Component Demo. Please enter your name and click on the "Next" button to continue</p>
-          <Input labelTitle="Please enter your name" required name="username" value="" />
+          <Input
+            labelTitle="Name"
+            required
+            name="username"
+            variant="outlined"
+            value=""
+            getHelperText={({ state }) => {
+              if (!state.validity.valid) {
+                if (state.validity.valueMissing) {
+                  return 'The username is required to proceed. Pls enter your name... 😒'
+                }
+              }
+              return 'Please enter your name to proceed'
+            }}
+          />
           <input type="submit" style={{ display: 'none' }} />
         </div>
       </WizardStep>

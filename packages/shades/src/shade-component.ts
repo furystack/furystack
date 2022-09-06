@@ -6,12 +6,12 @@ import { ChildrenList, ShadeComponent, isShadeComponent } from './models'
  * @param el the root element
  * @param children array of items to append
  */
-export const appendChild = (el: HTMLElement, children: ChildrenList) => {
+export const appendChild = (el: HTMLElement | DocumentFragment, children: ChildrenList) => {
   for (const child of children) {
     if (typeof child === 'string') {
       el.appendChild(document.createTextNode(child))
     } else {
-      if (child instanceof HTMLElement) {
+      if (child instanceof HTMLElement || child instanceof DocumentFragment) {
         el.appendChild(child)
       } else if (child instanceof Array) {
         appendChild(el, child)
@@ -76,8 +76,8 @@ export const createComponent = <TProps>(
   }
 }
 
-export const createFragment = (_props: any, ...children: [[ShadeComponent[]]]) => {
+export const createFragment = (_props: any, children: ChildrenList) => {
   const fragment = document.createDocumentFragment()
-  fragment.append(...(children[0].flat() as any))
+  appendChild(fragment, children)
   return fragment
 }

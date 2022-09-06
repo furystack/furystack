@@ -520,8 +520,3 @@ declare global {
     }
   }
 }
-
-export const isJsxElement = (obj: any): obj is JSX.Element => {
-  const casted = obj as JSX.Element
-  return casted.props !== undefined && casted.state !== undefined
-}
