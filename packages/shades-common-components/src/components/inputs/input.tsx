@@ -1,6 +1,6 @@
 import { Shade, PartialElement, createComponent, attachStyles } from '@furystack/shades'
 import { ThemeProviderService } from '../..'
-import { Theme } from '../../services'
+import { Palette, Theme } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
   onTextChange?: (text: string) => void
@@ -8,6 +8,7 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
   labelProps?: PartialElement<HTMLLabelElement>
   autofocus?: boolean
   variant?: 'contained' | 'outlined'
+  defaultColor?: keyof Palette
   getHelperText?: (options: { state: TextInputState }) => JSX.Element | string
 }
 
@@ -47,7 +48,9 @@ const getLabelStyle = ({
       props.variant === 'contained'
         ? themeProvider
             .getRgbFromColorString(
-              state.validity?.valid === false ? state.theme.palette.error.main : state.theme.palette.primary.main,
+              state.validity?.valid === false
+                ? state.theme.palette.error.main
+                : state.theme.palette[props.defaultColor || 'primary'].main,
             )
             .update('a', state.focused ? 0.1 : 0.2)
             .toString()
@@ -58,7 +61,7 @@ const getLabelStyle = ({
             state.validity?.valid === false
               ? state.theme.palette.error.main
               : state.focused
-              ? state.theme.palette.primary.main
+              ? state.theme.palette[props.defaultColor || 'primary'].main
               : state.theme.text.primary
           }`
         : 'none',
@@ -129,7 +132,10 @@ export const Input = Shade<TextInputProps, TextInputState>({
             fontSize: '12px',
             width: '100%',
             textOverflow: 'ellipsis',
-            padding: '0.6em 0',
+            padding: '0',
+            marginTop: '0.6em',
+            marginBottom: '0.4em',
+            // padding: '0.6em 0',
             ...props.style,
           }}
           value={value}
