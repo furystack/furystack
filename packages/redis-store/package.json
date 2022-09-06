@@ -32,7 +32,7 @@
     "@furystack/inject": "^7.0.4",
     "@furystack/logging": "^3.0.8",
     "@furystack/utils": "^3.0.8",
-    "redis": "^4.3.0",
+    "redis": "^4.3.1",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
