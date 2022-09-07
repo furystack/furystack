@@ -3,12 +3,29 @@ import { ThemeProviderService } from '../..'
 import { Palette, Theme } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
+  /**
+   * Callback that will be called when the input value changes
+   */
   onTextChange?: (text: string) => void
+  /**
+   * An optional label title element or string
+   */
   labelTitle?: JSX.Element | string
-  labelProps?: PartialElement<HTMLLabelElement>
+  /**
+   * Boolean that indicates if the field will be focused automatically
+   */
   autofocus?: boolean
+  /**
+   * The variant of the input
+   */
   variant?: 'contained' | 'outlined'
+  /**
+   * The default color of the input (Error color will be used in case of invalid input value)
+   */
   defaultColor?: keyof Palette
+  /**
+   * Optional callback for the helper text
+   */
   getHelperText?: (options: { state: TextInputState }) => JSX.Element | string
 }
 
@@ -69,7 +86,6 @@ const getLabelStyle = ({
     opacity: props.disabled ? '0.5' : '1',
     transition:
       'color 0.2s ease-in-out, filter 0.2s ease-in-out, opacity 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-    ...props.labelProps?.style,
   }
 }
 
@@ -101,7 +117,7 @@ export const Input = Shade<TextInputProps, TextInputState>({
     const themeProvider = injector.getInstance(ThemeProviderService)
 
     return (
-      <label {...props.labelProps} style={getLabelStyle({ props, state, themeProvider })}>
+      <label style={getLabelStyle({ props, state, themeProvider })}>
         {props.labelTitle}
 
         <input
