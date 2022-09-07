@@ -162,7 +162,6 @@ export const InputsPage = Shade({
                 max="100"
                 step="0.5"
                 type="color"
-                defaultColor="warning"
                 getHelperText={() => 'You can pick a color'}
               />
             </div>

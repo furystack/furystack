@@ -151,7 +151,6 @@ export const Input = Shade<TextInputProps, TextInputState>({
             padding: '0',
             marginTop: '0.6em',
             marginBottom: '0.4em',
-            // padding: '0.6em 0',
             ...props.style,
           }}
           value={value}
