@@ -1,14 +1,48 @@
 import { Shade, PartialElement, createComponent, attachStyles } from '@furystack/shades'
 import { ThemeProviderService } from '../..'
-import { Theme } from '../../services'
+import { Palette, Theme } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
+  /**
+   * Callback that will be called when the input value changes
+   */
   onTextChange?: (text: string) => void
+  /**
+   * An optional label title element or string
+   */
   labelTitle?: JSX.Element | string
+
+  /**
+   * Optional props for the label element
+   */
   labelProps?: PartialElement<HTMLLabelElement>
+
+  /**
+   * Boolean that indicates if the field will be focused automatically
+   */
   autofocus?: boolean
+  /**
+   * The variant of the input
+   */
   variant?: 'contained' | 'outlined'
+  /**
+   * The default color of the input (Error color will be used in case of invalid input value)
+   */
+  defaultColor?: keyof Palette
+  /**
+   * Optional callback for the helper text
+   */
   getHelperText?: (options: { state: TextInputState }) => JSX.Element | string
+
+  /**
+   * Optional callback for retrieving an icon element on the left side of the input field
+   */
+  getStartIcon?: (options: { state: TextInputState }) => JSX.Element | string
+
+  /**
+   * Optional callback for retrieving an icon element on the right side of the input field
+   */
+  getEndIcon?: (options: { state: TextInputState }) => JSX.Element | string
 }
 
 export type TextInputState = {
@@ -47,7 +81,9 @@ const getLabelStyle = ({
       props.variant === 'contained'
         ? themeProvider
             .getRgbFromColorString(
-              state.validity?.valid === false ? state.theme.palette.error.main : state.theme.palette.primary.main,
+              state.validity?.valid === false
+                ? state.theme.palette.error.main
+                : state.theme.palette[props.defaultColor || 'primary'].main,
             )
             .update('a', state.focused ? 0.1 : 0.2)
             .toString()
@@ -58,7 +94,7 @@ const getLabelStyle = ({
             state.validity?.valid === false
               ? state.theme.palette.error.main
               : state.focused
-              ? state.theme.palette.primary.main
+              ? state.theme.palette[props.defaultColor || 'primary'].main
               : state.theme.text.primary
           }`
         : 'none',
@@ -90,6 +126,11 @@ export const Input = Shade<TextInputProps, TextInputState>({
     const helperNode = props.getHelperText?.({ state: newState }) || ''
     helper?.replaceChildren(helperNode)
 
+    const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
+    startIcon?.replaceChildren(props.getStartIcon?.({ state: newState }) || '')
+    const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
+    endIcon?.replaceChildren(props.getEndIcon?.({ state: newState }) || '')
+
     return false
   },
   render: ({ props, getState, updateState, injector }) => {
@@ -101,39 +142,52 @@ export const Input = Shade<TextInputProps, TextInputState>({
       <label {...props.labelProps} style={getLabelStyle({ props, state, themeProvider })}>
         {props.labelTitle}
 
-        <input
-          oninvalid={(ev) => {
-            ev.preventDefault()
-            const el = ev.target as HTMLInputElement
-            updateState({ validity: el.validity })
-          }}
-          onchange={(ev) => {
-            const el = ev.target as HTMLInputElement
-            const newValue = el.value
-            updateState({ value: newValue, validity: el?.validity })
-            props.onTextChange?.(newValue)
-            props.onchange && (props.onchange as any)(ev)
-          }}
-          onfocus={() => {
-            updateState({ focused: true })
-          }}
-          onblur={() => {
-            updateState({ focused: false })
-          }}
-          {...props}
+        <div
           style={{
-            color: 'inherit',
-            border: 'none',
-            backgroundColor: 'transparent',
-            outline: 'none',
-            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
             width: '100%',
-            textOverflow: 'ellipsis',
-            padding: '0.6em 0',
-            ...props.style,
           }}
-          value={value}
-        />
+        >
+          {props.getStartIcon ? <span className="startIcon">{props.getStartIcon?.({ state })}</span> : null}
+          <input
+            oninvalid={(ev) => {
+              ev.preventDefault()
+              const el = ev.target as HTMLInputElement
+              updateState({ validity: el.validity })
+            }}
+            onchange={(ev) => {
+              const el = ev.target as HTMLInputElement
+              const newValue = el.value
+              updateState({ value: newValue, validity: el?.validity })
+              props.onTextChange?.(newValue)
+              props.onchange && (props.onchange as any)(ev)
+            }}
+            onfocus={() => {
+              updateState({ focused: true })
+            }}
+            onblur={() => {
+              updateState({ focused: false })
+            }}
+            {...props}
+            style={{
+              color: 'inherit',
+              border: 'none',
+              backgroundColor: 'transparent',
+              outline: 'none',
+              fontSize: '12px',
+              width: '100%',
+              textOverflow: 'ellipsis',
+              padding: '0',
+              marginTop: '0.6em',
+              marginBottom: '0.4em',
+              flexGrow: '1',
+              ...props.style,
+            }}
+            value={value}
+          />
+          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
+        </div>
         <span className="helperText">{props.getHelperText?.({ state })}</span>
       </label>
     )

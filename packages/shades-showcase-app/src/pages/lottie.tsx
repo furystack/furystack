@@ -19,6 +19,10 @@ export const LottiePage = Shade({
         <lottie-player
           style={{ width: '250px', height: '250px', position: 'sticky', top: '0' }}
           src={example}
+          loop
+          onclick={(ev) => {
+            ;(ev.currentTarget as any)?.play()
+          }}
         ></lottie-player>
       </div>
     )
