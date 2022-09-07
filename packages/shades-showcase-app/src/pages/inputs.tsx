@@ -26,6 +26,7 @@ export const InputsPage = Shade({
                 pattern="[a-zA-Z0-9]{3,}"
                 minLength={3}
                 maxLength={10}
+                getStartIcon={({ state }) => <span>{state.validity.valid ? '✅' : '🛑'}</span>}
                 getHelperText={({ state }) => {
                   if (!state.validity.valid) {
                     if (state.validity.valueMissing) {
@@ -51,6 +52,7 @@ export const InputsPage = Shade({
                 required
                 minLength={5}
                 type="password"
+                getEndIcon={({ state }) => <span>{state.validity.valid ? '🔒' : '🔓'}</span>}
                 getHelperText={({ state }) => {
                   if (!state.validity.valid) {
                     if (state.validity.valueMissing) {
@@ -151,6 +153,7 @@ export const InputsPage = Shade({
                 step="0.5"
                 type="range"
                 getHelperText={() => 'You can select a specified range between 1 and 100 in 0.5 steps'}
+                getEndIcon={({ state }) => <span>{state.value}</span>}
               />
 
               <Input
