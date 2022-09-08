@@ -35,6 +35,7 @@ export const App = Shade({
             <AppBarLink href="/monaco">Monaco</AppBarLink>
             <AppBarLink href="/wizard">Wizard</AppBarLink>
             <AppBarLink href="/notys">Notys</AppBarLink>
+            <AppBarLink href="/tabs">Tabs</AppBarLink>
           </div>
           <ThemeSwitch />
         </AppBar>
@@ -145,6 +146,18 @@ export const App = Shade({
                     component={async () => {
                       const { NotysPage } = await import('./pages/notys')
                       return <NotysPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/tabs',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { TabsPage } = await import('./pages/tabs')
+                      return <TabsPage />
                     }}
                   />
                 ),
