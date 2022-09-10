@@ -453,7 +453,7 @@ __metadata:
     "@furystack/rest-service": ^6.1.3
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
   languageName: unknown
   linkType: soft
 
@@ -464,7 +464,7 @@ __metadata:
     "@furystack/inject": ^7.0.4
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
@@ -477,7 +477,7 @@ __metadata:
     "@furystack/inject": ^7.0.4
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
@@ -510,7 +510,7 @@ __metadata:
     "@furystack/logging": ^3.0.8
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     mongodb: 4.9.1
     semaphore-async-await: ^1.5.1
   languageName: unknown
@@ -582,7 +582,7 @@ __metadata:
     "@furystack/security": ^2.0.11
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     ajv: ^8.11.0
     ajv-formats: ^2.1.1
     got: ^11.8.5
@@ -598,7 +598,7 @@ __metadata:
     "@furystack/core": ^11.0.11
     "@furystack/inject": ^7.0.4
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
   languageName: unknown
   linkType: soft
 
@@ -610,7 +610,7 @@ __metadata:
     "@furystack/inject": ^7.0.4
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
   languageName: unknown
   linkType: soft
 
@@ -623,9 +623,9 @@ __metadata:
     "@furystack/logging": ^3.0.8
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     semaphore-async-await: ^1.5.1
-    sequelize: ^6.21.4
+    sequelize: ^6.21.6
     sqlite3: 5.0.11
     uuid: ^8.3.2
   languageName: unknown
@@ -641,7 +641,7 @@ __metadata:
     "@furystack/utils": ^3.0.8
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
-    typescript: 4.8.2
+    typescript: 4.8.3
   languageName: unknown
   linkType: soft
 
@@ -651,7 +651,7 @@ __metadata:
   dependencies:
     "@furystack/shades": ^6.0.7
     "@lottiefiles/lottie-player": ^1.5.7
-    typescript: 4.8.2
+    typescript: 4.8.3
   languageName: unknown
   linkType: soft
 
@@ -661,7 +661,7 @@ __metadata:
   dependencies:
     "@furystack/shades": ^6.0.7
     nipplejs: ^0.9.1
-    typescript: 4.8.2
+    typescript: 4.8.3
   languageName: unknown
   linkType: soft
 
@@ -680,11 +680,11 @@ __metadata:
     "@furystack/shades-nipple": ^2.0.13
     "@furystack/utils": ^3.0.8
     "@lottiefiles/lottie-player": ^1.5.7
-    "@playwright/test": ^1.25.1
+    "@playwright/test": ^1.25.2
     "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.15
     esbuild: ^0.15.7
     monaco-editor: ^0.34.0
-    typescript: ^4.8.2
+    typescript: ^4.8.3
   languageName: unknown
   linkType: soft
 
@@ -697,7 +697,7 @@ __metadata:
     "@furystack/utils": ^3.0.8
     "@types/jest": ^29.0.0
     "@types/jsdom": ^20.0.0
-    "@types/node": ^18.7.15
+    "@types/node": ^18.7.16
     jsdom: ^20.0.0
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
@@ -1090,8 +1090,8 @@ __metadata:
   linkType: hard
 
 "@mapbox/node-pre-gyp@npm:^1.0.0":
-  version: 1.0.9
-  resolution: "@mapbox/node-pre-gyp@npm:1.0.9"
+  version: 1.0.10
+  resolution: "@mapbox/node-pre-gyp@npm:1.0.10"
   dependencies:
     detect-libc: ^2.0.0
     https-proxy-agent: ^5.0.0
@@ -1104,7 +1104,7 @@ __metadata:
     tar: ^6.1.11
   bin:
     node-pre-gyp: bin/node-pre-gyp
-  checksum: 1b9c4c87a68d200daa13151d0fe033aa7aa8f7b26f3585255424dd8dfee2ec672c3e9bea4071c624469bc0aebbbcde08f8a300c8a958db52c50abadd5fb56920
+  checksum: 1a98db05d955b74dad3814679593df293b9194853698f3f5f1ed00ecd93128cdd4b14fb8767fe44ac6981ef05c23effcfdc88710e7c1de99ccb6f647890597c8
   languageName: node
   linkType: hard
 
@@ -1175,15 +1175,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.25.1":
-  version: 1.25.1
-  resolution: "@playwright/test@npm:1.25.1"
+"@playwright/test@npm:^1.25.2":
+  version: 1.25.2
+  resolution: "@playwright/test@npm:1.25.2"
   dependencies:
     "@types/node": "*"
-    playwright-core: 1.25.1
+    playwright-core: 1.25.2
   bin:
     playwright: cli.js
-  checksum: 788ae0a7a576c599ce539ad75ee442b8c7f2a979d1dfd58d214ae4309ed2d595fa82fa8a8740e5c32f9da497a4e1ee90501483d33666d3004e76e50ce0269ef0
+  checksum: 3c24027bd9b305a3985cae35a4046e656dd0ffb76ef4dfcfc864f6c8492a643fc21c79048ee8169c5c1562d3cae493e7223a5473b127fef3bda7c7c52795c17d
   languageName: node
   linkType: hard
 
@@ -1244,9 +1244,9 @@ __metadata:
   linkType: hard
 
 "@sinclair/typebox@npm:^0.24.1":
-  version: 0.24.35
-  resolution: "@sinclair/typebox@npm:0.24.35"
-  checksum: 41fdadc7692f5b62acbc2155d693977bf5bdffb934ba046c1a55624c46dfa12a9a4a3878c4ce89a4c5625ce90e2210a02c256e564262b3ec4f4738b195033f57
+  version: 0.24.39
+  resolution: "@sinclair/typebox@npm:0.24.39"
+  checksum: 4e4ec3e7df9be6f1c8661ae73f7be6bf777b0bdf37415240c3f177a776bc51d7e87663435b0c351de6aa77ace5b581a4c983104e54f6aa3d7d0c462513143f70
   languageName: node
   linkType: hard
 
@@ -1445,10 +1445,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.7.15":
-  version: 18.7.15
-  resolution: "@types/node@npm:18.7.15"
-  checksum: 1435fc7fe44744467a3ba8ace646455be228516530dbb3db64a03cca6abcfdc5ba2e48a3eafc71f25f836d2ca871132361c58a5e760237a53674cb09151147d9
+"@types/node@npm:*, @types/node@npm:^18.7.16":
+  version: 18.7.16
+  resolution: "@types/node@npm:18.7.16"
+  checksum: 01a3d35c764a3f0e7370b56e1ad4203731131883c65784e020009014171b3f53c4649cde6c7aa4f1026b907ee87ef6ae6ece2bc518151dc7b81100fe8b1db3ad
   languageName: node
   linkType: hard
 
@@ -1849,9 +1849,9 @@ __metadata:
   linkType: hard
 
 "ansi-styles@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "ansi-styles@npm:6.1.0"
-  checksum: 7a7f8528c07a9d20c3a92bccd2b6bc3bb4d26e5cb775c02826921477377bd495d615d61f710d56216344b6238d1d11ef2b0348e146c5b128715578bfb3217229
+  version: 6.1.1
+  resolution: "ansi-styles@npm:6.1.1"
+  checksum: f2b1ed658ead23caf77effe7b875960cacd70d1ebe47c830e191358b242d688cf52a28d55ef9b19d102f792e8c1dec34bd865db264f1c7f4f63dd3a5fa84677e
   languageName: node
   linkType: hard
 
@@ -2199,9 +2199,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001370":
-  version: 1.0.30001390
-  resolution: "caniuse-lite@npm:1.0.30001390"
-  checksum: 5ba4ae64e27c61e1c7d7125223159d6cf7fa3cdbf8f00b9ec83a06f274ff45ddcbfebe509716fa31ae2664b70ef9e1d1c4a5b9430e717852992358121d9ee9be
+  version: 1.0.30001393
+  resolution: "caniuse-lite@npm:1.0.30001393"
+  checksum: 72b7cd81c51f41965f2fbdbb20729d71f2bd5e376d9b4effa22616dd2707640b8676862e8db3db83b76c3bcf2aaefc9ebd5991a10eeb483b460322de5548b98e
   languageName: node
   linkType: hard
 
@@ -2241,9 +2241,9 @@ __metadata:
   linkType: hard
 
 "ci-info@npm:^3.2.0":
-  version: 3.3.2
-  resolution: "ci-info@npm:3.3.2"
-  checksum: fd81f1edd2d3b0f6cb077b2e84365136d87b9db8c055928c1ad69da8a76c2c2f19cba8ea51b90238302157ca927f91f92b653e933f2398dde4867500f08d6e62
+  version: 3.4.0
+  resolution: "ci-info@npm:3.4.0"
+  checksum: 7f660730170a6ce248e173b670587a0c583e31526d21afcd21f77c811c1aaeb8926999081542d1f30e12cce1df582d4c88709fa45f44c00498b46bdf21d4d21a
   languageName: node
   linkType: hard
 
@@ -2617,9 +2617,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.202":
-  version: 1.4.242
-  resolution: "electron-to-chromium@npm:1.4.242"
-  checksum: 8936942ddacb7406bef360110301741f7ab54012406b0b38ed2d36bf28440b3903d927399dfcb3bb059d2904f32a2bdd12353f46563ff08f5da472f3359ed862
+  version: 1.4.247
+  resolution: "electron-to-chromium@npm:1.4.247"
+  checksum: cbe17a6164f5baceb91b09d7d0f09b3d2ce1f0fc3a3c2494622694cb518aa5192cf490aac597ee6dc4cbfb004109d0a214b465c9047e53130a89282aa14b752e
   languageName: node
   linkType: hard
 
@@ -3219,15 +3219,15 @@ __metadata:
   linkType: hard
 
 "fast-glob@npm:^3.2.9":
-  version: 3.2.11
-  resolution: "fast-glob@npm:3.2.11"
+  version: 3.2.12
+  resolution: "fast-glob@npm:3.2.12"
   dependencies:
     "@nodelib/fs.stat": ^2.0.2
     "@nodelib/fs.walk": ^1.2.3
     glob-parent: ^5.1.2
     merge2: ^1.3.0
     micromatch: ^4.0.4
-  checksum: f473105324a7780a20c06de842e15ddbb41d3cb7e71d1e4fe6e8373204f22245d54f5ab9e2061e6a1c613047345954d29b022e0e76f5c28b1df9858179a0e6d7
+  checksum: 0b1990f6ce831c7e28c4d505edcdaad8e27e88ab9fa65eedadb730438cfc7cde4910d6c975d6b7b8dc8a73da4773702ebcfcd6e3518e73938bb1383badfe01c2
   languageName: node
   linkType: hard
 
@@ -3400,7 +3400,7 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     ts-json-schema-generator: ^1.0.0
-    typescript: 4.8.2
+    typescript: 4.8.3
   languageName: unknown
   linkType: soft
 
@@ -5511,12 +5511,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.25.1":
-  version: 1.25.1
-  resolution: "playwright-core@npm:1.25.1"
+"playwright-core@npm:1.25.2":
+  version: 1.25.2
+  resolution: "playwright-core@npm:1.25.2"
   bin:
     playwright: cli.js
-  checksum: 34d5602816f73d68de3c022423ef64f0214f5e9827c584bffa608ecf66a9058f2f578e037bd7cbe7f98be53d5b01602f1f98aec73db5b475d8ab22417c803db5
+  checksum: 24ada61e2132bd7278cf0aa0ef711280e1519c437efa0088a99c47ef994202f4c9880521d8c0c51ab854bef08806f372477d754aac1e790ea64f18cd346b5b2f
   languageName: node
   linkType: hard
 
@@ -5784,10 +5784,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"retry-as-promised@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "retry-as-promised@npm:5.0.0"
-  checksum: 4d17e0597f967db0516714f0f2b085e2d1e8ea592450b013a1e0cd41dad74a9c3d1eb3c45351887de4bca1c3ac5f74dd07ef9942a3fb0e4db996a83bb28cb46e
+"retry-as-promised@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "retry-as-promised@npm:6.1.0"
+  checksum: cde3ad5c827d3f51b9161b9453dfd5eb8b8b6c22b6b405f7294eaa1939ef1966f8bd4c8a228ce2d66a24959d1dcc48b113c4c810ecdaddec2968b6d20576329d
   languageName: node
   linkType: hard
 
@@ -5921,9 +5921,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sequelize@npm:^6.21.4":
-  version: 6.21.4
-  resolution: "sequelize@npm:6.21.4"
+"sequelize@npm:^6.21.6":
+  version: 6.21.6
+  resolution: "sequelize@npm:6.21.6"
   dependencies:
     "@types/debug": ^4.1.7
     "@types/validator": ^13.7.1
@@ -5934,7 +5934,7 @@ __metadata:
     moment: ^2.29.1
     moment-timezone: ^0.5.34
     pg-connection-string: ^2.5.0
-    retry-as-promised: ^5.0.0
+    retry-as-promised: ^6.1.0
     semver: ^7.3.5
     sequelize-pool: ^7.1.0
     toposort-class: ^1.0.1
@@ -5958,7 +5958,7 @@ __metadata:
       optional: true
     tedious:
       optional: true
-  checksum: 6d066083125aa8a90286c82379964b5e54620daa7eac7f0d8b25c52cad93f8cae70cc4606a58097e815f57bad405969353d35321c1c9edfff27d953cec9ff064
+  checksum: 0e2c9e1141200464cf4a959396ea554668f1c4444afdfa16b81b253c6dd61da7dba635b1547d6833b4575ecda9395ea50b58e052fd6e05e5afff5f6d682355e4
   languageName: node
   linkType: hard
 
@@ -6513,13 +6513,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.8.2, typescript@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "typescript@npm:4.8.2"
+"typescript@npm:4.8.3, typescript@npm:^4.8.3":
+  version: 4.8.3
+  resolution: "typescript@npm:4.8.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 7f5b81d0d558c9067f952c7af52ab7f19c2e70a916817929e4a5b256c93990bf3178eccb1ac8a850bc75df35f6781b6f4cb3370ce20d8b1ded92ed462348f628
+  checksum: 8286a5edcaf3d68e65c451aa1e7150ad1cf53ee0813c07ec35b7abdfdb10f355ecaa13c6a226a694ae7a67785fd7eeebf89f845da0b4f7e4a35561ddc459aba0
   languageName: node
   linkType: hard
 
@@ -6533,13 +6533,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@4.8.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.2#~builtin<compat/typescript>":
-  version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#~builtin<compat/typescript>::version=4.8.2&hash=a1c5e5"
+"typescript@patch:typescript@4.8.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.3#~builtin<compat/typescript>":
+  version: 4.8.3
+  resolution: "typescript@patch:typescript@npm%3A4.8.3#~builtin<compat/typescript>::version=4.8.3&hash=a1c5e5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 5cb0f02f414f5405f4b0e7ee1fd7fa9177b6a8783c9017b6cad85f56ce4c4f93e0e6f2ce37e863cb597d44227cd009474c9fbd85bf7a50004e5557426cb58079
+  checksum: 2222d2382fb3146089b1d27ce2b55e9d1f99cc64118f1aba75809b693b856c5d3c324f052f60c75b577947fc538bc1c27bad0eb76cbdba9a63a253489504ba7e
   languageName: node
   linkType: hard
 
