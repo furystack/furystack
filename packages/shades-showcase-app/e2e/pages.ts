@@ -31,7 +31,7 @@ export const pages = {
     name: 'Notys',
     url: 'http://localhost:8080/notys',
   },
-  notys: {
+  tabs: {
     name: 'Tabs',
     url: 'http://localhost:8080/tabs',
   },
