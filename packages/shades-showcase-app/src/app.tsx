@@ -154,7 +154,7 @@ export const App = Shade({
                 url: '/tabs',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { TabsPage } = await import('./pages/tabs')
                       return <TabsPage />
