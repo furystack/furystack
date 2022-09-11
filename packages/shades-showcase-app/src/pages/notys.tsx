@@ -1,4 +1,4 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { createComponent, createFragment, Shade } from '@furystack/shades'
 import { Button, NotyList, NotyService } from '@furystack/shades-common-components'
 
 export const NotysPage = Shade({
@@ -17,13 +17,13 @@ export const NotysPage = Shade({
         }}
       >
         <h1>Notys</h1>
-        <div style={{ display: 'flex', gap: '32px' }}>
+        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
           <Button
             onclick={() => {
               notyService.addNoty({
                 type: 'info',
                 title: 'An example info noty',
-                body: <p>This is an example info notification</p>,
+                body: <>This is an example info notification</>,
               })
             }}
             color="info"
@@ -35,7 +35,7 @@ export const NotysPage = Shade({
               notyService.addNoty({
                 type: 'success',
                 title: 'An example success noty',
-                body: <p>This is an example success notification</p>,
+                body: <>This is an example success notification</>,
               })
             }}
             color="success"
@@ -47,7 +47,7 @@ export const NotysPage = Shade({
               notyService.addNoty({
                 type: 'warning',
                 title: 'An example warning noty',
-                body: <p>This is an example warning notification</p>,
+                body: <>This is an example warning notification</>,
               })
             }}
             color="warning"
@@ -59,7 +59,7 @@ export const NotysPage = Shade({
               notyService.addNoty({
                 type: 'error',
                 title: 'An example error noty',
-                body: <p>This is an example error notification</p>,
+                body: <>This is an example error notification</>,
               })
             }}
             color="error"

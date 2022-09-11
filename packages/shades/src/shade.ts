@@ -249,7 +249,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           super()
           this.props = _props
         }
-      } as any as CustomElementConstructor,
+      },
     )
   } else {
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)

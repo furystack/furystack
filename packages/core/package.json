@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "11.0.11",
+  "version": "11.0.12",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.0.0",
-    "@types/node": "^18.7.15"
+    "@types/node": "^18.7.16"
   },
   "dependencies": {
     "@furystack/inject": "^7.0.4",

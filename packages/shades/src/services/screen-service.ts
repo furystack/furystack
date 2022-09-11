@@ -7,10 +7,16 @@ export type ScreenSize = typeof ScreenSizes[number]
 
 export type Breakpoint = { name: ScreenSize; minSize: number; maxSize?: number }
 
+/**
+ * Service for handling screen size changes
+ */
 @Injectable({ lifetime: 'singleton' })
 export class ScreenService implements Disposable {
   private getOrientation = () => (window.matchMedia?.('(orientation:landscape').matches ? 'landscape' : 'portrait')
 
+  /**
+   * The definitions of the breakpoints
+   */
   public readonly breakpoints: { [K in ScreenSize]: { minSize: number } } = {
     xl: { minSize: 1920 },
     lg: { minSize: 1280 },
@@ -23,6 +29,9 @@ export class ScreenService implements Disposable {
     window.removeEventListener('resize', this.onResizeListener)
   }
 
+  /**
+   * Observers for the current screen size. Will refresh on resize
+   */
   public readonly screenSize: {
     atLeast: { [K in ScreenSize]: ObservableValue<boolean> }
   } = {
@@ -39,6 +48,9 @@ export class ScreenService implements Disposable {
     return window.innerWidth >= this.breakpoints[size].minSize
   }
 
+  /**
+   * Observable value for tracking the screen orientation
+   */
   public orientation = new ObservableValue<'landscape' | 'portrait'>(this.getOrientation())
 
   private onResizeListener = () => {

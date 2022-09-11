@@ -1,6 +1,6 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "5.0.11",
+  "version": "5.0.12",
   "description": "MongoDB Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.0.11",
+    "@furystack/core": "^11.0.12",
     "@furystack/inject": "^7.0.4",
     "@furystack/logging": "^3.0.8",
     "@furystack/utils": "^3.0.8",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.0.0",
-    "@types/node": "^18.7.15"
+    "@types/node": "^18.7.16"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

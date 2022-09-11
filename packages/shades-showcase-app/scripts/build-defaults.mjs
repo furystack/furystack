@@ -15,7 +15,7 @@ export const getBundleBuildOptions = () => ({
   jsxFragment: 'createFragment',
   outdir: 'bundle/js',
   bundle: true,
-  minify: false,
+  minify: true,
   sourcemap: true,
   splitting: true,
   platform: 'browser',

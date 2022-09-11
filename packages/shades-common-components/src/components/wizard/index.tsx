@@ -38,7 +38,7 @@ export const Wizard = Shade<WizardProps, WizardState>({
           height: '100%',
         }}
       >
-        <Paper elevation={3} onclick={(ev) => ev.stopPropagation()}>
+        <Paper style={{ maxWidth: '100%', maxHeight: '100%' }} elevation={3} onclick={(ev) => ev.stopPropagation()}>
           <CurrentPage
             currentPage={currentPage}
             maxPages={props.steps.length}
