@@ -3,21 +3,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'prettier', 'jsdoc'],
   env: { browser: true, node: true, es6: true, jest: true },
-  parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-  settings: {
-    // jsdoc: { exemptEmptyFunctions: false },
-  },
   rules: {
     'arrow-parens': ['error', 'always'],
-    'no-unused-vars': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    'no-console': 'off',
     '@typescript-eslint/no-unused-vars': 'off', // Use Typescript own check for this
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/ban-types': 'off',
@@ -38,7 +25,8 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/array-type': ['error', { default: 'array-simple', readonly: 'array-simple' }],
     'prettier/prettier': 'error',
-    'require-jsdoc': 1,
+    'jsdoc/require-param-type': 'off',
+    'jsdoc/require-returns-type': 'off',
     'object-shorthand': 'error',
     'dot-notation': 'error',
     'no-caller': 'error',
@@ -55,15 +43,5 @@ module.exports = {
     'prefer-template': 'error',
     'prefer-destructuring': ['error', { array: false, object: true }],
     'default-case': 'error',
-    'jsdoc/require-param-type': 'off',
-    'jsdoc/require-returns-type': 'off',
   },
-  overrides: [
-    {
-      files: ['packages/**/*-extension*.{ts,tsx}'],
-      rules: {
-        'no-shadow': 'off',
-      },
-    },
-  ],
 }
