@@ -24,19 +24,24 @@ export class ScreenService implements Disposable {
   }
 
   public readonly screenSize: {
-    atLeast: { [K in ScreenSize]: ObservableValue<boolean> }
+    atLeast: { [K in ScreenSize]: ObservableValue<{ isMatched: boolean; width: number; height: number }> }
   } = {
     atLeast: {
-      xs: new ObservableValue<boolean>(this.screenSizeAtLeast('xs')),
-      sm: new ObservableValue<boolean>(this.screenSizeAtLeast('sm')),
-      md: new ObservableValue<boolean>(this.screenSizeAtLeast('md')),
-      lg: new ObservableValue<boolean>(this.screenSizeAtLeast('lg')),
-      xl: new ObservableValue<boolean>(this.screenSizeAtLeast('xl')),
+      xs: new ObservableValue<{ isMatched: boolean; width: number; height: number }>(this.screenSizeAtLeast('xs')),
+      sm: new ObservableValue<{ isMatched: boolean; width: number; height: number }>(this.screenSizeAtLeast('sm')),
+      md: new ObservableValue<{ isMatched: boolean; width: number; height: number }>(this.screenSizeAtLeast('md')),
+      lg: new ObservableValue<{ isMatched: boolean; width: number; height: number }>(this.screenSizeAtLeast('lg')),
+      xl: new ObservableValue<{ isMatched: boolean; width: number; height: number }>(this.screenSizeAtLeast('xl')),
     },
   }
 
   private screenSizeAtLeast(size: ScreenSize) {
-    return window.innerWidth >= this.breakpoints[size].minSize
+    const isMatched = window.innerWidth >= this.breakpoints[size].minSize
+    return {
+      isMatched,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }
   }
 
   public orientation = new ObservableValue<'landscape' | 'portrait'>(this.getOrientation())
