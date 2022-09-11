@@ -25,7 +25,16 @@ export const App = Shade({
       >
         <AppBar>
           <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
-          <div style={{ display: 'flex', height: '32px', paddingLeft: '16px', gap: '4px' }}>
+          <div
+            style={{
+              display: 'flex',
+              height: '32px',
+              paddingLeft: '16px',
+              gap: '4px',
+              overflow: 'hidden',
+              overflowX: 'auto',
+            }}
+          >
             <AppBarLink href="/">Home</AppBarLink>
             <AppBarLink href="/buttons">Buttons</AppBarLink>
             <AppBarLink href="/inputs">Inputs</AppBarLink>
