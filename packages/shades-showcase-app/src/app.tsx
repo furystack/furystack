@@ -1,7 +1,7 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
 import { AppBar, AppBarLink, Paper, ThemeProviderService } from '@furystack/shades-common-components'
+import { PageLoader } from './components/page-loader'
 import { ThemeSwitch } from './components/theme-switch'
-import { HomePage } from './pages/home'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
@@ -57,7 +57,7 @@ export const App = Shade({
                 url: '/buttons',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { ButtonsPage } = await import('./pages/buttons')
                       return <ButtonsPage />
@@ -69,7 +69,7 @@ export const App = Shade({
                 url: '/inputs',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { InputsPage } = await import('./pages/inputs')
                       return <InputsPage />
@@ -81,7 +81,7 @@ export const App = Shade({
                 url: '/grid',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { GridPage } = await import('./pages/grid')
                       return <GridPage />
@@ -93,7 +93,7 @@ export const App = Shade({
                 url: '/nipple',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { NipplePage } = await import('./pages/nipple')
                       return <NipplePage />
@@ -105,7 +105,7 @@ export const App = Shade({
                 url: '/lottie',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { LottiePage } = await import('./pages/lottie')
                       return <LottiePage />
@@ -117,7 +117,7 @@ export const App = Shade({
                 url: '/monaco',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { MonacoEditorPage } = await import('./pages/monaco')
                       return <MonacoEditorPage />
@@ -129,7 +129,7 @@ export const App = Shade({
                 url: '/wizard',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { WizardPage } = await import('./pages/wizard')
                       return <WizardPage />
@@ -141,7 +141,7 @@ export const App = Shade({
                 url: '/notys',
                 component: () => (
                   <LazyLoad
-                    loader={<div>loading...</div>}
+                    loader={<PageLoader />}
                     component={async () => {
                       const { NotysPage } = await import('./pages/notys')
                       return <NotysPage />
@@ -150,7 +150,15 @@ export const App = Shade({
                 ),
               },
             ]}
-            notFound={() => <HomePage />}
+            notFound={() => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { HomePage } = await import('./pages/home')
+                  return <HomePage />
+                }}
+              />
+            )}
           />
         </Paper>
       </div>
