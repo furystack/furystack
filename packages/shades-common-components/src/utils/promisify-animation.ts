@@ -1,3 +1,9 @@
+/**
+ * @param el The element to animate
+ * @param keyframes A list of keyframe definitions
+ * @param options Animation options
+ * @returns A promise that resolves when the animation is complete or rejects if cancelled
+ */
 export const promisifyAnimation = async (
   el: Element | null,
   keyframes: Keyframe[] | PropertyIndexedKeyframes | null,

@@ -33,6 +33,8 @@ export const App = Shade({
             <AppBarLink href="/nipple">Nipple</AppBarLink>
             <AppBarLink href="/lottie">Lottie</AppBarLink>
             <AppBarLink href="/monaco">Monaco</AppBarLink>
+            <AppBarLink href="/wizard">Wizard</AppBarLink>
+            <AppBarLink href="/notys">Notys</AppBarLink>
           </div>
           <ThemeSwitch />
         </AppBar>
@@ -40,7 +42,6 @@ export const App = Shade({
           elevation={3}
           style={{
             paddingTop: '32px',
-            // paddingBottom: '24px',
             position: 'fixed',
             top: '0',
             left: '0',
@@ -120,6 +121,30 @@ export const App = Shade({
                     component={async () => {
                       const { MonacoEditorPage } = await import('./pages/monaco')
                       return <MonacoEditorPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/wizard',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { WizardPage } = await import('./pages/wizard')
+                      return <WizardPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/notys',
+                component: () => (
+                  <LazyLoad
+                    loader={<div>loading...</div>}
+                    component={async () => {
+                      const { NotysPage } = await import('./pages/notys')
+                      return <NotysPage />
                     }}
                   />
                 ),

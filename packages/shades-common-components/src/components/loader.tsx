@@ -1,64 +1,55 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../services'
+import { promisifyAnimation } from '../utils'
 
-export const Loader = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
+interface LoaderProps {
+  style?: Partial<CSSStyleDeclaration>
+  delay?: number
+}
+
+export const Loader = Shade<LoaderProps>({
   shadowDomName: 'shade-loader',
-  render: ({ props }) => {
+  resources: ({ injector, element }) => [
+    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
+      const el = element.firstElementChild
+      if (el) {
+        ;(el as HTMLElement).style.borderBottom = `15px solid ${theme.palette.primary.main}`
+      }
+    }, true),
+  ],
+  render: ({ element, props }) => {
+    element.style.display = 'inline-block'
+    element.style.transformOrigin = 'center'
+    element.style.opacity = '0'
+    const { delay = 500 } = props
+
+    setTimeout(() => {
+      promisifyAnimation(element, [{ opacity: '0' }, { opacity: '1' }], {
+        duration: 500,
+        delay,
+        fill: 'forwards',
+      })
+      promisifyAnimation(
+        element.firstElementChild,
+        [{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }, { transform: 'rotate(360deg)' }],
+        {
+          duration: 1500,
+          easing: 'ease-in-out',
+          iterations: Infinity,
+        },
+      )
+    }, 1)
     return (
       <div
         style={{
-          ...((props && props.style) || {}),
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          border: '15px solid #f3f3f3',
+          borderBottom: '15px solid red',
+          borderRadius: '50%',
         }}
-      >
-        <style>
-          {`/* LOADER 1 */
-
-        #loader-1:before, #loader-1:after{
-          content: "";
-          position: absolute;
-          width: calc(100% - 20px);
-          height: calc(100% - 20px);
-          border-radius: 100%;
-          border: 10px solid transparent;
-          border-top-color: #3498db;
-        }
-        
-        #loader-1:before{
-          z-index: 100;
-          animation: spin 1s infinite;
-        }
-        
-        #loader-1:after{
-          border: 10px solid rgba(128,128,128,0.3);
-        }
-        
-        @keyframes spin{
-          0%{
-            -webkit-transform: rotate(0deg);
-            -ms-transform: rotate(0deg);
-            -o-transform: rotate(0deg);
-            transform: rotate(0deg);
-          }
-        
-          100%{
-            -webkit-transform: rotate(360deg);
-            -ms-transform: rotate(360deg);
-            -o-transform: rotate(360deg);
-            transform: rotate(360deg);
-          }
-        }`}
-        </style>
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <div className="three col">
-            <div className="loader" id="loader-1"></div>
-          </div>
-        </div>
-      </div>
+      />
     )
   },
 })

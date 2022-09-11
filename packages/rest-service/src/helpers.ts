@@ -4,6 +4,7 @@ import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { RestApi } from '@furystack/rest'
 import { ApiManager, ImplementApiOptions } from './api-manager'
 import { DefaultSession } from './models/default-session'
+import { StaticServerManager, StaticServerOptions } from './static-server-manager'
 
 /**
  * Sets up the @furystack/rest-service with the provided settings
@@ -28,6 +29,18 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
 ) => {
   const constructedSettings = new HttpAuthenticationSettings(injector)
   Object.assign(constructedSettings, settings)
-
   return injector.setExplicitInstance(constructedSettings, HttpAuthenticationSettings)
+}
+
+/**
+ * Sets up a static file server
+ *
+ * @param options The settings for the static file server
+ * @param options.injector The Injector instance
+ * @param options.settings Settings for the static file server
+ * @returns a promise that resolves when the server is ready
+ */
+export const useStaticFiles = (options: { injector: Injector } & StaticServerOptions) => {
+  const { injector, ...settings } = options
+  return injector.getInstance(StaticServerManager).addStaticSite(settings)
 }

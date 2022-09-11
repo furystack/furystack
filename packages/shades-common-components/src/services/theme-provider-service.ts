@@ -46,6 +46,19 @@ export interface Theme {
   divider: Color
 }
 
+export class RgbColor {
+  constructor(public r: number, public g: number, public b: number, public a: number = 1) {}
+
+  public update(key: 'r' | 'g' | 'b' | 'a', value: number): RgbColor {
+    this[key] = value
+    return this
+  }
+
+  public toString(): string {
+    return `rgba(${this.r},${this.g},${this.b},${this.a})`
+  }
+}
+
 /**
  * Service class for theme-related operations
  */
@@ -75,13 +88,13 @@ export class ThemeProviderService {
         const r = parseInt(color.substr(1, 2), 16)
         const g = parseInt(color.substr(3, 2), 16)
         const b = parseInt(color.substr(5, 2), 16)
-        return { r, g, b }
+        return new RgbColor(r, g, b)
       }
       if (color.length === 4) {
         const r = parseInt(color.substr(1, 1) + color.substr(1, 1), 16)
         const g = parseInt(color.substr(2, 1) + color.substr(2, 1), 16)
         const b = parseInt(color.substr(3, 1) + color.substr(3, 1), 16)
-        return { r, g, b }
+        return new RgbColor(r, g, b)
       }
     }
     if (color.startsWith('rgba(')) {
@@ -89,12 +102,12 @@ export class ThemeProviderService {
         /^rgba[(](?<red>[\d]+)[,][\s]?(?<green>[\d]+)[,][\s]?(?<blue>[\d]+)[,][\s]?(?<alpha>[\d|.]+)[)]/gm,
       ).exec(color)
       if (result && result.groups) {
-        return {
-          r: parseInt(result.groups.red, 10),
-          g: parseInt(result.groups.green, 10),
-          b: parseInt(result.groups.blue, 10),
-          a: parseInt(result.groups.alpha, 10),
-        }
+        return new RgbColor(
+          parseInt(result.groups.red, 10),
+          parseInt(result.groups.green, 10),
+          parseInt(result.groups.blue, 10),
+          parseInt(result.groups.alpha, 10),
+        )
       }
     }
     throw Error(`Color format '${color} is not supported.'`)

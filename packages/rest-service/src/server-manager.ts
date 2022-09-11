@@ -15,9 +15,14 @@ export interface OnRequest {
   res: ServerResponse
 }
 
+export interface ServerApi {
+  shouldExec: (options: OnRequest) => boolean
+  onRequest: (options: OnRequest) => void
+}
+
 export interface ServerRecord {
   server: Server
-  apis: Array<{ shouldExec: (options: OnRequest) => boolean; onRequest: (options: OnRequest) => void }>
+  apis: ServerApi[]
 }
 
 @Injectable({ lifetime: 'singleton' })

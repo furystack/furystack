@@ -6,7 +6,7 @@
     "composite": true,
     "rootDir": "./src",
     "baseUrl": "./src",
-    "lib": ["ES2019", "ES2020.Promise", "DOM", "DOM.Iterable"],
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "resolveJsonModule": true
   },
   "include": ["src", "src/*.json"],
