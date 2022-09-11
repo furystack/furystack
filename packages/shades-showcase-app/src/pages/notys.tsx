@@ -17,7 +17,7 @@ export const NotysPage = Shade({
         }}
       >
         <h1>Notys</h1>
-        <div style={{ display: 'flex', gap: '32px' }}>
+        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
           <Button
             onclick={() => {
               notyService.addNoty({
