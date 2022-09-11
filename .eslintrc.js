@@ -5,7 +5,6 @@ module.exports = {
   env: { browser: true, node: true, es6: true, jest: true },
   rules: {
     'arrow-parens': ['error', 'always'],
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-vars': 'off', // Use Typescript own check for this
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/ban-types': 'off',
