@@ -3,7 +3,13 @@ import { ThemeProviderService } from '../services'
 import { promisifyAnimation } from '../utils'
 
 interface LoaderProps {
+  /**
+   * Style declaration for the loader
+   */
   style?: Partial<CSSStyleDeclaration>
+  /**
+   * The time to wait before the loader shows up
+   */
   delay?: number
 }
 
@@ -43,9 +49,9 @@ export const Loader = Shade<LoaderProps>({
       <div
         style={{
           position: 'relative',
-          width: '100%',
-          height: '100%',
-          border: '15px solid #f3f3f3',
+          width: 'calc(100% - 30px)',
+          height: 'calc(100% - 30px)',
+          border: '15px solid rgba(128,128,128,0.1)',
           borderBottom: '15px solid red',
           borderRadius: '50%',
         }}
