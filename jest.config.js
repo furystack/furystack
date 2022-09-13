@@ -24,7 +24,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleFileExtensions: ['js', 'json', 'node'],
   collectCoverage: true,
-  collectCoverageFrom: ['**/*.{js,jsx}', '!**/node_modules/**', '!**/index.js', '!packages/shades-*/**'],
+  collectCoverageFrom: ['**/*.{js,jsx}', '!**/node_modules/**', '!**/index.js'],
   coverageReporters: ['text', 'json', 'html', 'cobertura'],
   reporters: ['default', 'jest-junit'],
 }

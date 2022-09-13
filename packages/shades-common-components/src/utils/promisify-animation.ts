@@ -11,7 +11,7 @@ export const promisifyAnimation = async (
 ) =>
   new Promise((resolve, reject) => {
     if (!el) {
-      return reject()
+      return reject(new Error('No element provided'))
     }
     const animation = el.animate(keyframes, options)
     animation.onfinish = resolve
