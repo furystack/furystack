@@ -15,7 +15,7 @@ export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends key
   /**
    * Callback that returns the Sequelize client (provided by the client factory)
    */
-  getSequelizeClient: () => Promise<Sequelize>
+  getSequelizeClient: () => Sequelize
   /**
    * Optional calback that will initialize the Model for the Sequelize instance
    */
@@ -43,7 +43,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
       return this.initializedModel
     }
     try {
-      const client = await this.options.getSequelizeClient()
+      const client = this.options.getSequelizeClient()
 
       if (this.options.initModel) {
         await this.options.initModel(client)

@@ -1,6 +1,9 @@
 import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
+import { usingAsync } from '@furystack/utils'
+import { Injector } from '@furystack/inject'
+import { SequelizeClientFactory } from './sequelize-client-factory'
 
 jest.mock('uuid', () => {
   return {
@@ -67,5 +70,19 @@ describe('Sequelize Store', () => {
       const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
       return store
     },
+  })
+
+  it('should return the cached client from the factory', () => {
+    usingAsync(new Injector(), async (i) => {
+      const factory = i.getInstance(SequelizeClientFactory)
+      const settings = {
+        dialect: 'sqlite',
+        storage: ':memory:',
+        logging: false,
+      } as const
+      const client1 = factory.getSequelizeClient(settings)
+      const client2 = factory.getSequelizeClient(settings)
+      expect(client1).toBe(client2)
+    })
   })
 })
