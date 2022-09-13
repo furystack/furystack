@@ -34,7 +34,7 @@ export const useSequelize = function <T extends Model>({
   const store = new SequelizeStore({
     model,
     primaryKey,
-    getSequelizeClient: async () => await clientFactory.getSequelizeClient(options),
+    getSequelizeClient: () => clientFactory.getSequelizeClient(options),
     initModel,
   })
   addStore(injector, store)
