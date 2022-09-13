@@ -50,11 +50,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
         await client.sync()
       }
 
-      const model = client.model(this.options.model.name) as ModelStatic<T> | undefined
-
-      if (!model) {
-        throw Error(`'No initialized Sequelize model found for '${this.options.model.name}'`)
-      }
+      const model = client.model(this.options.model.name) as ModelStatic<T>
 
       this.initializedModel = model
       return model
