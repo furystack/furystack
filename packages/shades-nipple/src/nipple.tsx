@@ -1,4 +1,4 @@
-import { Shade, createComponent } from '@furystack/shades'
+import { Shade, createComponent, createFragment } from '@furystack/shades'
 import { create, JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
 
 export interface NippleComponentProps {
@@ -13,12 +13,8 @@ export interface NippleComponentProps {
 export const NippleComponent = Shade<NippleComponentProps>({
   shadowDomName: 'shade-nipple',
   constructed: async ({ element, props }) => {
-    const nippleElement = element.children[0] as HTMLDivElement
-    if (!nippleElement) {
-      return
-    }
     const manager = create({
-      zone: nippleElement,
+      zone: element,
       ...props.managerOptions,
     })
     props.onStart && manager.on('start', props.onStart)
@@ -27,19 +23,10 @@ export const NippleComponent = Shade<NippleComponentProps>({
     props.onMove && manager.on('move', props.onMove)
     return () => manager.destroy()
   },
-  render: ({ children, props, element }) => {
-    props.style && Object.assign(element.style, props.style)
-    return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          ...props.style,
-        }}
-      >
-        {children}
-      </div>
-    )
+  render: ({ children }) => {
+    if (children) {
+      return <>{children}</>
+    }
+    return <div />
   },
 })
