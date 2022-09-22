@@ -1,6 +1,5 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync } from '@furystack/utils'
 import { NippleComponent, NippleComponentProps } from './nipple'
 
 describe('Nipple', () => {
