@@ -5,11 +5,11 @@
  * @returns A promise that resolves when the animation is complete or rejects if cancelled
  */
 export const promisifyAnimation = async (
-  el: Element | null,
+  el: Element | null | undefined,
   keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
   options?: number | KeyframeAnimationOptions | undefined,
 ) =>
-  new Promise((resolve, reject) => {
+  new Promise<AnimationPlaybackEvent>((resolve, reject) => {
     if (!el) {
       return reject(new Error('No element provided'))
     }
