@@ -1,5 +1,14 @@
 import { createComponent, createFragment, ScreenService, Shade } from '@furystack/shades'
-import { animations, Button, Input, Modal, Wizard, WizardStepProps } from '@furystack/shades-common-components'
+import {
+  Button,
+  fadeIn,
+  fadeOut,
+  Input,
+  Modal,
+  showParallax,
+  Wizard,
+  WizardStepProps,
+} from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
@@ -18,9 +27,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   },
   render: ({ props, element, children }) => {
     setTimeout(() => {
-      animations.showParallax(element.querySelector('h1'))
-      animations.showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
-      animations.showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
+      showParallax(element.querySelector('h1'))
+      showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
+      showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
     }, 1)
     return (
       <form
@@ -161,8 +170,8 @@ export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean>
             backdropFilter: 'blur(10px)',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
           }}
-          showAnimation={(el) => animations.fadeIn(el)}
-          hideAnimation={(el) => animations.fadeOut(el)}
+          showAnimation={(el) => fadeIn(el)}
+          hideAnimation={(el) => fadeOut(el)}
         >
           <Wizard steps={[Step1, Step2, Step3]} onFinish={() => isOpened.setValue(false)} />
         </Modal>

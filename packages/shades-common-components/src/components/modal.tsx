@@ -5,8 +5,8 @@ export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>
   isVisible: ObservableValue<boolean>
   onClose?: () => void
-  showAnimation?: (el: Element | null) => Promise<void>
-  hideAnimation?: (el: Element | null) => Promise<void>
+  showAnimation?: (el: Element | null) => Promise<unknown>
+  hideAnimation?: (el: Element | null) => Promise<unknown>
 }
 
 export const Modal = Shade<ModalProps, { isVisible?: boolean }>({

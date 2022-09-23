@@ -1,7 +1,6 @@
 import { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 import { Sequelize, Options, Op } from 'sequelize'
-import Semaphore from 'semaphore-async-await'
 
 const operatorsAliases = {
   $eq: Op.eq,
@@ -51,37 +50,20 @@ const operatorsAliases = {
 export class SequelizeClientFactory implements Disposable {
   private connections: Map<string, Sequelize> = new Map()
 
-  private readonly connectionLock = new Semaphore(1)
-
   public async dispose() {
-    try {
-      await this.connectionLock.acquire()
-      await Promise.all([...this.connections.values()].map((c) => c.close()))
-      this.connections.clear()
-    } finally {
-      this.connectionLock.release()
-    }
+    await Promise.all([...this.connections.values()].map((c) => c.close()))
+    this.connections.clear()
   }
 
-  public async getSequelizeClient(options: Options) {
+  public getSequelizeClient(options: Options) {
     const key = JSON.stringify(options)
     const existing = this.connections.get(key)
     if (existing) {
       return existing
     }
 
-    try {
-      await this.connectionLock.acquire()
-      const existingCreated = this.connections.get(key)
-      if (existingCreated) {
-        return existingCreated
-      }
-      // const client = await connect(url, options)
-      const client = new Sequelize({ ...options, operatorsAliases })
-      this.connections.set(key, client)
-      return client
-    } finally {
-      this.connectionLock.release()
-    }
+    const client = new Sequelize({ ...options, operatorsAliases })
+    this.connections.set(key, client)
+    return client
   }
 }
