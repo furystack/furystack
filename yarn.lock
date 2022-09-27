@@ -457,7 +457,7 @@ __metadata:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
     "@furystack/rest": ^4.0.13
-    "@furystack/rest-service": ^6.1.6
+    "@furystack/rest-service": ^6.1.7
     "@furystack/utils": ^3.0.9
     "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
@@ -576,7 +576,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.1.6, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.1.7, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
@@ -638,7 +638,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^3.4.3, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^3.4.4, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
@@ -686,7 +686,7 @@ __metadata:
     "@furystack/repository": ^6.0.14
     "@furystack/rest-client-fetch": ^4.0.15
     "@furystack/shades": ^6.0.10
-    "@furystack/shades-common-components": ^3.4.3
+    "@furystack/shades-common-components": ^3.4.4
     "@furystack/shades-lottie": ^2.0.16
     "@furystack/shades-nipple": ^2.0.16
     "@furystack/utils": ^3.0.9
@@ -730,7 +730,7 @@ __metadata:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
     "@furystack/logging": ^3.0.9
-    "@furystack/rest-service": ^6.1.6
+    "@furystack/rest-service": ^6.1.7
     "@furystack/utils": ^3.0.9
     "@types/jest": ^29.0.3
     "@types/ws": ^8.5.3
