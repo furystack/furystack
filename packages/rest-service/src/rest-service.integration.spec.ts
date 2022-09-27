@@ -61,7 +61,8 @@ const prepareInjector = async (i: Injector) => {
         '/logout': LogoutAction,
         '/testPostBody': async (options) => {
           const body = await options.getBody()
-          return JsonResult({ bodyValue: body.value })
+          const body2 = await options.getBody()
+          return JsonResult({ bodyValue: body.value, body2Value: body2.value })
         },
       },
     },
@@ -140,7 +141,7 @@ describe('@furystack/rest-service inregration tests', () => {
         retry: 0,
       })
       expect(response.statusCode).toBe(200)
-      expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz' })
+      expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz', body2Value: 'baz' })
     })
   })
 
