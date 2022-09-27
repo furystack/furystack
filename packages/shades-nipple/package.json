@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-nipple",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "description": "A Nipple component wrapper for FuryStack Shades",
   "keywords": [
     "FuryStack",
@@ -20,7 +20,7 @@
     "typescript": "4.8.3"
   },
   "dependencies": {
-    "@furystack/shades": "^6.0.9",
+    "@furystack/shades": "^6.0.10",
     "nipplejs": "^0.9.1"
   },
   "typings": "types/index.d.ts",
