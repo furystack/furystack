@@ -2,15 +2,32 @@ import { ChildrenList, createComponent, Shade } from '@furystack/shades'
 import { Paper } from '../paper'
 
 export interface WizardStepProps {
+  /**
+   * The current page number
+   */
   currentPage: number
+  /**
+   * Total count of the wizard pages
+   */
   maxPages: number
+  /**
+   * Callback that will be executed when the user navigates to the next page
+   */
   onNext?: () => void
+  /**
+   * Callback that will be executed when the user navigates to the previous page
+   */
   onPrev?: () => void
 }
 
 export interface WizardProps {
+  /**
+   * An array of Shade<WizardStepProps> components
+   */
   steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element<any, any>>
-  isOpened?: boolean
+  /**
+   * A callback that will be executed when the wizard is completed
+   */
   onFinish?: () => void
 }
 
