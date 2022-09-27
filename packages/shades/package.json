@@ -31,7 +31,7 @@
   "devDependencies": {
     "@types/jest": "^29.0.3",
     "@types/jsdom": "^20.0.0",
-    "@types/node": "^18.7.18",
+    "@types/node": "^18.7.23",
     "jsdom": "^20.0.0"
   },
   "dependencies": {

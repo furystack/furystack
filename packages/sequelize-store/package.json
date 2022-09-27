@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.0.3",
-    "@types/node": "^18.7.18",
+    "@types/node": "^18.7.23",
     "sqlite3": "5.1.1",
     "uuid": "^8.3.2"
   },
