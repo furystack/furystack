@@ -5,6 +5,7 @@ declare module 'http' {
   export interface IncomingMessage {
     readPostBodyRaw: () => Promise<string>
     readPostBody: <T>() => Promise<T>
+    postBody: unknown
   }
 }
 
