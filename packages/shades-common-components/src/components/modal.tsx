@@ -18,7 +18,9 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
         updateState({ isVisible: visible })
         await props.showAnimation?.(element)
       } else {
-        await props.hideAnimation?.(element).finally(() => updateState({ isVisible: visible }))
+        props.hideAnimation
+          ? await props.hideAnimation?.(element).finally(() => updateState({ isVisible: visible }))
+          : updateState({ isVisible: visible })
       }
     }),
   ],
