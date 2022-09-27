@@ -1,3 +1,7 @@
 releases:
+  "@furystack/auth-google": patch
+  "@furystack/rest-service": patch
   "@furystack/shades-common-components": patch
   "@furystack/shades-showcase-app": patch
+  "@furystack/websocket-api": patch
+  furystack: patch
