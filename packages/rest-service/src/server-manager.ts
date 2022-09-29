@@ -1,9 +1,10 @@
 import { Injectable } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
-import { Server, createServer } from 'http'
+import type { Disposable } from '@furystack/utils'
+import type { Server } from 'http'
+import { createServer } from 'http'
 import Semaphore from 'semaphore-async-await'
-import { IncomingMessage, ServerResponse } from 'http'
-import { Socket } from 'net'
+import type { IncomingMessage, ServerResponse } from 'http'
+import type { Socket } from 'net'
 
 export interface ServerOptions {
   hostName?: string

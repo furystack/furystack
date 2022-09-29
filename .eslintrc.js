@@ -23,6 +23,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-parameter-properties': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/array-type': ['error', { default: 'array-simple', readonly: 'array-simple' }],
     'prettier/prettier': 'error',
     'jsdoc/require-param-type': 'off',

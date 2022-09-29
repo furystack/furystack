@@ -1,6 +1,7 @@
-import { HttpUserContext, JsonResult, RequestAction } from '@furystack/rest-service'
+import { HttpUserContext, JsonResult } from '@furystack/rest-service'
 import { GoogleLoginService } from './login-service'
-import { User } from '@furystack/core'
+import type { RequestAction } from '@furystack/rest-service'
+import type { User } from '@furystack/core'
 /**
  * HTTP Request action for Google Logins
  */

@@ -1,5 +1,5 @@
-import { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject'
+import type { Constructable } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
 import { Repository } from './repository'
 
 /**

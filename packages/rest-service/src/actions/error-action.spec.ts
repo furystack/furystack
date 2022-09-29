@@ -1,10 +1,10 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { ErrorAction } from './error-action'
-import { IncomingMessage } from 'http'
+import type { IncomingMessage } from 'http'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
-import { ServerResponse } from 'http'
+import type { ServerResponse } from 'http'
 
 describe('ErrorAction tests', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

@@ -1,5 +1,6 @@
 import { get } from 'https'
-import { User, StoreManager } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { StoreManager } from '@furystack/core'
 import { HttpAuthenticationSettings, Utils } from '@furystack/rest-service'
 import { Injectable, Injector, Injected } from '@furystack/inject'
 

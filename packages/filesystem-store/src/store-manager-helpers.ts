@@ -1,5 +1,5 @@
 import { addStore } from '@furystack/core'
-import { Constructable, Injector } from '@furystack/inject'
+import type { Constructable, Injector } from '@furystack/inject'
 import { FileSystemStore } from './filesystem-store'
 
 /**

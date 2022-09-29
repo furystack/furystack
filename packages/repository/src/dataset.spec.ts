@@ -1,8 +1,9 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { InMemoryStore, WithOptionalId, addStore } from '@furystack/core'
+import type { WithOptionalId } from '@furystack/core'
+import { InMemoryStore, addStore } from '@furystack/core'
 import { Repository } from './repository'
-import { AuthorizationResult, DataSetSettings } from './data-set-setting'
+import type { AuthorizationResult, DataSetSettings } from './data-set-setting'
 import { getDataSetFor, getRepository } from './helpers'
 
 class TestClass {

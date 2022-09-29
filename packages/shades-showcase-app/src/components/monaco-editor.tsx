@@ -2,7 +2,7 @@ import { Shade } from '@furystack/shades'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import 'monaco-editor/esm/vs/editor/editor.main'
 
-import { EditorLanguage } from 'monaco-editor/esm/metadata'
+import type { EditorLanguage } from 'monaco-editor/esm/metadata'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

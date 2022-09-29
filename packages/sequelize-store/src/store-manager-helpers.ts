@@ -1,6 +1,6 @@
 import { addStore } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { Options, Model, Sequelize, ModelStatic } from 'sequelize'
+import type { Injector } from '@furystack/inject'
+import type { Options, Model, Sequelize, ModelStatic } from 'sequelize'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import { SequelizeStore } from './sequelize-store'
 

@@ -1,6 +1,6 @@
-import { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
-import { createClient } from 'redis'
+import type { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
+import type { Constructable } from '@furystack/inject'
+import type { createClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack

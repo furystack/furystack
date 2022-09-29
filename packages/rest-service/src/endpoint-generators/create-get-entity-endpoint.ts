@@ -1,7 +1,9 @@
-import { Constructable } from '@furystack/inject'
-import { RequestError, GetEntityEndpoint } from '@furystack/rest'
+import type { Constructable } from '@furystack/inject'
+import type { GetEntityEndpoint } from '@furystack/rest'
+import { RequestError } from '@furystack/rest'
 import '@furystack/repository'
-import { JsonResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
 import { getRepository } from '@furystack/repository'
 
 /**

@@ -1,6 +1,7 @@
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
-import { JsonResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
 import { SchemaValidationError } from '../schema-validator'
 
 /**

@@ -1,5 +1,5 @@
-import { Constructable } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
+import type { Constructable } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
 
 export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
 export const SingleComparisonOperators = ['$eq', '$ne'] as const
@@ -39,8 +39,7 @@ export interface CreateResult<T> {
   created: T[]
 }
 
-export type WithOptionalId<T, TPrimaryKey> = TPrimaryKey extends keyof T ? Omit<T, TPrimaryKey> & Partial<T> : T
-
+export type WithOptionalId<T, TPrimaryKey extends keyof T> = Omit<T, TPrimaryKey> & { [K in TPrimaryKey]?: T[K] }
 /**
  * Type for default filtering model
  */

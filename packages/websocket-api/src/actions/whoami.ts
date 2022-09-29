@@ -1,8 +1,9 @@
 import { HttpUserContext } from '@furystack/rest-service'
 import { Injectable, Injected } from '@furystack/inject'
-import ws, { Data } from 'ws'
-import { WebSocketAction } from '../models/websocket-action'
-import { IncomingMessage } from 'http'
+import type { Data } from 'ws'
+import ws from 'ws'
+import type { WebSocketAction } from '../models/websocket-action'
+import type { IncomingMessage } from 'http'
 
 /**
  * Example action that returns the current user instance

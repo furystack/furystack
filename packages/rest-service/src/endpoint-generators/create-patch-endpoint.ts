@@ -1,8 +1,9 @@
-import { Constructable } from '@furystack/inject'
-import { PatchEndpoint } from '@furystack/rest'
+import type { Constructable } from '@furystack/inject'
+import type { PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
-import { JsonResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
 import { getRepository } from '@furystack/repository'
 
 /**

@@ -1,5 +1,7 @@
-import { createComponent, PartialElement, Shade } from '@furystack/shades'
-import { Theme, ThemeProviderService } from '../../services'
+import type { PartialElement } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
+import type { Theme } from '../../services'
+import { ThemeProviderService } from '../../services'
 import { promisifyAnimation } from '../../utils'
 
 export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {

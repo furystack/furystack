@@ -1,9 +1,11 @@
-import { Constructable } from '@furystack/inject'
-import { RequestError, PostEndpoint } from '@furystack/rest'
+import type { Constructable } from '@furystack/inject'
+import type { PostEndpoint } from '@furystack/rest'
+import { RequestError } from '@furystack/rest'
 import '@furystack/repository'
 import '../incoming-message-extensions'
-import { JsonResult, RequestAction } from '../request-action-implementation'
-import { WithOptionalId } from '@furystack/core'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
+import type { WithOptionalId } from '@furystack/core'
 import { getRepository } from '@furystack/repository'
 /**
  * Creates a POST endpoint for updating entities

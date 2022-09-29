@@ -1,4 +1,4 @@
-import { Palette } from './theme-provider-service'
+import type { Palette } from './theme-provider-service'
 
 export const defaultPalette: Palette = {
   primary: {

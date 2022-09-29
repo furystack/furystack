@@ -1,5 +1,5 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { PasswordCredential, PasswordResetToken } from './models'
+import type { PasswordCredential, PasswordResetToken } from './models'
 import { SecurityPolicy } from './security-policy'
 
 @Injectable({ lifetime: 'singleton' })

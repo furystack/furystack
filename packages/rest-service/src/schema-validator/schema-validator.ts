@@ -1,4 +1,5 @@
-import Ajv, { ErrorObject, Options } from 'ajv'
+import type { ErrorObject, Options } from 'ajv'
+import Ajv from 'ajv'
 import useFormats from 'ajv-formats'
 import { SchemaValidationError } from './schema-validation-error'
 

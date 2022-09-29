@@ -1,7 +1,8 @@
 import { isAuthenticated } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
 import { HttpUserContext } from './http-user-context'
-import { ActionResult, JsonResult, RequestAction, RequestActionOptions } from './request-action-implementation'
+import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation'
+import { JsonResult } from './request-action-implementation'
 
 export const Authenticate =
   () =>

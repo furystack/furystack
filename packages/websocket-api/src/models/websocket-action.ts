@@ -1,5 +1,5 @@
-import { Disposable } from '@furystack/utils'
-import { Data } from 'ws'
+import type { Disposable } from '@furystack/utils'
+import type { Data } from 'ws'
 
 /**
  * Static methods of a WebSocket Action

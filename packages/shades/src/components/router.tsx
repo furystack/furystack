@@ -1,8 +1,9 @@
 import { Shade } from '../shade'
 import { createComponent } from '../shade-component'
 import { LocationService } from '../services'
-import { match, MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
-import { RenderOptions } from '../models'
+import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
+import { match } from 'path-to-regexp'
+import type { RenderOptions } from '../models'
 import Semaphore from 'semaphore-async-await'
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 

@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import './helpers'
 import { usingAsync, PathHelper } from '@furystack/utils'
 import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions'
-import { RestApi } from '@furystack/rest'
+import type { RestApi } from '@furystack/rest'
 import { User, InMemoryStore, addStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import got from 'got'
@@ -61,7 +61,8 @@ const prepareInjector = async (i: Injector) => {
         '/logout': LogoutAction,
         '/testPostBody': async (options) => {
           const body = await options.getBody()
-          return JsonResult({ bodyValue: body.value })
+          const body2 = await options.getBody()
+          return JsonResult({ bodyValue: body.value, body2Value: body2.value })
         },
       },
     },
@@ -140,7 +141,7 @@ describe('@furystack/rest-service inregration tests', () => {
         retry: 0,
       })
       expect(response.statusCode).toBe(200)
-      expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz' })
+      expect(JSON.parse(response.body)).toStrictEqual({ bodyValue: 'baz', body2Value: 'baz' })
     })
   })
 
