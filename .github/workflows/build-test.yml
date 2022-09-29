@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Recreate JSON Schemas
-        run: yarn create-schemas && yarn build # an incremental rebuild is neccessary to use the updated schema
+        run: yarn create-schemas
       - name: Build the docker-compose stack
         run: docker-compose up -d     
       - name: Test
