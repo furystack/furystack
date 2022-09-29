@@ -39,8 +39,7 @@ export interface CreateResult<T> {
   created: T[]
 }
 
-export type WithOptionalId<T, TPrimaryKey> = TPrimaryKey extends keyof T ? Omit<T, TPrimaryKey> & Partial<T> : T
-
+export type WithOptionalId<T, TPrimaryKey extends keyof T> = Omit<T, TPrimaryKey> & { [K in TPrimaryKey]?: T[K] }
 /**
  * Type for default filtering model
  */
