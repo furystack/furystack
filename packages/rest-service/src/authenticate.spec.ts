@@ -1,9 +1,9 @@
-import { IncomingMessage } from 'http'
+import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from './http-user-context'
 import { Authenticate } from './authenticate'
-import { ServerResponse } from 'http'
+import type { ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
 import { EmptyResult } from './request-action-implementation'
 

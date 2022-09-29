@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage, ServerResponse } from 'http'
 import { Utils } from './utils'
 
 describe('AddCorsHeaders', () => {

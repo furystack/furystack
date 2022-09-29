@@ -1,7 +1,8 @@
 import { addStore, InMemoryStore, TestClass } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'
-import { CollectionService, EntryLoader } from '@furystack/shades-common-components'
+import type { EntryLoader } from '@furystack/shades-common-components'
+import { CollectionService } from '@furystack/shades-common-components'
 
 @Injectable({ lifetime: 'singleton' })
 export class GridPageService {

@@ -1,7 +1,9 @@
-import { RestApi, serializeToQueryString } from '@furystack/rest'
+import type { RestApi } from '@furystack/rest'
+import { serializeToQueryString } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { compile } from 'path-to-regexp'
-import got, { Options as GotOptions, Response as GotResponse } from 'got'
+import type { Options as GotOptions, Response as GotResponse } from 'got'
+import got from 'got'
 
 export type BodyParameter<T> = T extends { result: unknown; body: infer U } ? { body: U } : unknown
 

@@ -1,6 +1,8 @@
-import { Shade, createComponent, PartialElement } from '@furystack/shades'
+import type { PartialElement } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../utils/promisify-animation'
-import { Palette, Theme, ThemeProviderService } from '../services/theme-provider-service'
+import type { Palette, Theme } from '../services/theme-provider-service'
+import { ThemeProviderService } from '../services/theme-provider-service'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   variant?: 'contained' | 'outlined'

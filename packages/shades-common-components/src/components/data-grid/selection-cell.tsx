@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { CollectionService } from '../../services'
+import type { CollectionService } from '../../services'
 
 export const SelectionCell = Shade<{ entry: any; service: CollectionService<any> }>({
   shadowDomName: 'shades-data-grid-selection-cell',

@@ -1,5 +1,5 @@
-import { Injector } from '@furystack/inject'
-import { ChildrenList, PartialElement } from './models'
+import type { Injector } from '@furystack/inject'
+import type { ChildrenList, PartialElement } from './models'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

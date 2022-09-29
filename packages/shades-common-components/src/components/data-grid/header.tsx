@@ -1,7 +1,8 @@
-import { FindOptions } from '@furystack/core'
-import { ChildrenList, Shade, createComponent } from '@furystack/shades'
+import type { FindOptions } from '@furystack/core'
+import type { ChildrenList } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { debounce } from '@furystack/utils'
-import { CollectionService } from '../../services/collection-service'
+import type { CollectionService } from '../../services/collection-service'
 import { Input } from '../inputs/input'
 
 export interface DataGridHeaderProps<T, K extends keyof T> {

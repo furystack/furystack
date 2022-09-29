@@ -1,4 +1,4 @@
-import { Method } from './methods'
+import type { Method } from './methods'
 
 export type RestApi = {
   [TMethod in Method]?: {

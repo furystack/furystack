@@ -1,4 +1,5 @@
-import { Disposable, ObservableValue, Trace } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
+import { ObservableValue, Trace } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {

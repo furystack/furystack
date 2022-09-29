@@ -1,6 +1,13 @@
-import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
-import { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
+import type {
+  FindOptions,
+  PhysicalStore,
+  PartialResult,
+  FilterType,
+  WithOptionalId,
+  CreateResult,
+} from '@furystack/core'
+import type { Constructable } from '@furystack/inject'
+import type { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
 import Semaphore from 'semaphore-async-await'
 
 export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends keyof T> {

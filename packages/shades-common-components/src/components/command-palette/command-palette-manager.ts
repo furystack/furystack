@@ -1,6 +1,7 @@
-import { Injector, Injectable } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { Injectable } from '@furystack/inject'
 import { debounce, ObservableValue } from '@furystack/utils'
-import { CommandProvider, CommandPaletteSuggestionResult } from './command-provider'
+import type { CommandProvider, CommandPaletteSuggestionResult } from './command-provider'
 
 @Injectable({ lifetime: 'singleton' })
 export class CommandPaletteManager {

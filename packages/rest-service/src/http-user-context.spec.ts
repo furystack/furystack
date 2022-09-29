@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage, ServerResponse } from 'http'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { User, StoreManager, InMemoryStore, addStore } from '@furystack/core'

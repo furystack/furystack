@@ -1,6 +1,7 @@
-import { Disposable } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
-import { Sequelize, Options, Op } from 'sequelize'
+import type { Options } from 'sequelize'
+import { Sequelize, Op } from 'sequelize'
 
 const operatorsAliases = {
   $eq: Op.eq,

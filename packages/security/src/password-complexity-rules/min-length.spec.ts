@@ -1,4 +1,4 @@
-import { PasswordComplexityFailedResult } from '../models'
+import type { PasswordComplexityFailedResult } from '../models'
 import { createMinLengthComplexityRule } from './min-length'
 
 describe('min-length', () => {

@@ -1,8 +1,9 @@
-import { Shade, createComponent, ChildrenList } from '@furystack/shades'
+import type { ChildrenList } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../../utils/promisify-animation'
 import { Loader } from '../loader'
 import { SuggestManager } from './suggest-manager'
-import { SuggestionResult } from './suggestion-result'
+import type { SuggestionResult } from './suggestion-result'
 import { SuggestInput } from './suggest-input'
 import { SuggestionList } from './suggestion-list'
 

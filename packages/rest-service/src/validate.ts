@@ -1,4 +1,4 @@
-import { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation'
+import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation'
 import { SchemaValidator } from './schema-validator'
 
 export const Validate =

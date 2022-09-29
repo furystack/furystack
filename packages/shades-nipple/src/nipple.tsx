@@ -1,5 +1,6 @@
 import { Shade, createComponent, createFragment } from '@furystack/shades'
-import { create, JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
+import type { JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
+import { create } from 'nipplejs'
 
 export interface NippleComponentProps {
   managerOptions: JoystickManagerOptions

@@ -1,6 +1,6 @@
-import { Injector } from '@furystack/inject'
-import { ServerResponse } from 'http'
-import { IncomingMessage } from 'http'
+import type { Injector } from '@furystack/inject'
+import type { ServerResponse } from 'http'
+import type { IncomingMessage } from 'http'
 
 export interface ActionResult<T> {
   statusCode: number

@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../../utils/promisify-animation'
-import { CommandPaletteSuggestionResult } from './command-provider'
-import { CommandPaletteManager } from './command-palette-manager'
+import type { CommandPaletteSuggestionResult } from './command-provider'
+import type { CommandPaletteManager } from './command-palette-manager'
 import { ThemeProviderService } from '../../services/theme-provider-service'
 
 export const CommandPaletteSuggestionList = Shade<

@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { RestApi } from '@furystack/rest'
+import type { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'

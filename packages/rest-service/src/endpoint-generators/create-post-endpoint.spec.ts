@@ -1,6 +1,6 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { PostEndpoint } from '@furystack/rest'
+import type { PostEndpoint } from '@furystack/rest'
 import { createPostEndpoint } from './create-post-endpoint'
 import got from 'got'
 import { MockClass, setupContext } from './utils'

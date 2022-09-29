@@ -28,7 +28,7 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: yarn install --frozen-lockfile
+      - script: yarn install --immutable
         displayName: 'Install'
 
       - script: yarn lint
