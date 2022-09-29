@@ -1,4 +1,4 @@
-import { PhysicalStore } from './models/physical-store'
+import type { PhysicalStore } from './models/physical-store'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 

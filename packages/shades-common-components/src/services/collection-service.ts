@@ -1,6 +1,7 @@
-import { PartialResult, FindOptions } from '@furystack/core'
+import type { PartialResult, FindOptions } from '@furystack/core'
 import Semaphore from 'semaphore-async-await'
-import { Disposable, debounce, ObservableValue } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
+import { debounce, ObservableValue } from '@furystack/utils'
 
 export interface CollectionData<T> {
   entries: T[]

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
 
 export interface InitializeOptions {
   rootElement: HTMLElement

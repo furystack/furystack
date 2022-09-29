@@ -1,4 +1,4 @@
-import { Disposable } from './disposable'
+import type { Disposable } from './disposable'
 import { ValueObserver } from './value-observer'
 
 /**

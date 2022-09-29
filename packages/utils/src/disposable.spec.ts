@@ -1,4 +1,5 @@
-import { using, usingAsync, Disposable } from './disposable'
+import type { Disposable } from './disposable'
+import { using, usingAsync } from './disposable'
 
 export class MockDisposable implements Disposable {
   private disposed = false

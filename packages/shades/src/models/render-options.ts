@@ -1,6 +1,6 @@
-import { Injector } from '@furystack/inject'
-import { PartialElement } from './partial-element'
-import { ChildrenList } from './children-list'
+import type { Injector } from '@furystack/inject'
+import type { PartialElement } from './partial-element'
+import type { ChildrenList } from './children-list'
 
 export type RenderOptions<TProps, TState> = {
   readonly props: TProps

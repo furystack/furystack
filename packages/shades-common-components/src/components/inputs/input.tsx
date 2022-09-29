@@ -1,6 +1,7 @@
-import { Shade, PartialElement, createComponent, attachStyles } from '@furystack/shades'
+import type { PartialElement } from '@furystack/shades'
+import { Shade, createComponent, attachStyles } from '@furystack/shades'
 import { ThemeProviderService } from '../..'
-import { Palette, Theme } from '../../services'
+import type { Palette, Theme } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
   /**

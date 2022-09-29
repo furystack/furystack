@@ -1,4 +1,5 @@
-import { Locator, Page, test, expect } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { pages } from './pages'
 
 const getGrid = async (page: Page) => {

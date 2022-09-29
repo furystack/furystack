@@ -1,10 +1,12 @@
-import { User } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import type { User } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
-import { RestApi } from '@furystack/rest'
-import { ApiManager, ImplementApiOptions } from './api-manager'
-import { DefaultSession } from './models/default-session'
-import { StaticServerManager, StaticServerOptions } from './static-server-manager'
+import type { RestApi } from '@furystack/rest'
+import type { ImplementApiOptions } from './api-manager'
+import { ApiManager } from './api-manager'
+import type { DefaultSession } from './models/default-session'
+import type { StaticServerOptions } from './static-server-manager'
+import { StaticServerManager } from './static-server-manager'
 
 /**
  * Sets up the @furystack/rest-service with the provided settings

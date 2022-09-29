@@ -1,5 +1,5 @@
 import { RequestError } from '@furystack/rest'
-import { ErrorObject } from 'ajv'
+import type { ErrorObject } from 'ajv'
 
 /**
  * Custom Error class for Schema Validation Errors

@@ -1,5 +1,5 @@
-import { Constructable } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
+import type { Constructable } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
 
 export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
 export const SingleComparisonOperators = ['$eq', '$ne'] as const

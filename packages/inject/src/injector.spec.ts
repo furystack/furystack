@@ -1,4 +1,5 @@
-import { Disposable, using, usingAsync } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
+import { using, usingAsync } from '@furystack/utils'
 import { Injectable } from './injectable'
 import { Injected } from './injected'
 import { Injector } from './injector'

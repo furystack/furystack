@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
-import { PasswordHasher } from './password-hasher'
+import type { PasswordHasher } from './password-hasher'
 import { randomBytes, pbkdf2 } from 'crypto'
-import { PasswordCheckResult, PasswordCredential } from './models'
+import type { PasswordCheckResult, PasswordCredential } from './models'
 
 @Injectable({ lifetime: 'singleton' })
 export class CryptoPasswordHasher implements PasswordHasher {

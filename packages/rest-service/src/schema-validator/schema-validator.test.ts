@@ -1,5 +1,6 @@
 import { SchemaValidator } from './schema-validator'
-import { exampleSchema, BodyParameters, Language } from './validate-examples'
+import type { BodyParameters, Language } from './validate-examples'
+import { exampleSchema } from './validate-examples'
 import { SchemaValidationError } from './schema-validation-error'
 
 describe('ValidateSchema', () => {

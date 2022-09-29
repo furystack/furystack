@@ -1,4 +1,5 @@
-import { Shade, createComponent, PartialElement } from '@furystack/shades'
+import type { PartialElement } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 
 export type AvatarProps = { avatarUrl: string } & PartialElement<HTMLDivElement>
 

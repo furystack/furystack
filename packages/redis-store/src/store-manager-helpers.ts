@@ -1,6 +1,6 @@
 import { addStore } from '@furystack/core'
-import { Constructable, Injector } from '@furystack/inject'
-import { createClient } from 'redis'
+import type { Constructable, Injector } from '@furystack/inject'
+import type { createClient } from 'redis'
 import { RedisStore } from './redis-store'
 
 /**

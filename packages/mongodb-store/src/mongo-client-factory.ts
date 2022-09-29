@@ -1,6 +1,7 @@
-import { Disposable } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
-import { MongoClient, MongoClientOptions } from 'mongodb'
+import type { MongoClientOptions } from 'mongodb'
+import { MongoClient } from 'mongodb'
 
 /**
  * Factory for instantiating MongoDb clients

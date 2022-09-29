@@ -1,10 +1,11 @@
-import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
+import type { TestClass } from '@furystack/core'
+import { StoreManager, createStoreTest } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { SequelizeClientFactory } from './sequelize-client-factory'
-import { SequelizeStore } from './sequelize-store'
+import type { SequelizeStore } from './sequelize-store'
 
 jest.mock('uuid', () => {
   return {

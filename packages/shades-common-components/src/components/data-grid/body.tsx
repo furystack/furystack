@@ -1,6 +1,7 @@
-import { CollectionService } from '../../services/collection-service'
-import { ChildrenList, Shade, createComponent, createFragment } from '@furystack/shades'
-import { DataRowCells } from './data-grid'
+import type { CollectionService } from '../../services/collection-service'
+import type { ChildrenList } from '@furystack/shades'
+import { Shade, createComponent, createFragment } from '@furystack/shades'
+import type { DataRowCells } from './data-grid'
 import { Loader } from '../loader'
 import { DataGridRow } from './data-grid-row'
 

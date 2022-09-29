@@ -1,4 +1,5 @@
-import { test, expect, Locator, Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { pages } from './pages'
 
 const getNavigationEntry = async (page: Page, entryName: string) => {

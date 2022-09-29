@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { User } from './models/user'
+import type { User } from './models/user'
 
 @Injectable({ lifetime: 'scoped' })
 export class IdentityContext {

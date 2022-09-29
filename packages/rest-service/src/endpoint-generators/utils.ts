@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
 import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from '../models/default-session'
 import '@furystack/repository'

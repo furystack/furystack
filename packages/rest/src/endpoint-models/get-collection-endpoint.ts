@@ -1,4 +1,4 @@
-import { FindOptions } from '@furystack/core'
+import type { FindOptions } from '@furystack/core'
 
 /**
  * Response Model for GetCollection

@@ -1,7 +1,8 @@
 import { StoreManager } from '@furystack/core'
-import { Constructable, Injectable, Injected } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
-import { DataSetSettings } from './data-set-setting'
+import type { Constructable } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
+import type { DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
 
 /**

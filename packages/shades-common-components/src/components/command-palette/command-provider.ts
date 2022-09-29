@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
 
 export type CommandPaletteSuggestionResult = {
   element: JSX.Element

@@ -1,4 +1,5 @@
-import { Shade, createComponent, PartialElement } from '@furystack/shades'
+import type { PartialElement } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '../services/theme-provider-service'
 
 export const Paper = Shade<PartialElement<HTMLDivElement> & { elevation?: 1 | 2 | 3 }>({

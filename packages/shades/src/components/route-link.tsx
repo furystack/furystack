@@ -1,5 +1,5 @@
 import { Shade } from '../shade'
-import { PartialElement } from '../models'
+import type { PartialElement } from '../models'
 import { LocationService } from '../services'
 import { createComponent } from '..'
 
