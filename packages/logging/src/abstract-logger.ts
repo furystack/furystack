@@ -1,5 +1,5 @@
-import { LeveledLogEntry, LogEntry, LogLevel } from './log-entries'
-import { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './logger'
+import type { LeveledLogEntry, LogEntry } from './log-entries'
+import type { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './logger'
 
 /**
  * Default scope key for the Abstract Logger
@@ -39,7 +39,7 @@ export abstract class AbstractLogger implements Logger {
   public async verbose<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
-      level: LogLevel.Verbose,
+      level: 'verbose',
     })
   }
 
@@ -51,7 +51,7 @@ export abstract class AbstractLogger implements Logger {
   public async debug<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
-      level: LogLevel.Debug,
+      level: 'debug',
     })
   }
 
@@ -63,7 +63,7 @@ export abstract class AbstractLogger implements Logger {
   public async information<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
-      level: LogLevel.Information,
+      level: 'information',
     })
   }
 
@@ -75,7 +75,7 @@ export abstract class AbstractLogger implements Logger {
   public async warning<T>(entry: LogEntry<T>) {
     await this.addEntryInternal({
       ...entry,
-      level: LogLevel.Warning,
+      level: 'warning',
     })
   }
 
@@ -88,7 +88,7 @@ export abstract class AbstractLogger implements Logger {
     try {
       await this.addEntry({
         ...entry,
-        level: LogLevel.Error,
+        level: 'error',
       })
     } catch (error) {
       await this.fatal({
@@ -111,7 +111,7 @@ export abstract class AbstractLogger implements Logger {
   public async fatal<T>(entry: LogEntry<T>) {
     await this.addEntry({
       ...entry,
-      level: LogLevel.Fatal,
+      level: 'fatal',
     })
   }
 

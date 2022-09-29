@@ -1,7 +1,8 @@
-import { PhysicalStore, StoreManager } from '@furystack/core'
-import { Constructable, Injectable, Injected } from '@furystack/inject'
-import { Disposable } from '@furystack/utils'
-import { DataSetSettings } from './data-set-setting'
+import { StoreManager } from '@furystack/core'
+import { Injectable, Injected } from '@furystack/inject'
+import type { Constructable } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
+import type { DataSetSettings } from './data-set-setting'
 import { DataSet } from './data-set'
 
 /**
@@ -14,7 +15,7 @@ export class Repository implements Disposable {
     this.dataSets.clear()
   }
 
-  private dataSets: Map<any, DataSet<any, any>> = new Map()
+  private dataSets: Map<Constructable<any>, DataSet<any, any>> = new Map()
 
   public getDataSetFor<T, TPrimaryKey extends keyof T>(model: Constructable<T>, primaryKey: TPrimaryKey) {
     const instance = this.dataSets.get(model)
@@ -29,11 +30,9 @@ export class Repository implements Disposable {
   public createDataSet<T, TPrimaryKey extends keyof T>(
     model: Constructable<T>,
     primaryKey: TPrimaryKey,
-    settings?: Partial<DataSetSettings<T, keyof T>>,
+    settings?: Partial<DataSetSettings<T, TPrimaryKey>>,
   ) {
-    const physicalStore =
-      (settings && settings.physicalStore) ||
-      (this.storeManager.getStoreFor(model, primaryKey) as PhysicalStore<T, TPrimaryKey>)
+    const physicalStore = (settings && settings.physicalStore) || this.storeManager.getStoreFor(model, primaryKey)
     const instance = new DataSet({
       ...settings,
       physicalStore,

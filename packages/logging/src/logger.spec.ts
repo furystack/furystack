@@ -1,7 +1,6 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { getLogger, useLogging } from './helpers'
-import { LogLevel } from './log-entries'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
 import { LoggerCollection } from './logger-collection'
 import { TestLogger } from './test-logger'
@@ -24,7 +23,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Verbose)
+          expect(e.level).toBe('verbose')
           done()
         }),
       )
@@ -38,7 +37,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Debug)
+          expect(e.level).toBe('debug')
           done()
         }),
       )
@@ -52,7 +51,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Information)
+          expect(e.level).toBe('information')
           done()
         }),
       )
@@ -66,7 +65,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Warning)
+          expect(e.level).toBe('warning')
           done()
         }),
       )
@@ -80,7 +79,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Error)
+          expect(e.level).toBe('error')
           done()
         }),
       )
@@ -90,14 +89,14 @@ describe('Loggers', () => {
       })
     })
 
-    it('Should raise an Error event if failed to insert below Error', (done) => {
+    it('Should raise an Error event if failed to insert for Error', (done) => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          if (e.level < LogLevel.Error) {
+          if (e.level === 'verbose') {
             throw new Error('Nooo')
           } else {
-            expect(e.level).toBe(LogLevel.Error)
+            expect(e.level).toBe('error')
             done()
           }
         }),
@@ -112,10 +111,10 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          if (e.level < LogLevel.Fatal) {
+          if (e.level !== 'fatal') {
             throw new Error('Nooo')
           } else {
-            expect(e.level).toBe(LogLevel.Fatal)
+            expect(e.level).toBe('fatal')
             done()
           }
         }),
@@ -130,7 +129,7 @@ describe('Loggers', () => {
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Fatal)
+          expect(e.level).toBe('fatal')
           done()
         }),
       )
@@ -144,7 +143,7 @@ describe('Loggers', () => {
   describe('Scoped Logger', () => {
     const scopedConsoleLogger = new ConsoleLogger().withScope('scope')
     it('Should print with addEntry', () =>
-      scopedConsoleLogger.addEntry({ message: 'Example Verbose Message', level: LogLevel.Verbose }))
+      scopedConsoleLogger.addEntry({ message: 'Example Verbose Message', level: 'verbose' }))
     it('Should print Verbose', () => scopedConsoleLogger.verbose({ message: 'Example Verbose Message' }))
     it('Should print Debug', () => scopedConsoleLogger.debug({ message: 'Example Debug Message' }))
     it('Should print Information', () => scopedConsoleLogger.information({ message: 'Example Information Message' }))
@@ -173,7 +172,7 @@ describe('Loggers', () => {
     it('Should print compact messages', () =>
       expect(
         defaultFormat({
-          level: LogLevel.Debug,
+          level: 'debug',
           scope: 'scope',
           message: 'message',
           data: {},
@@ -185,7 +184,7 @@ describe('Loggers', () => {
     it('Should print compact messages', () =>
       expect(
         defaultFormat({
-          level: LogLevel.Debug,
+          level: 'debug',
           scope: 'scope',
           message: 'message',
         }),
@@ -194,7 +193,7 @@ describe('Loggers', () => {
     it('Should print verbose messages with data', () =>
       expect(
         verboseFormat({
-          level: LogLevel.Debug,
+          level: 'debug',
           scope: 'scope',
           message: 'message',
           data: {},

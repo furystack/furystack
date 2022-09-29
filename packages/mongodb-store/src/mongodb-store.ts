@@ -1,5 +1,12 @@
-import { FindOptions, PhysicalStore, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
-import { Constructable } from '@furystack/inject'
+import type {
+  FindOptions,
+  PhysicalStore,
+  PartialResult,
+  FilterType,
+  WithOptionalId,
+  CreateResult,
+} from '@furystack/core'
+import type { Constructable } from '@furystack/inject'
 import { MongoClient, Filter, Collection, ObjectId, Sort, OptionalUnlessRequiredId, UpdateFilter } from 'mongodb'
 import Semaphore from 'semaphore-async-await'
 
