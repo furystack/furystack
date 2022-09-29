@@ -1,8 +1,9 @@
 import { HttpUserContext } from '../http-user-context'
 import '../helpers'
-import { User } from '@furystack/core'
+import type { User } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
-import { JsonResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
 
 /**
  * Action that logs in the current user

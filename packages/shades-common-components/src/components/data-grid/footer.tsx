@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '../../services'
-import { CollectionService, CollectionData } from '../../services/collection-service'
+import type { CollectionService, CollectionData } from '../../services/collection-service'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 

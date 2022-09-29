@@ -1,6 +1,6 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { PatchEndpoint } from '@furystack/rest'
+import type { PatchEndpoint } from '@furystack/rest'
 import { createPatchEndpoint } from './create-patch-endpoint'
 import got from 'got'
 import { MockClass, setupContext } from './utils'

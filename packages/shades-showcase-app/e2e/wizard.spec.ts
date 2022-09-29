@@ -1,4 +1,5 @@
-import { test, expect, Locator, Page } from '@playwright/test'
+import type { Locator } from '@playwright/test'
+import { test, expect, Page } from '@playwright/test'
 import { pages } from './pages'
 
 test.describe('Wizard', () => {

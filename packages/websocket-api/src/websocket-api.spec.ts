@@ -2,7 +2,7 @@ import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api'
 import WebSocket from 'ws'
-import { WebSocketAction } from './models'
+import type { WebSocketAction } from './models'
 import { useWebsockets } from './helpers'
 
 describe('WebSocketApi', () => {

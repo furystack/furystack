@@ -1,6 +1,6 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { DeleteEndpoint } from '@furystack/rest'
+import type { DeleteEndpoint } from '@furystack/rest'
 import { createDeleteEndpoint } from './create-delete-endpoint'
 import got from 'got'
 import { MockClass, setupContext } from './utils'

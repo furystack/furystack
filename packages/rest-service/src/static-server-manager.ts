@@ -1,7 +1,7 @@
 import { Injectable, Injected } from '@furystack/inject'
 import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
-import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
+import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types'
 import { join, normalize, sep } from 'path'
 import { ServerManager } from './server-manager'

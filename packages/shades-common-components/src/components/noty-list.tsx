@@ -1,5 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { NotyModel, NotyService } from '../services/noty-service'
+import type { NotyModel } from '../services/noty-service'
+import { NotyService } from '../services/noty-service'
 import { ThemeProviderService } from '../services/theme-provider-service'
 import { promisifyAnimation } from '../utils'
 import { Button } from './button'

@@ -1,4 +1,4 @@
-import { PasswordComplexityFailedResult } from '../models'
+import type { PasswordComplexityFailedResult } from '../models'
 import { createContainsLowercasePolicy } from './contains-lowercase'
 
 describe('Contains-lowercase', () => {

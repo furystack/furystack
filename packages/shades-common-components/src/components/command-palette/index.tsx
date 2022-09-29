@@ -4,7 +4,7 @@ import { Loader } from '../loader'
 import { CommandPaletteManager } from './command-palette-manager'
 import { CommandPaletteInput } from './command-palette-input'
 import { CommandPaletteSuggestionList } from './command-palette-suggestion-list'
-import { CommandProvider } from './command-provider'
+import type { CommandProvider } from './command-provider'
 import { ClickAwayService } from '../../services/click-away-service'
 
 export * from './command-palette-input'

@@ -1,4 +1,5 @@
-import { RestApi, serializeToQueryString } from '@furystack/rest'
+import type { RestApi } from '@furystack/rest'
+import { serializeToQueryString } from '@furystack/rest'
 import { PathHelper } from '@furystack/utils'
 import { ResponseError } from './response-error'
 import { compile } from 'path-to-regexp'

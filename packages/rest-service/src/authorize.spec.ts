@@ -1,9 +1,10 @@
-import { IncomingMessage } from 'http'
+import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { User, IdentityContext } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { IdentityContext } from '@furystack/core'
 import { Authorize } from './authorize'
-import { ServerResponse } from 'http'
+import type { ServerResponse } from 'http'
 import { EmptyResult } from './request-action-implementation'
 
 describe('Authorize', () => {

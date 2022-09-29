@@ -1,4 +1,4 @@
-import { Disposable } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
 
 /**
  * Readonly set that stores references of the disposables that should be disposed on process exit

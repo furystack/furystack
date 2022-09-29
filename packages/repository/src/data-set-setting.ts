@@ -1,5 +1,5 @@
-import { PhysicalStore, FindOptions, WithOptionalId } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import type { PhysicalStore, FindOptions, WithOptionalId } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 
 /**
  * The result model returned by authorizers

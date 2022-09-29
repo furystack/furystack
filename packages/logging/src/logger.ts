@@ -1,4 +1,4 @@
-import { LeveledLogEntry, LogEntry } from './log-entries'
+import type { LeveledLogEntry, LogEntry } from './log-entries'
 
 /**
  * Log entry without scope variable

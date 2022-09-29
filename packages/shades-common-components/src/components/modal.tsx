@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
+import type { ObservableValue } from '@furystack/utils'
 
 export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>

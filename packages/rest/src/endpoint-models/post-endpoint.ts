@@ -1,4 +1,4 @@
-import { WithOptionalId } from '@furystack/core'
+import type { WithOptionalId } from '@furystack/core'
 
 /**
  * Endpoint model for creating new entities

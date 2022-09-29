@@ -1,7 +1,8 @@
-import { Constructable } from '@furystack/inject'
-import { DeleteEndpoint } from '@furystack/rest'
+import type { Constructable } from '@furystack/inject'
+import type { DeleteEndpoint } from '@furystack/rest'
 import '@furystack/repository'
-import { JsonResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { JsonResult } from '../request-action-implementation'
 import { getRepository } from '@furystack/repository'
 
 /**

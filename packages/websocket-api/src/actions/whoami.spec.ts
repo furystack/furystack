@@ -2,7 +2,7 @@ import { WhoAmI } from './whoami'
 import { HttpUserContext } from '@furystack/rest-service'
 import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
-import { IncomingMessage } from 'http'
+import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 
 describe('Whoami action', () => {

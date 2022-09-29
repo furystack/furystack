@@ -1,4 +1,5 @@
-import { Shade, PartialElement, createComponent } from '@furystack/shades'
+import type { PartialElement } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 
 export const Fab = Shade<PartialElement<HTMLDivElement>>({
   shadowDomName: 'shade-fab',

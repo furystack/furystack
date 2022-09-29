@@ -1,6 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { NippleComponent, NippleComponentProps } from './nipple'
+import type { NippleComponentProps } from './nipple'
+import { NippleComponent } from './nipple'
 
 describe('Nipple', () => {
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))

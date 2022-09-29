@@ -3,7 +3,7 @@ import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/rest-service'
 import { GoogleLoginAction, GoogleLoginService } from '.'
 import { ServerResponse } from 'http'
-import { IncomingMessage } from 'http'
+import type { IncomingMessage } from 'http'
 
 describe('GoogleLoginAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

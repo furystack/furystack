@@ -1,5 +1,5 @@
 import { defaultPalette } from './default-palette'
-import { Theme } from './theme-provider-service'
+import type { Theme } from './theme-provider-service'
 
 export const defaultLightTheme: Theme = {
   palette: defaultPalette,

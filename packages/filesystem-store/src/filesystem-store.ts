@@ -1,7 +1,9 @@
-import { FSWatcher, promises, watch } from 'fs'
-import { Constructable } from '@furystack/inject'
+import type { FSWatcher } from 'fs'
+import { promises, watch } from 'fs'
+import type { Constructable } from '@furystack/inject'
 import Semaphore from 'semaphore-async-await'
-import { InMemoryStore, PhysicalStore, FindOptions, FilterType, WithOptionalId } from '@furystack/core'
+import type { PhysicalStore, FindOptions, FilterType, WithOptionalId } from '@furystack/core'
+import { InMemoryStore } from '@furystack/core'
 
 /**
  * Store implementation that stores info in a simple JSON file

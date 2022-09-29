@@ -1,5 +1,6 @@
 import { HttpUserContext } from '../http-user-context'
-import { EmptyResult, RequestAction } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation'
+import { EmptyResult } from '../request-action-implementation'
 
 /**
  * Action that logs out the current user

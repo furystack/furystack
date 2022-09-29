@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http'
-import { IdentityContext, User } from '@furystack/core'
+import type { IdentityContext, User } from '@furystack/core'
 import { Injectable, Injected, Injector } from '@furystack/inject'
 import { HttpUserContext } from '@furystack/rest-service'
 

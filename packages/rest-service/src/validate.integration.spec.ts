@@ -7,7 +7,7 @@ import { Validate } from './validate'
 import './helpers'
 
 import schema from './validate.integration.spec.schema.json'
-import { ValidationApi } from './validate.integration.schema'
+import type { ValidationApi } from './validate.integration.schema'
 import { useRestService } from './helpers'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json

@@ -1,14 +1,6 @@
 import { createComponent, createFragment, ScreenService, Shade } from '@furystack/shades'
-import {
-  Button,
-  fadeIn,
-  fadeOut,
-  Input,
-  Modal,
-  showParallax,
-  Wizard,
-  WizardStepProps,
-} from '@furystack/shades-common-components'
+import type { WizardStepProps } from '@furystack/shades-common-components'
+import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
