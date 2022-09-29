@@ -459,7 +459,7 @@ __metadata:
     "@furystack/rest": ^4.0.13
     "@furystack/rest-service": ^6.1.7
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
   languageName: unknown
   linkType: soft
@@ -470,7 +470,7 @@ __metadata:
   dependencies:
     "@furystack/inject": ^7.0.5
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
     semaphore-async-await: ^1.5.1
   languageName: unknown
@@ -483,7 +483,7 @@ __metadata:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
     semaphore-async-await: ^1.5.1
   languageName: unknown
@@ -494,7 +494,7 @@ __metadata:
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
   languageName: unknown
   linkType: soft
 
@@ -504,7 +504,7 @@ __metadata:
   dependencies:
     "@furystack/inject": ^7.0.5
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
   languageName: unknown
   linkType: soft
 
@@ -516,7 +516,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/logging": ^3.0.9
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
     mongodb: 4.10.0
     semaphore-async-await: ^1.5.1
@@ -531,7 +531,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/logging": ^3.0.9
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     redis: ^4.3.1
     semaphore-async-await: ^1.5.1
   languageName: unknown
@@ -545,7 +545,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/logging": ^3.0.9
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
   languageName: unknown
   linkType: soft
 
@@ -557,7 +557,7 @@ __metadata:
     "@furystack/logging": ^3.0.9
     "@furystack/rest": ^4.0.13
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     path-to-regexp: ^6.2.1
   languageName: unknown
   linkType: soft
@@ -570,7 +570,7 @@ __metadata:
     "@furystack/logging": ^3.0.9
     "@furystack/rest": ^4.0.13
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     got: ^11.8.5
     path-to-regexp: ^6.2.1
   languageName: unknown
@@ -588,7 +588,7 @@ __metadata:
     "@furystack/rest-client-got": ^2.0.15
     "@furystack/security": ^2.0.14
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
     ajv: ^8.11.0
     ajv-formats: ^2.1.1
@@ -604,7 +604,7 @@ __metadata:
   dependencies:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
   languageName: unknown
   linkType: soft
@@ -616,7 +616,7 @@ __metadata:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
   languageName: unknown
   linkType: soft
@@ -629,7 +629,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/logging": ^3.0.9
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
     semaphore-async-await: ^1.5.1
     sequelize: ^6.23.2
@@ -646,7 +646,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/shades": ^6.0.10
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
     typescript: 4.8.4
@@ -670,7 +670,7 @@ __metadata:
     "@furystack/inject": ^7.0.5
     "@furystack/shades": ^6.0.10
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     nipplejs: ^0.9.1
     typescript: 4.8.4
   languageName: unknown
@@ -706,7 +706,7 @@ __metadata:
     "@furystack/core": ^11.0.14
     "@furystack/inject": ^7.0.5
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/jsdom": ^20.0.0
     "@types/node": ^18.7.23
     jsdom: ^20.0.0
@@ -719,7 +719,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
   languageName: unknown
   linkType: soft
 
@@ -732,7 +732,7 @@ __metadata:
     "@furystack/logging": ^3.0.9
     "@furystack/rest-service": ^6.1.7
     "@furystack/utils": ^3.0.9
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/ws": ^8.5.3
     ws: ^8.9.0
   languageName: unknown
@@ -1412,7 +1412,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.1.0":
+"@types/jest@npm:^29.0.3, @types/jest@npm:^29.1.0":
   version: 29.1.0
   resolution: "@types/jest@npm:29.1.0"
   dependencies:
@@ -3388,7 +3388,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "furystack@workspace:."
   dependencies:
-    "@types/jest": ^29.1.0
+    "@types/jest": ^29.0.3
     "@types/jsdom": ^20.0.0
     "@typescript-eslint/eslint-plugin": ^5.38.1
     "@typescript-eslint/parser": ^5.38.1
@@ -3399,7 +3399,7 @@ __metadata:
     eslint-plugin-prettier: ^4.2.1
     got: ^11.8.5
     husky: ^8.0.1
-    jest: ^29.1.1
+    jest: ^29.0.3
     jest-environment-jsdom: ^29.1.1
     jest-junit: ^14.0.1
     lint-staged: ^13.0.3
@@ -4416,7 +4416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.1.1":
+"jest@npm:^29.0.3":
   version: 29.1.1
   resolution: "jest@npm:29.1.1"
   dependencies:
