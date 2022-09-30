@@ -457,7 +457,7 @@ __metadata:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
     "@furystack/rest": ^4.1.0
-    "@furystack/rest-service": ^6.2.0
+    "@furystack/rest-service": ^6.2.1
     "@furystack/utils": ^3.1.0
     "@types/jest": ^29.0.3
     "@types/node": ^18.7.23
@@ -576,7 +576,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.2.0, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.2.1, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
@@ -730,7 +730,7 @@ __metadata:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
     "@furystack/logging": ^3.1.0
-    "@furystack/rest-service": ^6.2.0
+    "@furystack/rest-service": ^6.2.1
     "@furystack/utils": ^3.1.0
     "@types/jest": ^29.0.3
     "@types/ws": ^8.5.3
