@@ -38,7 +38,9 @@ export class StaticServerManager {
     }
 
     res.writeHead(200, head)
-    createReadStream(fullPath, { autoClose: true }).pipe(res)
+    await new Promise<void>((resolve, reject) =>
+      createReadStream(fullPath, { autoClose: true }).once('finish', resolve).once('error', reject).pipe(res),
+    )
   }
 
   public shouldExec =
