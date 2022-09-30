@@ -4,20 +4,38 @@ import got, { RequestError } from 'got'
 import { ServerManager } from './server-manager'
 import { StaticServerManager } from './static-server-manager'
 
+/**
+ * Generator for an incremental port number
+ *
+ * @param initialPort The initial port number
+ * @yields a port for testing
+ * @returns The Port number
+ */
+function* getPort(initialPort = 1234) {
+  let port = initialPort
+
+  while (true) {
+    yield port++
+  }
+  return port
+}
+
 describe('StaticServerManager', () => {
+  const portGenerator = getPort()
+
   describe('Top level routing', () => {
     it('Should return a 404 without fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-
+        const port = portGenerator.next().value
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
-          port: 1234,
+          port,
         })
 
         try {
-          await got.get('http://localhost:1234/not-found.html')
+          await got.get(`http://localhost:${port}/not-found.html`)
         } catch (error) {
           expect(error).toBeInstanceOf(RequestError)
           const requestError: RequestError = error as RequestError
@@ -32,18 +50,41 @@ describe('StaticServerManager', () => {
     it('Should return a fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
           fallback: 'package.json',
-          port: 1234,
+          port,
           headers: {
             'custom-header': 'custom-value',
           },
         })
 
-        const result = await got.get('http://localhost:1234/not-found.html')
+        const result = await got.get(`http://localhost:${port}/not-found.html`)
+
+        expect(result.headers['content-type']).toBe('application/json')
+        expect(result.headers['custom-header']).toBe('custom-value')
+      })
+    })
+
+    it('Should return a fallback for root files', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
+
+        await staticServerManager.addStaticSite({
+          baseUrl: '/',
+          path: '.',
+          fallback: 'package.json',
+          port,
+          headers: {
+            'custom-header': 'custom-value',
+          },
+        })
+
+        const result = await got.get(`http://localhost:${port}`)
 
         expect(result.headers['content-type']).toBe('application/json')
         expect(result.headers['custom-header']).toBe('custom-value')
@@ -53,17 +94,18 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a root directory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
-          port: 1234,
+          port,
           headers: {
             'custom-header': 'custom-value',
           },
         })
 
-        const result = await got.get('http://localhost:1234/README.md')
+        const result = await got.get(`http://localhost:${port}/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
         expect(result.headers['custom-header']).toBe('custom-value')
@@ -73,14 +115,15 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a subdirectory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
-          port: 1234,
+          port,
         })
 
-        const result = await got.get('http://localhost:1234/packages/utils/README.md')
+        const result = await got.get(`http://localhost:${port}/packages/utils/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -91,18 +134,19 @@ describe('StaticServerManager', () => {
     it('Should not handle a request when the path is not matching', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
           path: '.',
-          port: 1234,
+          port,
         })
 
         const server = [...injector.getInstance(ServerManager).servers.values()][0]
 
         server.apis[0].onRequest = jest.fn()
 
-        got.get('http://localhost:1234/bundleToAnotherFolder/not-found.html')
+        got.get(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`)
 
         await sleepAsync(100)
 
@@ -113,15 +157,16 @@ describe('StaticServerManager', () => {
     it('Should return a 404 without fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
           path: '.',
-          port: 1234,
+          port,
         })
 
         try {
-          await got.get('http://localhost:1234/bundle/not-found.html')
+          await got.get(`http://localhost:${port}/bundle/not-found.html`)
         } catch (error) {
           expect(error).toBeInstanceOf(RequestError)
           const requestError: RequestError = error as RequestError
@@ -136,15 +181,16 @@ describe('StaticServerManager', () => {
     it('Should return a fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
           path: '.',
           fallback: 'package.json',
-          port: 1234,
+          port,
         })
 
-        const result = await got.get('http://localhost:1234/bundle/not-found.html')
+        const result = await got.get(`http://localhost:${port}/bundle/not-found.html`)
 
         expect(result.headers['content-type']).toBe('application/json')
       })
@@ -153,14 +199,15 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a root directory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
-          port: 1234,
+          port,
         })
 
-        const result = await got.get('http://localhost:1234/README.md')
+        const result = await got.get(`http://localhost:${port}/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -169,14 +216,15 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a subdirectory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
+        const port = portGenerator.next().value
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
-          port: 1234,
+          port,
         })
 
-        const result = await got.get('http://localhost:1234/packages/utils/README.md')
+        const result = await got.get(`http://localhost:${port}/packages/utils/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
