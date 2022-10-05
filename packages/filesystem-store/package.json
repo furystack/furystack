@@ -36,7 +36,7 @@
     "vitest": "^0.23.4"
   },
   "devDependencies": {
-    "@types/node": "^18.8.0"
+    "@types/node": "^18.8.2"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
