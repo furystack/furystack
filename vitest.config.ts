@@ -37,7 +37,10 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'c8',
+      reporter: ['text', 'json', 'html', 'cobertura'],
     },
+    reporters: ['default', 'junit'],
+
     environment: 'jsdom',
   },
 })
