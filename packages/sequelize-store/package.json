@@ -36,8 +36,8 @@
     "vitest": "^0.23.4"
   },
   "devDependencies": {
-    "@types/node": "^18.7.23",
-    "sqlite3": "5.1.1",
+    "@types/node": "^18.8.0",
+    "sqlite3": "5.1.2",
     "uuid": "^8.3.2"
   },
   "typings": "./types/index.d.ts"
