@@ -5,6 +5,7 @@ import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'
 import './helpers'
 import { useRestService } from './helpers'
+import { describe, expect, it } from 'vitest'
 
 export interface EchoApi extends RestApi {
   GET: {

@@ -3,6 +3,7 @@ import { using } from '@furystack/utils'
 import { getDataSetFor, getRepository } from './helpers'
 import { addStore, InMemoryStore } from '@furystack/core'
 import { DataSet } from './data-set'
+import { describe, expect, it } from 'vitest'
 
 describe('Repository', () => {
   it('Should retrieve a dataSet', () => {

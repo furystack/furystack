@@ -8,6 +8,7 @@ import { MockClass, setupContext } from './utils'
 import { createGetEntityEndpoint } from './create-get-entity-endpoint'
 import { getDataSetFor } from '@furystack/repository'
 import { useRestService } from '../helpers'
+import { describe, expect, it } from 'vitest'
 
 describe('createGetEntityEndpoint', () => {
   it('Should return the entity', async () => {

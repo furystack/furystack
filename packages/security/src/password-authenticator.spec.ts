@@ -9,6 +9,7 @@ import { createMinLengthComplexityRule } from './password-complexity-rules'
 import { SecurityPolicyManager } from './security-policy-manager'
 import { PasswordComplexityError, UnauthenticatedError } from './errors'
 import { randomBytes } from 'crypto'
+import { describe, expect, it, vi } from 'vitest'
 
 const randomString = () => randomBytes(32).toString('hex')
 
@@ -138,7 +139,7 @@ describe('PasswordAuthenticator', () => {
         const hasher = authenticator.getHasher()
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = jest.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
 
         const entry = await hasher.createCredential(userName, lastPassword)
 
@@ -174,7 +175,7 @@ describe('PasswordAuthenticator', () => {
         const hasher = authenticator.getHasher()
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = jest.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
 
         const entry = await hasher.createCredential(userName, lastPassword)
 
@@ -214,7 +215,7 @@ describe('PasswordAuthenticator', () => {
         const hasher = authenticator.getHasher()
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = jest.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
 
         const entry = await hasher.createCredential(userName, lastPassword)
 

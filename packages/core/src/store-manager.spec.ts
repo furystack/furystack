@@ -4,6 +4,7 @@ import { StoreManager } from './store-manager'
 import { InMemoryStore } from './in-memory-store'
 import { AggregatedError } from './errors'
 import { TestClass } from './create-physical-store-tests'
+import { describe, expect, it } from 'vitest'
 
 class Test {
   id!: number

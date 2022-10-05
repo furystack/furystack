@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { globalDisposables, exitHandler } from './global-disposables'
 import { disposeOnProcessExit } from './helpers'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('Global Disposables', () => {
   it('Should be empty by default', () => {
@@ -24,7 +25,7 @@ describe('Global Disposables', () => {
   })
   it('Should dispose the injector on exit', async () => {
     usingAsync(new Injector(), async (i) => {
-      i.dispose = jest.fn(i.dispose)
+      i.dispose = vi.fn(i.dispose)
       disposeOnProcessExit(i)
       await exitHandler()
       expect(i.dispose).toBeCalled()

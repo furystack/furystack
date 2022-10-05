@@ -2,6 +2,7 @@ import { createComponent } from './shade-component'
 import './jsx'
 import { Shade } from './shade'
 import { Injector } from '@furystack/inject'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('Shades Component Factory', () => {
   describe('HTML Elements', () => {
@@ -42,7 +43,7 @@ describe('Shades Component Factory', () => {
     })
 
     it('Should attach listeners', () => {
-      const onclick = jest.fn()
+      const onclick = vi.fn()
       const component = <div onclick={onclick}></div>
       expect(component.onclick).toBe(onclick)
     })

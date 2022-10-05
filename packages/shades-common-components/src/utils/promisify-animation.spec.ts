@@ -1,12 +1,13 @@
 import { sleepAsync } from '@furystack/utils'
 import { promisifyAnimation } from './promisify-animation'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('promisifyAnimation', () => {
   it('should trigger the element animation', async () => {
     const el = document.createElement('div')
-    const onfinish = jest.fn()
-    const oncancel = jest.fn()
-    const animate = jest.fn(() => {
+    const onfinish = vi.fn()
+    const oncancel = vi.fn()
+    const animate = vi.fn(() => {
       const animation = {
         onfinish,
         oncancel,

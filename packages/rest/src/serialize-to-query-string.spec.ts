@@ -1,4 +1,5 @@
 import { serializeToQueryString } from './serialize-to-query-string'
+import { describe, expect, it } from 'vitest'
 
 describe('serializeToQueryString', () => {
   it('Should serialize primitive values', () => {

@@ -1,5 +1,6 @@
 import { InMemoryStore } from './in-memory-store'
 import { TestClass, createStoreTest, createMockEntity } from './create-physical-store-tests'
+import { describe, expect, it } from 'vitest'
 
 describe('InMemoryStore', () => {
   const createStore = () => new InMemoryStore({ model: TestClass, primaryKey: 'id' })

@@ -5,6 +5,7 @@ import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession, ServerManager, useHttpAuthentication } from '@furystack/rest-service'
 import { useRestService } from '@furystack/rest-service'
 import { useWebsockets } from './helpers'
+import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'

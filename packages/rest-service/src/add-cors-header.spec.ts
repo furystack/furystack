@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http'
 import { Utils } from './utils'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('AddCorsHeaders', () => {
   const utils = new Utils()
@@ -8,7 +9,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://localhost' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(
@@ -28,7 +29,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://google.com' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(
@@ -48,7 +49,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(
@@ -67,7 +68,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(
@@ -92,7 +93,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(
@@ -115,7 +116,7 @@ describe('AddCorsHeaders', () => {
       headers: { origin: 'http://localhost/', host: 'http://github.com' },
     } as any as IncomingMessage
     const resp: ServerResponse = {
-      setHeader: jest.fn(),
+      setHeader: vi.fn(),
     } as unknown as ServerResponse
 
     utils.addCorsHeaders(

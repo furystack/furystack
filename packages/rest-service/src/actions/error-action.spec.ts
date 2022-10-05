@@ -5,6 +5,7 @@ import type { IncomingMessage } from 'http'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
 import type { ServerResponse } from 'http'
+import { describe, expect, it } from 'vitest'
 
 describe('ErrorAction tests', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

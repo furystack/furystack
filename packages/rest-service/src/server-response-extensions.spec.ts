@@ -2,6 +2,7 @@ import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
 import './server-response-extensions'
 import { BypassResult, JsonResult, PlainTextResult } from './request-action-implementation'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerResponse extensions', () => {
   describe('sendActionResult', () => {
@@ -15,7 +16,7 @@ describe('ServerResponse extensions', () => {
       const jsonValue = { value: Math.random() }
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
-      msg.writeHead = jest.fn()
+      msg.writeHead = vi.fn(() => msg)
       msg.end = ((chunk: any) => {
         expect(chunk).toBe(JSON.stringify(jsonValue))
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'application/json' })
@@ -29,7 +30,7 @@ describe('ServerResponse extensions', () => {
       const textValue = `${Math.random()}`
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
-      msg.writeHead = jest.fn()
+      msg.writeHead = vi.fn(() => msg)
       msg.end = ((chunk: any) => {
         expect(chunk).toBe(textValue)
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'plain/text' })
@@ -42,8 +43,8 @@ describe('ServerResponse extensions', () => {
     it('Should skip sending on BypassResult', () => {
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
-      msg.writeHead = jest.fn()
-      msg.end = jest.fn()
+      msg.writeHead = vi.fn(() => msg)
+      msg.end = vi.fn(() => msg)
 
       msg.sendActionResult(BypassResult())
       expect(msg.writeHead).not.toBeCalled()

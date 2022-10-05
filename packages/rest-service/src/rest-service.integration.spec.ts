@@ -8,6 +8,7 @@ import { DefaultSession } from './models/default-session'
 import got from 'got'
 import { JsonResult } from './request-action-implementation'
 import { useHttpAuthentication, useRestService } from './helpers'
+import { describe, expect, it } from 'vitest'
 
 class UserWithPassword extends User {
   password!: string

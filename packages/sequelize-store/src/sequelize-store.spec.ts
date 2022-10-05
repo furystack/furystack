@@ -6,11 +6,12 @@ import { sleepAsync, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import type { SequelizeStore } from './sequelize-store'
+import { describe, expect, it, vi } from 'vitest'
 
-jest.mock('uuid', () => {
+vi.mock('uuid', () => {
   return {
-    v1: jest.fn(() => 'uuid'),
-    v4: jest.fn(() => 'uuid'),
+    v1: vi.fn(() => 'uuid'),
+    v4: vi.fn(() => 'uuid'),
   }
 })
 

@@ -7,10 +7,15 @@ import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
 import { LazyLoad } from './lazy-load'
 import { createComponent, initializeShadeRoot } from '..'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('Lazy Load', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Shuld display the loader and completed state', async () => {
     const injector = new Injector()
@@ -38,7 +43,7 @@ describe('Lazy Load', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const load = jest.fn(async () => {
+    const load = vi.fn(async () => {
       throw Error(':(')
     })
 
@@ -70,7 +75,7 @@ describe('Lazy Load', () => {
     const rootElement = document.getElementById('root') as HTMLDivElement
     let counter = 0
 
-    const load = jest.fn(async () => {
+    const load = vi.fn(async () => {
       if (!counter) {
         counter += 1
         throw Error(':(')

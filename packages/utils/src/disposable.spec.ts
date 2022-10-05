@@ -1,5 +1,6 @@
 import type { Disposable } from './disposable'
 import { using, usingAsync } from './disposable'
+import { describe, expect, it } from 'vitest'
 
 export class MockDisposable implements Disposable {
   private disposed = false

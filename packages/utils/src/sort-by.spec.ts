@@ -1,4 +1,5 @@
 import './sort-by'
+import { describe, expect, it } from 'vitest'
 describe('sortBy', () => {
   it('Should sort by ascending by default', () => {
     const arr = [{ v: 5 }, { v: 3 }, { v: 4 }]

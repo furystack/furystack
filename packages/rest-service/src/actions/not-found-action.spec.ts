@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { NotFoundAction } from './not-found-action'
 import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it } from 'vitest'
 
 describe('NotFoundAction tests', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

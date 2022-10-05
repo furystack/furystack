@@ -6,6 +6,7 @@ import got from 'got'
 import { MockClass, setupContext } from './utils'
 import { useRestService } from '../helpers'
 import { getDataSetFor } from '@furystack/repository'
+import { describe, expect, it } from 'vitest'
 
 describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {

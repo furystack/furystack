@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { LoginAction } from './login'
 import { HttpUserContext } from '../http-user-context'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('LoginAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
@@ -13,8 +14,8 @@ describe('LoginAction', () => {
     await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(
         {
-          authenticateUser: jest.fn(async () => testUser),
-          cookieLogin: jest.fn(async () => testUser),
+          authenticateUser: vi.fn(async () => testUser),
+          cookieLogin: vi.fn(async () => testUser),
           authentication: {},
         },
         HttpUserContext,

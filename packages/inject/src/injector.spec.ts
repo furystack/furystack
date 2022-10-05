@@ -3,6 +3,7 @@ import { using, usingAsync } from '@furystack/utils'
 import { Injectable } from './injectable'
 import { Injected } from './injected'
 import { Injector } from './injector'
+import { describe, expect, it } from 'vitest'
 
 describe('Injector', () => {
   it('Shold be constructed', () => {

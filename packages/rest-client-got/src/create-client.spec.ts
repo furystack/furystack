@@ -1,5 +1,6 @@
 import { createClient } from './create-client'
 import { PathHelper } from '@furystack/utils'
+import { describe, expect, it, vi } from 'vitest'
 
 const endpointUrl = 'http://localhost'
 
@@ -10,7 +11,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should throw if request is not OK', async () => {
-    const got: any = jest.fn(async () => {
+    const got: any = vi.fn(async () => {
       throw Error('Something is wrong...')
     })
 
@@ -28,7 +29,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a simple GET request', async () => {
-    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
+    const got: any = vi.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
       endpointUrl,
@@ -46,7 +47,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a GET request with query parameters', async () => {
-    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
+    const got: any = vi.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
     const client = createClient<{
       GET: { '/test': { result: { value: number }; query: { value: string } } }
     }>({
@@ -69,7 +70,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a GET request with URL parameters', async () => {
-    const got: any = jest.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
+    const got: any = vi.fn(async () => ({ body: JSON.stringify({ value: 1 }) }))
 
     const client = createClient<{
       GET: { '/test/:urlValue': { result: { value: number }; url: { urlValue: string } } }
@@ -93,7 +94,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a simple POST request with body', async () => {
-    const got: any = jest.fn(async () => ({
+    const got: any = vi.fn(async () => ({
       ok: true,
     }))
 
@@ -115,7 +116,7 @@ describe('@furystack/rest-client-got', () => {
   })
 
   it('Should call a request with headers', async () => {
-    const got: any = jest.fn(async () => ({
+    const got: any = vi.fn(async () => ({
       ok: true,
     }))
 

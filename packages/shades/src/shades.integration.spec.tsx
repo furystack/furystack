@@ -8,10 +8,15 @@ global.TextDecoder = TextDecoder as any
 import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
 import { createComponent, createFragment } from './shade-component'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('Shades integration tests', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Should mount a custom component to a Shade root', () => {
     const injector = new Injector()
@@ -169,8 +174,8 @@ describe('Shades integration tests', () => {
   it("Should execute the constructed and constructed's cleanup callback", () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
-    const cleanup = jest.fn()
-    const constructed = jest.fn(() => cleanup)
+    const cleanup = vi.fn()
+    const constructed = vi.fn(() => cleanup)
 
     const ExampleComponent = Shade({
       constructed,
@@ -192,8 +197,8 @@ describe('Shades integration tests', () => {
   it('Should execute the onAttach and onDetach callbacks', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
-    const onAttach = jest.fn()
-    const onDetach = jest.fn()
+    const onAttach = vi.fn()
+    const onDetach = vi.fn()
 
     const ExampleComponent = Shade({
       onAttach,

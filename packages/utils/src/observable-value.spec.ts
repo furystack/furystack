@@ -1,4 +1,5 @@
 import { ObservableValue } from './observable-value'
+import { describe, expect, it } from 'vitest'
 
 /**
  * Observable Value tests

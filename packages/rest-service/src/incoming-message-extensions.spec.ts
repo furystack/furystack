@@ -1,6 +1,7 @@
 import { IncomingMessage } from 'http'
 import './incoming-message-extensions'
 import { Socket } from 'net'
+import { describe, expect, it } from 'vitest'
 
 describe('IncomingMessage extensions', () => {
   describe('readPostBody', () => {

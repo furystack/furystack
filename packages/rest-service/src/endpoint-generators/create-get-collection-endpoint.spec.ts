@@ -8,6 +8,7 @@ import { serializeToQueryString } from '@furystack/rest'
 import type { FindOptions } from '@furystack/core'
 import { getDataSetFor, getRepository } from '@furystack/repository'
 import { useRestService } from '../helpers'
+import { describe, expect, it } from 'vitest'
 
 const addMockEntities = async (i: Injector) =>
   await getRepository(i)

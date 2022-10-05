@@ -1,5 +1,6 @@
 import type { PasswordComplexityFailedResult } from '../models'
 import { createMaxLengthComplexityRule } from './max-length'
+import { describe, expect, it } from 'vitest'
 
 describe('max-length', () => {
   it('Should fail if the password is longer than expected', async () => {

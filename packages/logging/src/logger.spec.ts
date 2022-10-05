@@ -5,6 +5,7 @@ import { LogLevel } from './log-entries'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
 import { LoggerCollection } from './logger-collection'
 import { TestLogger } from './test-logger'
+import { describe, expect, it } from 'vitest'
 
 describe('Loggers', () => {
   it('Can be set up and retrieved with a helper', () => {

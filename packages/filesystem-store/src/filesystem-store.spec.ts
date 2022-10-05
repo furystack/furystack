@@ -2,6 +2,7 @@ import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './filesystem-store'
 import { TestClass, createStoreTest } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 
 let storeCount = 0
 
@@ -22,7 +23,7 @@ describe('FileSystemStore', () => {
     const fileName = `filestore-test-${storeCount++}.json`
     storeNames.push(fileName)
     const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
-    store.saveChanges = jest.fn(store.saveChanges.bind(store))
+    store.saveChanges = vi.fn(store.saveChanges.bind(store))
 
     await store.add({
       id: 1,

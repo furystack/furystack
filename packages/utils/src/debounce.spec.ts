@@ -1,5 +1,6 @@
 import { debounce } from './debounce'
 import { sleepAsync } from './sleep-async'
+import { describe, expect, it } from 'vitest'
 
 /**
  * Tests for debounce

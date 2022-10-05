@@ -8,22 +8,27 @@ import { Router } from './router'
 import { createComponent, initializeShadeRoot, LocationService } from '..'
 import { RouteLink } from '.'
 import { sleepAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('Router', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Shuld display the loader and completed state', async () => {
     history.pushState(null, '', '/')
 
-    const onVisit = jest.fn()
-    const onLeave = jest.fn()
-    const onLastLeave = jest.fn()
+    const onVisit = vi.fn()
+    const onLeave = vi.fn()
+    const onLastLeave = vi.fn()
 
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const onRouteChange = jest.fn()
+    const onRouteChange = vi.fn()
 
     injector.getInstance(LocationService).onLocationChanged.subscribe(onRouteChange)
 

@@ -1,5 +1,6 @@
 import { deserializeQueryString } from './deserialize-query-string'
 import { serializeToQueryString } from './serialize-to-query-string'
+import { describe, expect, it } from 'vitest'
 
 describe('deserializeQueryString', () => {
   it('Should serialize a list of primitive values', () => {

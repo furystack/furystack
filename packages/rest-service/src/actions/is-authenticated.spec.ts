@@ -3,6 +3,7 @@ import { usingAsync } from '@furystack/utils'
 import { IsAuthenticated } from './is-authenticated'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
+import { describe, expect, it } from 'vitest'
 
 describe('isAuthenticated', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

@@ -1,5 +1,6 @@
 import type { PasswordComplexityFailedResult } from '../models'
 import { createContainsUppercasePolicy } from './contains-uppercase'
+import { describe, expect, it } from 'vitest'
 
 describe('Contains-uppercase', () => {
   it('Should fail if the password is shorter than expected', async () => {

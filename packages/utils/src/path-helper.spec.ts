@@ -1,4 +1,5 @@
 import { PathHelper } from './path-helper'
+import { describe, expect, it } from 'vitest'
 
 /**
  * Path Helper tests

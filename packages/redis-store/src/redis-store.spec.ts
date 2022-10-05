@@ -4,6 +4,7 @@ import { StoreManager } from '@furystack/core'
 import { RedisStore } from './redis-store'
 import './store-manager-helpers'
 import { useRedis } from './store-manager-helpers'
+import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 
 describe('Redis Store', () => {
   class ExampleClass {

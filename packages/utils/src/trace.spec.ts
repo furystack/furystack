@@ -1,4 +1,5 @@
 import { Trace } from './trace'
+import { describe, expect, it } from 'vitest'
 
 class MockClass {
   constructor(private testValue?: string) {}

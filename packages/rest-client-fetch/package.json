@@ -33,10 +33,8 @@
     "@furystack/logging": "^3.1.0",
     "@furystack/rest": "^4.1.0",
     "@furystack/utils": "^3.1.0",
-    "path-to-regexp": "^6.2.1"
-  },
-  "devDependencies": {
-    "@types/jest": "^29.0.3"
+    "path-to-regexp": "^6.2.1",
+    "vitest": "^0.23.4"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
