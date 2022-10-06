@@ -28,6 +28,17 @@
         "--timeout=3000000",
         "--project=chromium"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "runtimeExecutable": "yarn",
+      "args": ["run", "test", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
     }
   ]
 }
