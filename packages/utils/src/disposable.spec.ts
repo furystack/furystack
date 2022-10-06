@@ -60,41 +60,47 @@ export const disposableTests = describe('Disposable', () => {
   })
 
   describe('dispose()', () => {
-    it('should be called on error', (done) => {
-      try {
-        using(new MockDisposable(), (d) => {
-          d.disposeCallback = () => {
-            done()
-          }
+    it('should be called on error', async () => {
+      await new Promise<void>((resolve) => {
+        try {
+          using(new MockDisposable(), (d) => {
+            d.disposeCallback = () => {
+              resolve()
+            }
 
-          d.whooops()
-        })
-      } catch {
-        /** ignore */
-      }
+            d.whooops()
+          })
+        } catch {
+          /** ignore */
+        }
+      })
     })
 
-    it('should be called with usingAsync()', (done) => {
-      usingAsync(new MockDisposable(), async (d) => {
-        d.disposeCallback = () => {
-          done()
-        }
-        return new Promise((resolve) => {
-          setTimeout(resolve, 1)
+    it('should be called with usingAsync()', async () => {
+      await new Promise<void>((resolve) => {
+        usingAsync(new MockDisposable(), async (d) => {
+          d.disposeCallback = () => {
+            resolve()
+          }
+          return new Promise((res) => {
+            setTimeout(res, 1)
+          })
         })
       })
     })
 
-    it('should be called when async fails', (done) => {
-      usingAsync(new MockDisposable(), async (d) => {
-        d.disposeCallback = () => {
-          done()
-        }
-        return new Promise((_resolve, reject) => {
-          setTimeout(reject, 1)
+    it('should be called when async fails', async () => {
+      await new Promise<void>((resolve) => {
+        usingAsync(new MockDisposable(), async (d) => {
+          d.disposeCallback = () => {
+            resolve()
+          }
+          return new Promise((_resolve, reject) => {
+            setTimeout(reject, 1)
+          })
+        }).catch(() => {
+          /** ignore */
         })
-      }).catch(() => {
-        /** ignore */
       })
     })
 

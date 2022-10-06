@@ -133,17 +133,19 @@ describe('Injector', () => {
     }
   })
 
-  it('Should dispose cached entries on dispose and tolerate non-disposable ones', (done) => {
-    class TestDisposable implements Disposable {
-      public dispose() {
-        done()
+  it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
+    await new Promise<void>((resolve) => {
+      class TestDisposable implements Disposable {
+        public dispose() {
+          resolve()
+        }
       }
-    }
-    class TestInstance {}
+      class TestInstance {}
 
-    usingAsync(new Injector(), async (i) => {
-      i.setExplicitInstance(new TestDisposable())
-      i.setExplicitInstance(new TestInstance())
+      usingAsync(new Injector(), async (i) => {
+        i.setExplicitInstance(new TestDisposable())
+        i.setExplicitInstance(new TestInstance())
+      })
     })
   })
 

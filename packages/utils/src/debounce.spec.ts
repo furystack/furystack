@@ -6,11 +6,13 @@ import { describe, expect, it } from 'vitest'
  * Tests for debounce
  */
 export const debounceTests = describe('debounce', () => {
-  it('Simple method execution', (done) => {
-    const method = debounce(() => {
-      done()
+  it('Simple method execution', async () => {
+    await new Promise<void>((resolve) => {
+      const method = debounce(() => {
+        resolve()
+      })
+      method()
     })
-    method()
   })
 
   it('Should be executed once when triggered multiple time in a given range', async () => {

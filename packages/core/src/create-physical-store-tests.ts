@@ -1,7 +1,7 @@
 import type { PhysicalStore } from './models/physical-store'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import {describe, expect, it} from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 export class TestClass {
   id!: number

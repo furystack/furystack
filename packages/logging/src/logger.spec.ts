@@ -21,123 +21,139 @@ describe('Loggers', () => {
       expect(loggers).toBeInstanceOf(LoggerCollection)
     })
 
-    it('Should forward Verbose event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Verbose)
-          done()
-        }),
-      )
-      loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
+    it('Should forward Verbose event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            expect(e.level).toBe(LogLevel.Verbose)
+            resolve()
+          }),
+        )
+        loggers.verbose({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
 
-    it('Should forward Debug event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Debug)
-          done()
-        }),
-      )
-      loggers.debug({
-        message: 'alma',
-        scope: 'alma',
+    it('Should forward Debug event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            expect(e.level).toBe(LogLevel.Debug)
+            resolve()
+          }),
+        )
+        loggers.debug({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
 
-    it('Should forward Information event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Information)
-          done()
-        }),
-      )
-      loggers.information({
-        message: 'alma',
-        scope: 'alma',
+    it('Should forward Information event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            expect(e.level).toBe(LogLevel.Information)
+            resolve()
+          }),
+        )
+        loggers.information({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
 
-    it('Should forward Warning event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Warning)
-          done()
-        }),
-      )
-      loggers.warning({
-        message: 'alma',
-        scope: 'alma',
+    it('Should forward Warning event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            expect(e.level).toBe(LogLevel.Warning)
+            resolve()
+          }),
+        )
+        loggers.warning({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
 
-    it('Should forward Error event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Error)
-          done()
-        }),
-      )
-      loggers.error({
-        message: 'alma',
-        scope: 'alma',
-      })
-    })
-
-    it('Should raise an Error event if failed to insert below Error', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          if (e.level < LogLevel.Error) {
-            throw new Error('Nooo')
-          } else {
+    it('Should forward Error event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
             expect(e.level).toBe(LogLevel.Error)
-            done()
-          }
-        }),
-      )
-      loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
+            resolve()
+          }),
+        )
+        loggers.error({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
 
-    it('Should raise a Fatal event if failed to insert an Error', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          if (e.level < LogLevel.Fatal) {
-            throw new Error('Nooo')
-          } else {
+    it('Should raise an Error event if failed to insert below Error', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            if (e.level < LogLevel.Error) {
+              throw new Error('Nooo')
+            } else {
+              expect(e.level).toBe(LogLevel.Error)
+              resolve()
+            }
+          }),
+        )
+        loggers.verbose({
+          message: 'alma',
+          scope: 'alma',
+        })
+      })
+    })
+
+    it('Should raise a Fatal event if failed to insert an Error', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
+            if (e.level < LogLevel.Fatal) {
+              throw new Error('Nooo')
+            } else {
+              expect(e.level).toBe(LogLevel.Fatal)
+              resolve()
+            }
+          }),
+        )
+        loggers.verbose({
+          message: 'alma',
+          scope: 'alma',
+        })
+      })
+    })
+
+    it('Should forward Fatal event', async () => {
+      await new Promise<void>((resolve) => {
+        const loggers = new LoggerCollection()
+        loggers.attachLogger(
+          new TestLogger(async (e) => {
             expect(e.level).toBe(LogLevel.Fatal)
-            done()
-          }
-        }),
-      )
-      loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
-    })
-
-    it('Should forward Fatal event', (done) => {
-      const loggers = new LoggerCollection()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
-          expect(e.level).toBe(LogLevel.Fatal)
-          done()
-        }),
-      )
-      loggers.fatal({
-        message: 'alma',
-        scope: 'alma',
+            resolve()
+          }),
+        )
+        loggers.fatal({
+          message: 'alma',
+          scope: 'alma',
+        })
       })
     })
   })

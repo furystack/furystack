@@ -14,42 +14,46 @@ describe('WebSocket Integration tests', () => {
   let i!: Injector
   let client: ws
 
-  beforeEach((done) => {
-    i = new Injector()
-    useRestService({
-      injector: i,
-      api: {},
-      root: '',
-      port,
-      hostName: host,
-    })
-    addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-      new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-    )
-    useHttpAuthentication(i, {})
-    useWebsockets(i, { actions: [WhoAmI], path, port, host })
-    i.getInstance(ServerManager)
-      .getOrCreate({ port })
-      .then(() => {
-        client = new ws(`ws://${host}:${port}/ws`)
-        client
-          .on('open', () => {
-            done()
-          })
-          .on('error', done)
+  beforeEach(async () => {
+    await new Promise<void>((resolve, reject) => {
+      i = new Injector()
+      useRestService({
+        injector: i,
+        api: {},
+        root: '',
+        port,
+        hostName: host,
       })
+      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+      )
+      useHttpAuthentication(i, {})
+      useWebsockets(i, { actions: [WhoAmI], path, port, host })
+      i.getInstance(ServerManager)
+        .getOrCreate({ port })
+        .then(() => {
+          client = new ws(`ws://${host}:${port}/ws`)
+          client
+            .on('open', () => {
+              resolve()
+            })
+            .on('error', reject)
+        })
+    })
   })
 
   afterEach(async () => {
     await i.dispose()
   })
 
-  it('Should be connected', (done) => {
-    client.on('message', (data) => {
-      expect(data.toString()).toBe('{"currentUser":null}')
-      client.close()
-      done()
+  it('Should be connected', async () => {
+    await new Promise<void>((resolve) => {
+      client.on('message', (data) => {
+        expect(data.toString()).toBe('{"currentUser":null}')
+        client.close()
+        resolve()
+      })
+      client.send('whoami')
     })
-    client.send('whoami')
   })
 })
