@@ -2,10 +2,10 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { User, StoreManager, InMemoryStore, addStore } from '@furystack/core'
-import { DefaultSession } from './models/default-session'
-import { HttpUserContext } from './http-user-context'
+import { DefaultSession } from './models/default-session.js'
+import { HttpUserContext } from './http-user-context.js'
 import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
-import { useHttpAuthentication } from './helpers'
+import { useHttpAuthentication } from './helpers.js'
 import { describe, expect, it, vi } from 'vitest'
 
 export const prepareInjector = async (i: Injector) => {

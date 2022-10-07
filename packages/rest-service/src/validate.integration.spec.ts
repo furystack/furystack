@@ -2,13 +2,13 @@ import { Injector } from '@furystack/inject'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
 import { RequestError } from 'got/dist/source'
-import { JsonResult } from './request-action-implementation'
-import { Validate } from './validate'
+import { JsonResult } from './request-action-implementation.js'
+import { Validate } from './validate.js'
 import './helpers'
 
 import schema from './validate.integration.spec.schema.json'
-import type { ValidationApi } from './validate.integration.schema'
-import { useRestService } from './helpers'
+import type { ValidationApi } from './validate.integration.schema.js'
+import { useRestService } from './helpers.js'
 import { describe, expect, it } from 'vitest'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json

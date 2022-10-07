@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http'
 import '.'
 import { HttpUserContext } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
-import { WebsocketUserContext } from './websocket-user-context'
+import { WebsocketUserContext } from './websocket-user-context.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('WebSocket User Context', () => {

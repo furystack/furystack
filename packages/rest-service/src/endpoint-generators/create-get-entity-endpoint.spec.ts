@@ -4,10 +4,10 @@ import type { GetEntityEndpoint } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
 import type { HTTPError } from 'got'
 import got from 'got'
-import { MockClass, setupContext } from './utils'
-import { createGetEntityEndpoint } from './create-get-entity-endpoint'
+import { MockClass, setupContext } from './utils.js'
+import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
 import { getDataSetFor } from '@furystack/repository'
-import { useRestService } from '../helpers'
+import { useRestService } from '../helpers.js'
 import { describe, expect, it } from 'vitest'
 
 describe('createGetEntityEndpoint', () => {
@@ -27,7 +27,7 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await got('http://127.0.0.1:1113/api/mock', { method: 'GET' })
+      const response = await got.default('http://127.0.0.1:1113/api/mock', { method: 'GET' })
       expect(JSON.parse(response.body)).toStrictEqual(mockEntity)
     })
   })
@@ -48,9 +48,12 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await got(`http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
-        method: 'GET',
-      })
+      const response = await got.default(
+        `http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`,
+        {
+          method: 'GET',
+        },
+      )
       expect(JSON.parse(response.body)).toStrictEqual({ id: mockEntity.id })
     })
   })
@@ -69,7 +72,8 @@ describe('createGetEntityEndpoint', () => {
         },
       })
       await new Promise<void>((resolve, reject) => {
-        got(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
+        got
+          .default(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
           .then(() => reject('Should throw'))
           .catch((err) => {
             const e: HTTPError = err

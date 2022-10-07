@@ -1,2 +1,2 @@
-export * from './filesystem-store'
-export * from './store-manager-helpers'
+export * from './filesystem-store.js'
+export * from './store-manager-helpers.js'

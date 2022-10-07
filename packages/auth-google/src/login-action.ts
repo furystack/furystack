@@ -1,5 +1,5 @@
 import { HttpUserContext, JsonResult } from '@furystack/rest-service'
-import { GoogleLoginService } from './login-service'
+import { GoogleLoginService } from './login-service.js'
 import type { RequestAction } from '@furystack/rest-service'
 import type { User } from '@furystack/core'
 /**

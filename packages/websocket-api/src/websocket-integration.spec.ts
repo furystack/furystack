@@ -1,10 +1,10 @@
 import { Injector } from '@furystack/inject'
-import { WhoAmI } from './actions/whoami'
+import { WhoAmI } from './actions/whoami.js'
 import ws from 'ws'
 import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession, ServerManager, useHttpAuthentication } from '@furystack/rest-service'
 import { useRestService } from '@furystack/rest-service'
-import { useWebsockets } from './helpers'
+import { useWebsockets } from './helpers.js'
 import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 
 describe('WebSocket Integration tests', () => {

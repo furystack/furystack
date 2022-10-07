@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { LoginAction } from './login'
-import { HttpUserContext } from '../http-user-context'
+import { LoginAction } from './login.js'
+import { HttpUserContext } from '../http-user-context.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('LoginAction', () => {

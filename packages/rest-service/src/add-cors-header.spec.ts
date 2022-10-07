@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http'
-import { Utils } from './utils'
+import { Utils } from './utils.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('AddCorsHeaders', () => {

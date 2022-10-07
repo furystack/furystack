@@ -1,6 +1,6 @@
 import { promises, existsSync } from 'fs'
-import { FileSystemStore } from './index'
-import { useFileSystemStore } from './store-manager-helpers'
+import { FileSystemStore } from './filesystem-store.js'
+import { useFileSystemStore } from './store-manager-helpers.js'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { StoreManager, TestClass } from '@furystack/core'

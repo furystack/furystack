@@ -2,9 +2,9 @@ import { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-got'
 import { usingAsync } from '@furystack/utils'
-import { JsonResult } from './request-action-implementation'
+import { JsonResult } from './request-action-implementation.js'
 import './helpers'
-import { useRestService } from './helpers'
+import { useRestService } from './helpers.js'
 import { describe, expect, it } from 'vitest'
 
 export interface EchoApi extends RestApi {

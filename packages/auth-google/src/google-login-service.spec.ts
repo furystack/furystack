@@ -1,7 +1,7 @@
 import { usingAsync, using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager, addStore } from '@furystack/core'
-import { GoogleLoginSettings, GoogleLoginService } from './login-service'
+import { GoogleLoginSettings, GoogleLoginService } from './login-service.js'
 import { useHttpAuthentication } from '@furystack/rest-service'
 import { describe, it, expect } from 'vitest'
 

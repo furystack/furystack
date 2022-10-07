@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { ErrorAction } from './error-action'
+import { ErrorAction } from './error-action.js'
 import type { IncomingMessage } from 'http'
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'

@@ -1,8 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import got, { RequestError } from 'got'
-import { ServerManager } from './server-manager'
-import { StaticServerManager } from './static-server-manager'
+import { ServerManager } from './server-manager.js'
+import { StaticServerManager } from './static-server-manager.js'
 import { describe, expect, it, vi } from 'vitest'
 
 /**
@@ -36,7 +36,7 @@ describe('StaticServerManager', () => {
         })
 
         try {
-          await got.get(`http://localhost:${port}/not-found.html`)
+          await got.default.get(`http://localhost:${port}/not-found.html`)
         } catch (error) {
           expect(error).toBeInstanceOf(RequestError)
           const requestError: RequestError = error as RequestError
@@ -63,7 +63,7 @@ describe('StaticServerManager', () => {
           },
         })
 
-        const result = await got.get(`http://localhost:${port}/not-found.html`)
+        const result = await got.default.get(`http://localhost:${port}/not-found.html`)
 
         expect(result.headers['content-type']).toBe('application/json')
         expect(result.headers['custom-header']).toBe('custom-value')
@@ -85,7 +85,7 @@ describe('StaticServerManager', () => {
           },
         })
 
-        const result = await got.get(`http://localhost:${port}`)
+        const result = await got.default.get(`http://localhost:${port}`)
 
         expect(result.headers['content-type']).toBe('application/json')
         expect(result.headers['custom-header']).toBe('custom-value')
@@ -106,7 +106,7 @@ describe('StaticServerManager', () => {
           },
         })
 
-        const result = await got.get(`http://localhost:${port}/README.md`)
+        const result = await got.default.get(`http://localhost:${port}/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
         expect(result.headers['custom-header']).toBe('custom-value')
@@ -124,7 +124,7 @@ describe('StaticServerManager', () => {
           port,
         })
 
-        const result = await got.get(`http://localhost:${port}/packages/utils/README.md`)
+        const result = await got.default.get(`http://localhost:${port}/packages/utils/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -147,7 +147,7 @@ describe('StaticServerManager', () => {
 
         server.apis[0].onRequest = vi.fn()
 
-        got.get(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`)
+        got.default.get(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`)
 
         await sleepAsync(100)
 
@@ -167,7 +167,7 @@ describe('StaticServerManager', () => {
         })
 
         try {
-          await got.get(`http://localhost:${port}/bundle/not-found.html`)
+          await got.default.get(`http://localhost:${port}/bundle/not-found.html`)
         } catch (error) {
           expect(error).toBeInstanceOf(RequestError)
           const requestError: RequestError = error as RequestError
@@ -191,7 +191,7 @@ describe('StaticServerManager', () => {
           port,
         })
 
-        const result = await got.get(`http://localhost:${port}/bundle/not-found.html`)
+        const result = await got.default.get(`http://localhost:${port}/bundle/not-found.html`)
 
         expect(result.headers['content-type']).toBe('application/json')
       })
@@ -208,7 +208,7 @@ describe('StaticServerManager', () => {
           port,
         })
 
-        const result = await got.get(`http://localhost:${port}/README.md`)
+        const result = await got.default.get(`http://localhost:${port}/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })
@@ -225,7 +225,7 @@ describe('StaticServerManager', () => {
           port,
         })
 
-        const result = await got.get(`http://localhost:${port}/packages/utils/README.md`)
+        const result = await got.default.get(`http://localhost:${port}/packages/utils/README.md`)
 
         expect(result.headers['content-type']).toBe('text/markdown')
       })

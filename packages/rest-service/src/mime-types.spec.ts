@@ -1,4 +1,4 @@
-import { getMimeForFile } from './mime-types'
+import { getMimeForFile } from './mime-types.js'
 import { describe, expect, it } from 'vitest'
 describe('MIME Types', () => {
   it('Should return a default fallback', () => {

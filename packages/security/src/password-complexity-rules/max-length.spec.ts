@@ -1,5 +1,5 @@
-import type { PasswordComplexityFailedResult } from '../models'
-import { createMaxLengthComplexityRule } from './max-length'
+import type { PasswordComplexityFailedResult } from '../models/password-complexity-result.js'
+import { createMaxLengthComplexityRule } from './max-length.js'
 import { describe, expect, it } from 'vitest'
 
 describe('max-length', () => {

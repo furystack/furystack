@@ -1,4 +1,4 @@
-import { createClient } from './'
+import { createClient } from './create-client.js'
 import { PathHelper } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 

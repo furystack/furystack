@@ -1,5 +1,5 @@
 import http from 'http'
-import type { ActionResult } from './request-action-implementation'
+import type { ActionResult } from './request-action-implementation.js'
 
 export interface SendJsonOptions<T> {
   statusCode?: number

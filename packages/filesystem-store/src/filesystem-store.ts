@@ -1,7 +1,7 @@
 import type { FSWatcher } from 'fs'
 import { promises, watch } from 'fs'
 import type { Constructable } from '@furystack/inject'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 import type { PhysicalStore, FindOptions, FilterType, WithOptionalId } from '@furystack/core'
 import { InMemoryStore } from '@furystack/core'
 
@@ -56,7 +56,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     })
   }
 
-  private fileLock = new Semaphore(1)
+  private fileLock = new Lock()
   public async saveChanges() {
     if (!this.hasChanges) {
       return

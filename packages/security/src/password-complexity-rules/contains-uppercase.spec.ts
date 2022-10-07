@@ -1,5 +1,5 @@
-import type { PasswordComplexityFailedResult } from '../models'
-import { createContainsUppercasePolicy } from './contains-uppercase'
+import type { PasswordComplexityFailedResult } from '../models/password-complexity-result.js'
+import { createContainsUppercasePolicy } from './contains-uppercase.js'
 import { describe, expect, it } from 'vitest'
 
 describe('Contains-uppercase', () => {

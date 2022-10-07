@@ -1,2 +1,2 @@
-export * from './cors-options'
-export * from './default-session'
+export * from './cors-options.js'
+export * from './default-session.js'

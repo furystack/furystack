@@ -1,6 +1,6 @@
 import type { Injector } from '@furystack/inject'
-import { WebSocketApi } from './websocket-api'
-import { WebSocketApiSettings } from './websocket-api-settings'
+import { WebSocketApi } from './websocket-api.js'
+import { WebSocketApiSettings } from './websocket-api-settings.js'
 
 /**
  * Registers a WebSocket API on a current injector instance.

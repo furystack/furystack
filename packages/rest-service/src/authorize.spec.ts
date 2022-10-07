@@ -3,9 +3,9 @@ import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import type { User } from '@furystack/core'
 import { IdentityContext } from '@furystack/core'
-import { Authorize } from './authorize'
+import { Authorize } from './authorize.js'
 import type { ServerResponse } from 'http'
-import { EmptyResult } from './request-action-implementation'
+import { EmptyResult } from './request-action-implementation.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('Authorize', () => {

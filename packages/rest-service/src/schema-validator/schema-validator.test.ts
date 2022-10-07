@@ -1,7 +1,7 @@
-import { SchemaValidator } from './schema-validator'
-import type { BodyParameters, Language } from './validate-examples'
-import { exampleSchema } from './validate-examples'
-import { SchemaValidationError } from './schema-validation-error'
+import { SchemaValidator } from './schema-validator.js'
+import type { BodyParameters, Language } from './validate-examples.js'
+import { exampleSchema } from './validate-examples.js'
+import { SchemaValidationError } from './schema-validation-error.js'
 import { describe, expect, it } from 'vitest'
 
 describe('ValidateSchema', () => {

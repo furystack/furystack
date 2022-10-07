@@ -52,6 +52,9 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           : `?${serializeToQueryString(query)}`
         : '')
 
+    // TODO
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const response = (await (clientOptions?.got || got)(
       PathHelper.joinPaths(clientOptions.endpointUrl, urlToSend as string),
       {

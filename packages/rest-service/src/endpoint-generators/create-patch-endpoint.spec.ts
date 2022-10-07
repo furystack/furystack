@@ -1,11 +1,11 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { PatchEndpoint } from '@furystack/rest'
-import { createPatchEndpoint } from './create-patch-endpoint'
+import { createPatchEndpoint } from './create-patch-endpoint.js'
 import got from 'got'
-import { MockClass, setupContext } from './utils'
+import { MockClass, setupContext } from './utils.js'
 import { getDataSetFor } from '@furystack/repository'
-import { useRestService } from '../helpers'
+import { useRestService } from '../helpers.js'
 import { describe, expect, it } from 'vitest'
 
 describe('createPatchEndpoint', () => {
@@ -27,7 +27,7 @@ describe('createPatchEndpoint', () => {
       const countBeforeDelete = await getDataSetFor(i, MockClass, 'id').count(i)
       expect(countBeforeDelete).toBe(1)
 
-      const response = await got('http://127.0.0.1:1116/api/mock', {
+      const response = await got.default('http://127.0.0.1:1116/api/mock', {
         method: 'PATCH',
         body: JSON.stringify({ value: 'updated' }),
       })

@@ -1,7 +1,7 @@
 import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
 import './server-response-extensions'
-import { BypassResult, JsonResult, PlainTextResult } from './request-action-implementation'
+import { BypassResult, JsonResult, PlainTextResult } from './request-action-implementation.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerResponse extensions', () => {

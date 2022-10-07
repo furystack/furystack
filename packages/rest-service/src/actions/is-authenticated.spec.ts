@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { IsAuthenticated } from './is-authenticated'
+import { IsAuthenticated } from './is-authenticated.js'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
 import { describe, expect, it } from 'vitest'

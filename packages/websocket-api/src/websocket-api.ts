@@ -5,18 +5,18 @@ import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injected, Injector } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
 import type { Data } from 'ws'
-import ws, { Server as WebSocketServer } from 'ws'
-import { WebSocketApiSettings } from './websocket-api-settings'
-import type { WebSocketAction } from './models'
+import ws from 'ws'
+import { WebSocketApiSettings } from './websocket-api-settings.js'
+import type { WebSocketAction } from './models/websocket-action.js'
 import { AggregatedError, IdentityContext } from '@furystack/core'
-import { WebsocketUserContext } from './websocket-user-context'
+import { WebsocketUserContext } from './websocket-user-context.js'
 
 /**
  * A WebSocket API implementation for FuryStack
  */
 @Injectable({ lifetime: 'scoped' })
 export class WebSocketApi implements Disposable {
-  public readonly socket = new WebSocketServer({ noServer: true })
+  public readonly socket = new ws.WebSocketServer({ noServer: true })
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 

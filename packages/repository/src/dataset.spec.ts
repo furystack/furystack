@@ -2,9 +2,9 @@ import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import type { WithOptionalId } from '@furystack/core'
 import { InMemoryStore, addStore } from '@furystack/core'
-import { Repository } from './repository'
-import type { AuthorizationResult, DataSetSettings } from './data-set-setting'
-import { getDataSetFor, getRepository } from './helpers'
+import { Repository } from './repository.js'
+import type { AuthorizationResult, DataSetSettings } from './data-set-setting.js'
+import { getDataSetFor, getRepository } from './helpers.js'
 import { describe, expect, it, vi } from 'vitest'
 
 class TestClass {
