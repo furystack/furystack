@@ -63,7 +63,7 @@ __metadata:
     "@furystack/rest": ^4.1.0
     "@furystack/rest-service": ^6.2.1
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     vitest: ^0.23.4
   languageName: unknown
   linkType: soft
@@ -74,7 +74,7 @@ __metadata:
   dependencies:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     semaphore-async-await: ^1.5.1
     vitest: ^0.23.4
   languageName: unknown
@@ -87,7 +87,7 @@ __metadata:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     semaphore-async-await: ^1.5.1
     vitest: ^0.23.4
   languageName: unknown
@@ -120,7 +120,7 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     mongodb: 4.10.0
     semaphore-async-await: ^1.5.1
     vitest: ^0.23.4
@@ -192,7 +192,7 @@ __metadata:
     "@furystack/rest-client-got": ^2.1.0
     "@furystack/security": ^2.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     ajv: ^8.11.0
     ajv-formats: ^2.1.1
     got: ^11.8.5
@@ -208,7 +208,7 @@ __metadata:
   dependencies:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     vitest: ^0.23.4
   languageName: unknown
   linkType: soft
@@ -220,7 +220,7 @@ __metadata:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     vitest: ^0.23.4
   languageName: unknown
   linkType: soft
@@ -233,7 +233,7 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     semaphore-async-await: ^1.5.1
     sequelize: ^6.24.0
     sqlite3: 5.1.2
@@ -313,7 +313,7 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
     "@types/jsdom": ^20.0.0
-    "@types/node": ^18.8.2
+    "@types/node": ^18.8.3
     jsdom: ^20.0.1
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
@@ -703,10 +703,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.8.2":
+"@types/node@npm:*":
   version: 18.8.2
   resolution: "@types/node@npm:18.8.2"
   checksum: b7c74dea0e835fb7faf69b4a2e87d43c1d228d88adacdff464d9e92d18a0b43bec6147b9eb3287650ac75fe5af730c53391869d02175e6b032dcb99ae2f54c92
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^18.8.3":
+  version: 18.8.3
+  resolution: "@types/node@npm:18.8.3"
+  checksum: 9201adc6dc389644c9f478f950ef8926a93e5827865dcd80d7d12fefacab665c96879c87cd6ec74d5eccdd998c4603d02e1e07a35d71a63fe4c20670a381f6ef
   languageName: node
   linkType: hard
 
@@ -1838,7 +1845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.15.10, esbuild@npm:^0.15.6":
+"esbuild@npm:^0.15.10, esbuild@npm:^0.15.9":
   version: 0.15.10
   resolution: "esbuild@npm:0.15.10"
   dependencies:
@@ -3006,23 +3013,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lit-html@npm:^2.2.0, lit-html@npm:^2.3.0":
-  version: 2.3.1
-  resolution: "lit-html@npm:2.3.1"
+"lit-html@npm:^2.2.0, lit-html@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "lit-html@npm:2.4.0"
   dependencies:
     "@types/trusted-types": ^2.0.2
-  checksum: 6177f0854001b7e464a994adb6339a5ede4977c189587e49186b8bb10e49feaa57fe08ad14d13c06c2bce2a80671e1de3f08d8f2bdb25b2f265b21e2dd091c5b
+  checksum: fb2ff513a23ce35783c231d3c184103b681f62792e2fa500b17f0bbd93b1a3168153b3fd52ccaca2c25ee5bb7f4006b657fc15ae893fa5dc733774c01eda5dce
   languageName: node
   linkType: hard
 
 "lit@npm:^2.1.2":
-  version: 2.3.1
-  resolution: "lit@npm:2.3.1"
+  version: 2.4.0
+  resolution: "lit@npm:2.4.0"
   dependencies:
     "@lit/reactive-element": ^1.4.0
     lit-element: ^3.2.0
-    lit-html: ^2.3.0
-  checksum: 0af92e606ec35fc1931ef4a6fa6aaa9c186e6329cefcba8feb14507187653ae94e0d0cf554530d969c411ae7b9256b4e5c5d0bf373caf02f2147047aeeac946a
+    lit-html: ^2.4.0
+  checksum: ac22b1cd31331dde47a784caceed35c17d075016467af2ad88a22b626ceb93f5069be14626f4cb0acf9c83b1cd2bcfe2e0810ecb8e94f1730abbb645cfc3e0f0
   languageName: node
   linkType: hard
 
@@ -4821,10 +4828,10 @@ __metadata:
   linkType: hard
 
 "vite@npm:^2.9.12 || ^3.0.0-0":
-  version: 3.1.4
-  resolution: "vite@npm:3.1.4"
+  version: 3.1.6
+  resolution: "vite@npm:3.1.6"
   dependencies:
-    esbuild: ^0.15.6
+    esbuild: ^0.15.9
     fsevents: ~2.3.2
     postcss: ^8.4.16
     resolve: ^1.22.1
@@ -4848,7 +4855,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: f3e532952b896ca7f746de0e51fc8c98ac482b2a5f0b89538ec89ac615f6edbfe45628fe4fbabab4c5fe07f6e4c2e624360af00d8c5c454af31771952b8c6e72
+  checksum: 393369af4da85aef8718d2236fceb238410c130cc740462c317c6ae4d9c04c519c1591cf8fef2ccc61195e41db54c0d892b3f9a10d3ed0e3c8ae8f0cffaa46ed
   languageName: node
   linkType: hard
 
@@ -5058,9 +5065,9 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.1.1":
-  version: 2.1.2
-  resolution: "yaml@npm:2.1.2"
-  checksum: 89f3d96215405990aa17cdacd78c17537d415e20be3eb7ff1a058a9b1d7136d4a61a84e6b47daa82558a977ae08751a6c1a80b88f99ee7cbdd51ddd78cd0d8f6
+  version: 2.1.3
+  resolution: "yaml@npm:2.1.3"
+  checksum: 91316062324a93f9cb547469092392e7d004ff8f70c40fecb420f042a4870b2181557350da56c92f07bd44b8f7a252b0be26e6ade1f548e1f4351bdd01c9d3c7
   languageName: node
   linkType: hard
 

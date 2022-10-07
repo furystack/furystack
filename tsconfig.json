@@ -1,4 +1,7 @@
 {
+  "buildOptions": {
+    "incremental": true
+  },
   "compilerOptions": {
     "pretty": true,
     "target": "ES2021",

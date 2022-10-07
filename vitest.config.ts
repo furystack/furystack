@@ -35,12 +35,17 @@ export default defineConfig({
   // coverageReporters: ['text', 'json', 'html', 'cobertura'],
   // reporters: ['default', 'jest-junit'],
   test: {
-    coverage: {
-      provider: 'c8',
-      reporter: ['text', 'json', 'html', 'cobertura'],
-    },
-    reporters: ['default', 'junit'],
-
+    // coverage: {
+    //   provider: 'c8',
+    //   reporter: ['text', 'json', 'html', 'cobertura'],
+    // },
+    // reporters: ['default', 'junit'],
+    include: ['packages/**/src/**/*.{test,spec,tests,specs}.{ts,tsx}'],
     environment: 'jsdom',
+  },
+  build: {
+    commonjsOptions: {
+      strictRequires: 'debug',
+    },
   },
 })

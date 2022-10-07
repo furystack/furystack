@@ -66,6 +66,7 @@ data
 tsconfig.tsbuildinfo
 
 packages/**/dist
+packages/**/esm
 packages/**/types
 
 .yarn/unplugged
