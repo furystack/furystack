@@ -17,8 +17,12 @@ export class DataSet<T, TPrimaryKey extends keyof T> implements Disposable {
 
   /**
    * Primary key of the contained entity
+   *
+   * @returns The primary key
    */
-  public primaryKey: TPrimaryKey = this.settings.physicalStore.primaryKey
+  public get primaryKey(): TPrimaryKey {
+    return this.settings?.physicalStore?.primaryKey as TPrimaryKey
+  }
 
   /**
    * Adds an entity to the DataSet

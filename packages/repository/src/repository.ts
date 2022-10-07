@@ -32,7 +32,7 @@ export class Repository implements Disposable {
     primaryKey: TPrimaryKey,
     settings?: Partial<DataSetSettings<T, TPrimaryKey>>,
   ) {
-    const physicalStore = (settings && settings.physicalStore) || this.storeManager.getStoreFor(model, primaryKey)
+    const physicalStore = settings?.physicalStore || this.storeManager.getStoreFor(model, primaryKey)
     const instance = new DataSet({
       ...settings,
       physicalStore,
