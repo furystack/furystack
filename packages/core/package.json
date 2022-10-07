@@ -2,7 +2,13 @@
   "name": "@furystack/core",
   "version": "11.1.0",
   "description": "Core FuryStack package",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "files": [
     "dist",
     "types",

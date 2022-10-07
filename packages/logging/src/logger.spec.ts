@@ -1,10 +1,10 @@
 import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { getLogger, useLogging } from './helpers'
-import { LogLevel } from './log-entries'
-import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
-import { LoggerCollection } from './logger-collection'
-import { TestLogger } from './test-logger'
+import { getLogger, useLogging } from './helpers.js'
+import { LogLevel } from './log-entries.js'
+import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger.js'
+import { LoggerCollection } from './logger-collection.js'
+import { TestLogger } from './test-logger.js'
 import { describe, expect, it } from 'vitest'
 
 describe('Loggers', () => {

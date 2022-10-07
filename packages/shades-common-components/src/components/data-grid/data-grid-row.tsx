@@ -1,7 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, createFragment, Shade } from '@furystack/shades'
-import type { CollectionService } from '../../services/collection-service'
-import type { DataRowCells } from './data-grid'
+import type { CollectionService } from '../../services/collection-service.js'
+import type { DataRowCells } from './data-grid.js'
 
 export interface DataGridRowProps<T> {
   entry: T

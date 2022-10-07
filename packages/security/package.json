@@ -2,7 +2,13 @@
   "name": "@furystack/security",
   "version": "2.1.0",
   "description": "Security, password management and authorization related stuff for FuryStack",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "typings": "./types/index.d.ts",
   "files": [
     "dist",

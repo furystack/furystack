@@ -1,4 +1,4 @@
-import { PathHelper } from './path-helper'
+import { PathHelper } from './path-helper.js'
 import { describe, expect, it } from 'vitest'
 
 /**

@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { TextInputProps } from './input'
-import { Input } from './input'
+import type { TextInputProps } from './input.js'
+import { Input } from './input.js'
 
 export const Autocomplete = Shade<
   { inputProps?: TextInputProps; suggestions: string[]; strict?: boolean; onchange?: (value: string) => void },

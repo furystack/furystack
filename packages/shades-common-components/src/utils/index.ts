@@ -1,1 +1,1 @@
-export * from './promisify-animation'
+export * from './promisify-animation.js'

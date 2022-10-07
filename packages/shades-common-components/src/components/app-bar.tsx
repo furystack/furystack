@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../services/theme-provider-service'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 export const AppBar = Shade({
   shadowDomName: 'shade-app-bar',

@@ -1,6 +1,6 @@
 import type { Disposable } from '@furystack/utils'
-import type { InjectableOptions } from './injectable'
-import type { Constructable } from './models/constructable'
+import type { InjectableOptions } from './injectable.js'
+import type { Constructable } from './models/constructable.js'
 
 export class Injector implements Disposable {
   /**

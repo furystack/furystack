@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import type { DeepPartial } from '@furystack/utils'
 import { deepMerge, ObservableValue } from '@furystack/utils'
-import { defaultDarkTheme } from './default-dark-theme'
+import { defaultDarkTheme } from './default-dark-theme.js'
 
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
 

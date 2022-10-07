@@ -2,7 +2,13 @@
   "name": "@furystack/filesystem-store",
   "version": "3.1.0",
   "description": "Simple File System store implementation for FuryStack",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "files": [
     "dist",
     "types",

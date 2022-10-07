@@ -4,11 +4,13 @@ global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
-import { Router } from './router'
-import { createComponent, initializeShadeRoot, LocationService } from '..'
-import { RouteLink } from '.'
+import { Router } from './router.js'
+import { initializeShadeRoot } from '../initialize.js'
+import { RouteLink } from './route-link.js'
 import { sleepAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { LocationService } from '../services/location-service.js'
+import { createComponent } from '../shade-component.js'
 
 describe('Router', () => {
   beforeEach(() => {

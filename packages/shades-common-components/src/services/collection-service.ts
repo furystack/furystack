@@ -1,5 +1,5 @@
 import type { PartialResult, FindOptions } from '@furystack/core'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 import type { Disposable } from '@furystack/utils'
 import { debounce, ObservableValue } from '@furystack/utils'
 
@@ -20,7 +20,7 @@ export class CollectionService<T> implements Disposable {
     this.isLoading.dispose()
   }
 
-  private readonly loadLock = new Semaphore(1)
+  private readonly loadLock = new Lock()
 
   public getEntries: EntryLoader<T>
 

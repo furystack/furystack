@@ -2,7 +2,13 @@
   "name": "@furystack/rest-client-fetch",
   "version": "4.1.0",
   "description": "Native browser fetch based REST API implementation for FuryStack",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "files": [
     "dist",
     "types",

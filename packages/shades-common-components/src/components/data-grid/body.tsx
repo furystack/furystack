@@ -1,9 +1,9 @@
-import type { CollectionService } from '../../services/collection-service'
+import type { CollectionService } from '../../services/collection-service.js'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent, createFragment } from '@furystack/shades'
-import type { DataRowCells } from './data-grid'
-import { Loader } from '../loader'
-import { DataGridRow } from './data-grid-row'
+import type { DataRowCells } from './data-grid.js'
+import { Loader } from '../loader.js'
+import { DataGridRow } from './data-grid-row.js'
 
 export interface DataGridBodyProps<T> {
   service: CollectionService<T>

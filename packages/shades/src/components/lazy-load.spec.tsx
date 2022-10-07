@@ -5,9 +5,10 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
-import { LazyLoad } from './lazy-load'
-import { createComponent, initializeShadeRoot } from '..'
+import { LazyLoad } from './lazy-load.js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { initializeShadeRoot } from '../initialize.js'
+import { createComponent } from '../shade-component.js'
 
 describe('Lazy Load', () => {
   beforeEach(() => {

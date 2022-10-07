@@ -1,4 +1,4 @@
-import { Trace } from './trace'
+import { Trace } from './trace.js'
 import { describe, expect, it } from 'vitest'
 
 class MockClass {

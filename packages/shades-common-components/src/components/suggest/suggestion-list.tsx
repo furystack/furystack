@@ -1,8 +1,8 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { SuggestionResult } from './suggestion-result'
-import type { SuggestManager } from './suggest-manager'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import type { SuggestionResult } from './suggestion-result.js'
+import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestionList: <T>(
   props: { manager: SuggestManager<T> },

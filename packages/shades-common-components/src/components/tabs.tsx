@@ -1,6 +1,6 @@
 import { Shade, createComponent, LocationService } from '@furystack/shades'
-import { ThemeProviderService } from '../services'
-import { promisifyAnimation } from '../utils/promisify-animation'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export interface Tab {
   header: JSX.Element

@@ -1,8 +1,8 @@
 import type { Disposable } from '@furystack/utils'
 import { using, usingAsync } from '@furystack/utils'
-import { Injectable } from './injectable'
-import { Injected } from './injected'
-import { Injector } from './injector'
+import { Injectable } from './injectable.js'
+import { Injected } from './injected.js'
+import { Injector } from './injector.js'
 import { describe, expect, it } from 'vitest'
 
 describe('Injector', () => {

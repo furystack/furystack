@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { CommandPaletteManager } from './command-palette-manager'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import type { CommandPaletteManager } from './command-palette-manager.js'
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }, { isOpened: boolean }>({
   getInitialState: ({ props }) => ({ isOpened: props.manager.isOpened.getValue() }),

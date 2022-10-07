@@ -1,5 +1,5 @@
-import type { Disposable } from './disposable'
-import { using, usingAsync } from './disposable'
+import type { Disposable } from './disposable.js'
+import { using, usingAsync } from './disposable.js'
 import { describe, expect, it } from 'vitest'
 
 export class MockDisposable implements Disposable {

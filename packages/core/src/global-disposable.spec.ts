@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { globalDisposables, exitHandler } from './global-disposables'
-import { disposeOnProcessExit } from './helpers'
+import { globalDisposables, exitHandler } from './global-disposables.js'
+import { disposeOnProcessExit } from './helpers.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('Global Disposables', () => {

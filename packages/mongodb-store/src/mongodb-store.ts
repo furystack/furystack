@@ -9,7 +9,7 @@ import type {
 import type { Constructable } from '@furystack/inject'
 import type { MongoClient, Filter, Collection, Sort, OptionalUnlessRequiredId, UpdateFilter } from 'mongodb'
 import { ObjectId } from 'mongodb'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 
 /**
  * TypeORM Store implementation for FuryStack
@@ -19,7 +19,7 @@ export class MongodbStore<T extends object, TPrimaryKey extends keyof T> impleme
 
   public readonly model: Constructable<T>
 
-  private initLock = new Semaphore(1)
+  private initLock = new Lock()
   private collection?: Collection<T>
 
   private createIdFilter(...values: Array<T[TPrimaryKey]>): Filter<T> {

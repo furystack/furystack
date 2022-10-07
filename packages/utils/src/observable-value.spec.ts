@@ -1,4 +1,4 @@
-import { ObservableValue } from './observable-value'
+import { ObservableValue } from './observable-value.js'
 import { describe, expect, it } from 'vitest'
 
 /**

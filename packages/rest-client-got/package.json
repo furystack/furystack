@@ -2,7 +2,13 @@
   "name": "@furystack/rest-client-got",
   "version": "2.1.0",
   "description": "got-based REST client for FuryStack REST APIs",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "files": [
     "dist",
     "types",

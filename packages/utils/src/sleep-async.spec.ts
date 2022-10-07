@@ -1,4 +1,4 @@
-import { sleepAsync } from './sleep-async'
+import { sleepAsync } from './sleep-async.js'
 import { describe, expect, it } from 'vitest'
 
 /**

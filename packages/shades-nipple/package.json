@@ -24,6 +24,12 @@
     "vitest": "^0.23.4"
   },
   "typings": "types/index.d.ts",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }

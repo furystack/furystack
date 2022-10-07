@@ -2,7 +2,13 @@
   "name": "@furystack/sequelize-store",
   "version": "1.1.0",
   "description": "Sequelize-based Store implementation for FuryStack",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
   "files": [
     "dist",
     "types",

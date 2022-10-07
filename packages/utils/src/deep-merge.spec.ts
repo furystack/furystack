@@ -1,4 +1,4 @@
-import { deepMerge } from './deep-merge'
+import { deepMerge } from './deep-merge.js'
 import { describe, expect, it } from 'vitest'
 
 describe('DeepMerge tests', () => {

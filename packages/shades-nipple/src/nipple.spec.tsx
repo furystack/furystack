@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import type { NippleComponentProps } from './nipple'
-import { NippleComponent } from './nipple'
+import type { NippleComponentProps } from './nipple.js'
+import { NippleComponent } from './nipple.js'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 
 describe('Nipple', () => {

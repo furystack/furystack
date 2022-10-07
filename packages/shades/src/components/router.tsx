@@ -1,10 +1,10 @@
-import { Shade } from '../shade'
-import { createComponent } from '../shade-component'
-import { LocationService } from '../services'
+import { Shade } from '../shade.js'
+import { createComponent } from '../shade-component.js'
+import { LocationService } from '../services/location-service.js'
 import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
-import type { RenderOptions } from '../models'
-import Semaphore from 'semaphore-async-await'
+import type { RenderOptions } from '../models/render-options.js'
+import { Lock } from 'semaphore-async-await'
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 
 export interface Route<TMatchResult extends object> {
@@ -25,12 +25,12 @@ export interface RouterState {
   activeRoute?: Route<any>
   activeRouteParams?: any
   jsx?: JSX.Element
-  lock: Semaphore
+  lock: Lock
 }
 export const Router = Shade<RouterProps, RouterState>({
   shadowDomName: 'shade-router',
   getInitialState: () => ({
-    lock: new Semaphore(1),
+    lock: new Lock(),
   }),
   resources: ({ children, props, injector, updateState, getState, element }) => [
     injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {

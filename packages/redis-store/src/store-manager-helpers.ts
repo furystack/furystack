@@ -1,7 +1,7 @@
 import { addStore } from '@furystack/core'
 import type { Constructable, Injector } from '@furystack/inject'
 import type { createClient } from 'redis'
-import { RedisStore } from './redis-store'
+import { RedisStore } from './redis-store.js'
 
 /**
  * Registers a Redis store for the provided model

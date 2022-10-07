@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { SuggestManager } from './suggest-manager'
+import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }, { isOpened: boolean }>({
   getInitialState: ({ props }) => ({ isOpened: props.manager.isOpened.getValue() }),

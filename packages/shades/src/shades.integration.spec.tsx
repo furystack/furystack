@@ -5,9 +5,9 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
-import { initializeShadeRoot } from './initialize'
-import { Shade } from './shade'
-import { createComponent, createFragment } from './shade-component'
+import { initializeShadeRoot } from './initialize.js'
+import { Shade } from './shade.js'
+import { createComponent, createFragment } from './shade-component.js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('Shades integration tests', () => {

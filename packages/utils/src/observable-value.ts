@@ -1,5 +1,5 @@
-import type { Disposable } from './disposable'
-import { ValueObserver } from './value-observer'
+import type { Disposable } from './disposable.js'
+import { ValueObserver } from './value-observer.js'
 
 /**
  * Error thrown when you try to retrieve or set an observable value that is already disposed.

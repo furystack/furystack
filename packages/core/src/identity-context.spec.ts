@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
-import { IdentityContext } from './identity-context'
-import { isAuthorized, isAuthenticated, getCurrentUser } from './helpers'
+import { IdentityContext } from './identity-context.js'
+import { isAuthorized, isAuthenticated, getCurrentUser } from './helpers.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('IdentityContext', () => {

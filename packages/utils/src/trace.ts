@@ -1,5 +1,5 @@
-import type { Disposable } from './disposable'
-import { ObservableValue } from './observable-value'
+import type { Disposable } from './disposable.js'
+import { ObservableValue } from './observable-value.js'
 
 /**
  * Options object for tracing method calls

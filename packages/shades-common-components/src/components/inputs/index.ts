@@ -1,3 +1,3 @@
-export * from './autocomplete'
-export * from './input'
-export * from './text-area'
+export * from './autocomplete.js'
+export * from './input.js'
+export * from './text-area.js'

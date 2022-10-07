@@ -5,7 +5,7 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { ScreenService } from './screen-service'
+import { ScreenService } from './screen-service.js'
 import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 
 describe('ScreenService', () => {

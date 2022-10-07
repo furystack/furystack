@@ -6,8 +6,8 @@ import type {
   FilterType,
   CreateResult,
   WithOptionalId,
-} from './models/physical-store'
-import { selectFields, isOperator, isLogicalOperator } from './models/physical-store'
+} from './models/physical-store.js'
+import { selectFields, isOperator, isLogicalOperator } from './models/physical-store.js'
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
   /**

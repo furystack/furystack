@@ -1,11 +1,11 @@
 import type { TestClass } from '@furystack/core'
 import { StoreManager, createStoreTest } from '@furystack/core'
-import { useSequelize } from './store-manager-helpers'
+import { useSequelize } from './store-manager-helpers.js'
 import { DataTypes, Model } from 'sequelize'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { SequelizeClientFactory } from './sequelize-client-factory'
-import type { SequelizeStore } from './sequelize-store'
+import { SequelizeClientFactory } from './sequelize-client-factory.js'
+import type { SequelizeStore } from './sequelize-store.js'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('uuid', () => {

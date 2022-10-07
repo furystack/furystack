@@ -1,6 +1,8 @@
 import type { Disposable } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import type { ChildrenList, PartialElement, RenderOptions } from './models'
+import type { RenderOptions } from './models/render-options.js'
+import type { ChildrenList } from './models/children-list.js'
+import type { PartialElement } from './models/partial-element.js'
 
 export type ShadeOptions<TProps, TState> = {
   /**

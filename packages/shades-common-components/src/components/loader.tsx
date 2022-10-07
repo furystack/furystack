@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../services'
-import { promisifyAnimation } from '../utils'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 interface LoaderProps {
   /**

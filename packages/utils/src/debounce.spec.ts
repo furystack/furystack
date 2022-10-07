@@ -1,5 +1,5 @@
-import { debounce } from './debounce'
-import { sleepAsync } from './sleep-async'
+import { debounce } from './debounce.js'
+import { sleepAsync } from './sleep-async.js'
 import { describe, expect, it } from 'vitest'
 
 /**

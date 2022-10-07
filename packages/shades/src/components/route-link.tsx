@@ -1,7 +1,7 @@
-import { Shade } from '../shade'
-import type { PartialElement } from '../models'
-import { LocationService } from '../services'
-import { createComponent } from '..'
+import { Shade } from '../shade.js'
+import type { PartialElement } from '../models/partial-element.js'
+import { LocationService } from '../services/location-service.js'
+import { createComponent } from '../shade-component.js'
 
 export type RouteLinkProps = PartialElement<HTMLAnchorElement>
 

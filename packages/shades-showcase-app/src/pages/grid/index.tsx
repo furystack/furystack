@@ -1,8 +1,8 @@
 import type { TestClass } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import { DataGrid, SelectionCell } from '@furystack/shades-common-components'
-import { GridPageService } from './grid-page-service'
-import { GridStatus } from './grid-status'
+import { GridPageService } from './grid-page-service.js'
+import { GridStatus } from './grid-status.js'
 
 export const GridPage = Shade<{}, { service: GridPageService }>({
   shadowDomName: 'shades-grid-page',

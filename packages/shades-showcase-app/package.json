@@ -3,6 +3,7 @@
   "version": "1.3.0",
   "description": "",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "yarn node scripts/build.mjs",
     "build:stats": "echo todo",

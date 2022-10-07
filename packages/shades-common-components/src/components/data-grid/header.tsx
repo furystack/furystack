@@ -2,8 +2,8 @@ import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { debounce } from '@furystack/utils'
-import type { CollectionService } from '../../services/collection-service'
-import { Input } from '../inputs/input'
+import type { CollectionService } from '../../services/collection-service.js'
+import { Input } from '../inputs/input.js'
 
 export interface DataGridHeaderProps<T, K extends keyof T> {
   collectionService: CollectionService<T>

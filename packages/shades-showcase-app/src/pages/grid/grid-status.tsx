@@ -2,7 +2,7 @@ import type { TestClass } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import { Input } from '@furystack/shades-common-components'
 
-import { GridPageService } from './grid-page-service'
+import { GridPageService } from './grid-page-service.js'
 
 export const GridStatus = Shade<
   unknown,

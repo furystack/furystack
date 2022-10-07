@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { defaultLightTheme, ThemeProviderService } from '@furystack/shades-common-components'
-import { App } from './app'
+import { App } from './app.js'
 
 export const shadesInjector = new Injector()
 
