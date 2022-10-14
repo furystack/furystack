@@ -46,11 +46,11 @@
     "ajv-formats": "^2.1.1",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1",
-    "vitest": "^0.23.4"
+    "vitest": "^0.24.3"
   },
   "devDependencies": {
     "@furystack/rest-client-got": "^2.1.0",
-    "@types/node": "^18.8.3",
+    "@types/node": "^18.11.0",
     "got": "^11.8.5"
   },
   "typings": "./types/index.d.ts",

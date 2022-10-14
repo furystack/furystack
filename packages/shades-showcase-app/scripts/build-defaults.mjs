@@ -24,7 +24,7 @@ export const getBundleBuildOptions = () => ({
     '.ttf': 'dataurl',
     '.css': 'css',
   },
-  external: ['data:image'],
+  external: ['data:image', 'vitest'],
 })
 
 /**

@@ -37,10 +37,10 @@
   "dependencies": {
     "@furystack/core": "^11.1.0",
     "@furystack/inject": "^7.1.0",
-    "vitest": "^0.23.4"
+    "vitest": "^0.24.3"
   },
   "devDependencies": {
-    "@types/node": "^18.8.3"
+    "@types/node": "^18.11.0"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

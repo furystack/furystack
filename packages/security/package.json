@@ -39,10 +39,10 @@
     "@furystack/core": "^11.1.0",
     "@furystack/inject": "^7.1.0",
     "@furystack/utils": "^3.1.0",
-    "vitest": "^0.23.4"
+    "vitest": "^0.24.3"
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^18.8.3"
+    "@types/node": "^18.11.0"
   }
 }
