@@ -11,12 +11,26 @@ import type { ValidationApi } from './validate.integration.schema.js'
 import { useRestService } from './helpers.js'
 import { describe, expect, it } from 'vitest'
 
+/**
+ * Generator for an incremental port number
+ *
+ * @param port The initial port number
+ * @yields a port for testing
+ * @returns a port for testing
+ */
+function* getPort(port = 4321) {
+  while (true) {
+    port = port + 2
+    yield port
+  }
+  return port
+}
+
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
-const createValidateApi = async () => {
+const createValidateApi = async (port: number) => {
   const injector = new Injector()
-  const port = Math.round(Math.random() * 1000) + 10000
-  useRestService<ValidationApi>({
+  await useRestService<ValidationApi>({
     injector,
     api: {
       GET: {
@@ -55,19 +69,23 @@ const createValidateApi = async () => {
     port,
     root: '/api',
   })
-  const client = createClient<ValidationApi>({
+  const client = await createClient<ValidationApi>({
     endpointUrl: `http://localhost:${port}/api`,
   })
   return {
-    dispose: injector.dispose.bind(injector),
+    dispose: async () => {
+      await injector.dispose.bind(injector)
+    },
     client,
   }
 }
 
 describe('Validation integration tests', () => {
+  const portGenerator = getPort()
+
   describe('Validation errors', () => {
     it('Should validate query', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         expect.assertions(5)
         try {
           await client({
@@ -88,7 +106,7 @@ describe('Validation integration tests', () => {
       })
     })
     it('Should validate url', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         expect.assertions(4)
         try {
           await client({
@@ -108,7 +126,7 @@ describe('Validation integration tests', () => {
       })
     })
     it('Should validate headers', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         expect.assertions(3)
         try {
           await client({
@@ -129,7 +147,7 @@ describe('Validation integration tests', () => {
       })
     })
     it('Should validate body', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         expect.assertions(3)
         try {
           await client({
@@ -151,7 +169,7 @@ describe('Validation integration tests', () => {
 
   describe('Validation Success', () => {
     it('Should validate query', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         const result = await client({
           method: 'GET',
           action: '/validate-query',
@@ -169,7 +187,7 @@ describe('Validation integration tests', () => {
       })
     })
     it('Should validate url', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         const result = await client({
           method: 'GET',
           action: '/validate-url/:id',
@@ -181,25 +199,29 @@ describe('Validation integration tests', () => {
       })
     })
     it('Should validate headers', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
-        const result = await client({
-          method: 'GET',
-          action: '/validate-headers',
-          headers: {
-            foo: 'foo',
-            bar: 42,
-            baz: true,
-          },
-        })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(42)
-        expect(responseJson.baz).toBe(true)
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
+        try {
+          const result = await client({
+            method: 'GET',
+            action: '/validate-headers',
+            headers: {
+              foo: 'foo',
+              bar: 42,
+              baz: true,
+            },
+          })
+          expect(result.response.statusCode).toBe(200)
+          const responseJson = result.getJson()
+          expect(responseJson.foo).toBe('foo')
+          expect(responseJson.bar).toBe(42)
+          expect(responseJson.baz).toBe(true)
+        } catch (error) {
+          console.error(error)
+        }
       })
     })
     it('Should validate body', async () => {
-      await usingAsync(await createValidateApi(), async ({ client }) => {
+      await usingAsync(await createValidateApi(portGenerator.next().value), async ({ client }) => {
         const result = await client({
           method: 'POST',
           action: '/validate-body',

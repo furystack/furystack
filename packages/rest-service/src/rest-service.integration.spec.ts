@@ -9,10 +9,10 @@ import got from 'got'
 import { JsonResult } from './request-action-implementation.js'
 import { useHttpAuthentication, useRestService } from './helpers.js'
 import { describe, expect, it } from 'vitest'
-import { GetCurrentUser } from 'actions/get-current-user.js'
-import { IsAuthenticated } from 'actions/is-authenticated.js'
-import { LoginAction } from 'actions/login.js'
-import { LogoutAction } from 'actions/logout.js'
+import { GetCurrentUser } from './actions/get-current-user.js'
+import { IsAuthenticated } from './actions/is-authenticated.js'
+import { LoginAction } from './actions/login.js'
+import { LogoutAction } from './actions/logout.js'
 
 class UserWithPassword extends User {
   password!: string

@@ -6,6 +6,7 @@ import { SchemaValidationError } from './schema-validation-error.js'
 export class SchemaValidator<TSchema extends { definitions: {} }> {
   private readonly ajv = new Ajv.default({
     allErrors: true,
+    coerceTypes: true,
     ...this.ajvOptions,
   })
   constructor(private readonly schema: TSchema, private readonly ajvOptions?: Options) {
