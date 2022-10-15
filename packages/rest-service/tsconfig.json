@@ -15,6 +15,7 @@
     { "path": "../inject" },
     { "path": "../utils" },
     { "path": "../repository" },
-    { "path": "../security" }
+    { "path": "../security" },
+    { "path": "../rest-client-fetch" }
   ]
 }
