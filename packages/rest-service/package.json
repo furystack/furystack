@@ -49,9 +49,8 @@
     "vitest": "^0.24.3"
   },
   "devDependencies": {
-    "@furystack/rest-client-got": "^2.1.0",
-    "@types/node": "^18.11.0",
-    "got": "^11.8.5"
+    "@furystack/rest-client-fetch": "^4.1.0",
+    "@types/node": "^18.11.0"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

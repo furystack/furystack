@@ -2,8 +2,6 @@ import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { GetEntityEndpoint } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
-import type { HTTPError } from 'got'
-import got from 'got'
 import { MockClass, setupContext } from './utils.js'
 import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
 import { getDataSetFor } from '@furystack/repository'
@@ -27,8 +25,10 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await got.default('http://127.0.0.1:1113/api/mock', { method: 'GET' })
-      expect(JSON.parse(response.body)).toStrictEqual(mockEntity)
+      const response = await fetch('http://127.0.0.1:1113/api/mock', { method: 'GET' })
+      expect(response.ok).toBe(true)
+      const body = await response.json()
+      expect(body).toStrictEqual(mockEntity)
     })
   })
 
@@ -48,13 +48,12 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await got.default(
-        `http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`,
-        {
-          method: 'GET',
-        },
-      )
-      expect(JSON.parse(response.body)).toStrictEqual({ id: mockEntity.id })
+      const response = await fetch(`http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
+        method: 'GET',
+      })
+      expect(response.ok).toBe(true)
+      const body = await response.json()
+      expect(body).toStrictEqual({ id: mockEntity.id })
     })
   })
 
@@ -71,17 +70,12 @@ describe('createGetEntityEndpoint', () => {
           },
         },
       })
-      await new Promise<void>((resolve, reject) => {
-        got
-          .default(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
-          .then(() => reject('Should throw'))
-          .catch((err) => {
-            const e: HTTPError = err
-            expect(e.response.statusCode).toBe(404)
-            expect(JSON.parse(e.response.body as string).message).toBe('Entity not found')
-            resolve()
-          })
-      })
+
+      const result = await fetch(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
+      expect(result.ok).toBe(false)
+      expect(result.status).toBe(404)
+      const body = await result.json()
+      expect(body.message).toBe('Entity not found')
     })
   })
 })

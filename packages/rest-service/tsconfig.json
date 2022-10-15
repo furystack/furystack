@@ -12,7 +12,6 @@
   "include": ["src", "src/*.json"],
   "references": [
     { "path": "../rest" },
-    { "path": "../rest-client-got" },
     { "path": "../inject" },
     { "path": "../utils" },
     { "path": "../repository" },

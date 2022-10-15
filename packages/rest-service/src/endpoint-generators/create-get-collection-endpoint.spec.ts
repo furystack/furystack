@@ -1,6 +1,5 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import got from 'got'
 import { MockClass, setupContext } from './utils.js'
 import { createGetCollectionEndpoint } from './create-get-collection-endpoint.js'
 import type { GetCollectionEndpoint, GetCollectionResult } from '@furystack/rest'
@@ -40,8 +39,8 @@ describe('createGetCollectionEndpoint', () => {
       const count = await getDataSetFor(i, MockClass, 'id').count(i)
       const allEntities = await getDataSetFor(i, MockClass, 'id').find(i, {})
 
-      const response = await got.default('http://127.0.0.1:1112/api/entities', { method: 'GET' })
-      const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
+      const response = await fetch('http://127.0.0.1:1112/api/entities', { method: 'GET' })
+      const json: GetCollectionResult<MockClass> = await response.json()
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(allEntities)
     })
@@ -64,13 +63,10 @@ describe('createGetCollectionEndpoint', () => {
       const findOptions: FindOptions<MockClass, Array<keyof MockClass>> = { order: { value: 'ASC' } }
       const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
       const orderedEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
-      const response = await got.default(
-        `http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`,
-        {
-          method: 'GET',
-        },
-      )
-      const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
+      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+        method: 'GET',
+      })
+      const json: GetCollectionResult<MockClass> = await response.json()
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(orderedEntities)
     })
@@ -99,13 +95,10 @@ describe('createGetCollectionEndpoint', () => {
 
       expect(filteredEntities).not.toContainEqual({ id: 'mock2', value: '3' })
 
-      const response = await got.default(
-        `http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`,
-        {
-          method: 'GET',
-        },
-      )
-      const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
+      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+        method: 'GET',
+      })
+      const json: GetCollectionResult<MockClass> = await response.json()
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(filteredEntities)
     })
@@ -134,13 +127,10 @@ describe('createGetCollectionEndpoint', () => {
 
       selectedEntities.forEach((e) => expect(e.value).toBeUndefined())
 
-      const response = await got.default(
-        `http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`,
-        {
-          method: 'GET',
-        },
-      )
-      const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
+      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+        method: 'GET',
+      })
+      const json: GetCollectionResult<MockClass> = await response.json()
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(selectedEntities)
     })
@@ -171,13 +161,10 @@ describe('createGetCollectionEndpoint', () => {
       expect(topSkipEntities).not.toContainEqual({ id: 'mock1', value: '4' })
       expect(topSkipEntities).not.toContainEqual({ id: 'mock4', value: '1' })
 
-      const response = await got.default(
-        `http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`,
-        {
-          method: 'GET',
-        },
-      )
-      const json: GetCollectionResult<MockClass> = JSON.parse(response.body)
+      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+        method: 'GET',
+      })
+      const json: GetCollectionResult<MockClass> = await response.json()
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(topSkipEntities)
     })
