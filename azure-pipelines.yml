@@ -12,10 +12,6 @@ pool:
 
 jobs:
   - job: buildAndTest
-    strategy:
-      matrix:
-        node_18_x:
-          node_version: 18.x
     displayName: Build and test
     steps:
       - checkout: self
@@ -26,6 +22,10 @@ jobs:
           action: Run services
           detached: true
           buildImages: true
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '18.x'
+        displayName: 'Install Node.js'
 
       - script: yarn install --immutable
         displayName: 'Install'
