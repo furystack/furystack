@@ -43,8 +43,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.0",
-    "sqlite3": "5.1.2",
-    "uuid": "^8.3.2"
+    "sqlite3": "5.1.2"
   },
   "typings": "./types/index.d.ts"
 }
