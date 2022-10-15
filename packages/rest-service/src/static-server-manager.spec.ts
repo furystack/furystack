@@ -30,7 +30,7 @@ describe('StaticServerManager', () => {
         const port = portGenerator.next().value
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           port,
         })
 
@@ -49,7 +49,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           fallback: 'package.json',
           port,
           headers: {
@@ -71,7 +71,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           fallback: 'package.json',
           port,
           headers: {
@@ -93,7 +93,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           port,
           headers: {
             'custom-header': 'custom-value',
@@ -114,7 +114,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           port,
         })
 
@@ -133,7 +133,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
-          path: '.',
+          path: '../../',
           port,
         })
 
@@ -156,7 +156,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
-          path: '.',
+          path: '../../',
           port,
         })
 
@@ -176,7 +176,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
-          path: '.',
+          path: '../../',
           fallback: 'package.json',
           port,
         })
@@ -194,7 +194,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           port,
         })
 
@@ -211,7 +211,7 @@ describe('StaticServerManager', () => {
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
-          path: '.',
+          path: '../../',
           port,
         })
 
