@@ -14,7 +14,7 @@ jobs:
   - job: buildAndTest
     strategy:
       matrix:
-        node_16_x:
+        node_18_x:
           node_version: 18.x
     displayName: Build and test
     steps:
