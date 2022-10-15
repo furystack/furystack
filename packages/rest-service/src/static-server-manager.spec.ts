@@ -141,7 +141,9 @@ describe('StaticServerManager', () => {
 
         server.apis[0].onRequest = vi.fn()
 
-        fetch(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`)
+        fetch(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`).catch(() => {
+          // ignore
+        })
 
         await sleepAsync(100)
 
