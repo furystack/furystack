@@ -1,4 +1,3 @@
-import { pnpPlugin } from '@yarnpkg/esbuild-plugin-pnp'
 
 const workerEntryPoints = [
   'language/json/json.worker.js',
@@ -9,7 +8,7 @@ const workerEntryPoints = [
 ]
 
 export const getBundleBuildOptions = () => ({
-  plugins: [pnpPlugin()],
+  plugins: [],
   entryPoints: ['./src/index.tsx'],
   jsxFactory: 'createComponent',
   jsxFragment: 'createFragment',
