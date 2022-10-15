@@ -41,6 +41,8 @@ jobs:
         displayName: Recreate JSON Schemas
 
       - script: yarn test
+        env:
+          CI: true
         displayName: 'Test'
 
       # - script: bash <(curl -s https://codecov.io/bash)
