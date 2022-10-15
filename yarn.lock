@@ -64,6 +64,8 @@ __metadata:
     "@furystack/rest-service": ^6.2.1
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -75,7 +77,9 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -88,7 +92,9 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -98,6 +104,8 @@ __metadata:
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -108,6 +116,8 @@ __metadata:
   dependencies:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -121,8 +131,10 @@ __metadata:
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     mongodb: 4.10.0
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -135,8 +147,10 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
     redis: ^4.3.1
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -149,6 +163,8 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -161,7 +177,9 @@ __metadata:
     "@furystack/logging": ^3.1.0
     "@furystack/rest": ^4.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
     path-to-regexp: ^6.2.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -179,10 +197,12 @@ __metadata:
     "@furystack/security": ^2.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     ajv: ^8.11.0
     ajv-formats: ^2.1.1
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -194,6 +214,8 @@ __metadata:
     "@furystack/core": ^11.1.0
     "@furystack/inject": ^7.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -206,6 +228,8 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -219,9 +243,11 @@ __metadata:
     "@furystack/logging": ^3.1.0
     "@furystack/utils": ^3.1.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     semaphore-async-await: ^1.5.1
     sequelize: ^6.25.1
     sqlite3: 5.1.2
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -234,9 +260,12 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/shades": ^6.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
+    jsdom: ^20.0.1
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
     typescript: 4.8.4
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -247,7 +276,10 @@ __metadata:
   dependencies:
     "@furystack/shades": ^6.1.0
     "@lottiefiles/lottie-player": ^1.5.7
+    "@vitest/coverage-c8": ^0.24.3
+    jsdom: ^20.0.1
     typescript: 4.8.4
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -259,8 +291,11 @@ __metadata:
     "@furystack/inject": ^7.1.0
     "@furystack/shades": ^6.1.0
     "@furystack/utils": ^3.1.0
+    "@vitest/coverage-c8": ^0.24.3
+    jsdom: ^20.0.1
     nipplejs: ^0.10.0
     typescript: 4.8.4
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -281,10 +316,13 @@ __metadata:
     "@furystack/utils": ^3.1.0
     "@lottiefiles/lottie-player": ^1.5.7
     "@playwright/test": ^1.27.1
+    "@vitest/coverage-c8": ^0.24.3
     "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.15
     esbuild: ^0.15.11
+    jsdom: ^20.0.1
     monaco-editor: ^0.34.0
     typescript: ^4.8.4
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -298,9 +336,11 @@ __metadata:
     "@furystack/utils": ^3.1.0
     "@types/jsdom": ^20.0.0
     "@types/node": ^18.11.0
+    "@vitest/coverage-c8": ^0.24.3
     jsdom: ^20.0.1
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -309,6 +349,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
   languageName: unknown
   linkType: soft
@@ -323,6 +365,8 @@ __metadata:
     "@furystack/rest-service": ^6.2.1
     "@furystack/utils": ^3.1.0
     "@types/ws": ^8.5.3
+    "@vitest/coverage-c8": ^0.24.3
+    vite: ^3.1.8
     vitest: ^0.24.3
     ws: ^8.9.0
   languageName: unknown
@@ -2200,12 +2244,12 @@ __metadata:
     eslint-plugin-jsdoc: ^39.3.6
     eslint-plugin-prettier: ^4.2.1
     husky: ^8.0.1
+    jsdom: ^20.0.1
     lint-staged: ^13.0.3
     prettier: ^2.7.1
     rimraf: ^3.0.2
     ts-json-schema-generator: ^1.1.2
     typescript: 4.8.4
-    vitest: ^0.24.3
   languageName: unknown
   linkType: soft
 
@@ -4452,11 +4496,11 @@ __metadata:
 
 "typescript@patch:typescript@4.8.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>, typescript@patch:typescript@~4.8.3#~builtin<compat/typescript>":
   version: 4.8.4
-  resolution: "typescript@patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=a1c5e5"
+  resolution: "typescript@patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 563a0ef47abae6df27a9a3ab38f75fc681f633ccf1a3502b1108e252e187787893de689220f4544aaf95a371a4eb3141e4a337deb9895de5ac3c1ca76430e5f0
+  checksum: 301459fc3eb3b1a38fe91bf96d98eb55da88a9cb17b4ef80b4d105d620f4d547ba776cc27b44cc2ef58b66eda23fe0a74142feb5e79a6fb99f54fc018a696afa
   languageName: node
   linkType: hard
 
@@ -4556,7 +4600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.0.0":
+"vite@npm:^3.0.0, vite@npm:^3.1.8":
   version: 3.1.8
   resolution: "vite@npm:3.1.8"
   dependencies:

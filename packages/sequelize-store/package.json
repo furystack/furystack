@@ -38,12 +38,14 @@
     "@furystack/logging": "^3.1.0",
     "@furystack/utils": "^3.1.0",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.25.1",
-    "vitest": "^0.24.3"
+    "sequelize": "^6.25.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.0",
-    "sqlite3": "5.1.2"
+    "@vitest/coverage-c8": "^0.24.3",
+    "sqlite3": "5.1.2",
+    "vite": "^3.1.8",
+    "vitest": "^0.24.3"
   },
   "typings": "./types/index.d.ts"
 }

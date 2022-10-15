@@ -17,12 +17,12 @@
     "eslint-plugin-jsdoc": "^39.3.6",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
+    "jsdom": "^20.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "ts-json-schema-generator": "^1.1.2",
-    "typescript": "4.8.4",
-    "vitest": "^0.24.3"
+    "typescript": "4.8.4"
   },
   "scripts": {
     "bumpVersions": "yarn version check --interactive",
@@ -31,7 +31,7 @@
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/(types|dist|tsconfig.tsbuildinfo)",
-    "test": "yarn vitest",
+    "test": "yarn workspaces foreach run vitest run --coverage",
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
     "create-schemas": "yarn build && yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
   },

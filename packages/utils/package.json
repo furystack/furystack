@@ -36,7 +36,9 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "homepage": "https://github.com/furystack/furystack",
-  "dependencies": {
+  "devDependencies": {
+    "@vitest/coverage-c8": "^0.24.3",
+    "vite": "^3.1.8",
     "vitest": "^0.24.3"
   }
 }

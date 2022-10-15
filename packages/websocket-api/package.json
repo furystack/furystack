@@ -37,11 +37,13 @@
     "@furystack/logging": "^3.1.0",
     "@furystack/rest-service": "^6.2.1",
     "@furystack/utils": "^3.1.0",
-    "vitest": "^0.24.3",
     "ws": "^8.9.0"
   },
   "devDependencies": {
-    "@types/ws": "^8.5.3"
+    "@types/ws": "^8.5.3",
+    "@vitest/coverage-c8": "^0.24.3",
+    "vite": "^3.1.8",
+    "vitest": "^0.24.3"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

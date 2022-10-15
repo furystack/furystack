@@ -38,9 +38,13 @@
     "@furystack/core": "^11.1.0",
     "@furystack/inject": "^7.1.0",
     "@furystack/logging": "^3.1.0",
-    "@furystack/utils": "^3.1.0",
-    "vitest": "^0.24.3"
+    "@furystack/utils": "^3.1.0"
   },
   "typings": "./types/index.d.ts",
-  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321",
+  "devDependencies": {
+    "@vitest/coverage-c8": "^0.24.3",
+    "vite": "^3.1.8",
+    "vitest": "^0.24.3"
+  }
 }
