@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { pages } from './pages'
+import { pages } from './pages.js'
 
 const getGrid = async (page: Page) => {
   return await page.locator('shade-data-grid')

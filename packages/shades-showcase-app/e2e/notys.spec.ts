@@ -1,5 +1,5 @@
-import { test, expect, Locator, Page } from '@playwright/test'
-import { pages } from './pages'
+import { test } from '@playwright/test'
+import { pages } from './pages.js'
 
 test.describe('Notys', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test'
-import { test, expect, Page } from '@playwright/test'
-import { pages } from './pages'
+import { test, expect } from '@playwright/test'
+import { pages } from './pages.js'
 
 test.describe('Wizard', () => {
   let wizardButton!: Locator
