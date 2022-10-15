@@ -5,9 +5,9 @@ describe('shades-lottie', () => {
   it('should allow to declare lottie animations in JSX', () => {
     const exampleComponent = Shade({
       shadowDomName: 'example-component',
-        render: () => {
-            return <lottie-player src='' ></lottie-player>
-        }
+      render: () => {
+        return <lottie-player src=""></lottie-player>
+      },
     })
 
     expect(exampleComponent).toBeDefined()
