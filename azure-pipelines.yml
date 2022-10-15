@@ -6,7 +6,6 @@ trigger:
   - develop
   - feature/*
   - release/*
-  - greenkeeper/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -40,7 +39,7 @@ jobs:
       - script: yarn create-schemas
         displayName: Recreate JSON Schemas
 
-      - script: yarn test
+      - script: yarn test --coverage
         env:
           CI: true
         displayName: 'Test'
