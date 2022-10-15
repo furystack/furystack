@@ -7,8 +7,10 @@ import { GridStatus } from './grid-status.js'
 export const GridPage = Shade<{}, { service: GridPageService }>({
   shadowDomName: 'shades-grid-page',
   getInitialState: ({ injector }) => {
+    const service = injector.getInstance(GridPageService)
+    service.init()
     return {
-      service: injector.getInstance(GridPageService).init(),
+      service,
     }
   },
   render: ({ getState }) => {

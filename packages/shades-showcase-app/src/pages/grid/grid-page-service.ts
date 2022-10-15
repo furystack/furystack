@@ -8,11 +8,12 @@ import { CollectionService } from '@furystack/shades-common-components'
 export class GridPageService {
   private isInitialized = false
 
-  public init() {
+  public async init() {
     if (!this.isInitialized) {
+      this.isInitialized = true
       addStore(this.injector, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
       getRepository(this.injector).createDataSet(TestClass, 'id')
-      this.fillStore()
+      await this.fillStore()
     }
     return this
   }

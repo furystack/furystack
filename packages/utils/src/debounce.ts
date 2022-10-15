@@ -9,10 +9,17 @@ export const debounce = <TArgs extends unknown[], TReturns>(method: (...args: TA
     if (timeout) {
       clearTimeout(timeout)
     }
-    timeout = setTimeout(() => {
-      method(...args)
-      timeout ?? clearTimeout(timeout)
-      timeout = undefined
-    }, debounceMs)
+    return new Promise<TReturns>((resolve, reject) => {
+      timeout = setTimeout(() => {
+        try {
+          const returnValue = method(...args)
+          timeout ?? clearTimeout(timeout)
+          timeout = undefined
+          resolve(returnValue)
+        } catch (error) {
+          reject(error)
+        }
+      }, debounceMs)
+    })
   }) as (...args: TArgs) => TReturns
 }

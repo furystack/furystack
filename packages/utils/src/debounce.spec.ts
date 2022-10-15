@@ -1,42 +1,48 @@
 import { debounce } from './debounce.js'
 import { sleepAsync } from './sleep-async.js'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 /**
  * Tests for debounce
  */
 export const debounceTests = describe('debounce', () => {
   it('Simple method execution', async () => {
-    await new Promise<void>((resolve) => {
-      const method = debounce(() => {
-        resolve()
-      })
-      method()
-    })
+    const callback = vi.fn(() => 1)
+
+    const debounced = debounce(callback)
+    await debounced()
+
+    expect(callback).toBeCalledTimes(1)
   })
 
   it('Should be executed once when triggered multiple time in a given range', async () => {
-    let counter = 0
-    const method = debounce(() => {
-      counter++
-    }, 10)
+    const callback = vi.fn(() => undefined)
+    const method = debounce(callback, 10)
     for (let index = 0; index < 10; index++) {
       method()
     }
     await sleepAsync(300)
-    expect(counter).toBe(1)
+    expect(callback).toBeCalledTimes(1)
   })
 
   it('Should be executed multiple times  when triggered multiple times out of a a given range', async () => {
-    let counter = 0
-    const method = debounce(() => {
-      counter++
-    }, 10)
+    const callback = vi.fn(() => undefined)
+    const method = debounce(callback, 10)
+
     for (let index = 0; index < 10; index++) {
       method()
       await sleepAsync(15)
     }
-    await sleepAsync(300)
-    expect(counter).toBe(10)
+    expect(callback).toBeCalledTimes(10)
+  })
+
+  it('Should be executed multiple times when awaited', async () => {
+    const callback = vi.fn(() => undefined)
+    const method = debounce(callback, 10)
+
+    for (let index = 0; index < 10; index++) {
+      await method()
+    }
+    expect(callback).toBeCalledTimes(10)
   })
 })
