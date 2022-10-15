@@ -3,7 +3,7 @@ import { Injector } from '@furystack/inject'
 import { StoreManager } from './store-manager.js'
 import { InMemoryStore } from './in-memory-store.js'
 import { AggregatedError } from './errors/aggregated-error.js'
-import { TestClass } from './create-physical-store-tests.js'
+import { TestClass } from './test-class.js'
 import { describe, expect, it } from 'vitest'
 
 class Test {

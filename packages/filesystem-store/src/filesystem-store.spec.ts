@@ -1,6 +1,8 @@
 import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './filesystem-store.js'
-import { TestClass, createStoreTest } from '@furystack/core'
+import { TestClass } from '@furystack/core'
+import { createStoreTest } from '@furystack/core/create-physical-store-tests'
+
 import { sleepAsync } from '@furystack/utils'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 

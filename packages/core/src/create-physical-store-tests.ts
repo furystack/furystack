@@ -2,16 +2,7 @@ import type { PhysicalStore } from './models/physical-store.js'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { describe, expect, it } from 'vitest'
-
-export class TestClass {
-  id!: number
-  stringValue1!: string
-  stringValue2!: string
-  numberValue1!: number
-  numberValue2!: number
-  booleanValue!: boolean
-  dateValue!: Date
-}
+import type { TestClass } from './test-class.js'
 
 let idIndex = 0
 export const createMockEntity = (part?: Partial<TestClass>) =>

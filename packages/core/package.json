@@ -7,6 +7,10 @@
     ".": {
       "types": "./types/index.d.ts",
       "import": "./esm/index.js"
+    },
+    "./create-physical-store-tests": {
+      "types": "./types/create-physical-store-tests.d.ts",
+      "import": "./esm/create-physical-store-tests.js"
     }
   },
   "files": [
