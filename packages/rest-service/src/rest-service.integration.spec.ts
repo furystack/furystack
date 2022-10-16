@@ -99,14 +99,6 @@ describe('@furystack/rest-service inregration tests', () => {
     })
   })
 
-  it('Should respond with 401 for unauthorized request errors', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      await prepareInjector(i)
-      const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
-      expect(result.status).toBe(401)
-    })
-  })
-
   it('Should respond with the correct result body', async () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
