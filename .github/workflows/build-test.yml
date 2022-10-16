@@ -32,6 +32,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
+          files: ./packages/auth-google/coverage/cobertura-coverage.xml,./packages/core/coverage/cobertura-coverage.xml,./packages/filesystem-store/coverage/cobertura-coverage.xml,./packages/inject/coverage/cobertura-coverage.xml,./packages/logging/coverage/cobertura-coverage.xml,./packages/mongodb-store/coverage/cobertura-coverage.xml,./packages/redis-store/coverage/cobertura-coverage.xml,./packages/repository/coverage/cobertura-coverage.xml,./packages/rest/coverage/cobertura-coverage.xml,./packages/rest-client-fetch/coverage/cobertura-coverage.xml,./packages/rest-service/coverage/cobertura-coverage.xml,./packages/security/coverage/cobertura-coverage.xml,./packages/sequelize-store/coverage/cobertura-coverage.xml,./packages/shades/coverage/cobertura-coverage.xml,./packages/shades-common-components/coverage/cobertura-coverage.xml,./packages/shades-lottie/coverage/cobertura-coverage.xml,./packages/shades-nipple/coverage/cobertura-coverage.xml,./packages/shades-showcase-app/coverage/cobertura-coverage.xml,./packages/utils/coverage/cobertura-coverage.xml,./packages/websocket-api/coverage/cobertura-coverage.xml,
         env:
           CI: true
   
