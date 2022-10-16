@@ -51,8 +51,8 @@ jobs:
         displayName: 'Publish test coverage results'
         inputs:
           codeCoverageTool: Cobertura
-          summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
-          reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
+          summaryFileLocation: '$(System.DefaultWorkingDirectory)/packages/**/coverage/*coverage.xml'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/packages/**/coverage'
 
       - task: PublishTestResults@2
         displayName: Publish test results
