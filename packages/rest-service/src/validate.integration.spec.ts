@@ -45,8 +45,8 @@ const createValidateApi = async (port: number) => {
           schema,
           schemaName: 'ValidateHeaders',
         })(async ({ headers }) => JsonResult({ ...headers })),
-        '/mock': undefined as any, // ToDo: Generator and test
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock': undefined as any,
+        '/mock/:id': undefined as any,
       },
       POST: {
         '/validate-body': Validate({
@@ -56,13 +56,13 @@ const createValidateApi = async (port: number) => {
           const body = await getBody()
           return JsonResult({ ...body })
         }),
-        '/mock': undefined as any, // ToDo: Generator and test
+        '/mock': undefined as any,
       },
       PATCH: {
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock/:id': undefined as any,
       },
       DELETE: {
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock/:id': undefined as any,
       },
     },
     port,
@@ -99,7 +99,6 @@ describe('Validation integration tests', () => {
           expect(responseJson.errors[0].params.missingProperty).toEqual('foo')
           expect(responseJson.errors[1].params.missingProperty).toEqual('bar')
           expect(responseJson.errors[2].params.missingProperty).toEqual('baz')
-          // }
         }
       })
     })
