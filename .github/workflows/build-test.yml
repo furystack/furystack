@@ -3,7 +3,7 @@ on: [push]
 jobs:
   build:
     name: Lint, Build and test
-    timeout-minutes: 15
+    timeout-minutes: 5
     runs-on: ubuntu-latest
 
     strategy:
