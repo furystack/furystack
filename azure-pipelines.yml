@@ -54,12 +54,13 @@ jobs:
           summaryFileLocation: '$(System.DefaultWorkingDirectory)/packages/**/coverage/*coverage.xml'
           reportDirectory: '$(System.DefaultWorkingDirectory)/packages/**/coverage'
 
-      - task: PublishTestResults@2
+      - task: PublishTestResults@1
         displayName: Publish test results
         condition: succeededOrFailed()
         inputs:
+          mergeTestResults: true
           testRunner: JUnit
-          testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
+          testResultsFiles: '$(System.DefaultWorkingDirectory)/packages/**/coverage/junit.xml'
 
 
             
