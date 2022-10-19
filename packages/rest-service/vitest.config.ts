@@ -9,7 +9,7 @@ export default defineConfig({
     reporters: ['default', 'junit'],
     outputFile: 'coverage/junit.xml',
     include: ['src/**/*.{test,spec,tests,specs}.{ts,tsx}'],
-    teardownTimeout: 5000,
+    teardownTimeout: 15000,
   },
   build: {
     commonjsOptions: {
