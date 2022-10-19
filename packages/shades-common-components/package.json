@@ -17,8 +17,8 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "@types/jest": "^29.1.1",
-    "typescript": "4.8.3"
+    "@types/jest": "^29.2.0",
+    "typescript": "4.8.4"
   },
   "dependencies": {
     "@furystack/core": "^11.1.0",
