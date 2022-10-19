@@ -24,16 +24,17 @@ export class GridPageService {
     'stringValue1',
   )
   private fillStore = async (count = 100) => {
+    const initialId = Math.floor(Math.random() * 100000 * count)
     const store = getDataSetFor(this.injector, TestClass, 'id')
-    const entries = new Array(count).fill(null).map(() => this.createTestClassInstance())
+    const entries = new Array(count).fill(null).map((_, id) => this.createTestClassInstance(id + initialId))
     await store.add(this.injector, ...entries)
   }
 
-  private createTestClassInstance = () => {
+  private createTestClassInstance(id: number) {
     const dateValue = new Date()
     dateValue.setHours(dateValue.getHours() + Math.floor((Math.random() - 0.5) * 24))
     return {
-      id: Math.floor(Math.random() * 100000),
+      id,
       booleanValue: Math.random() > 0.5,
       numberValue1: Math.random() * 100,
       numberValue2: Math.random() * 100,
