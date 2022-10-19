@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
-import { createClient } from '@furystack/rest-client-got'
+import { createClient } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'
 import './helpers'
@@ -59,8 +59,8 @@ describe('REST Integration tests with GOT client', () => {
         method: 'GET',
         action: '/plain',
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson()).toStrictEqual({})
+      expect(result.response.status).toBe(200)
+      expect(result.result).toStrictEqual({})
     })
   })
 
@@ -74,8 +74,8 @@ describe('REST Integration tests with GOT client', () => {
           value,
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().headers.value).toStrictEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.response.headers.get('value')).toStrictEqual(value)
     })
   })
 
@@ -91,8 +91,8 @@ describe('REST Integration tests with GOT client', () => {
           },
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().query.someObject.foo).toStrictEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.result.query.someObject.foo).toStrictEqual(value)
     })
   })
 
@@ -106,8 +106,8 @@ describe('REST Integration tests with GOT client', () => {
           id: value,
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().url.id).toEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.result.url.id).toEqual(value)
     })
   })
 })

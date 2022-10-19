@@ -5,7 +5,6 @@ module.exports = {
     '<rootDir>/packages/filesystem-store',
     '<rootDir>/packages/rest',
     '<rootDir>/packages/rest-client-fetch',
-    '<rootDir>/packages/rest-client-got',
     '<rootDir>/packages/rest-service',
     '<rootDir>/packages/inject',
     '<rootDir>/packages/logging',
