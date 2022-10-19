@@ -28,12 +28,8 @@ jobs:
         run: docker-compose up -d     
       - name: Test
         run: yarn test --coverage
-      - name: Merge coverage reports
-        run: npx istanbul-merge --out ./coverage/coverage.json ./packages/**/coverage/coverage-final.json
-
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-          files: ./coverage/coverage.json
   

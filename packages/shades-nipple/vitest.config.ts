@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'c8',
-      reporter: ['text', 'json', 'html', 'cobertura'],
+      reporter: ['text', 'json', 'html', 'cobertura', 'lcov'],
     },
     reporters: ['default', 'junit'],
     outputFile: 'coverage/junit.xml',
