@@ -43,8 +43,8 @@
   },
   "devDependencies": {
     "@furystack/rest-client-got": "^2.1.0",
-    "@types/jest": "^29.1.1",
-    "@types/node": "^18.8.0",
+    "@types/jest": "^29.2.0",
+    "@types/node": "^18.11.2",
     "got": "^11.8.5"
   },
   "typings": "./types/index.d.ts",
