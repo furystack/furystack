@@ -28,8 +28,8 @@ jobs:
         run: docker-compose up -d     
       - name: Test
         run: yarn test --coverage
-      - name: Copy coverage reports
-        run: mkdir coverage && for filename in ./packages/**/coverage/cobertura-coverage.xml; do     [ -e "$filename" ] || continue; echo "$filename"; cp $filename ./coverage/cobertura-${i}.xml; let i++; done
+      - name: Merge coverage reports
+        run: npx istanbul-merge --out ./coverage/coverage.json ./packages/**/coverage/coverage-final.json
 
       - uses: codecov/codecov-action@v3
         with:
