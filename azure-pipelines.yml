@@ -44,15 +44,11 @@ jobs:
           CI: true
         displayName: 'Test'
 
-      # - script: bash <(curl -s https://codecov.io/bash)
-      #   displayName: 'Publish test results to Codecov'
-
       - task: PublishCodeCoverageResults@1
         displayName: 'Publish test coverage results'
         inputs:
           codeCoverageTool: Cobertura
-          summaryFileLocation: '$(System.DefaultWorkingDirectory)/packages/**/coverage/*coverage.xml'
-          reportDirectory: '$(System.DefaultWorkingDirectory)/packages/**/coverage'
+          summaryFileLocation: '$(System.DefaultWorkingDirectory)/packages/**/coverage/cobertura-coverage.xml'
 
       - task: PublishTestResults@1
         displayName: Publish test results
