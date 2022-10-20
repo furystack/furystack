@@ -2,7 +2,6 @@ import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { PostEndpoint } from '@furystack/rest'
 import { createPostEndpoint } from './create-post-endpoint'
-import got from 'got'
 import { MockClass, setupContext } from './utils'
 import { useRestService } from '../helpers'
 import { getDataSetFor } from '@furystack/repository'
@@ -22,12 +21,13 @@ describe('createPostEndpoint', () => {
         },
       })
       const entityToPost = { id: 'mock', value: 'posted' }
-      const response = await got('http://127.0.0.1:1117/api/mock', {
+      const response = await fetch('http://127.0.0.1:1117/api/mock', {
         method: 'POST',
         body: JSON.stringify(entityToPost),
       })
-      expect(response.statusCode).toBe(201)
-      expect(JSON.parse(response.body)).toStrictEqual(entityToPost)
+      expect(response.status).toBe(201)
+      const body = await response.json()
+      expect(body).toStrictEqual(entityToPost)
       const posted = await getDataSetFor(i, MockClass, 'id').get(i, entityToPost.id)
       expect(posted?.value).toBe('posted')
     })

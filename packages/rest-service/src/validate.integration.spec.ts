@@ -159,11 +159,10 @@ describe('Validation integration tests', () => {
             baz: false,
           },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(2)
-        expect(responseJson.baz).toBe(false)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(2)
+        expect(result.result.baz).toBe(false)
       })
     })
     it('Should validate url', async () => {
@@ -173,9 +172,8 @@ describe('Validation integration tests', () => {
           action: '/validate-url/:id',
           url: { id: 3 },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.id).toBe(3)
+        expect(result.response.status).toBe(200)
+        expect(result.result.id).toBe(3)
       })
     })
     it('Should validate headers', async () => {
@@ -189,11 +187,10 @@ describe('Validation integration tests', () => {
             baz: true,
           },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(42)
-        expect(responseJson.baz).toBe(true)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(42)
+        expect(result.result.baz).toBe(true)
       })
     })
     it('Should validate body', async () => {
@@ -208,11 +205,10 @@ describe('Validation integration tests', () => {
           },
         })
 
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(42)
-        expect(responseJson.baz).toBe(true)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(42)
+        expect(result.result.baz).toBe(true)
       })
     })
   })
