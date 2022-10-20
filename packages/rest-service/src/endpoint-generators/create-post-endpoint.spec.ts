@@ -27,7 +27,7 @@ describe('createPostEndpoint', () => {
       })
       expect(response.status).toBe(201)
       const body = await response.json()
-      expect(body).toStrictEqual(entityToPost)
+      expect(body).toEqual(entityToPost)
       const posted = await getDataSetFor(i, MockClass, 'id').get(i, entityToPost.id)
       expect(posted?.value).toBe('posted')
     })

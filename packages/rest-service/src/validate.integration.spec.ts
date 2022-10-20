@@ -75,7 +75,7 @@ describe('Validation integration tests', () => {
           })
         } catch (error) {
           if (error instanceof ResponseError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
+            expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
             const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('foo')
@@ -96,7 +96,7 @@ describe('Validation integration tests', () => {
           })
         } catch (error) {
           if (error instanceof ResponseError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
+            expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
             const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.type).toEqual('number')
@@ -116,7 +116,7 @@ describe('Validation integration tests', () => {
           })
         } catch (error) {
           if (error instanceof ResponseError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
+            expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
             const responseJson = await error.response.json()
             expect(
@@ -137,7 +137,7 @@ describe('Validation integration tests', () => {
           })
         } catch (error) {
           if (error instanceof ResponseError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
+            expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
             const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('body')

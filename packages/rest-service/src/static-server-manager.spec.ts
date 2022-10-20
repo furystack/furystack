@@ -37,7 +37,7 @@ describe('StaticServerManager', () => {
         expect(result.ok).toBe(false)
         expect(result.status).toBe(404)
         expect(result?.headers.get('content-type')).toBe('text/plain')
-        const body = await result.json()
+        const body = await result.text()
         expect(body).toBe('Not found')
       })
     })

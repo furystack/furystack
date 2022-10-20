@@ -60,7 +60,7 @@ describe('REST Integration tests with GOT client', () => {
         action: '/plain',
       })
       expect(result.response.status).toBe(200)
-      expect(result.result).toStrictEqual({})
+      expect(result.result).toEqual({})
     })
   })
 
@@ -75,7 +75,7 @@ describe('REST Integration tests with GOT client', () => {
         },
       })
       expect(result.response.status).toBe(200)
-      expect(result.response.headers.get('value')).toStrictEqual(value)
+      expect(result.result.headers.value).toEqual(value)
     })
   })
 
@@ -92,7 +92,7 @@ describe('REST Integration tests with GOT client', () => {
         },
       })
       expect(result.response.status).toBe(200)
-      expect(result.result.query.someObject.foo).toStrictEqual(value)
+      expect(result.result.query.someObject.foo).toEqual(value)
     })
   })
 

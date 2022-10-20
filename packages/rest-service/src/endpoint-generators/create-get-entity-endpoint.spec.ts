@@ -27,7 +27,7 @@ describe('createGetEntityEndpoint', () => {
       const response = await fetch('http://127.0.0.1:1113/api/mock', { method: 'GET' })
       expect(response.status).toBe(200)
       const body = await response.json()
-      expect(body).toStrictEqual(mockEntity)
+      expect(body).toEqual(mockEntity)
     })
   })
 
@@ -52,7 +52,7 @@ describe('createGetEntityEndpoint', () => {
       })
       expect(response.status).toBe(200)
       const body = await response.json()
-      expect(body).toStrictEqual({ id: mockEntity.id })
+      expect(body).toEqual({ id: mockEntity.id })
     })
   })
 
@@ -72,7 +72,7 @@ describe('createGetEntityEndpoint', () => {
       const result = await fetch(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
       expect(result.status).toBe(404)
       const body = await result.json()
-      expect(body).toStrictEqual({ error: 'Not Found', message: 'No entity has been found with the given id' })
+      expect(body).toEqual({ message: 'Entity not found' })
     })
   })
 })

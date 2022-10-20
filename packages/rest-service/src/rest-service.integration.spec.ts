@@ -83,8 +83,8 @@ describe('@furystack/rest-service inregration tests', () => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'some-route-that-does-not-exists'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(404)
-      const responseText = await result.text()
-      expect(responseText).toBe('Response code 404 (Not Found)')
+      const responseText = await result.json()
+      expect(responseText).toEqual({ error: 'Content not found' })
     })
   })
 
@@ -94,8 +94,8 @@ describe('@furystack/rest-service inregration tests', () => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
-      const responseText = await result.text()
-      expect(responseText).toBe('Response code 401 (Unauthorized)')
+      const responseText = await result.json()
+      expect(responseText).toEqual({ error: 'unauthorized' })
     })
   })
 
@@ -105,8 +105,8 @@ describe('@furystack/rest-service inregration tests', () => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
-      const responseText = await result.text()
-      expect(responseText).toBe('Response code 401 (Unauthorized)')
+      const responseText = await result.json()
+      expect(responseText).toEqual({ error: 'unauthorized' })
     })
   })
 
@@ -116,7 +116,7 @@ describe('@furystack/rest-service inregration tests', () => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'isAuthenticated'))
       expect(response.status).toBe(200)
       const result = await response.json()
-      expect(result).toStrictEqual({ isAuthenticated: false })
+      expect(result).toEqual({ isAuthenticated: false })
     })
   })
 
@@ -126,7 +126,7 @@ describe('@furystack/rest-service inregration tests', () => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testQuery?param1=foo'))
       expect(response.status).toBe(200)
       const result = await response.json()
-      expect(result).toStrictEqual({ param1Value: 'foo' })
+      expect(result).toEqual({ param1Value: 'foo' })
     })
   })
 
@@ -136,7 +136,7 @@ describe('@furystack/rest-service inregration tests', () => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testUrlParams/bar'))
       expect(response.status).toBe(200)
       const result = await response.json()
-      expect(result).toStrictEqual({ urlParamValue: 'bar' })
+      expect(result).toEqual({ urlParamValue: 'bar' })
     })
   })
 
@@ -149,7 +149,7 @@ describe('@furystack/rest-service inregration tests', () => {
       })
       expect(response.status).toBe(200)
       const result = await response.json()
-      expect(result).toStrictEqual({ bodyValue: 'baz', body2Value: 'baz' })
+      expect(result).toEqual({ bodyValue: 'baz', body2Value: 'baz' })
     })
   })
 
@@ -167,7 +167,7 @@ describe('@furystack/rest-service inregration tests', () => {
     await usingAsync(new Injector(), async (i) => {
       await prepareInjector(i)
       await expect(fetch(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'))).rejects.toThrowError(
-        'socket hang up',
+        'fetch failed',
       )
     })
   })
