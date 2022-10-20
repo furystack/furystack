@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createClient } from '@furystack/rest-client-fetch'
+import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
@@ -74,10 +74,10 @@ describe('Validation integration tests', () => {
             query: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
+          if (error instanceof ResponseError) {
             expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('foo')
             expect(responseJson.errors[1].params.missingProperty).toEqual('bar')
             expect(responseJson.errors[2].params.missingProperty).toEqual('baz')
@@ -95,10 +95,10 @@ describe('Validation integration tests', () => {
             url: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
+          if (error instanceof ResponseError) {
             expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.type).toEqual('number')
             expect(responseJson.errors[0].instancePath).toEqual('/url/id')
           }
@@ -115,10 +115,10 @@ describe('Validation integration tests', () => {
             headers: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
+          if (error instanceof ResponseError) {
             expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(
               responseJson.errors.find((e: any) => e.keyword === 'required' && e.message.includes('foo')),
             ).toBeDefined()
@@ -136,10 +136,10 @@ describe('Validation integration tests', () => {
             body: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
+          if (error instanceof ResponseError) {
             expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('body')
           }
         }
