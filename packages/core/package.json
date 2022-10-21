@@ -27,7 +27,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.2.0",
-    "@types/node": "^18.11.2"
+    "@types/node": "^18.11.3"
   },
   "dependencies": {
     "@furystack/inject": "^7.1.0",
