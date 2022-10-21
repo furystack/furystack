@@ -96,21 +96,23 @@ jobs:
       - script: yarn workspace @furystack/shades-showcase-app build
         displayName: 'Create bundle'
 
-      - displayName: Install Lighttpd
-        script: sudo apt install lighttpd
+      - script: sudo apt install lighttpd
+        displayName: Install Lighttpd
+        
       
-      - displayName: Start Lighttpd
-        script: lighttpd -f lighttpd.conf
+      - script: lighttpd -f lighttpd.conf
+        displayName: Start Lighttpd
         workingDirectory: ./packages/shades-showcase-app
 
-      - displayName: Check dev server
-        script: yarn workspace @furystack/shades-showcase-app assert-listening
+      - script: yarn workspace @furystack/shades-showcase-app assert-listening
+        displayName: Check dev server
+              
+      - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+        displayName: Install Playwright browsers
       
-      - displayName: Install Playwright browsers
-        script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
-      
-      - displayName: execute tests
-        script: yarn workspace @furystack/shades-showcase-app e2e test
+      - script: yarn workspace @furystack/shades-showcase-app e2e test
+        displayName: execute tests
+        
 
       # TODO: Check me
       # - task: PublishTestResults@2
