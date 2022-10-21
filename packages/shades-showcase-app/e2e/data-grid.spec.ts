@@ -14,25 +14,28 @@ test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (rowNumber: number) => {
     const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
     const rowTextCell = await row.locator('td:nth-child(2)')
-    await expect(await focusedEntry.inputValue()).toBe(await rowTextCell.textContent())
+    const focusedValue = await focusedEntry.inputValue()
+    const cellValue = await rowTextCell.textContent()
+    expect(focusedValue).toBe(cellValue)
   }
 
   const expectRowIsSelected = async (...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
       const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-      const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
-      await expect(await checkbox.isChecked()).toBe(true)
+      const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked]')
+      expect(checkbox).toBeDefined()
     }
   }
 
   const expectRowIsUnselected = async (rowNumber: number) => {
     const row = await grid.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const checkbox = await row.locator('td:nth-child(1) input[type=checkbox]')
-    await expect(await checkbox.isChecked()).toBe(false)
+    const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked=false]')
+    await expect(checkbox).toBeDefined()
   }
 
   const expectSelectionCount = async (count: number) => {
-    await expect(await selectionCount.inputValue()).toBe(count.toString())
+    const selectionCountValue = await selectionCount.inputValue()
+    await expect(selectionCountValue).toBe(count.toString())
   }
 
   const clickOnRow = async (rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
