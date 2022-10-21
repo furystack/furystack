@@ -52,7 +52,7 @@ const createEchoApiServer = async () => {
   }
 }
 
-describe('REST Integration tests with GOT client', () => {
+describe('REST Integration tests with FETCH client', () => {
   it('Should execute a single parameterless GET query', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
       const result = await client({

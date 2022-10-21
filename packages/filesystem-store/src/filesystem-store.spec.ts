@@ -1,16 +1,26 @@
-import { promises, existsSync } from 'fs'
+import { promises } from 'fs'
 import { FileSystemStore } from './filesystem-store'
-import { TestClass, createStoreTest } from '@furystack/core'
+import { TestClass, createStoreTest, StoreManager } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
+import type { Injector } from '@furystack/inject'
+import { useFileSystemStore } from './store-manager-helpers'
 
 let storeCount = 0
 
 describe('FileSystemStore', () => {
   const storeNames: string[] = []
-  const createStore = () => {
+  const createStore = (i: Injector) => {
     const fileName = `filestore-test-${storeCount++}.json`
     storeNames.push(fileName)
-    return new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' })
+
+    useFileSystemStore({
+      injector: i,
+      model: TestClass,
+      fileName,
+      primaryKey: 'id',
+    })
+
+    return i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
   }
 
   createStoreTest({
@@ -61,12 +71,12 @@ describe('FileSystemStore', () => {
   })
 
   afterAll(async () => {
-    await Promise.all(
-      storeNames.map(async (fileName) => {
-        if (existsSync(fileName)) {
-          await promises.unlink(fileName)
-        }
-      }),
-    )
+    for (const fileName of storeNames) {
+      try {
+        await promises.unlink(fileName)
+      } catch (error) {
+        // Ignore, maybe already deleted
+      }
+    }
   })
 })
