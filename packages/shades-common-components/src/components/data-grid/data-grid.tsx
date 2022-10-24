@@ -116,6 +116,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
         onclick={() => {
           props.service.hasFocus.setValue(true)
         }}
+        ariaMultiSelectable="true"
       >
         <table style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
