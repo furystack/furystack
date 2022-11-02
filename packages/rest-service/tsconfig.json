@@ -12,7 +12,7 @@
   "include": ["src", "src/*.json"],
   "references": [
     { "path": "../rest" },
-    { "path": "../rest-client-got" },
+    { "path": "../rest-client-fetch" },
     { "path": "../inject" },
     { "path": "../utils" },
     { "path": "../repository" },

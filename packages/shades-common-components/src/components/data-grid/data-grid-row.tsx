@@ -39,6 +39,8 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
           },
         })
 
+        element.classList.add('focused')
+
         const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
 
         const parent = element.closest('.shade-grid-wrapper') as HTMLElement
@@ -57,6 +59,7 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
           parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
         }
       } else {
+        element.classList.remove('focused')
         attachStyles(element, {
           style: props.unfocusedRowStyle || {
             filter: 'brightness(1)',
@@ -67,9 +70,13 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
     }, true),
     props.service.selection.subscribe((selection) => {
       if (selection.includes(props.entry)) {
+        element.classList.add('selected')
         attachStyles(element, { style: props.selectedRowStyle || { backgroundColor: 'rgba(128,128,128,0.1)' } })
+        element.setAttribute('aria-selected', 'true')
       } else {
+        element.classList.remove('selected')
         attachStyles(element, { style: props.unselectedRowStyle || { backgroundColor: 'transparent' } })
+        element.setAttribute('aria-selected', 'false')
       }
     }, true),
   ],
@@ -80,6 +87,16 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
     element.style.display = 'table-row'
     element.style.cursor = 'default'
     element.style.userSelect = 'none'
+    if (state.selection?.includes(entry)) {
+      element.setAttribute('aria-selected', 'true')
+      element.classList.add('selected')
+    }
+
+    if (state.focus === entry) {
+      element.classList.add('focused')
+    }
+    element.setAttribute('aria-selected', state.selection?.includes(entry).toString() || 'false')
+
     return (
       <>
         {columns.map((column) => (

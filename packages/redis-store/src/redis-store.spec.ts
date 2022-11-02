@@ -37,7 +37,7 @@ describe('Redis Store', () => {
     const entityToAdd: ExampleClass = { id: 'something', value: 'value' }
     await store.add(entityToAdd)
     const retrieved = await store.get(entityToAdd.id)
-    expect(retrieved).toStrictEqual(entityToAdd)
+    expect(retrieved).toEqual(entityToAdd)
     await store.update(entityToAdd.id, { ...entityToAdd, value: 'updatedValue' })
     const updated = await store.get(entityToAdd.id)
     expect(updated && updated.value).toBe('updatedValue')
