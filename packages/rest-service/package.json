@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "6.2.1",
+  "version": "6.2.2",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,20 +29,20 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.1.0",
-    "@furystack/inject": "^7.1.0",
-    "@furystack/logging": "^3.1.0",
-    "@furystack/repository": "^6.1.0",
-    "@furystack/rest": "^4.1.0",
-    "@furystack/security": "^2.1.0",
-    "@furystack/utils": "^3.1.0",
+    "@furystack/core": "^11.1.1",
+    "@furystack/inject": "^7.1.1",
+    "@furystack/logging": "^3.1.1",
+    "@furystack/repository": "^6.1.1",
+    "@furystack/rest": "^4.1.1",
+    "@furystack/security": "^2.1.1",
+    "@furystack/utils": "^3.1.1",
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@furystack/rest-client-fetch": "^4.1.0",
+    "@furystack/rest-client-fetch": "^4.1.1",
     "@types/jest": "^29.2.1",
     "@types/node": "^18.11.9"
   },
