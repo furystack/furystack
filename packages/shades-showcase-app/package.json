@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "",
   "private": true,
   "scripts": {
@@ -19,16 +19,16 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@furystack/core": "^11.1.0",
-    "@furystack/inject": "^7.1.0",
-    "@furystack/logging": "^3.1.0",
-    "@furystack/repository": "^6.1.0",
-    "@furystack/rest-client-fetch": "^4.1.0",
-    "@furystack/shades": "^6.1.0",
-    "@furystack/shades-common-components": "^3.5.0",
-    "@furystack/shades-lottie": "^2.1.0",
-    "@furystack/shades-nipple": "^2.1.0",
-    "@furystack/utils": "^3.1.0",
+    "@furystack/core": "^11.1.1",
+    "@furystack/inject": "^7.1.1",
+    "@furystack/logging": "^3.1.1",
+    "@furystack/repository": "^6.1.1",
+    "@furystack/rest-client-fetch": "^4.1.1",
+    "@furystack/shades": "^6.1.1",
+    "@furystack/shades-common-components": "^3.5.1",
+    "@furystack/shades-lottie": "^2.1.1",
+    "@furystack/shades-nipple": "^2.1.1",
+    "@furystack/utils": "^3.1.1",
     "@lottiefiles/lottie-player": "^1.6.0",
     "monaco-editor": "^0.34.1"
   }
