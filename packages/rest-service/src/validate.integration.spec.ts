@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createClient } from '@furystack/rest-client-got'
+import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
-import { RequestError } from 'got/dist/source'
 import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
 import './helpers'
@@ -75,10 +74,10 @@ describe('Validation integration tests', () => {
             query: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+          if (error instanceof ResponseError) {
+            expect(error.message).toBe('Bad Request')
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('foo')
             expect(responseJson.errors[1].params.missingProperty).toEqual('bar')
             expect(responseJson.errors[2].params.missingProperty).toEqual('baz')
@@ -96,10 +95,10 @@ describe('Validation integration tests', () => {
             url: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+          if (error instanceof ResponseError) {
+            expect(error.message).toBe('Bad Request')
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.type).toEqual('number')
             expect(responseJson.errors[0].instancePath).toEqual('/url/id')
           }
@@ -116,10 +115,10 @@ describe('Validation integration tests', () => {
             headers: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+          if (error instanceof ResponseError) {
+            expect(error.message).toBe('Bad Request')
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(
               responseJson.errors.find((e: any) => e.keyword === 'required' && e.message.includes('foo')),
             ).toBeDefined()
@@ -137,10 +136,10 @@ describe('Validation integration tests', () => {
             body: undefined as any,
           })
         } catch (error) {
-          if (error instanceof RequestError) {
-            expect(error.message).toBe('Response code 400 (Bad Request)')
-            expect(error.response?.statusCode).toBe(400)
-            const responseJson = JSON.parse(error.response?.body as string)
+          if (error instanceof ResponseError) {
+            expect(error.message).toBe('Bad Request')
+            expect(error.response?.status).toBe(400)
+            const responseJson = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('body')
           }
         }
@@ -160,11 +159,10 @@ describe('Validation integration tests', () => {
             baz: false,
           },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(2)
-        expect(responseJson.baz).toBe(false)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(2)
+        expect(result.result.baz).toBe(false)
       })
     })
     it('Should validate url', async () => {
@@ -174,9 +172,8 @@ describe('Validation integration tests', () => {
           action: '/validate-url/:id',
           url: { id: 3 },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.id).toBe(3)
+        expect(result.response.status).toBe(200)
+        expect(result.result.id).toBe(3)
       })
     })
     it('Should validate headers', async () => {
@@ -190,11 +187,10 @@ describe('Validation integration tests', () => {
             baz: true,
           },
         })
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(42)
-        expect(responseJson.baz).toBe(true)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(42)
+        expect(result.result.baz).toBe(true)
       })
     })
     it('Should validate body', async () => {
@@ -209,11 +205,10 @@ describe('Validation integration tests', () => {
           },
         })
 
-        expect(result.response.statusCode).toBe(200)
-        const responseJson = result.getJson()
-        expect(responseJson.foo).toBe('foo')
-        expect(responseJson.bar).toBe(42)
-        expect(responseJson.baz).toBe(true)
+        expect(result.response.status).toBe(200)
+        expect(result.result.foo).toBe('foo')
+        expect(result.result.bar).toBe(42)
+        expect(result.result.baz).toBe(true)
       })
     })
   })

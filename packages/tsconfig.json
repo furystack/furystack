@@ -33,9 +33,6 @@
       "path": "./rest-client-fetch"
     },
     {
-      "path": "./rest-client-got"
-    },
-    {
       "path": "./rest-service"
     },
     {

@@ -6,7 +6,6 @@ trigger:
   - develop
   - feature/*
   - release/*
-  - greenkeeper/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -15,10 +14,16 @@ jobs:
   - job: buildAndTest
     strategy:
       matrix:
-        node_16_x:
-          node_version: 16.x
+        node_18_x:
+          node_version: 18.x
+        node_19_x:
+          node_version: 19.x
     displayName: Build and test
     steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(node_version)
+        displayName: 'Install Node.js'
       - checkout: self
         fetchDepth: 1
       - task: DockerCompose@0
@@ -60,6 +65,60 @@ jobs:
           testRunner: JUnit
           testResultsFiles: '$(System.DefaultWorkingDirectory)/coverage/junit.xml'
 
+  - job: showcaseUiTests
+    strategy:
+      matrix:
+        node_18_x:
+          node_version: 18.x
+        node_19_x:
+          node_version: 19.x
+    displayName: Showcase app UI tests
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(node_version)
+        displayName: 'Install Node.js'
+      - checkout: self
+        fetchDepth: 1
+      - task: DockerCompose@0
+        displayName: Start services from docker-compose
+        inputs:
+          action: Run services
+          detached: true
+          buildImages: true
 
-            
-            
+      - script: yarn install --immutable
+        displayName: 'Install'
+
+      - script: yarn build
+        displayName: 'Build'
+
+      - script: yarn workspace @furystack/shades-showcase-app build
+        displayName: 'Create bundle'
+
+      - script: sudo apt install lighttpd
+        displayName: Install Lighttpd
+        
+      
+      - script: lighttpd -f lighttpd.conf
+        displayName: Start Lighttpd
+        workingDirectory: ./packages/shades-showcase-app
+
+      - script: yarn workspace @furystack/shades-showcase-app assert-listening
+        displayName: Check dev server
+              
+      - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+        displayName: Install Playwright browsers
+      
+      - script: yarn workspace @furystack/shades-showcase-app e2e test
+        displayName: execute tests
+        
+
+      # TODO: Check me
+      # - task: PublishTestResults@2
+      #   displayName: Publish test results
+      #   condition: succeededOrFailed()
+      #   inputs:
+      #     testRunner: JUnit
+      #     testResultsFiles: 'packages/shades-showcase-app/test-results'
+

@@ -20,7 +20,6 @@ describe('ErrorAction tests', () => {
       })
       expect(result.statusCode).toBe(500)
       expect(result.chunk.message).toBe('Something went wrong')
-      expect(result.chunk.url).toBe('https://google.com')
     })
   })
 
@@ -34,7 +33,6 @@ describe('ErrorAction tests', () => {
       })
       expect(result.statusCode).toBe(401)
       expect(result.chunk.message).toBe('Something went wrong')
-      expect(result.chunk.url).toBe('https://google.com')
     })
   })
 
@@ -48,7 +46,6 @@ describe('ErrorAction tests', () => {
       })
       expect(result.statusCode).toBe(403)
       expect(result.chunk.message).toBe('Something went wrong')
-      expect(result.chunk.url).toBe('https://google.com')
     })
   })
 })

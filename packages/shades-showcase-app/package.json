@@ -29,7 +29,7 @@
     "@furystack/shades-lottie": "^2.1.0",
     "@furystack/shades-nipple": "^2.1.0",
     "@furystack/utils": "^3.1.0",
-    "@lottiefiles/lottie-player": "^1.5.7",
+    "@lottiefiles/lottie-player": "^1.6.0",
     "monaco-editor": "^0.34.1"
   }
 }

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
-import { createClient } from '@furystack/rest-client-got'
+import { createClient } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation'
 import './helpers'
@@ -52,15 +52,15 @@ const createEchoApiServer = async () => {
   }
 }
 
-describe('REST Integration tests with GOT client', () => {
+describe('REST Integration tests with FETCH client', () => {
   it('Should execute a single parameterless GET query', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
       const result = await client({
         method: 'GET',
         action: '/plain',
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson()).toStrictEqual({})
+      expect(result.response.status).toBe(200)
+      expect(result.result).toEqual({})
     })
   })
 
@@ -74,8 +74,8 @@ describe('REST Integration tests with GOT client', () => {
           value,
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().headers.value).toStrictEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.result.headers.value).toEqual(value)
     })
   })
 
@@ -91,8 +91,8 @@ describe('REST Integration tests with GOT client', () => {
           },
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().query.someObject.foo).toStrictEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.result.query.someObject.foo).toEqual(value)
     })
   })
 
@@ -106,8 +106,8 @@ describe('REST Integration tests with GOT client', () => {
           id: value,
         },
       })
-      expect(result.response.statusCode).toBe(200)
-      expect(result.getJson().url.id).toEqual(value)
+      expect(result.response.status).toBe(200)
+      expect(result.result.url.id).toEqual(value)
     })
   })
 })
