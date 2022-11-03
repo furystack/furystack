@@ -16,25 +16,25 @@ test.describe('Data Grid component', () => {
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
       const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-      const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked]')
-      expect(checkbox).toBeDefined()
+
+      await expect(row).toHaveClass(/selected/)
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
     const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked=false]')
-    await expect(checkbox).toBeDefined()
+    await expect(row).not.toHaveClass(/selected/)
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
-    await page.locator(`[data-selectionLength="${count}"`)
-    expect(page.locator).toBeDefined()
+    const rows = await page.locator('shades-data-grid-row[aria-selected="true"]')
+    const selectedCount = await rows.count()
+    expect(selectedCount).toBe(count)
   }
 
   const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
     const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    await row.click({ modifiers, force: true })
+    await row.click({ modifiers })
   }
 
   test.describe('Focus', async () => {
