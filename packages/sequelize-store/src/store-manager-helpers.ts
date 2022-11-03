@@ -1,12 +1,13 @@
 import { addStore } from '@furystack/core'
-import type { Injector } from '@furystack/inject'
-import type { Options, Model, Sequelize, ModelStatic } from 'sequelize'
+import type { Constructable, Injector } from '@furystack/inject'
+import type { Options, Sequelize, ModelStatic, Model } from 'sequelize'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import { SequelizeStore } from './sequelize-store'
 
-export const useSequelize = function <T extends Model>({
+export const useSequelize = function <T extends object, M extends ModelStatic<Model<T>>, Key extends keyof T>({
   injector,
   model,
+  sequelizeModel,
   primaryKey,
   options,
   initModel,
@@ -15,11 +16,17 @@ export const useSequelize = function <T extends Model>({
   /**
    * The constructable model class
    */
-  model: ModelStatic<T>
+  model: Constructable<T>
+
+  /**
+   * The Sequelize Model class
+   */
+  sequelizeModel: M
+
   /**
    * The name of the Primary Key property
    */
-  primaryKey: keyof T
+  primaryKey: Key
   /**
    * Optional options for the MongoDb Client
    */
@@ -36,6 +43,7 @@ export const useSequelize = function <T extends Model>({
     primaryKey,
     getSequelizeClient: () => clientFactory.getSequelizeClient(options),
     initModel,
+    sequelizeModel,
   })
   addStore(injector, store)
 }

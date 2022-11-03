@@ -1,4 +1,4 @@
-import type { TestClass } from '@furystack/core'
+import { TestClass } from '@furystack/core'
 import { StoreManager, createStoreTest } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
@@ -14,7 +14,7 @@ jest.mock('uuid', () => {
   }
 })
 
-class TestSequelizeClass extends Model implements TestClass {
+class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClass {
   id!: number
   stringValue1!: string
   stringValue2!: string
@@ -31,7 +31,8 @@ describe('Sequelize Store', () => {
     createStore: (i) => {
       useSequelize({
         injector: i,
-        model: TestSequelizeClass,
+        model: TestClass,
+        sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
         options: {
           dialect: 'sqlite',
@@ -69,7 +70,7 @@ describe('Sequelize Store', () => {
           )
         },
       })
-      const store = i.getInstance(StoreManager).getStoreFor(TestSequelizeClass, 'id')
+      const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
       return store
     },
   })
@@ -92,7 +93,8 @@ describe('Sequelize Store', () => {
     await usingAsync(new Injector(), async (i) => {
       useSequelize({
         injector: i,
-        model: TestSequelizeClass,
+        model: TestClass,
+        sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
         options: {
           dialect: 'sqlite',
@@ -131,9 +133,9 @@ describe('Sequelize Store', () => {
           )
         },
       })
-      const store: SequelizeStore<TestSequelizeClass, 'id'> = i
+      const store: SequelizeStore<TestClass, TestSequelizeClass, 'id'> = i
         .getInstance(StoreManager)
-        .getStoreFor(TestSequelizeClass, 'id')
+        .getStoreFor(TestClass, 'id')
 
       const model1Promise = store.getModel()
       const model2 = await store.getModel()
@@ -150,7 +152,8 @@ describe('Sequelize Store', () => {
     await usingAsync(new Injector(), async (i) => {
       useSequelize({
         injector: i,
-        model: TestSequelizeClass,
+        model: TestClass,
+        sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
         options: {
           dialect: 'sqlite',
@@ -161,9 +164,9 @@ describe('Sequelize Store', () => {
           // won't init the model here
         },
       })
-      const store: SequelizeStore<TestSequelizeClass, 'id'> = i
+      const store: SequelizeStore<TestClass, TestSequelizeClass, 'id'> = i
         .getInstance(StoreManager)
-        .getStoreFor(TestSequelizeClass, 'id')
+        .getStoreFor(TestClass, 'id')
 
       expect.assertions(1)
       try {

@@ -10,11 +10,16 @@ import type { Constructable } from '@furystack/inject'
 import type { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
 import Semaphore from 'semaphore-async-await'
 
-export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends keyof T> {
+export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
+  /**
+   * The Model to use
+   */
+  model: Constructable<T>
+
   /**
    * The Sequelize Model class
    */
-  model: ModelStatic<T> & Constructable<T>
+  sequelizeModel: ModelStatic<M>
   /**
    * The Primary key field
    */
@@ -32,16 +37,20 @@ export interface SequelizeStoreSettings<T extends Model, TPrimaryKey extends key
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class SequelizeStore<T extends object, M extends Model<T>, TPrimaryKey extends keyof T>
+  implements PhysicalStore<T, TPrimaryKey>
+{
   public readonly primaryKey: TPrimaryKey
 
-  public readonly model: ModelStatic<T> & Constructable<T>
+  public readonly model: Constructable<T>
+
+  public readonly sequelizeModel: ModelStatic<M>
 
   private initLock = new Semaphore(1)
 
-  private initializedModel?: ModelStatic<T>
+  private initializedModel?: ModelStatic<M>
 
-  public async getModel(): Promise<ModelStatic<T>> {
+  public async getModel(): Promise<ModelStatic<M>> {
     if (this.initializedModel) {
       return this.initializedModel
     }
@@ -57,18 +66,19 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
         await client.sync()
       }
 
-      const model = client.model(this.options.model.name) as ModelStatic<T>
+      const model = client.model(this.options.sequelizeModel.name) as ModelStatic<M>
 
-      this.initializedModel = model
+      this.initializedModel = this.sequelizeModel
       return model
     } finally {
       this.initLock.release()
     }
   }
 
-  constructor(private readonly options: SequelizeStoreSettings<T, TPrimaryKey>) {
+  constructor(private readonly options: SequelizeStoreSettings<T, M, TPrimaryKey>) {
     this.primaryKey = options.primaryKey
     this.model = options.model
+    this.sequelizeModel = options.sequelizeModel
   }
   public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
     const model = await this.getModel()
@@ -105,7 +115,7 @@ export class SequelizeStore<T extends Model, TPrimaryKey extends keyof T> implem
 
     const result = await model.findAll({
       where: filter.filter as WhereOptions<T>,
-      attributes: filter.select as Attributes<T>,
+      attributes: filter.select as Attributes<any>,
       order,
       limit: filter.top,
       offset: filter.skip,

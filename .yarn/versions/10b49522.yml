@@ -1,0 +1,3 @@
+releases:
+  "@furystack/sequelize-store": major
+  furystack: patch
