@@ -68,8 +68,8 @@ export class ApiManager implements Disposable {
       const endpoint = {}
 
       Object.entries((api as any)[method]).forEach(([path, action]) => {
-        const fullPath = `/${PathHelper.joinPaths(root, path)}`
-        const regex = pathToRegexp(fullPath)
+        const fullPath = `/${PathHelper.normalize(PathHelper.joinPaths(root, path))}`
+        const regex = pathToRegexp(fullPath, undefined, { endsWith: '/' })
         ;(endpoint as any)[path] = { regex, action, fullPath }
       })
       ;(compiledApi as any)[method] = endpoint
