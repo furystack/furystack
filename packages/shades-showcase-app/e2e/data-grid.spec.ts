@@ -26,8 +26,10 @@ test.describe('Data Grid component', () => {
     await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
   }
 
-  const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) =>
+  const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
+    await sleepAsync(100)
     await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
+  }
 
   test.describe('Focus', async () => {
     test('With mouse click', async ({ page }) => {
