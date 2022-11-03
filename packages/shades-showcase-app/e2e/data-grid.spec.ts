@@ -4,13 +4,7 @@ import { pages } from './pages'
 
 test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const rowTextCell = await row.locator('td:nth-child(2)')
-    await page.locator(`[data-focusedEntry="${rowTextCell}"`)
-
-    const focusedValue = await page.locator('[name="focusedEntry"]').inputValue()
-    const cellValue = await rowTextCell.textContent()
-    expect(focusedValue).toBe(cellValue)
+    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
   }
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
