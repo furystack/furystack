@@ -1,4 +1,0 @@
-releases:
-  "@furystack/sequelize-store": major
-  "@furystack/shades-showcase-app": patch
-  furystack: patch
