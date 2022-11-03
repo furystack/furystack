@@ -15,25 +15,20 @@ test.describe('Data Grid component', () => {
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
-      const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-
-      await expect(row).toHaveClass(/selected/)
+      await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    await expect(row).not.toHaveClass(/selected/)
+    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
     await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
   }
 
-  const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    await row.click({ modifiers })
-  }
+  const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) =>
+    await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
 
   test.describe('Focus', async () => {
     test('With mouse click', async ({ page }) => {
