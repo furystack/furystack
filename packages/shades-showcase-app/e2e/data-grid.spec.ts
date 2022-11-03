@@ -1,41 +1,34 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
+import { sleepAsync } from '@furystack/utils'
 import { pages } from './pages'
 
 test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const rowTextCell = await row.locator('td:nth-child(2)')
-    await page.locator(`[data-focusedEntry="${rowTextCell}"`)
-
-    const focusedValue = await page.locator('[name="focusedEntry"]').inputValue()
-    const cellValue = await rowTextCell.textContent()
-    expect(focusedValue).toBe(cellValue)
+    await sleepAsync(100)
+    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
   }
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
+    await sleepAsync(100)
     for (const rowNumber of rowNumbers) {
-      const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-      const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked]')
-      expect(checkbox).toBeDefined()
+      await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    const checkbox = await row.locator('td:nth-child(1) input[type=checkbox][checked=false]')
-    await expect(checkbox).toBeDefined()
+    await sleepAsync(100)
+    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
-    await page.locator(`[data-selectionLength="${count}"`)
-    const selectionCountValue = await page.locator('[name="selectionCount"]').inputValue()
-    await expect(selectionCountValue).toBe(count.toString())
+    await sleepAsync(100)
+    await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
   }
 
   const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
-    const row = await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
-    await row.click({ modifiers, force: true })
+    await sleepAsync(100)
+    await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
   }
 
   test.describe('Focus', async () => {
