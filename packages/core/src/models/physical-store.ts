@@ -2,6 +2,8 @@ import type { Constructable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
 
 export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
+
+export const StringComparisonOperators = ['$startsWith', '$endsWith', '$like', '$regex'] as const
 export const SingleComparisonOperators = ['$eq', '$ne'] as const
 
 export const ArrayComparisonOperators = ['$in', '$nin'] as const
@@ -12,12 +14,12 @@ export const allOperators = [
   ...NumberComparisonOperators,
   ...ArrayComparisonOperators,
   ...LogicalOperators,
-  '$regex',
+  ...StringComparisonOperators,
 ] as const
 
 export type FilterType<T> = {
   [K in keyof T]?:
-    | (T[K] extends string ? { $regex?: string } : never)
+    | (T[K] extends string ? { [SCO in typeof StringComparisonOperators[number]]?: T[K] } : never)
     | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : never)
     | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
     | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }

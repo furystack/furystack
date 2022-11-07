@@ -29,6 +29,7 @@ export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string
   createStore: (i: Injector) => PhysicalStore<T, TPrimaryKey>
   skipRegexTests?: boolean
+  skipStringTests?: boolean
 }
 
 export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
@@ -522,6 +523,60 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
             const result = await store.find({ filter: { stringValue1: { $regex: '([a])' } } })
             expect(result.length).toBe(2)
             expect(result.map((r) => r.stringValue1)).toEqual(['asd', 'aaa'])
+          })
+        })
+      }
+
+      if (!options.skipStringTests) {
+        it('filter should return the corresponding entries with $startsWith', async () => {
+          await usingAsync(new Injector(), async (i) => {
+            const store = options.createStore(i)
+            await store.add(
+              createMockEntity({ id: 1, stringValue1: 'asd' }),
+              createMockEntity({ id: 2, stringValue1: 'aaa' }),
+              createMockEntity({ id: 3, stringValue1: 'bbb' }),
+            )
+
+            const result = await store.find({ filter: { stringValue1: { $startsWith: 'aa' } } })
+            expect(result.length).toBe(1)
+            expect(result.map((r) => r.stringValue1)).toEqual(['aaa'])
+          })
+        })
+        it('filter should return the corresponding entries with $endsWith', async () => {
+          await usingAsync(new Injector(), async (i) => {
+            const store = options.createStore(i)
+            await store.add(
+              createMockEntity({ id: 1, stringValue1: 'asd' }),
+              createMockEntity({ id: 2, stringValue1: 'aaa' }),
+              createMockEntity({ id: 3, stringValue1: 'bbb' }),
+            )
+
+            const result = await store.find({ filter: { stringValue1: { $endsWith: 'bb' } } })
+            expect(result.length).toBe(1)
+            expect(result.map((r) => r.stringValue1)).toEqual(['bbb'])
+          })
+        })
+
+        it('filter should return the corresponding entries with $like', async () => {
+          await usingAsync(new Injector(), async (i) => {
+            const store = options.createStore(i)
+            await store.add(
+              createMockEntity({ id: 1, stringValue1: 'asd' }),
+              createMockEntity({ id: 2, stringValue1: 'aaa' }),
+              createMockEntity({ id: 3, stringValue1: 'bbb' }),
+            )
+
+            const result = await store.find({ filter: { stringValue1: { $like: '%a%' } } })
+            expect(result.length).toBe(2)
+            expect(result.map((r) => r.stringValue1)).toEqual(['asd', 'aaa'])
+
+            const endsWithAResult = await store.find({ filter: { stringValue1: { $like: '%a' } } })
+            expect(endsWithAResult.length).toBe(1)
+            expect(endsWithAResult.map((r) => r.stringValue1)).toEqual(['aaa'])
+
+            const startsWithAResult = await store.find({ filter: { stringValue1: { $like: 'a%' } } })
+            expect(startsWithAResult.length).toBe(2)
+            expect(startsWithAResult.map((r) => r.stringValue1)).toEqual(['asd', 'aaa'])
           })
         })
       }

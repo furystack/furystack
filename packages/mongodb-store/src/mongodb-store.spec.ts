@@ -30,6 +30,7 @@ describe('MongoDB Store', () => {
   })
   createStoreTest({
     typeName: 'mongodb-store',
+    skipStringTests: true,
     createStore: (i) => {
       const mongoOptions = getMongoOptions(i)
       useMongoDb(mongoOptions)

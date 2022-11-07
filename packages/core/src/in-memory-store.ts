@@ -36,6 +36,11 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
     return item && select ? selectFields(item, ...select) : item
   }
 
+  private evaluateLike = (value: string, likeString: string) => {
+    const likeRegex = `^${likeString.replace(/%/g, '.*')}$`
+    return value.match(new RegExp(likeRegex, 'i'))
+  }
+
   private filterInternal(values: T[], filter?: FilterType<T>): T[] {
     if (!filter) {
       return values
@@ -107,6 +112,21 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
                   return false
                 case '$regex':
                   if (!new RegExp(filterValue).test((itemValue as any).toString())) {
+                    return false
+                  }
+                  break
+                case '$startsWith':
+                  if (!itemValue.startsWith(filterValue)) {
+                    return false
+                  }
+                  break
+                case '$endsWith':
+                  if (!itemValue.endsWith(filterValue)) {
+                    return false
+                  }
+                  break
+                case '$like':
+                  if (!this.evaluateLike(itemValue, filterValue)) {
                     return false
                   }
                   break
