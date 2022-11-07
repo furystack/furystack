@@ -1290,22 +1290,22 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/rest": ^4.1.1
-    "@furystack/rest-service": ^6.2.3
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/rest": ^4.1.2
+    "@furystack/rest-service": ^6.2.4
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^11.1.1, @furystack/core@workspace:packages/core":
+"@furystack/core@^11.2.0, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
-    "@furystack/inject": ^7.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/inject": ^7.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
     semaphore-async-await: ^1.5.1
@@ -1316,30 +1316,30 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/filesystem-store@workspace:packages/filesystem-store"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
 
-"@furystack/inject@^7.1.1, @furystack/inject@workspace:packages/inject":
+"@furystack/inject@^7.1.2, @furystack/inject@workspace:packages/inject":
   version: 0.0.0-use.local
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
-    "@furystack/utils": ^3.1.1
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@^3.1.1, @furystack/logging@workspace:packages/logging":
+"@furystack/logging@^3.1.2, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
-    "@furystack/inject": ^7.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/inject": ^7.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
   languageName: unknown
   linkType: soft
@@ -1348,10 +1348,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
     mongodb: 4.11.0
@@ -1363,53 +1363,53 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     redis: ^4.4.0
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
 
-"@furystack/repository@^6.1.1, @furystack/repository@workspace:packages/repository":
+"@furystack/repository@^6.1.2, @furystack/repository@workspace:packages/repository":
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client-fetch@^4.1.1, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
+"@furystack/rest-client-fetch@^4.1.2, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/rest": ^4.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/rest": ^4.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     path-to-regexp: ^6.2.1
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.2.3, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.2.4, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/repository": ^6.1.1
-    "@furystack/rest": ^4.1.1
-    "@furystack/rest-client-fetch": ^4.1.1
-    "@furystack/security": ^2.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/repository": ^6.1.2
+    "@furystack/rest": ^4.1.2
+    "@furystack/rest-client-fetch": ^4.1.2
+    "@furystack/security": ^2.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
     ajv: ^8.11.0
@@ -1419,24 +1419,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^4.1.1, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^4.1.2, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
   languageName: unknown
   linkType: soft
 
-"@furystack/security@^2.1.1, @furystack/security@workspace:packages/security":
+"@furystack/security@^2.1.2, @furystack/security@workspace:packages/security":
   version: 0.0.0-use.local
   resolution: "@furystack/security@workspace:packages/security"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
   languageName: unknown
@@ -1446,10 +1446,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/sequelize-store@workspace:packages/sequelize-store"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/node": ^18.11.9
     semaphore-async-await: ^1.5.1
@@ -1459,14 +1459,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^3.5.1, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^3.5.2, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/shades": ^6.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/shades": ^6.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
@@ -1474,23 +1474,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-lottie@^2.1.1, @furystack/shades-lottie@workspace:packages/shades-lottie":
+"@furystack/shades-lottie@^2.1.2, @furystack/shades-lottie@workspace:packages/shades-lottie":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-lottie@workspace:packages/shades-lottie"
   dependencies:
-    "@furystack/shades": ^6.1.1
+    "@furystack/shades": ^6.1.2
     "@lottiefiles/lottie-player": ^1.6.0
     typescript: 4.8.4
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-nipple@^2.1.1, @furystack/shades-nipple@workspace:packages/shades-nipple":
+"@furystack/shades-nipple@^2.1.2, @furystack/shades-nipple@workspace:packages/shades-nipple":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-nipple@workspace:packages/shades-nipple"
   dependencies:
-    "@furystack/inject": ^7.1.1
-    "@furystack/shades": ^6.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/inject": ^7.1.2
+    "@furystack/shades": ^6.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     nipplejs: ^0.10.0
     typescript: 4.8.4
@@ -1501,16 +1501,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades-showcase-app@workspace:packages/shades-showcase-app"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/repository": ^6.1.1
-    "@furystack/rest-client-fetch": ^4.1.1
-    "@furystack/shades": ^6.1.1
-    "@furystack/shades-common-components": ^3.5.1
-    "@furystack/shades-lottie": ^2.1.1
-    "@furystack/shades-nipple": ^2.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/repository": ^6.1.2
+    "@furystack/rest-client-fetch": ^4.1.2
+    "@furystack/shades": ^6.1.2
+    "@furystack/shades-common-components": ^3.5.2
+    "@furystack/shades-lottie": ^2.1.2
+    "@furystack/shades-nipple": ^2.1.2
+    "@furystack/utils": ^3.1.2
     "@lottiefiles/lottie-player": ^1.6.0
     "@playwright/test": ^1.27.1
     "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.15
@@ -1520,13 +1520,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades@^6.1.1, @furystack/shades@workspace:packages/shades":
+"@furystack/shades@^6.1.2, @furystack/shades@workspace:packages/shades":
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/jsdom": ^20.0.0
     "@types/node": ^18.11.9
@@ -1536,7 +1536,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/utils@^3.1.1, @furystack/utils@workspace:packages/utils":
+"@furystack/utils@^3.1.2, @furystack/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
@@ -1548,11 +1548,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^11.1.1
-    "@furystack/inject": ^7.1.1
-    "@furystack/logging": ^3.1.1
-    "@furystack/rest-service": ^6.2.3
-    "@furystack/utils": ^3.1.1
+    "@furystack/core": ^11.2.0
+    "@furystack/inject": ^7.1.2
+    "@furystack/logging": ^3.1.2
+    "@furystack/rest-service": ^6.2.4
+    "@furystack/utils": ^3.1.2
     "@types/jest": ^29.2.2
     "@types/ws": ^8.5.3
     ws: ^8.11.0
