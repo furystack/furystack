@@ -32,10 +32,10 @@
     "@furystack/logging": "^3.1.1",
     "@furystack/utils": "^3.1.1",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.25.3"
+    "sequelize": "^6.25.4"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.1",
+    "@types/jest": "^29.2.2",
     "@types/node": "^18.11.9",
     "sqlite3": "5.1.2",
     "uuid": "^8.3.2"

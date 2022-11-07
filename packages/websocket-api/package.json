@@ -31,10 +31,10 @@
     "@furystack/logging": "^3.1.1",
     "@furystack/rest-service": "^6.2.3",
     "@furystack/utils": "^3.1.1",
-    "ws": "^8.10.0"
+    "ws": "^8.11.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.1",
+    "@types/jest": "^29.2.2",
     "@types/ws": "^8.5.3"
   },
   "typings": "./types/index.d.ts",
