@@ -30,7 +30,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.2.2",
-    "@types/jsdom": "^20.0.0",
+    "@types/jsdom": "^20.0.1",
     "@types/node": "^18.11.9",
     "jsdom": "^20.0.2"
   },
