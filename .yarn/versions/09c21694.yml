@@ -1,4 +1,5 @@
 releases:
+  "@furystack/redis-store": patch
   "@furystack/sequelize-store": patch
   "@furystack/shades": patch
   "@furystack/shades-common-components": patch
