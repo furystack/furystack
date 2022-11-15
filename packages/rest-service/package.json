@@ -36,14 +36,14 @@
     "@furystack/rest": "^4.1.2",
     "@furystack/security": "^2.1.2",
     "@furystack/utils": "^3.1.2",
-    "ajv": "^8.11.0",
+    "ajv": "^8.11.2",
     "ajv-formats": "^2.1.1",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "^4.1.2",
-    "@types/jest": "^29.2.2",
+    "@types/jest": "^29.2.3",
     "@types/node": "^18.11.9"
   },
   "typings": "./types/index.d.ts",

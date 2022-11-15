@@ -7,11 +7,11 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^29.2.2",
+    "@types/jest": "^29.2.3",
     "@types/jsdom": "^20.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "ajv": "^8.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
+    "ajv": "^8.11.2",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsdoc": "^39.6.2",

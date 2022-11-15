@@ -37,7 +37,7 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.2",
+    "@types/jest": "^29.2.3",
     "@types/node": "^18.11.9"
   },
   "typings": "./types/index.d.ts",
