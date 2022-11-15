@@ -75,6 +75,7 @@ export const createComponent = <TProps>(
     attachStyles(el, props)
     return el
   }
+  return undefined
 }
 
 export const createFragment = (_props: any, children: ChildrenList) => {
