@@ -8,7 +8,7 @@ import { DataGridRow } from './data-grid-row'
 export interface DataGridBodyProps<T> {
   service: CollectionService<T>
   onRowClick?: (row: T, ev: MouseEvent) => void
-  onRowDoubleClick?: (entry: T) => void
+  onRowDoubleClick?: (entry: T, ev: MouseEvent) => void
   columns: Array<keyof T>
   rowComponents?: DataRowCells<T>
   style?: Partial<CSSStyleDeclaration>
@@ -62,6 +62,7 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
             service={props.service}
             rowComponents={props.rowComponents}
             onRowClick={props.onRowClick}
+            onRowDoubleClick={props.onRowDoubleClick}
             focusedRowStyle={props.focusedRowStyle}
             unfocusedRowStyle={props.unfocusedRowStyle}
             selectedRowStyle={props.selectedRowStyle}

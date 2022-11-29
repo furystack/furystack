@@ -137,6 +137,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             service={props.service}
             rowComponents={props.rowComponents}
             onRowClick={(entry, ev) => props.service.handleRowClick(entry, ev)}
+            onRowDoubleClick={(entry) => props.service.handleRowDoubleClick(entry)}
             style={props.styles?.cell}
             focusedRowStyle={props.focusedRowStyle}
             selectedRowStyle={props.selectedRowStyle}

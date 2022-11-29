@@ -12,6 +12,40 @@ export type EntryLoader<T> = <TFields extends Array<keyof T>>(
   searchOptions: FindOptions<T, TFields>,
 ) => Promise<CollectionData<PartialResult<T, TFields>>>
 
+export interface CollectionServiceOptions<T> {
+  /**
+   * A method used to retrieve the entries from the data source
+   */
+  loader: EntryLoader<T>
+  /**
+   * The default filter / top / skip / etc... options
+   */
+  defaultSettings: FindOptions<T, Array<keyof T>>
+  /**
+   * An optional field that can be used for quick search
+   */
+  searchField?: keyof T
+
+  /**
+   * @param entry The clicked entry
+   * optional callback for row clicks
+   */
+  onRowClick?: (entry: T) => void
+
+  /**
+   * Optional callback for row double clicks
+   *
+   * @param entry The clicked entry
+   */
+
+  onRowDoubleClick?: (entry: T) => void
+
+  /**
+   * An optional debounce interval in milliseconds
+   */
+  debounceMs?: number
+}
+
 export class CollectionService<T> implements Disposable {
   public dispose() {
     this.querySettings.dispose()
@@ -102,10 +136,12 @@ export class CollectionService<T> implements Disposable {
         break
       }
       default:
-        if (this.searchField && ev.key.length === 1) {
+        if (this.options.searchField && ev.key.length === 1) {
           const newSearchExpression = searchTerm + ev.key
           const newFocusedEntry = entries.find(
-            (e) => this.searchField && (e[this.searchField] as any)?.toString().startsWith(newSearchExpression),
+            (e) =>
+              this.options.searchField &&
+              (e[this.options.searchField] as any)?.toString().startsWith(newSearchExpression),
           )
           this.focusedEntry.setValue(newFocusedEntry)
           this.searchTerm.setValue(newSearchExpression)
@@ -114,6 +150,7 @@ export class CollectionService<T> implements Disposable {
   }
 
   public handleRowClick(entry: T, ev: MouseEvent) {
+    this.options.onRowClick?.(entry)
     const currentSelectionValue = this.selection.getValue()
     const lastFocused = this.focusedEntry.getValue()
     if (ev.ctrlKey) {
@@ -141,18 +178,14 @@ export class CollectionService<T> implements Disposable {
     this.focusedEntry.setValue(entry)
   }
 
-  constructor(
-    fetch: EntryLoader<T>,
-    defaultSettings: FindOptions<T, Array<keyof T>>,
-    private readonly searchField?: keyof T,
-  ) {
-    this.querySettings = new ObservableValue<FindOptions<T, Array<keyof T>>>(defaultSettings)
-    this.getEntries = debounce(async (options) => {
+  constructor(private options: CollectionServiceOptions<T>) {
+    this.querySettings = new ObservableValue<FindOptions<T, Array<keyof T>>>(this.options.defaultSettings)
+    const getEntriesPlain: EntryLoader<T> = async (opt) => {
       await this.loadLock.acquire()
       try {
         this.error.setValue(undefined)
         this.isLoading.setValue(true)
-        const result = await fetch(options)
+        const result = await this.options.loader(opt)
         this.data.setValue(result)
         return result
       } catch (error) {
@@ -162,7 +195,14 @@ export class CollectionService<T> implements Disposable {
         this.loadLock.release()
         this.isLoading.setValue(false)
       }
-    }, 500)
+    }
+
+    this.getEntries = this.options.debounceMs ? debounce(getEntriesPlain, this.options.debounceMs) : getEntriesPlain
+
     this.querySettings.subscribe((val) => this.getEntries(val), true)
+  }
+
+  public async handleRowDoubleClick(entry: T) {
+    this.options.onRowDoubleClick?.(entry)
   }
 }
