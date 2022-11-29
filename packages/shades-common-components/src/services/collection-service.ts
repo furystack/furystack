@@ -92,14 +92,6 @@ export class CollectionService<T> implements Disposable {
         this.focusedEntry.setValue(entries[entries.length - 1])
         break
       }
-      case 'Enter': {
-        // this.activate(focusedEntry)
-        break
-      }
-      case 'Backspace': {
-        // this.currentWorkDir.goUp()
-        break
-      }
       case 'Tab': {
         this.hasFocus.setValue(!hasFocus)
         break
@@ -117,8 +109,6 @@ export class CollectionService<T> implements Disposable {
           )
           this.focusedEntry.setValue(newFocusedEntry)
           this.searchTerm.setValue(newSearchExpression)
-        } else {
-          console.debug(`Handler for '${ev.key}' not registered`)
         }
     }
   }

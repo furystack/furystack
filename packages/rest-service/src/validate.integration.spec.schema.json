@@ -60,7 +60,16 @@
             {
               "additionalProperties": false,
               "properties": {
+                "$endsWith": {
+                  "type": "string"
+                },
+                "$like": {
+                  "type": "string"
+                },
                 "$regex": {
+                  "type": "string"
+                },
+                "$startsWith": {
                   "type": "string"
                 }
               },
@@ -103,7 +112,16 @@
             {
               "additionalProperties": false,
               "properties": {
+                "$endsWith": {
+                  "type": "string"
+                },
+                "$like": {
+                  "type": "string"
+                },
                 "$regex": {
+                  "type": "string"
+                },
+                "$startsWith": {
                   "type": "string"
                 }
               },
