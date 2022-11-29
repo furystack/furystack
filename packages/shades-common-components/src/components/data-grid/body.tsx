@@ -16,6 +16,8 @@ export interface DataGridBodyProps<T> {
   unfocusedRowStyle?: Partial<CSSStyleDeclaration>
   selectedRowStyle?: Partial<CSSStyleDeclaration>
   unselectedRowStyle?: Partial<CSSStyleDeclaration>
+  emptyComponent?: JSX.Element
+  loaderComponent?: JSX.Element
 }
 
 export interface DataGridBodyState<T> {
@@ -44,13 +46,13 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
       return (
         <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           {/* TODO: Skeleton */}
-          <Loader style={{ height: '128px', width: '128px' }} />
+          {props.loaderComponent || <Loader style={{ height: '128px', width: '128px' }} />}
         </div>
       )
     }
 
     if (!state.data?.length) {
-      return <div> - No Data - </div>
+      return props.emptyComponent || <div> - No Data - </div>
     }
 
     return (

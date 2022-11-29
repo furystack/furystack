@@ -180,12 +180,17 @@ export class CollectionService<T> implements Disposable {
 
   constructor(private options: CollectionServiceOptions<T>) {
     this.querySettings = new ObservableValue<FindOptions<T, Array<keyof T>>>(this.options.defaultSettings)
-    const getEntriesPlain: EntryLoader<T> = async (opt) => {
+
+    const loader = this.options.debounceMs
+      ? debounce(this.options.loader, this.options.debounceMs)
+      : this.options.loader
+
+    this.getEntries = async (opt) => {
       await this.loadLock.acquire()
       try {
         this.error.setValue(undefined)
         this.isLoading.setValue(true)
-        const result = await this.options.loader(opt)
+        const result = await loader(opt)
         this.data.setValue(result)
         return result
       } catch (error) {
@@ -196,8 +201,6 @@ export class CollectionService<T> implements Disposable {
         this.isLoading.setValue(false)
       }
     }
-
-    this.getEntries = this.options.debounceMs ? debounce(getEntriesPlain, this.options.debounceMs) : getEntriesPlain
 
     this.querySettings.subscribe((val) => this.getEntries(val), true)
   }
