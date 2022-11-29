@@ -33,7 +33,7 @@
     "@furystack/inject": "^7.1.2",
     "@furystack/logging": "^3.1.2",
     "@furystack/utils": "^3.1.2",
-    "mongodb": "4.11.0",
+    "mongodb": "4.12.1",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
