@@ -15,8 +15,8 @@
   "devDependencies": {
     "@playwright/test": "^1.28.1",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
-    "esbuild": "^0.15.16",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.3",
+    "vite": "^3.2.4"
   },
   "dependencies": {
     "@furystack/core": "^11.2.1",
