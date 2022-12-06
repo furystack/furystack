@@ -1,4 +1,4 @@
-import { DeepPartial } from '@furystack/utils'
+import type { DeepPartial } from '@furystack/utils'
 import type { Theme } from './theme-provider-service'
 export const defaultVariableTheme: Theme = {
   text: {
