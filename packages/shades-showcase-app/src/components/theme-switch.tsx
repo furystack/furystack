@@ -1,27 +1,30 @@
-import { createComponent, Shade } from '@furystack/shades'
-import type { ButtonProps, Theme } from '@furystack/shades-common-components'
+import { createComponent, createFragment, Shade } from '@furystack/shades'
+import type { ButtonProps } from '@furystack/shades-common-components'
 import { Button, defaultDarkTheme, defaultLightTheme, ThemeProviderService } from '@furystack/shades-common-components'
 
-export const ThemeSwitch = Shade<Omit<ButtonProps, 'onclick'>, { theme: Theme }>({
+export const ThemeSwitch = Shade<Omit<ButtonProps, 'onclick'>>({
   shadowDomName: 'theme-switch',
-  getInitialState: ({ injector }) => ({
-    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
-  }),
-  resources: ({ injector, updateState }) => {
-    return [injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme }))]
-  },
-  render: ({ props, injector, getState }) => {
+  render: ({ props, injector }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const { theme } = getState()
     return (
-      <Button
-        {...props}
-        onclick={() => {
-          themeProvider.theme.setValue(theme === defaultDarkTheme ? defaultLightTheme : defaultDarkTheme)
-        }}
-      >
-        {theme === defaultDarkTheme ? '☀️' : '🌜'}
-      </Button>
+      <>
+        <Button
+          {...props}
+          onclick={() => {
+            themeProvider.set(defaultDarkTheme)
+          }}
+        >
+          🌜
+        </Button>
+        <Button
+          {...props}
+          onclick={() => {
+            themeProvider.set(defaultLightTheme)
+          }}
+        >
+          ☀️
+        </Button>
+      </>
     )
   },
 })

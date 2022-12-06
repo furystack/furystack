@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import type { DeepPartial } from '@furystack/utils'
-import { deepMerge, ObservableValue } from '@furystack/utils'
-import { defaultDarkTheme } from './default-dark-theme'
+import { ObservableValue } from '@furystack/utils'
+import { defaultVariableTheme, getCssVariable, useThemeCssVariables } from './default-variable-theme'
 
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
 
@@ -83,7 +83,11 @@ export class ThemeProviderService {
    * @param color The color string
    * @returns The parsed R,G,B, A values
    */
-  public getRgbFromColorString(color: string) {
+  public getRgbFromColorString(color: string): RgbColor {
+    if (color.startsWith('var(--')) {
+      return this.getRgbFromColorString(getCssVariable(color))
+    }
+
     if (color.startsWith('#')) {
       if (color.length === 7) {
         const r = parseInt(color.substr(1, 2), 16)
@@ -111,13 +115,14 @@ export class ThemeProviderService {
         )
       }
     }
-    throw Error(`Color format '${color} is not supported.'`)
+    throw Error(`Color format '${color}' is not supported.'`)
   }
 
-  public readonly theme = new ObservableValue(defaultDarkTheme)
+  public readonly theme = new ObservableValue(defaultVariableTheme)
 
   public set(change: DeepPartial<Theme>) {
-    this.theme.setValue(deepMerge(this.theme.getValue(), change))
+    useThemeCssVariables(change)
+    // this.theme.setValue(deepMerge(this.theme.getValue(), change))
   }
 
   public dispose() {
