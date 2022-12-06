@@ -56,6 +56,16 @@ export interface DataGridProps<T> {
    * Optional style to attach to grid rows when the row is not selected
    */
   unselectedRowStyle?: Partial<CSSStyleDeclaration>
+
+  /**
+   * An optional component to show if there are no rows to display
+   */
+  emptyComponent?: JSX.Element
+
+  /**
+   * An optional component to show while the data is loading
+   */
+  loaderComponent?: JSX.Element
 }
 
 export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
@@ -137,11 +147,14 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             service={props.service}
             rowComponents={props.rowComponents}
             onRowClick={(entry, ev) => props.service.handleRowClick(entry, ev)}
+            onRowDoubleClick={(entry) => props.service.handleRowDoubleClick(entry)}
             style={props.styles?.cell}
             focusedRowStyle={props.focusedRowStyle}
             selectedRowStyle={props.selectedRowStyle}
             unfocusedRowStyle={props.unfocusedRowStyle}
             unselectedRowStyle={props.unselectedRowStyle}
+            emptyComponent={props.emptyComponent}
+            loaderComponent={props.loaderComponent}
           />
         </table>
         <DataGridFooter service={props.service} />

@@ -8,7 +8,7 @@ import { DataGridRow } from './data-grid-row'
 export interface DataGridBodyProps<T> {
   service: CollectionService<T>
   onRowClick?: (row: T, ev: MouseEvent) => void
-  onRowDoubleClick?: (entry: T) => void
+  onRowDoubleClick?: (entry: T, ev: MouseEvent) => void
   columns: Array<keyof T>
   rowComponents?: DataRowCells<T>
   style?: Partial<CSSStyleDeclaration>
@@ -16,6 +16,8 @@ export interface DataGridBodyProps<T> {
   unfocusedRowStyle?: Partial<CSSStyleDeclaration>
   selectedRowStyle?: Partial<CSSStyleDeclaration>
   unselectedRowStyle?: Partial<CSSStyleDeclaration>
+  emptyComponent?: JSX.Element
+  loaderComponent?: JSX.Element
 }
 
 export interface DataGridBodyState<T> {
@@ -44,13 +46,13 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
       return (
         <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           {/* TODO: Skeleton */}
-          <Loader style={{ height: '128px', width: '128px' }} />
+          {props.loaderComponent || <Loader style={{ height: '128px', width: '128px' }} />}
         </div>
       )
     }
 
     if (!state.data?.length) {
-      return <div> - No Data - </div>
+      return props.emptyComponent || <div> - No Data - </div>
     }
 
     return (
@@ -62,6 +64,7 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
             service={props.service}
             rowComponents={props.rowComponents}
             onRowClick={props.onRowClick}
+            onRowDoubleClick={props.onRowDoubleClick}
             focusedRowStyle={props.focusedRowStyle}
             unfocusedRowStyle={props.unfocusedRowStyle}
             selectedRowStyle={props.selectedRowStyle}
