@@ -4,7 +4,7 @@ import { ObservableValue } from '@furystack/utils'
 
 export const ScreenSizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const
 
-export type ScreenSize = typeof ScreenSizes[number]
+export type ScreenSize = (typeof ScreenSizes)[number]
 
 export type Breakpoint = { name: ScreenSize; minSize: number; maxSize?: number }
 

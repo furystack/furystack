@@ -20,7 +20,7 @@ describe('ServerResponse extensions', () => {
         expect(chunk).toBe(JSON.stringify(jsonValue))
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'application/json' })
         done()
-      }) as typeof msg['end']
+      }) as (typeof msg)['end']
 
       msg.sendActionResult(JsonResult(jsonValue))
     })
@@ -34,7 +34,7 @@ describe('ServerResponse extensions', () => {
         expect(chunk).toBe(textValue)
         expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'plain/text' })
         done()
-      }) as typeof msg['end']
+      }) as (typeof msg)['end']
 
       msg.sendActionResult(PlainTextResult(textValue))
     })

@@ -34,8 +34,8 @@
     "ws": "^8.11.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.4",
-    "@types/ws": "^8.5.3"
+    "@types/jest": "^29.2.5",
+    "@types/ws": "^8.5.4"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
