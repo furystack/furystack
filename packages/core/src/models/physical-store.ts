@@ -19,17 +19,17 @@ export const allOperators = [
 
 export type FilterType<T> = {
   [K in keyof T]?:
-    | (T[K] extends string ? { [SCO in typeof StringComparisonOperators[number]]?: T[K] } : never)
-    | (T[K] extends number ? { [SCO in typeof NumberComparisonOperators[number]]?: T[K] } : never)
-    | { [SCO in typeof SingleComparisonOperators[number]]?: T[K] }
-    | { [ACO in typeof ArrayComparisonOperators[number]]?: Array<T[K]> }
-} & { [LO in typeof LogicalOperators[number]]?: Array<FilterType<T>> }
+    | (T[K] extends string ? { [SCO in (typeof StringComparisonOperators)[number]]?: T[K] } : never)
+    | (T[K] extends number ? { [SCO in (typeof NumberComparisonOperators)[number]]?: T[K] } : never)
+    | { [SCO in (typeof SingleComparisonOperators)[number]]?: T[K] }
+    | { [ACO in (typeof ArrayComparisonOperators)[number]]?: Array<T[K]> }
+} & { [LO in (typeof LogicalOperators)[number]]?: Array<FilterType<T>> }
 
-export const isLogicalOperator = (propertyString: string): propertyString is typeof LogicalOperators[number] =>
-  LogicalOperators.includes(propertyString as typeof LogicalOperators[number])
+export const isLogicalOperator = (propertyString: string): propertyString is (typeof LogicalOperators)[number] =>
+  LogicalOperators.includes(propertyString as (typeof LogicalOperators)[number])
 
-export const isOperator = (propertyString: string): propertyString is typeof allOperators[number] =>
-  allOperators.includes(propertyString as typeof allOperators[number])
+export const isOperator = (propertyString: string): propertyString is (typeof allOperators)[number] =>
+  allOperators.includes(propertyString as (typeof allOperators)[number])
 
 export const t: FilterType<{ a: number; b: string; c: boolean }> = {
   a: { $eq: 3 },

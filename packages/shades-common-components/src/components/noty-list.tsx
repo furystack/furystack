@@ -51,8 +51,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       await promisifyAnimation(
         container,
         [
-          { opacity: '1', height: `${container?.scrollHeight || 0}px` },
-          { opacity: '0', height: '0px' },
+          { opacity: '1', height: `${container?.scrollHeight || 0}px`, margin: '8px 8px' },
+          { opacity: '0', height: '0px', margin: '0px 8px' },
         ],
         {
           fill: 'forwards',

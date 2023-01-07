@@ -22,7 +22,7 @@ export const createPostEndpoint = <T extends object, TPrimaryKey extends keyof T
   const endpoint: RequestAction<PostEndpoint<T, TPrimaryKey>> = async ({ injector, request }) => {
     const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
 
-    const entityToCreate = await request.readPostBody<WithOptionalId<T, typeof dataSet['primaryKey']>>()
+    const entityToCreate = await request.readPostBody<WithOptionalId<T, (typeof dataSet)['primaryKey']>>()
     const { created } = await dataSet.add(injector, entityToCreate)
     if (!created || !created.length) {
       throw new RequestError('Entity not found', 404)

@@ -9,6 +9,7 @@ export interface DataGridRowProps<T> {
   service: CollectionService<T>
   rowComponents?: DataRowCells<T>
   onRowClick?: (row: T, event: MouseEvent) => void
+  onRowDoubleClick?: (row: T, event: MouseEvent) => void
   focusedRowStyle?: Partial<CSSStyleDeclaration>
   selectedRowStyle?: Partial<CSSStyleDeclaration>
   unfocusedRowStyle?: Partial<CSSStyleDeclaration>
@@ -100,7 +101,11 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
     return (
       <>
         {columns.map((column) => (
-          <td style={{ padding: '0.5em' }} onclick={(ev) => props.onRowClick?.(entry, ev)}>
+          <td
+            style={{ padding: '0.5em' }}
+            onclick={(ev) => props.onRowClick?.(entry, ev)}
+            ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
+          >
             {rowComponents?.[column]?.(entry, state) || rowComponents?.default?.(entry, state) || (
               <span>{entry[column]}</span>
             )}
