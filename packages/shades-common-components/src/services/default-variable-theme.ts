@@ -72,7 +72,6 @@ const assignValue = <T extends object>(
       assignValue(target[key] as object, source[key] as object, root)
       return
     } else {
-      console.log('assigning', key, source[key])
       assignFn(target[key] as string, source[key] as string, root)
     }
   })

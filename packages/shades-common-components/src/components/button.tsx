@@ -65,13 +65,7 @@ const getHoveredTextColor = (buttonProps: ButtonProps, theme: Theme, fallback: (
       : theme.text.primary
     : fallback()
 
-export const Button = Shade<ButtonProps, { theme: Theme }>({
-  getInitialState: ({ injector }) => ({
-    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
-  }),
-  resources: ({ injector, updateState }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
-  ],
+export const Button = Shade<ButtonProps>({
   constructed: ({ element }) => {
     /**
      * @param this The Document instance
@@ -99,11 +93,11 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     }
   },
   shadowDomName: 'shade-button',
-  render: ({ props, children, getState, injector, element }) => {
+  render: ({ props, children, injector, element }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
-    const { theme } = getState()
     const themeProvider = injector.getInstance(ThemeProviderService)
+    const { theme } = themeProvider
     const background = getBackground(props, theme)
 
     const hoveredBackground = getHoveredBackground(props, theme, () => {
@@ -114,8 +108,9 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
     })
     const boxShadow = getBoxShadow(props, theme)
     const hoveredBoxShadow = getHoveredBoxShadow(props, theme)
-    const textColor = getTextColor(props, theme, () => themeProvider.getTextColor(background))
-    const hoveredTextColor = getHoveredTextColor(props, theme, () => themeProvider.getTextColor(background))
+    const getTextColorInner = () => getTextColor(props, theme, () => themeProvider.getTextColor(background))
+    const getHoveredTextColorInner = () =>
+      getHoveredTextColor(props, theme, () => themeProvider.getTextColor(background))
 
     const tryAnimate = async (
       keyframes: PropertyIndexedKeyframes | Keyframe[] | null,
@@ -143,29 +138,27 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           mouseUpHandler?.call(this, ev)
         }}
         onmouseenter={() => {
-          {
-            tryAnimate(
-              [
-                {
-                  background,
-                  boxShadow,
-                  color: textColor,
-                },
-                {
-                  background: hoveredBackground,
-                  boxShadow: hoveredBoxShadow,
-                  color: hoveredTextColor,
-                },
-              ],
-              { duration: 500, fill: 'forwards', easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)' },
-            )
-          }
+          tryAnimate(
+            [
+              {
+                background,
+                boxShadow,
+                color: getTextColorInner(),
+              },
+              {
+                background: hoveredBackground,
+                boxShadow: hoveredBoxShadow,
+                color: getHoveredTextColorInner(),
+              },
+            ],
+            { duration: 500, fill: 'forwards', easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)' },
+          )
         }}
         onmouseout={() => {
           tryAnimate(
             [
-              { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: hoveredTextColor },
-              { background, boxShadow, color: textColor },
+              { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
+              { background, boxShadow, color: getTextColorInner() },
             ],
             {
               duration: 500,
@@ -184,7 +177,7 @@ export const Button = Shade<ButtonProps, { theme: Theme }>({
           border: 'none',
           borderRadius: '4px',
           textTransform: 'uppercase',
-          color: textColor,
+          color: getTextColorInner(),
           filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
           backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
           userSelect: 'none',

@@ -72,17 +72,8 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',
-  resources: ({ injector, element, props }) => {
-    const tp = injector.getInstance(ThemeProviderService)
+  resources: ({ element, props }) => {
     return [
-      tp.theme.subscribe((t) => {
-        const headers = element.querySelectorAll('th')
-        const { r, g, b } = tp.getRgbFromColorString(t.background.paper)
-        headers.forEach((header) => {
-          header.style.color = t.text.secondary
-          header.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.3)`
-        })
-      }),
       new ClickAwayService(element, () => {
         props.service.hasFocus.setValue(false)
       }),
@@ -95,12 +86,10 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   },
   render: ({ props, injector }) => {
     const tp = injector.getInstance(ThemeProviderService)
-    const theme = tp.theme.getValue()
+    const { theme } = tp
 
-    const { r, g, b } = tp.getRgbFromColorString(theme.background.paper)
     const headerStyle: Partial<CSSStyleDeclaration> = {
-      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.3)`,
-      backdropFilter: 'blur(10px)',
+      backdropFilter: 'blur(12px)',
       padding: '12px 0',
       color: theme.text.secondary,
       alignItems: 'center',

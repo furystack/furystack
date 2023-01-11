@@ -19,7 +19,7 @@ export const Tabs = Shade<
 >({
   shadowDomName: 'shade-tabs',
   getInitialState: ({ props }) => ({ activeIndex: props.activeTab || 0 }),
-  constructed: ({ injector, updateState, element }) => {
+  constructed: ({ injector, updateState }) => {
     const subscriptions = [
       injector.getInstance(LocationService).onLocationChanged.subscribe(() => {
         const { hash } = location
@@ -28,20 +28,20 @@ export const Tabs = Shade<
           page && updateState({ activeIndex: page })
         }
       }, true),
-      injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
-        const headers = element.querySelectorAll('.shade-tabs-headers') as unknown as HTMLDivElement[]
-        headers.forEach((header) => {
-          const isActive = header.classList.contains('active')
-          header.style.backgroundColor = isActive ? t.background.paper : t.background.default
-          header.style.color = isActive ? t.text.primary : t.text.secondary
-        })
-      }),
+      // injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
+      //   const headers = element.querySelectorAll('.shade-tabs-headers') as unknown as HTMLDivElement[]
+      //   headers.forEach((header) => {
+      //     const isActive = header.classList.contains('active')
+      //     header.style.backgroundColor = isActive ? t.background.paper : t.background.default
+      //     header.style.color = isActive ? t.text.primary : t.text.secondary
+      //   })
+      // }),
     ]
     return () => subscriptions.forEach((s) => s.dispose())
   },
   render: ({ props, getState, updateState, injector }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const theme = themeProvider.theme.getValue()
+    const { theme } = themeProvider
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', ...props.containerStyle }}>
         <div

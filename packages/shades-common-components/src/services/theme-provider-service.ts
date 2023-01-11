@@ -1,6 +1,5 @@
 import { Injectable } from '@furystack/inject'
 import type { DeepPartial } from '@furystack/utils'
-import { ObservableValue } from '@furystack/utils'
 import { defaultVariableTheme, getCssVariable, useThemeCssVariables } from './default-variable-theme'
 
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
@@ -66,7 +65,7 @@ export class RgbColor {
 @Injectable({ lifetime: 'singleton' })
 export class ThemeProviderService {
   /**
-   *
+   * @deprecated does not respect CSS vars
    * @param color The background color
    * @param bright The Bright color
    * @param dark The Dark color
@@ -118,14 +117,13 @@ export class ThemeProviderService {
     throw Error(`Color format '${color}' is not supported.'`)
   }
 
-  public readonly theme = new ObservableValue(defaultVariableTheme)
+  public readonly theme = defaultVariableTheme
 
   public set(change: DeepPartial<Theme>) {
     useThemeCssVariables(change)
-    // this.theme.setValue(deepMerge(this.theme.getValue(), change))
   }
 
   public dispose() {
-    this.theme.dispose()
+    // this.theme.dispose()
   }
 }

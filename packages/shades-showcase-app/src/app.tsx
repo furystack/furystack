@@ -5,12 +5,8 @@ import { ThemeSwitch } from './components/theme-switch'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  resources: ({ injector, element }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
-      ;(element.firstElementChild as HTMLDivElement).style.backgroundColor = theme.background.default
-    }, true),
-  ],
-  render: () => {
+  render: ({ injector }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
     return (
       <div
         style={{
@@ -21,6 +17,7 @@ export const App = Shade({
           left: '0',
           padding: '0',
           margin: '0',
+          background: theme.background.default,
         }}
       >
         <AppBar>
