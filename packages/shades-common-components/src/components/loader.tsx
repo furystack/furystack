@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../services'
 import { promisifyAnimation } from '../utils'
 
 interface LoaderProps {
@@ -15,14 +14,6 @@ interface LoaderProps {
 
 export const Loader = Shade<LoaderProps>({
   shadowDomName: 'shade-loader',
-  resources: ({ injector, element }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => {
-      const el = element.firstElementChild
-      if (el) {
-        ;(el as HTMLElement).style.borderBottom = `15px solid ${theme.palette.primary.main}`
-      }
-    }, true),
-  ],
   render: ({ element, props }) => {
     element.style.display = 'inline-block'
     element.style.transformOrigin = 'center'

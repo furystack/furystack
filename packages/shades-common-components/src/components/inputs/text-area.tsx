@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import type { Theme } from '../../services'
 import { ThemeProviderService } from '../../services'
 import { promisifyAnimation } from '../../utils'
 
@@ -12,23 +11,18 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
 }
 
 export type TextAreaInputState = {
-  theme: Theme
   value?: string
 }
 
 export const TextArea = Shade<TextAreaProps, TextAreaInputState>({
   shadowDomName: 'shade-text-area',
-  getInitialState: ({ injector, props }) => ({
-    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
+  getInitialState: ({ props }) => ({
     value: props.value,
   }),
-  resources: ({ injector, updateState }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
-    return [themeProvider.theme.subscribe((theme) => updateState({ theme }))]
-  },
   render: ({ props, element, injector, getState }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const { theme, value } = getState()
+    const { theme } = themeProvider
+    const { value } = getState()
     const { palette } = theme
 
     return (

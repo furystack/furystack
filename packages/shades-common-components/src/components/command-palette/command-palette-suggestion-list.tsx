@@ -75,7 +75,7 @@ export const CommandPaletteSuggestionList = Shade<
           maxHeight: `${window.innerHeight * 0.8}px`,
           zIndex: '1',
           left: 'auto',
-          backgroundColor: injector.getInstance(ThemeProviderService).theme.getValue().background.paper,
+          backgroundColor: injector.getInstance(ThemeProviderService).theme.background.paper,
           boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),

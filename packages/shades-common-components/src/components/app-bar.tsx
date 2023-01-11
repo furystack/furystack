@@ -3,11 +3,6 @@ import { ThemeProviderService } from '../services/theme-provider-service'
 
 export const AppBar = Shade({
   shadowDomName: 'shade-app-bar',
-  resources: ({ element, injector }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
-      ;(element.children[0] as HTMLElement).style.color = t.text.secondary
-    }, true), // TODO: Check TRUE
-  ],
   constructed: ({ element }) => {
     const container = element.children[0] as HTMLElement
     requestAnimationFrame(() => {
@@ -15,7 +10,8 @@ export const AppBar = Shade({
       container.style.opacity = '1'
     })
   },
-  render: ({ children }) => {
+  render: ({ children, injector }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
     return (
       <div
         style={{
@@ -31,6 +27,7 @@ export const AppBar = Shade({
           opacity: '0',
           position: 'fixed',
           zIndex: '1',
+          color: theme.text.secondary,
         }}
       >
         {children}

@@ -175,11 +175,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           }
 
           if (renderResult instanceof HTMLElement) {
-            if (this.hasChildNodes()) {
-              this.replaceChild(renderResult, this.firstChild as Node)
-            } else {
-              this.append(renderResult)
-            }
+            this.replaceChildren(renderResult)
           }
         }
 
