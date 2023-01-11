@@ -8,11 +8,9 @@ const getNavigationEntry = async (page: Page, entryName: string) => {
   return menuEntry
 }
 
-const expectSelected = async (menuEntry: Locator) =>
-  await expect(menuEntry).toHaveCSS('background-color', 'rgba(0, 0, 0, 0.54)')
+const expectSelected = async (menuEntry: Locator) => await expect(menuEntry).toHaveCSS('opacity', '1')
 
-const expectNotSelected = async (menuEntry: Locator) =>
-  await expect(menuEntry).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0.54)')
+const expectNotSelected = async (menuEntry: Locator) => await expect(menuEntry).not.toHaveCSS('opacity', '1')
 
 const expectPageTitle = async (page: Page, title: string) => await page.locator('shade-router h1', { hasText: title })
 
