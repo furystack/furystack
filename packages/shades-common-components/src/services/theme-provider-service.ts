@@ -124,6 +124,6 @@ export class ThemeProviderService {
   }
 
   public dispose() {
-    // this.theme.dispose()
+    /** */
   }
 }
