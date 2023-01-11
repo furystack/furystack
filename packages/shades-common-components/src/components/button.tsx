@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../utils/promisify-animation'
 import type { Palette, Theme } from '../services/theme-provider-service'
 import { ThemeProviderService } from '../services/theme-provider-service'
+import { Trace } from '@furystack/utils'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   variant?: 'contained' | 'outlined'
@@ -93,6 +94,25 @@ export const Button = Shade<ButtonProps>({
     }
   },
   shadowDomName: 'shade-button',
+  resources: ({ injector, element, props }) => {
+    const tp = injector.getInstance(ThemeProviderService)
+    return [
+      ...(props.variant === 'contained'
+        ? [
+            Trace.method({
+              object: tp,
+              method: tp.set,
+              onFinished: () => {
+                const el = element.firstElementChild as HTMLButtonElement
+                el.style.color = getTextColor(props, tp.theme, () =>
+                  tp.getTextColor(el.style.background || el.style.backgroundColor),
+                )
+              },
+            }),
+          ]
+        : []),
+    ]
+  },
   render: ({ props, children, injector, element }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
