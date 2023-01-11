@@ -4,7 +4,6 @@ import { Shade, createComponent, createFragment } from '@furystack/shades'
 import type { DataRowCells } from './data-grid'
 import { Loader } from '../loader'
 import { DataGridRow } from './data-grid-row'
-import { Paper } from '../paper'
 
 export interface DataGridBodyProps<T> {
   service: CollectionService<T>
