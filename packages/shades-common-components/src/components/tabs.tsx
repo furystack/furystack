@@ -28,14 +28,6 @@ export const Tabs = Shade<
           page && updateState({ activeIndex: page })
         }
       }, true),
-      // injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
-      //   const headers = element.querySelectorAll('.shade-tabs-headers') as unknown as HTMLDivElement[]
-      //   headers.forEach((header) => {
-      //     const isActive = header.classList.contains('active')
-      //     header.style.backgroundColor = isActive ? t.background.paper : t.background.default
-      //     header.style.color = isActive ? t.text.primary : t.text.secondary
-      //   })
-      // }),
     ]
     return () => subscriptions.forEach((s) => s.dispose())
   },
