@@ -15,7 +15,7 @@
   "devDependencies": {
     "@playwright/test": "^1.29.2",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
-    "esbuild": "^0.16.15",
+    "esbuild": "^0.16.16",
     "typescript": "^4.9.4"
   },
   "dependencies": {
@@ -29,7 +29,7 @@
     "@furystack/shades-lottie": "^2.1.4",
     "@furystack/shades-nipple": "^2.1.4",
     "@furystack/utils": "^3.1.4",
-    "@lottiefiles/lottie-player": "^1.6.2",
+    "@lottiefiles/lottie-player": "^1.6.3",
     "monaco-editor": "^0.34.1"
   }
 }
