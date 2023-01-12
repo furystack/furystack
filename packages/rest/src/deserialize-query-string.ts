@@ -11,12 +11,13 @@ export const tryDecodeQueryParam = (queryParam: any) => {
 }
 
 export const deserializeQueryString = (fullQueryString: string) => {
-  if (!fullQueryString) {
+  const queryString = fullQueryString.replace('?', '') // trim starting ?
+
+  if (!queryString) {
     return {}
   }
 
-  const entries = fullQueryString
-    .replace('?', '') // trim starting ?
+  const entries = queryString
     .split('&')
     .map((value) => value.split('='))
     .filter(([key, value]) => key?.length && value?.length) // filter out empty keys

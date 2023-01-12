@@ -14,6 +14,10 @@ describe('deserializeQueryString', () => {
     expect(deserializeQueryString('')).toEqual({})
   })
 
+  it('Should serialize a string value with no keys / values', () => {
+    expect(deserializeQueryString('?')).toEqual({})
+  })
+
   it('Should serialize a string with given value but empty key', () => {
     expect(deserializeQueryString('?=alma')).toEqual({})
   })
