@@ -11,7 +11,7 @@ export const tryDecodeQueryParam = (queryParam: any) => {
 }
 
 export const deserializeQueryString = (fullQueryString: string) => {
-  const queryString = fullQueryString.replace('?', '') // trim starting ?
+  const queryString = fullQueryString?.replace?.('?', '') // trim starting ?
 
   if (!queryString) {
     return {}

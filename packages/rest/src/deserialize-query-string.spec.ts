@@ -34,6 +34,10 @@ describe('deserializeQueryString', () => {
     expect(deserializeQueryString('?foo[]=value&foo[]=2&foo[]=false')).toEqual({ foo: ['value', 2, false] })
   })
 
+  it('Should override a value if not specified as an array', () => {
+    expect(deserializeQueryString('?foo=value&foo=2&foo=false&foo=bar')).toEqual({ foo: 'bar' })
+  })
+
   it('Should serialize and deserialize an object with primitives', () => {
     const value = { foo: 1, bar: 'foo', baz: false, asd: null }
     expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
@@ -44,8 +48,8 @@ describe('deserializeQueryString', () => {
     expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
   })
 
-  it('Should serialize and deserialize two arrays with primitives', () => {
-    const value = { foo: [1, 'foo', false, null], bar: [3, 'bar', true, -3.5] }
+  it('Should serialize and deserialize a complex structure', () => {
+    const value = { foo: [1, 'foo', false, null], bar: [3, 'bar', true, -3.5], baz: 'no' }
     expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
   })
 })
