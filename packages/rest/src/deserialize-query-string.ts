@@ -1,7 +1,4 @@
 export const tryDecodeQueryParam = (queryParam: any) => {
-  if (queryParam === undefined || queryParam === null) {
-    return queryParam
-  }
   try {
     return JSON.parse(decodeURIComponent((queryParam as any).toString()))
   } catch {
