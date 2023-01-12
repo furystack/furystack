@@ -1480,8 +1480,8 @@ __metadata:
   dependencies:
     "@furystack/core": ^11.2.2
     "@furystack/inject": ^7.1.4
-    "@furystack/rest": ^4.1.4
-    "@furystack/rest-service": ^6.2.6
+    "@furystack/rest": ^4.1.5
+    "@furystack/rest-service": ^6.2.7
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
     "@types/node": ^18.11.18
@@ -1573,20 +1573,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client-fetch@^4.1.4, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
+"@furystack/rest-client-fetch@^4.1.5, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
     "@furystack/inject": ^7.1.4
     "@furystack/logging": ^3.1.4
-    "@furystack/rest": ^4.1.4
+    "@furystack/rest": ^4.1.5
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
     path-to-regexp: ^6.2.1
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.2.6, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.2.7, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
@@ -1594,8 +1594,8 @@ __metadata:
     "@furystack/inject": ^7.1.4
     "@furystack/logging": ^3.1.4
     "@furystack/repository": ^6.1.4
-    "@furystack/rest": ^4.1.4
-    "@furystack/rest-client-fetch": ^4.1.4
+    "@furystack/rest": ^4.1.5
+    "@furystack/rest-client-fetch": ^4.1.5
     "@furystack/security": ^2.1.4
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
@@ -1607,7 +1607,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^4.1.4, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^4.1.5, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
@@ -1647,13 +1647,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^3.6.0, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^3.6.1, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
     "@furystack/core": ^11.2.2
     "@furystack/inject": ^7.1.4
-    "@furystack/shades": ^6.1.4
+    "@furystack/shades": ^6.1.5
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
     path-to-regexp: ^6.2.1
@@ -1662,22 +1662,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-lottie@^2.1.4, @furystack/shades-lottie@workspace:packages/shades-lottie":
+"@furystack/shades-lottie@^2.1.5, @furystack/shades-lottie@workspace:packages/shades-lottie":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-lottie@workspace:packages/shades-lottie"
   dependencies:
-    "@furystack/shades": ^6.1.4
+    "@furystack/shades": ^6.1.5
     "@lottiefiles/lottie-player": ^1.6.3
     typescript: 4.9.4
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-nipple@^2.1.4, @furystack/shades-nipple@workspace:packages/shades-nipple":
+"@furystack/shades-nipple@^2.1.5, @furystack/shades-nipple@workspace:packages/shades-nipple":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-nipple@workspace:packages/shades-nipple"
   dependencies:
     "@furystack/inject": ^7.1.4
-    "@furystack/shades": ^6.1.4
+    "@furystack/shades": ^6.1.5
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
     nipplejs: ^0.10.0
@@ -1693,11 +1693,11 @@ __metadata:
     "@furystack/inject": ^7.1.4
     "@furystack/logging": ^3.1.4
     "@furystack/repository": ^6.1.4
-    "@furystack/rest-client-fetch": ^4.1.4
-    "@furystack/shades": ^6.1.4
-    "@furystack/shades-common-components": ^3.6.0
-    "@furystack/shades-lottie": ^2.1.4
-    "@furystack/shades-nipple": ^2.1.4
+    "@furystack/rest-client-fetch": ^4.1.5
+    "@furystack/shades": ^6.1.5
+    "@furystack/shades-common-components": ^3.6.1
+    "@furystack/shades-lottie": ^2.1.5
+    "@furystack/shades-nipple": ^2.1.5
     "@furystack/utils": ^3.1.4
     "@lottiefiles/lottie-player": ^1.6.3
     "@playwright/test": ^1.29.2
@@ -1708,7 +1708,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades@^6.1.4, @furystack/shades@workspace:packages/shades":
+"@furystack/shades@^6.1.5, @furystack/shades@workspace:packages/shades":
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
@@ -1739,7 +1739,7 @@ __metadata:
     "@furystack/core": ^11.2.2
     "@furystack/inject": ^7.1.4
     "@furystack/logging": ^3.1.4
-    "@furystack/rest-service": ^6.2.6
+    "@furystack/rest-service": ^6.2.7
     "@furystack/utils": ^3.1.4
     "@types/jest": ^29.2.5
     "@types/ws": ^8.5.4

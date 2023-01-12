@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "",
   "keywords": [
     "FuryStack",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@furystack/core": "^11.2.2",
     "@furystack/inject": "^7.1.4",
-    "@furystack/shades": "^6.1.4",
+    "@furystack/shades": "^6.1.5",
     "@furystack/utils": "^3.1.4",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
