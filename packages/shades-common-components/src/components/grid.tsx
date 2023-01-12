@@ -25,17 +25,8 @@ export type RowCells<T> = {
 
 export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade({
   shadowDomName: 'shade-grid',
-  resources: ({ injector, element }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
-      const headers = element.querySelectorAll('th')
-      headers.forEach((header) => {
-        header.style.color = t.text.secondary
-        header.style.background = t.background.paper
-      })
-    }),
-  ],
   render: ({ props, injector }) => {
-    const theme = injector.getInstance(ThemeProviderService).theme.getValue()
+    const { theme } = injector.getInstance(ThemeProviderService)
     const headerStyle: Partial<CSSStyleDeclaration> = {
       padding: '0 0.51em',
       backgroundColor: theme.background.paper,

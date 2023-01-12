@@ -9,16 +9,8 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
   getInitialState: ({ props }) => ({
     data: props.service.data.getValue(),
   }),
-  constructed: ({ props, updateState, injector, element }) => {
-    const disposables = [
-      props.service.data.subscribe((data) => updateState({ data })),
-
-      injector.getInstance(ThemeProviderService).theme.subscribe((t) => {
-        const el = element.querySelector('div') as HTMLDivElement
-        el.style.color = t.text.secondary
-        el.style.background = t.background.paper
-      }),
-    ]
+  constructed: ({ props, updateState }) => {
+    const disposables = [props.service.data.subscribe((data) => updateState({ data }))]
 
     return () => disposables.forEach((d) => d.dispose())
   },
@@ -27,7 +19,7 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
     const currentQuerySettings = props.service.querySettings.getValue()
     const currentPage = Math.ceil(currentQuerySettings.skip || 0) / (currentQuerySettings.top || 1)
     const currentEntriesPerPage = currentQuerySettings.top || Infinity
-    const theme = injector.getInstance(ThemeProviderService).theme.getValue()
+    const { theme } = injector.getInstance(ThemeProviderService)
 
     return (
       <div

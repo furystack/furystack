@@ -1,7 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent, attachStyles } from '@furystack/shades'
 import { ThemeProviderService } from '../..'
-import type { Palette, Theme } from '../../services'
+import type { Palette } from '../../services'
 
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
   /**
@@ -47,7 +47,6 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
 }
 
 export type TextInputState = {
-  theme: Theme
   value: string
   focused: boolean
   validity: ValidityState
@@ -69,12 +68,12 @@ const getLabelStyle = ({
     justifyContent: 'space-between',
     fontSize: '10px',
     color: props.disabled
-      ? state.theme.text.disabled
+      ? themeProvider.theme.text.disabled
       : state.validity?.valid === false
-      ? state.theme.palette.error.main
+      ? themeProvider.theme.palette.error.main
       : state.focused
-      ? state.theme.text.primary
-      : state.theme.text.secondary,
+      ? themeProvider.theme.text.primary
+      : themeProvider.theme.text.secondary,
     marginBottom: '1em',
     padding: '1em',
     borderRadius: '5px',
@@ -83,8 +82,8 @@ const getLabelStyle = ({
         ? themeProvider
             .getRgbFromColorString(
               state.validity?.valid === false
-                ? state.theme.palette.error.main
-                : state.theme.palette[props.defaultColor || 'primary'].main,
+                ? themeProvider.theme.palette.error.main
+                : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
             )
             .update('a', state.focused ? 0.1 : 0.2)
             .toString()
@@ -93,10 +92,10 @@ const getLabelStyle = ({
       props.variant === 'outlined' || props.variant === 'contained'
         ? `0 0 0 1px ${
             state.validity?.valid === false
-              ? state.theme.palette.error.main
+              ? themeProvider.theme.palette.error.main
               : state.focused
-              ? state.theme.palette[props.defaultColor || 'primary'].main
-              : state.theme.text.primary
+              ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
+              : themeProvider.theme.text.primary
           }`
         : 'none',
     filter: props.disabled ? 'grayscale(100%)' : 'none',
@@ -109,15 +108,11 @@ const getLabelStyle = ({
 
 export const Input = Shade<TextInputProps, TextInputState>({
   shadowDomName: 'shade-input',
-  getInitialState: ({ injector, props }) => ({
-    theme: injector.getInstance(ThemeProviderService).theme.getValue(),
+  getInitialState: ({ props }) => ({
     value: props.value || '',
     focused: props.autofocus || false,
     validity: { valid: true } as ValidityState,
   }),
-  resources: ({ injector, updateState }) => [
-    injector.getInstance(ThemeProviderService).theme.subscribe((theme) => updateState({ theme })),
-  ],
   compareState: ({ newState, element, props, injector }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const label = element.querySelector('label') as HTMLLabelElement

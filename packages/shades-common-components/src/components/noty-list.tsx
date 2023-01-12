@@ -42,7 +42,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const colors = themeProvider.theme.getValue().palette[props.model.type]
+    const colors = themeProvider.theme.palette[props.model.type]
     const headerTextColor = themeProvider.getTextColor(colors.dark)
     const textColor = themeProvider.getTextColor(colors.main)
 
