@@ -2,6 +2,26 @@ import { deserializeQueryString } from './deserialize-query-string'
 import { serializeToQueryString } from './serialize-to-query-string'
 
 describe('deserializeQueryString', () => {
+  it('Should serialize a null value', () => {
+    expect(deserializeQueryString(null as any)).toEqual({})
+  })
+
+  it('Should serialize an undefined value', () => {
+    expect(deserializeQueryString(undefined as any)).toEqual({})
+  })
+
+  it('Should serialize an empty string value', () => {
+    expect(deserializeQueryString('')).toEqual({})
+  })
+
+  it('Should serialize a string with given value but empty key', () => {
+    expect(deserializeQueryString('?=alma')).toEqual({})
+  })
+
+  it('Should serialize a string with given key but empty value', () => {
+    expect(deserializeQueryString('?alma=')).toEqual({})
+  })
+
   it('Should serialize a list of primitive values', () => {
     expect(deserializeQueryString('?foo=value&bar=2&baz=false')).toEqual({ foo: 'value', bar: 2, baz: false })
   })

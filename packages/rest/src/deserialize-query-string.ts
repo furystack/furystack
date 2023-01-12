@@ -1,4 +1,7 @@
 export const tryDecodeQueryParam = (queryParam: any) => {
+  if (queryParam === undefined || queryParam === null) {
+    return queryParam
+  }
   try {
     return JSON.parse(decodeURIComponent((queryParam as any).toString()))
   } catch {
@@ -11,10 +14,15 @@ export const tryDecodeQueryParam = (queryParam: any) => {
 }
 
 export const deserializeQueryString = (fullQueryString: string) => {
+  if (!fullQueryString) {
+    return {}
+  }
+
   const entries = fullQueryString
     .replace('?', '') // trim starting ?
     .split('&')
     .map((value) => value.split('='))
+    .filter(([key, value]) => key?.length && value?.length) // filter out empty keys
 
   const dedupedValues = entries
     .reduce((prev, current) => {
