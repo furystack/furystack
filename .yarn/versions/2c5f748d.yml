@@ -1,0 +1,7 @@
+releases:
+  "@furystack/shades": major
+  "@furystack/shades-common-components": major
+  "@furystack/shades-lottie": major
+  "@furystack/shades-nipple": major
+  "@furystack/shades-showcase-app": major
+  furystack: minor
