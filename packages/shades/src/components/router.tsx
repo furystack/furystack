@@ -1,5 +1,4 @@
 import { Shade } from '../shade'
-import { createComponent } from '../shade-component'
 import { LocationService } from '../services'
 import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
@@ -72,6 +71,6 @@ export const Router = Shade<RouterProps, RouterState>({
     if (jsx) {
       return jsx
     }
-    return <div></div>
+    return null
   },
 })

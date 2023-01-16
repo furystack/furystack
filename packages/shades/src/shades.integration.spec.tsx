@@ -7,7 +7,7 @@ global.TextDecoder = TextDecoder as any
 
 import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
-import { createComponent, createFragment } from './shade-component'
+import { createComponent } from './shade-component'
 
 describe('Shades integration tests', () => {
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))

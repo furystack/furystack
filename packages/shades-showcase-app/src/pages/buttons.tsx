@@ -74,6 +74,21 @@ export const ButtonsPage = Shade<unknown, { disabled: boolean }>({
         >
           Disable All
         </Button>
+
+        <Button
+          style={{
+            display: 'inline',
+            width: '150px',
+            textAlign: 'center',
+            fontFamily: 'monospace',
+            fontSize: '20px',
+            border: '3px dashed red',
+            padding: '1em',
+          }}
+          title="A button with attached custom CSS attributes"
+        >
+          Custom Style
+        </Button>
       </div>
     )
   },

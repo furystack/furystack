@@ -46,26 +46,37 @@ export const attachDataAttributes = (el: HTMLElement, props: any) => {
 }
 
 /**
- * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
  *
- * @param elementType The type of the element (component or stateless component factory method)
- * @param props The props for the component
- * @param children additional rest parameters will be parsed as children objects
- * @returns the created JSX element
+ * @param el The Target HTML Element
+ * @param props The Props to attach
  */
-export const createComponent = <TProps>(
+export const attachProps = (el: HTMLElement, props: any) => {
+  Object.assign(el, props)
+
+  if (props && (props as any).style) {
+    attachStyles(el, props)
+  }
+  attachDataAttributes(el, props)
+}
+
+type CreateComponentArgs<TProps> = [
   elementType: string | ShadeComponent<TProps>,
   props: TProps,
-  ...children: ChildrenList
-) => {
+  ...children: ChildrenList,
+]
+
+// eslint-disable-next-line jsdoc/require-param
+/**
+ * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
+ *
+ * @returns the created JSX element
+ */
+export const createComponentInner = <TProps>(...[elementType, props, ...children]: CreateComponentArgs<TProps>) => {
   if (typeof elementType === 'string') {
     const el = document.createElement(elementType)
-    Object.assign(el, props)
 
-    if (props && (props as any).style) {
-      attachStyles(el, props)
-    }
-    attachDataAttributes(el, props)
+    attachProps(el, props)
+
     if (children) {
       appendChild(el, children)
     }
@@ -78,8 +89,17 @@ export const createComponent = <TProps>(
   return undefined
 }
 
-export const createFragment = (_props: any, children: ChildrenList) => {
+type CreateFragmentArgs = [props: null, ...children: ChildrenList]
+
+export const createFragmentInner = (...[_props, ...children]: CreateFragmentArgs) => {
   const fragment = document.createDocumentFragment()
   appendChild(fragment, children)
   return fragment
+}
+
+export const createComponent = <TProps>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
+  if (args[0] === null) {
+    return createFragmentInner(...args)
+  }
+  return createComponentInner(...args)
 }

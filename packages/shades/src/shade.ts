@@ -170,11 +170,10 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             this.innerHTML = renderResult
           }
 
-          if (renderResult instanceof DocumentFragment) {
-            this.replaceChildren(...renderResult.children)
-          }
-
           if (renderResult instanceof HTMLElement) {
+            this.replaceChildren(renderResult)
+          }
+          if (renderResult instanceof DocumentFragment) {
             this.replaceChildren(renderResult)
           }
         }

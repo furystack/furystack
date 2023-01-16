@@ -1,4 +1,4 @@
-import { createComponent, createFragment, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import type { ButtonProps } from '@furystack/shades-common-components'
 import { Button, defaultDarkTheme, defaultLightTheme, ThemeProviderService } from '@furystack/shades-common-components'
 

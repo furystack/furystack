@@ -12,7 +12,7 @@ export const getBundleBuildOptions = () => ({
   plugins: [pnpPlugin()],
   entryPoints: ['./src/index.tsx'],
   jsxFactory: 'createComponent',
-  jsxFragment: 'createFragment',
+  jsxFragment: 'createComponent',
   outdir: 'bundle/js',
   bundle: true,
   minify: true,
