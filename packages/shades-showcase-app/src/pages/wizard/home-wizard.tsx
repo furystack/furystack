@@ -59,6 +59,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
             disabled={props.currentPage > props.maxPages - 1}
             variant="contained"
             color={props.currentPage === props.maxPages - 1 ? 'success' : 'primary'}
+            onclick={(ev) => (ev.target as HTMLElement)?.closest('form')?.requestSubmit()}
           >
             {props.currentPage < props.maxPages - 1 ? 'Next' : 'Finish'}
           </Button>

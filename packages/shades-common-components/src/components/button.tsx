@@ -142,6 +142,7 @@ export const Button = Shade<ButtonProps>({
     }
 
     attachProps(element, {
+      ...props,
       onmousedown(this: HTMLElement, ev: MouseEvent) {
         mouseDownHandler?.call(this, ev)
         tryAnimate(
