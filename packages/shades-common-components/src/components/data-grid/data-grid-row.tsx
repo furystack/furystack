@@ -1,5 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, Shade } from '@furystack/shades'
+import { ThemeProviderService } from '../../services'
 import type { CollectionService } from '../../services/collection-service'
 import type { DataRowCells } from './data-grid'
 
@@ -30,12 +31,13 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
     selection: props.service.selection.getValue(),
   }),
   shadowDomName: 'shades-data-grid-row',
-  resources: ({ props, element }) => [
+  resources: ({ props, element, injector }) => [
     props.service.focusedEntry.subscribe((newEntry) => {
+      const { theme } = injector.getInstance(ThemeProviderService)
       if (newEntry === props.entry) {
         attachStyles(element, {
           style: props.focusedRowStyle || {
-            filter: 'brightness(1.5)',
+            boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
             fontWeight: 'bolder',
           },
         })
@@ -63,7 +65,7 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
         element.classList.remove('focused')
         attachStyles(element, {
           style: props.unfocusedRowStyle || {
-            filter: 'brightness(1)',
+            boxShadow: 'none',
             fontWeight: 'inherit',
           },
         })
