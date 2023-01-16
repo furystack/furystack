@@ -56,7 +56,7 @@ export const Router = Shade<RouterProps, RouterState>({
         if (lastRoute?.onLeave) {
           await lastRoute.onLeave(options)
         }
-        setJsx(options.props.notFound?.(currentUrl), true)
+        setJsx(options.props.notFound?.(currentUrl))
         setActiveRoute(undefined)
       } catch (e) {
         // path updates can be async, this can be ignored
