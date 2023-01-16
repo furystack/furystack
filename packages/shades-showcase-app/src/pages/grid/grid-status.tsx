@@ -17,15 +17,18 @@ export const GridStatus = Shade<
       focusedEntry: gridService.collectionService.focusedEntry.getValue(),
     }
   },
-  resources: ({ getState, updateState }) => {
-    const { gridService } = getState()
+  resources: ({ useState }) => {
+    const [gridService] = useState('gridService')
+    const [, setFocusedEntry] = useState('focusedEntry')
+    const [, setSelection] = useState('selection')
     return [
-      gridService.collectionService.focusedEntry.subscribe((focusedEntry) => updateState({ focusedEntry })),
-      gridService.collectionService.selection.subscribe((selection) => updateState({ selection })),
+      gridService.collectionService.focusedEntry.subscribe(setFocusedEntry),
+      gridService.collectionService.selection.subscribe(setSelection),
     ]
   },
-  render: ({ getState }) => {
-    const { focusedEntry, selection } = getState()
+  render: ({ useState }) => {
+    const [focusedEntry] = useState('focusedEntry')
+    const [selection] = useState('selection')
     return (
       <div
         style={{

@@ -12,12 +12,11 @@ export const CommandPaletteSuggestionList = Shade<
   getInitialState: ({ props }) => ({
     suggestions: props.manager.currentSuggestions.getValue(),
   }),
-  constructed: ({ updateState, element, props }) => {
+  constructed: ({ element, props, useState }) => {
     const { manager } = props
+    const [, setSuggestions] = useState('suggestions')
     const subscriptions = [
-      manager.currentSuggestions.subscribe((suggestions) => {
-        updateState({ suggestions })
-      }),
+      manager.currentSuggestions.subscribe(setSuggestions),
       manager.isOpened.subscribe(async (isOpened) => {
         const container = element.firstElementChild as HTMLDivElement
         if (isOpened) {
@@ -59,7 +58,8 @@ export const CommandPaletteSuggestionList = Shade<
     ]
     return () => subscriptions.map((s) => s.dispose())
   },
-  render: ({ element, injector, getState, props }) => {
+  render: ({ element, injector, props, useState }) => {
+    const [suggestions] = useState('suggestions')
     const { manager } = props
     return (
       <div
@@ -81,7 +81,7 @@ export const CommandPaletteSuggestionList = Shade<
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),
         }}
       >
-        {getState().suggestions.map((s, i) => (
+        {suggestions.map((s, i) => (
           <div
             className="suggestion-item"
             onclick={() => {

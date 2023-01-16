@@ -41,8 +41,8 @@ export const Wizard = Shade<WizardProps, WizardState>({
   getInitialState: () => ({
     currentPage: 0,
   }),
-  render: ({ props, getState, updateState }) => {
-    const { currentPage } = getState()
+  render: ({ props, useState }) => {
+    const [currentPage, setCurrentPage] = useState('currentPage')
 
     const CurrentPage = props.steps[currentPage]
 
@@ -62,14 +62,14 @@ export const Wizard = Shade<WizardProps, WizardState>({
             maxPages={props.steps.length}
             onNext={() => {
               if (currentPage < props.steps.length - 1) {
-                updateState({ currentPage: currentPage + 1 })
+                setCurrentPage(currentPage + 1)
               } else {
                 props.onFinish?.()
               }
             }}
             onPrev={() => {
               if (currentPage > 0) {
-                updateState({ currentPage: currentPage - 1 })
+                setCurrentPage(currentPage - 1)
               }
             }}
           />

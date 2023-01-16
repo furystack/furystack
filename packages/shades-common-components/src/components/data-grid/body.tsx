@@ -33,10 +33,14 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
     data: props.service.data.getValue().entries,
     isLoading: props.service.isLoading.getValue(),
   }),
-  resources: ({ props, updateState }) => [
-    props.service.data.subscribe((data) => updateState({ data: data.entries })),
-    props.service.isLoading.subscribe((isLoading) => updateState({ isLoading })),
-  ],
+  resources: ({ props, useState }) => {
+    const [, setData] = useState('data')
+    const [, setIsLoading] = useState('isLoading')
+    return [
+      props.service.data.subscribe((response) => setData(response.entries)),
+      props.service.isLoading.subscribe(setIsLoading),
+    ]
+  },
   shadowDomName: 'shade-data-grid-body',
   render: ({ getState, props, element }) => {
     element.style.display = 'table-row-group'

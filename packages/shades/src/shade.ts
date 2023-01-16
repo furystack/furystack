@@ -112,26 +112,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          */
         private getRenderOptions = (): RenderOptions<TProps, TState> => {
           const props: TProps = { ...this.props }
-          const getState = () => ({ ...this.state })
-          const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
-            const oldState = { ...this.state }
-            const newState = { ...oldState, ...stateChanges }
-
-            this.state = newState
-
-            if (
-              !skipRender &&
-              this.compareState({
-                oldState,
-                newState,
-                props,
-                element: this,
-                injector: this.injector,
-              })
-            ) {
-              this.updateComponent()
-            }
-          }
 
           const returnValue = {
             ...{
@@ -141,13 +121,38 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
               children: this.shadeChildren,
               element: this,
             },
-            ...((o as any).getInitialState
-              ? {
-                  getState,
-                  updateState,
-                }
-              : {}),
           } as any as RenderOptions<TProps, TState>
+
+          if ((o as any).getInitialState) {
+            const getState = () => ({ ...this.state })
+            const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
+              const oldState = { ...this.state }
+              const newState = { ...oldState, ...stateChanges }
+
+              this.state = newState
+
+              if (
+                !skipRender &&
+                this.compareState({
+                  oldState,
+                  newState,
+                  props,
+                  element: this,
+                  injector: this.injector,
+                })
+              ) {
+                this.updateComponent()
+              }
+            }
+
+            const useState = <TStateField extends keyof TState>(key: TStateField) => {
+              const getStateField = this.state[key]
+              const setStateField = (value: TState[TStateField], skipRender?: boolean) =>
+                updateState({ [key]: value } as any as PartialElement<TState>, skipRender)
+              return [getStateField, setStateField]
+            }
+            Object.assign(returnValue, { getState, updateState, useState })
+          }
 
           return returnValue
         }

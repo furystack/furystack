@@ -9,13 +9,13 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
   getInitialState: ({ props }) => ({
     data: props.service.data.getValue(),
   }),
-  constructed: ({ props, updateState }) => {
-    const disposables = [props.service.data.subscribe((data) => updateState({ data }))]
+  resources: ({ props, useState }) => {
+    const [, setData] = useState('data')
 
-    return () => disposables.forEach((d) => d.dispose())
+    return [props.service.data.subscribe(setData)]
   },
-  render: ({ props, getState, injector }) => {
-    const state = getState()
+  render: ({ props, useState, injector }) => {
+    const [data] = useState('data')
     const currentQuerySettings = props.service.querySettings.getValue()
     const currentPage = Math.ceil(currentQuerySettings.skip || 0) / (currentQuerySettings.top || 1)
     const currentEntriesPerPage = currentQuerySettings.top || Infinity
@@ -46,13 +46,13 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
                 props.service.querySettings.setValue({ ...currentQuery, skip: (currentQuery.top || 0) * value })
               }}
             >
-              {[
-                ...new Array(Math.ceil(state.data.count / (props.service.querySettings.getValue().top || Infinity))),
-              ].map((_val, index) => (
-                <option value={index.toString()} selected={currentPage === index}>
-                  {(index + 1).toString()}
-                </option>
-              ))}
+              {[...new Array(Math.ceil(data.count / (props.service.querySettings.getValue().top || Infinity)))].map(
+                (_val, index) => (
+                  <option value={index.toString()} selected={currentPage === index}>
+                    {(index + 1).toString()}
+                  </option>
+                ),
+              )}
             </select>
           </div>
         )}

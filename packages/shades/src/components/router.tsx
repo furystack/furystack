@@ -31,31 +31,33 @@ export const Router = Shade<RouterProps, RouterState>({
   getInitialState: () => ({
     lock: new Semaphore(1),
   }),
-  resources: ({ children, props, injector, updateState, getState, element }) => [
-    injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
-      const { activeRoute: lastRoute, activeRouteParams: lastParams, lock } = getState()
+  resources: (options) => [
+    options.injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
+      const [lastRoute, setActiveRoute] = options.useState('activeRoute')
+      const [lastParams, setActiveParams] = options.useState('activeRouteParams')
+      const [, setJsx] = options.useState('jsx')
+      const [lock] = options.useState('lock')
       try {
         await lock.acquire()
-        for (const route of props.routes) {
+        for (const route of options.props.routes) {
           const matchFn = match(route.url, route.routingOptions)
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
             if (route !== lastRoute || JSON.stringify(lastParams) !== JSON.stringify(matchResult.params)) {
-              await lastRoute?.onLeave?.({ children, props, injector, updateState, getState, element })
-              updateState({
-                jsx: route.component({ currentUrl, match: matchResult }),
-                activeRoute: route,
-                activeRouteParams: matchResult.params,
-              })
-              await route.onVisit?.({ children, props, injector, updateState, getState, element })
+              await lastRoute?.onLeave?.(options)
+              setJsx(route.component({ currentUrl, match: matchResult }), true)
+              setActiveRoute(route, true)
+              setActiveParams(matchResult.params)
+              await route.onVisit?.(options)
             }
             return
           }
         }
         if (lastRoute?.onLeave) {
-          await lastRoute.onLeave({ children, props, injector, updateState, getState, element })
+          await lastRoute.onLeave(options)
         }
-        updateState({ jsx: props.notFound?.(currentUrl), activeRoute: undefined })
+        setJsx(options.props.notFound?.(currentUrl), true)
+        setActiveRoute(undefined)
       } catch (e) {
         // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
@@ -66,8 +68,8 @@ export const Router = Shade<RouterProps, RouterState>({
       }
     }, true),
   ],
-  render: ({ getState }) => {
-    const { jsx } = getState()
+  render: ({ useState }) => {
+    const [jsx] = useState('jsx')
     if (jsx) {
       return jsx
     }

@@ -36,20 +36,26 @@ export const DataGridHeader: <T, K extends keyof T>(
       props.collectionService.querySettings.setValue(newSettings)
     }),
   }),
-  constructed: ({ props, updateState, getState }) => {
-    const disposable = props.collectionService.querySettings.subscribe((querySettings) =>
-      updateState({ querySettings }, getState().isSearchOpened),
-    )
-    return () => disposable.dispose()
+  resources: ({ props, useState }) => {
+    const [, setQuerySettings] = useState('querySettings')
+    return [
+      props.collectionService.querySettings.subscribe((querySettings) => {
+        const [isSearchOpened] = useState('isSearchOpened')
+        setQuerySettings(querySettings, isSearchOpened)
+      }),
+    ]
   },
-  render: ({ getState, props, updateState, element }) => {
-    const currentState = getState()
-    const currentOrder = Object.keys(currentState.querySettings.order || {})[0]
-    const currentOrderDirection = Object.values(currentState.querySettings.order || {})[0]
+  render: ({ props, element, useState }) => {
+    const [querySettings] = useState('querySettings')
+    const currentOrder = Object.keys(querySettings.order || {})[0]
+    const currentOrderDirection = Object.values(querySettings.order || {})[0]
+
+    const [isSearchOpened, setIsSearchOpened] = useState('isSearchOpened')
+    const [updateSearchValue] = useState('updateSearchValue')
 
     const filterValue = (props.collectionService.querySettings.getValue().filter as any)?.[props.field]?.$regex || ''
 
-    if (currentState.isSearchOpened) {
+    if (isSearchOpened) {
       setTimeout(() => {
         element.querySelector('input')?.focus()
       }, 1)
@@ -59,8 +65,8 @@ export const DataGridHeader: <T, K extends keyof T>(
           value={filterValue}
           placeholder={props.field}
           autofocus
-          onblur={() => updateState({ isSearchOpened: false })}
-          onkeyup={(ev) => currentState.updateSearchValue((ev.target as HTMLInputElement).value)}
+          onblur={() => setIsSearchOpened(false)}
+          onkeyup={(ev) => updateSearchValue((ev.target as HTMLInputElement).value)}
           labelProps={{
             style: { padding: '0px 2em' },
           }}
@@ -71,7 +77,7 @@ export const DataGridHeader: <T, K extends keyof T>(
     return (
       <div
         style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'space-around' }}
-        onclick={() => updateState({ isSearchOpened: true })}
+        onclick={() => setIsSearchOpened(true)}
       >
         <div>{props.field}</div>
         <div className="header-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -88,7 +94,7 @@ export const DataGridHeader: <T, K extends keyof T>(
               }
               newOrder[props.field] = newDirection
               props.collectionService.querySettings.setValue({
-                ...currentState.querySettings,
+                ...querySettings,
                 order: newOrder,
               })
             }}

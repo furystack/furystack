@@ -40,22 +40,24 @@ export const Tabs = Shade<
 >({
   shadowDomName: 'shade-tabs',
   getInitialState: ({ props }) => ({ activeIndex: props.activeTab || 0 }),
-  constructed: ({ injector, updateState }) => {
-    const subscriptions = [
+
+  resources: ({ injector, useState }) => {
+    const [, setActivePage] = useState('activeIndex')
+    return [
       injector.getInstance(LocationService).onLocationChanged.subscribe(() => {
         const { hash } = location
         if (hash && hash.startsWith('#tab-')) {
           const page = parseInt(hash.replace('#tab-', ''), 10)
-          page && updateState({ activeIndex: page })
+          !isNaN(page) && setActivePage(page)
         }
       }, true),
     ]
-    return () => subscriptions.forEach((s) => s.dispose())
   },
-  render: ({ props, getState, updateState, element }) => {
+  render: ({ props, useState, element }) => {
     attachProps(element, {
       style: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', ...props.containerStyle },
     })
+    const [activePage, setActivePage] = useState('activeIndex')
     return (
       <>
         <div
@@ -63,14 +65,14 @@ export const Tabs = Shade<
           style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}
         >
           {props.tabs.map((tab, index) => {
-            const isActive = index === getState().activeIndex
+            const isActive = index === activePage
 
             return (
               <TabHeader
                 isActive={isActive}
                 onActivate={() => {
                   window.history.pushState({}, '', `#tab-${index}`)
-                  updateState({ activeIndex: index })
+                  setActivePage(index)
                 }}
               >
                 {tab.header}
@@ -78,7 +80,7 @@ export const Tabs = Shade<
             )
           })}
         </div>
-        {props.tabs[getState().activeIndex].component}
+        {props.tabs[activePage].component}
       </>
     )
   },
