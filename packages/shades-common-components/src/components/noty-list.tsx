@@ -126,24 +126,10 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
 export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
   getInitialState: ({ injector }) => ({ currentNotys: injector.getInstance(NotyService).notys.getValue() }),
-  constructed: ({ injector, element }) => {
-    const notyService = injector.getInstance(NotyService)
-    const observables = [
-      notyService.onNotyAdded.subscribe((n) => {
-        element.append(<NotyComponent model={n} onDismiss={() => notyService.removeNoty(n)} />)
-      }),
-      notyService.onNotyRemoved.subscribe((n) => {
-        element.querySelectorAll('shade-noty').forEach((e) => {
-          if ((e as JSX.Element).props.model === n) {
-            e.remove()
-          }
-        })
-      }),
-    ]
-    return () => observables.forEach((o) => o.dispose())
-  },
   shadowDomName: 'shade-noty-list',
-  render: ({ getState, injector, element }) => {
+  render: ({ useState, useObservable, injector, element }) => {
+    const notyService = injector.getInstance(NotyService)
+
     attachProps(element, {
       style: {
         position: 'fixed',
@@ -153,9 +139,24 @@ export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
         flexDirection: 'column',
       },
     })
+
+    const [currentNotys] = useState('currentNotys')
+
+    useObservable('addNoty', notyService.onNotyAdded, (n) =>
+      element.append(<NotyComponent model={n} onDismiss={() => notyService.removeNoty(n)} />),
+    )
+
+    useObservable('removeNoty', notyService.onNotyRemoved, (n) => {
+      element.querySelectorAll('shade-noty').forEach((e) => {
+        if ((e as JSX.Element).props.model === n) {
+          e.remove()
+        }
+      })
+    })
+
     return (
       <>
-        {getState().currentNotys.map((n) => (
+        {currentNotys.map((n) => (
           <NotyComponent model={n} onDismiss={() => injector.getInstance(NotyService).removeNoty(n)} />
         ))}
       </>

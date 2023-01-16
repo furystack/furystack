@@ -25,7 +25,7 @@ describe('Router', () => {
 
     const onRouteChange = jest.fn()
 
-    injector.getInstance(LocationService).onLocationChanged.subscribe(onRouteChange)
+    injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 
     initializeShadeRoot({
       injector,

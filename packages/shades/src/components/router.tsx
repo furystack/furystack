@@ -32,7 +32,7 @@ export const Router = Shade<RouterProps, RouterState>({
     lock: new Semaphore(1),
   }),
   resources: (options) => [
-    options.injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
+    options.injector.getInstance(LocationService).onLocationPathChanged.subscribe(async (currentUrl) => {
       const [lastRoute, setActiveRoute] = options.useState('activeRoute')
       const [lastParams, setActiveParams] = options.useState('activeRouteParams')
       const [, setJsx] = options.useState('jsx')

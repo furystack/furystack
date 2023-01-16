@@ -12,8 +12,10 @@ export type ModalProps = {
 export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
   getInitialState: ({ props }) => ({ isVisible: props.isVisible.getValue() }),
   shadowDomName: 'shade-modal',
-  resources: ({ props, element, useState }) => [
-    props.isVisible.subscribe(async (visible) => {
+
+  render: ({ props, useState, children, useObservable, element }) => {
+    const [isVisible] = useState('isVisible')
+    useObservable('isVisible', props.isVisible, async (visible) => {
       const [, setVisible] = useState('isVisible')
       if (visible) {
         setVisible(visible)
@@ -23,11 +25,7 @@ export const Modal = Shade<ModalProps, { isVisible?: boolean }>({
           ? await props.hideAnimation?.(element).finally(() => setVisible(visible))
           : setVisible(visible)
       }
-    }),
-  ],
-
-  render: ({ props, useState, children }) => {
-    const [isVisible] = useState('isVisible')
+    })
     return isVisible ? (
       <div
         className="shade-backdrop"

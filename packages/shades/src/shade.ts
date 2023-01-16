@@ -1,4 +1,4 @@
-import type { Disposable } from '@furystack/utils'
+import type { Disposable, ObservableValue, ValueChangeCallback, ValueObserver } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement, RenderOptions } from './models'
 
@@ -69,6 +69,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
+        private usedObservables = new Map<string, ValueObserver<any>>()
         private compareState =
           o.compareState ||
           (({ oldState, newState }: { oldState: TState; newState: TState }) =>
@@ -83,6 +84,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public disconnectedCallback() {
           o.onDetach && o.onDetach(this.getRenderOptions())
           Object.values(this.resources).forEach((s) => s.dispose())
+          this.usedObservables.forEach((s) => s.dispose())
           this.cleanup && this.cleanup()
         }
 
@@ -113,6 +115,16 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         private getRenderOptions = (): RenderOptions<TProps, TState> => {
           const props: TProps = { ...this.props }
 
+          const useObservable = <T>(key: string, observable: ObservableValue<T>, callback?: ValueChangeCallback<T>) => {
+            const alreadyUsed = this.usedObservables.get(key)
+            if (alreadyUsed) {
+              return [alreadyUsed.observable.getValue(), alreadyUsed.observable.setValue] as const
+            }
+            const observer = observable.subscribe(callback || (() => this.updateComponent()))
+            this.usedObservables.set(key, observer)
+            return [observable.getValue(), observable.setValue] as const
+          }
+
           const returnValue = {
             ...{
               props,
@@ -120,6 +132,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
               children: this.shadeChildren,
               element: this,
+              useObservable,
             },
           } as any as RenderOptions<TProps, TState>
 

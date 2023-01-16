@@ -9,8 +9,12 @@ export type RenderOptions<TProps, TState> = {
   injector: Injector
   children?: ChildrenList
   element: JSX.Element<TProps, TState>
-  // TODO
-  // useObservable: <T>(observable: ObservableValue<T>) => [value: T, setValue: (newValue: T) => void]
+  useObservable: <T>(
+    key: string,
+    observable: ObservableValue<T>,
+    callback?: (newValue: T) => void,
+  ) => [value: T, setValue: (newValue: T) => void]
+  cleanupUsedObservables: () => void
 } & (unknown extends TState
   ? {}
   : {

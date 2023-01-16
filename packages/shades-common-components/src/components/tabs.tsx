@@ -44,7 +44,7 @@ export const Tabs = Shade<
   resources: ({ injector, useState }) => {
     const [, setActivePage] = useState('activeIndex')
     return [
-      injector.getInstance(LocationService).onLocationChanged.subscribe(() => {
+      injector.getInstance(LocationService).onLocationPathChanged.subscribe(() => {
         const { hash } = location
         if (hash && hash.startsWith('#tab-')) {
           const page = parseInt(hash.replace('#tab-', ''), 10)
