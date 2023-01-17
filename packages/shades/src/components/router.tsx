@@ -17,11 +17,11 @@ export interface Route<TMatchResult extends object> {
 export interface RouterProps {
   style?: CSSStyleDeclaration
   routes: Array<Route<any>>
-  notFound?: (currentUrl: string) => JSX.Element
+  notFound?: JSX.Element
 }
 
 export interface RouterState {
-  activeRoute?: Route<any>
+  activeRoute?: Route<any> | null
   activeRouteParams?: any
   jsx?: JSX.Element
   lock: Semaphore
@@ -31,8 +31,10 @@ export const Router = Shade<RouterProps, RouterState>({
   getInitialState: () => ({
     lock: new Semaphore(1),
   }),
-  resources: (options) => [
-    options.injector.getInstance(LocationService).onLocationPathChanged.subscribe(async (currentUrl) => {
+  render: (options) => {
+    const { useState, useObservable, injector, updateState } = options
+
+    const updateUrl = async (currentUrl: string) => {
       const [lastRoute, setActiveRoute] = options.useState('activeRoute')
       const [lastParams, setActiveParams] = options.useState('activeRouteParams')
       const [, setJsx] = options.useState('jsx')
@@ -56,8 +58,11 @@ export const Router = Shade<RouterProps, RouterState>({
         if (lastRoute?.onLeave) {
           await lastRoute.onLeave(options)
         }
-        setJsx(options.props.notFound?.(currentUrl))
-        setActiveRoute(undefined)
+        updateState({
+          jsx: options.props.notFound,
+          activeRoute: null,
+          activeRouteParams: null,
+        })
       } catch (e) {
         // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
@@ -66,9 +71,16 @@ export const Router = Shade<RouterProps, RouterState>({
       } finally {
         lock.release()
       }
-    }, true),
-  ],
-  render: ({ useState }) => {
+    }
+
+    const [initialUrl] = useObservable(
+      'locationPathChanged',
+      injector.getInstance(LocationService).onLocationPathChanged,
+      updateUrl,
+    )
+
+    updateUrl(initialUrl)
+
     const [jsx] = useState('jsx')
     if (jsx) {
       return jsx

@@ -182,7 +182,7 @@ export const App = Shade({
                 ),
               },
             ]}
-            notFound={() => (
+            notFound={
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
@@ -190,7 +190,7 @@ export const App = Shade({
                   return <HomePage />
                 }}
               />
-            )}
+            }
           />
         </Paper>
       </div>

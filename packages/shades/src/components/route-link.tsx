@@ -16,6 +16,10 @@ export const RouteLink = Shade<RouteLinkProps>({
         injector.getInstance(LocationService).updateState()
       },
     })
-    return <>{children}</>
+    return (
+      <a href={props.href} style={{ color: 'inherit', textDecoration: 'inherit' }} onclick={(e) => e.preventDefault()}>
+        {children}
+      </a>
+    )
   },
 })

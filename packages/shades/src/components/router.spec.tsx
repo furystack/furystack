@@ -61,7 +61,7 @@ describe('Router', () => {
               },
               { url: '/', component: () => <div id="content">home</div> },
             ]}
-            notFound={() => <div id="content">not found</div>}
+            notFound={<div id="content">not found</div>}
           />
         </div>
       ),
