@@ -292,7 +292,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     const el = document.createElement(customElementName, {
       ...(props as TProps & ElementCreationOptions),
     }) as JSX.Element<TProps, TState>
-    el.props = { ...props }
+    el.props = props
     el.shadeChildren = children
     return el as JSX.Element
   }
