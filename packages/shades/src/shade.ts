@@ -1,8 +1,9 @@
-import type { Disposable, ObservableValue, ValueChangeCallback, ValueObserver } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import type { ChildrenList, PartialElement, RenderOptions } from './models'
+import type { ChildrenList, PartialElement, RenderOptions, RenderOptionsBase, RenderOptionsState } from './models'
+import { ResourceManager } from './services/resource-manager'
 
-export type ShadeOptions<TProps, TState> = {
+export type ShadeBaseOptions<TProps, TState> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -45,14 +46,22 @@ export type ShadeOptions<TProps, TState> = {
     element: HTMLElement
     injector: Injector
   }) => boolean
-} & (unknown extends TState
-  ? {}
-  : {
-      /**
-       * The initial state of the component
-       */
-      getInitialState: (options: { injector: Injector; props: TProps }) => TState
-    })
+}
+
+type ShadeStateOptions<TProps, TState> = {
+  /**
+   * The initial state of the component
+   */
+  getInitialState: (options: { injector: Injector; props: TProps }) => TState
+}
+
+type ShadeOptions<TProps, TState> = ShadeBaseOptions<TProps, TState> &
+  (unknown extends TState ? {} : ShadeStateOptions<TProps, TState>)
+
+const hasState = <TProps, TState>(options: unknown): options is ShadeStateOptions<TProps, TState> => {
+  const initialStateGetter = (options as any as ShadeStateOptions<unknown, Object>).getInitialState
+  return initialStateGetter !== undefined && typeof initialStateGetter === 'function'
+}
 
 /**
  * Factory method for creating Shade components
@@ -69,7 +78,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     customElements.define(
       customElementName,
       class extends HTMLElement implements JSX.Element {
-        private usedObservables = new Map<string, ValueObserver<any>>()
+        private resourceManager = new ResourceManager()
         private compareState =
           o.compareState ||
           (({ oldState, newState }: { oldState: TState; newState: TState }) =>
@@ -84,7 +93,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public disconnectedCallback() {
           o.onDetach && o.onDetach(this.getRenderOptions())
           Object.values(this.resources).forEach((s) => s.dispose())
-          this.usedObservables.forEach((s) => s.dispose())
+          this.resourceManager.dispose()
           this.cleanup && this.cleanup()
         }
 
@@ -113,61 +122,68 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * @returns values for the current render options
          */
         private getRenderOptions = (): RenderOptions<TProps, TState> => {
-          const props: TProps = { ...this.props }
+          const renderOptionsBase: RenderOptionsBase<TProps, TState> = {
+            props: this.props,
+            injector: this.injector,
 
-          const useObservable = <T>(key: string, observable: ObservableValue<T>, callback?: ValueChangeCallback<T>) => {
-            const alreadyUsed = this.usedObservables.get(key)
-            if (alreadyUsed) {
-              return [alreadyUsed.observable.getValue(), alreadyUsed.observable.setValue] as const
-            }
-            const observer = observable.subscribe(callback || (() => this.updateComponent()))
-            this.usedObservables.set(key, observer)
-            return [observable.getValue(), observable.setValue] as const
+            children: this.shadeChildren,
+            element: this,
+            useObservable: (key, obesrvable, callback) =>
+              this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent())),
+            useDisposable: this.resourceManager.useDisposable,
+            cleanupUsedObservables: this.resourceManager.dispose,
           }
 
-          const returnValue = {
-            ...{
-              props,
-              injector: this.injector,
+          if (hasState(o)) {
+            const renderOptionsState: RenderOptionsState<TState> = {
+              getState: () => ({ ...this.state }),
+              updateState: (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
+                const oldState = { ...this.state }
+                const newState = { ...this.state, ...stateChanges }
+                this.state = newState
 
-              children: this.shadeChildren,
-              element: this,
-              useObservable,
-            },
-          } as any as RenderOptions<TProps, TState>
-
-          if ((o as any).getInitialState) {
-            const getState = () => ({ ...this.state })
-            const updateState = (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
-              const oldState = { ...this.state }
-              const newState = { ...oldState, ...stateChanges }
-
-              this.state = newState
-
-              if (
-                !skipRender &&
-                this.compareState({
-                  oldState,
-                  newState,
-                  props,
-                  element: this,
-                  injector: this.injector,
-                })
-              ) {
-                this.updateComponent()
-              }
+                if (
+                  !skipRender &&
+                  this.compareState({
+                    oldState,
+                    newState,
+                    props: this.props,
+                    element: this,
+                    injector: this.injector,
+                  })
+                ) {
+                  this.updateComponent()
+                }
+              },
+              useState: <TStateField extends keyof TState>(key: TStateField) => {
+                const getStateField = this.state[key]
+                const setStateField = (value: TState[TStateField], skipRender?: boolean) => {
+                  const oldState = { ...this.state }
+                  const newState = { ...this.state, [key]: value }
+                  this.state = newState
+                  if (
+                    !skipRender &&
+                    this.compareState({
+                      oldState,
+                      newState,
+                      props: this.props,
+                      element: this,
+                      injector: this.injector,
+                    })
+                  ) {
+                    this.updateComponent()
+                  }
+                }
+                return [getStateField, setStateField]
+              },
             }
-
-            const useState = <TStateField extends keyof TState>(key: TStateField) => {
-              const getStateField = this.state[key]
-              const setStateField = (value: TState[TStateField], skipRender?: boolean) =>
-                updateState({ [key]: value } as any as PartialElement<TState>, skipRender)
-              return [getStateField, setStateField]
-            }
-            Object.assign(returnValue, { getState, updateState, useState })
+            return {
+              ...renderOptionsBase,
+              ...renderOptionsState,
+            } as RenderOptions<TProps, TState>
           }
 
-          return returnValue
+          return renderOptionsBase as RenderOptions<TProps, TState>
         }
 
         private createResources() {

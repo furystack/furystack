@@ -1,22 +1,24 @@
 import type { Injector } from '@furystack/inject'
 import type { PartialElement } from './partial-element'
 import type { ChildrenList } from './children-list'
-import type { ObservableValue } from '@furystack/utils'
+import type { Disposable, ObservableValue } from '@furystack/utils'
 
-export type RenderOptions<TProps, TState> = {
+export type RenderOptionsBase<TProps, TState> = {
   readonly props: TProps
 
   injector: Injector
   children?: ChildrenList
   element: JSX.Element<TProps, TState>
-  // TODO: useDisposable?
+  useDisposable: <T extends Disposable>(key: string, factory: () => T) => T
   useObservable: <T>(
     key: string,
     observable: ObservableValue<T>,
     callback?: (newValue: T) => void,
   ) => [value: T, setValue: (newValue: T) => void]
   cleanupUsedObservables: () => void
-} & (unknown extends TState
+}
+
+export type RenderOptionsState<TState> = unknown extends TState
   ? {}
   : {
       /**
@@ -37,4 +39,6 @@ export type RenderOptions<TProps, TState> = {
       useState: <T extends keyof TState>(
         key: T,
       ) => [value: TState[T], setValue: (newValue: TState[T], skipRender?: boolean) => void]
-    })
+    }
+
+export type RenderOptions<TProps, TState> = RenderOptionsBase<TProps, TState> & RenderOptionsState<TState>
