@@ -36,17 +36,8 @@ export const DataGridHeader: <T, K extends keyof T>(
       props.collectionService.querySettings.setValue(newSettings)
     }),
   }),
-  resources: ({ props, useState }) => {
-    const [, setQuerySettings] = useState('querySettings')
-    return [
-      props.collectionService.querySettings.subscribe((querySettings) => {
-        const [isSearchOpened] = useState('isSearchOpened')
-        setQuerySettings(querySettings, isSearchOpened)
-      }),
-    ]
-  },
-  render: ({ props, element, useState }) => {
-    const [querySettings] = useState('querySettings')
+  render: ({ props, element, useState, useObservable }) => {
+    const [querySettings, setQuerySettings] = useState('querySettings')
     const currentOrder = Object.keys(querySettings.order || {})[0]
     const currentOrderDirection = Object.values(querySettings.order || {})[0]
 
@@ -54,6 +45,11 @@ export const DataGridHeader: <T, K extends keyof T>(
     const [updateSearchValue] = useState('updateSearchValue')
 
     const filterValue = (props.collectionService.querySettings.getValue().filter as any)?.[props.field]?.$regex || ''
+
+    useObservable('querySettingsChange', props.collectionService.querySettings, (newSettings) => {
+      const [shouldSkipRender] = useState('isSearchOpened')
+      setQuerySettings(newSettings, shouldSkipRender)
+    })
 
     if (isSearchOpened) {
       setTimeout(() => {

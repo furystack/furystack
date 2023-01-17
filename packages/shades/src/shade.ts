@@ -2,6 +2,7 @@ import type { Disposable } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement, RenderOptions, RenderOptionsBase, RenderOptionsState } from './models'
 import { ResourceManager } from './services/resource-manager'
+import { StateManager } from './services/state-manager'
 
 export type ShadeBaseOptions<TProps, TState> = {
   /**
@@ -58,10 +59,26 @@ type ShadeStateOptions<TProps, TState> = {
 type ShadeOptions<TProps, TState> = ShadeBaseOptions<TProps, TState> &
   (unknown extends TState ? {} : ShadeStateOptions<TProps, TState>)
 
-const hasState = <TProps, TState>(options: unknown): options is ShadeStateOptions<TProps, TState> => {
+/**
+ * @param options The Options object
+ * @returns a boolean that indicates if the options object contains an initial state getter
+ */
+export const hasState = <TProps, TState>(options: unknown): options is ShadeStateOptions<TProps, TState> => {
   const initialStateGetter = (options as any as ShadeStateOptions<unknown, Object>).getInitialState
   return initialStateGetter !== undefined && typeof initialStateGetter === 'function'
 }
+
+/**
+ *
+ * @param param0 The object with the two states
+ * @param param0.oldState The Old state object
+ * @param param0.newState The New state object
+ * @returns a boolean that indicates if the state has changed and an update is required
+ */
+export const defaultStateComparer = <TState>({ oldState, newState }: { oldState: TState; newState: TState }) =>
+  oldState !== newState &&
+  (Object.entries(oldState as object).some(([key, value]) => value !== newState[key as keyof TState]) ||
+    Object.entries(newState as object).some(([key, value]) => value !== oldState[key as keyof TState]))
 
 /**
  * Factory method for creating Shade components
@@ -79,11 +96,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
       customElementName,
       class extends HTMLElement implements JSX.Element {
         private resourceManager = new ResourceManager()
-        private compareState =
-          o.compareState ||
-          (({ oldState, newState }: { oldState: TState; newState: TState }) =>
-            Object.entries(oldState as object).some(([key, value]) => value !== newState[key as keyof TState]) ||
-            Object.entries(newState as object).some(([key, value]) => value !== oldState[key as keyof TState]))
+        public stateManager!: StateManager<TState>
+        private compareState = o.compareState || defaultStateComparer
 
         public connectedCallback() {
           o.onAttach && o.onAttach(this.getRenderOptions())
@@ -100,12 +114,11 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         /**
          * Will be triggered when updating the external props object
          */
-        public props: TProps & { children?: JSX.Element[] }
+        public props!: TProps & { children?: JSX.Element[] }
 
-        /**
-         * Will be triggered on state update
-         */
-        public state!: TState
+        public get state(): TState {
+          return this.stateManager?.getState()
+        }
 
         /**
          * Will be updated when on children change
@@ -130,17 +143,14 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             element: this,
             useObservable: (key, obesrvable, callback) =>
               this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent())),
-            useDisposable: this.resourceManager.useDisposable,
-            cleanupUsedObservables: this.resourceManager.dispose,
+            useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 
           if (hasState(o)) {
             const renderOptionsState: RenderOptionsState<TState> = {
-              getState: () => ({ ...this.state }),
+              getState: this.stateManager.getState.bind(this.stateManager),
               updateState: (stateChanges: PartialElement<TState>, skipRender?: boolean) => {
-                const oldState = { ...this.state }
-                const newState = { ...this.state, ...stateChanges }
-                this.state = newState
+                const { oldState, newState } = this.stateManager.updateState(stateChanges)
 
                 if (
                   !skipRender &&
@@ -155,12 +165,10 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
                   this.updateComponent()
                 }
               },
-              useState: <TStateField extends keyof TState>(key: TStateField) => {
-                const getStateField = this.state[key]
-                const setStateField = (value: TState[TStateField], skipRender?: boolean) => {
-                  const oldState = { ...this.state }
-                  const newState = { ...this.state, [key]: value }
-                  this.state = newState
+              useState: <TKey extends keyof TState>(key: TKey) => {
+                const [field, setField] = this.stateManager.useState(key)
+                const setStateField = (value: TState[TKey], skipRender?: boolean) => {
+                  const { oldState, newState } = setField(value)
                   if (
                     !skipRender &&
                     this.compareState({
@@ -174,7 +182,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
                     this.updateComponent()
                   }
                 }
-                return [getStateField, setStateField]
+                return [field, setStateField]
               },
             }
             return {
@@ -216,9 +224,10 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
          * Finialize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
-          ;(o as any).getInitialState &&
-            (this.state = (o as any).getInitialState({ props: { ...this.props }, injector: this.injector }))
-
+          if (hasState(o)) {
+            const initialState = o.getInitialState({ props: this.props, injector: this.injector })
+            this.stateManager = new StateManager(initialState as TState)
+          }
           this.updateComponent()
           this.createResources()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
@@ -249,7 +258,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             return this._injector
           }
 
-          const fromState = (this.state as any)?.injector
+          const fromState = (this.stateManager?.getState() as any)?.injector
           if (fromState && fromState instanceof Injector) {
             return fromState
           }
@@ -273,11 +282,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         }
 
         private resources: Disposable[] = []
-
-        constructor(_props: TProps & { children?: JSX.Element[] }) {
-          super()
-          this.props = _props
-        }
       },
     )
   } else {
@@ -288,8 +292,7 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
     const el = document.createElement(customElementName, {
       ...(props as TProps & ElementCreationOptions),
     }) as JSX.Element<TProps, TState>
-    el.props = props
-
+    el.props = { ...props }
     el.shadeChildren = children
     return el as JSX.Element
   }

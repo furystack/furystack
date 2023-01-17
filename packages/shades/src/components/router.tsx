@@ -1,4 +1,5 @@
 import { Shade } from '../shade'
+import { createComponent } from '../shade-component'
 import { LocationService } from '../services'
 import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
@@ -10,8 +11,8 @@ export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
   routingOptions?: TokensToRegexpOptions
-  onVisit?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
-  onLeave?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
+  onVisit?: (options: RenderOptions<unknown, unknown>) => Promise<void>
+  onLeave?: (options: RenderOptions<unknown, unknown>) => Promise<void>
 }
 
 export interface RouterProps {
@@ -23,21 +24,22 @@ export interface RouterProps {
 export interface RouterState {
   activeRoute?: Route<any> | null
   activeRouteParams?: any
-  jsx?: JSX.Element
+  jsx: JSX.Element
   lock: Semaphore
 }
 export const Router = Shade<RouterProps, RouterState>({
   shadowDomName: 'shade-router',
   getInitialState: () => ({
     lock: new Semaphore(1),
+    jsx: <div />,
   }),
   render: (options) => {
     const { useState, useObservable, injector, updateState } = options
 
     const updateUrl = async (currentUrl: string) => {
-      const [lastRoute, setActiveRoute] = options.useState('activeRoute')
-      const [lastParams, setActiveParams] = options.useState('activeRouteParams')
-      const [, setJsx] = options.useState('jsx')
+      const [lastRoute] = options.useState('activeRoute')
+      const [lastParams] = options.useState('activeRouteParams')
+      const [jsx] = options.useState('jsx')
       const [lock] = options.useState('lock')
       try {
         await lock.acquire()
@@ -46,17 +48,16 @@ export const Router = Shade<RouterProps, RouterState>({
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
             if (route !== lastRoute || JSON.stringify(lastParams) !== JSON.stringify(matchResult.params)) {
-              await lastRoute?.onLeave?.(options)
-              setJsx(route.component({ currentUrl, match: matchResult }), true)
-              setActiveRoute(route, true)
-              setActiveParams(matchResult.params)
-              await route.onVisit?.(options)
+              await lastRoute?.onLeave?.({ ...options, element: jsx })
+              const newJsx = route.component({ currentUrl, match: matchResult })
+              updateState({ jsx: newJsx, activeRoute: route, activeRouteParams: matchResult.params })
+              await route.onVisit?.({ ...options, element: newJsx })
             }
             return
           }
         }
         if (lastRoute?.onLeave) {
-          await lastRoute.onLeave(options)
+          await lastRoute.onLeave({ ...options, element: jsx })
         }
         updateState({
           jsx: options.props.notFound,

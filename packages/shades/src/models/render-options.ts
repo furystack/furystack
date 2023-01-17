@@ -15,19 +15,18 @@ export type RenderOptionsBase<TProps, TState> = {
     observable: ObservableValue<T>,
     callback?: (newValue: T) => void,
   ) => [value: T, setValue: (newValue: T) => void]
-  cleanupUsedObservables: () => void
 }
 
 export type RenderOptionsState<TState> = unknown extends TState
   ? {}
   : {
       /**
-       * @deprecated use useState() instead
        * @returns the current state object
        */
       getState: () => TState
       /**
-       * @deprecated use useState() instead
+       * Update the current component state's multiple properties in one-shot
+       *
        * @param newState The partial new state object
        * @param skipRender Option to skip the render process
        */

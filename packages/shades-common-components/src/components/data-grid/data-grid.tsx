@@ -72,21 +72,22 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',
-  resources: ({ element, props }) => {
-    return [
-      new ClickAwayService(element, () => {
-        props.service.hasFocus.setValue(false)
-      }),
-    ]
-  },
   constructed: ({ props }) => {
     const listener = (ev: KeyboardEvent) => props.service.handleKeyDown(ev)
     window.addEventListener('keydown', listener)
     return () => window.removeEventListener('keydown', listener)
   },
-  render: ({ props, injector }) => {
+  render: ({ props, injector, useDisposable, element }) => {
     const tp = injector.getInstance(ThemeProviderService)
     const { theme } = tp
+
+    useDisposable(
+      'clickAway',
+      () =>
+        new ClickAwayService(element, () => {
+          props.service.hasFocus.setValue(false)
+        }),
+    )
 
     const headerStyle: Partial<CSSStyleDeclaration> = {
       backdropFilter: 'blur(12px)',

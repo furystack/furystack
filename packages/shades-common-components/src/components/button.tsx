@@ -95,31 +95,27 @@ export const Button = Shade<ButtonProps>({
     }
   },
   shadowDomName: 'shade-button',
-  resources: ({ injector, element, props }) => {
-    const tp = injector.getInstance(ThemeProviderService)
-    return [
-      ...(props.variant === 'contained'
-        ? [
-            Trace.method({
-              object: tp,
-              method: tp.set,
-              onFinished: () => {
-                const el = element
-                el.style.color = getTextColor(props, tp.theme, () =>
-                  tp.getTextColor(el.style.background || el.style.backgroundColor),
-                )
-              },
-            }),
-          ]
-        : []),
-    ]
-  },
-  render: ({ props, children, injector, element }) => {
+  render: ({ props, children, injector, element, useDisposable }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
     const themeProvider = injector.getInstance(ThemeProviderService)
     const { theme } = themeProvider
     const background = getBackground(props, theme)
+
+    if (props.variant === 'contained') {
+      useDisposable('themeChanged', () =>
+        Trace.method({
+          object: themeProvider,
+          method: themeProvider.set,
+          onFinished: () => {
+            const el = element
+            el.style.color = getTextColor(props, themeProvider.theme, () =>
+              themeProvider.getTextColor(el.style.background || el.style.backgroundColor),
+            )
+          },
+        }),
+      )
+    }
 
     const hoveredBackground = getHoveredBackground(props, theme, () => {
       const { r, g, b } = themeProvider.getRgbFromColorString(

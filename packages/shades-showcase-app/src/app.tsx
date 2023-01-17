@@ -1,5 +1,5 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
-import { AppBar, AppBarLink, Paper, ThemeProviderService } from '@furystack/shades-common-components'
+import { AppBar, AppBarLink, fadeIn, fadeOut, Paper, ThemeProviderService } from '@furystack/shades-common-components'
 import { PageLoader } from './components/page-loader'
 import { ThemeSwitch } from './components/theme-switch'
 
@@ -63,6 +63,12 @@ export const App = Shade({
             routes={[
               {
                 url: '/buttons',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -75,6 +81,12 @@ export const App = Shade({
               },
               {
                 url: '/inputs',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -87,6 +99,12 @@ export const App = Shade({
               },
               {
                 url: '/grid',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -99,6 +117,12 @@ export const App = Shade({
               },
               {
                 url: '/nipple',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -111,6 +135,12 @@ export const App = Shade({
               },
               {
                 url: '/lottie',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -123,6 +153,12 @@ export const App = Shade({
               },
               {
                 url: '/monaco',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -135,6 +171,12 @@ export const App = Shade({
               },
               {
                 url: '/wizard',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -147,6 +189,12 @@ export const App = Shade({
               },
               {
                 url: '/notys',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -159,6 +207,12 @@ export const App = Shade({
               },
               {
                 url: '/tabs',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -171,6 +225,12 @@ export const App = Shade({
               },
               {
                 url: '/misc',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
                 component: () => (
                   <LazyLoad
                     loader={<PageLoader />}
@@ -181,15 +241,30 @@ export const App = Shade({
                   />
                 ),
               },
+              {
+                url: '/',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
+                component: () => (
+                  <LazyLoad
+                    loader={<PageLoader />}
+                    component={async () => {
+                      const { HomePage } = await import('./pages/home')
+                      return <HomePage />
+                    }}
+                  />
+                ),
+              },
             ]}
             notFound={
-              <LazyLoad
-                loader={<PageLoader />}
-                component={async () => {
-                  const { HomePage } = await import('./pages/home')
-                  return <HomePage />
-                }}
-              />
+              <div style={{ paddingTop: '50px', textAlign: 'center' }}>
+                <h1>404 🔍</h1>
+                <p>Have you seen this cat? 😸</p>
+              </div>
             }
           />
         </Paper>

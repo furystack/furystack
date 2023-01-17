@@ -4,6 +4,7 @@ import { ThemeProviderService } from '../services'
 export interface Tab {
   header: JSX.Element
   component: JSX.Element
+  hash: string
 }
 
 const TabHeader = Shade<{ isActive?: boolean; onActivate: () => void }>({
@@ -28,51 +29,36 @@ const TabHeader = Shade<{ isActive?: boolean; onActivate: () => void }>({
   },
 })
 
-export const Tabs = Shade<
-  {
-    tabs: Tab[]
-    containerStyle?: Partial<CSSStyleDeclaration>
-    style?: Partial<CSSStyleDeclaration>
-    activeTab?: number
-    onChange?: (page: number) => void
-  },
-  { activeIndex: number }
->({
+export const Tabs = Shade<{
+  tabs: Tab[]
+  containerStyle?: Partial<CSSStyleDeclaration>
+  style?: Partial<CSSStyleDeclaration>
+  onChange?: (page: number) => void
+}>({
   shadowDomName: 'shade-tabs',
-  getInitialState: ({ props }) => ({ activeIndex: props.activeTab || 0 }),
-
-  resources: ({ injector, useState }) => {
-    const [, setActivePage] = useState('activeIndex')
-    return [
-      injector.getInstance(LocationService).onLocationPathChanged.subscribe(() => {
-        const { hash } = location
-        if (hash && hash.startsWith('#tab-')) {
-          const page = parseInt(hash.replace('#tab-', ''), 10)
-          !isNaN(page) && setActivePage(page)
-        }
-      }, true),
-    ]
-  },
-  render: ({ props, useState, element }) => {
+  render: ({ props, element, useObservable, injector }) => {
     attachProps(element, {
       style: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', ...props.containerStyle },
     })
-    const [activePage, setActivePage] = useState('activeIndex')
+
+    const [hash] = useObservable('updateLocation', injector.getInstance(LocationService).onLocationHashChanged)
+
+    const activeTab = props.tabs.find((t) => t.hash === hash.replace('#', ''))
+
     return (
       <>
         <div
           className="shade-tabs-header-container"
           style={{ display: 'inline-flex', borderRadius: '5px 5px 0 0', overflow: 'hidden', flexShrink: '0' }}
         >
-          {props.tabs.map((tab, index) => {
-            const isActive = index === activePage
+          {props.tabs.map((tab) => {
+            const isActive = tab === activeTab
 
             return (
               <TabHeader
                 isActive={isActive}
                 onActivate={() => {
-                  window.history.pushState({}, '', `#tab-${index}`)
-                  setActivePage(index)
+                  window.history.pushState({}, '', `#${tab.hash}`)
                 }}
               >
                 {tab.header}
@@ -80,7 +66,7 @@ export const Tabs = Shade<
             )
           })}
         </div>
-        {props.tabs[activePage].component}
+        {activeTab?.component}
       </>
     )
   },
