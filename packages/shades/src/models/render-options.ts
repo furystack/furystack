@@ -9,6 +9,7 @@ export type RenderOptions<TProps, TState> = {
   injector: Injector
   children?: ChildrenList
   element: JSX.Element<TProps, TState>
+  // TODO: useDisposable?
   useObservable: <T>(
     key: string,
     observable: ObservableValue<T>,

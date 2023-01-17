@@ -54,6 +54,20 @@ export class CollectionService<T> implements Disposable {
     this.isLoading.dispose()
   }
 
+  public isSelected = (entry: T) => this.selection.getValue().includes(entry)
+
+  public addToSelection = (entry: T) => {
+    this.selection.setValue([...this.selection.getValue(), entry])
+  }
+
+  public removeFromSelection = (entry: T) => {
+    this.selection.setValue(this.selection.getValue().filter((e) => e !== entry))
+  }
+
+  public toggleSelection = (entry: T) => {
+    this.isSelected(entry) ? this.removeFromSelection(entry) : this.addToSelection(entry)
+  }
+
   private readonly loadLock = new Semaphore(1)
 
   public getEntries: EntryLoader<T>

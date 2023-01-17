@@ -1,34 +1,14 @@
-import type { TestClass } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import { Input } from '@furystack/shades-common-components'
 
 import { GridPageService } from './grid-page-service'
 
-export const GridStatus = Shade<
-  unknown,
-  { gridService: GridPageService; focusedEntry?: TestClass; selection: TestClass[] }
->({
+export const GridStatus = Shade({
   shadowDomName: 'shades-grid-status',
-  getInitialState: ({ injector }) => {
+  render: ({ useObservable, injector }) => {
     const gridService = injector.getInstance(GridPageService)
-    return {
-      gridService,
-      selection: gridService.collectionService.selection.getValue(),
-      focusedEntry: gridService.collectionService.focusedEntry.getValue(),
-    }
-  },
-  resources: ({ useState }) => {
-    const [gridService] = useState('gridService')
-    const [, setFocusedEntry] = useState('focusedEntry')
-    const [, setSelection] = useState('selection')
-    return [
-      gridService.collectionService.focusedEntry.subscribe(setFocusedEntry),
-      gridService.collectionService.selection.subscribe(setSelection),
-    ]
-  },
-  render: ({ useState }) => {
-    const [focusedEntry] = useState('focusedEntry')
-    const [selection] = useState('selection')
+    const [focusedEntry] = useObservable('focusedEntry', gridService.collectionService.focusedEntry)
+    const [selection] = useObservable('selection', gridService.collectionService.selection)
     return (
       <div
         style={{
