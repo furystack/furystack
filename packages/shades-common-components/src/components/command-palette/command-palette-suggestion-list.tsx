@@ -1,65 +1,52 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { CommandPaletteSuggestionResult } from './command-provider'
 import type { CommandPaletteManager } from './command-palette-manager'
 import { ThemeProviderService } from '../../services/theme-provider-service'
 
-export const CommandPaletteSuggestionList = Shade<
-  { manager: CommandPaletteManager; fullScreenSuggestions?: boolean },
-  { suggestions: CommandPaletteSuggestionResult[] }
->({
+export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
   shadowDomName: 'shade-command-palette-suggestion-list',
-  getInitialState: ({ props }) => ({
-    suggestions: props.manager.currentSuggestions.getValue(),
-  }),
-  constructed: ({ element, props, useState }) => {
-    const { manager } = props
-    const [, setSuggestions] = useState('suggestions')
-    const subscriptions = [
-      manager.currentSuggestions.subscribe(setSuggestions),
-      manager.isOpened.subscribe(async (isOpened) => {
-        const container = element.firstElementChild as HTMLDivElement
-        if (isOpened) {
-          container.style.display = 'initial'
-          container.style.zIndex = '1'
-          container.style.width = `calc(${Math.round(
-            element.parentElement?.getBoundingClientRect().width || 200,
-          )}px - 3em)`
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 0, transform: 'translate(0, -50px)' },
-              { opacity: 1, transform: 'translate(0, 0)' },
-            ],
-            { fill: 'forwards', duration: 500 },
-          )
+  render: ({ element, injector, props, useObservable }) => {
+    const [suggestions] = useObservable('suggestions', props.manager.currentSuggestions)
+    const [selectedIndex] = useObservable('selectedIndex', props.manager.selectedIndex, (idx) => {
+      ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
+        if (i === idx) {
+          ;(s as HTMLDivElement).style.background = 'rgba(128,128,128,0.2)'
         } else {
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 1, transform: 'translate(0, 0)' },
-              { opacity: 0, transform: 'translate(0, -50px)' },
-            ],
-            { fill: 'forwards', duration: 200 },
-          )
-          container.style.zIndex = '-1'
-          container.style.display = 'none'
+          ;(s as HTMLDivElement).style.background = 'rgba(96,96,96,0.2)'
         }
-      }),
-      manager.selectedIndex.subscribe((idx) => {
-        ;[...element.querySelectorAll('.suggestion-item')].map((s, i) => {
-          if (i === idx) {
-            ;(s as HTMLDivElement).style.background = 'rgba(128,128,128,0.2)'
-          } else {
-            ;(s as HTMLDivElement).style.background = 'rgba(96,96,96,0.2)'
-          }
-        })
-      }),
-    ]
-    return () => subscriptions.map((s) => s.dispose())
-  },
-  render: ({ element, injector, props, useState }) => {
-    const [suggestions] = useState('suggestions')
+      })
+    })
+
+    const [isOpenedAtRender] = useObservable('isOpenedAtRender', props.manager.isOpened, async (isOpened) => {
+      const container = element.firstElementChild as HTMLDivElement
+      if (isOpened) {
+        container.style.display = 'initial'
+        container.style.zIndex = '1'
+        container.style.width = `calc(${Math.round(
+          element.parentElement?.getBoundingClientRect().width || 200,
+        )}px - 3em)`
+        await promisifyAnimation(
+          container,
+          [
+            { opacity: 0, transform: 'translate(0, -50px)' },
+            { opacity: 1, transform: 'translate(0, 0)' },
+          ],
+          { fill: 'forwards', duration: 500 },
+        )
+      } else {
+        await promisifyAnimation(
+          container,
+          [
+            { opacity: 1, transform: 'translate(0, 0)' },
+            { opacity: 0, transform: 'translate(0, -50px)' },
+          ],
+          { fill: 'forwards', duration: 200 },
+        )
+        container.style.zIndex = '-1'
+        container.style.display = 'none'
+      }
+    })
+
     const { manager } = props
     return (
       <div
@@ -85,12 +72,12 @@ export const CommandPaletteSuggestionList = Shade<
           <div
             className="suggestion-item"
             onclick={() => {
-              manager.isOpened.getValue() && manager.selectSuggestion(injector, i)
+              isOpenedAtRender && manager.selectSuggestion(injector, i)
             }}
             style={{
               padding: '1em',
               cursor: 'default',
-              background: i === manager.selectedIndex.getValue() ? 'rgba(128,128,128,0.2)' : 'transparent',
+              background: i === selectedIndex ? 'rgba(128,128,128,0.2)' : 'transparent',
             }}
           >
             {s.element}

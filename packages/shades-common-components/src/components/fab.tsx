@@ -20,7 +20,7 @@ export const Fab = Shade<PartialElement<HTMLDivElement>>({
         borderRadius: '50%',
         boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
         cursor: 'pointer',
-        ...props.style,
+        ...props?.style,
       },
     })
     return <>{children}</>

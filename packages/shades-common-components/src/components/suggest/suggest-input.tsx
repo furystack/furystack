@@ -1,10 +1,13 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../../services'
 import type { SuggestManager } from './suggest-manager'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }, { isOpened: boolean }>({
   getInitialState: ({ props }) => ({ isOpened: props.manager.isOpened.getValue() }),
   shadowDomName: 'shades-suggest-input',
-  render: ({ element, props, useObservable }) => {
+  render: ({ element, props, useObservable, injector }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
+
     element.style.width = '100%'
     element.style.overflow = 'hidden'
 
@@ -21,7 +24,7 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }, { isOpened: 
       <input
         autofocus
         style={{
-          color: 'white',
+          color: theme.text.primary,
           outline: 'none',
           padding: '1em',
           background: 'transparent',

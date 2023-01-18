@@ -75,7 +75,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
       }
     })
     manager.isLoading.subscribe(async (isLoading) => {
-      const loader = el.querySelector('.loader-container')
+      const loader = el.querySelector('shade-loader')
       if (isLoading) {
         promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
           duration: 100,
@@ -153,12 +153,11 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
               overflow: 'hidden',
             }}
           >
-            <div
-              className="loader-container"
+            <Loader
               style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
-            >
-              <Loader style={{ width: '100%', height: '100%' }} />
-            </div>
+              delay={0}
+              borderWidth={4}
+            />
             <div
               className="close-suggestions"
               onclick={() => manager.isOpened.setValue(false)}
