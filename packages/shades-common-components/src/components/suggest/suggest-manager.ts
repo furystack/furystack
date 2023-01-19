@@ -46,13 +46,18 @@ export class SuggestManager<T> {
       if (this.lastGetSuggestionOptions?.term === options.term) {
         return
       }
+      const lastSelectedSuggestion = JSON.stringify(this.currentSuggestions.getValue()[this.selectedIndex.getValue()])
       this.isLoading.setValue(true)
       this.lastGetSuggestionOptions = options
-      this.currentSuggestions.setValue([])
-      this.selectedIndex.setValue(0)
       const newEntries = await this.getEntries(options.term)
       this.isOpened.setValue(true)
       this.currentSuggestions.setValue(newEntries.map((e) => ({ entry: e, suggestion: this.getSuggestionEntry(e) })))
+      this.selectedIndex.setValue(
+        Math.max(
+          0,
+          this.currentSuggestions.getValue().findIndex((e) => JSON.stringify(e) === lastSelectedSuggestion),
+        ),
+      )
     } finally {
       this.isLoading.setValue(false)
     }

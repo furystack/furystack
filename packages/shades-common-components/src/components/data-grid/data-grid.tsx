@@ -6,13 +6,12 @@ import { DataGridHeader } from './header'
 import { DataGridBody } from './body'
 import { DataGridFooter } from './footer'
 import { ClickAwayService, ThemeProviderService } from '../../services'
-import type { DataGridRowState } from './data-grid-row'
 
 export type DataHeaderCells<T> = {
   [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element
 }
 export type DataRowCells<T> = {
-  [TKey in keyof T | 'default']?: (element: T, state: DataGridRowState<T>) => JSX.Element
+  [TKey in keyof T | 'default']?: (element: T, state: { focus?: T; selection: T[] }) => JSX.Element
 }
 
 export interface DataGridProps<T> {

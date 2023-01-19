@@ -14,6 +14,7 @@ export type RenderOptionsBase<TProps, TState> = {
     key: string,
     observable: ObservableValue<T>,
     callback?: (newValue: T) => void,
+    getLast?: boolean,
   ) => [value: T, setValue: (newValue: T) => void]
 }
 

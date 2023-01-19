@@ -6,13 +6,18 @@ import { ThemeProviderService } from '../../services/theme-provider-service'
 export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
   shadowDomName: 'shade-command-palette-suggestion-list',
   render: ({ element, injector, props, useObservable }) => {
+    const { manager } = props
+    const { theme } = injector.getInstance(ThemeProviderService)
+
     const [suggestions] = useObservable('suggestions', props.manager.currentSuggestions)
     const [selectedIndex] = useObservable('selectedIndex', props.manager.selectedIndex, (idx) => {
       ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
         if (i === idx) {
-          ;(s as HTMLDivElement).style.background = 'rgba(128,128,128,0.2)'
+          s.style.background = theme.background.paper
+          s.style.fontWeight = 'bolder'
         } else {
-          ;(s as HTMLDivElement).style.background = 'rgba(96,96,96,0.2)'
+          s.style.background = theme.background.default
+          s.style.fontWeight = 'normal'
         }
       })
     })
@@ -47,7 +52,6 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
       }
     })
 
-    const { manager } = props
     return (
       <div
         className="suggestion-items-container"
@@ -62,7 +66,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
           maxHeight: `${window.innerHeight * 0.8}px`,
           zIndex: '1',
           left: 'auto',
-          backgroundColor: injector.getInstance(ThemeProviderService).theme.background.paper,
+          backgroundColor: theme.background.paper,
           boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),
@@ -77,7 +81,8 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
             style={{
               padding: '1em',
               cursor: 'default',
-              background: i === selectedIndex ? 'rgba(128,128,128,0.2)' : 'transparent',
+              background: i === selectedIndex ? theme.background.paper : theme.background.default,
+              fontWeight: i === selectedIndex ? 'bolder' : 'normal',
             }}
           >
             {s.element}

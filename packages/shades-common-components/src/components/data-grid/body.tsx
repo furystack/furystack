@@ -33,20 +33,14 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
     data: props.service.data.getValue().entries,
     isLoading: props.service.isLoading.getValue(),
   }),
-  resources: ({ props, useState }) => {
-    const [, setData] = useState('data')
-    const [, setIsLoading] = useState('isLoading')
-    return [
-      props.service.data.subscribe((response) => setData(response.entries)),
-      props.service.isLoading.subscribe(setIsLoading),
-    ]
-  },
   shadowDomName: 'shade-data-grid-body',
-  render: ({ getState, props, element }) => {
+  render: ({ props, element, useObservable }) => {
     element.style.display = 'table-row-group'
-    const state = getState()
 
-    if (state.isLoading) {
+    const [data] = useObservable('data', props.service.data)
+    const [isLoading] = useObservable('isLoading', props.service.isLoading)
+
+    if (isLoading) {
       return (
         <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           {/* TODO: Skeleton */}
@@ -55,13 +49,13 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
       )
     }
 
-    if (!state.data?.length) {
+    if (!data?.entries?.length) {
       return props.emptyComponent || <div> - No Data - </div>
     }
 
     return (
       <>
-        {state.data.map((entry) => (
+        {data?.entries?.map((entry) => (
           <DataGridRow<any>
             columns={props.columns}
             entry={entry}

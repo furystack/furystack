@@ -106,7 +106,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
         public disconnectedCallback() {
           o.onDetach && o.onDetach(this.getRenderOptions())
-          Object.values(this.resources).forEach((s) => s.dispose())
           this.resourceManager.dispose()
           this.cleanup && this.cleanup()
         }
@@ -141,8 +140,8 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
 
             children: this.shadeChildren,
             element: this,
-            useObservable: (key, obesrvable, callback) =>
-              this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent())),
+            useObservable: (key, obesrvable, callback, getLast) =>
+              this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent()), getLast),
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 
@@ -194,10 +193,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
           return renderOptionsBase as RenderOptions<TProps, TState>
         }
 
-        private createResources() {
-          this.resources.push(...(o.resources?.(this.getRenderOptions()) || []))
-        }
-
         /**
          * Updates the component in the DOM.
          */
@@ -229,7 +224,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
             this.stateManager = new StateManager(initialState as TState)
           }
           this.updateComponent()
-          this.createResources()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
             cleanupResult.then((cleanup) => (this.cleanup = cleanup))
@@ -280,8 +274,6 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public set injector(i: Injector) {
           this._injector = i
         }
-
-        private resources: Disposable[] = []
       },
     )
   } else {

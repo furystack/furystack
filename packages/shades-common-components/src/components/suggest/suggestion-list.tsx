@@ -15,15 +15,22 @@ export const SuggestionList: <T>(
 
     const [suggestions] = useObservable('suggestions', manager.currentSuggestions)
 
-    const [selectedIndex] = useObservable('selectedIndex', manager.selectedIndex, (idx) => {
-      ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
-        if (i === idx) {
-          s.style.background = theme.background.paper //  'rgba(128,128,128,0.2)'
-        } else {
-          s.style.background = theme.background.default // 'rgba(96,96,96,0.2)'
-        }
-      })
-    })
+    const [selectedIndex] = useObservable(
+      'selectedIndex',
+      manager.selectedIndex,
+      (idx) => {
+        ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
+          if (i === idx) {
+            s.style.background = theme.background.paper
+            s.style.fontWeight = 'bolder'
+          } else {
+            s.style.background = theme.background.default
+            s.style.fontWeight = 'normal'
+          }
+        })
+      },
+      true,
+    )
 
     const [isListOpened] = useObservable('isOpened', manager.isOpened, async (isOpened) => {
       const container = element.firstElementChild as HTMLDivElement
@@ -81,6 +88,7 @@ export const SuggestionList: <T>(
               padding: '1em',
               cursor: 'default',
               background: i === selectedIndex ? theme.background.paper : theme.background.default,
+              fontWeight: i === selectedIndex ? 'bolder' : 'normal',
             }}
           >
             {s.suggestion.element}

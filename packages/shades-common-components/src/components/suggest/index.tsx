@@ -6,6 +6,7 @@ import { SuggestManager } from './suggest-manager'
 import type { SuggestionResult } from './suggestion-result'
 import { SuggestInput } from './suggest-input'
 import { SuggestionList } from './suggestion-list'
+import { ThemeProviderService } from '../../services'
 
 export * from './suggest-input'
 export * from './suggest-manager'
@@ -32,8 +33,9 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   getInitialState: ({ props }) => ({
     manager: new SuggestManager(props.getEntries, props.getSuggestionEntry),
   }),
-  constructed: ({ element: el, getState, props }) => {
+  constructed: ({ element: el, getState, props, injector }) => {
     const { manager } = getState()
+    const { theme } = injector.getInstance(ThemeProviderService)
     const element = el.querySelector('.input-container') as HTMLDivElement
     manager.element = el
     manager.isOpened.subscribe((isOpened) => {
@@ -50,7 +52,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           fill: 'forwards',
         })
 
-        promisifyAnimation(element, [{ background: 'transparent' }, { background: 'rgba(128,128,128,0.1)' }], {
+        promisifyAnimation(element, [{ background: 'transparent' }, { background: theme.background.default }], {
           duration: 500,
           fill: 'forwards',
           easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
@@ -67,7 +69,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           delay: 300,
         })
 
-        promisifyAnimation(element, [{ background: 'rgba(128,128,128,0.1)' }, { background: 'transparent' }], {
+        promisifyAnimation(element, [{ background: theme.background.default }, { background: 'transparent' }], {
           duration: 300,
           fill: 'forwards',
           easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
