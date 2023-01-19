@@ -24,7 +24,7 @@ export class ResourceManager {
   ): [value: T, setValue: (newValue: T) => void] => {
     const alreadyUsed = this.observers.get(key) as ValueObserver<T> | undefined
     if (alreadyUsed) {
-      return [alreadyUsed.observable.getValue(), alreadyUsed.observable.setValue]
+      return [alreadyUsed.observable.getValue(), alreadyUsed.observable.setValue.bind(alreadyUsed.observable)]
     }
     const observer = observable.subscribe(callback, getLast)
     this.observers.set(key, observer)

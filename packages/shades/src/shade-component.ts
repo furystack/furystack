@@ -9,7 +9,7 @@ import { isShadeComponent } from './models'
  */
 export const appendChild = (el: HTMLElement | DocumentFragment, children: ChildrenList) => {
   for (const child of children) {
-    if (typeof child === 'string') {
+    if (typeof child === 'string' || typeof child === 'number') {
       el.appendChild(document.createTextNode(child))
     } else {
       if (child instanceof HTMLElement || child instanceof DocumentFragment) {

@@ -199,11 +199,11 @@ export const Shade = <TProps, TState = unknown>(o: ShadeOptions<TProps, TState>)
         public updateComponent() {
           const renderResult = this.render(this.getRenderOptions())
 
-          if (renderResult === null) {
+          if (renderResult === null || renderResult === undefined) {
             this.innerHTML = ''
           }
 
-          if (typeof renderResult === 'string') {
+          if (typeof renderResult === 'string' || typeof renderResult === 'number') {
             this.innerHTML = renderResult
           }
 

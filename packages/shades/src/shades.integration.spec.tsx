@@ -162,7 +162,7 @@ describe('Shades integration tests', () => {
       ),
     })
     expect(document.body.innerHTML).toBe(
-      '<div id="root"><shades-example-2><div><shades-example-sub><div></div></shades-example-sub><shades-example-sub><div></div></shades-example-sub><shades-example-sub><div></div></shades-example-sub></div></shades-example-2></div>',
+      '<div id="root"><shades-example-2><div><shades-example-sub><div>1</div></shades-example-sub><shades-example-sub><div>2</div></shades-example-sub><shades-example-sub><div>3</div></shades-example-sub></div></shades-example-2></div>',
     )
   })
 

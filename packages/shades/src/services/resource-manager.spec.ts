@@ -4,15 +4,16 @@ describe('ResourceManager', () => {
   it('Should return an observable from cache', () => {
     using(new ResourceManager(), (rm) => {
       const o = new ObservableValue(1)
-      const [value1, setValue1] = rm.useObservable('test', o, () => {
+      const [value1] = rm.useObservable('test', o, () => {
         /** ignore */
       })
-      const [value2, setValue2] = rm.useObservable('test', o, () => {
+      const [value2] = rm.useObservable('test', o, () => {
         /** ignore */
       })
 
       expect(value1).toBe(value2)
-      expect(setValue1).toBe(setValue2)
+
+      expect(o.getObservers().length).toBe(1)
     })
   })
 
