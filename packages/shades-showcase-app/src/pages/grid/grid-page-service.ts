@@ -25,9 +25,9 @@ export class GridPageService {
   private fillStore = async (count = 100) => {
     const store = getDataSetFor(this.injector, TestClass, 'id')
     const entries = new Array(count).fill(null).map(() => this.createTestClassInstance())
-    const { created } = await store.add(this.injector, ...entries)
-    this.collectionService.focusedEntry.setValue(created[0])
-    this.collectionService.selection.setValue([created[0]])
+    /* const { created } = */ await store.add(this.injector, ...entries)
+    // this.collectionService.focusedEntry.setValue(created[0])
+    // this.collectionService.selection.setValue([created[0]])
   }
 
   private createTestClassInstance = () => {
