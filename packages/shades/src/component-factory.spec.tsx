@@ -59,7 +59,7 @@ describe('Shades Component Factory', () => {
       )
 
       const shade = component.firstElementChild as JSX.Element
-      expect(shade.props).toBe({})
+      expect(shade.props).toEqual({})
       expect(shade.shadeChildren).toEqual([])
     })
 
