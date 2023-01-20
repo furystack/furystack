@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "private": true,
   "scripts": {
@@ -25,7 +25,7 @@
     "@furystack/repository": "^6.1.5",
     "@furystack/rest-client-fetch": "^4.1.6",
     "@furystack/shades": "^7.0.0",
-    "@furystack/shades-common-components": "^4.0.0",
+    "@furystack/shades-common-components": "^4.0.1",
     "@furystack/shades-lottie": "^3.0.0",
     "@furystack/shades-nipple": "^3.0.0",
     "@furystack/utils": "^3.1.5",
