@@ -95,71 +95,73 @@ export class CollectionService<T> implements Disposable {
     const focusedEntry = this.focusedEntry.getValue()
     const searchTerm = this.searchTerm.getValue()
 
-    switch (ev.key) {
-      case ' ':
-        ev.preventDefault()
-        focusedEntry &&
-          this.selection.setValue(
-            selectedEntries.includes(focusedEntry)
-              ? selectedEntries.filter((e) => e !== focusedEntry)
-              : [...selectedEntries, focusedEntry],
-          )
-        break
-      case '*':
-        this.selection.setValue(entries.filter((e) => !selectedEntries.includes(e)))
-        break
-      case '+':
-        this.selection.setValue(entries)
-        break
-      case '-':
-        this.selection.setValue([])
-        break
-      case 'Insert':
-        focusedEntry &&
-          (this.selection.getValue().includes(focusedEntry)
-            ? this.selection.setValue([...this.selection.getValue().filter((e) => e !== focusedEntry)])
-            : this.selection.setValue([...this.selection.getValue(), focusedEntry]))
-        this.focusedEntry.setValue(entries[entries.findIndex((e) => e === this.focusedEntry.getValue()) + 1])
+    if (hasFocus) {
+      switch (ev.key) {
+        case ' ':
+          ev.preventDefault()
+          focusedEntry &&
+            this.selection.setValue(
+              selectedEntries.includes(focusedEntry)
+                ? selectedEntries.filter((e) => e !== focusedEntry)
+                : [...selectedEntries, focusedEntry],
+            )
+          break
+        case '*':
+          this.selection.setValue(entries.filter((e) => !selectedEntries.includes(e)))
+          break
+        case '+':
+          this.selection.setValue(entries)
+          break
+        case '-':
+          this.selection.setValue([])
+          break
+        case 'Insert':
+          focusedEntry &&
+            (this.selection.getValue().includes(focusedEntry)
+              ? this.selection.setValue([...this.selection.getValue().filter((e) => e !== focusedEntry)])
+              : this.selection.setValue([...this.selection.getValue(), focusedEntry]))
+          this.focusedEntry.setValue(entries[entries.findIndex((e) => e === this.focusedEntry.getValue()) + 1])
 
-        break
-      case 'ArrowUp':
-        ev.preventDefault()
-        this.focusedEntry.setValue(entries[Math.max(0, entries.findIndex((e) => e === focusedEntry) - 1)])
-        break
-      case 'ArrowDown':
-        ev.preventDefault()
-        this.focusedEntry.setValue(
-          entries[Math.min(entries.length - 1, entries.findIndex((e) => e === focusedEntry) + 1)],
-        )
-        break
-      case 'Home': {
-        this.focusedEntry.setValue(entries[0])
-        break
-      }
-      case 'End': {
-        this.focusedEntry.setValue(entries[entries.length - 1])
-        break
-      }
-      case 'Tab': {
-        this.hasFocus.setValue(!hasFocus)
-        break
-      }
-      case 'Escape': {
-        this.searchTerm.setValue('')
-        this.selection.setValue([])
-        break
-      }
-      default:
-        if (this.options.searchField && ev.key.length === 1) {
-          const newSearchExpression = searchTerm + ev.key
-          const newFocusedEntry = entries.find(
-            (e) =>
-              this.options.searchField &&
-              (e[this.options.searchField] as any)?.toString().startsWith(newSearchExpression),
+          break
+        case 'ArrowUp':
+          ev.preventDefault()
+          this.focusedEntry.setValue(entries[Math.max(0, entries.findIndex((e) => e === focusedEntry) - 1)])
+          break
+        case 'ArrowDown':
+          ev.preventDefault()
+          this.focusedEntry.setValue(
+            entries[Math.min(entries.length - 1, entries.findIndex((e) => e === focusedEntry) + 1)],
           )
-          this.focusedEntry.setValue(newFocusedEntry)
-          this.searchTerm.setValue(newSearchExpression)
+          break
+        case 'Home': {
+          this.focusedEntry.setValue(entries[0])
+          break
         }
+        case 'End': {
+          this.focusedEntry.setValue(entries[entries.length - 1])
+          break
+        }
+        case 'Tab': {
+          this.hasFocus.setValue(!hasFocus)
+          break
+        }
+        case 'Escape': {
+          this.searchTerm.setValue('')
+          this.selection.setValue([])
+          break
+        }
+        default:
+          if (this.options.searchField && ev.key.length === 1) {
+            const newSearchExpression = searchTerm + ev.key
+            const newFocusedEntry = entries.find(
+              (e) =>
+                this.options.searchField &&
+                (e[this.options.searchField] as any)?.toString().startsWith(newSearchExpression),
+            )
+            this.focusedEntry.setValue(newFocusedEntry)
+            this.searchTerm.setValue(newSearchExpression)
+          }
+      }
     }
   }
 
