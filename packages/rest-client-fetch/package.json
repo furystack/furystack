@@ -36,7 +36,7 @@
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.5"
+    "@types/jest": "^29.2.6"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
