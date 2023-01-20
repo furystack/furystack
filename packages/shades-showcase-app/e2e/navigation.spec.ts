@@ -4,7 +4,7 @@ import { pages } from './pages'
 
 const getNavigationEntry = async (page: Page, entryName: string) => {
   const appBar = await page.locator('shade-app-bar')
-  const menuEntry = await appBar.locator(`text=${entryName}`)
+  const menuEntry = await appBar.locator('shade-app-bar-link', { has: page.locator(`text=${entryName}`) })
   return menuEntry
 }
 

@@ -1,4 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
+import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../utils/promisify-animation'
 import type { Palette, Theme } from '../services/theme-provider-service'
@@ -73,9 +74,9 @@ export const Button = Shade<ButtonProps>({
      * @param ev The Mouse event
      */
     function mouseUp(this: Document, ev: MouseEvent) {
-      if (ev.target === element.firstElementChild) {
+      if (ev.target === element) {
         promisifyAnimation(
-          element.firstChild as Element,
+          element,
           [
             {
               filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
@@ -94,31 +95,27 @@ export const Button = Shade<ButtonProps>({
     }
   },
   shadowDomName: 'shade-button',
-  resources: ({ injector, element, props }) => {
-    const tp = injector.getInstance(ThemeProviderService)
-    return [
-      ...(props.variant === 'contained'
-        ? [
-            Trace.method({
-              object: tp,
-              method: tp.set,
-              onFinished: () => {
-                const el = element.firstElementChild as HTMLButtonElement
-                el.style.color = getTextColor(props, tp.theme, () =>
-                  tp.getTextColor(el.style.background || el.style.backgroundColor),
-                )
-              },
-            }),
-          ]
-        : []),
-    ]
-  },
-  render: ({ props, children, injector, element }) => {
+  render: ({ props, children, injector, element, useDisposable }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup
     const themeProvider = injector.getInstance(ThemeProviderService)
     const { theme } = themeProvider
     const background = getBackground(props, theme)
+
+    if (props.variant === 'contained') {
+      useDisposable('themeChanged', () =>
+        Trace.method({
+          object: themeProvider,
+          method: themeProvider.set,
+          onFinished: () => {
+            const el = element
+            el.style.color = getTextColor(props, themeProvider.theme, () =>
+              themeProvider.getTextColor(el.style.background || el.style.backgroundColor),
+            )
+          },
+        }),
+      )
+    }
 
     const hoveredBackground = getHoveredBackground(props, theme, () => {
       const { r, g, b } = themeProvider.getRgbFromColorString(
@@ -136,76 +133,76 @@ export const Button = Shade<ButtonProps>({
       keyframes: PropertyIndexedKeyframes | Keyframe[] | null,
       options?: number | KeyframeAnimationOptions | undefined,
     ) => {
-      const el = element.firstElementChild
+      const el = element
       el && promisifyAnimation(el, keyframes, options)
     }
 
-    return (
-      <button
-        onmousedown={function (ev) {
-          mouseDownHandler?.call(this, ev)
-          tryAnimate(
-            [
-              {
-                filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
-                transform: 'scale(0.98)',
-              },
-            ],
-            { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
-          )
-        }}
-        onmouseup={function (ev) {
-          mouseUpHandler?.call(this, ev)
-        }}
-        onmouseenter={() => {
-          tryAnimate(
-            [
-              {
-                background,
-                boxShadow,
-                color: getTextColorInner(),
-              },
-              {
-                background: hoveredBackground,
-                boxShadow: hoveredBoxShadow,
-                color: getHoveredTextColorInner(),
-              },
-            ],
-            { duration: 500, fill: 'forwards', easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)' },
-          )
-        }}
-        onmouseout={() => {
-          tryAnimate(
-            [
-              { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
-              { background, boxShadow, color: getTextColorInner() },
-            ],
+    attachProps(element, {
+      ...props,
+      onmousedown(this: HTMLElement, ev: MouseEvent) {
+        mouseDownHandler?.call(this, ev)
+        tryAnimate(
+          [
             {
-              duration: 500,
-              fill: 'forwards',
-              easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
+              filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
+              transform: 'scale(0.98)',
             },
-          )
-        }}
-        {...props}
-        style={{
-          cursor: props.disabled ? 'not-allowed' : 'pointer',
-          background,
-          boxShadow,
-          margin: '8px',
-          padding: '6px 16px',
-          border: 'none',
-          borderRadius: '4px',
-          textTransform: 'uppercase',
-          color: getTextColorInner(),
-          filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
-          backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
-          userSelect: 'none',
-          ...props.style,
-        }}
-      >
-        {children}
-      </button>
-    )
+          ],
+          { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+        )
+      },
+      onmouseup(this: HTMLElement, ev: MouseEvent) {
+        mouseUpHandler?.call(this, ev)
+      },
+      onmouseenter: () => {
+        tryAnimate(
+          [
+            {
+              background,
+              boxShadow,
+              color: getTextColorInner(),
+            },
+            {
+              background: hoveredBackground,
+              boxShadow: hoveredBoxShadow,
+              color: getHoveredTextColorInner(),
+            },
+          ],
+          { duration: 500, fill: 'forwards', easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)' },
+        )
+      },
+      onmouseout: () => {
+        tryAnimate(
+          [
+            { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
+            { background, boxShadow, color: getTextColorInner() },
+          ],
+          {
+            duration: 500,
+            fill: 'forwards',
+            easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
+          },
+        )
+      },
+      ...props,
+      style: {
+        display: 'inline-flex',
+        cursor: props.disabled ? 'not-allowed' : 'pointer',
+        background,
+        boxShadow,
+        margin: '8px',
+        padding: '6px 16px',
+        border: 'none',
+        borderRadius: '4px',
+        textTransform: 'uppercase',
+        color: getTextColorInner(),
+        filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
+        backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
+        userSelect: 'none',
+        ...props.style,
+      },
+    })
+
+    return <>{children}</>
   },
 })

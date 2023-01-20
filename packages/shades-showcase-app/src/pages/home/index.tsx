@@ -1,9 +1,7 @@
 import { createComponent, Shade } from '@furystack/shades'
 
-export const HomePage = Shade<unknown, { isWizardOpened?: boolean }>({
+export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
-  getInitialState: () => ({ isWizardOpened: false }),
-
   render: () => {
     return (
       <div>

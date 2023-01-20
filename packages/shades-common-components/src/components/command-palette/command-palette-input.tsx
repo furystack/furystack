@@ -1,13 +1,18 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../../services'
 import { promisifyAnimation } from '../../utils/promisify-animation'
 import type { CommandPaletteManager } from './command-palette-manager'
 
-export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }, { isOpened: boolean }>({
-  getInitialState: ({ props }) => ({ isOpened: props.manager.isOpened.getValue() }),
-  constructed: ({ element, props }) => {
+export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
+  shadowDomName: 'shades-command-palette-input',
+  render: ({ element, props, injector, useObservable }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
     const { manager } = props
-    const subscriptions = [
-      manager.isOpened.subscribe(async (isOpened) => {
+
+    useObservable(
+      'isOpened',
+      manager.isOpened,
+      async (isOpened) => {
         const input = element.firstChild as HTMLInputElement
         if (isOpened) {
           input.value = ''
@@ -25,20 +30,17 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }, { i
           })
           input.value = ''
         }
-      }),
-    ]
-    return () => subscriptions.map((s) => s.dispose())
-  },
-  shadowDomName: 'shades-command-palette-input',
-  render: ({ element, props }) => {
-    const { manager } = props
+      },
+      true,
+    )
+
     element.style.width = manager.isOpened.getValue() ? '100%' : '0%'
     element.style.overflow = 'hidden'
     return (
       <input
         autofocus
         style={{
-          color: 'white',
+          color: theme.text.primary,
           outline: 'none',
           padding: '1em',
           background: 'transparent',

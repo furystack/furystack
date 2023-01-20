@@ -6,6 +6,7 @@ import { SuggestManager } from './suggest-manager'
 import type { SuggestionResult } from './suggestion-result'
 import { SuggestInput } from './suggest-input'
 import { SuggestionList } from './suggestion-list'
+import { ThemeProviderService } from '../../services'
 
 export * from './suggest-input'
 export * from './suggest-manager'
@@ -20,25 +21,19 @@ export interface SuggestProps<T> {
   style?: Partial<CSSStyleDeclaration>
 }
 
-export interface SuggestState<T> {
-  manager: SuggestManager<T>
-}
-
-export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
-  SuggestProps<any>,
-  SuggestState<any>
+export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
+  SuggestProps<any>
 >({
   shadowDomName: 'shade-suggest',
-  getInitialState: ({ props }) => ({
-    manager: new SuggestManager(props.getEntries, props.getSuggestionEntry),
-  }),
-  constructed: ({ element: el, getState, props }) => {
-    const { manager } = getState()
-    const element = el.querySelector('.input-container') as HTMLDivElement
-    manager.element = el
+  render: ({ props, injector, element, useDisposable, useObservable }) => {
+    element.style.flexGrow = '1'
+    const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
+    const { theme } = injector.getInstance(ThemeProviderService)
+    const inputContainer = element.querySelector('.input-container') as HTMLDivElement
+    manager.element = element
     manager.isOpened.subscribe((isOpened) => {
-      const suggestions = el.querySelector('.close-suggestions')
-      const postControls = el.querySelector('.post-controls')
+      const suggestions = element.querySelector('.close-suggestions')
+      const postControls = element.querySelector('.post-controls')
       if (isOpened) {
         promisifyAnimation(suggestions, [{ opacity: 0 }, { opacity: 1 }], {
           duration: 500,
@@ -50,7 +45,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           fill: 'forwards',
         })
 
-        promisifyAnimation(element, [{ background: 'transparent' }, { background: 'rgba(128,128,128,0.1)' }], {
+        promisifyAnimation(inputContainer, [{ background: 'transparent' }, { background: theme.background.default }], {
           duration: 500,
           fill: 'forwards',
           easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
@@ -67,7 +62,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           delay: 300,
         })
 
-        promisifyAnimation(element, [{ background: 'rgba(128,128,128,0.1)' }, { background: 'transparent' }], {
+        promisifyAnimation(inputContainer, [{ background: theme.background.default }, { background: 'transparent' }], {
           duration: 300,
           fill: 'forwards',
           easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
@@ -75,7 +70,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
       }
     })
     manager.isLoading.subscribe(async (isLoading) => {
-      const loader = el.querySelector('.loader-container')
+      const loader = element.querySelector('shade-loader')
       if (isLoading) {
         promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
           duration: 100,
@@ -88,12 +83,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
         })
       }
     })
-    manager.onSelectSuggestion.subscribe((value) => props.onSelectSuggestion(value))
-    return () => manager.dispose()
-  },
-  render: ({ props, injector, element, getState }) => {
-    element.style.flexGrow = '1'
-    const { manager } = getState()
+    useObservable('onSelectSuggestion', manager.onSelectSuggestion, props.onSelectSuggestion)
     return (
       <div
         style={{ display: 'flex', flexDirection: 'column' }}
@@ -153,12 +143,11 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
               overflow: 'hidden',
             }}
           >
-            <div
-              className="loader-container"
+            <Loader
               style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
-            >
-              <Loader style={{ width: '100%', height: '100%' }} />
-            </div>
+              delay={0}
+              borderWidth={4}
+            />
             <div
               className="close-suggestions"
               onclick={() => manager.isOpened.setValue(false)}

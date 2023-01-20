@@ -10,19 +10,11 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
   variant?: 'contained' | 'outlined'
 }
 
-export type TextAreaInputState = {
-  value?: string
-}
-
-export const TextArea = Shade<TextAreaProps, TextAreaInputState>({
+export const TextArea = Shade<TextAreaProps>({
   shadowDomName: 'shade-text-area',
-  getInitialState: ({ props }) => ({
-    value: props.value,
-  }),
-  render: ({ props, element, injector, getState }) => {
+  render: ({ props, element, injector }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const { theme } = themeProvider
-    const { value } = getState()
     const { palette } = theme
 
     return (
@@ -105,7 +97,7 @@ export const TextArea = Shade<TextAreaProps, TextAreaInputState>({
             }
           }}
         >
-          {value}
+          {props.value}
         </div>
       </label>
     )

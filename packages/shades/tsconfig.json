@@ -7,7 +7,7 @@
     "rootDir": "./src",
     "jsx": "react",
     "jsxFactory": "createComponent",
-    "jsxFragmentFactory": "createFragment"
+    "jsxFragmentFactory": "createComponent"
   },
   "include": ["src"],
   "references": [

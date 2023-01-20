@@ -35,4 +35,8 @@ export const pages = {
     name: 'Tabs',
     url: 'http://localhost:8080/tabs',
   },
+  misc: {
+    name: 'Misc',
+    url: 'http://localhost:8080/misc',
+  },
 }

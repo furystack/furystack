@@ -59,8 +59,7 @@ describe('Shades Component Factory', () => {
       )
 
       const shade = component.firstElementChild as JSX.Element
-      expect(shade.props).toBe(null)
-      expect(shade.state).toBe(undefined)
+      expect(shade.props).toEqual({})
       expect(shade.shadeChildren).toEqual([])
     })
 
@@ -81,17 +80,18 @@ describe('Shades Component Factory', () => {
       shade.callConstructed()
 
       expect(shade.props.foo).toEqual('example')
-      expect(shade.state).toBe(undefined)
       expect(shade.shadeChildren).toEqual([])
 
       expect(shade.innerHTML).toBe('<div>example</div>')
     })
 
     it('Should render a component with state', () => {
-      const Example = Shade<unknown, { foo: string }>({
-        getInitialState: () => ({ foo: 'example' }),
+      const Example = Shade({
         shadowDomName: 'example-with-state',
-        render: () => <div />,
+        render: ({ useState }) => {
+          useState('foo', 'example')
+          return <div />
+        },
       })
 
       const component = (
@@ -102,7 +102,7 @@ describe('Shades Component Factory', () => {
 
       const shade = component.firstElementChild as JSX.Element
       shade.callConstructed()
-      expect(shade.state).toEqual({ foo: 'example' })
+      expect(shade.resourceManager.stateObservers.get('foo')?.getValue()).toEqual('example')
       expect(shade.shadeChildren).toEqual([])
     })
   })

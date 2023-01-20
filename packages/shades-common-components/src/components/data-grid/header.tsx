@@ -19,37 +19,41 @@ export interface DataGridHeaderState<T> {
 export const DataGridHeader: <T, K extends keyof T>(
   props: DataGridHeaderProps<T, K>,
   children: ChildrenList,
-) => JSX.Element<any, any> = Shade<DataGridHeaderProps<any, any>, DataGridHeaderState<any>>({
+) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
   shadowDomName: 'data-grid-header',
-  getInitialState: ({ props }) => ({
-    querySettings: props.collectionService.querySettings.getValue(),
-    isSearchOpened: false,
-    updateSearchValue: debounce((value: string) => {
-      const currentSettings = props.collectionService.querySettings.getValue()
-      const newSettings: FindOptions<unknown, any> = {
-        ...currentSettings,
-        filter: {
-          ...currentSettings.filter,
-          [props.field]: { $regex: value },
-        },
-      }
-      props.collectionService.querySettings.setValue(newSettings)
-    }),
-  }),
-  constructed: ({ props, updateState, getState }) => {
-    const disposable = props.collectionService.querySettings.subscribe((querySettings) =>
-      updateState({ querySettings }, getState().isSearchOpened),
+  // getInitialState: ({ props }) => ({
+  //   querySettings: props.collectionService.querySettings.getValue(),
+  //   isSearchOpened: false,
+  // updateSearchValue: ,
+  // }),
+  render: ({ props, element, useState, useObservable }) => {
+    const [querySettings, setQuerySettings] = useObservable('querySettings', props.collectionService.querySettings)
+    const currentOrder = Object.keys(querySettings.order || {})[0]
+    const currentOrderDirection = Object.values(querySettings.order || {})[0]
+
+    const [isSearchOpened, setIsSearchOpened] = useState('isSearchOpened', false)
+    const [updateSearchValue] = useState(
+      'updateSearchValue',
+      debounce((value: string) => {
+        const currentSettings = props.collectionService.querySettings.getValue()
+        const newSettings: FindOptions<unknown, any> = {
+          ...currentSettings,
+          filter: {
+            ...currentSettings.filter,
+            [props.field]: { $regex: value },
+          },
+        }
+        props.collectionService.querySettings.setValue(newSettings)
+      }),
     )
-    return () => disposable.dispose()
-  },
-  render: ({ getState, props, updateState, element }) => {
-    const currentState = getState()
-    const currentOrder = Object.keys(currentState.querySettings.order || {})[0]
-    const currentOrderDirection = Object.values(currentState.querySettings.order || {})[0]
 
     const filterValue = (props.collectionService.querySettings.getValue().filter as any)?.[props.field]?.$regex || ''
 
-    if (currentState.isSearchOpened) {
+    useObservable('querySettingsChange', props.collectionService.querySettings, (newSettings) => {
+      setQuerySettings(newSettings)
+    })
+
+    if (isSearchOpened) {
       setTimeout(() => {
         element.querySelector('input')?.focus()
       }, 1)
@@ -59,8 +63,8 @@ export const DataGridHeader: <T, K extends keyof T>(
           value={filterValue}
           placeholder={props.field}
           autofocus
-          onblur={() => updateState({ isSearchOpened: false })}
-          onkeyup={(ev) => currentState.updateSearchValue((ev.target as HTMLInputElement).value)}
+          onblur={() => setIsSearchOpened(false)}
+          onkeyup={(ev) => updateSearchValue((ev.target as HTMLInputElement).value)}
           labelProps={{
             style: { padding: '0px 2em' },
           }}
@@ -71,7 +75,7 @@ export const DataGridHeader: <T, K extends keyof T>(
     return (
       <div
         style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'space-around' }}
-        onclick={() => updateState({ isSearchOpened: true })}
+        onclick={() => setIsSearchOpened(true)}
       >
         <div>{props.field}</div>
         <div className="header-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -88,7 +92,7 @@ export const DataGridHeader: <T, K extends keyof T>(
               }
               newOrder[props.field] = newDirection
               props.collectionService.querySettings.setValue({
-                ...currentState.querySettings,
+                ...querySettings,
                 order: newOrder,
               })
             }}

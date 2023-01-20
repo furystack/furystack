@@ -25,7 +25,7 @@ describe('Router', () => {
 
     const onRouteChange = jest.fn()
 
-    injector.getInstance(LocationService).onLocationChanged.subscribe(onRouteChange)
+    injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 
     initializeShadeRoot({
       injector,
@@ -61,7 +61,7 @@ describe('Router', () => {
               },
               { url: '/', component: () => <div id="content">home</div> },
             ]}
-            notFound={() => <div id="content">not found</div>}
+            notFound={<div id="content">not found</div>}
           />
         </div>
       ),

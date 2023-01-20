@@ -1,4 +1,4 @@
-import { createComponent, createFragment, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import { Button, NotyList, NotyService } from '@furystack/shades-common-components'
 
 export const NotysPage = Shade({

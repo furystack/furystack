@@ -1,25 +1,22 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '../../services'
-import type { CollectionService, CollectionData } from '../../services/collection-service'
+import type { CollectionService } from '../../services/collection-service'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
-export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data: CollectionData<any> }>({
+export const DataGridFooter = Shade<{ service: CollectionService<any> }>({
   shadowDomName: 'shade-data-grid-footer',
-  getInitialState: ({ props }) => ({
-    data: props.service.data.getValue(),
-  }),
-  constructed: ({ props, updateState }) => {
-    const disposables = [props.service.data.subscribe((data) => updateState({ data }))]
-
-    return () => disposables.forEach((d) => d.dispose())
-  },
-  render: ({ props, getState, injector }) => {
-    const state = getState()
-    const currentQuerySettings = props.service.querySettings.getValue()
-    const currentPage = Math.ceil(currentQuerySettings.skip || 0) / (currentQuerySettings.top || 1)
-    const currentEntriesPerPage = currentQuerySettings.top || Infinity
+  render: ({ props, injector, useObservable }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
+
+    const [currentData] = useObservable('dataUpdater', props.service.data)
+
+    const [currentQuerySettings] = useObservable('querySettings', props.service.querySettings)
+
+    const top = currentQuerySettings.top || Infinity
+    const skip = currentQuerySettings.skip || 0
+    const currentPage = Math.ceil(skip) / (top || 1)
+    const currentEntriesPerPage = top
 
     return (
       <div
@@ -47,7 +44,7 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { data:
               }}
             >
               {[
-                ...new Array(Math.ceil(state.data.count / (props.service.querySettings.getValue().top || Infinity))),
+                ...new Array(Math.ceil(currentData.count / (props.service.querySettings.getValue().top || Infinity))),
               ].map((_val, index) => (
                 <option value={index.toString()} selected={currentPage === index}>
                   {(index + 1).toString()}

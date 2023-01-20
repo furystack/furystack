@@ -1,4 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../services'
 import { promisifyAnimation } from '../utils'
 
 interface LoaderProps {
@@ -10,15 +11,29 @@ interface LoaderProps {
    * The time to wait before the loader shows up
    */
   delay?: number
+
+  /**
+   * The color of the loader
+   */
+  borderColor?: string
+
+  /**
+   * The width of the border
+   */
+  borderWidth?: number
 }
 
 export const Loader = Shade<LoaderProps>({
   shadowDomName: 'shade-loader',
-  render: ({ element, props }) => {
+  render: ({ element, props, injector }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
+
     element.style.display = 'inline-block'
     element.style.transformOrigin = 'center'
     element.style.opacity = '0'
     const { delay = 500 } = props
+    const { borderWidth = 15 } = props
+    const { borderColor = theme.palette.primary.main } = props
 
     setTimeout(() => {
       promisifyAnimation(element, [{ opacity: '0' }, { opacity: '1' }], {
@@ -40,10 +55,10 @@ export const Loader = Shade<LoaderProps>({
       <div
         style={{
           position: 'relative',
-          width: 'calc(100% - 30px)',
-          height: 'calc(100% - 30px)',
-          border: '15px solid rgba(128,128,128,0.1)',
-          borderBottom: '15px solid red',
+          width: `calc(100% - ${borderWidth * 2}px)`,
+          height: `calc(100% - ${borderWidth * 2}px)`,
+          border: `${borderWidth}px solid rgba(128,128,128,0.1)`,
+          borderBottom: `${borderWidth}px solid ${borderColor}`,
           borderRadius: '50%',
         }}
       />

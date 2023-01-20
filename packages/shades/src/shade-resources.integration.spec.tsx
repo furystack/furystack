@@ -24,22 +24,15 @@ describe('Shade Resources integration tests', () => {
     const obs2 = new ObservableValue('a')
 
     const ExampleComponent = Shade({
-      resources: ({ element }) => [
-        obs1.subscribe(
-          (val1) => ((element.querySelector('#val1') as HTMLDivElement).innerHTML = val1.toString()),
-          true,
-        ),
-        obs2.subscribe(
-          (val2) => ((element.querySelector('#val2') as HTMLDivElement).innerHTML = val2.toString()),
-          true,
-        ),
-      ],
-      render: () => {
+      render: ({ useObservable }) => {
+        const [value1] = useObservable('obs1', obs1)
+        const [value2] = useObservable('obs2', obs2)
+
         renderCounter()
         return (
           <div>
-            <div id="val1"></div>
-            <div id="val2"></div>
+            <div id="val1">{value1}</div>
+            <div id="val2">{value2}</div>
           </div>
         )
       },
@@ -67,6 +60,7 @@ describe('Shade Resources integration tests', () => {
     expect(document.body.innerHTML).toBe(
       '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">a</div></div></shades-example-resource></div>',
     )
+    expect(renderCounter).toBeCalledTimes(2)
 
     obs2.setValue('b')
     expect(document.body.innerHTML).toBe(
@@ -78,6 +72,6 @@ describe('Shade Resources integration tests', () => {
     expect(obs1.getObservers().length).toBe(0)
     expect(obs2.getObservers().length).toBe(0)
 
-    expect(renderCounter).toBeCalledTimes(1)
+    expect(renderCounter).toBeCalledTimes(3)
   })
 })

@@ -1,6 +1,6 @@
 import type { CollectionService } from '../../services/collection-service'
 import type { ChildrenList } from '@furystack/shades'
-import { Shade, createComponent, createFragment } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import type { DataRowCells } from './data-grid'
 import { Loader } from '../loader'
 import { DataGridRow } from './data-grid-row'
@@ -20,29 +20,17 @@ export interface DataGridBodyProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export interface DataGridBodyState<T> {
-  data: T[]
-  isLoading: boolean
-}
-
-export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
-  DataGridBodyProps<any>,
-  DataGridBodyState<any>
+export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
+  DataGridBodyProps<any>
 >({
-  getInitialState: ({ props }) => ({
-    data: props.service.data.getValue().entries,
-    isLoading: props.service.isLoading.getValue(),
-  }),
-  resources: ({ props, updateState }) => [
-    props.service.data.subscribe((data) => updateState({ data: data.entries })),
-    props.service.isLoading.subscribe((isLoading) => updateState({ isLoading })),
-  ],
   shadowDomName: 'shade-data-grid-body',
-  render: ({ getState, props, element }) => {
+  render: ({ props, element, useObservable }) => {
     element.style.display = 'table-row-group'
-    const state = getState()
 
-    if (state.isLoading) {
+    const [data] = useObservable('data', props.service.data)
+    const [isLoading] = useObservable('isLoading', props.service.isLoading)
+
+    if (isLoading) {
       return (
         <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           {/* TODO: Skeleton */}
@@ -51,13 +39,13 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
       )
     }
 
-    if (!state.data?.length) {
+    if (!data?.entries?.length) {
       return props.emptyComponent || <div> - No Data - </div>
     }
 
     return (
       <>
-        {state.data.map((entry) => (
+        {data?.entries?.map((entry) => (
           <DataGridRow<any>
             columns={props.columns}
             entry={entry}

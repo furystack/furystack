@@ -1,28 +1,35 @@
-import { createComponent, createFragment, ScreenService, Shade } from '@furystack/shades'
+import { createComponent, ScreenService, Shade, attachStyles } from '@furystack/shades'
 import type { WizardStepProps } from '@furystack/shades-common-components'
 import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
-  resources: ({ injector, element }) => {
-    return [
-      injector.getInstance(ScreenService).screenSize.atLeast.md.subscribe((isLargeScreen) => {
-        const form = element?.querySelector('form')
-        if (form) {
-          form.style.padding = '16px'
-          form.style.width = isLargeScreen ? '800px' : `${window.innerWidth - 16}px`
-          form.style.height = isLargeScreen ? '500px' : `${window.innerHeight - 192}px`
-        }
-      }, true),
-    ]
-  },
-  render: ({ props, element, children }) => {
+
+  render: ({ props, element, children, useObservable, injector }) => {
+    const getResponsiveStyles = (isLargeScreen: boolean) => {
+      return {
+        padding: '16px',
+        width: isLargeScreen ? '800px' : `${window.innerWidth - 16}px`,
+        height: isLargeScreen ? '500px' : `${window.innerHeight - 192}px`,
+      }
+    }
+
     setTimeout(() => {
       showParallax(element.querySelector('h1'))
       showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
       showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
     }, 1)
+
+    const [isLargeScreenInitial] = useObservable(
+      'screenSizeChange',
+      injector.getInstance(ScreenService).screenSize.atLeast.md,
+      (isLargeScreen) => {
+        const form = element.querySelector('form')
+        form && attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+      },
+    )
+
     return (
       <form
         onsubmit={(ev) => {
@@ -30,12 +37,12 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
           props.onNext?.()
         }}
         style={{
-          padding: '32px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           maxWidth: 'calc(100% - 32px)',
           maxHeight: 'calc(100% - 32px)',
+          ...getResponsiveStyles(isLargeScreenInitial),
         }}
       >
         <h1 style={{ opacity: '0' }}>{props.title}</h1>
@@ -59,6 +66,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
             disabled={props.currentPage > props.maxPages - 1}
             variant="contained"
             color={props.currentPage === props.maxPages - 1 ? 'success' : 'primary'}
+            onclick={(ev) => (ev.target as HTMLElement)?.closest('form')?.requestSubmit()}
           >
             {props.currentPage < props.maxPages - 1 ? 'Next' : 'Finish'}
           </Button>
@@ -144,14 +152,10 @@ export const Step3 = Shade<WizardStepProps>({
   },
 })
 
-export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean> }>({
+export const WelcomeWizard = Shade({
   shadowDomName: 'shades-welcome-wizard',
-  getInitialState: () => ({ isOpened: new ObservableValue(false) }),
-  constructed: ({ getState }) => {
-    return () => getState().isOpened.dispose()
-  },
-  render: ({ getState }) => {
-    const { isOpened } = getState()
+  render: ({ useDisposable }) => {
+    const isOpened = useDisposable('isOpened', () => new ObservableValue(false))
     return (
       <>
         <Button onclick={() => isOpened.setValue(true)}>Open Wizard</Button>

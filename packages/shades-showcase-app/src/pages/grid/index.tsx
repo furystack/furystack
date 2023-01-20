@@ -4,14 +4,11 @@ import { DataGrid, SelectionCell } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service'
 import { GridStatus } from './grid-status'
 
-export const GridPage = Shade<{}, { service: GridPageService }>({
+export const GridPage = Shade({
   shadowDomName: 'shades-grid-page',
-  getInitialState: ({ injector }) => {
-    return {
-      service: injector.getInstance(GridPageService).init(),
-    }
-  },
-  render: ({ getState }) => {
+
+  render: ({ useDisposable, injector }) => {
+    const service = useDisposable('service', () => injector.getInstance(GridPageService).init())
     return (
       <div
         style={{
@@ -31,10 +28,10 @@ export const GridPage = Shade<{}, { service: GridPageService }>({
         <DataGrid<TestClass>
           columns={['id', 'stringValue1', 'stringValue2', 'booleanValue', 'dateValue', 'numberValue1', 'numberValue2']}
           styles={undefined}
-          service={getState().service.collectionService}
+          service={service.collectionService}
           headerComponents={{}}
           rowComponents={{
-            id: (entry) => <SelectionCell entry={entry} service={getState().service.collectionService} />,
+            id: (entry) => <SelectionCell entry={entry} service={service.collectionService} />,
             booleanValue: ({ booleanValue }) => <span>{booleanValue ? `✅` : `❌`}</span>,
             dateValue: ({ dateValue }) => <span>{dateValue.toLocaleString()}</span>,
             numberValue1: ({ numberValue1 }) => <span>{numberValue1.toFixed(2)}</span>,
