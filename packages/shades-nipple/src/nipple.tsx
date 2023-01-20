@@ -1,4 +1,4 @@
-import { Shade, createComponent, createFragment } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import type { JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
 import { create } from 'nipplejs'
 

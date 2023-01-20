@@ -22,7 +22,7 @@ describe('LocationService', () => {
     await usingAsync(new Injector(), async (i) => {
       const onLocaionChanged = jest.fn()
       const s = i.getInstance(LocationService)
-      s.onLocationChanged.subscribe(onLocaionChanged)
+      s.onLocationPathChanged.subscribe(onLocaionChanged)
       expect(onLocaionChanged).toBeCalledTimes(0)
       history.pushState(null, '', '/loc1')
       expect(onLocaionChanged).toBeCalledTimes(1)

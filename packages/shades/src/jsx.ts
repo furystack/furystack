@@ -1,16 +1,17 @@
 import type { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from './models'
+import type { ResourceManager } from './services/resource-manager'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace JSX {
-    interface Element<TProps = any, TState = any> extends HTMLElement {
+    interface Element<TProps = any> extends HTMLElement {
       injector: Injector
-      state: TState
       props: TProps
       updateComponent: () => void
       shadeChildren?: ChildrenList
       callConstructed: () => void
+      resourceManager: ResourceManager
     }
 
     interface IntrinsicElements {

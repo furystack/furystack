@@ -11,67 +11,67 @@ export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
   routingOptions?: TokensToRegexpOptions
-  onVisit?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
-  onLeave?: (options: RenderOptions<RouterProps, RouterState>) => Promise<void>
+  onVisit?: (options: RenderOptions<unknown>) => Promise<void>
+  onLeave?: (options: RenderOptions<unknown>) => Promise<void>
 }
 
 export interface RouterProps {
   style?: CSSStyleDeclaration
   routes: Array<Route<any>>
-  notFound?: (currentUrl: string) => JSX.Element
+  notFound?: JSX.Element
 }
 
 export interface RouterState {
-  activeRoute?: Route<any>
+  activeRoute?: Route<any> | null
   activeRouteParams?: any
-  jsx?: JSX.Element
-  lock: Semaphore
+  jsx: JSX.Element
 }
-export const Router = Shade<RouterProps, RouterState>({
+export const Router = Shade<RouterProps>({
   shadowDomName: 'shade-router',
-  getInitialState: () => ({
-    lock: new Semaphore(1),
-  }),
-  resources: ({ children, props, injector, updateState, getState, element }) => [
-    injector.getInstance(LocationService).onLocationChanged.subscribe(async (currentUrl) => {
-      const { activeRoute: lastRoute, activeRouteParams: lastParams, lock } = getState()
+  render: (options) => {
+    const { useState, useObservable, injector } = options
+    const [lock] = useState('lock', new Semaphore(1))
+    const [state, setState] = useState<RouterState>('routerState', {
+      jsx: <div />,
+    })
+
+    const updateUrl = async (currentUrl: string) => {
+      const [lastState] = useState<RouterState>('routerState', state)
+      const { activeRoute: lastRoute, activeRouteParams: lastRouteParams, jsx: lastJsx } = lastState
       try {
         await lock.acquire()
-        for (const route of props.routes) {
+        for (const route of options.props.routes) {
           const matchFn = match(route.url, route.routingOptions)
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
-            if (route !== lastRoute || JSON.stringify(lastParams) !== JSON.stringify(matchResult.params)) {
-              await lastRoute?.onLeave?.({ children, props, injector, updateState, getState, element })
-              updateState({
-                jsx: route.component({ currentUrl, match: matchResult }),
-                activeRoute: route,
-                activeRouteParams: matchResult.params,
-              })
-              await route.onVisit?.({ children, props, injector, updateState, getState, element })
+            if (route !== lastRoute || JSON.stringify(lastRouteParams) !== JSON.stringify(matchResult.params)) {
+              await lastRoute?.onLeave?.({ ...options, element: lastState.jsx })
+              const newJsx = route.component({ currentUrl, match: matchResult })
+              setState({ jsx: newJsx, activeRoute: route, activeRouteParams: matchResult.params })
+              await route.onVisit?.({ ...options, element: newJsx })
             }
             return
           }
         }
         if (lastRoute?.onLeave) {
-          await lastRoute.onLeave({ children, props, injector, updateState, getState, element })
+          await lastRoute.onLeave({ ...options, element: lastJsx })
         }
-        updateState({ jsx: props.notFound?.(currentUrl), activeRoute: undefined })
+        setState({
+          jsx: options.props.notFound || <div />,
+          activeRoute: null,
+          activeRouteParams: null,
+        })
       } catch (e) {
         // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
           throw e
         }
       } finally {
-        lock.release()
+        lock?.release()
       }
-    }, true),
-  ],
-  render: ({ getState }) => {
-    const { jsx } = getState()
-    if (jsx) {
-      return jsx
     }
-    return <div></div>
+
+    useObservable('locationPathChanged', injector.getInstance(LocationService).onLocationPathChanged, updateUrl, true)
+    return state.jsx
   },
 })

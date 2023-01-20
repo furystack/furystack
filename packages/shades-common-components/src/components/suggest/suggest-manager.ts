@@ -1,10 +1,11 @@
 import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
 import { debounce, ObservableValue } from '@furystack/utils'
 import type { SuggestionResult } from './suggestion-result'
 
 @Injectable({ lifetime: 'singleton' })
-export class SuggestManager<T> {
+export class SuggestManager<T> implements Disposable {
   public isOpened = new ObservableValue(false)
   public isLoading = new ObservableValue(false)
   public term = new ObservableValue('')
@@ -32,6 +33,12 @@ export class SuggestManager<T> {
   public dispose() {
     window.removeEventListener('keyup', this.keyPressListener)
     window.removeEventListener('click', this.clickOutsideListener)
+    this.isOpened.dispose()
+    this.isLoading.dispose()
+    this.term.dispose()
+    this.selectedIndex.dispose()
+    this.currentSuggestions.dispose()
+    this.onSelectSuggestion.dispose()
   }
 
   public selectSuggestion(index: number = this.selectedIndex.getValue()) {
@@ -46,13 +53,18 @@ export class SuggestManager<T> {
       if (this.lastGetSuggestionOptions?.term === options.term) {
         return
       }
+      const lastSelectedSuggestion = JSON.stringify(this.currentSuggestions.getValue()[this.selectedIndex.getValue()])
       this.isLoading.setValue(true)
       this.lastGetSuggestionOptions = options
-      this.currentSuggestions.setValue([])
-      this.selectedIndex.setValue(0)
       const newEntries = await this.getEntries(options.term)
       this.isOpened.setValue(true)
       this.currentSuggestions.setValue(newEntries.map((e) => ({ entry: e, suggestion: this.getSuggestionEntry(e) })))
+      this.selectedIndex.setValue(
+        Math.max(
+          0,
+          this.currentSuggestions.getValue().findIndex((e) => JSON.stringify(e) === lastSelectedSuggestion),
+        ),
+      )
     } finally {
       this.isLoading.setValue(false)
     }

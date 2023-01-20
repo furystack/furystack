@@ -1,4 +1,4 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { attachProps, createComponent, Shade } from '@furystack/shades'
 import type { NotyModel } from '../services/noty-service'
 import { NotyService } from '../services/noty-service'
 import { ThemeProviderService } from '../services/theme-provider-service'
@@ -24,10 +24,9 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   shadowDomName: 'shade-noty',
   constructed: ({ element }) => {
     setTimeout(() => {
-      const container = element.querySelector('div')
-      const height = container?.scrollHeight || 80
+      const height = element.scrollHeight || 80
       promisifyAnimation(
-        container,
+        element,
         [
           { opacity: '0', height: '0px' },
           { opacity: '1', height: `${height}px` },
@@ -47,11 +46,10 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     const textColor = themeProvider.getTextColor(colors.main)
 
     const removeSelf = async () => {
-      const container = element.querySelector('div')
       await promisifyAnimation(
-        container,
+        element,
         [
-          { opacity: '1', height: `${container?.scrollHeight || 0}px`, margin: '8px 8px' },
+          { opacity: '1', height: `${element?.scrollHeight || 0}px`, margin: '8px 8px' },
           { opacity: '0', height: '0px', margin: '0px 8px' },
         ],
         {
@@ -68,22 +66,24 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       setTimeout(removeSelf, timeout)
     }
 
+    attachProps(element, {
+      className: `noty ${props.model.type}`,
+      style: {
+        width: '300px',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '0px',
+        backgroundColor: colors.main,
+        color: textColor,
+        margin: '8px',
+        overflow: 'hidden',
+        borderRadius: '6px',
+        boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
+      },
+    })
+
     return (
-      <div
-        className={`noty ${props.model.type}`}
-        style={{
-          width: '300px',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '0px',
-          backgroundColor: colors.main,
-          color: textColor,
-          margin: '8px',
-          overflow: 'hidden',
-          borderRadius: '6px',
-          boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
-        }}
-      >
+      <>
         <div
           style={{
             display: 'flex',
@@ -119,45 +119,46 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
           </Button>
         </div>
         <div style={{ padding: '16px 16px' }}>{props.model.body}</div>
-      </div>
+      </>
     )
   },
 })
 
-export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
-  getInitialState: ({ injector }) => ({ currentNotys: injector.getInstance(NotyService).notys.getValue() }),
-  constructed: ({ injector, element }) => {
-    const notyService = injector.getInstance(NotyService)
-    const observables = [
-      notyService.onNotyAdded.subscribe((n) => {
-        element.querySelector('div')?.append(<NotyComponent model={n} onDismiss={() => notyService.removeNoty(n)} />)
-      }),
-      notyService.onNotyRemoved.subscribe((n) => {
-        element.querySelectorAll('shade-noty').forEach((e) => {
-          if ((e as JSX.Element).props.model === n) {
-            e.remove()
-          }
-        })
-      }),
-    ]
-    return () => observables.forEach((o) => o.dispose())
-  },
+export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
-  render: ({ getState, injector }) => {
+  render: ({ useObservable, injector, element }) => {
+    const notyService = injector.getInstance(NotyService)
+
+    attachProps(element, {
+      style: {
+        position: 'fixed',
+        bottom: '1em',
+        right: '1em',
+        display: 'flex',
+        flexDirection: 'column',
+      },
+    })
+
+    const currentNotys = notyService.notys.getValue()
+
+    useObservable('addNoty', notyService.onNotyAdded, (n) =>
+      element.append(<NotyComponent model={n} onDismiss={() => notyService.removeNoty(n)} />),
+    )
+
+    useObservable('removeNoty', notyService.onNotyRemoved, (n) => {
+      element.querySelectorAll('shade-noty').forEach((e) => {
+        if ((e as JSX.Element).props.model === n) {
+          e.remove()
+        }
+      })
+    })
+
     return (
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '1em',
-          right: '1em',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {getState().currentNotys.map((n) => (
+      <>
+        {currentNotys.map((n) => (
           <NotyComponent model={n} onDismiss={() => injector.getInstance(NotyService).removeNoty(n)} />
         ))}
-      </div>
+      </>
     )
   },
 })

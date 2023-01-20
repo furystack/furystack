@@ -3,9 +3,12 @@ import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'
 import type { EntryLoader } from '@furystack/shades-common-components'
 import { CollectionService } from '@furystack/shades-common-components'
+import type { Disposable } from '@furystack/utils'
+
+let currentId = 0
 
 @Injectable({ lifetime: 'singleton' })
-export class GridPageService {
+export class GridPageService implements Disposable {
   private isInitialized = false
 
   public init() {
@@ -32,7 +35,7 @@ export class GridPageService {
     const dateValue = new Date()
     dateValue.setHours(dateValue.getHours() + Math.floor((Math.random() - 0.5) * 24))
     return {
-      id: Math.floor(Math.random() * 100000),
+      id: currentId++, // Math.floor(Math.random() * 100000),
       booleanValue: Math.random() > 0.5,
       numberValue1: Math.random() * 100,
       numberValue2: Math.random() * 100,
@@ -54,4 +57,8 @@ export class GridPageService {
 
   @Injected(Injector)
   private readonly injector!: Injector
+
+  public dispose() {
+    this.collectionService.dispose()
+  }
 }

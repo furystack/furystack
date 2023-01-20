@@ -25,24 +25,17 @@ export interface WizardProps {
   /**
    * An array of Shade<WizardStepProps> components
    */
-  steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element<any, any>>
+  steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element<any>>
   /**
    * A callback that will be executed when the wizard is completed
    */
   onFinish?: () => void
 }
 
-interface WizardState {
-  currentPage: number
-}
-
-export const Wizard = Shade<WizardProps, WizardState>({
+export const Wizard = Shade<WizardProps>({
   shadowDomName: 'shades-wizard',
-  getInitialState: () => ({
-    currentPage: 0,
-  }),
-  render: ({ props, getState, updateState }) => {
-    const { currentPage } = getState()
+  render: ({ props, useState }) => {
+    const [currentPage, setCurrentPage] = useState('currentPage', 0)
 
     const CurrentPage = props.steps[currentPage]
 
@@ -62,14 +55,14 @@ export const Wizard = Shade<WizardProps, WizardState>({
             maxPages={props.steps.length}
             onNext={() => {
               if (currentPage < props.steps.length - 1) {
-                updateState({ currentPage: currentPage + 1 })
+                setCurrentPage(currentPage + 1)
               } else {
                 props.onFinish?.()
               }
             }}
             onPrev={() => {
               if (currentPage > 0) {
-                updateState({ currentPage: currentPage - 1 })
+                setCurrentPage(currentPage - 1)
               }
             }}
           />

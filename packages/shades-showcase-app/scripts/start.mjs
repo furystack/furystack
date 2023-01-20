@@ -1,4 +1,4 @@
-import { serve } from 'esbuild'
+import { context } from 'esbuild'
 import { createServer, request } from 'http'
 import { getBundleBuildOptions, getMonacoBuildOptions } from './build-defaults.mjs'
 import { FgBlue, FgGreen, FgRed, FgYellow, Reset } from '@furystack/logging'
@@ -11,54 +11,54 @@ const onRequest = (arg) => {
   console.log(`➡️  ${statusColor}<${arg.status}>${Reset} ${arg.path}`)
 }
 
-const serveBundle = serve(
-  {
-    servedir: 'bundle',
-    port: 8079,
-    onRequest,
-  },
-  {
-    ...getBundleBuildOptions(),
-  },
-)
-  .then((result) => {
+const serveWeb = async () => {
+  try {
+    const ctx = await context(getBundleBuildOptions())
     console.log(`✅ ${FgGreen}Bundle has been built.${Reset}`)
-    return result
-  })
-  .catch((error) => {
+    const watcher = await ctx.watch()
+    console.log(`✅ ${FgGreen}Bundle Watcher enabled.${Reset}`)
+    const serve = await ctx.serve({
+      servedir: 'bundle',
+      port: 8079,
+      onRequest,
+    })
+    console.log(`✅ ${FgGreen}Bundle Server started.${Reset}`)
+    return { ctx, serve, watcher }
+  } catch (error) {
     console.log(`❌ ${FgRed}Bundle build failed.${Reset}`)
     console.log(error)
     process.exit(1)
-  })
+  }
+}
 
-const isMonacoPath = (path) => path.startsWith('/js/monaco-editor/esm/vs')
-
-const serveMonaco = serve(
-  {
-    servedir: 'bundle',
-    port: 8078,
-    onRequest,
-  },
-  {
-    ...getMonacoBuildOptions(),
-  },
-)
-  .then((result) => {
+const serveMonaco = async () => {
+  try {
+    const ctx = await context(getMonacoBuildOptions())
     console.log(`✅ ${FgGreen}Monaco has been built.${Reset}`)
-    return result
-  })
-  .catch((error) => {
+    const watcher = await ctx.watch()
+    console.log(`✅ ${FgGreen}Monaco Watcher enabled.${Reset}`)
+    const serve = await ctx.serve({
+      servedir: 'bundle',
+      port: 8078,
+      onRequest,
+    })
+    console.log(`✅ ${FgGreen}Monaco Server started.${Reset}`)
+    return { ctx, serve, watcher }
+  } catch (error) {
     console.log(`❌ ${FgRed}Monaco build failed.${Reset}`)
     console.log(error)
     process.exit(1)
-  })
+  }
+}
+
+const isMonacoPath = (path) => path.startsWith('/js/monaco-editor/esm/vs')
 
 console.log(`🧱 Starting app...`)
 
-Promise.all([serveBundle, serveMonaco]).then(([bundleResult, monacoResult]) => {
+Promise.all([serveWeb(), serveMonaco()]).then(([bundleResult, monacoResult]) => {
   // The result tells us where esbuild's local server is
-  const { host, port } = bundleResult
-  const { host: monacoHost, port: monacoPort } = monacoResult
+  const { host, port } = bundleResult.serve
+  const { host: monacoHost, port: monacoPort } = monacoResult.serve
 
   const proxy = createServer((req, res) => {
     // forwardRequest forwards an http request through to esbuid.

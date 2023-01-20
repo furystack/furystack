@@ -6,13 +6,12 @@ import { DataGridHeader } from './header'
 import { DataGridBody } from './body'
 import { DataGridFooter } from './footer'
 import { ClickAwayService, ThemeProviderService } from '../../services'
-import type { DataGridRowState } from './data-grid-row'
 
 export type DataHeaderCells<T> = {
   [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element
 }
 export type DataRowCells<T> = {
-  [TKey in keyof T | 'default']?: (element: T, state: DataGridRowState<T>) => JSX.Element
+  [TKey in keyof T | 'default']?: (element: T, state: { focus?: T; selection: T[] }) => JSX.Element
 }
 
 export interface DataGridProps<T> {
@@ -68,25 +67,26 @@ export interface DataGridProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
+export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',
-  resources: ({ element, props }) => {
-    return [
-      new ClickAwayService(element, () => {
-        props.service.hasFocus.setValue(false)
-      }),
-    ]
-  },
   constructed: ({ props }) => {
     const listener = (ev: KeyboardEvent) => props.service.handleKeyDown(ev)
     window.addEventListener('keydown', listener)
     return () => window.removeEventListener('keydown', listener)
   },
-  render: ({ props, injector }) => {
+  render: ({ props, injector, useDisposable, element }) => {
     const tp = injector.getInstance(ThemeProviderService)
     const { theme } = tp
+
+    useDisposable(
+      'clickAway',
+      () =>
+        new ClickAwayService(element, () => {
+          props.service.hasFocus.setValue(false)
+        }),
+    )
 
     const headerStyle: Partial<CSSStyleDeclaration> = {
       backdropFilter: 'blur(12px)',

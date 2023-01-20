@@ -44,7 +44,7 @@ test.describe('Wizard', () => {
 
     await input.type('PlaywrightBot')
 
-    const nextButton = await wizard.locator('button:has-text("Next")')
+    const nextButton = await wizard.locator('shade-button:has-text("Next")')
     await nextButton.click()
 
     const step2Text = wizard.locator('text=Step 2')
@@ -54,7 +54,7 @@ test.describe('Wizard', () => {
     const step3Text = wizard.locator('text=Step 3')
     expect(step3Text).toBeVisible()
 
-    const finishButton = await wizard.locator('button:has-text("Finish")')
+    const finishButton = await wizard.locator('shade-button:has-text("Finish")')
     await finishButton.click()
 
     await wizard.waitFor({

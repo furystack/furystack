@@ -5,29 +5,24 @@ import { pages } from './pages'
 
 test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
-    await sleepAsync(100)
     await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
   }
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
-    await sleepAsync(100)
     for (const rowNumber of rowNumbers) {
       await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
-    await sleepAsync(100)
     await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
-    await sleepAsync(100)
     await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
   }
 
   const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
-    await sleepAsync(100)
     await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
   }
 
