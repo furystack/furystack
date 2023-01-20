@@ -19,36 +19,38 @@ export interface DataGridHeaderState<T> {
 export const DataGridHeader: <T, K extends keyof T>(
   props: DataGridHeaderProps<T, K>,
   children: ChildrenList,
-) => JSX.Element<any, any> = Shade<DataGridHeaderProps<any, any>, DataGridHeaderState<any>>({
+) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
   shadowDomName: 'data-grid-header',
-  getInitialState: ({ props }) => ({
-    querySettings: props.collectionService.querySettings.getValue(),
-    isSearchOpened: false,
-    updateSearchValue: debounce((value: string) => {
-      const currentSettings = props.collectionService.querySettings.getValue()
-      const newSettings: FindOptions<unknown, any> = {
-        ...currentSettings,
-        filter: {
-          ...currentSettings.filter,
-          [props.field]: { $regex: value },
-        },
-      }
-      props.collectionService.querySettings.setValue(newSettings)
-    }),
-  }),
+  // getInitialState: ({ props }) => ({
+  //   querySettings: props.collectionService.querySettings.getValue(),
+  //   isSearchOpened: false,
+  // updateSearchValue: ,
+  // }),
   render: ({ props, element, useState, useObservable }) => {
-    const [querySettings, setQuerySettings] = useState('querySettings')
+    const [querySettings, setQuerySettings] = useObservable('querySettings', props.collectionService.querySettings)
     const currentOrder = Object.keys(querySettings.order || {})[0]
     const currentOrderDirection = Object.values(querySettings.order || {})[0]
 
-    const [isSearchOpened, setIsSearchOpened] = useState('isSearchOpened')
-    const [updateSearchValue] = useState('updateSearchValue')
+    const [isSearchOpened, setIsSearchOpened] = useState('isSearchOpened', false)
+    const [updateSearchValue] = useState(
+      'updateSearchValue',
+      debounce((value: string) => {
+        const currentSettings = props.collectionService.querySettings.getValue()
+        const newSettings: FindOptions<unknown, any> = {
+          ...currentSettings,
+          filter: {
+            ...currentSettings.filter,
+            [props.field]: { $regex: value },
+          },
+        }
+        props.collectionService.querySettings.setValue(newSettings)
+      }),
+    )
 
     const filterValue = (props.collectionService.querySettings.getValue().filter as any)?.[props.field]?.$regex || ''
 
     useObservable('querySettingsChange', props.collectionService.querySettings, (newSettings) => {
-      const [shouldSkipRender] = useState('isSearchOpened')
-      setQuerySettings(newSettings, shouldSkipRender)
+      setQuerySettings(newSettings)
     })
 
     if (isSearchOpened) {

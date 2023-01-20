@@ -67,7 +67,7 @@ export interface DataGridProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
+export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   DataGridProps<any>
 >({
   shadowDomName: 'shade-data-grid',

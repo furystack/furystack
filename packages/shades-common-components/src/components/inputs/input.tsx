@@ -1,5 +1,6 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent, attachStyles } from '@furystack/shades'
+import { ObservableValue } from '@furystack/utils'
 import { ThemeProviderService } from '../..'
 import type { Palette } from '../../services'
 
@@ -106,33 +107,32 @@ const getLabelStyle = ({
   }
 }
 
-export const Input = Shade<TextInputProps, TextInputState>({
+export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
-  getInitialState: ({ props }) => ({
-    value: props.value || '',
-    focused: props.autofocus || false,
-    validity: { valid: true } as ValidityState,
-  }),
-  compareState: ({ newState, element, props, injector }) => {
+  render: ({ props, injector, useObservable, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const label = element.querySelector('label') as HTMLLabelElement
-    attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState }) })
 
-    const helper = element.querySelector<HTMLSpanElement>('span.helperText')
-    const helperNode = props.getHelperText?.({ state: newState }) || ''
-    helper?.replaceChildren(helperNode)
+    const [state, setState] = useObservable<TextInputState>(
+      'inputState',
+      new ObservableValue({
+        value: props.value || '',
+        focused: props.autofocus || false,
+        validity: { valid: true } as ValidityState,
+      }),
+      (newState) => {
+        const label = element.querySelector('label') as HTMLLabelElement
+        attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState }) })
 
-    const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
-    startIcon?.replaceChildren(props.getStartIcon?.({ state: newState }) || '')
-    const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
-    endIcon?.replaceChildren(props.getEndIcon?.({ state: newState }) || '')
+        const helper = element.querySelector<HTMLSpanElement>('span.helperText')
+        const helperNode = props.getHelperText?.({ state: newState }) || ''
+        helper?.replaceChildren(helperNode)
 
-    return false
-  },
-  render: ({ props, getState, updateState, injector }) => {
-    const state = getState()
-    const { value } = state
-    const themeProvider = injector.getInstance(ThemeProviderService)
+        const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
+        startIcon?.replaceChildren(props.getStartIcon?.({ state: newState }) || '')
+        const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
+        endIcon?.replaceChildren(props.getEndIcon?.({ state: newState }) || '')
+      },
+    )
 
     return (
       <label {...props.labelProps} style={getLabelStyle({ props, state, themeProvider })}>
@@ -150,20 +150,20 @@ export const Input = Shade<TextInputProps, TextInputState>({
             oninvalid={(ev) => {
               ev.preventDefault()
               const el = ev.target as HTMLInputElement
-              updateState({ validity: el.validity })
+              setState({ ...state, validity: el.validity })
             }}
             onchange={(ev) => {
               const el = ev.target as HTMLInputElement
               const newValue = el.value
-              updateState({ value: newValue, validity: el?.validity })
+              setState({ ...state, value: newValue, validity: el?.validity })
               props.onTextChange?.(newValue)
               props.onchange && (props.onchange as any)(ev)
             }}
             onfocus={() => {
-              updateState({ focused: true })
+              setState({ ...state, focused: true })
             }}
             onblur={() => {
-              updateState({ focused: false })
+              setState({ ...state, focused: false })
             }}
             {...props}
             style={{
@@ -180,7 +180,7 @@ export const Input = Shade<TextInputProps, TextInputState>({
               flexGrow: '1',
               ...props.style,
             }}
-            value={value}
+            value={state.value}
           />
           {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
         </div>

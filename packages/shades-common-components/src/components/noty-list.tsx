@@ -124,10 +124,9 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   },
 })
 
-export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
-  getInitialState: ({ injector }) => ({ currentNotys: injector.getInstance(NotyService).notys.getValue() }),
+export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
-  render: ({ useState, useObservable, injector, element }) => {
+  render: ({ useObservable, injector, element }) => {
     const notyService = injector.getInstance(NotyService)
 
     attachProps(element, {
@@ -140,7 +139,7 @@ export const NotyList = Shade<unknown, { currentNotys: NotyModel[] }>({
       },
     })
 
-    const [currentNotys] = useState('currentNotys')
+    const currentNotys = notyService.notys.getValue()
 
     useObservable('addNoty', notyService.onNotyAdded, (n) =>
       element.append(<NotyComponent model={n} onDismiss={() => notyService.removeNoty(n)} />),

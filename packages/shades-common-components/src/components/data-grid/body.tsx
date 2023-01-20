@@ -20,19 +20,9 @@ export interface DataGridBodyProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export interface DataGridBodyState<T> {
-  data: T[]
-  isLoading: boolean
-}
-
-export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
-  DataGridBodyProps<any>,
-  DataGridBodyState<any>
+export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
+  DataGridBodyProps<any>
 >({
-  getInitialState: ({ props }) => ({
-    data: props.service.data.getValue().entries,
-    isLoading: props.service.isLoading.getValue(),
-  }),
   shadowDomName: 'shade-data-grid-body',
   render: ({ props, element, useObservable }) => {
     element.style.display = 'table-row-group'

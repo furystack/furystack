@@ -11,12 +11,11 @@ export interface LazyLoadState {
   error?: unknown
 }
 
-export const LazyLoad = Shade<LazyLoadProps, LazyLoadState>({
-  getInitialState: () => ({}),
+export const LazyLoad = Shade<LazyLoadProps>({
   shadowDomName: 'lazy-load',
   constructed: async ({ props, useState }) => {
-    const [_component, setComponent] = useState('component')
-    const [_errorState, setErrorState] = useState('error')
+    const [_component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
+    const [_errorState, setErrorState] = useState<unknown | undefined>('error', undefined)
     try {
       const loaded = await props.component()
       setComponent(loaded)
@@ -29,8 +28,8 @@ export const LazyLoad = Shade<LazyLoadProps, LazyLoadState>({
     }
   },
   render: ({ props, useState }) => {
-    const [error, setError] = useState('error')
-    const [component, setComponent] = useState('component')
+    const [error, setError] = useState<unknown | undefined>('error', undefined)
+    const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
 
     if (error && props.error) {
       return props.error(error, async () => {

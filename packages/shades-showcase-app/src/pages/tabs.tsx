@@ -17,7 +17,6 @@ export const TabsPage = Shade({
       >
         <h1>Tabs</h1>
         <Tabs
-          containerStyle={{}}
           tabs={[
             {
               header: <span>Tab1</span>,

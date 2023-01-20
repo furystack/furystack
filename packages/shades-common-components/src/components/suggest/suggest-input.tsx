@@ -2,8 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '../../services'
 import type { SuggestManager } from './suggest-manager'
 
-export const SuggestInput = Shade<{ manager: SuggestManager<any> }, { isOpened: boolean }>({
-  getInitialState: ({ props }) => ({ isOpened: props.manager.isOpened.getValue() }),
+export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   shadowDomName: 'shades-suggest-input',
   render: ({ element, props, useObservable, injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
@@ -11,14 +10,19 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }, { isOpened: 
     element.style.width = '100%'
     element.style.overflow = 'hidden'
 
-    useObservable('isOpened', props.manager.isOpened, (isOpened) => {
-      const input = element.firstChild as HTMLInputElement
-      if (isOpened) {
-        input.focus()
-      } else {
-        input.value = ''
-      }
-    })
+    useObservable(
+      'isOpened',
+      props.manager.isOpened,
+      (isOpened) => {
+        const input = element.firstChild as HTMLInputElement
+        if (isOpened) {
+          input.focus()
+        } else {
+          input.value = ''
+        }
+      },
+      true,
+    )
 
     return (
       <input

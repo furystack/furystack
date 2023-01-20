@@ -1,10 +1,11 @@
 import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import type { Disposable } from '@furystack/utils'
 import { debounce, ObservableValue } from '@furystack/utils'
 import type { SuggestionResult } from './suggestion-result'
 
 @Injectable({ lifetime: 'singleton' })
-export class SuggestManager<T> {
+export class SuggestManager<T> implements Disposable {
   public isOpened = new ObservableValue(false)
   public isLoading = new ObservableValue(false)
   public term = new ObservableValue('')
@@ -32,6 +33,12 @@ export class SuggestManager<T> {
   public dispose() {
     window.removeEventListener('keyup', this.keyPressListener)
     window.removeEventListener('click', this.clickOutsideListener)
+    this.isOpened.dispose()
+    this.isLoading.dispose()
+    this.term.dispose()
+    this.selectedIndex.dispose()
+    this.currentSuggestions.dispose()
+    this.onSelectSuggestion.dispose()
   }
 
   public selectSuggestion(index: number = this.selectedIndex.getValue()) {

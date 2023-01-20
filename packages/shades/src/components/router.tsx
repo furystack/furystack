@@ -11,8 +11,8 @@ export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
   routingOptions?: TokensToRegexpOptions
-  onVisit?: (options: RenderOptions<unknown, unknown>) => Promise<void>
-  onLeave?: (options: RenderOptions<unknown, unknown>) => Promise<void>
+  onVisit?: (options: RenderOptions<unknown>) => Promise<void>
+  onLeave?: (options: RenderOptions<unknown>) => Promise<void>
 }
 
 export interface RouterProps {
@@ -25,42 +25,39 @@ export interface RouterState {
   activeRoute?: Route<any> | null
   activeRouteParams?: any
   jsx: JSX.Element
-  lock: Semaphore
 }
-export const Router = Shade<RouterProps, RouterState>({
+export const Router = Shade<RouterProps>({
   shadowDomName: 'shade-router',
-  getInitialState: () => ({
-    lock: new Semaphore(1),
-    jsx: <div />,
-  }),
   render: (options) => {
-    const { useState, useObservable, injector, updateState } = options
+    const { useState, useObservable, injector } = options
+    const [lock] = useState('lock', new Semaphore(1))
+    const [state, setState] = useState<RouterState>('routerState', {
+      jsx: <div />,
+    })
 
     const updateUrl = async (currentUrl: string) => {
-      const [lastRoute] = options.useState('activeRoute')
-      const [lastParams] = options.useState('activeRouteParams')
-      const [jsx] = options.useState('jsx')
-      const [lock] = options.useState('lock')
+      const [lastState] = useState<RouterState>('routerState', state)
+      const { activeRoute: lastRoute, activeRouteParams: lastRouteParams, jsx: lastJsx } = lastState
       try {
         await lock.acquire()
         for (const route of options.props.routes) {
           const matchFn = match(route.url, route.routingOptions)
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
-            if (route !== lastRoute || JSON.stringify(lastParams) !== JSON.stringify(matchResult.params)) {
-              await lastRoute?.onLeave?.({ ...options, element: jsx })
+            if (route !== lastRoute || JSON.stringify(lastRouteParams) !== JSON.stringify(matchResult.params)) {
+              await lastRoute?.onLeave?.({ ...options, element: lastState.jsx })
               const newJsx = route.component({ currentUrl, match: matchResult })
-              updateState({ jsx: newJsx, activeRoute: route, activeRouteParams: matchResult.params })
+              setState({ jsx: newJsx, activeRoute: route, activeRouteParams: matchResult.params })
               await route.onVisit?.({ ...options, element: newJsx })
             }
             return
           }
         }
         if (lastRoute?.onLeave) {
-          await lastRoute.onLeave({ ...options, element: jsx })
+          await lastRoute.onLeave({ ...options, element: lastJsx })
         }
-        updateState({
-          jsx: options.props.notFound,
+        setState({
+          jsx: options.props.notFound || <div />,
           activeRoute: null,
           activeRouteParams: null,
         })
@@ -70,22 +67,11 @@ export const Router = Shade<RouterProps, RouterState>({
           throw e
         }
       } finally {
-        lock.release()
+        lock?.release()
       }
     }
 
-    const [initialUrl] = useObservable(
-      'locationPathChanged',
-      injector.getInstance(LocationService).onLocationPathChanged,
-      updateUrl,
-    )
-
-    updateUrl(initialUrl)
-
-    const [jsx] = useState('jsx')
-    if (jsx) {
-      return jsx
-    }
-    return null
+    useObservable('locationPathChanged', injector.getInstance(LocationService).onLocationPathChanged, updateUrl, true)
+    return state.jsx
   },
 })

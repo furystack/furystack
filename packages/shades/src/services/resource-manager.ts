@@ -1,4 +1,5 @@
-import type { Disposable, ObservableValue, ValueChangeCallback } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
+import type { Disposable, ValueChangeCallback } from '@furystack/utils'
 import type { ValueObserver } from '@furystack/utils'
 
 /**
@@ -31,10 +32,29 @@ export class ResourceManager {
     return [observable.getValue(), observable.setValue.bind(observable)]
   }
 
+  public readonly stateObservers = new Map<string, ObservableValue<any>>()
+
+  public useState = <T>(
+    key: string,
+    initialValue: T,
+    callback: ValueChangeCallback<T>,
+  ): [value: T, setValue: (newValue: T) => void] => {
+    if (!this.stateObservers.has(key)) {
+      const newObservable = new ObservableValue<T>(initialValue)
+      this.stateObservers.set(key, newObservable)
+      newObservable.subscribe(callback)
+    }
+    const observable = this.stateObservers.get(key) as ObservableValue<T>
+    return [observable.getValue(), observable.setValue.bind(observable)]
+  }
+
   public dispose() {
     this.disposables.forEach((r) => r.dispose())
     this.disposables.clear()
     this.observers.forEach((r) => r.dispose())
     this.observers.clear()
+
+    this.stateObservers.forEach((r) => r.dispose())
+    this.stateObservers.clear()
   }
 }

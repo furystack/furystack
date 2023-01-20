@@ -2,27 +2,21 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { TextInputProps } from './input'
 import { Input } from './input'
 
-export const Autocomplete = Shade<
-  { inputProps?: TextInputProps; suggestions: string[]; strict?: boolean; onchange?: (value: string) => void },
-  { dataListId: string }
->({
-  getInitialState: () => ({
-    dataListId: (Math.random() + 1).toString(36).substring(3),
-  }),
-  constructed: ({ getState, element }) => {
-    const { dataListId } = getState()
-    const input = element.querySelector('input')
-    if (input) {
-      input.setAttribute('list', dataListId)
-    }
-  },
+export const Autocomplete = Shade<{
+  inputProps?: TextInputProps
+  suggestions: string[]
+  strict?: boolean
+  onchange?: (value: string) => void
+}>({
   shadowDomName: 'shade-autocomplete',
-  render: ({ props, getState }) => {
-    const { dataListId } = getState()
+  render: ({ props, useState }) => {
+    const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
+
     return (
       <div>
         <Input
           {...props.inputProps}
+          list={dataListId as any}
           onchange={(ev) => {
             const { value } = ev.target as any
             if (props.strict) {

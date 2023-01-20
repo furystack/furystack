@@ -17,7 +17,7 @@ export interface DataGridRowProps<T> {
   unselectedRowStyle?: Partial<CSSStyleDeclaration>
 }
 
-export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade<
+export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   DataGridRowProps<any>
 >({
   shadowDomName: 'shades-data-grid-row',

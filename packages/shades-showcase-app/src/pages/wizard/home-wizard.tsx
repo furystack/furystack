@@ -152,14 +152,10 @@ export const Step3 = Shade<WizardStepProps>({
   },
 })
 
-export const WelcomeWizard = Shade<unknown, { isOpened: ObservableValue<boolean> }>({
+export const WelcomeWizard = Shade({
   shadowDomName: 'shades-welcome-wizard',
-  getInitialState: () => ({ isOpened: new ObservableValue(false) }),
-  constructed: ({ getState }) => {
-    return () => getState().isOpened.dispose()
-  },
-  render: ({ getState }) => {
-    const { isOpened } = getState()
+  render: ({ useDisposable }) => {
+    const isOpened = useDisposable('isOpened', () => new ObservableValue(false))
     return (
       <>
         <Button onclick={() => isOpened.setValue(true)}>Open Wizard</Button>

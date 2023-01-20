@@ -4,29 +4,19 @@ import type { CollectionService } from '../../services/collection-service'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
-export const DataGridFooter = Shade<{ service: CollectionService<any> }, { count: number; top: number; skip: number }>({
+export const DataGridFooter = Shade<{ service: CollectionService<any> }>({
   shadowDomName: 'shade-data-grid-footer',
-  getInitialState: ({ props }) => ({
-    count: props.service.data.getValue().count,
-    top: props.service.querySettings.getValue().top || Infinity,
-    skip: props.service.querySettings.getValue().skip || 0,
-  }),
-  render: ({ props, injector, useObservable, useState }) => {
-    const [top, setTop] = useState('top')
-    const [skip, setSkip] = useState('skip')
+  render: ({ props, injector, useObservable }) => {
+    const { theme } = injector.getInstance(ThemeProviderService)
+
+    const [currentData] = useObservable('dataUpdater', props.service.data)
+
+    const [currentQuerySettings] = useObservable('querySettings', props.service.querySettings)
+
+    const top = currentQuerySettings.top || Infinity
+    const skip = currentQuerySettings.skip || 0
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
-    const { theme } = injector.getInstance(ThemeProviderService)
-    const [count, setCount] = useState('count')
-
-    useObservable('dataUpdater', props.service.data, (data) => {
-      setCount(data.count)
-    })
-
-    const [currentQuerySettings] = useObservable('querySettings', props.service.querySettings, (querySettings) => {
-      setTop(querySettings.top || Infinity)
-      setSkip(querySettings.skip || 0)
-    })
 
     return (
       <div
@@ -53,13 +43,13 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }, { count
                 props.service.querySettings.setValue({ ...currentQuery, skip: (currentQuery.top || 0) * value })
               }}
             >
-              {[...new Array(Math.ceil(count / (props.service.querySettings.getValue().top || Infinity)))].map(
-                (_val, index) => (
-                  <option value={index.toString()} selected={currentPage === index}>
-                    {(index + 1).toString()}
-                  </option>
-                ),
-              )}
+              {[
+                ...new Array(Math.ceil(currentData.count / (props.service.querySettings.getValue().top || Infinity))),
+              ].map((_val, index) => (
+                <option value={index.toString()} selected={currentPage === index}>
+                  {(index + 1).toString()}
+                </option>
+              ))}
             </select>
           </div>
         )}

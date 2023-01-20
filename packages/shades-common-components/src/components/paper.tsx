@@ -8,12 +8,13 @@ export const Paper = Shade<PartialElement<HTMLDivElement> & { elevation?: 1 | 2 
 
   render: ({ injector, props, children, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
+    const { elevation = 1 } = props
 
     attachProps(element, {
       ...props,
       style: {
         borderRadius: '3px',
-        boxShadow: props.elevation ? `1px ${props.elevation}px ${props.elevation}px rgba(0,0,0,0.3)` : '',
+        boxShadow: elevation ? `1px ${elevation}px ${elevation}px rgba(0,0,0,0.3)` : '',
         backgroundColor: themeProvider.theme.background.paper,
         color: themeProvider.theme.text.secondary,
         margin: '8px',

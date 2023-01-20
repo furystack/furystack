@@ -20,18 +20,11 @@ export interface CommandPaletteProps {
   fullScreenSuggestions?: boolean
 }
 
-export interface CommandPaletteState {
-  manager: CommandPaletteManager
-}
-
-export const CommandPalette = Shade<CommandPaletteProps, CommandPaletteState>({
+export const CommandPalette = Shade<CommandPaletteProps>({
   shadowDomName: 'shade-command-palette',
-  getInitialState: ({ props }) => ({
-    manager: new CommandPaletteManager(props.commandProviders),
-  }),
-  render: ({ props, injector, element, getState, useDisposable, useObservable }) => {
+  render: ({ props, injector, element, useState, useDisposable, useObservable }) => {
     element.style.flexGrow = '1'
-    const { manager } = getState()
+    const [manager] = useState('manager', new CommandPaletteManager(props.commandProviders))
     const { theme } = injector.getInstance(ThemeProviderService)
 
     useDisposable('clickAwayService', () => new ClickAwayService(element, () => manager.isOpened.setValue(false)))

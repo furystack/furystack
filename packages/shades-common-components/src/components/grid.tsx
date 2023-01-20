@@ -23,7 +23,7 @@ export type RowCells<T> = {
   [TKey in keyof T | 'default']?: (element: T) => JSX.Element
 }
 
-export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Element<any, any> = Shade({
+export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
   shadowDomName: 'shade-grid',
   render: ({ props, injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
