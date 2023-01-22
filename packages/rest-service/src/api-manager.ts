@@ -34,12 +34,6 @@ export interface ImplementApiOptions<T extends RestApi> {
   deserializeQueryParams?: (param: string) => any
 }
 
-export type CompiledApi = {
-  [K: string]: {
-    [R: string]: { fullPath: string; matcherFn: MatchFunction; action: RequestAction<any> }
-  }
-}
-
 export type NewCompiledApiEntry = {
   method: Method
   fullPath: string
@@ -64,7 +58,7 @@ export type OnRequestOptions = OnRequest & {
 
 @Injectable({ lifetime: 'singleton' })
 export class ApiManager implements Disposable {
-  private readonly apis = new Map<string, CompiledApi>()
+  private readonly apis = new Map<string, NewCompiledApi>()
 
   public dispose() {
     this.apis.clear()
@@ -142,7 +136,20 @@ export class ApiManager implements Disposable {
   }
 
   private getActionFromEndpoint(compiledEndpoint: NewCompiledApi, fullUrl: URL, method: Method) {
-    return compiledEndpoint[method]?.find((route) => route.matcher(fullUrl.pathname))
+    let resolvedParams: any
+    const action = compiledEndpoint[method]?.find((route) => {
+      const result = route.matcher(fullUrl.pathname)
+      if (result) {
+        resolvedParams = result.params
+      }
+      return result
+    })
+    return (
+      action && {
+        ...action,
+        params: resolvedParams,
+      }
+    )
   }
 
   private async executeAction({
@@ -151,12 +158,12 @@ export class ApiManager implements Disposable {
     res,
     fullUrl,
     action,
-    matcher,
     deserializeQueryParams,
+    params,
   }: OnRequestOptions & {
     fullUrl: URL
     action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
-    matcher: MatchFunction
+    params: any
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
@@ -179,10 +186,6 @@ export class ApiManager implements Disposable {
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
-            if (!req.url || !matcher) {
-              throw new Error('Error parsing request parameters. Missing URL or RegExp.')
-            }
-            const { params } = matcher(fullUrl.pathname) as any
             return params
           },
         })
