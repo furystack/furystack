@@ -1,12 +1,13 @@
 import type { Disposable } from '@furystack/utils'
 import { PathHelper, usingAsync } from '@furystack/utils'
-import type { RestApi } from '@furystack/rest'
+import type { Method, RestApi } from '@furystack/rest'
 import { deserializeQueryString } from '@furystack/rest'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { OnRequest } from './server-manager'
 import { ServerManager } from './server-manager'
-import { pathToRegexp, match } from 'path-to-regexp'
+import type { MatchFunction } from 'path-to-regexp'
+import { match } from 'path-to-regexp'
 import { NotFoundAction } from './actions/not-found-action'
 import type { CorsOptions } from './models/cors-options'
 import { Utils } from './utils'
@@ -35,12 +36,23 @@ export interface ImplementApiOptions<T extends RestApi> {
 
 export type CompiledApi = {
   [K: string]: {
-    [R: string]: { fullPath: string; regex: RegExp; action: RequestAction<any> }
+    [R: string]: { fullPath: string; matcherFn: MatchFunction; action: RequestAction<any> }
   }
 }
 
+export type NewCompiledApiEntry = {
+  method: Method
+  fullPath: string
+  matcher: MatchFunction
+  action: RequestAction<any>
+}
+
+export type NewCompiledApi = {
+  [K in Method]?: NewCompiledApiEntry[]
+}
+
 export type OnRequestOptions = OnRequest & {
-  compiledApi: CompiledApi
+  compiledApi: NewCompiledApi
   hostName?: string
   port: number
   rootApiPath: string
@@ -58,21 +70,22 @@ export class ApiManager implements Disposable {
     this.apis.clear()
   }
 
-  private getSuportedMethods<T extends RestApi>(api: RestApiImplementation<T>): string[] {
-    return Object.keys(api) as any
+  private getSuportedMethods(api: RestApiImplementation<any>): Method[] {
+    return Object.keys(api) as Method[]
   }
 
   private compileApi<T extends RestApi>(api: RestApiImplementation<T>, root: string) {
-    const compiledApi = {} as CompiledApi
-    this.getSuportedMethods(api).forEach((method) => {
-      const endpoint = {}
+    const supportedMethods = this.getSuportedMethods(api)
 
-      Object.entries((api as any)[method]).forEach(([path, action]) => {
-        const fullPath = `/${PathHelper.normalize(PathHelper.joinPaths(root, path))}`
-        const regex = pathToRegexp(fullPath, undefined, { endsWith: '/' })
-        ;(endpoint as any)[path] = { regex, action, fullPath }
-      })
-      ;(compiledApi as any)[method] = endpoint
+    const compiledApi: NewCompiledApi = {}
+    supportedMethods.forEach((method: Method) => {
+      compiledApi[method] = [
+        ...Object.entries(api[method as keyof typeof api]).map(([path, action]) => {
+          const fullPath = `/${PathHelper.normalize(PathHelper.joinPaths(root, path))}`
+          const matcher = match(fullPath, { decode: decodeURIComponent })
+          return { method, fullPath, matcher, action: action as RequestAction<any> }
+        }),
+      ]
     })
     return compiledApi
   }
@@ -94,7 +107,7 @@ export class ApiManager implements Disposable {
       shouldExec: (msg) =>
         this.shouldExecRequest({
           ...msg,
-          method: msg.req.method?.toUpperCase(),
+          method: msg.req.method?.toUpperCase() as Method,
           rootApiPath,
           supportedMethods,
           url: PathHelper.normalize(msg.req.url || ''),
@@ -115,10 +128,10 @@ export class ApiManager implements Disposable {
   }
 
   public shouldExecRequest(options: {
-    method?: string
+    method?: Method
     url?: string
     rootApiPath: string
-    supportedMethods: string[]
+    supportedMethods: Method[]
   }): boolean {
     return options.method &&
       options.url &&
@@ -128,15 +141,8 @@ export class ApiManager implements Disposable {
       : false
   }
 
-  private getActionFromEndpoint(compiledEndpoint: CompiledApi, fullUrl: URL, method: string) {
-    return (Object.values(compiledEndpoint[method]).find((route) => (route as any).regex.test(fullUrl.pathname)) ||
-      undefined) as
-      | {
-          action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
-          regex: RegExp
-          fullPath: string
-        }
-      | undefined
+  private getActionFromEndpoint(compiledEndpoint: NewCompiledApi, fullUrl: URL, method: Method) {
+    return compiledEndpoint[method]?.find((route) => route.matcher(fullUrl.pathname))
   }
 
   private async executeAction({
@@ -145,14 +151,12 @@ export class ApiManager implements Disposable {
     res,
     fullUrl,
     action,
-    regex,
-    fullPath,
+    matcher,
     deserializeQueryParams,
   }: OnRequestOptions & {
     fullUrl: URL
     action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
-    regex: RegExp
-    fullPath: string
+    matcher: MatchFunction
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const utils = i.getInstance(Utils)
@@ -175,10 +179,9 @@ export class ApiManager implements Disposable {
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
-            if (!req.url || !regex) {
+            if (!req.url || !matcher) {
               throw new Error('Error parsing request parameters. Missing URL or RegExp.')
             }
-            const matcher = match(fullPath, { decode: decodeURIComponent })
             const { params } = matcher(fullUrl.pathname) as any
             return params
           },
@@ -213,7 +216,7 @@ export class ApiManager implements Disposable {
       return
     }
 
-    const action = this.getActionFromEndpoint(options.compiledApi, fullUrl, options.req.method?.toUpperCase() as string)
+    const action = this.getActionFromEndpoint(options.compiledApi, fullUrl, options.req.method?.toUpperCase() as Method)
     if (action) {
       await this.executeAction({ ...options, ...action, fullUrl })
     } else {
