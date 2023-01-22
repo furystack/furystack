@@ -1481,8 +1481,8 @@ __metadata:
   dependencies:
     "@furystack/core": ^11.2.3
     "@furystack/inject": ^7.1.5
-    "@furystack/rest": ^4.1.6
-    "@furystack/rest-service": ^6.2.8
+    "@furystack/rest": ^4.1.7
+    "@furystack/rest-service": ^6.2.9
     "@furystack/utils": ^3.1.5
     "@types/jest": ^29.2.6
     "@types/node": ^18.11.18
@@ -1574,20 +1574,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client-fetch@^4.1.6, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
+"@furystack/rest-client-fetch@^4.1.7, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
     "@furystack/inject": ^7.1.5
     "@furystack/logging": ^3.1.5
-    "@furystack/rest": ^4.1.6
+    "@furystack/rest": ^4.1.7
     "@furystack/utils": ^3.1.5
     "@types/jest": ^29.2.6
     path-to-regexp: ^6.2.1
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.2.8, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.2.9, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
@@ -1595,8 +1595,8 @@ __metadata:
     "@furystack/inject": ^7.1.5
     "@furystack/logging": ^3.1.5
     "@furystack/repository": ^6.1.5
-    "@furystack/rest": ^4.1.6
-    "@furystack/rest-client-fetch": ^4.1.6
+    "@furystack/rest": ^4.1.7
+    "@furystack/rest-client-fetch": ^4.1.7
     "@furystack/security": ^2.1.5
     "@furystack/utils": ^3.1.5
     "@types/jest": ^29.2.6
@@ -1608,7 +1608,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^4.1.6, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^4.1.7, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
@@ -1694,7 +1694,7 @@ __metadata:
     "@furystack/inject": ^7.1.5
     "@furystack/logging": ^3.1.5
     "@furystack/repository": ^6.1.5
-    "@furystack/rest-client-fetch": ^4.1.6
+    "@furystack/rest-client-fetch": ^4.1.7
     "@furystack/shades": ^7.0.0
     "@furystack/shades-common-components": ^4.0.1
     "@furystack/shades-lottie": ^3.0.0
@@ -1740,7 +1740,7 @@ __metadata:
     "@furystack/core": ^11.2.3
     "@furystack/inject": ^7.1.5
     "@furystack/logging": ^3.1.5
-    "@furystack/rest-service": ^6.2.8
+    "@furystack/rest-service": ^6.2.9
     "@furystack/utils": ^3.1.5
     "@types/jest": ^29.2.6
     "@types/ws": ^8.5.4
