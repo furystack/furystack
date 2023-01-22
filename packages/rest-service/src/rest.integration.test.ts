@@ -15,6 +15,13 @@ export interface EchoApi extends RestApi {
       query: { someObject: { foo: string } }
       result: { query: { someObject: { foo: string } } }
     }
+    '/segment': { result: { name: 'segment' } }
+    '/segment/subsegment': { result: { name: 'segment-subsegment' } }
+    '/segment/:id/subsegment': { url: { id: string }; result: { url: { id: string; name: 'segment-subsegment' } } }
+    '/segment/:optionalId?/optionalSubsegment/': {
+      url: { optionalId?: string }
+      result: { url: { optionalId?: string }; name: 'optional-id' }
+    }
   }
   POST: {
     '/body': { body: { foo: string; bar: number }; result: { body: { foo: string; bar: number } } }
@@ -35,6 +42,12 @@ const createEchoApiServer = async () => {
         '/headers': async ({ headers }) => JsonResult({ headers }),
         '/query': async ({ getQuery }) => JsonResult({ query: getQuery() }),
         '/urlParams/:id': async ({ getUrlParams }) => JsonResult({ url: getUrlParams() }),
+        '/segment': async () => JsonResult({ name: 'segment' }),
+        '/segment/subsegment': async () => JsonResult({ name: 'segment-subsegment' }),
+        '/segment/:id/subsegment': async ({ getUrlParams }) =>
+          JsonResult({ url: { ...getUrlParams(), name: 'segment-subsegment' } }),
+        '/segment/:optionalId?/optionalSubsegment/': async ({ getUrlParams }) =>
+          JsonResult({ url: getUrlParams(), name: 'optional-id' }),
       },
       POST: {
         '/body': async ({ getBody }) => JsonResult({ body: await getBody() }),
@@ -108,6 +121,67 @@ describe('REST Integration tests with FETCH client', () => {
       })
       expect(result.response.status).toBe(200)
       expect(result.result.url.id).toEqual(value)
+    })
+  })
+
+  it('should execute a request for a segment', async () => {
+    await usingAsync(await createEchoApiServer(), async ({ client }) => {
+      const result = await client({
+        method: 'GET',
+        action: '/segment',
+      })
+      expect(result.response.status).toBe(200)
+      expect(result.result.name).toEqual('segment')
+    })
+  })
+
+  it('should execute a request for a subsegment', async () => {
+    await usingAsync(await createEchoApiServer(), async ({ client }) => {
+      const result = await client({
+        method: 'GET',
+        action: '/segment/subsegment',
+      })
+      expect(result.response.status).toBe(200)
+      expect(result.result.name).toEqual('segment-subsegment')
+    })
+  })
+
+  it('should execute a request for a subsegment with URL parameters', async () => {
+    await usingAsync(await createEchoApiServer(), async ({ client }) => {
+      const value = 'value4'
+      const result = await client({
+        method: 'GET',
+        action: '/segment/:id/subsegment',
+        url: {
+          id: value,
+        },
+      })
+      expect(result.response.status).toBe(200)
+      expect(result.result.url.id).toEqual(value)
+      expect(result.result.url.name).toEqual('segment-subsegment')
+    })
+  })
+  it('should evaluate optional parameters in the URL', async () => {
+    await usingAsync(await createEchoApiServer(), async ({ client }) => {
+      const result = await client({
+        method: 'GET',
+        action: '/segment/:optionalId?/optionalSubsegment/',
+        url: {},
+      })
+      expect(result.response.status).toBe(200)
+      expect(result.result.url.optionalId).toBeUndefined()
+      expect(result.result.name).toEqual('optional-id')
+
+      const result2 = await client({
+        method: 'GET',
+        action: '/segment/:optionalId?/optionalSubsegment/',
+        url: {
+          optionalId: 'value',
+        },
+      })
+      expect(result2.response.status).toBe(200)
+      expect(result2.result.url.optionalId).toEqual('value')
+      expect(result2.result.name).toEqual('optional-id')
     })
   })
 })
