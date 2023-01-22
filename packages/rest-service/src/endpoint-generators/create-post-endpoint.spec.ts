@@ -13,7 +13,7 @@ describe('createPostEndpoint', () => {
       await useRestService<{ POST: { '/': PostEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1117,
+        port: 1121,
         api: {
           POST: {
             '/': createPostEndpoint({ model: MockClass, primaryKey: 'id' }),

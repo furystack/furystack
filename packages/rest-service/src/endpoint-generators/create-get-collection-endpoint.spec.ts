@@ -79,7 +79,7 @@ describe('createGetCollectionEndpoint', () => {
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port: 1114,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -112,7 +112,7 @@ describe('createGetCollectionEndpoint', () => {
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port: 1115,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -147,7 +147,7 @@ describe('createGetCollectionEndpoint', () => {
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port: 1116,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),

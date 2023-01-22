@@ -14,7 +14,7 @@ describe('createGetEntityEndpoint', () => {
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port: 1117,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -37,7 +37,7 @@ describe('createGetEntityEndpoint', () => {
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1114,
+        port: 1118,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -62,7 +62,7 @@ describe('createGetEntityEndpoint', () => {
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1115,
+        port: 1119,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),

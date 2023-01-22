@@ -13,7 +13,7 @@ describe('createPatchEndpoint', () => {
       await useRestService<{ PATCH: { '/:id': PatchEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1116,
+        port: 1120,
         api: {
           PATCH: {
             '/:id': createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),
