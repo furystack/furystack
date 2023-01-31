@@ -32,7 +32,7 @@ export class LocationService implements Disposable {
     this.onLocationSearchChanged.setValue(location.search)
   }
 
-  private searchParamObservables = new Map<string, ObservableValue<any>>()
+  public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
   /**
    *

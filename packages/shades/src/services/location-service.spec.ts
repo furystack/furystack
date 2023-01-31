@@ -41,7 +41,7 @@ describe('LocationService', () => {
     it('Should create observables lazily', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        const observables = service['searchParamObservables']
+        const observables = service.searchParamObservables
 
         const testSearchParam = service.useSearchParam('test')
         expect(observables.size).toBe(1)
