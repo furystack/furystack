@@ -4,22 +4,22 @@ global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { using } from '@furystack/utils'
 import { LocationService } from './'
 
 describe('LocationService', () => {
   beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
   afterEach(() => (document.body.innerHTML = ''))
 
-  it('Shuld be constructed', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('Shuld be constructed', () => {
+    using(new Injector(), (i) => {
       const s = i.getInstance(LocationService)
       expect(s).toBeInstanceOf(LocationService)
     })
   })
 
-  it('Shuld update state on events', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('Shuld update state on events', () => {
+    using(new Injector(), (i) => {
       const onLocaionChanged = jest.fn()
       const s = i.getInstance(LocationService)
       s.onLocationPathChanged.subscribe(onLocaionChanged)
@@ -34,6 +34,66 @@ describe('LocationService', () => {
       // expect(onLocaionChanged).toBeCalledTimes(3)
       // window.dispatchEvent(new PopStateEvent('popstate', {}))
       // expect(onLocaionChanged).toBeCalledTimes(4)
+    })
+  })
+
+  describe('useSearchParam', () => {
+    it('Should create observables lazily', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        const observables = service['searchParamObservables']
+
+        const testSearchParam = service.useSearchParam('test')
+        expect(observables.size).toBe(1)
+
+        const testSearchParam2 = service.useSearchParam('test')
+        expect(observables.size).toBe(1)
+
+        expect(testSearchParam).toBe(testSearchParam2)
+
+        const testSearchParam3 = service.useSearchParam('test2')
+        expect(observables.size).toBe(2)
+
+        expect(testSearchParam3).not.toBe(testSearchParam2)
+      })
+    })
+
+    it('Should return the default value, if not present in the query string', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        const testSearchParam = service.useSearchParam('test', 'default')
+        expect(testSearchParam.getValue()).toBe('default')
+      })
+    })
+
+    it('Should return the value from the query string', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        history.pushState(null, '', '/loc1?test=1')
+        const testSearchParam = service.useSearchParam('test')
+        expect(testSearchParam.getValue()).toBe('1')
+      })
+    })
+
+    it('should update the observable value on push / replace states', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        history.pushState(null, '', '/loc1?test=1')
+        const testSearchParam = service.useSearchParam('test')
+        expect(testSearchParam.getValue()).toBe('1')
+        history.replaceState(null, '', '/loc1?test=2')
+        expect(testSearchParam.getValue()).toBe('2')
+      })
+    })
+
+    it('Should update the URL based on search value change', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        history.pushState(null, '', '/loc1?test=1')
+        const testSearchParam = service.useSearchParam('test')
+        testSearchParam.setValue('2')
+        expect(location.search).toBe('?test=2')
+      })
     })
   })
 })
