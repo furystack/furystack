@@ -1594,7 +1594,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^4.1.8, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^4.1.8, @furystack/rest@workspace:^, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
@@ -1701,6 +1701,7 @@ __metadata:
   dependencies:
     "@furystack/core": ^11.2.4
     "@furystack/inject": ^7.1.6
+    "@furystack/rest": "workspace:^"
     "@furystack/utils": ^3.1.6
     "@types/jest": ^29.4.0
     "@types/jsdom": ^20.0.1

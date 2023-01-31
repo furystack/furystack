@@ -1,6 +1,7 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue, Trace } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
+import { deserializeQueryString, serializeToQueryString } from '@furystack/rest'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   public dispose() {
@@ -24,27 +25,15 @@ export class LocationService implements Disposable {
   /**
    * Observable value that will be updated when the location search (e.g. ?search=1) changes
    */
-  public onLocationSearchChanged = new ObservableValue(location.search)
+  public onLocationSearchChanged = new ObservableValue<any>(location.search)
 
   public updateState() {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash)
-    this.onLocationSearchChanged.setValue(location.search)
+    this.onLocationSearchChanged.setValue(deserializeQueryString(location.search))
   }
 
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
-
-  private tryGetValueFromSearch = (key: string, search: string): any | undefined => {
-    try {
-      const params = new URLSearchParams(search)
-      if (params.has(key)) {
-        const value = params.get(key)
-        return value && JSON.parse(decodeURIComponent(value))
-      }
-    } catch (error) {
-      /** ignore */
-    }
-  }
 
   /**
    *
@@ -53,19 +42,18 @@ export class LocationService implements Disposable {
    * @returns An observable with the current value (or default value) of the search param
    */
   public useSearchParam<T>(key: string, defaultValue: T) {
-    const actualValue = (this.tryGetValueFromSearch(key, location.search) as T) ?? defaultValue
+    const actualValue = (this.onLocationSearchChanged.getValue()[key] as T) ?? defaultValue
     if (!this.searchParamObservables.has(key)) {
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
 
       newObservable.subscribe((value) => {
-        const params = new URLSearchParams(location.search)
-        params.set(key, encodeURIComponent(JSON.stringify(value)))
+        const params = serializeToQueryString({ ...deserializeQueryString(location.search), [key]: value })
         history.pushState({}, '', `${location.pathname}?${params}`)
       })
 
       this.onLocationSearchChanged.subscribe((search) => {
-        const value = this.tryGetValueFromSearch(key, search) || defaultValue
+        const value = (search[key] as T) ?? defaultValue
         this.searchParamObservables.get(key)?.setValue(value as T)
       })
     }
