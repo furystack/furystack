@@ -2,6 +2,7 @@ import type { Disposable } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, RenderOptions } from './models'
 import { ResourceManager } from './services/resource-manager'
+import { LocationService } from './services'
 
 export type ShadeOptions<TProps> = {
   /**
@@ -95,6 +96,12 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
               this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent()), getLast),
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
+            useSearchState: (key, initialValue) =>
+              this.resourceManager.useObservable(
+                key,
+                this.injector.getInstance(LocationService).useSearchParam(key, initialValue),
+                () => this.updateComponent(),
+              ),
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 

@@ -1,15 +1,10 @@
-import { createComponent, LocationService, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import { Button } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
-  render: ({ useObservable, injector }) => {
-    const [disabled, setDisabled] = useObservable(
-      'disabled',
-      injector.getInstance(LocationService).useSearchParam<'true' | 'false'>('disabled', 'false'),
-    )
-
-    const isDisabled = disabled === 'true'
+  render: ({ useSearchState }) => {
+    const [isEnabledObject, setIsEnabledObject] = useSearchState('disabled', { isEnabled: false })
 
     const txt = 'Button Text'
     const onclick = () => {
@@ -27,54 +22,56 @@ export const ButtonsPage = Shade({
         <h1>Buttons</h1>
         <div>
           <div>
-            <Button onclick={onclick} disabled={isDisabled}>
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled}>
               {txt}
             </Button>
 
-            <Button onclick={onclick} disabled={isDisabled} color="primary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} color="primary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} color="secondary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} color="secondary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} color="error">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} color="error">
               {txt}
             </Button>
           </div>
           <div>
-            <Button onclick={onclick} disabled={isDisabled} variant="outlined">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="outlined">
               {txt}
             </Button>
 
-            <Button onclick={onclick} disabled={isDisabled} variant="outlined" color="primary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="outlined" color="primary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} variant="outlined" color="secondary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="outlined" color="secondary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} variant="outlined" color="error">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="outlined" color="error">
               {txt}
             </Button>
           </div>
           <div>
-            <Button onclick={onclick} disabled={isDisabled} variant="contained">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="contained">
               {txt}
             </Button>
 
-            <Button onclick={onclick} disabled={isDisabled} variant="contained" color="primary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="contained" color="primary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} variant="contained" color="secondary">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="contained" color="secondary">
               {txt}
             </Button>
-            <Button onclick={onclick} disabled={isDisabled} variant="contained" color="error">
+            <Button onclick={onclick} disabled={!isEnabledObject.isEnabled} variant="contained" color="error">
               {txt}
             </Button>
           </div>
         </div>
         <Button
           onclick={() => {
-            setDisabled(disabled === 'true' ? 'false' : 'true')
+            setIsEnabledObject({
+              isEnabled: !isEnabledObject.isEnabled,
+            })
           }}
         >
           Disable All
