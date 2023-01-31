@@ -29,10 +29,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^29.2.6",
+    "@types/jest": "^29.4.0",
     "@types/jsdom": "^20.0.1",
     "@types/node": "^18.11.18",
-    "jsdom": "^21.0.0"
+    "jsdom": "^21.1.0"
   },
   "dependencies": {
     "@furystack/core": "^11.2.3",
