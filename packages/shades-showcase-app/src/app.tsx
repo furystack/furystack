@@ -5,8 +5,12 @@ import { ThemeSwitch } from './components/theme-switch'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  render: ({ injector }) => {
+  render: ({ injector, useStoredState }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
+    const [themeVar] = useStoredState<'dark' | 'light'>('theme', 'dark')
+
+    console.log('App render', { themeVar })
+
     return (
       <div
         style={{
