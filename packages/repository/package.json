@@ -1,6 +1,6 @@
 {
   "name": "@furystack/repository",
-  "version": "6.1.5",
+  "version": "6.1.6",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -29,13 +29,13 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.2.3",
-    "@furystack/inject": "^7.1.5",
-    "@furystack/logging": "^3.1.5",
-    "@furystack/utils": "^3.1.5"
+    "@furystack/core": "^11.2.4",
+    "@furystack/inject": "^7.1.6",
+    "@furystack/logging": "^3.1.6",
+    "@furystack/utils": "^3.1.6"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.6"
+    "@types/jest": "^29.4.0"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

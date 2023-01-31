@@ -4,14 +4,20 @@ import { Button, defaultDarkTheme, defaultLightTheme, ThemeProviderService } fro
 
 export const ThemeSwitch = Shade<Omit<ButtonProps, 'onclick'>>({
   shadowDomName: 'theme-switch',
-  render: ({ props, injector }) => {
+  render: ({ props, injector, useStoredState }) => {
+    const [theme, setTheme] = useStoredState<'dark' | 'light'>('theme', 'dark')
+
     const themeProvider = injector.getInstance(ThemeProviderService)
+
+    themeProvider.set(theme === 'dark' ? defaultDarkTheme : defaultLightTheme)
+    console.log('ThemeSwitch render', { theme })
+
     return (
       <>
         <Button
           {...props}
           onclick={() => {
-            themeProvider.set(defaultDarkTheme)
+            setTheme('dark')
           }}
         >
           🌜
@@ -19,7 +25,7 @@ export const ThemeSwitch = Shade<Omit<ButtonProps, 'onclick'>>({
         <Button
           {...props}
           onclick={() => {
-            themeProvider.set(defaultLightTheme)
+            setTheme('light')
           }}
         >
           ☀️

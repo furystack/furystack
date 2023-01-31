@@ -1,7 +1,9 @@
 import type { Disposable } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, RenderOptions } from './models'
 import { ResourceManager } from './services/resource-manager'
+import { LocationService } from './services'
 
 export type ShadeOptions<TProps> = {
   /**
@@ -95,6 +97,68 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
               this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent()), getLast),
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
+            useSearchState: (key, initialValue) =>
+              this.resourceManager.useObservable(
+                `useSearchState-${key}`,
+                this.injector.getInstance(LocationService).useSearchParam(key, initialValue),
+                () => this.updateComponent(),
+              ),
+
+            useStoredState: <T>(key: string, initialValue: T, storageArea = localStorage) => {
+              const getFromStorage = () => {
+                const value = storageArea?.getItem(key)
+                return value ? JSON.parse(value) : initialValue
+              }
+
+              const setToStorage = (value: T) => {
+                if (JSON.stringify(value) !== storageArea?.getItem(key)) {
+                  const newValue = JSON.stringify(value)
+                  storageArea?.setItem(key, newValue)
+                }
+                if (JSON.stringify(observable.getValue()) !== JSON.stringify(value)) {
+                  observable.setValue(value)
+                }
+              }
+
+              const observable = this.resourceManager.useDisposable(
+                `useStoredState-${key}`,
+                () => new ObservableValue(getFromStorage()),
+              )
+
+              const updateFromStorageEvent = (e: StorageEvent) => {
+                e.key === key &&
+                  e.storageArea === storageArea &&
+                  setToStorage((e.newValue && JSON.parse(e.newValue)) || initialValue)
+              }
+
+              this.resourceManager.useDisposable(`useStoredState-${key}-storage-event`, () => {
+                window.addEventListener('storage', updateFromStorageEvent)
+                const channelName = `useStoredState-broadcast-channel`
+                const messageChannel = new BroadcastChannel(channelName)
+                messageChannel.onmessage = (e) => {
+                  if (e.data.key === key) {
+                    setToStorage(e.data.value)
+                  }
+                }
+                const subscription = observable.subscribe((value) => {
+                  messageChannel.postMessage({ key, value })
+                })
+
+                return {
+                  dispose: () => {
+                    window.removeEventListener('storage', updateFromStorageEvent)
+                    subscription.dispose()
+                    messageChannel.close()
+                  },
+                }
+              })
+
+              observable.subscribe(setToStorage)
+
+              return this.resourceManager.useObservable(`useStoredState-${key}`, observable, () =>
+                this.updateComponent(),
+              )
+            },
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 
