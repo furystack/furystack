@@ -21,14 +21,14 @@ export type RenderOptions<TProps> = {
    *
    * @param key The key for caching the observable value
    * @param observable The observable value to observe
-   * @param callback Optional callback for reacting to changes
+   * @param callback Optional callback for reacting to changes. If no callback provided, the component will re-render on change
    * @param getLast An option to trigger the callback with the initial value
    * @returns tuple with the current value and a setter function
    */
   useObservable: <T>(
     key: string,
     observable: ObservableValue<T>,
-    callback?: (newValue: T) => void,
+    onChange?: (newValue: T) => void,
     getLast?: boolean,
   ) => [value: T, setValue: (newValue: T) => void]
 
@@ -49,4 +49,18 @@ export type RenderOptions<TProps> = {
    * @returns a tuple with the current value and a setter function
    */
   useSearchState: <T>(key: string, initialValue: T) => [value: T, setValue: (newValue: T) => void]
+
+  /**
+   * Creates a state object that will use a value from the storage area. Triggers a component re-render on change
+   *
+   * @param key The key in the storage area
+   * @param initialValue The initial value that will be used if the key is not found in the storage area
+   * @param storageArea The storage area to use
+   * @returns a tuple with the current value and a setter function
+   */
+  useStoredState: <T>(
+    key: string,
+    initialValue: T,
+    storageArea?: Storage,
+  ) => [value: T, setValue: (newValue: T) => void]
 }
