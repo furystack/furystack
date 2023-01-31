@@ -1,4 +1,5 @@
-import { Disposable, ObservableValue } from '@furystack/utils'
+import type { Disposable } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, RenderOptions } from './models'
 import { ResourceManager } from './services/resource-manager'
