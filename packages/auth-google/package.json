@@ -35,7 +35,7 @@
     "@furystack/utils": "^3.1.5"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.6",
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.11.18"
   },
   "typings": "./types/index.d.ts",
