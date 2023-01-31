@@ -34,15 +34,26 @@ export class LocationService implements Disposable {
 
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
+  private tryGetValueFromSearch = (key: string, search: string): any | undefined => {
+    try {
+      const params = new URLSearchParams(search)
+      if (params.has(key)) {
+        const value = params.get(key)
+        return value && JSON.parse(decodeURIComponent(value))
+      }
+    } catch (error) {
+      /** ignore */
+    }
+  }
+
   /**
    *
    * @param key The search param key (e.g. ?search=1 -> search)
    * @param defaultValue The default value if not provided
    * @returns An observable with the current value (or default value) of the search param
    */
-  public useSearchParam<T>(key: string, defaultValue?: T) {
-    const currentParams = new URLSearchParams(location.search)
-    const actualValue = (JSON.parse(decodeURIComponent(currentParams.get(key) || '""')) as T) ?? defaultValue
+  public useSearchParam<T>(key: string, defaultValue: T) {
+    const actualValue = (this.tryGetValueFromSearch(key, location.search) as T) ?? defaultValue
     if (!this.searchParamObservables.has(key)) {
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
@@ -54,8 +65,7 @@ export class LocationService implements Disposable {
       })
 
       this.onLocationSearchChanged.subscribe((search) => {
-        const params = new URLSearchParams(search)
-        const value = JSON.parse(decodeURIComponent(params.get(key) || '""')) ?? defaultValue
+        const value = this.tryGetValueFromSearch(key, search) || defaultValue
         this.searchParamObservables.get(key)?.setValue(value as T)
       })
     }

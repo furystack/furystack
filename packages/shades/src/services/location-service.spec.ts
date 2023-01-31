@@ -43,15 +43,15 @@ describe('LocationService', () => {
         const service = i.getInstance(LocationService)
         const observables = service.searchParamObservables
 
-        const testSearchParam = service.useSearchParam('test')
+        const testSearchParam = service.useSearchParam('test', null)
         expect(observables.size).toBe(1)
 
-        const testSearchParam2 = service.useSearchParam('test')
+        const testSearchParam2 = service.useSearchParam('test', null)
         expect(observables.size).toBe(1)
 
         expect(testSearchParam).toBe(testSearchParam2)
 
-        const testSearchParam3 = service.useSearchParam('test2')
+        const testSearchParam3 = service.useSearchParam('test2', undefined)
         expect(observables.size).toBe(2)
 
         expect(testSearchParam3).not.toBe(testSearchParam2)
@@ -61,16 +61,25 @@ describe('LocationService', () => {
     it('Should return the default value, if not present in the query string', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        const testSearchParam = service.useSearchParam('test', 'default')
-        expect(testSearchParam.getValue()).toBe('default')
+        const testSearchParam = service.useSearchParam('test', { value: 'foo' })
+        expect(testSearchParam.getValue()).toEqual({ value: 'foo' })
+      })
+    })
+
+    it('Should return a default value, if failed to parse the value from the query string', () => {
+      using(new Injector(), (i) => {
+        const service = i.getInstance(LocationService)
+        history.pushState(null, '', '/loc1?test=invalidValue')
+        const testSearchParam = service.useSearchParam('test', { value: 'foo' })
+        expect(testSearchParam.getValue()).toEqual({ value: 'foo' })
       })
     })
 
     it('Should return the value from the query string', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        history.pushState(null, '', '/loc1?test=1')
-        const testSearchParam = service.useSearchParam('test')
+        history.pushState(null, '', '/loc1?test=%25221%2522')
+        const testSearchParam = service.useSearchParam('test', 123)
         expect(testSearchParam.getValue()).toBe('1')
       })
     })
@@ -79,20 +88,20 @@ describe('LocationService', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
         history.pushState(null, '', '/loc1?test=1')
-        const testSearchParam = service.useSearchParam('test')
-        expect(testSearchParam.getValue()).toBe('1')
+        const testSearchParam = service.useSearchParam('test', 234)
+        expect(testSearchParam.getValue()).toBe(1)
         history.replaceState(null, '', '/loc1?test=2')
-        expect(testSearchParam.getValue()).toBe('2')
+        expect(testSearchParam.getValue()).toBe(2)
       })
     })
 
     it('Should update the URL based on search value change', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        history.pushState(null, '', '/loc1?test=1')
-        const testSearchParam = service.useSearchParam('test')
+        history.pushState(null, '', '/loc1?test=%25221%2522')
+        const testSearchParam = service.useSearchParam('test', '')
         testSearchParam.setValue('2')
-        expect(location.search).toBe('?test=2')
+        expect(location.search).toBe('?test=%25222%2522')
       })
     })
   })
