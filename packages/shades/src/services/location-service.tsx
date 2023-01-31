@@ -40,7 +40,7 @@ export class LocationService implements Disposable {
    * @param defaultValue The default value if not provided
    * @returns An observable with the current value (or default value) of the search param
    */
-  public useSearchParam<T extends string | number | boolean>(key: string, defaultValue?: T) {
+  public useSearchParam<T extends string>(key: string, defaultValue?: T) {
     const currentParams = new URLSearchParams(location.search)
     const actualValue = (currentParams.get(key) as T) ?? defaultValue
     if (!this.searchParamObservables.has(key)) {
