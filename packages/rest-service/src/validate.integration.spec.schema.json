@@ -447,6 +447,23 @@
           },
           "type": "object"
         },
+        "OPTIONS": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
         "PATCH": {
           "additionalProperties": {
             "additionalProperties": false,
@@ -763,6 +780,23 @@
           "type": "object"
         },
         "HEAD": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {},
+              "headers": {},
+              "query": {},
+              "result": {},
+              "url": {}
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "OPTIONS": {
           "additionalProperties": {
             "additionalProperties": false,
             "properties": {
