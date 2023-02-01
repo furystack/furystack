@@ -10,6 +10,9 @@ export class LocationService implements Disposable {
     this.pushStateTracer.dispose()
     this.replaceStateTracer.dispose()
     this.onLocationPathChanged.dispose()
+    this.onLocationSearchChanged.dispose()
+    this.onDeserializedLocationSearchChanged.dispose()
+    this.locationDeserializerObserver.dispose()
   }
 
   /**
@@ -25,12 +28,20 @@ export class LocationService implements Disposable {
   /**
    * Observable value that will be updated when the location search (e.g. ?search=1) changes
    */
-  public onLocationSearchChanged = new ObservableValue<any>(location.search)
+  public onLocationSearchChanged = new ObservableValue<string>(location.search)
+
+  public onDeserializedLocationSearchChanged = new ObservableValue(
+    deserializeQueryString(this.onLocationSearchChanged.getValue()),
+  )
+
+  public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
+    this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
+  })
 
   public updateState() {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash)
-    this.onLocationSearchChanged.setValue(deserializeQueryString(location.search))
+    this.onLocationSearchChanged.setValue(location.search)
   }
 
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
@@ -42,7 +53,7 @@ export class LocationService implements Disposable {
    * @returns An observable with the current value (or default value) of the search param
    */
   public useSearchParam<T>(key: string, defaultValue: T) {
-    const actualValue = (this.onLocationSearchChanged.getValue()[key] as T) ?? defaultValue
+    const actualValue = (this.onDeserializedLocationSearchChanged.getValue()[key] as T) ?? defaultValue
     if (!this.searchParamObservables.has(key)) {
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
@@ -52,7 +63,7 @@ export class LocationService implements Disposable {
         history.pushState({}, '', `${location.pathname}?${params}`)
       })
 
-      this.onLocationSearchChanged.subscribe((search) => {
+      this.onDeserializedLocationSearchChanged.subscribe((search) => {
         const value = (search[key] as T) ?? defaultValue
         this.searchParamObservables.get(key)?.setValue(value as T)
       })

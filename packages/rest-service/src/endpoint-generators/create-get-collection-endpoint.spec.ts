@@ -39,8 +39,9 @@ describe('createGetCollectionEndpoint', () => {
       const allEntities = await getDataSetFor(i, MockClass, 'id').find(i, {})
 
       const response = await fetch('http://127.0.0.1:1112/api/entities', { method: 'GET' })
-      expect(response.status).toBe(200)
+      expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
+      expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(allEntities)
     })
@@ -66,8 +67,9 @@ describe('createGetCollectionEndpoint', () => {
       const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
-      expect(response.status).toBe(200)
+      expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
+      expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(orderedEntities)
     })
@@ -99,8 +101,9 @@ describe('createGetCollectionEndpoint', () => {
       const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
-      expect(response.status).toBe(200)
+      expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
+      expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(filteredEntities)
     })
@@ -133,9 +136,9 @@ describe('createGetCollectionEndpoint', () => {
         method: 'GET',
       })
 
-      expect(response.status).toBe(200)
-
+      expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
+      expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(selectedEntities)
     })
