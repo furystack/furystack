@@ -37,6 +37,6 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.11.18"
+    "@types/node": "^18.11.19"
   }
 }
