@@ -44,7 +44,7 @@
   "devDependencies": {
     "@furystack/rest-client-fetch": "^4.1.8",
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.11.19"
+    "@types/node": "^18.13.0"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
