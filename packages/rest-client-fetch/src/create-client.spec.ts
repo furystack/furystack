@@ -1,5 +1,4 @@
 import { createClient } from './'
-import { PathHelper } from '@furystack/utils'
 
 const endpointUrl = 'http://localhost'
 
@@ -55,7 +54,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), { method: 'GET', body: undefined })
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test`, { method: 'GET', body: undefined })
     expect(json).toBeCalled()
   })
 
@@ -81,7 +80,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test?value=asdasd'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test?value=asdasd`, {
       method: 'GET',
       body: undefined,
     })
@@ -110,7 +109,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test/asd'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test/asd`, {
       method: 'GET',
       body: undefined,
     })
@@ -135,7 +134,7 @@ describe('@furystack/rest-client-fetch', () => {
       body: { foo: 3 },
     })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test`, {
       method: 'POST',
       body: JSON.stringify({ foo: 3 }),
     })
@@ -162,7 +161,7 @@ describe('@furystack/rest-client-fetch', () => {
       },
     })
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test`, {
       method: 'POST',
       headers: {
         token: '123',
@@ -198,7 +197,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toBe('alma')
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test`, {
       method: 'POST',
       headers: {
         token: '123',
@@ -235,7 +234,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toBe(exampleValue)
 
-    expect(fetch).toBeCalledWith(PathHelper.joinPaths(endpointUrl, 'test'), {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test`, {
       method: 'POST',
       headers: {
         token: '123',
