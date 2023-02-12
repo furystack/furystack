@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "6.2.12",
+  "version": "6.2.13",
   "description": "Repository implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -42,7 +42,7 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@furystack/rest-client-fetch": "^4.1.9",
+    "@furystack/rest-client-fetch": "^4.1.10",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.13.0"
   },
