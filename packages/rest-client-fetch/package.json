@@ -32,7 +32,6 @@
     "@furystack/inject": "^7.1.6",
     "@furystack/logging": "^3.1.6",
     "@furystack/rest": "^4.1.9",
-    "@furystack/utils": "^3.1.6",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
