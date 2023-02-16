@@ -57,4 +57,8 @@ describe('deserializeQueryString', () => {
     const value = { foo: [1, 'foo@alma.hu', false, null], bar: [3, 'bar/*-+', true, -3.5], baz: 'no' }
     expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
   })
+
+  it('Should deserialize escaped values', () => {
+    expect(deserializeQueryString('?alma=asd%2F*-%40')).toEqual({ alma: 'asd/*-@' })
+  })
 })
