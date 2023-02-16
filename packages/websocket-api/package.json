@@ -31,7 +31,7 @@
     "@furystack/logging": "^3.1.6",
     "@furystack/rest-service": "^6.2.13",
     "@furystack/utils": "^3.1.6",
-    "ws": "^8.12.0"
+    "ws": "^8.12.1"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
