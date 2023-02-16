@@ -4,8 +4,12 @@ export const tryDecodeQueryParam = (queryParam: any) => {
   } catch {
     try {
       return JSON.parse(queryParam.toString())
-    } catch (error) {
-      return queryParam
+    } catch {
+      try {
+        return decodeURIComponent(queryParam.toString())
+      } catch {
+        return queryParam
+      }
     }
   }
 }
