@@ -52,4 +52,9 @@ describe('deserializeQueryString', () => {
     const value = { foo: [1, 'foo', false, null], bar: [3, 'bar', true, -3.5], baz: 'no' }
     expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
   })
+
+  it('Should serialize and deserialize an encoded string value', () => {
+    const value = { foo: [1, 'foo@alma.hu', false, null], bar: [3, 'bar/*-+', true, -3.5], baz: 'no' }
+    expect(deserializeQueryString(serializeToQueryString(value))).toEqual(value)
+  })
 })
