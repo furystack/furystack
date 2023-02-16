@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest",
-  "version": "4.1.9",
+  "version": "4.1.10",
   "description": "Generic REST package",
   "main": "dist/index.js",
   "files": [
