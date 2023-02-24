@@ -7,13 +7,6 @@ import { Injector } from '@furystack/inject'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import type { SequelizeStore } from './sequelize-store'
 
-jest.mock('uuid', () => {
-  return {
-    v1: jest.fn(() => 'uuid'),
-    v4: jest.fn(() => 'uuid'),
-  }
-})
-
 class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClass {
   id!: number
   stringValue1!: string

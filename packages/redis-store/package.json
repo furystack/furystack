@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-store",
-  "version": "6.1.7",
+  "version": "6.1.8",
   "description": "Redis Store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.2.5",
+    "@furystack/core": "^11.2.6",
     "@furystack/inject": "^7.1.6",
     "@furystack/logging": "^3.1.6",
     "@furystack/utils": "^3.1.6",
