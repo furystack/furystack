@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.14.2",
     "sqlite3": "5.1.4"
   },
   "typings": "./types/index.d.ts"

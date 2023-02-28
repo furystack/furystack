@@ -30,6 +30,6 @@
     "@furystack/shades-nipple": "^3.0.5",
     "@furystack/utils": "^3.1.6",
     "@lottiefiles/lottie-player": "^1.7.1",
-    "monaco-editor": "^0.35.0"
+    "monaco-editor": "^0.36.1"
   }
 }
