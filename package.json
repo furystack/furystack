@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "2.2.6",
+  "version": "2.2.7",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -9,10 +9,10 @@
   "devDependencies": {
     "@types/jest": "^29.4.0",
     "@types/jsdom": "^21.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.53.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "ajv": "^8.12.0",
-    "eslint": "^8.34.0",
+    "eslint": "^8.35.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-jsdoc": "^40.0.0",
     "eslint-plugin-prettier": "^4.2.1",
