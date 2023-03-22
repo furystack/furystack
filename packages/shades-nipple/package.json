@@ -16,12 +16,12 @@
   "devDependencies": {
     "@furystack/inject": "^7.1.6",
     "@furystack/utils": "^3.1.6",
-    "@types/jest": "^29.4.0",
-    "typescript": "4.9.5"
+    "@types/jest": "^29.5.0",
+    "typescript": "5.0.2"
   },
   "dependencies": {
     "@furystack/shades": "^7.1.5",
-    "nipplejs": "^0.10.0"
+    "nipplejs": "^0.10.1"
   },
   "typings": "types/index.d.ts",
   "main": "dist/index.js",
