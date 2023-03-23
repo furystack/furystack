@@ -4,6 +4,8 @@ import { Shade, createComponent } from '@furystack/shades'
 
 export const Fab = Shade<PartialElement<HTMLDivElement>>({
   shadowDomName: 'shade-fab',
+  elementBase: HTMLButtonElement,
+  elementBaseName: 'button',
   render: ({ props, children, element }) => {
     attachProps(element, {
       ...props,
