@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { Button, Input } from '@furystack/shades-common-components'
 
-export const FormsPage = Shade({
+export const FormPage = Shade({
   shadowDomName: 'forms-page',
   render: () => {
     return (

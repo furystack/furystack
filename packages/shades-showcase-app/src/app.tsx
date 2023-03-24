@@ -39,6 +39,7 @@ export const App = Shade({
             <AppBarLink href="/">Home</AppBarLink>
             <AppBarLink href="/buttons">Buttons</AppBarLink>
             <AppBarLink href="/inputs">Inputs</AppBarLink>
+            <AppBarLink href="/form">Form</AppBarLink>
             <AppBarLink href="/grid">Grid</AppBarLink>
             <AppBarLink href="/nipple">Nipple</AppBarLink>
             <AppBarLink href="/lottie">Lottie</AppBarLink>
@@ -97,6 +98,24 @@ export const App = Shade({
                     component={async () => {
                       const { InputsPage } = await import('./pages/inputs')
                       return <InputsPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/form',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
+                component: () => (
+                  <LazyLoad
+                    loader={<PageLoader />}
+                    component={async () => {
+                      const { FormPage } = await import('./pages/form')
+                      return <FormPage />
                     }}
                   />
                 ),

@@ -27,12 +27,12 @@ class FormService<T> {
   public formEvents = {
     onsubmit: (ev: SubmitEvent) => {
       ev.preventDefault()
-      const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
-      if (props.validate(formData)) {
-        props.onSubmit(formData)
-      } else {
-        props.onValidationFailed({ '': 'Invalid form data' })
-      }
+      // const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
+      // if (props.validate(formData)) {
+      //   props.onSubmit(formData)
+      // } else {
+      //   props.onValidationFailed({ '': 'Invalid form data' })
+      // }
     },
   }
 
@@ -56,10 +56,10 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   render: ({ props, children }) => {
     return (
       <form
-        onsubmit={(ev) => {}}
+        // onsubmit={(ev) => {}}
         oninvalid={(ev) => {
           ev.preventDefault()
-          const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
+          // const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
         }}
         onreset={() => {
           props.onReset?.()
