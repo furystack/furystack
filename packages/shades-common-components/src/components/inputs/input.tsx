@@ -4,6 +4,12 @@ import { ObservableValue } from '@furystack/utils'
 import { ThemeProviderService } from '../..'
 import type { Palette } from '../../services'
 
+export type ValidInputValidationResult = { isValid: true }
+
+export type InvalidInputValidationResult = { isValid: false; message: string }
+
+export type InputValidationResult = ValidInputValidationResult | InvalidInputValidationResult
+
 export interface TextInputProps extends PartialElement<HTMLInputElement> {
   /**
    * Callback that will be called when the input value changes
@@ -31,36 +37,47 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
    * The default color of the input (Error color will be used in case of invalid input value)
    */
   defaultColor?: keyof Palette
+
+  /**
+   * Callback for retrieving the custom validation result
+   *
+   * @returns The custom validation state
+   */
+  getValidationResult?: (options: { state: TextInputState }) => InputValidationResult
+
   /**
    * Optional callback for the helper text
    */
-  getHelperText?: (options: { state: TextInputState }) => JSX.Element | string
+  getHelperText?: (options: { state: TextInputState; validationResult?: InputValidationResult }) => JSX.Element | string
 
   /**
    * Optional callback for retrieving an icon element on the left side of the input field
    */
-  getStartIcon?: (options: { state: TextInputState }) => JSX.Element | string
+  getStartIcon?: (options: { state: TextInputState; validationResult?: InputValidationResult }) => JSX.Element | string
 
   /**
    * Optional callback for retrieving an icon element on the right side of the input field
    */
-  getEndIcon?: (options: { state: TextInputState }) => JSX.Element | string
+  getEndIcon?: (options: { state: TextInputState; validationResult?: InputValidationResult }) => JSX.Element | string
 }
 
 export type TextInputState = {
   value: string
   focused: boolean
   validity: ValidityState
+  element: JSX.Element<TextInputProps>
 }
 
 const getLabelStyle = ({
   themeProvider,
   props,
   state,
+  validationResult,
 }: {
   themeProvider: ThemeProviderService
   props: TextInputProps
   state: TextInputState
+  validationResult?: InputValidationResult
 }): Partial<CSSStyleDeclaration> => {
   return {
     display: 'flex',
@@ -70,7 +87,7 @@ const getLabelStyle = ({
     fontSize: '10px',
     color: props.disabled
       ? themeProvider.theme.text.disabled
-      : state.validity?.valid === false
+      : state.validity?.valid === false || validationResult?.isValid === false
       ? themeProvider.theme.palette.error.main
       : state.focused
       ? themeProvider.theme.text.primary
@@ -82,7 +99,7 @@ const getLabelStyle = ({
       props.variant === 'contained'
         ? themeProvider
             .getRgbFromColorString(
-              state.validity?.valid === false
+              state.validity?.valid === false || validationResult?.isValid === false
                 ? themeProvider.theme.palette.error.main
                 : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
             )
@@ -92,7 +109,7 @@ const getLabelStyle = ({
     boxShadow:
       props.variant === 'outlined' || props.variant === 'contained'
         ? `0 0 0 1px ${
-            state.validity?.valid === false
+            state.validity?.valid === false || validationResult?.isValid === false
               ? themeProvider.theme.palette.error.main
               : state.focused
               ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
@@ -107,6 +124,38 @@ const getLabelStyle = ({
   }
 }
 
+const getDefaultMessagesForValidityState = (state: ValidityState) => {
+  if (!state.valid) {
+    if (state.valueMissing) {
+      return 'Value is required'
+    }
+    if (state.typeMismatch) {
+      return 'Value is not valid'
+    }
+    if (state.patternMismatch) {
+      return 'Value does not match the pattern'
+    }
+    if (state.tooLong) {
+      return 'Value is too long'
+    }
+    if (state.tooShort) {
+      return 'Value is too short'
+    }
+    if (state.rangeUnderflow) {
+      return 'Value is too low'
+    }
+    if (state.rangeOverflow) {
+      return 'Value is too high'
+    }
+    if (state.stepMismatch) {
+      return 'Value is not a valid step'
+    }
+    if (state.badInput) {
+      return 'Value is not valid'
+    }
+  }
+}
+
 export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
   render: ({ props, injector, useObservable, element }) => {
@@ -118,19 +167,33 @@ export const Input = Shade<TextInputProps>({
         value: props.value || '',
         focused: props.autofocus || false,
         validity: { valid: true } as ValidityState,
+        element,
       }),
       (newState) => {
         const label = element.querySelector('label') as HTMLLabelElement
-        attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState }) })
+
+        newState.value = element.querySelector('input')?.value || newState.value
+
+        const validationResult = props.getValidationResult?.({ state: newState })
+
+        validationResult?.isValid === false || newState.validity?.valid === false
+          ? element.setAttribute('data-validation-failed', 'true')
+          : element.removeAttribute('data-validation-failed')
+
+        attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
 
         const helper = element.querySelector<HTMLSpanElement>('span.helperText')
-        const helperNode = props.getHelperText?.({ state: newState }) || ''
+        const helperNode =
+          (validationResult?.isValid === false && validationResult?.message) ||
+          props.getHelperText?.({ state: newState, validationResult }) ||
+          getDefaultMessagesForValidityState(newState.validity) ||
+          ''
         helper?.replaceChildren(helperNode)
 
         const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
-        startIcon?.replaceChildren(props.getStartIcon?.({ state: newState }) || '')
+        startIcon?.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
         const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
-        endIcon?.replaceChildren(props.getEndIcon?.({ state: newState }) || '')
+        endIcon?.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
       },
     )
 
