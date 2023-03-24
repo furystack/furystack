@@ -17,10 +17,10 @@ const FormStatusMonitor = Shade({
     const [fieldErrors] = useObservable('fieldErrors', formService.fieldErrors)
     return (
       <div>
-        <pre>Raw: {JSON.stringify(rawFormData, null, 2)}</pre>
-        <pre>Validated: {JSON.stringify(validatedFormData, null, 2)}</pre>
-        <pre>Status: {JSON.stringify(validationResult, null, 2)}</pre>
-        <pre>Field errors: {JSON.stringify(fieldErrors, null, 2)}</pre>
+        <pre id="raw">Raw: {JSON.stringify(rawFormData, null, 2)}</pre>
+        <pre id="validated">Validated: {JSON.stringify(validatedFormData, null, 2)}</pre>
+        <pre id="status">Status: {JSON.stringify(validationResult, null, 2)}</pre>
+        <pre id="fieldErrors">Field errors: {JSON.stringify(fieldErrors, null, 2)}</pre>
       </div>
     )
   },
@@ -41,7 +41,9 @@ export const FormPage = Shade({
         <h1>Form</h1>
         <div style={{ display: 'flex', gap: '32px' }}>
           <Form<FormDataType>
-            onSubmit={console.log}
+            onSubmit={(data) => {
+              alert(`Submitted: ${JSON.stringify(data, null, 2)}`)
+            }}
             style={{
               width: '300px',
             }}

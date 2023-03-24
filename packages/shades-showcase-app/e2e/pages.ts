@@ -7,6 +7,10 @@ export const pages = {
     name: 'Inputs',
     url: 'http://localhost:8080/inputs',
   },
+  form: {
+    name: 'Form',
+    url: 'http://localhost:8080/form',
+  },
   grid: {
     name: 'Grid',
     url: 'http://localhost:8080/grid',

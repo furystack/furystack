@@ -1,4 +1,5 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
+import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import type { InputValidationResult } from './inputs'
 import { Injectable } from '../../../inject/src'
@@ -48,6 +49,8 @@ type FormProps<T> = {
 
 export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Element = Shade({
   shadowDomName: 'shade-form',
+  elementBase: HTMLFormElement,
+  elementBaseName: 'form',
   render: ({ props, children, useDisposable, element, injector }) => {
     const formInjector = useDisposable('formInjector', () => injector.createChild({ owner: element }))
     element.injector = formInjector
@@ -55,7 +58,6 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
     formInjector.setExplicitInstance(formService)
 
     const changeHandler = (ev: Event, shouldSubmit?: boolean) => {
-      ev.preventDefault()
       formService.inputs.forEach((i) => {
         const e = document.createEvent('FocusEvent')
         e.initEvent('blur', true, true)
@@ -65,7 +67,10 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       formService.rawFormData.setValue(formData)
       const currentFieldErrors = formService.fieldErrors.getValue()
 
-      if (Object.values(currentFieldErrors).some((v) => v?.validationResult.isValid === false)) {
+      if (
+        Object.values(currentFieldErrors).some((v) => v?.validationResult.isValid === false) ||
+        [...formService.inputs].some((input) => !input.validity.valid)
+      ) {
         formService.validationResult.setValue({ isValid: false, reason: 'input-validation-failed' })
       } else if (props.validate(formData)) {
         formService.validationResult.setValue({ isValid: true })
@@ -76,21 +81,26 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       }
     }
 
-    return (
-      <form
-        {...props}
-        onsubmit={(ev: SubmitEvent) => {
-          changeHandler(ev, true)
-        }}
-        onchange={changeHandler}
-        onreset={() => {
-          formService.rawFormData.setValue(null)
-          formService.validationResult.setValue({ isValid: null })
-          formService.validatedFormData.setValue(null)
-        }}
-      >
-        {children}
-      </form>
-    )
+    attachProps(element, {
+      injector: formInjector,
+      ...props,
+      oninvalid: (ev: Event) => {
+        changeHandler(ev)
+      },
+      onsubmit: (ev: SubmitEvent) => {
+        ev.preventDefault()
+        changeHandler(ev, true)
+      },
+      onchange: (ev: Event) => {
+        changeHandler(ev)
+      },
+      onreset: () => {
+        formService.rawFormData.setValue(null)
+        formService.validationResult.setValue({ isValid: null })
+        formService.validatedFormData.setValue(null)
+      },
+    })
+
+    return <>{children}</>
   },
 })
