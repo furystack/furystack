@@ -4,3 +4,4 @@ releases:
   "@furystack/shades-lottie": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
+  furystack: patch
