@@ -68,6 +68,9 @@ const getHoveredTextColor = (buttonProps: ButtonProps, theme: Theme, fallback: (
     : fallback()
 
 export const Button = Shade<ButtonProps>({
+  shadowDomName: 'shade-button',
+  elementBase: HTMLButtonElement,
+  elementBaseName: 'button',
   constructed: ({ element }) => {
     /**
      * @param this The Document instance
@@ -94,7 +97,6 @@ export const Button = Shade<ButtonProps>({
       document.removeEventListener('mouseup', mouseUp)
     }
   },
-  shadowDomName: 'shade-button',
   render: ({ props, children, injector, element, useDisposable }) => {
     const mouseDownHandler = props.onmousedown
     const mouseUpHandler = props.onmouseup

@@ -1,50 +1,52 @@
-import type { Locator } from '@playwright/test'
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import { sleepAsync } from '@furystack/utils'
 import { pages } from './pages'
 
 test.describe('Wizard', () => {
-  let wizardButton!: Locator
-  let wizard!: Locator
-  let backdrop!: Locator
-
-  const openWizard = async () => {
+  test('Should be opened and closed with a backdrop click', async ({ page }) => {
+    await page.goto(pages.wizard.url)
+    const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
-    await wizard.waitFor({ state: 'visible' })
-  }
+    const wizard = await page.locator('shades-wizard')
 
-  const closeWizardWithBackdropClick = async () => {
-    await backdrop.click({ position: { y: 50, x: 50 }, force: true })
+    await wizard.waitFor({ state: 'visible' })
+
+    await sleepAsync(1000)
+
+    await expect(wizard).toHaveScreenshot()
+
+    const backdrop = await page.locator('shade-modal > div')
+
+    const boundingBox = await backdrop.boundingBox()
+    const position = { y: (boundingBox?.height || 100) - 10, x: (boundingBox?.width || 100) - 50 }
+
+    await backdrop.click({
+      position,
+      force: true,
+    })
+
     await backdrop.waitFor({
       state: 'detached',
-      timeout: 2500,
     })
-  }
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto(pages.wizard.url)
-    wizardButton = await page.locator('text=Open Wizard')
-    wizard = await page.locator('shades-wizard')
-    backdrop = await page.locator('shade-modal > div')
-  })
-
-  test('Should be opened and closed with a backdrop click', async () => {
-    await openWizard()
-    await closeWizardWithBackdropClick()
     await wizard.waitFor({
       state: 'detached',
     })
     await expect(await wizard.count()).toBe(0)
   })
 
-  test('Should be opened and finished by walking through the steps', async () => {
-    await openWizard()
+  test('Should be opened and finished by walking through the steps', async ({ page }) => {
+    await page.goto(pages.wizard.url)
+    const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
+    await wizardButton.click()
 
-    const input = await wizard.locator('input[name=username]')
+    const wizard = await page.locator('shades-wizard')
+
+    const input = wizard.locator('input[name=username]')
     expect(input).toBeFocused()
 
     await input.type('PlaywrightBot')
 
-    const nextButton = await wizard.locator('shade-button:has-text("Next")')
+    const nextButton = wizard.locator('button', { hasText: 'Next' })
     await nextButton.click()
 
     const step2Text = wizard.locator('text=Step 2')
@@ -54,7 +56,7 @@ test.describe('Wizard', () => {
     const step3Text = wizard.locator('text=Step 3')
     expect(step3Text).toBeVisible()
 
-    const finishButton = await wizard.locator('shade-button:has-text("Finish")')
+    const finishButton = wizard.locator('button', { hasText: 'Finish' })
     await finishButton.click()
 
     await wizard.waitFor({
