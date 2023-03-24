@@ -94,8 +94,8 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { FormsPage } = await import('./pages/form')
-                      return <FormsPage />
+                      const { FormPage } = await import('./pages/form')
+                      return <FormPage />
                     }}
                   />
                 ),

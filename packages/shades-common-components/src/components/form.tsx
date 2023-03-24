@@ -8,31 +8,37 @@ type UnknownFormValidationResult = { isValid: null }
 
 type ValidFormValidationResult = { isValid: true }
 
-type InvalidFormValidationResult<T> = {
+type InvalidFormValidationResult = {
   isValid: false
-  message: string
-  inputValidationResults?: { [K in keyof T]: InputValidationResult }
+  reason: 'validation-failed' | 'form-oninvalid-event' | 'unknown'
 }
 
-type FormValidationResult = ValidFormValidationResult | InvalidFormValidationResult<any> | UnknownFormValidationResult
+type FormValidationResult = ValidFormValidationResult | InvalidFormValidationResult | UnknownFormValidationResult
 
 @Injectable({ lifetime: 'scoped' })
 class FormService<T> {
   public validatedFormData = new ObservableValue<T | null>(null)
 
-  public rawFormData = new ObservableValue<FormData | null>(null)
+  public rawFormData = new ObservableValue<{ [k: string]: FormDataEntryValue } | null>(null)
 
   public validationResult = new ObservableValue<FormValidationResult>({ isValid: null })
 
-  public formEvents = {
+  public formEvents: Pick<HTMLFormElement, 'onsubmit' | 'oninavlid'> = {
+    oninavlid: () => {
+      this.rawFormData.setValue(null)
+      this.validationResult.setValue({ isValid: false, reason: 'form-oninvalid-event' })
+      this.validatedFormData.setValue(null)
+    },
     onsubmit: (ev: SubmitEvent) => {
       ev.preventDefault()
-      // const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
-      // if (props.validate(formData)) {
-      //   props.onSubmit(formData)
-      // } else {
-      //   props.onValidationFailed({ '': 'Invalid form data' })
-      // }
+      const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
+      this.rawFormData.setValue(formData)
+      if (this.validate(formData)) {
+        this.validationResult.setValue({ isValid: true })
+        this.validatedFormData.setValue(formData)
+      } else {
+        this.validationResult.setValue({ isValid: false, reason: 'validation-failed' })
+      }
     },
   }
 
@@ -41,6 +47,8 @@ class FormService<T> {
     this.rawFormData.dispose()
     this.validationResult.dispose()
   }
+
+  constructor(public readonly validate: (formData: any) => formData is T) {}
 }
 
 interface FormProps<T> {
@@ -56,7 +64,7 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   render: ({ props, children }) => {
     return (
       <form
-        // onsubmit={(ev) => {}}
+        {...props.formService.formEvents}
         oninvalid={(ev) => {
           ev.preventDefault()
           // const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement).entries())
