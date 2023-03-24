@@ -1,7 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent, attachStyles } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
-import { ThemeProviderService } from '../..'
+import { FormService, ThemeProviderService } from '../..'
 import type { Palette } from '../../services'
 
 export type ValidInputValidationResult = { isValid: true }
@@ -158,43 +158,75 @@ const getDefaultMessagesForValidityState = (state: ValidityState) => {
 
 export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
+  constructed: ({ injector, element }) => {
+    if (injector.cachedSingletons.has(FormService)) {
+      const input = element.querySelector('input') as HTMLInputElement
+      const formService = injector.getInstance(FormService)
+      formService.inputs.add(input)
+      return () => formService.inputs.delete(input)
+    }
+  },
   render: ({ props, injector, useObservable, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
+
+    const updateState = (newState: TextInputState) => {
+      const label = element.querySelector('label') as HTMLLabelElement
+      const input = element.querySelector('input') as HTMLInputElement
+
+      newState.value = input?.value || newState.value
+      newState.validity = input?.validity || newState.validity
+      ;(newState.validity as any).toJSON = () => {
+        return {
+          valid: newState.validity.valid,
+          valueMissing: newState.validity.valueMissing,
+          typeMismatch: newState.validity.typeMismatch,
+          patternMismatch: newState.validity.patternMismatch,
+          tooLong: newState.validity.tooLong,
+          tooShort: newState.validity.tooShort,
+          rangeUnderflow: newState.validity.rangeUnderflow,
+          rangeOverflow: newState.validity.rangeOverflow,
+          stepMismatch: newState.validity.stepMismatch,
+          badInput: newState.validity.badInput,
+        }
+      }
+
+      const validationResult = props.getValidationResult?.({ state: newState })
+
+      validationResult?.isValid === false || newState.validity?.valid === false
+        ? element.setAttribute('data-validation-failed', 'true')
+        : element.removeAttribute('data-validation-failed')
+
+      attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
+
+      const helper = element.querySelector<HTMLSpanElement>('span.helperText')
+      const helperNode =
+        (validationResult?.isValid === false && validationResult?.message) ||
+        props.getHelperText?.({ state: newState, validationResult }) ||
+        getDefaultMessagesForValidityState(newState.validity) ||
+        ''
+      helper?.replaceChildren(helperNode)
+
+      const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
+      startIcon?.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
+      const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
+      endIcon?.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
+
+      if (injector.cachedSingletons.has(FormService)) {
+        const formService = injector.getInstance(FormService)
+        formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, newState.validity)
+      }
+      return newState
+    }
 
     const [state, setState] = useObservable<TextInputState>(
       'inputState',
       new ObservableValue({
         value: props.value || '',
         focused: props.autofocus || false,
-        validity: { valid: true } as ValidityState,
+        validity: element.querySelector('input')?.validity || ({} as ValidityState),
         element,
       }),
-      (newState) => {
-        const label = element.querySelector('label') as HTMLLabelElement
-
-        newState.value = element.querySelector('input')?.value || newState.value
-
-        const validationResult = props.getValidationResult?.({ state: newState })
-
-        validationResult?.isValid === false || newState.validity?.valid === false
-          ? element.setAttribute('data-validation-failed', 'true')
-          : element.removeAttribute('data-validation-failed')
-
-        attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
-
-        const helper = element.querySelector<HTMLSpanElement>('span.helperText')
-        const helperNode =
-          (validationResult?.isValid === false && validationResult?.message) ||
-          props.getHelperText?.({ state: newState, validationResult }) ||
-          getDefaultMessagesForValidityState(newState.validity) ||
-          ''
-        helper?.replaceChildren(helperNode)
-
-        const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
-        startIcon?.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
-        const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
-        endIcon?.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
-      },
+      updateState,
     )
 
     return (
@@ -222,11 +254,13 @@ export const Input = Shade<TextInputProps>({
               props.onTextChange?.(newValue)
               props.onchange && (props.onchange as any)(ev)
             }}
-            onfocus={() => {
-              setState({ ...state, focused: true })
+            onfocus={(ev) => {
+              const el = ev.target as HTMLInputElement
+              setState({ ...state, focused: true, validity: el.validity })
             }}
-            onblur={() => {
-              setState({ ...state, focused: false })
+            onblur={(ev) => {
+              const el = ev.target as HTMLInputElement
+              setState({ ...state, focused: false, validity: el.validity })
             }}
             {...props}
             style={{

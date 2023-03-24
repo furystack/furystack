@@ -1,5 +1,30 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button, Input } from '@furystack/shades-common-components'
+import { Button, Form, FormService, Input } from '@furystack/shades-common-components'
+
+type FormDataType = {
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+const FormStatusMonitor = Shade({
+  shadowDomName: 'shade-form-status-monitor',
+  render: ({ injector, useObservable }) => {
+    const formService = injector.getInstance(FormService)
+    const [rawFormData] = useObservable('rawFormData', formService.rawFormData)
+    const [validatedFormData] = useObservable('validatedFormData', formService.validatedFormData)
+    const [validationResult] = useObservable('validationResult', formService.validationResult)
+    const [fieldErrors] = useObservable('fieldErrors', formService.fieldErrors)
+    return (
+      <div>
+        <pre>Raw: {JSON.stringify(rawFormData, null, 2)}</pre>
+        <pre>Validated: {JSON.stringify(validatedFormData, null, 2)}</pre>
+        <pre>Status: {JSON.stringify(validationResult, null, 2)}</pre>
+        <pre>Field errors: {JSON.stringify(fieldErrors, null, 2)}</pre>
+      </div>
+    )
+  },
+})
 
 export const FormPage = Shade({
   shadowDomName: 'forms-page',
@@ -15,16 +40,17 @@ export const FormPage = Shade({
       >
         <h1>Form</h1>
         <div style={{ display: 'flex', gap: '32px' }}>
-          <form
-            onsubmit={(ev) => {
-              ev.preventDefault()
-
-              const target = ev.target as HTMLFormElement
-
-              if (target.checkValidity() && !target.querySelectorAll('[data-validation-failed=true').length) {
-                const value = Object.fromEntries(new FormData(target).entries())
-                console.log(value)
-              }
+          <Form<FormDataType>
+            onSubmit={console.log}
+            style={{
+              width: '300px',
+            }}
+            validate={(formData): formData is FormDataType => {
+              return !!(
+                typeof (formData as FormDataType).email === 'string' &&
+                typeof (formData as FormDataType).password === 'string' &&
+                typeof (formData as FormDataType).confirmPassword === 'string'
+              )
             }}
           >
             <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
@@ -36,10 +62,6 @@ export const FormPage = Shade({
               required
               type="password"
               getValidationResult={({ state }) => {
-                if (!state.value) {
-                  return { isValid: false, message: 'The value is required' }
-                }
-
                 const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
                 if (password !== state.value) {
                   return { isValid: false, message: 'Passwords do not match' }
@@ -48,10 +70,22 @@ export const FormPage = Shade({
                 return { isValid: true }
               }}
             />
-            <input type="hidden" name="hidden" value={{ alma: 2 } as any} />
-            <Button type="reset">Reset</Button>
-            <Button type="submit">Submit</Button>
-          </form>
+            <div style={{ display: 'flex' }}>
+              <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
+                Reset
+              </Button>
+              <Button
+                style={{ flexGrow: '1', justifyContent: 'center' }}
+                type="submit"
+                color="primary"
+                variant="contained"
+              >
+                Submit
+              </Button>
+            </div>
+            <hr />
+            <FormStatusMonitor />
+          </Form>
         </div>
       </div>
     )
