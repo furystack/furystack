@@ -13,9 +13,9 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.31.2",
+    "@playwright/test": "^1.32.0",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
-    "esbuild": "^0.17.12",
+    "esbuild": "^0.17.13",
     "typescript": "^5.0.2"
   },
   "dependencies": {
