@@ -67,6 +67,15 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
     customElements.define(
       customElementName,
       class extends ElementBase implements JSX.Element {
+        private _renderCount = 0
+
+        /**
+         * @returns the current render count
+         */
+        public getRenderCount() {
+          return this._renderCount
+        }
+
         public resourceManager = new ResourceManager()
 
         public connectedCallback() {
@@ -94,7 +103,10 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
          * @param options Options for rendering the component
          * @returns the JSX element
          */
-        public render = (options: RenderOptions<TProps>) => o.render(options)
+        public render = (options: RenderOptions<TProps>) => {
+          this._renderCount++
+          return o.render(options)
+        }
 
         /**
          * @returns values for the current render options
