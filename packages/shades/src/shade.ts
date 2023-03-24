@@ -1,5 +1,6 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
+import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
 import type { ChildrenList, RenderOptions } from './models'
 import { ResourceManager } from './services/resource-manager'
@@ -37,6 +38,16 @@ export type ShadeOptions<TProps> = {
    * A factory method that creates a list of disposable resources that will be disposed when the element is detached.
    */
   resources?: (options: RenderOptions<TProps>) => Disposable[]
+
+  /**
+   * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
+   */
+  elementBaseName?: string
+
+  /**
+   * Base class for the custom element. Defaults to HTMLElement. E.g. HTMLButtonElement
+   */
+  elementBase?: Constructable<HTMLElement>
 }
 
 /**
@@ -51,9 +62,11 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
 
   const existing = customElements.get(customElementName)
   if (!existing) {
+    const ElementBase = o.elementBase || HTMLElement
+
     customElements.define(
       customElementName,
-      class extends HTMLElement implements JSX.Element {
+      class extends ElementBase implements JSX.Element {
         public resourceManager = new ResourceManager()
 
         public connectedCallback() {
@@ -238,15 +251,18 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
           this._injector = i
         }
       },
+      o.elementBaseName ? { extends: o.elementBaseName } : undefined,
     )
   } else {
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
   }
 
   return (props: TProps, children: ChildrenList) => {
-    const el = document.createElement(customElementName, {
+    const ElementType = customElements.get(customElementName)
+    const el = new (ElementType as CustomElementConstructor)({
       ...(props as TProps & ElementCreationOptions),
     }) as JSX.Element<TProps>
+
     el.props = props || ({} as TProps)
     el.shadeChildren = children
     return el as JSX.Element

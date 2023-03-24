@@ -28,8 +28,12 @@ const config: PlaywrightTestConfig = {
       use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Firefox HiDPI',
+      use: { ...devices['Desktop Firefox HiDPI'] },
     },
   ],
 }
