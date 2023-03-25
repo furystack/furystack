@@ -1,42 +1,46 @@
 export const pages = {
   buttons: {
     name: 'Buttons',
-    url: 'http://localhost:8080/buttons',
+    url: '/buttons',
   },
   inputs: {
     name: 'Inputs',
-    url: 'http://localhost:8080/inputs',
+    url: '/inputs',
+  },
+  form: {
+    name: 'Form',
+    url: '/form',
   },
   grid: {
     name: 'Grid',
-    url: 'http://localhost:8080/grid',
+    url: '/grid',
   },
   nipple: {
     name: 'Nipple',
-    url: 'http://localhost:8080/nipple',
+    url: '/nipple',
   },
   lottie: {
     name: 'Lottie',
-    url: 'http://localhost:8080/lottie',
+    url: '/lottie',
   },
   monaco: {
     name: 'Monaco',
-    url: 'http://localhost:8080/monaco',
+    url: '/monaco',
   },
   wizard: {
     name: 'Wizard',
-    url: 'http://localhost:8080/wizard',
+    url: '/wizard',
   },
   notys: {
     name: 'Notys',
-    url: 'http://localhost:8080/notys',
+    url: '/notys',
   },
   tabs: {
     name: 'Tabs',
-    url: 'http://localhost:8080/tabs',
+    url: '/tabs',
   },
   misc: {
     name: 'Misc',
-    url: 'http://localhost:8080/misc',
+    url: '/misc',
   },
 }

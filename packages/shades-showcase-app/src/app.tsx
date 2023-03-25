@@ -5,11 +5,8 @@ import { ThemeSwitch } from './components/theme-switch'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  render: ({ injector, useStoredState }) => {
+  render: ({ injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
-    const [themeVar] = useStoredState<'dark' | 'light'>('theme', 'dark')
-
-    console.log('App render', { themeVar })
 
     return (
       <div
@@ -38,8 +35,8 @@ export const App = Shade({
           >
             <AppBarLink href="/">Home</AppBarLink>
             <AppBarLink href="/buttons">Buttons</AppBarLink>
-            <AppBarLink href="/form">Form</AppBarLink>
             <AppBarLink href="/inputs">Inputs</AppBarLink>
+            <AppBarLink href="/form">Form</AppBarLink>
             <AppBarLink href="/grid">Grid</AppBarLink>
             <AppBarLink href="/nipple">Nipple</AppBarLink>
             <AppBarLink href="/lottie">Lottie</AppBarLink>
@@ -96,8 +93,8 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { FormsPage } = await import('./pages/form')
-                      return <FormsPage />
+                      const { FormPage } = await import('./pages/form')
+                      return <FormPage />
                     }}
                   />
                 ),
@@ -116,6 +113,24 @@ export const App = Shade({
                     component={async () => {
                       const { InputsPage } = await import('./pages/inputs')
                       return <InputsPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/form',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
+                component: () => (
+                  <LazyLoad
+                    loader={<PageLoader />}
+                    component={async () => {
+                      const { FormPage } = await import('./pages/form')
+                      return <FormPage />
                     }}
                   />
                 ),

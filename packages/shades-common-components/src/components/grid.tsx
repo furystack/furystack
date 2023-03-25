@@ -55,7 +55,7 @@ export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Eleme
                 return (
                   <th style={headerStyle}>
                     {props.headerComponents?.[column]?.(column) || props.headerComponents?.default?.(column) || (
-                      <span>{column}</span>
+                      <>{column}</>
                     )}
                   </th>
                 )
@@ -68,7 +68,7 @@ export const Grid: <T>(props: GridProps<T>, children: ChildrenList) => JSX.Eleme
                 {props.columns.map((column) => (
                   <td style={props.styles?.cell}>
                     {props.rowComponents?.[column]?.(entry) || props.rowComponents?.default?.(entry) || (
-                      <span>{entry[column]}</span>
+                      <>{entry[column]}</>
                     )}
                   </td>
                 ))}

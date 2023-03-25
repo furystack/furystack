@@ -10,7 +10,6 @@ export const ThemeSwitch = Shade<Omit<ButtonProps, 'onclick'>>({
     const themeProvider = injector.getInstance(ThemeProviderService)
 
     themeProvider.set(theme === 'dark' ? defaultDarkTheme : defaultLightTheme)
-    console.log('ThemeSwitch render', { theme })
 
     return (
       <>
