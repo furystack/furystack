@@ -35,7 +35,6 @@ export const App = Shade({
           >
             <AppBarLink href="/">Home</AppBarLink>
             <AppBarLink href="/buttons">Buttons</AppBarLink>
-            <AppBarLink href="/form">Form</AppBarLink>
             <AppBarLink href="/inputs">Inputs</AppBarLink>
             <AppBarLink href="/form">Form</AppBarLink>
             <AppBarLink href="/grid">Grid</AppBarLink>
