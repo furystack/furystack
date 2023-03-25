@@ -55,35 +55,37 @@ export const FormPage = Shade({
               )
             }}
           >
-            <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
-            <Input labelTitle="Password" name="password" variant="outlined" required type="password" />
-            <Input
-              labelTitle="Confirm password"
-              name="confirmPassword"
-              variant="outlined"
-              required
-              type="password"
-              getValidationResult={({ state }) => {
-                const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
-                if (password !== state.value) {
-                  return { isValid: false, message: 'Passwords do not match' }
-                }
+            <div id="fieldset">
+              <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
+              <Input labelTitle="Password" name="password" variant="outlined" required type="password" />
+              <Input
+                labelTitle="Confirm password"
+                name="confirmPassword"
+                variant="outlined"
+                required
+                type="password"
+                getValidationResult={({ state }) => {
+                  const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
+                  if (password !== state.value) {
+                    return { isValid: false, message: 'Passwords do not match' }
+                  }
 
-                return { isValid: true }
-              }}
-            />
-            <div style={{ display: 'flex' }}>
-              <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
-                Reset
-              </Button>
-              <Button
-                style={{ flexGrow: '1', justifyContent: 'center' }}
-                type="submit"
-                color="primary"
-                variant="contained"
-              >
-                Submit
-              </Button>
+                  return { isValid: true }
+                }}
+              />
+              <div style={{ display: 'flex' }}>
+                <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
+                  Reset
+                </Button>
+                <Button
+                  style={{ flexGrow: '1', justifyContent: 'center' }}
+                  type="submit"
+                  color="primary"
+                  variant="contained"
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
             <hr />
             <FormStatusMonitor />

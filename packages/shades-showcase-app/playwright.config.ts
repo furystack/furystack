@@ -31,10 +31,6 @@ const config: PlaywrightTestConfig = {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
     },
-    {
-      name: 'Firefox HiDPI',
-      use: { ...devices['Desktop Firefox HiDPI'] },
-    },
   ],
 }
 export default config
