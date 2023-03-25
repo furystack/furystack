@@ -35,6 +35,9 @@
     },
     {
       "path": "../repository"
+    },
+    {
+      "path": "../logging"
     }
   ]
 }
