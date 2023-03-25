@@ -12,7 +12,7 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.32.0",
+    "@playwright/test": "^1.32.1",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
     "esbuild": "^0.17.13",
     "typescript": "^5.0.2"
