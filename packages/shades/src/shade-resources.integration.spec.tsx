@@ -67,6 +67,9 @@ describe('Shade Resources integration tests', () => {
       '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">b</div></div></shades-example-resource></div>',
     )
 
+    const element = document.querySelector('shades-example-resource') as JSX.Element
+    expect(element.getRenderCount()).toBe(3)
+
     document.body.innerHTML = ''
 
     expect(obs1.getObservers().length).toBe(0)
