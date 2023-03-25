@@ -9,3 +9,17 @@ services:
     image: "redis"
     ports:
       - 6379:6379
+  devcontainer:
+    image: node:current
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+      - NODE_ENV=development

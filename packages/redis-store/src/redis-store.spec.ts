@@ -5,6 +5,8 @@ import { RedisStore } from './redis-store'
 import './store-manager-helpers'
 import { useRedis } from './store-manager-helpers'
 
+const redisUrl = process?.env?.REDIS_URL || 'redis://localhost:6379'
+
 describe('Redis Store', () => {
   class ExampleClass {
     id!: string
@@ -16,7 +18,7 @@ describe('Redis Store', () => {
   let client!: ReturnType<typeof createClient>
 
   beforeEach(async () => {
-    client = createClient({ url: 'redis://localhost:6379' })
+    client = createClient({ url: redisUrl })
     i = new Injector()
     useRedis({ injector: i, model: ExampleClass, primaryKey: 'id', client })
     store = i.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
