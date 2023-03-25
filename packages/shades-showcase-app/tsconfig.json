@@ -26,6 +26,15 @@
     },
     {
       "path": "../shades-common-components"
+    },
+    {
+      "path": "../shades-lottie"
+    },
+    {
+      "path": "../shades-nipple"
+    },
+    {
+      "path": "../repository"
     }
   ]
 }

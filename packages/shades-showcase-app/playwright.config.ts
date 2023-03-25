@@ -33,5 +33,10 @@ const config: PlaywrightTestConfig = {
       use: { ...devices['Pixel 5'] },
     },
   ],
+  webServer: {
+    command: 'yarn start',
+    reuseExistingServer: !isInCi,
+    url: 'http://localhost:8080',
+  },
 }
 export default config

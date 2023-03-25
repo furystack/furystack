@@ -18,17 +18,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn install
-      - name: Build
-        run: yarn build
-      - name: Create Bundle
-        run: yarn workspace @furystack/shades-showcase-app build
-      - name: Install Lighttpd
-        run: sudo apt install lighttpd
-      - name: Start Lighttpd
-        run: lighttpd -f lighttpd.conf
-        working-directory: ./packages/shades-showcase-app
-      - name: Check dev server
-        run: yarn workspace @furystack/shades-showcase-app assert-listening
+      - name: Build Showcase app
+        run: yarn run tsc -b packages/shades-showcase-app
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
       - name: execute tests
