@@ -2,8 +2,8 @@ import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import type { InputValidationResult } from './inputs'
-import { Injectable } from '../../../inject/src'
-import { ObservableValue } from '../../../utils/src'
+import { Injectable } from '@furystack/inject'
+import { ObservableValue } from '@furystack/utils'
 
 type UnknownFormValidationResult = { isValid: null }
 
