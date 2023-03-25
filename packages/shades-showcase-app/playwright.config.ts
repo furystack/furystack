@@ -9,6 +9,12 @@ const config: PlaywrightTestConfig = {
   fullyParallel: true,
   retries: isInCi ? 2 : 0,
   reporter: isInCi ? 'github' : 'line',
+  expect: {
+    toHaveScreenshot: {
+      threshold: 0.3,
+      maxDiffPixelRatio: 0.03,
+    },
+  },
   use: {
     trace: 'on-first-retry',
     baseURL: 'http://localhost:8080/',
