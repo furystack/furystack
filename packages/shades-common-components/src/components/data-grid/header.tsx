@@ -21,11 +21,6 @@ export const DataGridHeader: <T, K extends keyof T>(
   children: ChildrenList,
 ) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
   shadowDomName: 'data-grid-header',
-  // getInitialState: ({ props }) => ({
-  //   querySettings: props.collectionService.querySettings.getValue(),
-  //   isSearchOpened: false,
-  // updateSearchValue: ,
-  // }),
   render: ({ props, element, useState, useObservable }) => {
     const [querySettings, setQuerySettings] = useObservable('querySettings', props.collectionService.querySettings)
     const currentOrder = Object.keys(querySettings.order || {})[0]

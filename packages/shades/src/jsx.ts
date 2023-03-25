@@ -12,6 +12,7 @@ declare global {
       shadeChildren?: ChildrenList
       callConstructed: () => void
       resourceManager: ResourceManager
+      getRenderCount(): number
     }
 
     interface IntrinsicElements {

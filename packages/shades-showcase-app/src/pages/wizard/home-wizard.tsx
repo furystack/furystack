@@ -158,7 +158,9 @@ export const WelcomeWizard = Shade({
     const isOpened = useDisposable('isOpened', () => new ObservableValue(false))
     return (
       <>
-        <Button onclick={() => isOpened.setValue(true)}>Open Wizard</Button>
+        <Button type="button" onclick={() => isOpened.setValue(true)}>
+          Open Wizard
+        </Button>
         <Modal
           isVisible={isOpened}
           onClose={() => isOpened.setValue(false)}

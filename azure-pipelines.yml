@@ -90,23 +90,9 @@ jobs:
       - script: yarn install --immutable
         displayName: 'Install'
 
-      - script: yarn build
-        displayName: 'Build'
-
-      - script: yarn workspace @furystack/shades-showcase-app build
-        displayName: 'Create bundle'
-
-      - script: sudo apt install lighttpd
-        displayName: Install Lighttpd
-        
-      
-      - script: lighttpd -f lighttpd.conf
-        displayName: Start Lighttpd
-        workingDirectory: ./packages/shades-showcase-app
-
-      - script: yarn workspace @furystack/shades-showcase-app assert-listening
-        displayName: Check dev server
-              
+      - script: yarn run tsc -b packages/shades-showcase-app
+        displayName: 'Build Showcase app'
+             
       - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
         displayName: Install Playwright browsers
       

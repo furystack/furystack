@@ -16,6 +16,8 @@ class TestClassWithId {
 
 let storeCount = 0
 
+const mongoDbUrl = process?.env?.MONGODB_URL || 'mongodb://localhost:27017'
+
 describe('MongoDB Store', () => {
   let dbIdx = 0
 
@@ -25,7 +27,7 @@ describe('MongoDB Store', () => {
     primaryKey: 'id' as const,
     collection: `furystack-mongo-store-tests-${storeCount++}`,
     db: `furystack-mongo-store-tests-${dbIdx++}`,
-    url: 'mongodb://localhost:27017',
+    url: mongoDbUrl,
     options: {},
   })
   createStoreTest({

@@ -421,175 +421,175 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/android-arm64@npm:0.17.12"
+"@esbuild/android-arm64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/android-arm64@npm:0.17.13"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/android-arm@npm:0.17.12"
+"@esbuild/android-arm@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/android-arm@npm:0.17.13"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/android-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/android-x64@npm:0.17.12"
+"@esbuild/android-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/android-x64@npm:0.17.13"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-arm64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/darwin-arm64@npm:0.17.12"
+"@esbuild/darwin-arm64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/darwin-arm64@npm:0.17.13"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/darwin-x64@npm:0.17.12"
+"@esbuild/darwin-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/darwin-x64@npm:0.17.13"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-arm64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/freebsd-arm64@npm:0.17.12"
+"@esbuild/freebsd-arm64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/freebsd-arm64@npm:0.17.13"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/freebsd-x64@npm:0.17.12"
+"@esbuild/freebsd-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/freebsd-x64@npm:0.17.13"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-arm64@npm:0.17.12"
+"@esbuild/linux-arm64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-arm64@npm:0.17.13"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-arm@npm:0.17.12"
+"@esbuild/linux-arm@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-arm@npm:0.17.13"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ia32@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-ia32@npm:0.17.12"
+"@esbuild/linux-ia32@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-ia32@npm:0.17.13"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/linux-loong64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-loong64@npm:0.17.12"
+"@esbuild/linux-loong64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-loong64@npm:0.17.13"
   conditions: os=linux & cpu=loong64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-mips64el@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-mips64el@npm:0.17.12"
+"@esbuild/linux-mips64el@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-mips64el@npm:0.17.13"
   conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ppc64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-ppc64@npm:0.17.12"
+"@esbuild/linux-ppc64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-ppc64@npm:0.17.13"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-riscv64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-riscv64@npm:0.17.12"
+"@esbuild/linux-riscv64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-riscv64@npm:0.17.13"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-s390x@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-s390x@npm:0.17.12"
+"@esbuild/linux-s390x@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-s390x@npm:0.17.13"
   conditions: os=linux & cpu=s390x
   languageName: node
   linkType: hard
 
-"@esbuild/linux-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/linux-x64@npm:0.17.12"
+"@esbuild/linux-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/linux-x64@npm:0.17.13"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/netbsd-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/netbsd-x64@npm:0.17.12"
+"@esbuild/netbsd-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/netbsd-x64@npm:0.17.13"
   conditions: os=netbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/openbsd-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/openbsd-x64@npm:0.17.12"
+"@esbuild/openbsd-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/openbsd-x64@npm:0.17.13"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/sunos-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/sunos-x64@npm:0.17.12"
+"@esbuild/sunos-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/sunos-x64@npm:0.17.13"
   conditions: os=sunos & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-arm64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/win32-arm64@npm:0.17.12"
+"@esbuild/win32-arm64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/win32-arm64@npm:0.17.13"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-ia32@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/win32-ia32@npm:0.17.12"
+"@esbuild/win32-ia32@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/win32-ia32@npm:0.17.13"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/win32-x64@npm:0.17.12":
-  version: 0.17.12
-  resolution: "@esbuild/win32-x64@npm:0.17.12"
+"@esbuild/win32-x64@npm:0.17.13":
+  version: 0.17.13
+  resolution: "@esbuild/win32-x64@npm:0.17.13"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
 "@eslint-community/eslint-utils@npm:^4.2.0":
-  version: 4.3.0
-  resolution: "@eslint-community/eslint-utils@npm:4.3.0"
+  version: 4.4.0
+  resolution: "@eslint-community/eslint-utils@npm:4.4.0"
   dependencies:
     eslint-visitor-keys: ^3.3.0
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
-  checksum: f487760a692f0f1fef76e248ad72976919576ba57edc2b1b1dc1d182553bae6b5bf7b078e654da85d04f0af8a485d20bd26280002768f4fbcd2e330078340cb0
+  checksum: cdfe3ae42b4f572cbfb46d20edafe6f36fc5fb52bf2d90875c58aefe226892b9677fef60820e2832caf864a326fe4fc225714c46e8389ccca04d5f9288aabd22
   languageName: node
   linkType: hard
 
 "@eslint-community/regexpp@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "@eslint-community/regexpp@npm:4.4.0"
-  checksum: 2d127af0c752b80e8a782eacfe996a86925d21de92da3ffc6f9e615e701145e44a62e26bdd88bfac2cd76779c39ba8d9875a91046ec5e7e5f23cb647c247ea6a
+  version: 4.4.1
+  resolution: "@eslint-community/regexpp@npm:4.4.1"
+  checksum: db97d8d08e784147b55ab0dda5892503c1a0eebad94d1c4646d89a94f02ca70b25f05d8e021fc05a075e7eb312e03e21f63d84f0b327719f8cf3bb64e66917cb
   languageName: node
   linkType: hard
 
@@ -621,24 +621,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/auth-google@workspace:packages/auth-google"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
-    "@furystack/rest": ^4.1.13
-    "@furystack/rest-service": ^6.2.16
+    "@furystack/rest": ^4.1.14
+    "@furystack/rest-service": ^6.2.17
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
   languageName: unknown
   linkType: soft
 
-"@furystack/core@^11.2.8, @furystack/core@workspace:packages/core":
+"@furystack/core@^11.2.9, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
     "@furystack/inject": ^7.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
@@ -647,11 +647,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/filesystem-store@workspace:packages/filesystem-store"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
@@ -679,12 +679,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/mongodb-store@workspace:packages/mongodb-store"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
     mongodb: 5.1.0
     semaphore-async-await: ^1.5.1
   languageName: unknown
@@ -694,21 +694,22 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
+    "@types/node": ^18.15.9
     redis: ^4.6.5
     semaphore-async-await: ^1.5.1
   languageName: unknown
   linkType: soft
 
-"@furystack/repository@^6.1.10, @furystack/repository@workspace:packages/repository":
+"@furystack/repository@^6.1.11, @furystack/repository@workspace:packages/repository":
   version: 0.0.0-use.local
   resolution: "@furystack/repository@workspace:packages/repository"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
     "@furystack/utils": ^3.1.7
@@ -716,32 +717,32 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-client-fetch@^4.1.13, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
+"@furystack/rest-client-fetch@^4.1.14, @furystack/rest-client-fetch@workspace:packages/rest-client-fetch":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-client-fetch@workspace:packages/rest-client-fetch"
   dependencies:
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
-    "@furystack/rest": ^4.1.13
+    "@furystack/rest": ^4.1.14
     "@types/jest": ^29.5.0
     path-to-regexp: ^6.2.1
   languageName: unknown
   linkType: soft
 
-"@furystack/rest-service@^6.2.16, @furystack/rest-service@workspace:packages/rest-service":
+"@furystack/rest-service@^6.2.17, @furystack/rest-service@workspace:packages/rest-service":
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
-    "@furystack/repository": ^6.1.10
-    "@furystack/rest": ^4.1.13
-    "@furystack/rest-client-fetch": ^4.1.13
-    "@furystack/security": ^2.1.10
+    "@furystack/repository": ^6.1.11
+    "@furystack/rest": ^4.1.14
+    "@furystack/rest-client-fetch": ^4.1.14
+    "@furystack/security": ^2.1.11
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
     path-to-regexp: ^6.2.1
@@ -749,26 +750,26 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/rest@^4.1.13, @furystack/rest@workspace:^, @furystack/rest@workspace:packages/rest":
+"@furystack/rest@^4.1.14, @furystack/rest@workspace:^, @furystack/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@furystack/rest@workspace:packages/rest"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
   languageName: unknown
   linkType: soft
 
-"@furystack/security@^2.1.10, @furystack/security@workspace:packages/security":
+"@furystack/security@^2.1.11, @furystack/security@workspace:packages/security":
   version: 0.0.0-use.local
   resolution: "@furystack/security@workspace:packages/security"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
   languageName: unknown
   linkType: soft
 
@@ -776,25 +777,25 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/sequelize-store@workspace:packages/sequelize-store"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.5
+    "@types/node": ^18.15.7
     semaphore-async-await: ^1.5.1
-    sequelize: ^6.29.3
+    sequelize: ^6.30.0
     sqlite3: 5.1.6
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-common-components@^4.0.8, @furystack/shades-common-components@workspace:packages/shades-common-components":
+"@furystack/shades-common-components@^4.0.9, @furystack/shades-common-components@workspace:packages/shades-common-components":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
-    "@furystack/shades": ^7.1.6
+    "@furystack/shades": ^7.2.0
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
     path-to-regexp: ^6.2.1
@@ -803,22 +804,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-lottie@^3.0.7, @furystack/shades-lottie@workspace:packages/shades-lottie":
+"@furystack/shades-lottie@^3.0.8, @furystack/shades-lottie@workspace:packages/shades-lottie":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-lottie@workspace:packages/shades-lottie"
   dependencies:
-    "@furystack/shades": ^7.1.6
+    "@furystack/shades": ^7.2.0
     "@lottiefiles/lottie-player": ^1.7.1
     typescript: 5.0.2
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-nipple@^3.0.7, @furystack/shades-nipple@workspace:packages/shades-nipple":
+"@furystack/shades-nipple@^3.0.8, @furystack/shades-nipple@workspace:packages/shades-nipple":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-nipple@workspace:packages/shades-nipple"
   dependencies:
     "@furystack/inject": ^7.1.7
-    "@furystack/shades": ^7.1.6
+    "@furystack/shades": ^7.2.0
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
     nipplejs: ^0.10.1
@@ -830,36 +831,36 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades-showcase-app@workspace:packages/shades-showcase-app"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
-    "@furystack/repository": ^6.1.10
-    "@furystack/rest-client-fetch": ^4.1.13
-    "@furystack/shades": ^7.1.6
-    "@furystack/shades-common-components": ^4.0.8
-    "@furystack/shades-lottie": ^3.0.7
-    "@furystack/shades-nipple": ^3.0.7
+    "@furystack/repository": ^6.1.11
+    "@furystack/rest-client-fetch": ^4.1.14
+    "@furystack/shades": ^7.2.0
+    "@furystack/shades-common-components": ^4.0.9
+    "@furystack/shades-lottie": ^3.0.8
+    "@furystack/shades-nipple": ^3.0.8
     "@furystack/utils": ^3.1.7
     "@lottiefiles/lottie-player": ^1.7.1
-    "@playwright/test": ^1.31.2
+    "@playwright/test": ^1.32.0
     "@yarnpkg/esbuild-plugin-pnp": ^3.0.0-rc.15
-    esbuild: ^0.17.12
+    esbuild: ^0.17.13
     monaco-editor: ^0.36.1
     typescript: ^5.0.2
   languageName: unknown
   linkType: soft
 
-"@furystack/shades@^7.1.6, @furystack/shades@workspace:packages/shades":
+"@furystack/shades@^7.2.0, @furystack/shades@workspace:packages/shades":
   version: 0.0.0-use.local
   resolution: "@furystack/shades@workspace:packages/shades"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/rest": "workspace:^"
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
-    "@types/jsdom": ^21.1.0
-    "@types/node": ^18.15.5
+    "@types/jsdom": ^21.1.1
+    "@types/node": ^18.15.7
     jsdom: ^21.1.1
     path-to-regexp: ^6.2.1
     semaphore-async-await: ^1.5.1
@@ -878,10 +879,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:
-    "@furystack/core": ^11.2.8
+    "@furystack/core": ^11.2.9
     "@furystack/inject": ^7.1.7
     "@furystack/logging": ^3.1.7
-    "@furystack/rest-service": ^6.2.16
+    "@furystack/rest-service": ^6.2.17
     "@furystack/utils": ^3.1.7
     "@types/jest": ^29.5.0
     "@types/ws": ^8.5.4
@@ -1338,19 +1339,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.31.2":
-  version: 1.31.2
-  resolution: "@playwright/test@npm:1.31.2"
+"@playwright/test@npm:^1.32.0":
+  version: 1.32.0
+  resolution: "@playwright/test@npm:1.32.0"
   dependencies:
     "@types/node": "*"
     fsevents: 2.3.2
-    playwright-core: 1.31.2
+    playwright-core: 1.32.0
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 5459ee0ce15b9a54337f4c26e2ee2d29c11e67e6207c167158eb180a4bea6659c988a2897f51dbebf591fc879f0d81f417e70936b9d8a001448c957939882588
+  checksum: 73664460dc9f0e455704fb47f346683ca7d0b6377d11001190f65fcbaa5448eab6adc3c87a0f0164fe14e736b96c83e5ac2528152cdcbe84ba626b3815d9e78a
   languageName: node
   linkType: hard
 
@@ -1554,14 +1555,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^21.1.0":
-  version: 21.1.0
-  resolution: "@types/jsdom@npm:21.1.0"
+"@types/jsdom@npm:^21.1.1":
+  version: 21.1.1
+  resolution: "@types/jsdom@npm:21.1.1"
   dependencies:
     "@types/node": "*"
     "@types/tough-cookie": "*"
     parse5: ^7.0.0
-  checksum: 39d3c580283cb7cc3b2729738fd2cd64344e44c815d08f7b6ee7d9c973f7512eff7e7187408649c9da69b76ec81c118868e8b8787d50320f3e2f9cbbd0b000d4
+  checksum: 7450d6e23aa31b837a1682f0e59b06838aacca85c9d030035f40e21d559169c773aee5cee9244f23c3004b78f7064f0c540ceb808d2f187deb3140f2b0449dee
   languageName: node
   linkType: hard
 
@@ -1579,10 +1580,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.15.5":
-  version: 18.15.5
-  resolution: "@types/node@npm:18.15.5"
-  checksum: 5fbf3453bd5ce1402bb2964e55d928fc8a8a7de5451b1b0fe66587fecb8a3eb86854ca9cefa5076a5971e2cff00e1773ceeb5d872a54f6c6ddfbbc1064b4e91a
+"@types/node@npm:*, @types/node@npm:^18.15.7":
+  version: 18.15.7
+  resolution: "@types/node@npm:18.15.7"
+  checksum: 08d1dd1898be10cd274955ed7f491bcab5b7e70ce66b6a1e996a582d5467f7517046b0d9c5f4e15871df94dd72d1ad9e7be236d2cff1a1450ec906d7fa3062d2
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^18.15.9":
+  version: 18.15.9
+  resolution: "@types/node@npm:18.15.9"
+  checksum: 5165f84f2fe25699879129b98c405c05e8d0428414c99fa544e22bdd0ea502aac384d26418298a31983064fa18c98e2fba5791b9c907bd78ccbcb49c23101bee
   languageName: node
   linkType: hard
 
@@ -2702,9 +2710,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.284":
-  version: 1.4.335
-  resolution: "electron-to-chromium@npm:1.4.335"
-  checksum: a3c9ee2412427ed0853f065f1dde64db1b567abf53d5e50e8cfba1544af4bda970f59a4f4df3dad81078c948b3277dffb42042e6a859288246d68b58db81a555
+  version: 1.4.340
+  resolution: "electron-to-chromium@npm:1.4.340"
+  checksum: b7ffa64814efa49891c23ca0560f6831a992fa904c463bbf635ceccd57821dd0f4ecc22fa066860d34d9614b0ef4b27b385a5f59aed5dcf73ed832d58f746780
   languageName: node
   linkType: hard
 
@@ -2768,32 +2776,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.17.12":
-  version: 0.17.12
-  resolution: "esbuild@npm:0.17.12"
+"esbuild@npm:^0.17.13":
+  version: 0.17.13
+  resolution: "esbuild@npm:0.17.13"
   dependencies:
-    "@esbuild/android-arm": 0.17.12
-    "@esbuild/android-arm64": 0.17.12
-    "@esbuild/android-x64": 0.17.12
-    "@esbuild/darwin-arm64": 0.17.12
-    "@esbuild/darwin-x64": 0.17.12
-    "@esbuild/freebsd-arm64": 0.17.12
-    "@esbuild/freebsd-x64": 0.17.12
-    "@esbuild/linux-arm": 0.17.12
-    "@esbuild/linux-arm64": 0.17.12
-    "@esbuild/linux-ia32": 0.17.12
-    "@esbuild/linux-loong64": 0.17.12
-    "@esbuild/linux-mips64el": 0.17.12
-    "@esbuild/linux-ppc64": 0.17.12
-    "@esbuild/linux-riscv64": 0.17.12
-    "@esbuild/linux-s390x": 0.17.12
-    "@esbuild/linux-x64": 0.17.12
-    "@esbuild/netbsd-x64": 0.17.12
-    "@esbuild/openbsd-x64": 0.17.12
-    "@esbuild/sunos-x64": 0.17.12
-    "@esbuild/win32-arm64": 0.17.12
-    "@esbuild/win32-ia32": 0.17.12
-    "@esbuild/win32-x64": 0.17.12
+    "@esbuild/android-arm": 0.17.13
+    "@esbuild/android-arm64": 0.17.13
+    "@esbuild/android-x64": 0.17.13
+    "@esbuild/darwin-arm64": 0.17.13
+    "@esbuild/darwin-x64": 0.17.13
+    "@esbuild/freebsd-arm64": 0.17.13
+    "@esbuild/freebsd-x64": 0.17.13
+    "@esbuild/linux-arm": 0.17.13
+    "@esbuild/linux-arm64": 0.17.13
+    "@esbuild/linux-ia32": 0.17.13
+    "@esbuild/linux-loong64": 0.17.13
+    "@esbuild/linux-mips64el": 0.17.13
+    "@esbuild/linux-ppc64": 0.17.13
+    "@esbuild/linux-riscv64": 0.17.13
+    "@esbuild/linux-s390x": 0.17.13
+    "@esbuild/linux-x64": 0.17.13
+    "@esbuild/netbsd-x64": 0.17.13
+    "@esbuild/openbsd-x64": 0.17.13
+    "@esbuild/sunos-x64": 0.17.13
+    "@esbuild/win32-arm64": 0.17.13
+    "@esbuild/win32-ia32": 0.17.13
+    "@esbuild/win32-x64": 0.17.13
   dependenciesMeta:
     "@esbuild/android-arm":
       optional: true
@@ -2841,7 +2849,7 @@ __metadata:
       optional: true
   bin:
     esbuild: bin/esbuild
-  checksum: ea6d33eb1bc6c9e00dcee5e253c7e935251b4801d376661fd9f19a9dcffc27f970078a6f7116d6c78ee825ceff9b974594b0b616bd560ce4d875a951aa92977b
+  checksum: c3be8d41a36504fbfee7ad1206df5cf3464dc9a057a417b66dbf1cdf9a180d299df8eee5d2ffa428ad0303f5f4e3ea238bd50087876daa28f709722035165c8c
   languageName: node
   linkType: hard
 
@@ -3298,7 +3306,7 @@ __metadata:
   resolution: "furystack@workspace:."
   dependencies:
     "@types/jest": ^29.5.0
-    "@types/jsdom": ^21.1.0
+    "@types/jsdom": ^21.1.1
     "@typescript-eslint/eslint-plugin": ^5.56.0
     "@typescript-eslint/parser": ^5.56.0
     ajv: ^8.12.0
@@ -3311,7 +3319,7 @@ __metadata:
     jest-environment-jsdom: ^29.5.0
     jest-junit: ^15.0.0
     lint-staged: ^13.2.0
-    prettier: ^2.8.6
+    prettier: ^2.8.7
     rimraf: ^4.4.1
     ts-json-schema-generator: ^1.2.0
     typescript: 5.0.2
@@ -4946,11 +4954,11 @@ __metadata:
   linkType: hard
 
 "moment-timezone@npm:^0.5.35":
-  version: 0.5.41
-  resolution: "moment-timezone@npm:0.5.41"
+  version: 0.5.42
+  resolution: "moment-timezone@npm:0.5.42"
   dependencies:
     moment: ^2.29.4
-  checksum: 30bf42265f749d4d17e78cf94f49d8354d9fbf2dea060a5b89895979642035734512a23cb7a90c0e93593bc11eb698b78b601b7dd5d9a708eb7c4f733a927a71
+  checksum: d4d5d68d4b98e4309e8692ddb6b790ab6b375414ea4e45ef3144bfbc689ab14e3089c4561aea43471fd58595328f43fc554231c9d8fc753b460ca0a29a105693
   languageName: node
   linkType: hard
 
@@ -5464,12 +5472,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.31.2":
-  version: 1.31.2
-  resolution: "playwright-core@npm:1.31.2"
+"playwright-core@npm:1.32.0":
+  version: 1.32.0
+  resolution: "playwright-core@npm:1.32.0"
   bin:
     playwright: cli.js
-  checksum: bf1257b7d80b9d027c99cbfa7ab9d47a2110ec804422b3e3d623bbb3c43e06df7bec4764ca1d852a6d62c76e35c8776efb19941f42ce738db9bc92e7f1b6281c
+  checksum: f53fc45573c35ceb18926a9a517add7a467e4a6900325a72592cbc6b09c4d0df2a1b8e0453176e04ff546cd0b6ec87b3e4bfecbdccdaf1d9fa74ae6fd31faee9
   languageName: node
   linkType: hard
 
@@ -5496,12 +5504,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.8.6":
-  version: 2.8.6
-  resolution: "prettier@npm:2.8.6"
+"prettier@npm:^2.8.7":
+  version: 2.8.7
+  resolution: "prettier@npm:2.8.7"
   bin:
     prettier: bin-prettier.js
-  checksum: 8ac94fa67aec0e65743ea15ebf954ef2f1e52638abd129dc04e8b49e8bb3224c0233c98df6b5c98efd31bd2a43866590486559438ee4ead09dc81be389068572
+  checksum: fdc8f2616f099f5f0d685907f4449a70595a0fc1d081a88919604375989e0d5e9168d6121d8cc6861f21990b31665828e00472544d785d5940ea08a17660c3a6
   languageName: node
   linkType: hard
 
@@ -5662,9 +5670,9 @@ __metadata:
   linkType: hard
 
 "resolve.exports@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "resolve.exports@npm:2.0.1"
-  checksum: 03be177026b4fe8dc1b2ffb421bce9cbf7fe3446e9f0c958df9fc8e144864b3eeea19fe788e057fd8be6b5655e65ce245b4f379258c1336e2e8f9205cbd4a9b4
+  version: 2.0.2
+  resolution: "resolve.exports@npm:2.0.2"
+  checksum: 1c7778ca1b86a94f8ab4055d196c7d87d1874b96df4d7c3e67bbf793140f0717fd506dcafd62785b079cd6086b9264424ad634fb904409764c3509c3df1653f2
   languageName: node
   linkType: hard
 
@@ -5852,9 +5860,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sequelize@npm:^6.29.3":
-  version: 6.29.3
-  resolution: "sequelize@npm:6.29.3"
+"sequelize@npm:^6.30.0":
+  version: 6.30.0
+  resolution: "sequelize@npm:6.30.0"
   dependencies:
     "@types/debug": ^4.1.7
     "@types/validator": ^13.7.1
@@ -5891,7 +5899,7 @@ __metadata:
       optional: true
     tedious:
       optional: true
-  checksum: 38b39a1dc6690a974e8b70d406075b55dc14af116f3e13b2cadd2ac851980adf23f0e8fe4a7c14e89a89e1d652e9a0cbfc3121f927f739400504edd8cbf5eafb
+  checksum: a99ae86eb48ec0704e8f5173265c17578b69bd9659e21789e0f0f551c69e597d3efe7d365c417542a7cc5023b9ceaf75948650aeab6b7321c09295f17342f6d1
   languageName: node
   linkType: hard
 

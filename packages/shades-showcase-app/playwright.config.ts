@@ -11,12 +11,13 @@ const config: PlaywrightTestConfig = {
   reporter: isInCi ? 'github' : 'line',
   expect: {
     toHaveScreenshot: {
-      maxDiffPixelRatio: 0.05,
       threshold: 0.3,
+      maxDiffPixelRatio: 0.03,
     },
   },
   use: {
     trace: 'on-first-retry',
+    baseURL: 'http://localhost:8080/',
   },
   projects: [
     {
@@ -28,9 +29,14 @@ const config: PlaywrightTestConfig = {
       use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
     },
   ],
+  webServer: {
+    command: 'yarn start',
+    reuseExistingServer: !isInCi,
+    url: 'http://localhost:8080',
+  },
 }
 export default config
