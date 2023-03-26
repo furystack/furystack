@@ -1,3 +1,3 @@
-# @furystack/rest
+# @furystack/cache
 
 Readme - TODO
