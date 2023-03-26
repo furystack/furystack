@@ -1,0 +1,3 @@
+# @furystack/rest
+
+Readme - TODO
