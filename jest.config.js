@@ -13,6 +13,7 @@ module.exports = {
     {
       displayName: 'common',
       roots: [
+        '<rootDir>/packages/cache',
         '<rootDir>/packages/core',
         '<rootDir>/packages/inject',
         '<rootDir>/packages/logging',

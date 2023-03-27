@@ -4,7 +4,6 @@ export interface LoadedCacheResult<T> {
 }
 
 export interface PendingCacheResult<T> {
-  value: Promise<T>
   status: 'pending'
 }
 
@@ -13,7 +12,12 @@ export interface FailedCacheResult {
   status: 'failed'
 }
 
-export type CacheResult<T> = LoadedCacheResult<T> | PendingCacheResult<T> | FailedCacheResult
+export interface ObsoleteCacheResult<T> {
+  value: T
+  status: 'obsolete'
+}
+
+export type CacheResult<T> = LoadedCacheResult<T> | PendingCacheResult<T> | FailedCacheResult | ObsoleteCacheResult<T>
 
 export const isLoadedCacheResult = <T>(result: CacheResult<T>): result is LoadedCacheResult<T> =>
   result.status === 'loaded'
@@ -23,3 +27,6 @@ export const isPendingCacheResult = <T>(result: CacheResult<T>): result is Pendi
 
 export const isFailedCacheResult = <T>(result: CacheResult<T>): result is FailedCacheResult =>
   result.status === 'failed'
+
+export const isObsoleteCacheResult = <T>(result: CacheResult<T>): result is ObsoleteCacheResult<T> =>
+  result.status === 'obsolete'
