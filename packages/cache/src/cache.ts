@@ -1,30 +1,20 @@
-import Semaphore from 'semaphore-async-await'
 import type { Disposable } from '@furystack/utils'
+import { CacheLockManager } from './cache-lock-manager'
+import { CacheStateManager } from './cache-state-manager'
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
+  private readonly cacheLockManager = new CacheLockManager()
   public dispose() {
-    this.locks.clear()
+    this.cacheLockManager.dispose()
     this.store.clear()
-  }
-
-  /**
-   * Stores the locks by their keys to prevent parallel loading issues
-   */
-  public readonly locks = new Map<string, Semaphore>()
-
-  private getLock(index: string) {
-    const fromLocks = this.locks.get(index)
-    if (fromLocks) {
-      return fromLocks
-    }
-    const lock = new Semaphore(1)
-    this.locks.set(index, lock)
-    return lock
+    this.stateManager.dispose()
   }
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
 
   public readonly store = new Map<string, TData>()
+
+  public readonly stateManager = new CacheStateManager<TData>()
 
   /**
    * @param args The arguments for getting the entity
@@ -37,9 +27,8 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     if (fromCache) {
       return fromCache
     }
-    const semaphore = this.getLock(index)
     try {
-      await semaphore.acquire()
+      await this.cacheLockManager.acquireLock(index)
       const newCached = this.store.get(index)
       if (newCached) {
         return newCached
@@ -47,9 +36,17 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
       const loaded = await this.load(...args)
       this.store.set(index, loaded)
       return loaded
+    } catch (error) {
+      this.stateManager.setFailedState(index, error)
+      throw error
     } finally {
-      semaphore.release()
+      this.cacheLockManager.releaseLock(index)
     }
+  }
+
+  public async invalidate(...args: TArgs) {
+    const index = this.getIndex(...args)
+    this.store.delete(index)
   }
 
   constructor(private readonly load: (...args: TArgs) => Promise<TData>) {}
