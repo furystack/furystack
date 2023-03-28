@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "^7.1.7",
-    "@furystack/utils": "^3.1.7"
+    "@furystack/inject": "workspace:^",
+    "@furystack/utils": "workspace:^"
   },
   "typings": "./types/index.d.ts",
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
