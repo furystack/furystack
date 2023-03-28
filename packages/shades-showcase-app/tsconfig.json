@@ -19,7 +19,7 @@
       "path": "../inject"
     },
     {
-      "path": "../utils"
+      "path": "../repository"
     },
     {
       "path": "../shades"
@@ -34,10 +34,7 @@
       "path": "../shades-nipple"
     },
     {
-      "path": "../repository"
-    },
-    {
-      "path": "../logging"
+      "path": "../utils"
     }
   ]
 }

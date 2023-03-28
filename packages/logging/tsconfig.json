@@ -7,5 +7,5 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../inject" }]
+  "references": [{ "path": "../inject" }, { "path": "../utils" }]
 }
