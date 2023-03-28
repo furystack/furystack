@@ -631,7 +631,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/core@workspace:^, @furystack/core@workspace:packages/core":
+"@furystack/cache@workspace:packages/cache":
+  version: 0.0.0-use.local
+  resolution: "@furystack/cache@workspace:packages/cache"
+  dependencies:
+    "@furystack/inject": ^7.1.7
+    "@furystack/utils": ^3.1.7
+    "@types/jest": ^29.5.0
+    semaphore-async-await: ^1.5.1
+  languageName: unknown
+  linkType: soft
+
+"@furystack/core@^11.2.10, @furystack/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@furystack/core@workspace:packages/core"
   dependencies:
