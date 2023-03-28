@@ -676,7 +676,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/logging@workspace:packages/logging":
+"@furystack/logging@workspace:^, @furystack/logging@workspace:packages/logging":
   version: 0.0.0-use.local
   resolution: "@furystack/logging@workspace:packages/logging"
   dependencies:
@@ -836,6 +836,7 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
+    "@furystack/logging": "workspace:^"
     "@furystack/repository": "workspace:^"
     "@furystack/shades": "workspace:^"
     "@furystack/shades-common-components": "workspace:^"

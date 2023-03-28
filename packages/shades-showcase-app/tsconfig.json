@@ -19,6 +19,9 @@
       "path": "../inject"
     },
     {
+      "path": "../logging"
+    },
+    {
       "path": "../repository"
     },
     {
