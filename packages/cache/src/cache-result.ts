@@ -1,3 +1,9 @@
+export interface UninitializedCacheResult<T> {
+  status: 'uninitialized'
+  value?: T
+  updatedAt: Date
+}
+
 export interface LoadedCacheResult<T> {
   value: T
   status: 'loaded'
@@ -28,6 +34,7 @@ export type CacheResult<T> =
   | PendingCacheResult<T>
   | FailedCacheResult<T>
   | ObsoleteCacheResult<T>
+  | UninitializedCacheResult<T>
 
 export type CacheWithValue<T> = CacheResult<T> & {
   value: T

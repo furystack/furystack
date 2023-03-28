@@ -3,6 +3,21 @@ import { CacheLockManager } from './cache-lock-manager'
 import { CacheStateManager } from './cache-state-manager'
 import { isLoadedCacheResult } from './cache-result'
 
+interface CacheSettings<TData, TArgs extends any[]> {
+  /**
+   *  Callback to retrieve the uncached entity
+   *
+   * @param args The arguments for getting the entity
+   * @returns A promise that resolves with the loaded entity
+   */
+  load: (...args: TArgs) => Promise<TData>
+
+  /**
+   * The maximum number of entities to store in the cache. The oldest will be removed when the limit is reached.
+   */
+  capacity?: number
+}
+
 export class Cache<TData, TArgs extends any[]> implements Disposable {
   private readonly cacheLockManager = new CacheLockManager()
 
@@ -16,7 +31,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
 
-  public readonly stateManager = new CacheStateManager<TData>()
+  private readonly stateManager = new CacheStateManager<TData>({ capacity: this.options.capacity })
 
   /**
    * Method that returns the entity from the cache - or loads it if it's not in the cache
@@ -40,7 +55,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
         return newCached.value
       }
       this.stateManager.setPendingState(index)
-      const loaded = await this.load(...args)
+      const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
       return loaded
     } catch (error) {
@@ -69,6 +84,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   public getObservable(...args: TArgs) {
     const index = this.getIndex(...args)
+    this.get(...args) // Trigger reload if needed
     return this.stateManager.getObservable(index)
   }
 
@@ -76,5 +92,5 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     return this.stateManager.getCount()
   }
 
-  constructor(private readonly load: (...args: TArgs) => Promise<TData>) {}
+  constructor(private readonly options: CacheSettings<TData, TArgs>) {}
 }
