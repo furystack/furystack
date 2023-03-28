@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "yarn node scripts/build.mjs",
+    "build": "tsc -b && yarn node scripts/build.mjs",
     "build:stats": "echo todo",
     "start": "yarn node scripts/start.mjs",
     "e2e": "yarn playwright"
