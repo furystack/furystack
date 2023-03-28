@@ -26,11 +26,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.2.10",
-    "@furystack/inject": "^7.1.7",
-    "@furystack/logging": "^3.1.7",
-    "@furystack/rest-service": "^6.2.18",
-    "@furystack/utils": "^3.1.7",
+    "@furystack/core": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
+    "@furystack/utils": "workspace:^",
     "ws": "^8.13.0"
   },
   "devDependencies": {

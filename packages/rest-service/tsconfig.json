@@ -11,11 +11,12 @@
   },
   "include": ["src", "src/*.json"],
   "references": [
+    { "path": "../core" },
+    { "path": "../inject" },
     { "path": "../rest" },
     { "path": "../rest-client-fetch" },
-    { "path": "../inject" },
-    { "path": "../utils" },
+    { "path": "../security" },
     { "path": "../repository" },
-    { "path": "../security" }
+    { "path": "../utils" }
   ]
 }

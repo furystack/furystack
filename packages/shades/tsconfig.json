@@ -12,16 +12,13 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../core"
-    },
-    {
       "path": "../inject"
     },
     {
-      "path": "../utils"
+      "path": "../rest"
     },
     {
-      "path": "../rest"
+      "path": "../utils"
     }
   ]
 }

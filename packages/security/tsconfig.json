@@ -7,5 +7,5 @@
     "composite": true
   },
   "include": ["src"],
-  "references": [{ "path": "../inject" }, { "path": "../utils" }, { "path": "../repository" }]
+  "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../utils" }]
 }
