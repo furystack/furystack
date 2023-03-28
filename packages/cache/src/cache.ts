@@ -1,41 +1,48 @@
 import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager'
 import { CacheStateManager } from './cache-state-manager'
+import type { LoadedCacheResult } from './cache-result'
+import { isLoadedCacheResult } from './cache-result'
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
   private readonly cacheLockManager = new CacheLockManager()
+
+  /**
+   * Disposes the cache
+   */
   public dispose() {
     this.cacheLockManager.dispose()
-    this.store.clear()
     this.stateManager.dispose()
   }
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
 
-  public readonly store = new Map<string, TData>()
-
   public readonly stateManager = new CacheStateManager<TData>()
 
   /**
+   * Method that returns the entity from the cache - or loads it if it's not in the cache
+   *
    * @param args The arguments for getting the entity
-   * @returns The object instance
+   * @returns The loaded result
    */
-  public async get(...args: TArgs): Promise<TData> {
+  public async get(...args: TArgs): Promise<LoadedCacheResult<TData>> {
     const index = this.getIndex(...args)
 
-    const fromCache = this.store.get(index)
-    if (fromCache) {
+    const observable = this.stateManager.getObservable(index)
+
+    const fromCache = observable.getValue()
+    if (fromCache && isLoadedCacheResult(fromCache)) {
       return fromCache
     }
     try {
       await this.cacheLockManager.acquireLock(index)
-      const newCached = this.store.get(index)
-      if (newCached) {
+      const newCached = observable.getValue()
+      if (isLoadedCacheResult(newCached)) {
         return newCached
       }
+      this.stateManager.setPendingState(index)
       const loaded = await this.load(...args)
-      this.store.set(index, loaded)
-      return loaded
+      return this.stateManager.setLoadedState(index, loaded)
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error
@@ -44,9 +51,29 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     }
   }
 
-  public async invalidate(...args: TArgs) {
+  /**
+   * Sets the entity as obsolete
+   *
+   * @param args The arguments for getting the entity
+   * @returns The obsolete result
+   */
+  public setObsolete(...args: TArgs) {
     const index = this.getIndex(...args)
-    this.store.delete(index)
+    return this.stateManager.setObsoleteState(index)
+  }
+
+  public remove(...args: TArgs) {
+    const index = this.getIndex(...args)
+    this.stateManager.remove(index)
+  }
+
+  public getObservable(...args: TArgs) {
+    const index = this.getIndex(...args)
+    return this.stateManager.getObservable(index)
+  }
+
+  public getCount() {
+    return this.stateManager.getCount()
   }
 
   constructor(private readonly load: (...args: TArgs) => Promise<TData>) {}

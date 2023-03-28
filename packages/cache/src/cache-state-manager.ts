@@ -1,6 +1,6 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
-import type { CacheResult } from './cache-result'
+import type { CacheResult, FailedCacheResult, LoadedCacheResult, ObsoleteCacheResult } from './cache-result'
 import { isLoadedCacheResult, isObsoleteCacheResult } from './cache-result'
 
 export class CacheStateManager<T> implements Disposable {
@@ -11,9 +11,9 @@ export class CacheStateManager<T> implements Disposable {
     this.store.clear()
   }
 
-  private getObservable(
+  public getObservable(
     key: string,
-    initialState: CacheResult<T> = { status: 'pending' },
+    initialState: CacheResult<T> = { status: 'pending', updatedAt: new Date() },
   ): ObservableValue<CacheResult<T>> {
     if (!this.store.has(key)) {
       this.store.set(key, new ObservableValue<CacheResult<T>>(initialState))
@@ -21,8 +21,8 @@ export class CacheStateManager<T> implements Disposable {
     return this.store.get(key) as ObservableValue<CacheResult<T>>
   }
 
-  public subscribe(key: string, callback: (value: CacheResult<T>) => void) {
-    return this.getObservable(key).subscribe(callback)
+  private getLastValue(key: string): T | undefined {
+    return this.getObservable(key).getValue().value
   }
 
   public setValue(key: string, value: CacheResult<T>) {
@@ -30,23 +30,47 @@ export class CacheStateManager<T> implements Disposable {
   }
 
   public setPendingState(key: string) {
-    this.setValue(key, { status: 'pending' })
+    this.setValue(key, { status: 'pending', value: this.getLastValue(key), updatedAt: new Date() })
   }
 
   public setLoadedState(key: string, value: T) {
-    this.setValue(key, { status: 'loaded', value })
+    const newValue: LoadedCacheResult<T> = { status: 'loaded', value, updatedAt: new Date() }
+    this.setValue(key, newValue)
+    return newValue
   }
 
   public setFailedState(key: string, error: unknown) {
-    this.setValue(key, { status: 'failed', error })
+    const newState: FailedCacheResult<T> = {
+      status: 'failed',
+      error,
+      value: this.getLastValue(key),
+      updatedAt: new Date(),
+    }
+    this.setValue(key, newState)
+    return newState
   }
 
-  public setObsoleteState(key: string) {
+  public setObsoleteState(key: string): ObsoleteCacheResult<T> {
     const currentValue = this.getObservable(key).getValue()
+
+    if (isObsoleteCacheResult(currentValue)) {
+      return currentValue // Already obsolete
+    }
+
     if (isLoadedCacheResult(currentValue)) {
-      this.setValue(key, { ...currentValue, status: 'obsolete' })
+      const newValue: ObsoleteCacheResult<T> = { ...currentValue, status: 'obsolete' }
+      this.setValue(key, newValue)
+      return newValue
     } else {
       throw new Error('Cannot set obsolete state for a non-loaded value')
     }
+  }
+
+  public getCount() {
+    return this.store.size
+  }
+
+  public remove(key: string) {
+    this.store.delete(key)
   }
 }
