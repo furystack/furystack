@@ -1,7 +1,6 @@
 import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager'
 import { CacheStateManager } from './cache-state-manager'
-import type { LoadedCacheResult } from './cache-result'
 import { isLoadedCacheResult } from './cache-result'
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
@@ -25,24 +24,25 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
    * @param args The arguments for getting the entity
    * @returns The loaded result
    */
-  public async get(...args: TArgs): Promise<LoadedCacheResult<TData>> {
+  public async get(...args: TArgs): Promise<TData> {
     const index = this.getIndex(...args)
 
     const observable = this.stateManager.getObservable(index)
 
     const fromCache = observable.getValue()
     if (fromCache && isLoadedCacheResult(fromCache)) {
-      return fromCache
+      return fromCache.value
     }
     try {
       await this.cacheLockManager.acquireLock(index)
       const newCached = observable.getValue()
       if (isLoadedCacheResult(newCached)) {
-        return newCached
+        return newCached.value
       }
       this.stateManager.setPendingState(index)
       const loaded = await this.load(...args)
-      return this.stateManager.setLoadedState(index, loaded)
+      this.stateManager.setLoadedState(index, loaded)
+      return loaded
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error

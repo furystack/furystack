@@ -13,7 +13,7 @@ describe('Cache', () => {
     expect(obs.getValue().status).toEqual('pending')
 
     const result = await cache.get(1, 2)
-    expect(result.value).toEqual(3)
+    expect(result).toEqual(3)
 
     expect(obs.getValue().status).toEqual('loaded')
 
@@ -37,18 +37,18 @@ describe('Cache', () => {
       const cache = new Cache(loader)
       const result = await cache.get(1, 2)
 
-      expect(result.value).toEqual(3)
+      expect(result).toEqual(3)
 
       const result2 = await cache.get(1, 2)
-      expect(result2.value).toEqual(3)
+      expect(result2).toEqual(3)
 
       expect(loader).toHaveBeenCalledTimes(1)
 
       const result3 = await cache.get(1, 3)
-      expect(result3.value).toEqual(4)
+      expect(result3).toEqual(4)
 
       const result3_2 = await cache.get(1, 3)
-      expect(result3_2.value).toEqual(4)
+      expect(result3_2).toEqual(4)
 
       expect(loader).toHaveBeenCalledTimes(2)
 
@@ -71,7 +71,7 @@ describe('Cache', () => {
       const result2 = await cache.get(1, 2)
       const result = await resultPromise
       expect(result).toStrictEqual(result2)
-      expect(result.value).toEqual(3)
+      expect(result).toEqual(3)
       cache.dispose()
     })
   })
@@ -82,12 +82,12 @@ describe('Cache', () => {
 
       const cache = new Cache(loader)
       const result = await cache.get(1, 2)
-      expect(result.value).toEqual(3)
+      expect(result).toEqual(3)
 
       cache.setObsolete(1, 2)
 
       const result2 = await cache.get(1, 2)
-      expect(result2.value).toEqual(3)
+      expect(result2).toEqual(3)
 
       expect(loader).toHaveBeenCalledTimes(2)
 
@@ -99,7 +99,7 @@ describe('Cache', () => {
 
       const cache = new Cache(loader)
       const result = await cache.get(1, 2)
-      expect(result.value).toEqual(3)
+      expect(result).toEqual(3)
 
       const subscription = jest.fn()
       cache.getObservable(1, 2).subscribe(subscription)
@@ -133,12 +133,12 @@ describe('Cache', () => {
 
       const cache = new Cache(loader)
       const result = await cache.get(1, 2)
-      expect(result.value).toEqual(3)
+      expect(result).toEqual(3)
 
       cache.stateManager.setFailedState(JSON.stringify([1, 2]), new Error('Failed'))
 
       const result2 = await cache.get(1, 2)
-      expect(result2.value).toEqual(3)
+      expect(result2).toEqual(3)
 
       expect(loader).toHaveBeenCalledTimes(2)
 
