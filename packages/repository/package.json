@@ -29,10 +29,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "^11.2.10",
-    "@furystack/inject": "^7.1.7",
-    "@furystack/logging": "^3.1.7",
-    "@furystack/utils": "^3.1.7"
+    "@furystack/core": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0"
