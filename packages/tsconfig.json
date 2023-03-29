@@ -61,6 +61,9 @@
     },
     {
       "path": "./shades-showcase-app"
+    },
+    {
+      "path": "./cache"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "7.1.7",
+  "version": "7.1.8",
   "description": "Core FuryStack package",
   "main": "dist/index.js",
   "files": [
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/utils": "^3.1.7"
+    "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0"

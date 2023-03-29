@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "2.2.10",
+  "version": "2.2.11",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -9,8 +9,8 @@
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/jsdom": "^21.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.56.0",
-    "@typescript-eslint/parser": "^5.56.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "ajv": "^8.12.0",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.8.0",

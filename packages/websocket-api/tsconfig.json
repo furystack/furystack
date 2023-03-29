@@ -7,5 +7,5 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../rest-service" }, { "path": "../inject" }, { "path": "../utils" }]
+  "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../rest-service" }, { "path": "../utils" }]
 }

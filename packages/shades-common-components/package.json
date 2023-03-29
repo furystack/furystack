@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "",
   "keywords": [
     "FuryStack",
@@ -21,10 +21,10 @@
     "typescript": "5.0.2"
   },
   "dependencies": {
-    "@furystack/core": "^11.2.10",
-    "@furystack/inject": "^7.1.7",
-    "@furystack/shades": "^7.2.1",
-    "@furystack/utils": "^3.1.7",
+    "@furystack/core": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/shades": "workspace:^",
+    "@furystack/utils": "workspace:^",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },
