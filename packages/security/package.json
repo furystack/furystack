@@ -1,6 +1,6 @@
 {
   "name": "@furystack/security",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
