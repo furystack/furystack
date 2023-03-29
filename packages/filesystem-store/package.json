@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-store",
-  "version": "3.2.11",
+  "version": "3.2.12",
   "description": "Simple File System store implementation for FuryStack",
   "main": "dist/index.js",
   "files": [
