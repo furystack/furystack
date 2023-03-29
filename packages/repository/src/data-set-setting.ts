@@ -28,27 +28,21 @@ export interface FailedValidationResult {
 /**
  * Model for authorizers
  */
-export interface DataSetSettings<T, TPrimaryKey extends keyof T> {
+export interface DataSetSettings<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>> {
   /**
    * An instance of a physical store
    */
-  physicalStore: PhysicalStore<T, TPrimaryKey>
+  physicalStore: PhysicalStore<T, TPrimaryKey, TWritableData>
 
   /**
    * Authorizes the entity creation
    */
-  authorizeAdd?: (options: {
-    injector: Injector
-    entity: WithOptionalId<T, TPrimaryKey>
-  }) => Promise<AuthorizationResult>
+  authorizeAdd?: (options: { injector: Injector; entity: TWritableData }) => Promise<AuthorizationResult>
 
   /**
    * modifies an entity before persisting on creation
    */
-  modifyOnAdd?: (options: {
-    injector: Injector
-    entity: WithOptionalId<T, TPrimaryKey>
-  }) => Promise<WithOptionalId<T, TPrimaryKey>>
+  modifyOnAdd?: (options: { injector: Injector; entity: TWritableData }) => Promise<TWritableData>
 
   /**
    * Authorizes entity updates (before the entity gets loaded from the store)

@@ -37,8 +37,12 @@ export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TP
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class SequelizeStore<T extends object, M extends Model<T>, TPrimaryKey extends keyof T>
-  implements PhysicalStore<T, TPrimaryKey>
+export class SequelizeStore<
+  T extends object,
+  M extends Model<T>,
+  TPrimaryKey extends keyof T,
+  TWriteableData = WithOptionalId<T, TPrimaryKey>,
+> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
 {
   public readonly primaryKey: TPrimaryKey
 
@@ -80,7 +84,7 @@ export class SequelizeStore<T extends object, M extends Model<T>, TPrimaryKey ex
     this.model = options.model
     this.sequelizeModel = options.sequelizeModel
   }
-  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
+  public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const model = await this.getModel()
     const created = await model.bulkCreate(entries as any)
     return {

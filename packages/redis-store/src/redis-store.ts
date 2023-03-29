@@ -1,11 +1,16 @@
-import type { PhysicalStore, CreateResult, WithOptionalId } from '@furystack/core'
+import type { PhysicalStore, CreateResult } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import type { createClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class RedisStore<
+  T,
+  TPrimaryKey extends keyof T,
+  TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
+> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
+{
   public primaryKey!: TPrimaryKey
 
   public readonly model: Constructable<T>
@@ -20,7 +25,7 @@ export class RedisStore<T, TPrimaryKey extends keyof T> implements PhysicalStore
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
-  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
+  public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
