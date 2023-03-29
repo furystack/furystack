@@ -1,15 +1,8 @@
 import type { Constructable } from '@furystack/inject'
-import type {
-  PhysicalStore,
-  FindOptions,
-  PartialResult,
-  FilterType,
-  CreateResult,
-  WithOptionalId,
-} from './models/physical-store'
+import type { PhysicalStore, FindOptions, PartialResult, FilterType, CreateResult } from './models/physical-store'
 import { selectFields, isOperator, isLogicalOperator } from './models/physical-store'
 
-export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey, T> {
   /**
    *
    * @param keys The keys to remove from the store
@@ -18,7 +11,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
     keys.map((key) => this.cache.delete(key))
   }
 
-  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
+  public async add(...entries: T[]): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
       const entry = { ...e } as T
       if (this.cache.has(entry[this.primaryKey])) {

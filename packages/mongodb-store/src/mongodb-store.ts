@@ -14,7 +14,12 @@ import Semaphore from 'semaphore-async-await'
 /**
  * TypeORM Store implementation for FuryStack
  */
-export class MongodbStore<T extends object, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey> {
+export class MongodbStore<
+  T extends object,
+  TPrimaryKey extends keyof T,
+  TWriteableData = WithOptionalId<T, TPrimaryKey>,
+> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
+{
   public readonly primaryKey: TPrimaryKey
 
   public readonly model: Constructable<T>
@@ -101,7 +106,7 @@ export class MongodbStore<T extends object, TPrimaryKey extends keyof T> impleme
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
-  public async add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>> {
+  public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
     const result = await collection.insertMany(entries.map((e) => ({ ...e } as any as OptionalUnlessRequiredId<T>)))
     return {

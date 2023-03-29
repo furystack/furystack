@@ -88,7 +88,8 @@ export const selectFields = <T extends object, TField extends Array<keyof T>>(en
 /**
  * Interface that defines a physical store implementation
  */
-export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposable {
+export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = WithOptionalId<T, TPrimaryKey>>
+  extends Disposable {
   /**
    * The Primary key field name
    */
@@ -104,7 +105,7 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T> extends Disposabl
    *
    * @param entries The data to be added
    */
-  add(...entries: Array<WithOptionalId<T, TPrimaryKey>>): Promise<CreateResult<T>>
+  add(...entries: TWriteableData[]): Promise<CreateResult<T>>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
