@@ -29,7 +29,7 @@ describe('RouteLink', () => {
       ),
     })
     expect(document.body.innerHTML).toBe(
-      '<div id="root"><route-link id="route"><a href="/subroute" style="text-decoration: inherit;">Link</a></route-link></div>',
+      '<div id="root"><a is="route-link" id="route" href="/subroute" style="text-decoration: inherit;">Link</a></div>',
     )
     expect(onRouteChange).not.toBeCalled()
     document.getElementById('route')?.click()
