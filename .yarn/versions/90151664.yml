@@ -1,2 +1,3 @@
 releases:
   "@furystack/cache": patch
+  furystack: patch
