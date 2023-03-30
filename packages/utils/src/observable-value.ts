@@ -61,6 +61,9 @@ export class ObservableValue<T> implements Disposable {
    * @returns The ValueObserver instance
    */
   public subscribe(callback: ValueChangeCallback<T>, getLast = false) {
+    if (this._isDisposed) {
+      throw new ObservableAlreadyDisposedError()
+    }
     const observer = new ValueObserver<T>(this, callback)
     this.observers.add(observer)
     if (getLast) {
