@@ -16,15 +16,19 @@ export const LazyLoad = Shade<LazyLoadProps>({
   constructed: async ({ props, useState }) => {
     const [_component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
     const [_errorState, setErrorState] = useState<unknown | undefined>('error', undefined)
+    let isMounted = true
     try {
       const loaded = await props.component()
-      setComponent(loaded)
+      isMounted && setComponent(loaded)
     } catch (error) {
       if (props.error) {
-        setErrorState(error)
+        isMounted && setErrorState(error)
       } else {
         throw error
       }
+    }
+    return () => {
+      isMounted = false
     }
   },
   render: ({ props, useState }) => {
