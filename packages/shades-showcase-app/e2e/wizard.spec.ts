@@ -13,7 +13,7 @@ test.describe('Wizard', () => {
 
     await sleepAsync(1000)
 
-    await expect(wizard).toHaveScreenshot()
+    await expect(wizard).toHaveScreenshot('wizard-1.png')
 
     const backdrop = await page.locator('shade-modal > div')
 

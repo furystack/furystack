@@ -8,6 +8,6 @@ test.describe('Lottie', () => {
     const lottie = await page.locator('lottie-player')
     await lottie.waitFor({ state: 'visible' })
     await sleepAsync(1000)
-    await expect(lottie).toHaveScreenshot()
+    await expect(lottie).toHaveScreenshot('lottie.png')
   })
 })

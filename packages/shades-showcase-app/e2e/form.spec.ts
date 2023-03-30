@@ -26,11 +26,11 @@ test.describe('Form', () => {
 }`)
     await expect(fieldErrorsValue).toHaveText('Field errors: {}')
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-1.png')
 
     await submitButton.click()
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-2.png')
 
     await expect(rawValue).toHaveText(`Raw: null`)
     await expect(validatedValue).toHaveText('Validated: null')
@@ -94,7 +94,7 @@ test.describe('Form', () => {
     await emailField.type('asd@gmail.com')
     await submitButton.click()
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-3.png')
 
     await expect(rawValue).toHaveText(`Raw: {
   "email": "asd@gmail.com",
@@ -163,7 +163,7 @@ test.describe('Form', () => {
     await passwordField.type('123456')
     await submitButton.click()
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-4.png')
 
     await expect(rawValue).toHaveText(`Raw: {
   "email": "asd@gmail.com",
@@ -233,7 +233,7 @@ test.describe('Form', () => {
     await confirmPasswordField.type('password2')
     await submitButton.click()
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-5.png')
 
     await expect(rawValue).toHaveText(`Raw: {
   "email": "asd@gmail.com",
@@ -313,7 +313,7 @@ test.describe('Form', () => {
       dialog.accept()
     })
 
-    await expect(fieldset).toHaveScreenshot()
+    await expect(fieldset).toHaveScreenshot('fieldset-6.png')
 
     await expect(rawValue).toHaveText(`Raw: {
   "email": "asd@gmail.com",
