@@ -2,6 +2,7 @@ import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
 import { AppBar, AppBarLink, fadeIn, fadeOut, Paper, ThemeProviderService } from '@furystack/shades-common-components'
 import { PageLoader } from './components/page-loader'
 import { ThemeSwitch } from './components/theme-switch'
+import { sleepAsync } from '../../utils/src'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
@@ -76,6 +77,7 @@ export const App = Shade({
                     loader={<PageLoader />}
                     component={async () => {
                       const { ButtonsPage } = await import('./pages/buttons')
+                      await sleepAsync(1000)
                       return <ButtonsPage />
                     }}
                   />
@@ -93,6 +95,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
+                      await sleepAsync(1000)
                       const { FormPage } = await import('./pages/form')
                       return <FormPage />
                     }}

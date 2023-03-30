@@ -1,6 +1,6 @@
 {
   "name": "@furystack/cache",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cache providers for FuryStack package",
   "main": "dist/index.js",
   "files": [

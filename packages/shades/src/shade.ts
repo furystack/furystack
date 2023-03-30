@@ -79,14 +79,14 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
         public resourceManager = new ResourceManager()
 
         public connectedCallback() {
-          o.onAttach && o.onAttach(this.getRenderOptions())
+          o.onAttach?.(this.getRenderOptions())
           this.callConstructed()
         }
 
         public disconnectedCallback() {
-          o.onDetach && o.onDetach(this.getRenderOptions())
+          o.onDetach?.(this.getRenderOptions())
           this.resourceManager.dispose()
-          this.cleanup && this.cleanup()
+          this.cleanup?.()
         }
 
         /**
@@ -115,7 +115,6 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
           const renderOptions: RenderOptions<TProps> = {
             props: this.props,
             injector: this.injector,
-
             children: this.shadeChildren,
             element: this,
             useObservable: (key, obesrvable, callback, getLast) =>
