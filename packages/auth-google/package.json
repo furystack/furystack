@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-google",
-  "version": "5.1.21",
+  "version": "5.1.22",
   "description": "Google Authentication Provider for FuryStack",
   "main": "dist/index.js",
   "files": [
