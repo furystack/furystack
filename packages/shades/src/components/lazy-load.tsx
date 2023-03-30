@@ -13,22 +13,18 @@ export interface LazyLoadState {
 
 export const LazyLoad = Shade<LazyLoadProps>({
   shadowDomName: 'lazy-load',
-  constructed: async ({ props, useState }) => {
+  constructed: async ({ props, useState, element }) => {
     const [_component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
     const [_errorState, setErrorState] = useState<unknown | undefined>('error', undefined)
-    let isMounted = true
     try {
       const loaded = await props.component()
-      isMounted && setComponent(loaded)
+      element.isConnected && setComponent(loaded)
     } catch (error) {
       if (props.error) {
-        isMounted && setErrorState(error)
+        element.isConnected && setErrorState(error)
       } else {
         throw error
       }
-    }
-    return () => {
-      isMounted = false
     }
   },
   render: ({ props, useState }) => {
