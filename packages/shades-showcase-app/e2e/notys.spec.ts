@@ -10,7 +10,7 @@ test.describe('Notys', () => {
     const infoNoty = await page.locator('shade-noty:has-text("Info")')
     await infoNoty.waitFor({ state: 'visible' })
     await sleepAsync(1000)
-    await expect(infoNoty).toHaveScreenshot()
+    await expect(infoNoty).toHaveScreenshot('noty-info.png')
     await infoNoty.locator('button.dismissNoty').click()
     await infoNoty.waitFor({ state: 'detached' })
 
@@ -19,7 +19,7 @@ test.describe('Notys', () => {
     const successNoty = await page.locator('shade-noty:has-text("Success")')
     await successNoty.waitFor({ state: 'visible' })
     await sleepAsync(1000)
-    await expect(successNoty).toHaveScreenshot()
+    await expect(successNoty).toHaveScreenshot('noty-success.png')
     await successNoty.locator('button.dismissNoty').click()
     await successNoty.waitFor({ state: 'detached' })
 
@@ -28,7 +28,7 @@ test.describe('Notys', () => {
     const warningNoty = await page.locator('shade-noty:has-text("Warning")')
     await warningNoty.waitFor({ state: 'visible' })
     await sleepAsync(1000)
-    await expect(warningNoty).toHaveScreenshot()
+    await expect(warningNoty).toHaveScreenshot('noty-warning.png')
     await warningNoty.locator('button.dismissNoty').click()
     await warningNoty.waitFor({ state: 'detached' })
 
@@ -37,7 +37,7 @@ test.describe('Notys', () => {
     const errorNoty = await page.locator('shade-noty:has-text("Error")')
     await errorNoty.waitFor({ state: 'visible' })
     await sleepAsync(1000)
-    await expect(errorNoty).toHaveScreenshot()
+    await expect(errorNoty).toHaveScreenshot('noty-error.png')
     await errorNoty.locator('button.dismissNoty').click()
     await errorNoty.waitFor({ state: 'detached' })
   })
