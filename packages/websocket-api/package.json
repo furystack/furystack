@@ -1,6 +1,6 @@
 {
   "name": "@furystack/websocket-api",
-  "version": "8.1.22",
+  "version": "8.1.23",
   "description": "HTTP Api FuryStack package",
   "main": "dist/index.js",
   "files": [
