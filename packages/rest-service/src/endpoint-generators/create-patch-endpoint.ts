@@ -5,7 +5,7 @@ import '../incoming-message-extensions'
 import type { RequestAction } from '../request-action-implementation'
 import { JsonResult } from '../request-action-implementation'
 import { getRepository } from '@furystack/repository'
-import { WithOptionalId } from '@furystack/core'
+import type { WithOptionalId } from '@furystack/core'
 
 /**
  * Creates a PATCH endpoint for updating entities

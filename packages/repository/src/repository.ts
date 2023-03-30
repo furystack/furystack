@@ -1,4 +1,5 @@
-import { StoreManager, WithOptionalId } from '@furystack/core'
+import type { WithOptionalId } from '@furystack/core'
+import { StoreManager } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
