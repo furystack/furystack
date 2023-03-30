@@ -1,4 +1,4 @@
-import { StoreManager } from '@furystack/core'
+import { StoreManager, WithOptionalId } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
@@ -17,7 +17,10 @@ export class Repository implements Disposable {
 
   private dataSets: Map<any, DataSet<any, any>> = new Map()
 
-  public getDataSetFor<T, TPrimaryKey extends keyof T>(model: Constructable<T>, primaryKey: TPrimaryKey) {
+  public getDataSetFor<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>>(
+    model: Constructable<T>,
+    primaryKey: TPrimaryKey,
+  ) {
     const instance = this.dataSets.get(model)
     if (!instance) {
       throw Error(`No DataSet found for '${model}'`)
@@ -25,7 +28,7 @@ export class Repository implements Disposable {
     if (instance.primaryKey !== primaryKey) {
       throw Error('Primary key mismatch')
     }
-    return instance as DataSet<T, TPrimaryKey>
+    return instance as unknown as DataSet<T, TPrimaryKey, TWritableData>
   }
   public createDataSet<T, TPrimaryKey extends keyof T>(
     model: Constructable<T>,

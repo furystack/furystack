@@ -15,14 +15,21 @@ import { getRepository } from '@furystack/repository'
  * @param options.primaryKey The field name used as primary key
  * @returns a boolean that indicates the success
  */
-export const createPostEndpoint = <T extends object, TPrimaryKey extends keyof T>(options: {
+export const createPostEndpoint = <
+  T extends object,
+  TPrimaryKey extends keyof T,
+  TWritableData = WithOptionalId<T, TPrimaryKey>,
+>(options: {
   model: Constructable<T>
   primaryKey: TPrimaryKey
 }) => {
-  const endpoint: RequestAction<PostEndpoint<T, TPrimaryKey>> = async ({ injector, request }) => {
-    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
+  const endpoint: RequestAction<PostEndpoint<T, TPrimaryKey, TWritableData>> = async ({ injector, request }) => {
+    const dataSet = getRepository(injector).getDataSetFor<T, TPrimaryKey, TWritableData>(
+      options.model,
+      options.primaryKey,
+    )
 
-    const entityToCreate = await request.readPostBody<WithOptionalId<T, (typeof dataSet)['primaryKey']>>()
+    const entityToCreate = await request.readPostBody<TWritableData>()
     const { created } = await dataSet.add(injector, entityToCreate)
     if (!created || !created.length) {
       throw new RequestError('Entity not found', 404)
