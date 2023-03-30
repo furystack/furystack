@@ -10,7 +10,7 @@ export const PageLoader = Shade({
           position: 'fixed',
           top: '32px',
           left: '0',
-          width: '100%',
+          width: 'calc(100% - 64px)',
           height: '100%',
           padding: '32px',
         }}
