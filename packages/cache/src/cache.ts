@@ -124,5 +124,12 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     this.stateManager.removeRange(callback)
   }
 
+  /**
+   * Removes all entities from the cache
+   */
+  public flushAll() {
+    this.stateManager.flushAll()
+  }
+
   constructor(private readonly options: CacheSettings<TData, TArgs>) {}
 }

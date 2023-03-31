@@ -39,6 +39,16 @@ describe('Cache', () => {
     cache.dispose()
   })
 
+  it('Should remove a value from the cache, based on a predicate', async () => {
+    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
+    await cache.get(1, 2)
+    await cache.get(1, 3)
+    expect(cache.getCount()).toEqual(2)
+    cache.removeRange((v) => v === 3)
+    expect(cache.getCount()).toEqual(1)
+    cache.dispose()
+  })
+
   describe('Loading and locking', () => {
     it('should store and retrieve results based on the arguments', async () => {
       const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
@@ -124,6 +134,23 @@ describe('Cache', () => {
     it('Should throw an error when trying to set obsolete for a non-loaded value', async () => {
       const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
       expect(() => cache.setObsolete(1, 2)).toThrow()
+      cache.dispose()
+    })
+
+    it('Should set an obsolete state based on a predicate', async () => {
+      const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      const cache = new Cache({ load: loader })
+      const result = await cache.get(1, 2)
+      expect(result).toEqual(3)
+
+      cache.obsoleteRange((v) => v === 3)
+
+      const result2 = await cache.get(1, 2)
+      expect(result2).toEqual(3)
+
+      expect(loader).toHaveBeenCalledTimes(2)
+
       cache.dispose()
     })
   })

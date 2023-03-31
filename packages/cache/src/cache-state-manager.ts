@@ -85,7 +85,16 @@ export class CacheStateManager<T> implements Disposable {
   }
 
   public remove(key: string) {
+    const existing = this.store.get(key)
+    if (existing) {
+      existing.dispose()
+    }
     this.store.delete(key)
+  }
+
+  public flushAll() {
+    this.store.forEach((value) => value.dispose())
+    this.store.clear()
   }
 
   public obsoleteRange(predicate: (value: T) => boolean) {
