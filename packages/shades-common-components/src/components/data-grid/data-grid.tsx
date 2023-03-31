@@ -89,16 +89,16 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
     )
 
     const headerStyle: Partial<CSSStyleDeclaration> = {
-      backdropFilter: 'blur(12px)',
-      padding: '12px 0',
+      backdropFilter: 'blur(12px) saturate(180%)',
       color: theme.text.secondary,
+      height: '38px',
       alignItems: 'center',
       borderRadius: '2px',
-      top: '0',
+      top: '2px',
       position: 'sticky',
       fontVariant: 'all-petite-caps',
       zIndex: '1',
-      boxShadow: '3px 3px 4px rgba(0,0,0,0.3)',
+      boxShadow: 'rgba(0, 0, 0, 0.2) 1px 1px 1px 2px',
       ...props.styles?.header,
     }
 

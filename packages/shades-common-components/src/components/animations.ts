@@ -54,3 +54,35 @@ export const showParallax = (element?: Element | null, options?: KeyframeAnimati
       ...options,
     },
   )
+
+export const collapse = (element?: Element | null, options?: KeyframeAnimationOptions) => {
+  return promisifyAnimation(
+    element,
+    [
+      { height: `${element?.scrollHeight}px`, opacity: 1 },
+      { height: '0px', opacity: 0 },
+    ],
+    {
+      duration: 500,
+      easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
+      fill: 'forwards',
+      ...options,
+    },
+  )
+}
+
+export const expand = (element?: Element | null, options?: KeyframeAnimationOptions) => {
+  return promisifyAnimation(
+    element,
+    [
+      { height: '0px', opacity: 0 },
+      { height: `${element?.scrollHeight}px`, opacity: 1 },
+    ],
+    {
+      duration: 500,
+      easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
+      fill: 'forwards',
+      ...options,
+    },
+  )
+}
