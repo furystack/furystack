@@ -1,4 +1,5 @@
 releases:
+  "@furystack/cache": patch
   "@furystack/shades-common-components": patch
   "@furystack/shades-showcase-app": patch
   furystack: patch

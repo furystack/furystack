@@ -85,7 +85,34 @@ export class CacheStateManager<T> implements Disposable {
   }
 
   public remove(key: string) {
+    const existing = this.store.get(key)
+    if (existing) {
+      existing.dispose()
+    }
     this.store.delete(key)
+  }
+
+  public flushAll() {
+    this.store.forEach((value) => value.dispose())
+    this.store.clear()
+  }
+
+  public obsoleteRange(predicate: (value: T) => boolean) {
+    ;[...this.store.entries()].forEach(([key, value]) => {
+      const currentValue = value.getValue().value
+      if (currentValue && predicate(currentValue)) {
+        this.setObsoleteState(key)
+      }
+    })
+  }
+
+  public removeRange(predicate: (value: T) => boolean) {
+    ;[...this.store.entries()].forEach(([key, value]) => {
+      const currentValue = value.getValue().value
+      if (currentValue && predicate(currentValue)) {
+        this.remove(key)
+      }
+    })
   }
 
   constructor(private readonly options: CacheStateManagerOptions) {}
