@@ -49,6 +49,16 @@ describe('Cache', () => {
     cache.dispose()
   })
 
+  it('Should remove all values from the cache', async () => {
+    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
+    await cache.get(1, 2)
+    await cache.get(1, 3)
+    expect(cache.getCount()).toEqual(2)
+    cache.flushAll()
+    expect(cache.getCount()).toEqual(0)
+    cache.dispose()
+  })
+
   describe('Loading and locking', () => {
     it('should store and retrieve results based on the arguments', async () => {
       const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
