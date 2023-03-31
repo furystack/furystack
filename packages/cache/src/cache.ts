@@ -77,19 +77,51 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     return this.stateManager.setObsoleteState(index)
   }
 
+  /**
+   * Removes an entity from the cache
+   *
+   * @param args The arguments for getting the entity
+   */
   public remove(...args: TArgs) {
     const index = this.getIndex(...args)
     this.stateManager.remove(index)
   }
 
+  /**
+   * Returns an observable value that will be updated with the state of the entity. Will also trigger a reload if needed.
+   *
+   * @param args The arguments for getting the entity
+   * @returns An observable value that will be updated with the state of the entity
+   */
   public getObservable(...args: TArgs) {
     const index = this.getIndex(...args)
     this.get(...args) // Trigger reload if needed
     return this.stateManager.getObservable(index)
   }
 
+  /**
+   * @returns The number of entities in the cache
+   */
   public getCount() {
     return this.stateManager.getCount()
+  }
+
+  /**
+   * Marks specific entities in the cache as obsolete based on a predicate function.
+   *
+   * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be marked as obsolete.
+   */
+  public obsoleteRange(callback: (entity: TData) => boolean) {
+    this.stateManager.obsoleteRange(callback)
+  }
+
+  /**
+   * Removes specific entities from the cache based on a predicate function.
+   *
+   * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be removed from the cache.
+   */
+  public removeRange(callback: (entity: TData) => boolean) {
+    this.stateManager.removeRange(callback)
   }
 
   constructor(private readonly options: CacheSettings<TData, TArgs>) {}
