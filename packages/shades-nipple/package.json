@@ -16,7 +16,7 @@
   "devDependencies": {
     "@furystack/inject": "workspace:^",
     "@types/jest": "^29.5.0",
-    "typescript": "5.0.2"
+    "typescript": "5.0.4"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
