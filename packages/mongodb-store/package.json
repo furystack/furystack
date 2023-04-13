@@ -32,7 +32,7 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "5.1.0",
+    "mongodb": "5.2.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
