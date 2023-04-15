@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "description": "",
   "private": true,
   "scripts": {
@@ -13,10 +13,10 @@
   "license": "ISC",
   "devDependencies": {
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.32.1",
+    "@playwright/test": "^1.32.3",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
-    "esbuild": "^0.17.14",
-    "typescript": "^5.0.2"
+    "esbuild": "^0.17.16",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
@@ -28,6 +28,6 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^1.7.1",
-    "monaco-editor": "^0.36.1"
+    "monaco-editor": "^0.37.1"
   }
 }
