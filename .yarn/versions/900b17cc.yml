@@ -1,8 +1,0 @@
-releases:
-  "@furystack/mongodb-store": patch
-  "@furystack/sequelize-store": patch
-  "@furystack/shades-common-components": patch
-  "@furystack/shades-lottie": patch
-  "@furystack/shades-nipple": patch
-  "@furystack/shades-showcase-app": patch
-  furystack: patch
