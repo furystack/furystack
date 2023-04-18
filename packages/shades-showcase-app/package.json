@@ -15,7 +15,7 @@
     "@furystack/logging": "workspace:^",
     "@playwright/test": "^1.32.3",
     "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
-    "esbuild": "^0.17.16",
+    "esbuild": "^0.17.17",
     "typescript": "^5.0.4"
   },
   "dependencies": {
