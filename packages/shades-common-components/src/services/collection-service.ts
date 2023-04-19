@@ -34,7 +34,6 @@ export interface CollectionServiceOptions<T> {
 
   /**
    * Optional callback for row double clicks
-   *
    * @param entry The clicked entry
    */
 

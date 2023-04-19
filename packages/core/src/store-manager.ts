@@ -28,7 +28,6 @@ export class StoreManager implements Disposable {
   /**
    * Returns a store model for a constructable object.
    * Throws error if no store is registered
-   *
    * @param model The Constructable object
    * @param primaryKey The Primary Key field
    * @throws if the Store is not registered
@@ -51,7 +50,6 @@ export class StoreManager implements Disposable {
 
   /**
    * Adds a store instance to the StoreManager class
-   *
    * @param store The store to add
    * @returns the StoreManager instance for chaining
    */

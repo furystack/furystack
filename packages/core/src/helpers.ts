@@ -7,7 +7,6 @@ import type { PhysicalStore } from './models/physical-store'
 
 /**
  * The disposable will be disposed on process exit
- *
  * @param disposable The Disposable object to dispose on process exit
  * @returns A set of global disposables
  */

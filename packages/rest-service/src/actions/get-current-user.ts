@@ -6,7 +6,6 @@ import { JsonResult } from '../request-action-implementation'
 
 /**
  * Action that returns the current authenticated user
- *
  * @param injector The injector from the current stack
  */
 export const GetCurrentUser: RequestAction<{

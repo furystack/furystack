@@ -8,7 +8,6 @@ import { getRepository } from '@furystack/repository'
 
 /**
  * Creates a simple Get Entity endpoint for a specified model.
- *
  * @param options The options for endpoint creation
  * @param options.model The entity model, should have a Repository DataSet
  * @param options.primaryKey The field name used as primary key on the model

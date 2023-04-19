@@ -6,7 +6,6 @@ import { isLoadedCacheResult } from './cache-result'
 interface CacheSettings<TData, TArgs extends any[]> {
   /**
    *  Callback to retrieve the uncached entity
-   *
    * @param args The arguments for getting the entity
    * @returns A promise that resolves with the loaded entity
    */
@@ -35,7 +34,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Method that returns the entity from the cache - or loads it if it's not in the cache
-   *
    * @param args The arguments for getting the entity
    * @returns The loaded result
    */
@@ -68,7 +66,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Sets the entity as obsolete
-   *
    * @param args The arguments for getting the entity
    * @returns The obsolete result
    */
@@ -79,7 +76,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Removes an entity from the cache
-   *
    * @param args The arguments for getting the entity
    */
   public remove(...args: TArgs) {
@@ -89,7 +85,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Returns an observable value that will be updated with the state of the entity. Will also trigger a reload if needed.
-   *
    * @param args The arguments for getting the entity
    * @returns An observable value that will be updated with the state of the entity
    */
@@ -108,7 +103,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Marks specific entities in the cache as obsolete based on a predicate function.
-   *
    * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be marked as obsolete.
    */
   public obsoleteRange(callback: (entity: TData) => boolean) {
@@ -117,7 +111,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   /**
    * Removes specific entities from the cache based on a predicate function.
-   *
    * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be removed from the cache.
    */
   public removeRange(callback: (entity: TData) => boolean) {

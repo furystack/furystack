@@ -7,11 +7,10 @@ import { WebSocketApiSettings } from './websocket-api-settings'
  * Usage example:
  * ````ts
  * injector.useWebsockets({
- *    path: "/sockets",
- *    actions: [...my custom actions]
+ * path: "/sockets",
+ * actions: [...my custom actions]
  * })
  * ````
- *
  * @param injector The injector instance
  * @param settings The Settings object for the WebSocket API
  */

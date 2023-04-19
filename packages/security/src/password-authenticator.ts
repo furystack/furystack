@@ -41,8 +41,7 @@ export class PasswordAuthenticator {
 
   /**
    *
-   * Sets the password for the specific user
-   *
+   *Sets the password for the specific user
    * @param userName The user to set the password for
    * @param lastPassword The last user password
    * @param plainPassword The password as a plain string
@@ -66,7 +65,6 @@ export class PasswordAuthenticator {
 
   /**
    * Resets the password with a Password Reset token entry
-   *
    * @param resetToken The Reset Token value
    * @param plainPassword The new password in plain string
    */

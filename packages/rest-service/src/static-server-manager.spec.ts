@@ -5,7 +5,6 @@ import { StaticServerManager } from './static-server-manager'
 
 /**
  * Generator for an incremental port number
- *
  * @param initialPort The initial port number
  * @yields a port for testing
  * @returns The Port number

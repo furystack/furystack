@@ -27,7 +27,6 @@ export class CacheLockManager implements Disposable {
 
   /**
    * Releases the lock
-   *
    * @param index The index of the lock
    */
   public releaseLock(index: string) {

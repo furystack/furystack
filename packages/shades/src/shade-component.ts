@@ -3,7 +3,6 @@ import { isShadeComponent } from './models'
 
 /**
  * Appends a list of items to a HTML element
- *
  * @param el the root element
  * @param children array of items to append
  */
@@ -68,7 +67,6 @@ type CreateComponentArgs<TProps> = [
 // eslint-disable-next-line jsdoc/require-param
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
- *
  * @returns the created JSX element
  */
 export const createComponentInner = <TProps>(...[elementType, props, ...children]: CreateComponentArgs<TProps>) => {

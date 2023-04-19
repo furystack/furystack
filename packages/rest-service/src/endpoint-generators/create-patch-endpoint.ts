@@ -9,7 +9,6 @@ import type { WithOptionalId } from '@furystack/core'
 
 /**
  * Creates a PATCH endpoint for updating entities
- *
  * @param options The options for endpoint creation
  * @param options.model The Model class
  * @param options.primaryKey The field name that is used as primary key on the model
