@@ -16,9 +16,7 @@ releases:
   "@furystack/shades-common-components": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
+  "@furystack/shades": "patch"
+  "@furystack/utils": "patch"
+  "@furystack/websocket-api": "patch"
   furystack: patch
-
-undecided:
-  - "@furystack/shades"
-  - "@furystack/utils"
-  - "@furystack/websocket-api"
