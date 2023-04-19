@@ -676,7 +676,7 @@ __metadata:
   resolution: "@furystack/inject@workspace:packages/inject"
   dependencies:
     "@furystack/utils": "workspace:^"
-    "@types/jest": ^29.5.0
+    "@types/jest": ^29.5.1
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
@@ -687,7 +687,7 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/jest": ^29.5.0
+    "@types/jest": ^29.5.1
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
@@ -729,7 +729,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/jest": ^29.5.0
+    "@types/jest": ^29.5.1
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
@@ -862,7 +862,7 @@ __metadata:
     esbuild: ^0.17.17
     monaco-editor: ^0.37.1
     typescript: ^5.0.4
-    vite: ^4.2.1
+    vite: ^4.2.2
   languageName: unknown
   linkType: soft
 
@@ -887,7 +887,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
-    "@types/jest": ^29.5.0
+    "@types/jest": ^29.5.1
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
@@ -6709,9 +6709,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.2.1":
-  version: 4.2.1
-  resolution: "vite@npm:4.2.1"
+"vite@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "vite@npm:4.2.2"
   dependencies:
     esbuild: ^0.17.5
     fsevents: ~2.3.2
@@ -6743,7 +6743,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 70eb162ffc299017a3c310e3adc95e9661def6b17aafd1f8e5e02e516766060435590dbe3df1e4e95acc3583c728a76e91f07c546221d1e701f1b2b021293f45
+  checksum: 7fff9d046f6091c02e030aa5f45e68939b9bec1dd15d4e2c3c084d82ec185300295f3db26f537daf2e19f9ad191be260bf70e5fe0e2d9054f174a7ad457623f8
   languageName: node
   linkType: hard
 

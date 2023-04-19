@@ -16,7 +16,7 @@
     "@playwright/test": "^1.32.3",
     "esbuild": "^0.17.17",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1"
+    "vite": "^4.2.2"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
