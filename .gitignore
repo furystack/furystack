@@ -65,7 +65,8 @@ data
 
 tsconfig.tsbuildinfo
 
-packages/**/dist
+packages/**/cjs
+packages/**/esm
 packages/**/types
 
 .yarn/unplugged
@@ -80,3 +81,4 @@ packages/**/types
 !.yarn/versions
 
 packages/shades-showcase-app/test-results
+packages/shades-showcase-app/dist

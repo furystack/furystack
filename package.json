@@ -24,15 +24,17 @@
     "prettier": "^2.8.7",
     "rimraf": "^5.0.0",
     "ts-json-schema-generator": "^1.2.0",
-    "typescript": "5.0.4"
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
-    "build": "tsc -b packages",
+    "build:cjs": "tsc -b packages",
+    "build:esm": "yarn workspaces foreach -t run build:es6 --moduleResolution bundler --module esnext",
+    "build": "tsc -b packages && yarn build:esm && yarn workspace @furystack/shades-showcase-app build",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
-    "clean": "yarn rimraf ./packages/**/(types|dist|tsconfig.tsbuildinfo)",
+    "clean": "yarn rimraf ./packages/**/(types|dist|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run jest",
     "test:debug": "yarn run --inspect-brk jest --runInBand",
     "create-schemas": "yarn build && yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"

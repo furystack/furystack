@@ -9,7 +9,6 @@ import type { WithOptionalId } from '@furystack/core'
 import { getRepository } from '@furystack/repository'
 /**
  * Creates a POST endpoint for updating entities
- *
  * @param options The options for endpoint creation
  * @param options.model The Model class
  * @param options.primaryKey The field name used as primary key

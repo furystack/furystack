@@ -5,7 +5,6 @@ export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> }
 
 /**
  * Deep merge two objects.
- *
  * @param  target The source object to be merged
  * @param sources The source objects
  * @returns A new instance with the merged values

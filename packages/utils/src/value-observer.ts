@@ -11,7 +11,7 @@ import type { ObservableValue, ValueChangeCallback } from './observable-value'
  *
  * const observableValue = new ObservableValue<number>(0);
  * const observer = observableValue.subscribe((newValue) => {
- *     console.log("Value changed:", newValue);
+ * console.log("Value changed:", newValue);
  * });
  *
  * // To update the value
@@ -21,7 +21,6 @@ import type { ObservableValue, ValueChangeCallback } from './observable-value'
  * // if you want to dispose the whole observableValue with all of its observers:
  * observableValue.dispose();
  * ```
- *
  * @param T This type parameter is the value type to observe
  */
 export class ValueObserver<T> implements Disposable {

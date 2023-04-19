@@ -1,3 +1,4 @@
 packages/**/node_modules/*
-packages/**/dist/*
+packages/**/cjs/*
+packages/**/esm/*
 packages/**/types/*

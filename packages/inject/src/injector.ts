@@ -116,7 +116,6 @@ export class Injector implements Disposable {
 
   /**
    * Sets explicitliy an instance for a key in the store
-   *
    * @param instance The created instance
    * @param key The class key to be persisted (optional, calls back to the instance's constructor)
    */
@@ -131,7 +130,6 @@ export class Injector implements Disposable {
 
   /**
    * Creates a child injector instance
-   *
    * @param options Additional injector options
    * @returns the created Injector
    */

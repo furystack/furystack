@@ -2,7 +2,7 @@ import { Injectable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
 import type { Server } from 'http'
 import { createServer } from 'http'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { Socket } from 'net'
 
@@ -33,7 +33,7 @@ export class ServerManager implements Disposable {
   public servers = new Map<string, ServerRecord>()
   private openedSockets = new Set<Socket>()
 
-  private readonly listenLock = new Semaphore(1)
+  private readonly listenLock = new Lock()
 
   private getHostUrl = (options: ServerOptions) =>
     `http://${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`

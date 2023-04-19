@@ -24,7 +24,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Adds an entity to the DataSet
-   *
    * @param injector The injector from the context
    * @param entities The entities to add
    * @returns The CreateResult with the created entities
@@ -59,7 +58,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Updates an entity in the store
-   *
    * @param injector The injector from the context
    * @param id The identifier of the entity
    * @param change The update
@@ -94,7 +92,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Returns a Promise with the entity count
-   *
    * @param injector The Injector from the context
    * @param filter The Filter that will be applied
    * @returns the Count
@@ -111,7 +108,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Returns a filtered subset of the entity
-   *
    * @param injector The Injector from the context
    * @param filter The Filter definition
    * @returns A result with the current items
@@ -132,7 +128,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Returns an entity based on its primary key
-   *
    * @param injector The injector from the context
    * @param key The identifier of the entity
    * @param select A field list used for projection
@@ -157,7 +152,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
 
   /**
    * Removes an entity based on its primary key
-   *
    * @param injector The Injector from the context
    * @param key The primary key
    * @returns A promise that will be resolved / rejected based on the remove success

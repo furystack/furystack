@@ -4,7 +4,6 @@ import { EmptyResult } from '../request-action-implementation'
 
 /**
  * Action that logs out the current user
- *
  * @param root0 The Options object
  * @param root0.injector The injector from the context
  * @param root0.request The current Request object

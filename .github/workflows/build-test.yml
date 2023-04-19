@@ -3,12 +3,12 @@ on: [push]
 jobs:
   build:
     name: Lint, Build and test
-    timeout-minutes: 5
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.x, 19.x]
+        node-version: [19.x]
 
     steps:
       - uses: actions/checkout@v2

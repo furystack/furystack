@@ -5,7 +5,6 @@ import { RedisStore } from './redis-store'
 
 /**
  * Registers a Redis store for the provided model
- *
  * @param options The options for store creation
  * @param options.injector The injector to use
  * @param options.model The model to register the store for

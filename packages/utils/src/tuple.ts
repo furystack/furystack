@@ -1,6 +1,5 @@
 /**
  * Factory method for creating a Tuple instance.
- *
  * @param args The argument list to create
  * @returns alma asd
  */

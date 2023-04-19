@@ -4,7 +4,6 @@ import { Repository } from './repository'
 
 /**
  * Returns a Repository on an injector
- *
  * @param injector The Injector instance
  * @returns The Repository instance
  */

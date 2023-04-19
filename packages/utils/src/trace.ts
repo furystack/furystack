@@ -202,7 +202,6 @@ export class Trace {
 
   /**
    * Creates an observer that will be observe method calls, finishes and errors
-   *
    * @param options The options object for the trace
    * @returns the trace object that can be disposed after usage
    */

@@ -17,7 +17,6 @@ export const defaultInjectableOptions: InjectableOptions = {
 
 /**
  * Decorator method for tagging a class as injectable
- *
  * @param options The options object
  * @returns void
  */

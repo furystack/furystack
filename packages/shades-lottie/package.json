@@ -2,6 +2,25 @@
   "name": "@furystack/shades-lottie",
   "version": "3.0.15",
   "description": "Lottie animation player wrapper for FuryStack Shades",
+  "type": "module",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./cjs/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "keywords": [
     "FuryStack",
     "Shades",
@@ -15,13 +34,11 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "typescript": "5.0.4"
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
     "@lottiefiles/lottie-player": "^1.7.1"
   },
-  "typings": "types/index.d.ts",
-  "main": "dist/index.js",
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }

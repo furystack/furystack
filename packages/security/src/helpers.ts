@@ -3,7 +3,6 @@ import { SecurityPolicy } from './security-policy'
 
 /**
  * Sets up the @furystack/security with the provided settings
- *
  * @param injector The Injector instance
  * @param {Partial<SecurityPolicy>} policy The security policy to use
  */

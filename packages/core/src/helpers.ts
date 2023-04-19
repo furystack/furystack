@@ -1,4 +1,4 @@
-import type { Injector } from '@furystack/inject/types/injector'
+import type { Injector } from '@furystack/inject'
 import { globalDisposables } from './global-disposables'
 import { IdentityContext } from './identity-context'
 import type { Disposable } from '@furystack/utils'
@@ -7,7 +7,6 @@ import type { PhysicalStore } from './models/physical-store'
 
 /**
  * The disposable will be disposed on process exit
- *
  * @param disposable The Disposable object to dispose on process exit
  * @returns A set of global disposables
  */

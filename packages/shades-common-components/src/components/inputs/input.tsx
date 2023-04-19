@@ -40,7 +40,6 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
 
   /**
    * Callback for retrieving the custom validation result
-   *
    * @returns The custom validation state
    */
   getValidationResult?: (options: { state: TextInputState }) => InputValidationResult

@@ -6,7 +6,6 @@
 export class PathHelper {
   /**
    * Trims the slash characters from the beginning and from the end of the path to avoid duplicated slashes
-   *
    * @param {string} path The source path that should be trimmed
    * @returns the trimmed path
    */
@@ -23,7 +22,6 @@ export class PathHelper {
   /**
    * Splits a full path into path segments,
    * e.g.: /Root/Example/stuff
-   *
    * @param path The path to be splitted
    * @returns {string[]} the segments for the path
    */
@@ -33,7 +31,6 @@ export class PathHelper {
 
   /**
    * Method that allows to join paths without multiple or missing slashes
-   *
    * @param args The list of the paths to join
    * @returns the joined path string
    */
@@ -43,7 +40,6 @@ export class PathHelper {
 
   /**
    * Checks if the ancestorPath is really the ancestor of the descendantPath
-   *
    * @param {string} ancestorPath the ancestor path
    * @param {string} descendantPath the descendant path
    * @returns {boolean} if the provided path is the ancestor of the descendant
@@ -57,7 +53,6 @@ export class PathHelper {
    * e.g. "/Root/Example/Content" will return "/Root/Example"
    *
    * "Root" will always return "Root"
-   *
    * @param path The content path
    * @returns the parent path
    */

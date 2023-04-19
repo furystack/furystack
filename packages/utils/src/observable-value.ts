@@ -24,7 +24,7 @@ export type ValueChangeCallback<T> = (next: T) => void
  * ```ts
  * const observableValue = new ObservableValue<number>(0);
  * const observer = observableValue.subscribe((newValue) => {
- *    console.log("Value changed:", newValue);
+ * console.log("Value changed:", newValue);
  * });
  * // To update the value
  * observableValue.setValue(Math.random());
@@ -33,7 +33,6 @@ export type ValueChangeCallback<T> = (next: T) => void
  * // if you want to dispose the whole observableValue with all of its observers:
  * observableValue.dispose();
  * ```
- *
  * @param T Generic argument to indicate the value type
  */
 export class ObservableValue<T> implements Disposable {
@@ -55,7 +54,6 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Subscribes to a value changes
-   *
    * @param callback The callback method that will be called on each change
    * @param getLast Will call the callback with the last known value right after subscription
    * @returns The ValueObserver instance
@@ -74,7 +72,6 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * The observer will unsubscribe from the Observable
-   *
    * @param observer The ValueObserver instance
    * @returns if unsubscribing was successfull
    */
@@ -84,7 +81,6 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Gets the current Value
-   *
    * @returns The current value
    */
   public getValue(): T {
@@ -96,7 +92,6 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Sets a new value and notifies the observers.
-   *
    * @param newValue The new value to be set
    */
   public setValue(newValue: T) {
@@ -113,7 +108,6 @@ export class ObservableValue<T> implements Disposable {
 
   /**
    * Gets the observers
-   *
    * @returns The subscribed observers
    */
   public getObservers() {
