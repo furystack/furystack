@@ -2,6 +2,9 @@
   "name": "@furystack/rest-service",
   "version": "6.2.23",
   "description": "Repository implementation for FuryStack",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",

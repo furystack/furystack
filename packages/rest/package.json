@@ -2,6 +2,9 @@
   "name": "@furystack/rest",
   "version": "4.2.1",
   "description": "Generic REST package",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",

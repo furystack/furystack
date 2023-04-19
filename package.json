@@ -29,7 +29,8 @@
   "scripts": {
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
-    "build": "tsc -b packages && yarn workspace @furystack/shades-showcase-app build",
+    "build": "tsc -b packages && yarn build:es6 && yarn workspace @furystack/shades-showcase-app build",
+    "build:es6": "yarn workspaces foreach -t run build:es6 --moduleResolution bundler --module esnext",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/(types|dist|esm|tsconfig.tsbuildinfo)",

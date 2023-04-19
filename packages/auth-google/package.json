@@ -2,6 +2,9 @@
   "name": "@furystack/auth-google",
   "version": "5.1.23",
   "description": "Google Authentication Provider for FuryStack",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",

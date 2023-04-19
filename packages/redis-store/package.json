@@ -2,6 +2,9 @@
   "name": "@furystack/redis-store",
   "version": "6.2.1",
   "description": "Redis Store implementation for FuryStack",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",

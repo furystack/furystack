@@ -2,6 +2,9 @@
   "name": "@furystack/rest-client-fetch",
   "version": "4.1.19",
   "description": "Native browser fetch based REST API implementation for FuryStack",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",

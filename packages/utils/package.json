@@ -3,6 +3,9 @@
   "version": "3.1.8",
   "description": "General utilities",
   "type": "module",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
   "exports": {
     ".": {
       "import": "./esm/index.js",
@@ -11,7 +14,7 @@
     },
     "./package.json": "./package.json"
   },
-  "typesVersions":{
+  "typesVersions": {
     "*": {
       "*": [
         "types/*"
@@ -23,10 +26,6 @@
     "types",
     "src"
   ],
-  "scripts": {
-    "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
-    "build": "tsc -b"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/furystack/furystack.git"
