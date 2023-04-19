@@ -14,10 +14,11 @@ jobs:
   - job: buildAndTest
     strategy:
       matrix:
-        node_18_x:
-          node_version: 18.x
         node_19_x:
           node_version: 19.x
+        node_20_x:
+          node_version: 20.x
+
     displayName: Build and test
     steps:
       - task: NodeTool@0
