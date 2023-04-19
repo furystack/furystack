@@ -2,7 +2,21 @@
   "name": "@furystack/websocket-api",
   "version": "8.1.23",
   "description": "HTTP Api FuryStack package",
-  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -34,8 +48,8 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "@types/ws": "^8.5.4"
+    "@types/ws": "^8.5.4",
+    "typescript": "^5.0.4"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

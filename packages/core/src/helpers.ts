@@ -1,4 +1,4 @@
-import type { Injector } from '@furystack/inject/types/injector'
+import type { Injector } from '@furystack/inject'
 import { globalDisposables } from './global-disposables'
 import { IdentityContext } from './identity-context'
 import type { Disposable } from '@furystack/utils'

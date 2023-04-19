@@ -80,3 +80,5 @@ packages/**/types
 !.yarn/versions
 
 packages/shades-showcase-app/test-results
+
+packages/**/esm

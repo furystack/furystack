@@ -2,8 +2,21 @@
   "name": "@furystack/security",
   "version": "2.1.16",
   "description": "Security, password management and authorization related stuff for FuryStack",
-  "main": "dist/index.js",
-  "typings": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -37,6 +50,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11"
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.4"
   }
 }

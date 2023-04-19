@@ -2,8 +2,22 @@
   "name": "@furystack/utils",
   "version": "3.1.8",
   "description": "General utilities",
-  "main": "dist/index.js",
-  "typings": "./types/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions":{
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -31,6 +45,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^29.5.0"
+    "@types/jest": "^29.5.0",
+    "typescript": "^5.0.4"
   }
 }

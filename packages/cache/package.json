@@ -2,7 +2,21 @@
   "name": "@furystack/cache",
   "version": "1.0.4",
   "description": "Cache providers for FuryStack package",
-  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -25,7 +39,8 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0"
+    "@types/jest": "^29.5.0",
+    "typescript": "^5.0.4"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
@@ -33,6 +48,5 @@
     "@furystack/utils": "workspace:^",
     "semaphore-async-await": "^1.5.1"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }

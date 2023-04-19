@@ -2,6 +2,21 @@
   "name": "@furystack/shades-common-components",
   "version": "4.0.17",
   "description": "",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "keywords": [
     "FuryStack",
     "Shades",
@@ -18,7 +33,7 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "typescript": "5.0.4"
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
@@ -28,7 +43,5 @@
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },
-  "typings": "types/index.d.ts",
-  "main": "dist/index.js",
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }

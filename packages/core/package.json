@@ -2,7 +2,21 @@
   "name": "@furystack/core",
   "version": "11.3.1",
   "description": "Core FuryStack package",
-  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -27,13 +41,13 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11"
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
     "semaphore-async-await": "^1.5.1"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

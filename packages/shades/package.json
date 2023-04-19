@@ -2,7 +2,21 @@
   "name": "@furystack/shades",
   "version": "7.2.6",
   "description": "Google Authentication Provider for FuryStack",
-  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -32,7 +46,8 @@
     "@types/jest": "^29.5.0",
     "@types/jsdom": "^21.1.1",
     "@types/node": "^18.15.11",
-    "jsdom": "^21.1.1"
+    "jsdom": "^21.1.1",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
@@ -41,6 +56,5 @@
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
 }
