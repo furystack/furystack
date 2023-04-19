@@ -15,7 +15,7 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "@furystack/inject": "workspace:^",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
     "typescript": "5.0.4"
   },
   "dependencies": {
