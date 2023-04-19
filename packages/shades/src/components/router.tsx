@@ -4,7 +4,7 @@ import { LocationService } from '../services'
 import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
 import type { RenderOptions } from '../models'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 
 export interface Route<TMatchResult extends object> {
@@ -30,7 +30,7 @@ export const Router = Shade<RouterProps>({
   shadowDomName: 'shade-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
-    const [lock] = useState('lock', new Semaphore(1))
+    const [lock] = useState('lock', new Lock())
     const [state, setState] = useState<RouterState>('routerState', {
       jsx: <div />,
     })

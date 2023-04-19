@@ -49,8 +49,7 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "redis": "^4.6.5",
-    "semaphore-async-await": "^1.5.1"
+    "redis": "^4.6.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

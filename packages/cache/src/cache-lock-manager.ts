@@ -1,4 +1,4 @@
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 import type { Disposable } from '@furystack/utils'
 
 export class CacheLockManager implements Disposable {
@@ -11,7 +11,7 @@ export class CacheLockManager implements Disposable {
     if (fromLocks) {
       return fromLocks
     }
-    const lock = new Semaphore(1)
+    const lock = new Lock()
     this.locks.set(index, lock)
     return lock
   }
@@ -37,5 +37,5 @@ export class CacheLockManager implements Disposable {
   /**
    * Stores the locks by their keys to prevent parallel loading issues
    */
-  public readonly locks = new Map<string, Semaphore>()
+  public readonly locks = new Map<string, Lock>()
 }

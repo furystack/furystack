@@ -8,7 +8,7 @@ import type {
 } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import type { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
-import Semaphore from 'semaphore-async-await'
+import { Lock } from 'semaphore-async-await'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -50,7 +50,7 @@ export class SequelizeStore<
 
   public readonly sequelizeModel: ModelStatic<M>
 
-  private initLock = new Semaphore(1)
+  private initLock = new Lock()
 
   private initializedModel?: ModelStatic<M>
 
