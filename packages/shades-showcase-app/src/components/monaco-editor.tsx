@@ -2,30 +2,7 @@ import { Shade } from '@furystack/shades'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import 'monaco-editor/esm/vs/editor/editor.main'
 
-import type { EditorLanguage } from 'monaco-editor/esm/metadata'
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-self.MonacoEnvironment = {
-  getWorkerUrl(_moduleId: any, label: EditorLanguage) {
-    if (label === 'json') {
-      return '/js/monaco-editor/language/json/json.worker.js'
-    }
-    if (label === 'css' || label === 'scss' || label === 'less') {
-      return '/js/monaco-editor/language/css/css.worker.js'
-    }
-    if (label === 'html' || label === 'handlebars' || label === 'razor') {
-      return '/js/monaco-editor/language/html/html.worker.js'
-    }
-    if (label === 'typescript' || label === 'javascript') {
-      return '/js/monaco-editor/language/typescript/ts.worker.js'
-    }
-    return '/js/monaco-editor/editor/editor.worker.js'
-  },
-  getWorker: (moduleId: string, label: string) => {
-    return new Worker((self as any).MonacoEnvironment.getWorkerUrl(moduleId, label), { type: 'module' })
-  },
-}
+import './worker-config'
 
 export interface MonacoEditorProps {
   options: monaco.editor.IStandaloneEditorConstructionOptions
