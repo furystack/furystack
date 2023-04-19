@@ -2,6 +2,7 @@
   "name": "@furystack/security",
   "version": "2.1.16",
   "description": "Security, password management and authorization related stuff for FuryStack",
+  "type": "module",
   "scripts": {
     "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
     "build": "tsc -b"

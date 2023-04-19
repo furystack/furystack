@@ -2,6 +2,7 @@
   "name": "@furystack/websocket-api",
   "version": "8.1.23",
   "description": "HTTP Api FuryStack package",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },

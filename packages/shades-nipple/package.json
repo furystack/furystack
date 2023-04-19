@@ -2,6 +2,7 @@
   "name": "@furystack/shades-nipple",
   "version": "3.0.15",
   "description": "A Nipple component wrapper for FuryStack Shades",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },

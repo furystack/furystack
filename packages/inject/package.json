@@ -2,6 +2,7 @@
   "name": "@furystack/inject",
   "version": "7.1.9",
   "description": "Core FuryStack package",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },

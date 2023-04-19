@@ -2,6 +2,7 @@
   "name": "@furystack/sequelize-store",
   "version": "2.2.2",
   "description": "Sequelize-based Store implementation for FuryStack",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },

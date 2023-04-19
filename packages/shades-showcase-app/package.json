@@ -3,6 +3,7 @@
   "version": "2.1.15",
   "description": "",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc -b && yarn vite build",
     "build:stats": "echo todo",

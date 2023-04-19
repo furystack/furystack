@@ -2,6 +2,7 @@
   "name": "@furystack/rest",
   "version": "4.2.1",
   "description": "Generic REST package",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },

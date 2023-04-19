@@ -1,9 +1,10 @@
 import { test, expect, Locator, Page } from '@playwright/test'
 import { pages } from './pages'
-import { sleepAsync } from '@furystack/utils'
 
 test.describe('Notys', () => {
   test('Should be able to open and close notys in order', async ({ page }) => {
+    const { sleepAsync } = await import('@furystack/utils')
+
     await page.goto(pages.notys.url)
     const infoButton = await page.locator('button:has-text("Info")')
     await infoButton.click()

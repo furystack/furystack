@@ -2,6 +2,7 @@
   "name": "@furystack/cache",
   "version": "1.0.4",
   "description": "Cache providers for FuryStack package",
+  "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
   },
