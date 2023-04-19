@@ -11,11 +11,10 @@ import { StaticServerManager } from './static-server-manager'
 /**
  * Sets up the @furystack/rest-service with the provided settings
  * @param api The API implementation details
+ * @returns a promise that resolves when the API is added to the server
  */
-export const useRestService = async <T extends RestApi>(api: ImplementApiOptions<T>) => {
+export const useRestService = async <T extends RestApi>(api: ImplementApiOptions<T>) =>
   await api.injector.getInstance(ApiManager).addApi({ ...api })
-  return this
-}
 
 /**
  * Sets up the HTTP Authentication
