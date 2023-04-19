@@ -29,7 +29,7 @@
   "scripts": {
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
-    "build": "tsc -b packages",
+    "build": "tsc -b packages && yarn workspace @furystack/shades-showcase-app build",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/(types|dist|tsconfig.tsbuildinfo)",
