@@ -1,8 +1,8 @@
-import { test, expect, Locator, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test.describe('Notys', () => {
   test('Should be able to open and close notys in order', async ({ page }) => {
-    const { sleepAsync } = await import('@furystack/utils')
+    const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
     await page.goto('/notys')
     const infoButton = await page.locator('button:has-text("Info")')
