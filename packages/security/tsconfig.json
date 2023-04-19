@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./cjs",
     "rootDir": "./src",
     "declarationDir": "./types",
     "composite": true
