@@ -34,7 +34,7 @@
     "sequelize": "^6.31.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11",
     "sqlite3": "5.1.6"
   },

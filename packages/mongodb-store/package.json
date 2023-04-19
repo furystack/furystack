@@ -32,11 +32,11 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "5.2.0",
+    "mongodb": "5.3.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11"
   },
   "typings": "./types/index.d.ts",

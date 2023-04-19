@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11"
   },
   "typings": "./types/index.d.ts",
