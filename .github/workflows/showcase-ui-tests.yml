@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Build Showcase app
-        run: yarn run tsc -b packages/shades-showcase-app
+        run: yarn build
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
       - name: execute tests
