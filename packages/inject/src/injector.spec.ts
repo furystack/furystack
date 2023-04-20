@@ -167,7 +167,7 @@ describe('Injector', () => {
     class UndecoratedTestClass {}
     using(new Injector(), (i) => {
       expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
-        `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+        `No metadata found for 'UndecoratedTestClass'. Dependencies: _Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     })
   })

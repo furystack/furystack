@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
+    "build:es6": "tsc --outDir ./esm",
     "build": "tsc -b"
   },
   "exports": {

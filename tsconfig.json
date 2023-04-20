@@ -24,5 +24,15 @@
     "jsxFactory": "createComponent",
     "jsxFragmentFactory": "createComponent",
     "removeComments": false
-  }
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.d.ts",
+    "node_modules",
+    "dist",
+    "coverage"
+  ]
 }
