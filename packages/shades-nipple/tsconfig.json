@@ -5,6 +5,7 @@
     "declarationDir": "./types",
     "composite": true,
     "rootDir": "./src",
+    "baseUrl": "./src",
     "jsx": "react",
     "jsxFactory": "createComponent",
     "jsxFragmentFactory": "createComponent"

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "./cjs",
     "rootDir": "./src",
+    "baseUrl": "./src",
     "declarationDir": "./types",
     "composite": true
   },

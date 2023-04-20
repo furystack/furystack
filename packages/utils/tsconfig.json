@@ -4,6 +4,7 @@
     "outDir": "./cjs",
     "declarationDir": "./types",
     "rootDir": "./src",
+    "baseUrl": "./src",
     "composite": true
   },
   "include": ["src"]
