@@ -87,7 +87,7 @@ jobs:
       - script: yarn install --immutable
         displayName: 'Install'
 
-      - script: build:showcase
+      - script: yarn build:showcase
         displayName: 'Build Showcase app'
              
       - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
