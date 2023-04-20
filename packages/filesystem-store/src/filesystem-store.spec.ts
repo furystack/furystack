@@ -5,7 +5,7 @@ import { sleepAsync } from '@furystack/utils'
 import type { Injector } from '@furystack/inject'
 import { useFileSystemStore } from './store-manager-helpers'
 import { describe, it, expect, vi, afterAll } from 'vitest'
-import { StoreManager } from '../../core/types'
+import { StoreManager } from '@furystack/core'
 
 let storeCount = 0
 
