@@ -9,7 +9,6 @@
   "exports": {
     ".": {
       "import": "./esm/index.js",
-      "require": "./cjs/index.js",
       "types": "./types/index.d.ts"
     },
     "./package.json": "./package.json"

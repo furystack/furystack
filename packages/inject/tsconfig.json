@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./cjs",
+    "outDir": "./esm",
     "declarationDir": "./types",
     "rootDir": "./src",
     "baseUrl": "./src",
