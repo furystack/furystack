@@ -1,10 +1,11 @@
 import { promises } from 'fs'
 import { FileSystemStore } from './filesystem-store'
-import { TestClass, createStoreTest, StoreManager } from '@furystack/core'
+import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
 import { sleepAsync } from '@furystack/utils'
 import type { Injector } from '@furystack/inject'
 import { useFileSystemStore } from './store-manager-helpers'
 import { describe, it, expect, vi, afterAll } from 'vitest'
+import { StoreManager } from '../../core/types'
 
 let storeCount = 0
 

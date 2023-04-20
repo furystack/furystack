@@ -12,6 +12,11 @@
       "require": "./cjs/index.js",
       "types": "./types/index.d.ts"
     },
+    "./create-physical-store-tests": {
+      "import": "./esm/create-physical-store-tests.js",
+      "require": "./cjs/create-physical-store-tests.js",
+      "types": "./types/create-physical-store-tests.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {

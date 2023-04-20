@@ -27,6 +27,7 @@
     "vitest": "^0.30.1"
   },
   "scripts": {
+    "start": "yarn workspace @furystack/shades-showcase-app start",
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
     "build:cjs": "tsc -b packages",

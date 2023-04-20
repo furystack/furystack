@@ -1,4 +1,4 @@
-import type { TestClass } from '@furystack/core'
+import type { TestClass } from './test-class'
 import { createComponent, Shade } from '@furystack/shades'
 import { DataGrid, SelectionCell } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service'

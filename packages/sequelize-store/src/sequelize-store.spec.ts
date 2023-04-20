@@ -1,5 +1,5 @@
-import { TestClass } from '@furystack/core'
-import { StoreManager, createStoreTest } from '@furystack/core'
+import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
+import { StoreManager } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
 import { sleepAsync, usingAsync } from '@furystack/utils'
