@@ -3,6 +3,7 @@ import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '../http-user-context'
 import { LogoutAction } from './logout'
 import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, it, expect, vi } from 'vitest'
 
 describe('LogoutAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
@@ -10,7 +11,7 @@ describe('LogoutAction', () => {
 
   it('exec', async () => {
     await usingAsync(new Injector(), async (i) => {
-      const cookieLogout = jest.fn(async () => true)
+      const cookieLogout = vi.fn(async () => true)
       i.setExplicitInstance(
         {
           cookieLogout,

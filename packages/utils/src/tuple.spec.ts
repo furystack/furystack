@@ -1,4 +1,5 @@
 import { tuple } from './tuple'
+import { describe, it, expect } from 'vitest'
 
 describe('Tuple', () => {
   it('Should return a Tuple object', () => {

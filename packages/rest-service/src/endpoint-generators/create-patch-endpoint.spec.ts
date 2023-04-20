@@ -5,6 +5,7 @@ import { createPatchEndpoint } from './create-patch-endpoint'
 import { MockClass, setupContext } from './utils'
 import { getDataSetFor } from '@furystack/repository'
 import { useRestService } from '../helpers'
+import { describe, it, expect } from 'vitest'
 
 describe('createPatchEndpoint', () => {
   it('Should update the entity and report the success', async () => {

@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import type { Disposable } from './disposable'
 import { using, usingAsync } from './disposable'
 
@@ -59,42 +60,49 @@ export const disposableTests = describe('Disposable', () => {
   })
 
   describe('dispose()', () => {
-    it('should be called on error', (done) => {
+    it('should be called on error', () => {
+      const callbackMethod = vi.fn()
       try {
         using(new MockDisposable(), (d) => {
           d.disposeCallback = () => {
-            done()
+            callbackMethod()
           }
-
           d.whooops()
         })
       } catch {
         /** ignore */
       }
+      expect(callbackMethod).toBeCalled()
     })
 
-    it('should be called with usingAsync()', (done) => {
-      usingAsync(new MockDisposable(), async (d) => {
+    it('should be called with usingAsync()', async () => {
+      const callbackMethod = vi.fn()
+      await usingAsync(new MockDisposable(), async (d) => {
         d.disposeCallback = () => {
-          done()
+          callbackMethod()
         }
         return new Promise((resolve) => {
           setTimeout(resolve, 1)
         })
       })
+      expect(callbackMethod).toBeCalled()
     })
 
-    it('should be called when async fails', (done) => {
-      usingAsync(new MockDisposable(), async (d) => {
-        d.disposeCallback = () => {
-          done()
-        }
-        return new Promise((_resolve, reject) => {
-          setTimeout(reject, 1)
+    it('should be called when async fails', async () => {
+      const callbackMethod = vi.fn()
+      try {
+        await usingAsync(new MockDisposable(), async (d) => {
+          d.disposeCallback = () => {
+            callbackMethod()
+          }
+          return new Promise((_resolve, reject) => {
+            setTimeout(reject, 1)
+          })
         })
-      }).catch(() => {
+      } catch (error) {
         /** ignore */
-      })
+      }
+      expect(callbackMethod).toBeCalled()
     })
 
     it('should await dispose for asyncs with usingAsync()', async () => {

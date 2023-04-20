@@ -5,6 +5,7 @@ import { LogLevel } from './log-entries'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger'
 import { LoggerCollection } from './logger-collection'
 import { TestLogger } from './test-logger'
+import { describe, it, expect, vi } from 'vitest'
 
 describe('Loggers', () => {
   it('Can be set up and retrieved with a helper', () => {
@@ -20,124 +21,141 @@ describe('Loggers', () => {
       expect(loggers).toBeInstanceOf(LoggerCollection)
     })
 
-    it('Should forward Verbose event', (done) => {
+    it('Should forward Verbose event', async () => {
+      const doneCallback = vi.fn()
       const loggers = new LoggerCollection()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Verbose)
-          done()
+          doneCallback()
         }),
       )
-      loggers.verbose({
+      await loggers.verbose({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should forward Debug event', (done) => {
+    it('Should forward Debug event', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
+
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Debug)
-          done()
+          doneCallback()
         }),
       )
-      loggers.debug({
+      await loggers.debug({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should forward Information event', (done) => {
+    it('Should forward Information event', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Information)
-          done()
+          doneCallback()
         }),
       )
-      loggers.information({
+      await loggers.information({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should forward Warning event', (done) => {
+    it('Should forward Warning event', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Warning)
-          done()
+          doneCallback()
         }),
       )
-      loggers.warning({
+      await loggers.warning({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should forward Error event', (done) => {
+    it('Should forward Error event', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Error)
-          done()
+          doneCallback()
         }),
       )
-      loggers.error({
+      await loggers.error({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should raise an Error event if failed to insert below Error', (done) => {
+    it('Should raise an Error event if failed to insert below Error', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           if (e.level < LogLevel.Error) {
             throw new Error('Nooo')
           } else {
             expect(e.level).toBe(LogLevel.Error)
-            done()
+            doneCallback()
           }
         }),
       )
-      loggers.verbose({
+      await loggers.verbose({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should raise a Fatal event if failed to insert an Error', (done) => {
+    it('Should raise a Fatal event if failed to insert an Error', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           if (e.level < LogLevel.Fatal) {
             throw new Error('Nooo')
           } else {
             expect(e.level).toBe(LogLevel.Fatal)
-            done()
+            doneCallback()
           }
         }),
       )
-      loggers.verbose({
+      await loggers.verbose({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('Should forward Fatal event', (done) => {
+    it('Should forward Fatal event', async () => {
       const loggers = new LoggerCollection()
+      const doneCallback = vi.fn()
       loggers.attachLogger(
         new TestLogger(async (e) => {
           expect(e.level).toBe(LogLevel.Fatal)
-          done()
+          doneCallback()
         }),
       )
-      loggers.fatal({
+      await loggers.fatal({
         message: 'alma',
         scope: 'alma',
       })
+      expect(doneCallback).toBeCalledTimes(1)
     })
   })
 

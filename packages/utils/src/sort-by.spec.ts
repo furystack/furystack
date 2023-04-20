@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import './sort-by'
 describe('sortBy', () => {
   it('Should sort by ascending by default', () => {

@@ -8,6 +8,7 @@ import { StoreManager, TestClass, createStoreTest } from '@furystack/core'
 import { useMongoDb } from './store-manager-helpers'
 import { MongoClientFactory } from './mongo-client-factory'
 import { usingAsync } from '@furystack/utils'
+import { describe, it, expect } from 'vitest'
 
 class TestClassWithId {
   _id!: string

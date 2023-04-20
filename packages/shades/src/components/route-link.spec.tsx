@@ -6,16 +6,21 @@ global.TextDecoder = TextDecoder as any
 import { Injector } from '@furystack/inject'
 import { RouteLink } from './route-link'
 import { createComponent, initializeShadeRoot, LocationService } from '..'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 describe('RouteLink', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Shuld display the loader and completed state', async () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const onRouteChange = jest.fn()
+    const onRouteChange = vi.fn()
 
     injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 

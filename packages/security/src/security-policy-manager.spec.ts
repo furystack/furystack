@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import { usePasswordPolicy } from './helpers'
 import { SecurityPolicyManager } from './security-policy-manager'
+import { describe, it, expect } from 'vitest'
 
 describe('SecurityPolicyManager', () => {
   it('Should return false when no token expiration has been set', () => {

@@ -7,6 +7,7 @@ import { User, InMemoryStore, addStore } from '@furystack/core'
 import { DefaultSession } from './models/default-session'
 import { JsonResult } from './request-action-implementation'
 import { useHttpAuthentication, useRestService } from './helpers'
+import { describe, it, expect } from 'vitest'
 
 class UserWithPassword extends User {
   password!: string

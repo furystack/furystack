@@ -9,16 +9,21 @@ import { initializeShadeRoot } from './initialize'
 import { Shade } from './shade'
 import { createComponent } from './shade-component'
 import { ObservableValue } from '@furystack/utils'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 
 describe('Shade Resources integration tests', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Should update the component based on a custom observable value change', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const renderCounter = jest.fn()
+    const renderCounter = vi.fn()
 
     const obs1 = new ObservableValue(0)
     const obs2 = new ObservableValue('a')

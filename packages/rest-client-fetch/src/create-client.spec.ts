@@ -1,4 +1,5 @@
 import { createClient } from './'
+import { describe, it, expect, vi } from 'vitest'
 
 const endpointUrl = 'http://localhost'
 
@@ -16,8 +17,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should throw if request is not OK', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({ value: 1 }))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: false,
     }))
@@ -36,8 +37,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a simple GET request', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({ value: 1 }))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: true,
     }))
@@ -59,8 +60,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a GET request with query parameters', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({ value: 1 }))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: true,
     }))
@@ -88,8 +89,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a GET request with URL parameters', async () => {
-    const json = jest.fn(async () => ({ value: 1 }))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({ value: 1 }))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: true,
     }))
@@ -117,8 +118,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a simple POST request with body', async () => {
-    const json = jest.fn(async () => ({}))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({}))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: true,
     }))
@@ -142,8 +143,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should call a request with headers', async () => {
-    const json = jest.fn(async () => ({}))
-    const fetch: any = jest.fn(async () => ({
+    const json = vi.fn(async () => ({}))
+    const fetch: any = vi.fn(async () => ({
       json,
       ok: true,
     }))
@@ -171,8 +172,8 @@ describe('@furystack/rest-client-fetch', () => {
   })
 
   it('Should parse a response with text/ headers', async () => {
-    const text = jest.fn(async () => 'alma')
-    const fetch: any = jest.fn(async () => ({
+    const text = vi.fn(async () => 'alma')
+    const fetch: any = vi.fn(async () => ({
       text,
       headers: {
         get: () => 'text/plain',
@@ -208,8 +209,8 @@ describe('@furystack/rest-client-fetch', () => {
 
   it('Should parse a response with form/multipart headers', async () => {
     const exampleValue = { foo: 1, bar: 'alma' }
-    const formData = jest.fn(async () => exampleValue)
-    const fetch: any = jest.fn(async () => ({
+    const formData = vi.fn(async () => exampleValue)
+    const fetch: any = vi.fn(async () => ({
       formData,
       headers: {
         get: () => 'form/multipart',

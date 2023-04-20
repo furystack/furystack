@@ -6,6 +6,7 @@ import { DefaultSession } from './models/default-session'
 import { HttpUserContext } from './http-user-context'
 import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
 import { useHttpAuthentication } from './helpers'
+import { describe, it, expect, vi } from 'vitest'
 
 export const prepareInjector = async (i: Injector) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
@@ -43,7 +44,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.getCurrentUser = jest.fn(async () => testUser)
+        ctx.getCurrentUser = vi.fn(async () => testUser)
         const value = await ctx.isAuthenticated(request)
         expect(value).toBe(true)
         expect(ctx.getCurrentUser).toBeCalled()
@@ -54,7 +55,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.getCurrentUser = jest.fn(async () => {
+        ctx.getCurrentUser = vi.fn(async () => {
           throw Error(':(')
         })
         await expect(ctx.isAuthenticated(request)).resolves.toEqual(false)
@@ -68,7 +69,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.getCurrentUser = jest.fn(async () => testUser)
+        ctx.getCurrentUser = vi.fn(async () => testUser)
         const value = await ctx.isAuthorized(request, 'grantedRole1', 'grantedRole2')
         expect(value).toBe(true)
         expect(ctx.getCurrentUser).toBeCalled()
@@ -79,7 +80,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.getCurrentUser = jest.fn(async () => testUser)
+        ctx.getCurrentUser = vi.fn(async () => testUser)
         const value = await ctx.isAuthorized(request, 'grantedRole1', 'nonGrantedRole2')
         expect(value).toBe(false)
         expect(ctx.getCurrentUser).toBeCalled()
@@ -187,7 +188,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authenticateUser = jest.fn(async () => testUser)
+        ctx.authenticateUser = vi.fn(async () => testUser)
         const result = await ctx.authenticateRequest({
           headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
         } as IncomingMessage)
@@ -201,7 +202,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         ctx.authentication.enableBasicAuth = false
-        ctx.authenticateUser = jest.fn(async () => testUser)
+        ctx.authenticateUser = vi.fn(async () => testUser)
         await expect(
           ctx.authenticateRequest({
             headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
@@ -263,7 +264,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authenticateRequest = jest.fn(async () => testUser)
+        ctx.authenticateRequest = vi.fn(async () => testUser)
         const result = await ctx.getCurrentUser(request)
         const result2 = await ctx.getCurrentUser(request)
         expect(ctx.authenticateRequest).toBeCalledTimes(1)
@@ -278,8 +279,8 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const setHeader = jest.fn()
-        ctx.getSessionStore().add = jest.fn(async () => {
+        const setHeader = vi.fn()
+        ctx.getSessionStore().add = vi.fn(async () => {
           return {} as any
         })
         const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
@@ -295,14 +296,14 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const setHeader = jest.fn()
-        ctx.getSessionStore().add = jest.fn(async () => {
+        const setHeader = vi.fn()
+        ctx.getSessionStore().add = vi.fn(async () => {
           return {} as any
         })
-        ctx.authenticateRequest = jest.fn(async () => testUser)
-        ctx.getSessionStore().remove = jest.fn(async () => undefined)
+        ctx.authenticateRequest = vi.fn(async () => testUser)
+        ctx.getSessionStore().remove = vi.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
-        response.setHeader = jest.fn(() => response)
+        response.setHeader = vi.fn(() => response)
         await ctx.cookieLogin(testUser, { setHeader } as any)
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
