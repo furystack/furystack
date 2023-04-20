@@ -35,10 +35,7 @@ const cfg = defineWorkspace(
     {
       test: {
         name: 'Shades',
-        browser: {
-          enabled: true,
-          name: 'chrome',
-        },
+        environment: 'happy-dom',
         include: [
           'packages/shades/src/**/*.spec.(ts|tsx)',
           'packages/shades-common-components/src/**/*.spec.(ts|tsx)',
