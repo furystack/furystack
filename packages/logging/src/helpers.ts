@@ -5,7 +5,6 @@ import { LoggerCollection } from './logger-collection'
 
 /**
  * Registers a Logger service to the injector container with the provided loggers.
- *
  * @param injector The Injector instance
  * @param {...any} loggers A list of loggers
  */

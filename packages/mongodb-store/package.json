@@ -1,8 +1,25 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "6.1.2",
+  "version": "7.0.0",
   "description": "MongoDB Store implementation for FuryStack",
-  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -32,13 +49,13 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "5.2.0",
+    "mongodb": "5.3.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11"
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

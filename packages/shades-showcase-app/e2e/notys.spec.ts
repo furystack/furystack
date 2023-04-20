@@ -1,10 +1,10 @@
-import { test, expect, Locator, Page } from '@playwright/test'
-import { pages } from './pages'
-import { sleepAsync } from '@furystack/utils'
+import { test, expect } from '@playwright/test'
 
 test.describe('Notys', () => {
   test('Should be able to open and close notys in order', async ({ page }) => {
-    await page.goto(pages.notys.url)
+    const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    await page.goto('/notys')
     const infoButton = await page.locator('button:has-text("Info")')
     await infoButton.click()
     const infoNoty = await page.locator('shade-noty:has-text("Info")')

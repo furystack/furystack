@@ -4,6 +4,7 @@ import { useFileSystemStore } from './store-manager-helpers'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { StoreManager, TestClass } from '@furystack/core'
+import { describe, it, expect, afterAll } from 'vitest'
 
 let storeCount = 0
 

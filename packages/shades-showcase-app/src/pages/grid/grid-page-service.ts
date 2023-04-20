@@ -1,4 +1,5 @@
-import { addStore, InMemoryStore, TestClass } from '@furystack/core'
+import { TestClass } from './test-class'
+import { addStore, InMemoryStore } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'
 import type { EntryLoader } from '@furystack/shades-common-components'

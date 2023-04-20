@@ -1,8 +1,29 @@
 {
   "name": "@furystack/core",
-  "version": "11.3.1",
+  "version": "12.0.0",
   "description": "Core FuryStack package",
-  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./create-physical-store-tests": {
+      "import": "./esm/create-physical-store-tests.js",
+      "types": "./types/create-physical-store-tests.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "types",
@@ -26,14 +47,13 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11"
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^",
-    "semaphore-async-await": "^1.5.1"
+    "@furystack/utils": "workspace:^"
   },
-  "typings": "./types/index.d.ts",
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

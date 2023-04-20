@@ -6,6 +6,7 @@ import { IdentityContext } from '@furystack/core'
 import { Authorize } from './authorize'
 import type { ServerResponse } from 'http'
 import { EmptyResult } from './request-action-implementation'
+import { describe, it, expect, vi } from 'vitest'
 
 describe('Authorize', () => {
   const response = {} as any as ServerResponse
@@ -13,12 +14,12 @@ describe('Authorize', () => {
 
   it('Should return 403 when failed to get current user', async () => {
     await usingAsync(new Injector(), async (i) => {
-      const isAuthorizedAction = jest.fn(async () => false)
+      const isAuthorizedAction = vi.fn(async () => false)
       i.setExplicitInstance(
         { isAuthorized: isAuthorizedAction, getCurrentUser: () => Promise.reject(':(') },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
+      const exampleAuthorizedAction = vi.fn(async () => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -30,7 +31,7 @@ describe('Authorize', () => {
 
   it('Should return 403 if the current user does not have the role', async () => {
     await usingAsync(new Injector(), async (i) => {
-      const isAuthorizedAction = jest.fn(async () => false)
+      const isAuthorizedAction = vi.fn(async () => false)
       i.setExplicitInstance(
         {
           isAuthorized: isAuthorizedAction,
@@ -38,7 +39,7 @@ describe('Authorize', () => {
         },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
+      const exampleAuthorizedAction = vi.fn(async () => EmptyResult())
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
 
       const result = await authorized({ injector: i, request, response })
@@ -50,7 +51,7 @@ describe('Authorize', () => {
 
   it('Should exec the original action if authorized', async () => {
     await usingAsync(new Injector(), async (i) => {
-      const isAuthorizedAction = jest.fn(async () => true)
+      const isAuthorizedAction = vi.fn(async () => true)
       i.setExplicitInstance(
         {
           isAuthorized: isAuthorizedAction,
@@ -58,7 +59,7 @@ describe('Authorize', () => {
         },
         IdentityContext,
       )
-      const exampleAuthorizedAction = jest.fn(async () => EmptyResult())
+      const exampleAuthorizedAction = vi.fn(async () => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
       const params = { injector: i, body: undefined, query: undefined, request, response }
       const result = await authorized(params)

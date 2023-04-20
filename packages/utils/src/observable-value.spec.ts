@@ -1,64 +1,77 @@
+import { describe, it, expect, vi } from 'vitest'
 import { ObservableValue } from './observable-value'
 
 /**
  * Observable Value tests
  */
 export const observableTests = describe('Observable', () => {
-  it('should be constructed without initial value', (done) => {
+  it('should be constructed without initial value', () => {
     const v = new ObservableValue()
+    const doneCallback = vi.fn()
     v.subscribe(() => {
       expect(v.getValue()).toBe(undefined)
-      done()
+      doneCallback()
     }, true)
     expect(v).toBeInstanceOf(ObservableValue)
+    expect(doneCallback).toBeCalled()
   })
 
-  it('should be constructed with initial value', (done) => {
+  it('should be constructed with initial value', () => {
     const v = new ObservableValue(1)
+    const doneCallback = vi.fn()
+
     v.subscribe(() => {
       expect(v.getValue()).toBe(1)
-      done()
+      doneCallback()
     }, true)
+    expect(doneCallback).toBeCalled()
   })
 
   describe('Subscription callback', () => {
-    it('should be triggered only when a value is changed', (done) => {
+    it('should be triggered only when a value is changed', () => {
       const v = new ObservableValue(1)
+      const doneCallback = vi.fn()
+
       v.subscribe(() => {
         expect(v.getValue()).toBe(2)
-        done()
+        doneCallback()
       }, false)
       v.setValue(1)
       v.setValue(1)
       v.setValue(2)
+      expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('should be triggered only on change when getLast is false', (done) => {
+    it('should be triggered only on change when getLast is false', () => {
       const v = new ObservableValue(1)
+      const doneCallback = vi.fn()
+
       v.subscribe((value) => {
         expect(value).toBe(2)
-        done()
+        doneCallback()
       }, false)
       v.setValue(2)
+      expect(doneCallback).toBeCalledTimes(1)
     })
   })
 
   describe('Unsubscribe', () => {
-    it('should remove the subscription on unsubscribe()', (done) => {
-      const callback1 = () => {
-        done(Error('Shouldnt be triggered'))
-      }
+    it('should remove the subscription on unsubscribe()', () => {
+      const shouldNotCall = vi.fn()
 
-      const callback2 = (value: number) => {
+      const doneCallback = vi.fn((value: number) => {
         expect(value).toBe(2)
-        done()
-      }
+      })
+
       const v = new ObservableValue(1)
-      const observer1 = v.subscribe(callback1)
-      v.subscribe(callback2)
+      const observer1 = v.subscribe(shouldNotCall)
+      v.subscribe(doneCallback)
 
       v.unsubscribe(observer1)
       v.setValue(2)
+
+      expect(doneCallback).toBeCalledTimes(1)
+      expect(shouldNotCall).not.toBeCalled()
     })
 
     it('should remove the subscription on Observable dispose', () => {
@@ -109,10 +122,12 @@ export const observableTests = describe('Observable', () => {
       ).toThrowError('Observable already disposed')
     })
 
-    it('should remove the subscription only from the disposed Observer', (done) => {
+    it('should remove the subscription only from the disposed Observer', () => {
+      const doneCallback = vi.fn()
+
       class Alma {
         public Callback() {
-          done()
+          doneCallback()
         }
       }
       const v = new ObservableValue(1)
@@ -122,6 +137,8 @@ export const observableTests = describe('Observable', () => {
       observer.dispose()
       expect(v.getObservers().length).toBe(1)
       v.setValue(3)
+
+      expect(doneCallback).toBeCalledTimes(1)
     })
   })
 })

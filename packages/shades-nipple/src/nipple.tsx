@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
 import type { JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
-import { create } from 'nipplejs'
+import nipplejs from 'nipplejs'
 
 export interface NippleComponentProps {
   managerOptions: JoystickManagerOptions
@@ -14,7 +14,7 @@ export interface NippleComponentProps {
 export const NippleComponent = Shade<NippleComponentProps>({
   shadowDomName: 'shade-nipple',
   constructed: async ({ element, props }) => {
-    const manager = create({
+    const manager = nipplejs.create({
       zone: element,
       ...props.managerOptions,
     })

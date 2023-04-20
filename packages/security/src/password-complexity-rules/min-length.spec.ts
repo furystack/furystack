@@ -1,5 +1,6 @@
 import type { PasswordComplexityFailedResult } from '../models'
 import { createMinLengthComplexityRule } from './min-length'
+import { describe, it, expect } from 'vitest'
 
 describe('min-length', () => {
   it('Should fail if the password is shorter than expected', async () => {

@@ -3,6 +3,7 @@ import { usingAsync } from '@furystack/utils'
 import { GetCurrentUser } from './get-current-user'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
+import { describe, it, expect } from 'vitest'
 
 describe('getCurrentUser', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

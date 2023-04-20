@@ -7,7 +7,6 @@ import { getRepository } from '@furystack/repository'
 
 /**
  * Creates a GetCollection endpoint for the given model. The model should have a Repository DataSet
- *
  * @param options The options for endpoint creation
  * @param options.model The Model class
  * @param options.primaryKey The field used as primary key on the model

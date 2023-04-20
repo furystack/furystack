@@ -102,14 +102,12 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = 
 
   /**
    * Adds an entry to the store, returns a promise that will be resolved with the added data
-   *
    * @param entries The data to be added
    */
   add(...entries: TWriteableData[]): Promise<CreateResult<T>>
 
   /**
    * Updates an entry in the store, returns a promise that will be resolved once the update is done
-   *
    * @param id The primary key of the entry
    * @param data The data to be updated
    */
@@ -122,14 +120,12 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = 
 
   /**
    * Returns a promise that will be resolved with an array of elements that matches the filter
-   *
    * @param searchOptions An options object for the Search expression
    */
   find<TSelect extends Array<keyof T>>(findOptions: FindOptions<T, TSelect>): Promise<Array<PartialResult<T, TSelect>>>
 
   /**
    * Returns a promise that will be resolved with an entry with the defined primary key or undefined
-   *
    * @param key The primary key of the entry
    */
   get<TSelect extends Array<keyof T>>(
@@ -139,7 +135,6 @@ export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = 
 
   /**
    * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
-   *
    * @param key The primary key of the entry to remove
    */
   remove(...keys: Array<T[TPrimaryKey]>): Promise<void>

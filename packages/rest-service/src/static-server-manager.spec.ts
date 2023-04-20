@@ -2,10 +2,10 @@ import { Injector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { ServerManager } from './server-manager'
 import { StaticServerManager } from './static-server-manager'
+import { describe, it, expect, vi } from 'vitest'
 
 /**
  * Generator for an incremental port number
- *
  * @param initialPort The initial port number
  * @yields a port for testing
  * @returns The Port number
@@ -139,7 +139,7 @@ describe('StaticServerManager', () => {
 
         const server = [...injector.getInstance(ServerManager).servers.values()][0]
 
-        server.apis[0].onRequest = jest.fn()
+        server.apis[0].onRequest = vi.fn()
 
         fetch(`http://localhost:${port}/bundleToAnotherFolder/not-found.html`).catch(() => {
           /** should fall, ignore */

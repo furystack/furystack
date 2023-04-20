@@ -32,7 +32,6 @@ export class Utils {
 
   /**
    * Reads the post's body and returns a promise with a parsed value
-   *
    * @param incomingMessage The incoming message instance
    * @returns the parsed object from the post body
    */
@@ -44,7 +43,6 @@ export class Utils {
 
   /**
    * Adds the specified CORS headers to the response
-   *
    * @param options The CORS Options object
    * @param incomingMessage The incoming message instance
    * @param serverResponse The outgoing response instance

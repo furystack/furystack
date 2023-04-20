@@ -52,7 +52,6 @@ export type ShadeOptions<TProps> = {
 
 /**
  * Factory method for creating Shade components
- *
  * @param o for component creation
  * @returns the JSX element
  */

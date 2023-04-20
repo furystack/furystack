@@ -2,6 +2,7 @@ import { SchemaValidator } from './schema-validator'
 import type { BodyParameters, Language } from './validate-examples'
 import { exampleSchema } from './validate-examples'
 import { SchemaValidationError } from './schema-validation-error'
+import { describe, it, expect } from 'vitest'
 
 describe('ValidateSchema', () => {
   describe('String Literal checks', () => {

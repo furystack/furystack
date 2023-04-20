@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { sleepAsync } from '@furystack/utils'
-import { pages } from './pages'
+
+const wizardPageUrl = '/wizard'
 
 test.describe('Wizard', () => {
   test('Should be opened and closed with a backdrop click', async ({ page }) => {
-    await page.goto(pages.wizard.url)
+    const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    await page.goto(wizardPageUrl)
     const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
     const wizard = await page.locator('shades-wizard')
@@ -35,7 +37,7 @@ test.describe('Wizard', () => {
   })
 
   test('Should be opened and finished by walking through the steps', async ({ page }) => {
-    await page.goto(pages.wizard.url)
+    await page.goto(wizardPageUrl)
     const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
 

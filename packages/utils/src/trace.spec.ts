@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { Trace } from './trace'
 
 class MockClass {
@@ -30,22 +31,25 @@ class MockClass {
 
 export const traceTests = describe('Trace tests', () => {
   describe('Static method traces', () => {
-    it('Static Methods call should be traced with args', (done) => {
+    it('Static Methods call should be traced with args', () => {
       const args = [1, 2, 3]
+      const doneCallback = vi.fn()
       const observer = Trace.method({
         object: MockClass,
         method: MockClass.addStatic,
         onCalled: (traceData) => {
           expect(args).toEqual(traceData.methodArguments)
           observer.dispose()
-          done()
+          doneCallback()
         },
       })
       MockClass.addStatic(...args)
+      expect(doneCallback).toBeCalled()
     })
 
-    it('Static Methods call should be traced with args and return value', (done) => {
+    it('Static Methods call should be traced with args and return value', () => {
       const args = [1, 2, 3]
+      const doneCallback = vi.fn()
       const observer = Trace.method({
         object: MockClass,
         method: MockClass.addStatic,
@@ -53,19 +57,23 @@ export const traceTests = describe('Trace tests', () => {
           expect(args).toEqual(traceData.methodArguments)
           expect(traceData.returned).toBe(1 + 2 + 3)
           observer.dispose()
-          done()
+          doneCallback()
         },
       })
       MockClass.addStatic(...args)
+      expect(doneCallback).toBeCalled()
     })
 
-    it("shouldn't be triggered after observer is disposed", (done) => {
+    it("shouldn't be triggered after observer is disposed", () => {
       const args = [1, 2, 3]
+      const shouldNotCall = vi.fn()
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: MockClass,
         method: MockClass.addStatic,
         onCalled: () => {
-          done("Shouldn't be triggered here")
+          shouldNotCall("Shouldn't be triggered here")
         },
       })
       const observer2 = Trace.method({
@@ -73,19 +81,23 @@ export const traceTests = describe('Trace tests', () => {
         method: MockClass.addStatic,
         onCalled: () => {
           observer2.dispose()
-          done()
+          doneCallback()
         },
       })
       observer.dispose()
       const returned = MockClass.addStatic(...args)
       expect(returned).toEqual(1 + 2 + 3)
+      expect(doneCallback).toBeCalled()
+      expect(shouldNotCall).not.toBeCalled()
     })
   })
 
   describe('Instance method traces', () => {
-    it('should be traced with arguments', (done) => {
+    it('should be traced with arguments', () => {
       const instance = new MockClass()
       const args = [1, 2, 3]
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: instance,
         method: instance.addInstance,
@@ -93,15 +105,18 @@ export const traceTests = describe('Trace tests', () => {
           expect(args).toEqual(traceData.methodArguments)
           expect(traceData.returned).toBe(1 + 2 + 3)
           observer.dispose()
-          done()
+          doneCallback()
         },
       })
       instance.addInstance(...args)
+      expect(doneCallback).toBeCalled()
     })
 
-    it('should be traced asynchronously', (done) => {
+    it('should be traced asynchronously', async () => {
       const instance = new MockClass()
       const args = [1, 2, 3]
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: instance,
         method: instance.addInstanceAsync,
@@ -111,14 +126,17 @@ export const traceTests = describe('Trace tests', () => {
           const { returned } = traceData
           expect(returned).toBe(1 + 2 + 3)
           observer.dispose()
-          done()
+          doneCallback()
         },
       })
-      instance.addInstanceAsync(...args)
+      await instance.addInstanceAsync(...args)
+      expect(doneCallback).toBeCalled()
     })
 
-    it("should have a valid 'this' scope", (done) => {
+    it("should have a valid 'this' scope", () => {
       const instance = new MockClass('testValue')
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: instance,
         method: instance.testScope,
@@ -126,15 +144,18 @@ export const traceTests = describe('Trace tests', () => {
           if (traceData.returned) {
             expect(traceData.returned).toBe('testValue')
             observer.dispose()
-            done()
+            doneCallback()
           }
         },
       })
       expect(instance.testScope()).toBe('testValue')
+      expect(doneCallback).toBeCalled()
     })
 
-    it('should handle throwing errors', (done) => {
+    it('should handle throwing errors', () => {
       const instance = new MockClass('testValue')
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: instance,
         method: instance.testError,
@@ -142,17 +163,20 @@ export const traceTests = describe('Trace tests', () => {
           if (traceData.error) {
             expect(traceData.error.message).toBe('message')
             observer.dispose()
-            done()
+            doneCallback()
           }
         },
       })
       expect(() => {
         instance.testError('message')
       }).toThrow()
+      expect(doneCallback).toBeCalled()
     })
 
-    it('should handle throwing errors with asyncs', (done) => {
+    it('should handle throwing errors with asyncs', async () => {
       const instance = new MockClass('testValue')
+      const doneCallback = vi.fn()
+
       const observer = Trace.method({
         object: instance,
         method: instance.testErrorAsync,
@@ -161,18 +185,16 @@ export const traceTests = describe('Trace tests', () => {
           if (traceData.error) {
             expect(traceData.error.message).toBe('message')
             observer.dispose()
-            done()
+            doneCallback()
           }
         },
       })
-      instance
-        .testErrorAsync('message')
-        .then(() => {
-          done('Should throw error')
-        })
-        .catch(() => {
-          /** ignore, done handled in the onError callback */
-        })
+      try {
+        await instance.testErrorAsync('message')
+      } catch (error) {
+        // ignore
+      }
+      expect(doneCallback).toBeCalled()
     })
   })
 })

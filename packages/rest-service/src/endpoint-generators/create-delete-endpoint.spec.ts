@@ -5,6 +5,7 @@ import { createDeleteEndpoint } from './create-delete-endpoint'
 import { MockClass, setupContext } from './utils'
 import { useRestService } from '../helpers'
 import { getDataSetFor } from '@furystack/repository'
+import { describe, it, expect } from 'vitest'
 
 describe('createDeleteEndpoint', () => {
   it('Should delete the entity and report the success', async () => {

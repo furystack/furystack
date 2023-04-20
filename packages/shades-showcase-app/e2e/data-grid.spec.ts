@@ -1,7 +1,5 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { sleepAsync } from '@furystack/utils'
-import { pages } from './pages'
 
 test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
@@ -28,7 +26,7 @@ test.describe('Data Grid component', () => {
 
   test.describe('Focus', async () => {
     test('With mouse click', async ({ page }) => {
-      await page.goto(pages.grid.url)
+      await page.goto('/grid')
       const numbers = new Array(10).fill(Math.round(Math.random() * 100))
       for (const no of numbers) {
         await clickOnRow(page, no)
@@ -38,7 +36,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('With keyboard', async ({ page }) => {
-      await page.goto(pages.grid.url)
+      await page.goto('/grid')
       await clickOnRow(page, 1)
       await expectRowHasFocus(page, 1)
       await page.keyboard.press('ArrowDown')
@@ -51,7 +49,7 @@ test.describe('Data Grid component', () => {
   test.describe('Selection', async () => {
     test.describe('Keyboard shortcuts', () => {
       test('space should invert selection and keep focus', async ({ page }) => {
-        await page.goto(pages.grid.url)
+        await page.goto('/grid')
         await clickOnRow(page, 1)
 
         // select row 1
@@ -89,7 +87,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('insert should invert selection and move focus down', async ({ page }) => {
-        await page.goto(pages.grid.url)
+        await page.goto('/grid')
         await clickOnRow(page, 1)
 
         // select row 1, focus on 2
@@ -113,7 +111,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('plus should select all rows', async ({ page }) => {
-        await page.goto(pages.grid.url)
+        await page.goto('/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('+', {
           delay: 25,
@@ -122,7 +120,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('minus should deselect all rows', async ({ page }) => {
-        await page.goto(pages.grid.url)
+        await page.goto('/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('Insert')
         await page.keyboard.press('Insert')
@@ -133,7 +131,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('star should invert selection', async ({ page }) => {
-        await page.goto(pages.grid.url)
+        await page.goto('/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('Insert')
         await page.keyboard.press('Insert')
@@ -147,7 +145,7 @@ test.describe('Data Grid component', () => {
 
   test.describe('Gestures', async () => {
     test('CTRL+click should toggle selection', async ({ page }) => {
-      await page.goto(pages.grid.url)
+      await page.goto('/grid')
       /** TODO */
       await clickOnRow(page, 1, ['Control'])
       await expectRowHasFocus(page, 1)
@@ -166,7 +164,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('SHIFT+click should select range', async ({ page }) => {
-      await page.goto(pages.grid.url)
+      await page.goto('/grid')
       await clickOnRow(page, 1)
       await expectRowHasFocus(page, 1)
       await expectSelectionCount(page, 0)

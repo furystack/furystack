@@ -1,5 +1,6 @@
 import { Injectable } from './injectable'
 import { Injector } from './injector'
+import { describe, expect, it } from 'vitest'
 
 describe('@Injectable()', () => {
   it('Should fill meta store with default options', () => {

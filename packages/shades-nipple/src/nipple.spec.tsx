@@ -2,10 +2,15 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import type { NippleComponentProps } from './nipple'
 import { NippleComponent } from './nipple'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 
 describe('Nipple', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
   it('Should render with the default settings', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
@@ -22,10 +27,10 @@ describe('Nipple', () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const onStart = jest.fn()
-    const onDir = jest.fn()
-    const onMove = jest.fn()
-    const onEnd = jest.fn()
+    const onStart = vi.fn()
+    const onDir = vi.fn()
+    const onMove = vi.fn()
+    const onEnd = vi.fn()
 
     initializeShadeRoot({
       injector,

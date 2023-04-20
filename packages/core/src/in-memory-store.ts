@@ -188,7 +188,6 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
 
   /**
    * Creates an InMemoryStore that can be used for testing purposes.
-   *
    * @param options Options for the In Memory Store
    * @param options.primaryKey The name of the primary key field
    * @param options.model The Entity Model

@@ -10,7 +10,6 @@ export type RenderOptions<TProps> = {
   element: JSX.Element<TProps>
   /**
    * Creates and disposes a resource after the component has been detached from the DOM
-   *
    * @param key The key for caching the disposable resource
    * @param factory A factory method for creating the disposable resource
    * @returns The Disposable instance
@@ -34,7 +33,6 @@ export type RenderOptions<TProps> = {
 
   /**
    * Creates a state object that will trigger a component re-render on change
-   *
    * @param key The Key for caching the observable value
    * @param initialValue The initial value for the observable
    * @returns tuple with the current value and a setter function
@@ -43,7 +41,6 @@ export type RenderOptions<TProps> = {
 
   /**
    * Creates a state object that will use a value from the search string of the current location. Triggers a component re-render on change
-   *
    * @param key The Key for caching the observable value
    * @param initialValue The initial value - if the value is not found in the search string
    * @returns a tuple with the current value and a setter function
@@ -52,7 +49,6 @@ export type RenderOptions<TProps> = {
 
   /**
    * Creates a state object that will use a value from the storage area. Triggers a component re-render on change
-   *
    * @param key The key in the storage area
    * @param initialValue The initial value that will be used if the key is not found in the storage area
    * @param storageArea The storage area to use

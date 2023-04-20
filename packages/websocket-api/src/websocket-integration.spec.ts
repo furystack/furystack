@@ -5,6 +5,7 @@ import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession, ServerManager, useHttpAuthentication } from '@furystack/rest-service'
 import { useRestService } from '@furystack/rest-service'
 import { useWebsockets } from './helpers'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'
@@ -13,7 +14,7 @@ describe('WebSocket Integration tests', () => {
   let i!: Injector
   let client: ws
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     i = new Injector()
     useRestService({
       injector: i,
@@ -27,28 +28,33 @@ describe('WebSocket Integration tests', () => {
     )
     useHttpAuthentication(i, {})
     useWebsockets(i, { actions: [WhoAmI], path, port, host })
-    i.getInstance(ServerManager)
-      .getOrCreate({ port })
-      .then(() => {
-        client = new ws(`ws://${host}:${port}/ws`)
-        client
-          .on('open', () => {
-            done()
-          })
-          .on('error', done)
-      })
+
+    await new Promise<void>((done, reject) => {
+      i.getInstance(ServerManager)
+        .getOrCreate({ port })
+        .then(() => {
+          client = new ws(`ws://${host}:${port}/ws`)
+          client
+            .on('open', () => {
+              done()
+            })
+            .on('error', reject)
+        })
+    })
   })
 
   afterEach(async () => {
     await i.dispose()
   })
 
-  it('Should be connected', (done) => {
-    client.on('message', (data) => {
-      expect(data.toString()).toBe('{"currentUser":null}')
-      client.close()
-      done()
+  it('Should be connected', async () => {
+    await new Promise<void>((done) => {
+      client.on('message', (data) => {
+        expect(data.toString()).toBe('{"currentUser":null}')
+        client.close()
+        done()
+      })
+      client.send('whoami')
     })
-    client.send('whoami')
   })
 })

@@ -6,10 +6,15 @@ global.TextDecoder = TextDecoder as any
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import { LocationService } from './'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 describe('LocationService', () => {
-  beforeEach(() => (document.body.innerHTML = '<div id="root"></div>'))
-  afterEach(() => (document.body.innerHTML = ''))
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
 
   it('Shuld be constructed', () => {
     using(new Injector(), (i) => {
@@ -20,7 +25,7 @@ describe('LocationService', () => {
 
   it('Shuld update state on events', () => {
     using(new Injector(), (i) => {
-      const onLocaionChanged = jest.fn()
+      const onLocaionChanged = vi.fn()
       const s = i.getInstance(LocationService)
       s.onLocationPathChanged.subscribe(onLocaionChanged)
       expect(onLocaionChanged).toBeCalledTimes(0)

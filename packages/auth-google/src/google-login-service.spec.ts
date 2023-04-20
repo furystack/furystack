@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager, addStore } from '@furystack/core'
 import { GoogleLoginSettings, GoogleLoginService } from './login-service'
 import { useHttpAuthentication } from '@furystack/rest-service'
+import { describe, it, expect } from 'vitest'
 
 describe('Google Login Service', () => {
   describe('Settings', () => {
