@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "",
   "type": "module",
   "scripts": {
@@ -20,6 +20,11 @@
       ]
     }
   },
+  "files": [
+    "esm",
+    "types",
+    "src"
+  ],
   "keywords": [
     "FuryStack",
     "Shades",

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/security",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "type": "module",
   "scripts": {
@@ -23,7 +23,7 @@
     }
   },
   "files": [
-    "dist",
+    "esm",
     "types",
     "src"
   ],
