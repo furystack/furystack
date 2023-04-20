@@ -4,7 +4,8 @@
     "outDir": "./cjs",
     "declarationDir": "./types",
     "composite": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": "./src"
   },
   "include": ["src"],
   "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../utils" }]

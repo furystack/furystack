@@ -20,7 +20,7 @@ export abstract class AbstractLogger implements Logger {
     try {
       await this.addEntry(entry)
     } catch (error) {
-      this.error({
+      await this.error({
         scope: AbstractLoggerScope,
         message: 'There was an error adding entry to the log',
         data: {

@@ -1,11 +1,12 @@
-import { TestClass } from '@furystack/core'
-import { StoreManager, createStoreTest } from '@furystack/core'
+import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
+import { StoreManager } from '@furystack/core'
 import { useSequelize } from './store-manager-helpers'
 import { DataTypes, Model } from 'sequelize'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { SequelizeClientFactory } from './sequelize-client-factory'
 import type { SequelizeStore } from './sequelize-store'
+import { describe, it, expect } from 'vitest'
 
 class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClass {
   id!: number

@@ -5,6 +5,7 @@ import { InMemoryStore, addStore } from '@furystack/core'
 import { Repository } from './repository'
 import type { AuthorizationResult, DataSetSettings } from './data-set-setting'
 import { getDataSetFor, getRepository } from './helpers'
+import { describe, it, expect, vi } from 'vitest'
 
 class TestClass {
   public id = 1
@@ -73,7 +74,7 @@ describe('DataSet', () => {
 
       it('should call the add async authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeAdd = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeAdd = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
@@ -87,7 +88,7 @@ describe('DataSet', () => {
 
       it('should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeAdd = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          const authorizeAdd = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
@@ -108,7 +109,7 @@ describe('DataSet', () => {
 
       it('should modify an entity on add, if modifyOnAdd is provided', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const modifyOnAdd = jest.fn(
+          const modifyOnAdd = vi.fn(
             async (options: { injector: Injector; entity: WithOptionalId<TestClass, 'id'> }) => ({
               ...options.entity,
               value: options.entity.value.toUpperCase(),
@@ -161,7 +162,7 @@ describe('DataSet', () => {
 
       it('should call the authorizeUpdate authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdate = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeUpdate = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
           const dataSet = getDataSetFor(i, TestClass, 'id')
@@ -175,9 +176,7 @@ describe('DataSet', () => {
 
       it('should throw if the authorizeUpdateEntity returns a non-valid result and should not update a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdateEntity = jest.fn(
-            async () => ({ isAllowed: false, message: '...' } as AuthorizationResult),
-          )
+          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
 
@@ -197,7 +196,7 @@ describe('DataSet', () => {
       })
       it('should call the authorizeUpdateEntity authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdateEntity = jest.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
           const dataSet = getDataSetFor(i, TestClass, 'id')
@@ -211,7 +210,7 @@ describe('DataSet', () => {
 
       it('should throw if the authorizeUpdate returns a non-valid result and should not update a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdate = jest.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          const authorizeUpdate = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
 
@@ -232,7 +231,7 @@ describe('DataSet', () => {
 
       it('should modify an entity on update, if modifyOnAdd is provided', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const modifyOnUpdate: DataSetSettings<TestClass, 'id'>['modifyOnUpdate'] = jest.fn(async (options) => ({
+          const modifyOnUpdate: DataSetSettings<TestClass, 'id'>['modifyOnUpdate'] = vi.fn(async (options) => ({
             ...options.entity,
             value: options.entity.value?.toUpperCase(),
           }))
@@ -283,7 +282,7 @@ describe('DataSet', () => {
 
       it('should return the count if authorizeGet returns valid result', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
+          const authorizeGet = vi.fn(async () => ({ isAllowed: true, message: '' }))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -296,7 +295,7 @@ describe('DataSet', () => {
 
       it('should throw if authorizeGet returns invalid result', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+          const authorizeGet = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -328,7 +327,7 @@ describe('DataSet', () => {
 
     it('should return the unfiltered result if authorizeGet returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        const authorizeGet = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -341,7 +340,7 @@ describe('DataSet', () => {
 
     it('should throw if authorizeGet returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authorizeGet = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -372,7 +371,7 @@ describe('DataSet', () => {
 
     it('should return the entity if authorizeGet returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGet = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        const authorizeGet = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -385,7 +384,7 @@ describe('DataSet', () => {
 
     it('should throw if authorizeGet returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGet = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authorizeGet = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGet })
 
@@ -402,7 +401,7 @@ describe('DataSet', () => {
 
     it('should return the entity if authorizeGetEntity returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGetEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        const authorizeGetEntity = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
 
@@ -415,7 +414,7 @@ describe('DataSet', () => {
 
     it('should throw if authorizeGetEntity returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeGetEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authorizeGetEntity = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
 
@@ -446,7 +445,7 @@ describe('DataSet', () => {
 
     it('should remove the entity if authorizeRemove returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeRemove = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        const authorizeRemove = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeRemove })
 
@@ -460,7 +459,7 @@ describe('DataSet', () => {
 
     it('should throw if authorizeRemove returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authorizeRemove = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authorizeRemove = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authorizeRemove })
 
@@ -479,7 +478,7 @@ describe('DataSet', () => {
 
     it('should remove the entity if authroizeRemoveEntity returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: true, message: '' }))
+        const authroizeRemoveEntity = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
 
@@ -493,7 +492,7 @@ describe('DataSet', () => {
 
     it('should throw if authroizeRemoveEntity returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authroizeRemoveEntity = jest.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authroizeRemoveEntity = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
 

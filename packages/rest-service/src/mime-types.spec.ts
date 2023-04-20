@@ -1,4 +1,5 @@
 import { getMimeForFile } from './mime-types'
+import { describe, it, expect } from 'vitest'
 describe('MIME Types', () => {
   it('Should return a default fallback', () => {
     expect(getMimeForFile('test.alma')).toBe('application/octet-stream')

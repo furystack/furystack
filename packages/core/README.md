@@ -34,7 +34,7 @@ globalDisposables.add(myRootInjector)
 There is a set of generic store test that you can use to test your custom store implementation as the following example shows:
 
 ```ts
-import { TestClass, createStoreTest } from '@furystack/core/dist/create-physical-store-tests'
+import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
 
 describe('myStore', ()=>{
     createStoreTest({

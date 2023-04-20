@@ -3,6 +3,7 @@ import { using, usingAsync } from '@furystack/utils'
 import { Injectable } from './injectable'
 import { Injected } from './injected'
 import { Injector } from './injector'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('Injector', () => {
   it('Shold be constructed', () => {
@@ -132,18 +133,20 @@ describe('Injector', () => {
     }
   })
 
-  it('Should dispose cached entries on dispose and tolerate non-disposable ones', (done) => {
+  it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
+    const doneCallback = vi.fn()
     class TestDisposable implements Disposable {
       public dispose() {
-        done()
+        doneCallback()
       }
     }
     class TestInstance {}
 
-    usingAsync(new Injector(), async (i) => {
+    await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance(new TestDisposable())
       i.setExplicitInstance(new TestInstance())
     })
+    expect(doneCallback).toBeCalledTimes(1)
   })
 
   it('Remove should remove an entity from the cached singletons list', () => {
@@ -164,7 +167,7 @@ describe('Injector', () => {
     class UndecoratedTestClass {}
     using(new Injector(), (i) => {
       expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
-        `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+        `No metadata found for 'UndecoratedTestClass'. Dependencies: _Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     })
   })

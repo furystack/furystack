@@ -4,6 +4,7 @@ import { ApiManager } from './api-manager'
 import { HttpAuthenticationSettings } from './http-authentication-settings'
 import { useHttpAuthentication, useRestService, useStaticFiles } from './helpers'
 import { StaticServerManager } from './static-server-manager'
+import { describe, it, expect } from 'vitest'
 
 describe('Injector extensions', () => {
   describe('useHttpAuthentication', () => {

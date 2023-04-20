@@ -1,5 +1,6 @@
 import { sleepAsync } from '@furystack/utils'
 import { Cache } from './cache'
+import { describe, it, expect, vi } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
     const cache = new Cache({ load: () => Promise.resolve(1) })
@@ -61,7 +62,7 @@ describe('Cache', () => {
 
   describe('Loading and locking', () => {
     it('should store and retrieve results based on the arguments', async () => {
-      const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
       const cache = new Cache({ load: loader })
       const result = await cache.get(1, 2)
@@ -85,7 +86,7 @@ describe('Cache', () => {
     })
 
     it('Should return the cached value after the lock resolves', async () => {
-      const loader = jest.fn(
+      const loader = vi.fn(
         (a: number, b: number) =>
           new Promise((resolve) =>
             setTimeout(() => {
@@ -107,7 +108,7 @@ describe('Cache', () => {
 
   describe('Obsolete state', () => {
     it('Should reload the value for obsolete states', async () => {
-      const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
       const cache = new Cache({ load: loader })
       const result = await cache.get(1, 2)
@@ -124,13 +125,13 @@ describe('Cache', () => {
     })
 
     it('Should skip setting for already obsolete values', async () => {
-      const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
       const cache = new Cache({ load: loader })
       const result = await cache.get(1, 2)
       expect(result).toEqual(3)
 
-      const subscription = jest.fn()
+      const subscription = vi.fn()
       cache.getObservable(1, 2).subscribe(subscription)
 
       cache.setObsolete(1, 2)
@@ -148,7 +149,7 @@ describe('Cache', () => {
     })
 
     it('Should set an obsolete state based on a predicate', async () => {
-      const loader = jest.fn((a: number, b: number) => Promise.resolve(a + b))
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
       const cache = new Cache({ load: loader })
       const result = await cache.get(1, 2)
@@ -167,7 +168,7 @@ describe('Cache', () => {
 
   describe('Error state', () => {
     it('Should reject and set error state when loading fails', () => {
-      const loader = jest.fn((_a: number, _b: number) => Promise.reject(new Error('Failed')))
+      const loader = vi.fn((_a: number, _b: number) => Promise.reject(new Error('Failed')))
 
       const cache = new Cache({ load: loader })
 
@@ -176,7 +177,7 @@ describe('Cache', () => {
 
     it('Should reload the value for failed states', async () => {
       let hasFailed = false
-      const loader = jest.fn((a: number, b: number) => {
+      const loader = vi.fn((a: number, b: number) => {
         if (!hasFailed) {
           hasFailed = true
           return Promise.reject(new Error('Failed'))

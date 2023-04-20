@@ -4,6 +4,7 @@ import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
+import { describe, it, expect, vi } from 'vitest'
 
 describe('Whoami action', () => {
   const currentUser = { username: 'testuser' }
@@ -12,7 +13,7 @@ describe('Whoami action', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
 
   const wsMock: ws = {
-    send: jest.fn(() => undefined),
+    send: vi.fn(() => undefined),
   } as unknown as ws
 
   it('cannot be executed if data does not match', () => {

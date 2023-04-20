@@ -5,6 +5,7 @@ import { ServerManager } from '@furystack/rest-service'
 import { Injectable, Injected, Injector } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
 import type { Data } from 'ws'
+import { WebSocketServer } from 'ws'
 import ws from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings'
 import type { WebSocketAction } from './models'
@@ -16,7 +17,7 @@ import { WebsocketUserContext } from './websocket-user-context'
  */
 @Injectable({ lifetime: 'scoped' })
 export class WebSocketApi implements Disposable {
-  public readonly socket = new ws.Server({ noServer: true })
+  public readonly socket = new WebSocketServer({ noServer: true })
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 

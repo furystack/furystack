@@ -4,6 +4,7 @@ import { WebSocketApi } from './websocket-api'
 import WebSocket from 'ws'
 import type { WebSocketAction } from './models'
 import { useWebsockets } from './helpers'
+import { describe, it, expect } from 'vitest'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {

@@ -6,6 +6,7 @@ import {
   isObsoleteCacheResult,
   isPendingCacheResult,
 } from './cache-result'
+import { describe, it, expect } from 'vitest'
 
 describe('CacheResult', () => {
   it('should be able to use the isLoaded type guard', () => {
