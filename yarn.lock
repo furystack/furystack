@@ -463,6 +463,7 @@ __metadata:
     esbuild: ^0.17.17
     monaco-editor: ^0.37.1
     typescript: ^5.0.4
+    vite: ^4.3.0
     vitest: ^0.30.1
   languageName: unknown
   linkType: soft
