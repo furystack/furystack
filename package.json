@@ -30,16 +30,15 @@
     "start": "yarn workspace @furystack/shades-showcase-app start",
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
-    "build:cjs": "tsc -b packages",
-    "build:esm": "yarn workspaces foreach -t run build:es6 --moduleResolution bundler --module esnext",
+    "build:esm": "tsc -b packages",
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
-    "build": "yarn build:cjs && yarn build:esm",
+    "build": "yarn build:esm",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
-    "clean": "yarn rimraf ./packages/**/(types|dist|esm|tsconfig.tsbuildinfo)",
+    "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
-    "create-schemas": "yarn build && yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
+    "create-schemas": "yarn build && yarn ts-json-schema-generator --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
   },
   "husky": {
     "hooks": {
