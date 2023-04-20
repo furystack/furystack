@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-store",
-  "version": "6.2.1",
+  "version": "7.0.0",
   "description": "Redis Store implementation for FuryStack",
   "type": "module",
   "scripts": {
