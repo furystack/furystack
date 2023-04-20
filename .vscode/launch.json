@@ -28,31 +28,6 @@
         "--timeout=3000000",
         "--project=chromium"
       ]
-    },
-
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug All Jest tests",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": ["run", "--inspect-brk", "jest", "--runInBand", "--testTimeout=99999999"],
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Current Jest tests",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": [
-        "run",
-        "--inspect-brk",
-        "jest",
-
-        "${fileBasenameNoExtension}",
-        "--runInBand",
-        "--testTimeout=99999999"
-      ],
-      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }
