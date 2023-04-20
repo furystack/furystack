@@ -20,6 +20,11 @@
       ]
     }
   },
+  "files": [
+    "esm",
+    "types",
+    "src"
+  ],
   "keywords": [
     "FuryStack",
     "Shades",
