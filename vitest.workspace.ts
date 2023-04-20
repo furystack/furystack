@@ -2,9 +2,9 @@ import { defineWorkspace } from 'vitest/config'
 
 const cfg = defineWorkspace(
   [
-    // COMMON
     {
       test: {
+        name: 'Common',
         include: [
           'packages/utils/**/*.spec.ts',
           'packages/cache/**/*.spec.ts',
@@ -16,9 +16,9 @@ const cfg = defineWorkspace(
         ],
       },
     },
-    // SERVICE
     {
       test: {
+        name: 'Service',
         include: [
           'packages/auth-google/src/**/*.spec.ts',
           'packages/filesystem-store/src/**/*.spec.ts',
@@ -32,10 +32,13 @@ const cfg = defineWorkspace(
         ],
       },
     },
-    // CLIENT
     {
       test: {
-        environment: 'jsdom',
+        name: 'Shades',
+        browser: {
+          enabled: true,
+          name: 'chrome',
+        },
         include: [
           'packages/shades/src/**/*.spec.(ts|tsx)',
           'packages/shades-common-components/src/**/*.spec.(ts|tsx)',
