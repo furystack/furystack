@@ -2336,6 +2336,7 @@ __metadata:
     eslint-plugin-jsdoc: ^43.0.6
     eslint-plugin-prettier: ^4.2.1
     husky: ^8.0.3
+    jsdom: ^21.1.1
     lint-staged: ^13.2.1
     prettier: ^2.8.7
     rimraf: ^5.0.0
