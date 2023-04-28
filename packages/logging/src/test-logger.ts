@@ -1,5 +1,5 @@
-import { AbstractLogger } from './abstract-logger'
-import type { LeveledLogEntry } from './log-entries'
+import { AbstractLogger } from './abstract-logger.js'
+import type { LeveledLogEntry } from './log-entries.js'
 
 /**
  * A test logger instance with a callback for added events

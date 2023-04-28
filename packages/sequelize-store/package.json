@@ -1,6 +1,6 @@
 {
   "name": "@furystack/sequelize-store",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Sequelize-based Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -8,16 +8,7 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "import": "./esm/index.js"
     }
   },
   "files": [
@@ -51,7 +42,7 @@
     "sequelize": "^6.31.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.11",
+    "@types/node": "^18.16.2",
     "sqlite3": "5.1.6",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"

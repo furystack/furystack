@@ -1,4 +1,4 @@
-import type { LeveledLogEntry, LogEntry } from './log-entries'
+import type { LeveledLogEntry, LogEntry } from './log-entries.js'
 
 /**
  * Log entry without scope variable

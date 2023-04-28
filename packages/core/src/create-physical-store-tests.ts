@@ -1,4 +1,4 @@
-import type { PhysicalStore } from './models/physical-store'
+import type { PhysicalStore } from './models/physical-store.js'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { describe, it, expect } from 'vitest'

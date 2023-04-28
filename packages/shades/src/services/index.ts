@@ -1,2 +1,2 @@
-export * from './location-service'
-export * from './screen-service'
+export * from './location-service.js'
+export * from './screen-service.js'

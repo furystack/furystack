@@ -1,4 +1,4 @@
-import type { PasswordComplexityResult } from './password-complexity-result'
+import type { PasswordComplexityResult } from './password-complexity-result.js'
 
 export interface PasswordComplexityRule {
   name: string

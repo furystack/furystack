@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "Google Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {
@@ -8,16 +8,7 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "import": "./esm/index.js"
     }
   },
   "files": [
@@ -47,7 +38,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jsdom": "^21.1.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^18.16.2",
     "jsdom": "^21.1.1",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"

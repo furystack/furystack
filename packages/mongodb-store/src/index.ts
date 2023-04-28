@@ -1,2 +1,2 @@
-export * from './mongodb-store'
-export * from './store-manager-helpers'
+export * from './mongodb-store.js'
+export * from './store-manager-helpers.js'

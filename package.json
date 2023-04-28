@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "3.0.1",
+  "version": "3.0.2",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -8,22 +8,22 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
-    "@typescript-eslint/parser": "^5.59.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
     "@vitest/coverage-c8": "^0.30.1",
     "ajv": "^8.12.0",
-    "eslint": "^8.38.0",
+    "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-jsdoc": "^43.0.6",
+    "eslint-plugin-jsdoc": "^43.1.1",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
     "jsdom": "^21.1.1",
-    "lint-staged": "^13.2.1",
-    "prettier": "^2.8.7",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
     "rimraf": "^5.0.0",
-    "ts-json-schema-generator": "^1.2.0",
+    "ts-json-schema-generator": "^1.3.0-next.4",
     "typescript": "^5.0.4",
-    "vite": "^4.3.0",
+    "vite": "^4.3.3",
     "vitest": "^0.30.1"
   },
   "scripts": {
@@ -38,7 +38,7 @@
     "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
-    "create-schemas": "yarn build && yarn ts-json-schema-generator --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
+    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
   },
   "husky": {
     "hooks": {

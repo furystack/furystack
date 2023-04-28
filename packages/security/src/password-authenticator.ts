@@ -1,10 +1,10 @@
 import { StoreManager } from '@furystack/core'
 import { Injectable, Injected, Injector } from '@furystack/inject'
-import { SecurityPolicyManager } from './security-policy-manager'
-import { UnauthenticatedError } from './errors'
-import type { PasswordCheckResult } from './models'
-import { PasswordCredential, PasswordResetToken } from './models'
-import { PasswordComplexityError } from './errors/password-complexity-error'
+import { SecurityPolicyManager } from './security-policy-manager.js'
+import { UnauthenticatedError } from './errors/index.js'
+import type { PasswordCheckResult } from './models/index.js'
+import { PasswordCredential, PasswordResetToken } from './models/index.js'
+import { PasswordComplexityError } from './errors/password-complexity-error.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class PasswordAuthenticator {

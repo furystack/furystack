@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
@@ -8,16 +8,7 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "import": "./esm/index.js"
     }
   },
   "files": [

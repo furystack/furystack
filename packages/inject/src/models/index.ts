@@ -1,1 +1,1 @@
-export * from './constructable'
+export * from './constructable.js'

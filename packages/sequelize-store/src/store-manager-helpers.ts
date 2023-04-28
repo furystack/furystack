@@ -1,8 +1,8 @@
 import { addStore } from '@furystack/core'
 import type { Constructable, Injector } from '@furystack/inject'
 import type { Options, Sequelize, ModelStatic, Model } from 'sequelize'
-import { SequelizeClientFactory } from './sequelize-client-factory'
-import { SequelizeStore } from './sequelize-store'
+import { SequelizeClientFactory } from './sequelize-client-factory.js'
+import { SequelizeStore } from './sequelize-store.js'
 
 export const useSequelize = function <T extends object, M extends ModelStatic<Model<T>>, Key extends keyof T>({
   injector,

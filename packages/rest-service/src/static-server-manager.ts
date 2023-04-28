@@ -2,9 +2,9 @@ import { Injectable, Injected } from '@furystack/inject'
 import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
-import { getMimeForFile } from './mime-types'
+import { getMimeForFile } from './mime-types.js'
 import { join, normalize, sep } from 'path'
-import { ServerManager } from './server-manager'
+import { ServerManager } from './server-manager.js'
 
 export interface StaticServerOptions {
   baseUrl: string

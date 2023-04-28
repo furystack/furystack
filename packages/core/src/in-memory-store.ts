@@ -1,6 +1,6 @@
 import type { Constructable } from '@furystack/inject'
-import type { PhysicalStore, FindOptions, PartialResult, FilterType, CreateResult } from './models/physical-store'
-import { selectFields, isOperator, isLogicalOperator } from './models/physical-store'
+import type { PhysicalStore, FindOptions, PartialResult, FilterType, CreateResult } from './models/physical-store.js'
+import { selectFields, isOperator, isLogicalOperator } from './models/physical-store.js'
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey, T> {
   /**

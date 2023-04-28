@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "12.0.1",
+  "version": "12.0.2",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
@@ -8,20 +8,10 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
+      "import": "./esm/index.js"
     },
     "./create-physical-store-tests": {
-      "import": "./esm/create-physical-store-tests.js",
-      "types": "./types/create-physical-store-tests.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "import": "./esm/create-physical-store-tests.js"
     }
   },
   "files": [
@@ -47,7 +37,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^18.15.11",
+    "@types/node": "^18.16.2",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"
   },

@@ -1,6 +1,6 @@
 import type { Constructable } from '@furystack/inject'
 import type { Injector } from '@furystack/inject'
-import { Repository } from './repository'
+import { Repository } from './repository.js'
 
 /**
  * Returns a Repository on an injector

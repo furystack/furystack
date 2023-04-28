@@ -1,6 +1,6 @@
-import type { LeveledLogEntry, LogEntry } from './log-entries'
-import { LogLevel } from './log-entries'
-import type { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './logger'
+import type { LeveledLogEntry, LogEntry } from './log-entries.js'
+import { LogLevel } from './log-entries.js'
+import type { Logger, LeveledLogEntryWithoutScope, LogEntryWithoutScope } from './logger.js'
 
 /**
  * Default scope key for the Abstract Logger

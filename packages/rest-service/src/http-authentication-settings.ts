@@ -2,7 +2,7 @@ import type { PhysicalStore, StoreManager } from '@furystack/core'
 import { User } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
-import { DefaultSession } from './models/default-session'
+import { DefaultSession } from './models/default-session.js'
 
 /**
  * Authentication settings object for FuryStack HTTP Api

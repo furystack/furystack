@@ -1,8 +1,9 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent, attachStyles } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
-import { FormService, ThemeProviderService } from '../..'
-import type { Palette } from '../../services'
+import type { Palette } from '../../services/theme-provider-service.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { FormService } from '../form.js'
 
 export type ValidInputValidationResult = { isValid: true }
 

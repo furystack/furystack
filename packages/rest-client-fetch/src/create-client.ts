@@ -1,6 +1,6 @@
 import type { RestApi } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
-import { ResponseError } from './response-error'
+import { ResponseError } from './response-error.js'
 import { compile } from 'path-to-regexp'
 export type BodyParameter<T> = T extends { result: unknown; body: infer U } ? { body: U } : unknown
 

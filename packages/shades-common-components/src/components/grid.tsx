@@ -1,6 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../services'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 // ToDo: https://stackoverflow.com/questions/51459971/type-of-generic-stateless-component-react-or-extending-generic-function-interfa
 

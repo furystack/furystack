@@ -1,18 +1,18 @@
 import { Shade } from '@furystack/shades'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main'
 
 import './worker-config'
 
 export interface MonacoEditorProps {
-  options: monaco.editor.IStandaloneEditorConstructionOptions
+  options: editor.IStandaloneEditorConstructionOptions
   value?: string
   onchange?: (value: string) => void
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
   constructed: ({ element, props }) => {
-    const editorInstance = monaco.editor.create(element as HTMLElement, props.options)
+    const editorInstance = editor.create(element as HTMLElement, props.options)
     editorInstance.setValue(props.value || '')
     props.onchange &&
       editorInstance.onKeyUp(() => {

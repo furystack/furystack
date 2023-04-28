@@ -1,1 +1,1 @@
-export * from './websocket-action'
+export * from './websocket-action.js'

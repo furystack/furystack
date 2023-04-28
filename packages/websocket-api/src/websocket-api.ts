@@ -7,10 +7,10 @@ import type { Disposable } from '@furystack/utils'
 import type { Data } from 'ws'
 import { WebSocketServer } from 'ws'
 import ws from 'ws'
-import { WebSocketApiSettings } from './websocket-api-settings'
-import type { WebSocketAction } from './models'
+import { WebSocketApiSettings } from './websocket-api-settings.js'
+import type { WebSocketAction } from './models/websocket-action.js'
 import { AggregatedError, IdentityContext } from '@furystack/core'
-import { WebsocketUserContext } from './websocket-user-context'
+import { WebsocketUserContext } from './websocket-user-context.js'
 
 /**
  * A WebSocket API implementation for FuryStack
