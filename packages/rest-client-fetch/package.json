@@ -8,16 +8,7 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "import": "./esm/index.js"
     }
   },
   "files": [
