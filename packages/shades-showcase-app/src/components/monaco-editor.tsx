@@ -1,8 +1,8 @@
 import { Shade } from '@furystack/shades'
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
-import 'monaco-editor/esm/vs/editor/editor.main'
+import 'monaco-editor/esm/vs/editor/editor.main.js'
 
-import './worker-config'
+import './worker-config.js'
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
