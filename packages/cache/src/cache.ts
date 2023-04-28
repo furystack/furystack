@@ -1,7 +1,7 @@
 import type { Disposable } from '@furystack/utils'
-import { CacheLockManager } from './cache-lock-manager'
-import { CacheStateManager } from './cache-state-manager'
-import { isLoadedCacheResult } from './cache-result'
+import { CacheLockManager } from './cache-lock-manager.js'
+import { CacheStateManager } from './cache-state-manager.js'
+import { isLoadedCacheResult } from './cache-result.js'
 
 interface CacheSettings<TData, TArgs extends any[]> {
   /**

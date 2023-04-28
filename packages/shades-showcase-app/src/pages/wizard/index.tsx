@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { WelcomeWizard } from '../wizard/home-wizard'
+import { WelcomeWizard } from '../wizard/home-wizard.js'
 
 export const WizardPage = Shade({
   shadowDomName: 'shades-showcase-wizard',

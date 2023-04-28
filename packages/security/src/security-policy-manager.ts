@@ -1,6 +1,6 @@
 import { Injectable, Injected } from '@furystack/inject'
-import type { PasswordCredential, PasswordResetToken } from './models'
-import { SecurityPolicy } from './security-policy'
+import type { PasswordCredential, PasswordResetToken } from './models/index.js'
+import { SecurityPolicy } from './security-policy.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class SecurityPolicyManager {

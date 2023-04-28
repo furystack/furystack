@@ -1,5 +1,5 @@
-import { Injector } from './injector'
-import type { Constructable } from './models/constructable'
+import { Injector } from './injector.js'
+import type { Constructable } from './models/constructable.js'
 
 export const Injected: <T extends Constructable<unknown>>(ctor: T) => PropertyDecorator =
   (ctor) => (target, propertyKey) => {

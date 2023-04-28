@@ -1,5 +1,5 @@
 import type { DeepPartial } from '@furystack/utils'
-import type { Theme } from './theme-provider-service'
+import type { Theme } from './theme-provider-service.js'
 export const defaultVariableTheme: Theme = {
   text: {
     primary: 'var(--shades-theme-text-primary)',

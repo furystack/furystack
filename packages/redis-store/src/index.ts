@@ -1,2 +1,2 @@
-export * from './redis-store'
-export * from './store-manager-helpers'
+export * from './redis-store.js'
+export * from './store-manager-helpers.js'

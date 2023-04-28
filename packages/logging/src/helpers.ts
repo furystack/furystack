@@ -1,7 +1,7 @@
 import type { Constructable } from '@furystack/inject'
 import type { Injector } from '@furystack/inject'
-import type { Logger } from './logger'
-import { LoggerCollection } from './logger-collection'
+import type { Logger } from './logger.js'
+import { LoggerCollection } from './logger-collection.js'
 
 /**
  * Registers a Logger service to the injector container with the provided loggers.

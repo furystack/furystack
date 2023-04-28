@@ -1,4 +1,4 @@
-import type { ChildrenList } from './children-list'
+import type { ChildrenList } from './children-list.js'
 
 /**
  * Type definition for a Shade component

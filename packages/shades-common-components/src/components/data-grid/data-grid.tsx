@@ -1,11 +1,12 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import type { CollectionService } from '../../services/collection-service'
-import type { GridProps } from '../grid'
-import { DataGridHeader } from './header'
-import { DataGridBody } from './body'
-import { DataGridFooter } from './footer'
-import { ClickAwayService, ThemeProviderService } from '../../services'
+import type { CollectionService } from '../../services/collection-service.js'
+import type { GridProps } from '../grid.js'
+import { DataGridHeader } from './header.js'
+import { DataGridBody } from './body.js'
+import { DataGridFooter } from './footer.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { ClickAwayService } from '../../services/click-away-service.js'
 
 export type DataHeaderCells<T> = {
   [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element

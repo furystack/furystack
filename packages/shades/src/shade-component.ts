@@ -1,5 +1,5 @@
-import type { ChildrenList, ShadeComponent } from './models'
-import { isShadeComponent } from './models'
+import type { ChildrenList, ShadeComponent } from './models/index.js'
+import { isShadeComponent } from './models/shade-component.js'
 
 /**
  * Appends a list of items to a HTML element

@@ -1,4 +1,4 @@
-import { Shade } from '../shade'
+import { Shade } from '../shade.js'
 
 export interface LazyLoadProps {
   loader: JSX.Element

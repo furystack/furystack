@@ -1,2 +1,2 @@
-export * from './sequelize-store'
-export * from './store-manager-helpers'
+export * from './sequelize-store.js'
+export * from './store-manager-helpers.js'

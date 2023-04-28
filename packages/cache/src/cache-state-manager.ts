@@ -1,7 +1,7 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
-import type { CacheResult, FailedCacheResult, LoadedCacheResult, ObsoleteCacheResult } from './cache-result'
-import { isLoadedCacheResult, isObsoleteCacheResult } from './cache-result'
+import type { CacheResult, FailedCacheResult, LoadedCacheResult, ObsoleteCacheResult } from './cache-result.js'
+import { isLoadedCacheResult, isObsoleteCacheResult } from './cache-result.js'
 
 interface CacheStateManagerOptions {
   capacity?: number

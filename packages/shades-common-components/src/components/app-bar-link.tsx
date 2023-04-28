@@ -2,7 +2,7 @@ import type { RouteLinkProps } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { createComponent, LocationService, RouteLink, Shade } from '@furystack/shades'
 import { match } from 'path-to-regexp'
-import { ThemeProviderService } from '../services'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 export const AppBarLink = Shade<RouteLinkProps>({
   shadowDomName: 'shade-app-bar-link',

@@ -1,17 +1,17 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import { Loader } from '../loader'
-import { SuggestManager } from './suggest-manager'
-import type { SuggestionResult } from './suggestion-result'
-import { SuggestInput } from './suggest-input'
-import { SuggestionList } from './suggestion-list'
-import { ThemeProviderService } from '../../services'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import { Loader } from '../loader.js'
+import { SuggestManager } from './suggest-manager.js'
+import type { SuggestionResult } from './suggestion-result.js'
+import { SuggestInput } from './suggest-input.js'
+import { SuggestionList } from './suggestion-list.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
-export * from './suggest-input'
-export * from './suggest-manager'
-export * from './suggestion-list'
-export * from './suggestion-result'
+export * from './suggest-input.js'
+export * from './suggest-manager.js'
+export * from './suggestion-list.js'
+export * from './suggestion-result.js'
 
 export interface SuggestProps<T> {
   defaultPrefix: string

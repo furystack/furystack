@@ -1,2 +1,2 @@
-export * from './data-grid'
-export * from './selection-cell'
+export * from './data-grid.js'
+export * from './selection-cell.js'

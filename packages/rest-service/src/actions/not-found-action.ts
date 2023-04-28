@@ -1,5 +1,5 @@
-import type { RequestAction } from '../request-action-implementation'
-import { JsonResult } from '../request-action-implementation'
+import type { RequestAction } from '../request-action-implementation.js'
+import { JsonResult } from '../request-action-implementation.js'
 
 /**
  * @returns The standard Not Found action result

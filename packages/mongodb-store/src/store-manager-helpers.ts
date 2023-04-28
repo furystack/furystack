@@ -1,8 +1,8 @@
 import { addStore } from '@furystack/core'
 import type { Constructable, Injector } from '@furystack/inject'
 import type { MongoClientOptions } from 'mongodb'
-import { MongoClientFactory } from './mongo-client-factory'
-import { MongodbStore } from './mongodb-store'
+import { MongoClientFactory } from './mongo-client-factory.js'
+import { MongodbStore } from './mongodb-store.js'
 
 export const useMongoDb = <T extends object>({
   injector,

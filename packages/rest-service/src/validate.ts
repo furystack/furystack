@@ -1,5 +1,5 @@
-import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation'
-import { SchemaValidator } from './schema-validator'
+import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
+import { SchemaValidator } from './schema-validator/schema-validator.js'
 
 export const Validate =
   <TSchema extends { definitions: { [K: string]: { required?: string[] } | any } }>(validationOptions: {

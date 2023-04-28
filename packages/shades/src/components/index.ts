@@ -1,3 +1,3 @@
-export * from './lazy-load'
-export * from './router'
-export * from './route-link'
+export * from './lazy-load.js'
+export * from './router.js'
+export * from './route-link.js'

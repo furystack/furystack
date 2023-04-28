@@ -1,5 +1,5 @@
 import { attachStyles, Shade } from '@furystack/shades'
-import { promisifyAnimation } from '../utils'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export type SkeletonProps = {
   /**

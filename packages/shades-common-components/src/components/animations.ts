@@ -1,4 +1,4 @@
-import { promisifyAnimation } from '../utils/promisify-animation'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export const showSlide = (element?: Element | null, options?: KeyframeAnimationOptions) =>
   promisifyAnimation(

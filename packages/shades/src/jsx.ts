@@ -1,6 +1,6 @@
 import type { Injector } from '@furystack/inject'
-import type { ChildrenList, PartialElement } from './models'
-import type { ResourceManager } from './services/resource-manager'
+import type { ChildrenList, PartialElement } from './models/index.js'
+import type { ResourceManager } from './services/resource-manager.js'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
