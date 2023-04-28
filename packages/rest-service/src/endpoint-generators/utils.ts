@@ -2,7 +2,7 @@ import type { Injector } from '@furystack/inject'
 import { addStore, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from '../models/default-session.js'
 import '@furystack/repository'
-import '../helpers'
+import '../helpers.js'
 import { getRepository } from '@furystack/repository'
 
 export class MockClass {
