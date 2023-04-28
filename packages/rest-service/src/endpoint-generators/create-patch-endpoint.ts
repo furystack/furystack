@@ -1,7 +1,7 @@
 import type { Constructable } from '@furystack/inject'
 import type { PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
-import '../incoming-message-extensions'
+import '../incoming-message-extensions.js'
 import type { RequestAction } from '../request-action-implementation.js'
 import { JsonResult } from '../request-action-implementation.js'
 import { getRepository } from '@furystack/repository'
