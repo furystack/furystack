@@ -1,8 +1,8 @@
 import { RequestError } from '@furystack/rest'
 import { AuthorizationError } from '@furystack/core'
-import type { RequestAction } from '../request-action-implementation'
-import { JsonResult } from '../request-action-implementation'
-import { SchemaValidationError } from '../schema-validator'
+import type { RequestAction } from '../request-action-implementation.js'
+import { JsonResult } from '../request-action-implementation.js'
+import { SchemaValidationError } from '../schema-validator/schema-validation-error.js'
 
 /**
  * Action for unhandled (500) errors

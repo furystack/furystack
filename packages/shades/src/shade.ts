@@ -2,9 +2,9 @@ import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
-import type { ChildrenList, RenderOptions } from './models'
-import { ResourceManager } from './services/resource-manager'
-import { LocationService } from './services'
+import type { ChildrenList, RenderOptions } from './models/index.js'
+import { ResourceManager } from './services/resource-manager.js'
+import { LocationService } from './services/location-service.js'
 
 export type ShadeOptions<TProps> = {
   /**

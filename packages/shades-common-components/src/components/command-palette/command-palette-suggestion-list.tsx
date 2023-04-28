@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { CommandPaletteManager } from './command-palette-manager'
-import { ThemeProviderService } from '../../services/theme-provider-service'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import type { CommandPaletteManager } from './command-palette-manager.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
   shadowDomName: 'shade-command-palette-suggestion-list',

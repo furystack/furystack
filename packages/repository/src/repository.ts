@@ -3,8 +3,8 @@ import { StoreManager } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
-import type { DataSetSettings } from './data-set-setting'
-import { DataSet } from './data-set'
+import type { DataSetSettings } from './data-set-setting.js'
+import { DataSet } from './data-set.js'
 
 /**
  * Collection of authorized physical stores

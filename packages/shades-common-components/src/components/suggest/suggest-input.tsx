@@ -1,6 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../../services'
-import type { SuggestManager } from './suggest-manager'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   shadowDomName: 'shades-suggest-input',

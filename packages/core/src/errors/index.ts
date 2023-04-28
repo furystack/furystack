@@ -1,2 +1,2 @@
-export * from './authorization-error'
-export * from './aggregated-error'
+export * from './authorization-error.js'
+export * from './aggregated-error.js'

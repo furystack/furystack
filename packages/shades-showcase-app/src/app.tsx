@@ -1,8 +1,8 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
 import { AppBar, AppBarLink, fadeIn, fadeOut, Paper, ThemeProviderService } from '@furystack/shades-common-components'
-import { PageLoader } from './components/page-loader'
-import { ThemeSwitch } from './components/theme-switch'
-import { sleepAsync } from '../../utils/src'
+import { PageLoader } from './components/page-loader.js'
+import { ThemeSwitch } from './components/theme-switch.js'
+import { sleepAsync } from '@furystack/utils'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
@@ -76,7 +76,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { ButtonsPage } = await import('./pages/buttons')
+                      const { ButtonsPage } = await import('./pages/buttons.js')
                       await sleepAsync(1000)
                       return <ButtonsPage />
                     }}
@@ -96,7 +96,7 @@ export const App = Shade({
                     loader={<PageLoader />}
                     component={async () => {
                       await sleepAsync(1000)
-                      const { FormPage } = await import('./pages/form')
+                      const { FormPage } = await import('./pages/form.js')
                       return <FormPage />
                     }}
                   />
@@ -114,7 +114,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { InputsPage } = await import('./pages/inputs')
+                      const { InputsPage } = await import('./pages/inputs.js')
                       return <InputsPage />
                     }}
                   />
@@ -132,7 +132,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { FormPage } = await import('./pages/form')
+                      const { FormPage } = await import('./pages/form.js')
                       return <FormPage />
                     }}
                   />
@@ -150,7 +150,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { GridPage } = await import('./pages/grid')
+                      const { GridPage } = await import('./pages/grid/index.js')
                       return <GridPage />
                     }}
                   />
@@ -168,7 +168,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { NipplePage } = await import('./pages/nipple')
+                      const { NipplePage } = await import('./pages/nipple.js')
                       return <NipplePage />
                     }}
                   />
@@ -186,7 +186,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { LottiePage } = await import('./pages/lottie')
+                      const { LottiePage } = await import('./pages/lottie.js')
                       return <LottiePage />
                     }}
                   />
@@ -204,7 +204,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { MonacoEditorPage } = await import('./pages/monaco')
+                      const { MonacoEditorPage } = await import('./pages/monaco.js')
                       return <MonacoEditorPage />
                     }}
                   />
@@ -222,7 +222,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { WizardPage } = await import('./pages/wizard')
+                      const { WizardPage } = await import('./pages/wizard/index.js')
                       return <WizardPage />
                     }}
                   />
@@ -240,7 +240,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { NotysPage } = await import('./pages/notys')
+                      const { NotysPage } = await import('./pages/notys.js')
                       return <NotysPage />
                     }}
                   />
@@ -258,7 +258,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { TabsPage } = await import('./pages/tabs')
+                      const { TabsPage } = await import('./pages/tabs.js')
                       return <TabsPage />
                     }}
                   />
@@ -276,7 +276,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { MiscPage } = await import('./pages/misc')
+                      const { MiscPage } = await import('./pages/misc.js')
                       return <MiscPage />
                     }}
                   />
@@ -294,7 +294,7 @@ export const App = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { HomePage } = await import('./pages/home')
+                      const { HomePage } = await import('./pages/home/index.js')
                       return <HomePage />
                     }}
                   />

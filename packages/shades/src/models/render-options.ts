@@ -1,5 +1,5 @@
 import type { Injector } from '@furystack/inject'
-import type { ChildrenList } from './children-list'
+import type { ChildrenList } from './children-list.js'
 import type { Disposable, ObservableValue } from '@furystack/utils'
 
 export type RenderOptions<TProps> = {

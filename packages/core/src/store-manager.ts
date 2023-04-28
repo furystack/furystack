@@ -1,8 +1,8 @@
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
-import { AggregatedError } from './errors'
-import type { PhysicalStore } from './models/physical-store'
+import { AggregatedError } from './errors/aggregated-error.js'
+import type { PhysicalStore } from './models/physical-store.js'
 
 /**
  * Manager class for store instances

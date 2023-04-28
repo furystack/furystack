@@ -1,7 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { ThemeProviderService } from '../../services'
-import { promisifyAnimation } from '../../utils'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
 
 export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
   labelTitle?: string

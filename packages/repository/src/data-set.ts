@@ -1,7 +1,7 @@
 import type { Injector } from '@furystack/inject'
 import type { FindOptions, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
 import { AuthorizationError } from '@furystack/core'
-import type { DataSetSettings } from './data-set-setting'
+import type { DataSetSettings } from './data-set-setting.js'
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 

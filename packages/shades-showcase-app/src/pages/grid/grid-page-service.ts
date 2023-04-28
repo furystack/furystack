@@ -1,4 +1,4 @@
-import { TestClass } from './test-class'
+import { TestClass } from './test-class.js'
 import { addStore, InMemoryStore } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'

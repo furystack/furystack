@@ -1,5 +1,5 @@
 import http from 'http'
-import { Utils } from './utils'
+import { Utils } from './utils.js'
 
 declare module 'http' {
   export interface IncomingMessage {

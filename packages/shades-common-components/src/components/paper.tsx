@@ -1,7 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../services/theme-provider-service'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 export const Paper = Shade<PartialElement<HTMLDivElement> & { elevation?: 1 | 2 | 3 }>({
   shadowDomName: 'shade-paper',

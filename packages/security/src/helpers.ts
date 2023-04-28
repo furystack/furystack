@@ -1,5 +1,5 @@
 import type { Injector } from '@furystack/inject'
-import { SecurityPolicy } from './security-policy'
+import { SecurityPolicy } from './security-policy.js'
 
 /**
  * Sets up the @furystack/security with the provided settings

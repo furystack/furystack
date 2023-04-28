@@ -2,7 +2,7 @@ import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
 import { debounce, ObservableValue } from '@furystack/utils'
-import type { SuggestionResult } from './suggestion-result'
+import type { SuggestionResult } from './suggestion-result.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class SuggestManager<T> implements Disposable {

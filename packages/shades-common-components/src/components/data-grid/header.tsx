@@ -1,12 +1,12 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { CollectionService } from '../../services/collection-service'
-import { Input } from '../inputs/input'
-import { Form } from '../form'
-import { Button } from '../button'
+import type { CollectionService } from '../../services/collection-service.js'
+import { Input } from '../inputs/input.js'
+import { Form } from '../form.js'
+import { Button } from '../button.js'
 import { ObservableValue } from '@furystack/utils'
-import { collapse, expand } from '../animations'
+import { collapse, expand } from '../animations.js'
 
 export interface DataGridHeaderProps<T, K extends keyof T> {
   collectionService: CollectionService<T>

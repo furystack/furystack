@@ -2,7 +2,7 @@ import { HttpUserContext } from '@furystack/rest-service'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Data } from 'ws'
 import ws from 'ws'
-import type { WebSocketAction } from '../models/websocket-action'
+import type { WebSocketAction } from '../models/websocket-action.js'
 import type { IncomingMessage } from 'http'
 
 /**

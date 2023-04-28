@@ -1,6 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { Paper } from '../paper'
+import { Paper } from '../paper.js'
 
 export interface WizardStepProps {
   /**

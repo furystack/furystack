@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../../services'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { CommandPaletteManager } from './command-palette-manager'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import type { CommandPaletteManager } from './command-palette-manager.js'
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
   shadowDomName: 'shades-command-palette-input',

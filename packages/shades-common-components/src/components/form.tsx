@@ -1,7 +1,7 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { InputValidationResult } from './inputs'
+import type { InputValidationResult } from './inputs/input.js'
 import { Injectable } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 

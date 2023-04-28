@@ -1,9 +1,9 @@
 import type { PartialElement } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../utils/promisify-animation'
-import type { Palette, Theme } from '../services/theme-provider-service'
-import { ThemeProviderService } from '../services/theme-provider-service'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
+import type { Palette, Theme } from '../services/theme-provider-service.js'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { Trace } from '@furystack/utils'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {

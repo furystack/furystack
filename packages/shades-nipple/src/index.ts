@@ -1,1 +1,1 @@
-export * from './nipple'
+export * from './nipple.js'

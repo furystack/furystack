@@ -1,5 +1,5 @@
 import { Shade, createComponent, LocationService, attachProps } from '@furystack/shades'
-import { ThemeProviderService } from '../services'
+import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 export interface Tab {
   header: JSX.Element

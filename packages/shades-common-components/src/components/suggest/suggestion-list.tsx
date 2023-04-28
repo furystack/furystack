@@ -1,8 +1,8 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../../utils/promisify-animation'
-import type { SuggestManager } from './suggest-manager'
-import { ThemeProviderService } from '../../services'
+import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import type { SuggestManager } from './suggest-manager.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children: ChildrenList) => JSX.Element<any> =
   Shade<{ manager: SuggestManager<any> }>({
