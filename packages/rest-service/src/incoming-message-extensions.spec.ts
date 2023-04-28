@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http'
-import '../incoming-message-extensions.js'
+import '../incoming-message-extensions'
 import { Socket } from 'net'
 import { describe, it, expect } from 'vitest'
 
