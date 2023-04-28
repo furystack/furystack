@@ -52,7 +52,7 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^18.15.11",
+    "@types/node": "^18.16.2",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"
   },
