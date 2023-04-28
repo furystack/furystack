@@ -8,21 +8,14 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
     },
     "./create-physical-store-tests": {
-      "import": "./esm/create-physical-store-tests.js",
-      "types": "./types/create-physical-store-tests.d.ts"
+      "types": "./types/create-physical-store-tests.d.ts",
+      "import": "./esm/create-physical-store-tests.js"
     },
     "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
-    }
   },
   "files": [
     "esm",

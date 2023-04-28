@@ -10,16 +10,8 @@
   },
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*"
-      ]
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
     }
   },
   "files": [
