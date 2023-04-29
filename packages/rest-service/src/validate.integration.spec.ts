@@ -5,10 +5,11 @@ import { JsonResult } from './request-action-implementation'
 import { Validate } from './validate'
 import './helpers'
 
-import schema from './validate.integration.spec.schema.json'
+import schema from './validate.integration.spec.schema.json' assert { type: 'json' }
 import type { ValidationApi } from './validate.integration.schema'
 import { useRestService } from './helpers'
 import { describe, it, expect } from 'vitest'
+import { assert } from 'console'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
