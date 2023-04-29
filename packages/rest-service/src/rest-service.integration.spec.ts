@@ -37,11 +37,10 @@ const portGenerator = function* () {
 
 const getPort = () => portGenerator().next().value
 
-const hostName = 'localhost'
-const root = 'test-api'
-
 const prepareInjector = async (i: Injector) => {
   const port = getPort()
+  const hostName = 'localhost'
+  const root = 'test-api'
 
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
     new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
@@ -81,6 +80,8 @@ const prepareInjector = async (i: Injector) => {
 
   return {
     apiUrl: `http://${hostName}:${port}/${root}`,
+    port,
+    hostName,
   }
 }
 
@@ -183,7 +184,7 @@ describe('@furystack/rest-service inregration tests', () => {
 
   it('Should reject requests outside of the API Root', async () => {
     await usingAsync(new Injector(), async (i) => {
-      await prepareInjector(i)
+      const { hostName, port } = await prepareInjector(i)
       await expect(fetch(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'))).rejects.toThrowError(
         'fetch failed',
       )
