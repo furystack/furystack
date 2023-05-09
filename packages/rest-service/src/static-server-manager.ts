@@ -73,7 +73,7 @@ export class StaticServerManager {
         if (fallback) {
           await this.sendFile({ fullPath: join(path, fallback), res, headers })
         } else {
-          res.writeHead(404, { 'Content-Type': 'text/plain' })
+          res.headersSent || res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
         }
       }
