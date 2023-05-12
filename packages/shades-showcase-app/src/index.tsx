@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { defaultLightTheme, ThemeProviderService, useThemeCssVariables } from '@furystack/shades-common-components'
