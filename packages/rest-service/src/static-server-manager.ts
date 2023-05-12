@@ -1,6 +1,6 @@
 import { Injectable, Injected } from '@furystack/inject'
 import { createReadStream } from 'fs'
-import { stat } from 'fs/promises'
+import { access, stat } from 'fs/promises'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { getMimeForFile } from './mime-types.js'
 import { join, normalize, sep } from 'path'
@@ -31,13 +31,14 @@ export class StaticServerManager {
   }) {
     const { size } = await stat(fullPath)
 
+    await access(fullPath)
+
     const head = {
       ...headers,
       'Content-Length': size,
       'Content-Type': getMimeForFile(fullPath),
     }
-
-    res.writeHead(200, head)
+    Object.entries(head).map(([key, value]) => res.setHeader(key, value))
     await new Promise<void>((resolve, reject) =>
       createReadStream(fullPath, { autoClose: true }).once('finish', resolve).once('error', reject).pipe(res),
     )
@@ -71,7 +72,7 @@ export class StaticServerManager {
         await this.sendFile({ fullPath, res, headers })
       } catch (error) {
         if (fallback) {
-          await this.sendFile({ fullPath: join(path, fallback), res, headers })
+          await this.sendFile({ fullPath: normalize(join(path, fallback)), res, headers })
         } else {
           res.writeHead(404, { 'Content-Type': 'text/plain' })
           res.end('Not found')
