@@ -1,15 +1,11 @@
-// @ts-expect-error - Monaco doesn't have types for this
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-// @ts-expect-error - Monaco doesn't have types for this
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-// @ts-expect-error - Monaco doesn't have types for this
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-// @ts-expect-error - Monaco doesn't have types for this
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-// @ts-expect-error - Monaco doesn't have types for this
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-;(self as any).MonacoEnvironment = {
-  getWorker(_: any, label: any) {
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+
+self.MonacoEnvironment = {
+  getWorker(_, label) {
     if (label === 'json') {
       return new jsonWorker()
     }
