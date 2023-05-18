@@ -159,6 +159,25 @@ describe('Cache', () => {
       expect(loader).toHaveBeenCalledTimes(1)
       cache.dispose()
     })
+
+    it('Reload should be able to set an error state', async () => {
+      const loader = vi.fn(
+        (a: number, b: number) =>
+          new Promise((resolve, reject) =>
+            setTimeout(() => {
+              reject(new Error('Failed'))
+            }, 1000),
+          ),
+      )
+
+      const cache = new Cache({ load: loader })
+      await expect(cache.reload(1, 2)).rejects.toThrow('Failed')
+
+      const actualValue = await cache.getObservable(1, 2).getValue()
+      expect(actualValue.status).toEqual('failed')
+
+      cache.dispose()
+    })
   })
 
   describe('Obsolete state', () => {
