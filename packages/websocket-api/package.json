@@ -1,6 +1,6 @@
 {
   "name": "@furystack/websocket-api",
-  "version": "9.0.4",
+  "version": "9.0.5",
   "description": "HTTP Api FuryStack package",
   "type": "module",
   "scripts": {
@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/ws": "^8.5.4",
     "typescript": "^5.0.4",
-    "vitest": "^0.31.0"
+    "vitest": "^0.31.1"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
