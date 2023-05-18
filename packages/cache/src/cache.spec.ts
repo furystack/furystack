@@ -60,7 +60,20 @@ describe('Cache', () => {
     cache.dispose()
   })
 
-  describe('Loading and locking', () => {
+  it('Should set an explicit value', async () => {
+    const load = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+    const cache = new Cache({ load })
+    cache.setExplicitValue({ loadArgs: [1, 2], value: { status: 'loaded', value: 3, updatedAt: new Date() } })
+    expect(cache.getCount()).toEqual(1)
+
+    const result = await cache.get(1, 2)
+    expect(result).toEqual(3)
+    expect(load).not.toHaveBeenCalled()
+
+    cache.dispose()
+  })
+
+  describe('Loading, locking and reloading', () => {
     it('should store and retrieve results based on the arguments', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
@@ -102,6 +115,48 @@ describe('Cache', () => {
       const result = await resultPromise
       expect(result).toStrictEqual(result2)
       expect(result).toEqual(3)
+      expect(loader).toHaveBeenCalledTimes(1)
+      cache.dispose()
+    })
+
+    it('Should reload regardless of the already loaded state', async () => {
+      const loader = vi.fn(
+        (a: number, b: number) =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve(a + b)
+            }, 1000),
+          ),
+      )
+
+      const cache = new Cache({ load: loader })
+      const result = await cache.get(1, 2)
+      const result2 = await cache.reload(1, 2)
+      expect(result).toStrictEqual(result2)
+      expect(result).toEqual(3)
+      expect(loader).toHaveBeenCalledTimes(2)
+      cache.dispose()
+    })
+
+    it('Reload should create a lock', async () => {
+      const loader = vi.fn(
+        (a: number, b: number) =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve(a + b)
+            }, 1000),
+          ),
+      )
+
+      const cache = new Cache({ load: loader })
+      const reloadPromise = cache.reload(1, 2)
+      await sleepAsync(100)
+      const resultPromise = await cache.get(1, 2)
+      const reloaded = await reloadPromise
+      const loaded = await resultPromise
+      expect(reloaded).toStrictEqual(loaded)
+      expect(reloaded).toEqual(3)
+      expect(loader).toHaveBeenCalledTimes(1)
       cache.dispose()
     })
   })
