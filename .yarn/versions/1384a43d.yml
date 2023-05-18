@@ -1,6 +1,6 @@
 releases:
   "@furystack/auth-google": patch
-  "@furystack/cache": patch
+  "@furystack/cache": minor
   "@furystack/core": patch
   "@furystack/filesystem-store": patch
   "@furystack/inject": patch
