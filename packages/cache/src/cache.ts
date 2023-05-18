@@ -1,7 +1,7 @@
 import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager.js'
 import { CacheStateManager } from './cache-state-manager.js'
-import { isLoadedCacheResult, isPendingCacheResult } from './cache-result.js'
+import { CacheResult, isLoadedCacheResult, isPendingCacheResult } from './cache-result.js'
 
 interface CacheSettings<TData, TArgs extends any[]> {
   /**
@@ -83,6 +83,17 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     } finally {
       this.cacheLockManager.releaseLock(index)
     }
+  }
+
+  /**
+   * Sets an explicit value for the entity in the cache
+   * @param param0 The Options for setting the entity
+   * @param param0.loadArgs The arguments for getting the entity
+   * @param param0.value The value to set (with state)
+   */
+  public setExplicitValue({ loadArgs, value }: { loadArgs: TArgs; value: CacheResult<TData> }) {
+    const index = this.getIndex(...loadArgs)
+    this.stateManager.setValue(index, value)
   }
 
   /**
