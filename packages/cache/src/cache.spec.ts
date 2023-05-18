@@ -13,10 +13,30 @@ describe('Cache', () => {
     const obs = cache.getObservable(1, 2)
     expect(obs.getValue().status).toEqual('uninitialized')
 
+    await sleepAsync(10)
+
+    expect(obs.getValue().status).toEqual('loaded')
+    expect(obs.getValue().value).toEqual(3)
+
+    cache.dispose()
+  })
+
+  it('Should trigger loader only if the value is not in the cache when getting an observable', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+    const cache = new Cache({ load: loader })
+
+    const obs = cache.getObservable(1, 2)
+    expect(obs.getValue().status).toEqual('uninitialized')
+
     const result = await cache.get(1, 2)
     expect(result).toEqual(3)
 
     expect(obs.getValue().status).toEqual('loaded')
+
+    const obs2 = cache.getObservable(1, 2)
+    expect(obs2.getValue().status).toEqual('loaded')
+
+    expect(loader).toHaveBeenCalledTimes(1)
 
     cache.dispose()
   })
