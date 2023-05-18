@@ -43,8 +43,8 @@ export class CacheStateManager<T> implements Disposable {
     this.getObservable(key).setValue(value)
   }
 
-  public setPendingState(key: string) {
-    this.setValue(key, { status: 'pending', value: this.getLastValue(key), updatedAt: new Date() })
+  public setLoadingState(key: string) {
+    this.setValue(key, { status: 'loading', value: this.getLastValue(key), updatedAt: new Date() })
   }
 
   public setLoadedState(key: string, value: T) {

@@ -1,7 +1,7 @@
 import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager.js'
 import { CacheStateManager } from './cache-state-manager.js'
-import { isLoadedCacheResult } from './cache-result.js'
+import { isLoadedCacheResult, isPendingCacheResult } from './cache-result.js'
 
 interface CacheSettings<TData, TArgs extends any[]> {
   /**
@@ -52,7 +52,28 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
       if (isLoadedCacheResult(newCached)) {
         return newCached.value
       }
-      this.stateManager.setPendingState(index)
+      this.stateManager.setLoadingState(index)
+      const loaded = await this.options.load(...args)
+      this.stateManager.setLoadedState(index, loaded)
+      return loaded
+    } catch (error) {
+      this.stateManager.setFailedState(index, error)
+      throw error
+    } finally {
+      this.cacheLockManager.releaseLock(index)
+    }
+  }
+
+  /**
+   *
+   * @param args The arguments for getting the entity
+   * @returns The reloaded result
+   */
+  public async reload(...args: TArgs) {
+    const index = this.getIndex(...args)
+    try {
+      await this.cacheLockManager.acquireLock(index)
+      this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
       return loaded
@@ -90,8 +111,11 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
    */
   public getObservable(...args: TArgs) {
     const index = this.getIndex(...args)
-    this.get(...args) // Trigger reload if needed
-    return this.stateManager.getObservable(index)
+    const observable = this.stateManager.getObservable(index)
+    if (isPendingCacheResult(observable.getValue())) {
+      this.get(...args) // Trigger reload if needed
+    }
+    return observable
   }
 
   /**

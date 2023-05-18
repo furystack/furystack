@@ -10,8 +10,8 @@ export interface LoadedCacheResult<T> {
   updatedAt: Date
 }
 
-export interface PendingCacheResult<T> {
-  status: 'pending'
+export interface LoadingCacheResult<T> {
+  status: 'loading'
   value?: T
   updatedAt: Date
 }
@@ -31,7 +31,7 @@ export interface ObsoleteCacheResult<T> {
 
 export type CacheResult<T> =
   | LoadedCacheResult<T>
-  | PendingCacheResult<T>
+  | LoadingCacheResult<T>
   | FailedCacheResult<T>
   | ObsoleteCacheResult<T>
   | UninitializedCacheResult<T>
@@ -44,8 +44,8 @@ export type CacheWithValue<T> = CacheResult<T> & {
 export const isLoadedCacheResult = <T>(result: CacheResult<T>): result is LoadedCacheResult<T> =>
   result.status === 'loaded'
 
-export const isPendingCacheResult = <T>(result: CacheResult<T>): result is PendingCacheResult<T> =>
-  result.status === 'pending'
+export const isPendingCacheResult = <T>(result: CacheResult<T>): result is LoadingCacheResult<T> =>
+  result.status === 'loading'
 
 export const isFailedCacheResult = <T>(result: CacheResult<T>): result is FailedCacheResult<T> =>
   result.status === 'failed'
