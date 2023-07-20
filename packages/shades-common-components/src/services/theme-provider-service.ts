@@ -47,7 +47,12 @@ export interface Theme {
 }
 
 export class RgbColor {
-  constructor(public r: number, public g: number, public b: number, public a: number = 1) {}
+  constructor(
+    public r: number,
+    public g: number,
+    public b: number,
+    public a: number = 1,
+  ) {}
 
   public update(key: 'r' | 'g' | 'b' | 'a', value: number): RgbColor {
     this[key] = value

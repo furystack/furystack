@@ -24,7 +24,7 @@ export const createMockEntity = (part?: Partial<TestClass>) =>
     booleanValue: true,
     dateValue: new Date(),
     ...part,
-  } as TestClass)
+  }) as TestClass
 
 export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string

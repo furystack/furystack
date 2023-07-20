@@ -3,8 +3,10 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&in
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+import type { Environment } from 'monaco-editor'
 
 self.MonacoEnvironment = {
+  ...(self.MonacoEnvironment as Environment),
   getWorker(_, label) {
     if (label === 'json') {
       return new jsonWorker()

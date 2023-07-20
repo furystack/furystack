@@ -1,6 +1,6 @@
 {
   "name": "@furystack/repository",
-  "version": "7.0.5",
+  "version": "7.0.6",
   "description": "Repository implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -42,8 +42,8 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "vitest": "^0.31.4"
+    "typescript": "^5.1.6",
+    "vitest": "^0.33.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

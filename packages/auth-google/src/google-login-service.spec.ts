@@ -47,7 +47,7 @@ describe('Google Login Service', () => {
           ({
             email: 'user@example.com',
             email_verified: false,
-          } as any)
+          }) as any
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 404,
@@ -68,7 +68,7 @@ describe('Google Login Service', () => {
           ({
             email: 'user@example.com',
             email_verified: true,
-          } as any)
+          }) as any
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
@@ -89,7 +89,7 @@ describe('Google Login Service', () => {
           ({
             email: 'user@example.com',
             email_verified: false,
-          } as any)
+          }) as any
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
@@ -115,7 +115,7 @@ describe('Google Login Service', () => {
           ({
             email: 'user@example.com',
             email_verified: true,
-          } as any)
+          }) as any
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,

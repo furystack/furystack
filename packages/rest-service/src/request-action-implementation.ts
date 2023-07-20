@@ -16,7 +16,7 @@ export const JsonResult = <T extends object>(chunk: T, statusCode = 200, headers
       ...headers,
       'Content-Type': 'application/json',
     },
-  } as ActionResult<T>)
+  }) as ActionResult<T>
 
 export const PlainTextResult = (text: string, statusCode = 200, headers?: { [K: string]: string }) =>
   ({
@@ -26,7 +26,7 @@ export const PlainTextResult = (text: string, statusCode = 200, headers?: { [K: 
       ...headers,
       'Content-Type': 'plain/text',
     },
-  } as ActionResult<string>)
+  }) as ActionResult<string>
 
 export const XmlResult = (text: string, statusCode = 200, headers?: { [K: string]: string }) =>
   ({
@@ -36,7 +36,7 @@ export const XmlResult = (text: string, statusCode = 200, headers?: { [K: string
       ...headers,
       'Content-Type': 'application/xml;charset=utf-8',
     },
-  } as ActionResult<string>)
+  }) as ActionResult<string>
 
 export const EmptyResult = (statusCode = 200, headers?: { [K: string]: string }) =>
   ({
@@ -44,12 +44,12 @@ export const EmptyResult = (statusCode = 200, headers?: { [K: string]: string })
     headers: {
       ...headers,
     },
-  } as ActionResult<undefined>)
+  }) as ActionResult<undefined>
 
 export const BypassResult = () =>
   ({
     chunk: 'BypassResult',
-  } as ActionResult<'BypassResult'>)
+  }) as ActionResult<'BypassResult'>
 
 export type RequestActionOptions<T extends { result: unknown }> = {
   request: IncomingMessage

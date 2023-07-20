@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "description": "Generic REST package",
   "type": "module",
   "scripts": {
@@ -41,9 +41,9 @@
     "@furystack/inject": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^20.2.5",
-    "typescript": "^5.0.4",
-    "vitest": "^0.31.4"
+    "@types/node": "^20.4.2",
+    "typescript": "^5.1.6",
+    "vitest": "^0.33.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
