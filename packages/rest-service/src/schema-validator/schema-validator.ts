@@ -8,7 +8,10 @@ export class SchemaValidator<TSchema extends { definitions: {} }> {
     allErrors: true,
     ...this.ajvOptions,
   })
-  constructor(private readonly schema: TSchema, private readonly ajvOptions?: Options) {
+  constructor(
+    private readonly schema: TSchema,
+    private readonly ajvOptions?: Options,
+  ) {
     useFormats.default(this.ajv)
   }
 

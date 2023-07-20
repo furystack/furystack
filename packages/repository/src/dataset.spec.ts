@@ -74,7 +74,7 @@ describe('DataSet', () => {
 
       it('should call the add async authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeAdd = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeAdd = vi.fn(async () => ({ isAllowed: true }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
@@ -88,7 +88,7 @@ describe('DataSet', () => {
 
       it('should throw if the add authorizer returns a non-valid result and should not add a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeAdd = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          const authorizeAdd = vi.fn(async () => ({ isAllowed: false, message: '...' }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
@@ -162,7 +162,7 @@ describe('DataSet', () => {
 
       it('should call the authorizeUpdate authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdate = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeUpdate = vi.fn(async () => ({ isAllowed: true }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
           const dataSet = getDataSetFor(i, TestClass, 'id')
@@ -176,7 +176,7 @@ describe('DataSet', () => {
 
       it('should throw if the authorizeUpdateEntity returns a non-valid result and should not update a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: false, message: '...' }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
 
@@ -196,7 +196,7 @@ describe('DataSet', () => {
       })
       it('should call the authorizeUpdateEntity authorizer and add the entity on pass', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: true } as AuthorizationResult))
+          const authorizeUpdateEntity = vi.fn(async () => ({ isAllowed: true }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
           const dataSet = getDataSetFor(i, TestClass, 'id')
@@ -210,7 +210,7 @@ describe('DataSet', () => {
 
       it('should throw if the authorizeUpdate returns a non-valid result and should not update a value to the store', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const authorizeUpdate = vi.fn(async () => ({ isAllowed: false, message: '...' } as AuthorizationResult))
+          const authorizeUpdate = vi.fn(async () => ({ isAllowed: false, message: '...' }) as AuthorizationResult)
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
 

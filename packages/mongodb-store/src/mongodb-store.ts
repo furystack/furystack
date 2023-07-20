@@ -108,7 +108,7 @@ export class MongodbStore<
   }
   public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
-    const result = await collection.insertMany(entries.map((e) => ({ ...e } as any as OptionalUnlessRequiredId<T>)))
+    const result = await collection.insertMany(entries.map((e) => ({ ...e }) as any as OptionalUnlessRequiredId<T>))
     return {
       created:
         this.primaryKey === '_id'
