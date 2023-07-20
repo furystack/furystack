@@ -9,7 +9,10 @@ export class ClickAwayService<T extends HTMLElement> {
     }
   }).bind(this)
 
-  constructor(private readonly element: T, private readonly onClickAway: () => void) {
+  constructor(
+    private readonly element: T,
+    private readonly onClickAway: () => void,
+  ) {
     window.addEventListener('click', this.clickOutsideListener, true)
   }
 }

@@ -27,20 +27,23 @@ export const deserializeQueryString = (fullQueryString: string) => {
     .filter(([key, value]) => key?.length && value?.length) // filter out empty keys
 
   const dedupedValues = entries
-    .reduce((prev, current) => {
-      const currentKey = current[0]
-      const currentValue = tryDecodeQueryParam(current[1])
-      const existing = prev.find(([key]) => key === currentKey)
-      if (existing) {
-        existing[1] instanceof Array ? existing[1].push(currentValue) : (existing[1] = currentValue)
-        return [...prev]
-      }
-      const newValue = [currentKey, currentKey.includes('[]') ? [currentValue] : currentValue] as [
-        string,
-        string | string[],
-      ]
-      return [...prev, newValue]
-    }, [] as Array<[string, string | string[]]>)
+    .reduce(
+      (prev, current) => {
+        const currentKey = current[0]
+        const currentValue = tryDecodeQueryParam(current[1])
+        const existing = prev.find(([key]) => key === currentKey)
+        if (existing) {
+          existing[1] instanceof Array ? existing[1].push(currentValue) : (existing[1] = currentValue)
+          return [...prev]
+        }
+        const newValue = [currentKey, currentKey.includes('[]') ? [currentValue] : currentValue] as [
+          string,
+          string | string[],
+        ]
+        return [...prev, newValue]
+      },
+      [] as Array<[string, string | string[]]>,
+    )
     .map(([key, value]) => [key.replace('[]', ''), value])
 
   return Object.fromEntries(dedupedValues)
