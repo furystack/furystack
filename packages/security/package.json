@@ -1,6 +1,6 @@
 {
   "name": "@furystack/security",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "type": "module",
   "scripts": {
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^20.4.2",
+    "@types/node": "^20.4.5",
     "typescript": "^5.1.6",
     "vitest": "^0.33.0"
   }
