@@ -30,7 +30,7 @@
   "devDependencies": {
     "@furystack/inject": "workspace:^",
     "typescript": "^5.1.6",
-    "vitest": "^0.33.0"
+    "vitest": "^0.34.1"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
