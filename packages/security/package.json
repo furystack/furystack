@@ -1,6 +1,6 @@
 {
   "name": "@furystack/security",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Security, password management and authorization related stuff for FuryStack",
   "type": "module",
   "scripts": {
