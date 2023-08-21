@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Avatar, CommandPalette, Fab, Suggest } from '@furystack/shades-common-components'
+import { Avatar, CommandPalette, Fab, Input, Suggest } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 type SuggestEntry = { title: string; description: string }
@@ -10,6 +10,34 @@ const entries: SuggestEntry[] = [
   { title: 'Fourth Entry', description: 'This is the fourth entry' },
   { title: 'Fifth Entry', description: 'This is the fifth entry' },
 ]
+
+const ExampleSearchChangeComponent = Shade({
+  shadowDomName: 'shades-example-search-change',
+  render: ({ useSearchState, renderCount }) => {
+    const [searchValue, setSearchValue] = useSearchState('searchValue', '')
+
+    return (
+      <p>
+        Search state change ({renderCount})
+        <Input placeholder="Search" value={searchValue} onTextChange={setSearchValue} />
+      </p>
+    )
+  },
+})
+
+const ExampleStoredStateChangeComponent = Shade({
+  shadowDomName: 'shades-example-storedstate-change',
+  render: ({ useStoredState, renderCount }) => {
+    const [searchValue, setSearchValue] = useStoredState('storedStateValue', '', sessionStorage)
+
+    return (
+      <p>
+        Stored state change ({renderCount})
+        <Input placeholder="Search" value={searchValue} onTextChange={setSearchValue} />
+      </p>
+    )
+  },
+})
 
 export const MiscPage = Shade({
   shadowDomName: 'shades-misc-page',
@@ -81,6 +109,9 @@ export const MiscPage = Shade({
             ]}
           />
         </div>
+        <hr />
+        <ExampleSearchChangeComponent />
+        <ExampleStoredStateChangeComponent />
       </div>
     )
   },
