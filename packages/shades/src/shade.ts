@@ -116,6 +116,7 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
             injector: this.injector,
             children: this.shadeChildren,
             element: this,
+            renderCount: this._renderCount,
             useObservable: (key, obesrvable, callback, getLast) =>
               this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent()), getLast),
             useState: (key, initialValue) =>
