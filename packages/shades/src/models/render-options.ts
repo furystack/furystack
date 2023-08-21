@@ -4,7 +4,7 @@ import type { Disposable, ObservableValue } from '@furystack/utils'
 
 export type RenderOptions<TProps> = {
   readonly props: TProps
-
+  renderCount: number
   injector: Injector
   children?: ChildrenList
   element: JSX.Element<TProps>
