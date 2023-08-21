@@ -53,19 +53,20 @@ export class LocationService implements Disposable {
    * @returns An observable with the current value (or default value) of the search param
    */
   public useSearchParam<T>(key: string, defaultValue: T) {
-    const actualValue = (this.onDeserializedLocationSearchChanged.getValue()[key] as T) ?? defaultValue
     if (!this.searchParamObservables.has(key)) {
+      const actualValue = (this.onDeserializedLocationSearchChanged.getValue()[key] as T) ?? defaultValue
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
 
       newObservable.subscribe((value) => {
         const params = serializeToQueryString({ ...deserializeQueryString(location.search), [key]: value })
-        history.pushState({}, '', `${location.pathname}?${params}`)
+        const newUrl = `${location.pathname}?${params}`
+        history.pushState({}, '', newUrl)
       })
 
       this.onDeserializedLocationSearchChanged.subscribe((search) => {
         const value = (search[key] as T) ?? defaultValue
-        this.searchParamObservables.get(key)?.setValue(value as T)
+        this.searchParamObservables.get(key)?.setValue((value as T)!.toString())
       })
     }
     return this.searchParamObservables.get(key) as ObservableValue<T>
