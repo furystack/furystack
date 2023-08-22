@@ -87,7 +87,7 @@ describe('LocationService', () => {
         const testSearchParam = service.useSearchParam('test', 234)
         expect(testSearchParam.getValue()).toBe(1)
         history.replaceState(null, '', '/loc1?test=2')
-        expect(testSearchParam.getValue()).toBe(2)
+        expect(testSearchParam.getValue()).toBe('2')
       })
     })
 

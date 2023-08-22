@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-google",
-  "version": "6.0.9",
+  "version": "6.0.10",
   "description": "Google Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {
@@ -43,9 +43,9 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^20.5.0",
+    "@types/node": "^20.5.3",
     "typescript": "^5.1.6",
-    "vitest": "^0.34.1"
+    "vitest": "^0.34.2"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
