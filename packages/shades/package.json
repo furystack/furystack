@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "8.0.8",
+  "version": "8.0.9",
   "description": "Google Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {
