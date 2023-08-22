@@ -5,6 +5,7 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
+import { serializeValue } from '@furystack/rest'
 import { LocationService } from './'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
@@ -74,7 +75,7 @@ describe('LocationService', () => {
     it('Should return the value from the query string', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        history.pushState(null, '', '/loc1?test=1')
+        history.pushState(null, '', `/loc1?test=${serializeValue(1)}`)
         const testSearchParam = service.useSearchParam('test', 123)
         expect(testSearchParam.getValue()).toBe(1)
       })
@@ -83,10 +84,10 @@ describe('LocationService', () => {
     it('should update the observable value on push / replace states', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        history.pushState(null, '', '/loc1?test=1')
+        history.pushState(null, '', `/loc1?test=${serializeValue(1)}`)
         const testSearchParam = service.useSearchParam('test', 234)
         expect(testSearchParam.getValue()).toBe(1)
-        history.replaceState(null, '', '/loc1?test=2')
+        history.replaceState(null, '', `/loc1?test=${serializeValue('2')}`)
         expect(testSearchParam.getValue()).toBe('2')
       })
     })
@@ -94,10 +95,10 @@ describe('LocationService', () => {
     it('Should update the URL based on search value change', () => {
       using(new Injector(), (i) => {
         const service = i.getInstance(LocationService)
-        history.pushState(null, '', '/loc1?test=2')
+        history.pushState(null, '', `/loc1?test=${serializeValue('2')}`)
         const testSearchParam = service.useSearchParam('test', '')
         testSearchParam.setValue('2')
-        expect(location.search).toBe('?test=2')
+        expect(location.search).toBe('?test=IjIi')
       })
     })
   })

@@ -1,42 +1,50 @@
 import { deserializeQueryString } from './deserialize-query-string'
-import { serializeToQueryString } from './serialize-to-query-string'
+import { serializeToQueryString, serializeValue } from './serialize-to-query-string'
 import { describe, it, expect } from 'vitest'
 
 describe('deserializeQueryString', () => {
-  it('Should serialize a null value', () => {
+  it('Should deserialize a null value', () => {
     expect(deserializeQueryString(null as any)).toEqual({})
   })
 
-  it('Should serialize an undefined value', () => {
+  it('Should deserialize an undefined value', () => {
     expect(deserializeQueryString(undefined as any)).toEqual({})
   })
 
-  it('Should serialize an empty string value', () => {
+  it('Should deserialize an empty string value', () => {
     expect(deserializeQueryString('')).toEqual({})
   })
 
-  it('Should serialize a string value with no keys / values', () => {
+  it('Should deserialize a string value with no keys / values', () => {
     expect(deserializeQueryString('?')).toEqual({})
   })
 
-  it('Should serialize a string with given value but empty key', () => {
+  it('Should deserialize a string with given value but empty key', () => {
     expect(deserializeQueryString('?=alma')).toEqual({})
   })
 
-  it('Should serialize a string with given key but empty value', () => {
+  it('Should deserialize a string with given key but empty value', () => {
     expect(deserializeQueryString('?alma=')).toEqual({})
   })
 
-  it('Should serialize a list of primitive values', () => {
-    expect(deserializeQueryString('?foo=value&bar=2&baz=false')).toEqual({ foo: 'value', bar: 2, baz: false })
-  })
-
-  it('Should serialize an array', () => {
-    expect(deserializeQueryString('?foo[]=value&foo[]=2&foo[]=false')).toEqual({ foo: ['value', 2, false] })
+  it('Should deserialize a list of primitive values', () => {
+    expect(
+      deserializeQueryString(`?foo=${serializeValue('value')}&bar=${serializeValue(2)}&baz=${serializeValue(false)}`),
+    ).toEqual({
+      foo: 'value',
+      bar: 2,
+      baz: false,
+    })
   })
 
   it('Should override a value if not specified as an array', () => {
-    expect(deserializeQueryString('?foo=value&foo=2&foo=false&foo=bar')).toEqual({ foo: 'bar' })
+    expect(
+      deserializeQueryString(
+        `?foo=${serializeValue('value')}&foo=${serializeValue(2)}&foo=${serializeValue(false)}&foo=${serializeValue(
+          'bar',
+        )}`,
+      ),
+    ).toEqual({ foo: 'bar' })
   })
 
   it('Should serialize and deserialize an object with primitives', () => {
@@ -60,6 +68,6 @@ describe('deserializeQueryString', () => {
   })
 
   it('Should deserialize escaped values', () => {
-    expect(deserializeQueryString('?alma=asd%2F*-%40')).toEqual({ alma: 'asd/*-@' })
+    expect(deserializeQueryString(`?alma=${serializeValue('asd/*-@?')}`)).toEqual({ alma: 'asd/*-@?' })
   })
 })
