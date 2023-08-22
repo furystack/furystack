@@ -206,9 +206,9 @@ __metadata:
   linkType: hard
 
 "@eslint-community/regexpp@npm:^4.5.1, @eslint-community/regexpp@npm:^4.6.1":
-  version: 4.6.2
-  resolution: "@eslint-community/regexpp@npm:4.6.2"
-  checksum: a3c341377b46b54fa228f455771b901d1a2717f95d47dcdf40199df30abc000ba020f747f114f08560d119e979d882a94cf46cfc51744544d54b00319c0f2724
+  version: 4.7.0
+  resolution: "@eslint-community/regexpp@npm:4.7.0"
+  checksum: 09b8d11a9957b58be870d76e36b718030ba2215e1fb9d009f7a0833733c86b47d8528c47808eeef389145ca198abc3ea4d169452840e36142ecfb9491e3a1d16
   languageName: node
   linkType: hard
 
@@ -913,14 +913,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 20.5.1
-  resolution: "@types/node@npm:20.5.1"
-  checksum: 3dbe611cd67afa987102c8558ee70f848949c5dcfee5f60abc073e55c0d7b048e391bf06bb1e0dc052cb7210ca97136ac496cbaf6e89123c989de6bd125fde82
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.5.3":
+"@types/node@npm:*, @types/node@npm:^20.5.3":
   version: 20.5.3
   resolution: "@types/node@npm:20.5.3"
   checksum: fe67a0fd7402218bdf91523a2b1c2e41d619f7294b1a471e0a778b8bc7bb3fcf291aed12041bcbe9622d50a3d1295a9adea0e7e19bb9386a246bf66071404721
@@ -2323,7 +2316,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fsevents@npm:2.3.2, fsevents@npm:~2.3.2":
+"fsevents@npm:2.3.2":
   version: 2.3.2
   resolution: "fsevents@npm:2.3.2"
   dependencies:
@@ -2333,9 +2326,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
+"fsevents@npm:~2.3.2":
+  version: 2.3.3
+  resolution: "fsevents@npm:2.3.3"
+  dependencies:
+    node-gyp: latest
+  checksum: 11e6ea6fea15e42461fc55b4b0e4a0a3c654faa567f1877dbd353f39156f69def97a69936d1746619d656c4b93de2238bf731f6085a03a50cabf287c9d024317
+  conditions: os=darwin
+  languageName: node
+  linkType: hard
+
+"fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
   resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  dependencies:
+    node-gyp: latest
+  conditions: os=darwin
+  languageName: node
+  linkType: hard
+
+"fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
+  version: 2.3.3
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -4121,8 +4133,8 @@ __metadata:
   linkType: hard
 
 "rollup@npm:^3.27.1":
-  version: 3.28.0
-  resolution: "rollup@npm:3.28.0"
+  version: 3.28.1
+  resolution: "rollup@npm:3.28.1"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -4130,7 +4142,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 6ded4a0d3ca531d68e82897d5eebaa9d085014a062620bc328f2859ccf78d6a148a51ed53f1275a5f89b55cc6d7b1440b7cee44e5a9e3a51442f809b4b26f727
+  checksum: 1fcab0929c16130218447c76c19b56ccc0e677110552462297e3679188fc70185a6ec418cef8ce138ec9fb78fd5188537a3f5d28762788e8c88b12a7fb8ba0fb
   languageName: node
   linkType: hard
 
