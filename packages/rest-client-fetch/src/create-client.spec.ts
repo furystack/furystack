@@ -81,7 +81,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     expect(result.result).toEqual({ value: 1 })
 
-    expect(fetch).toBeCalledWith(`${endpointUrl}/test?value=asdasd`, {
+    expect(fetch).toBeCalledWith(`${endpointUrl}/test?value=ImFzZGFzZCI%253D`, {
       method: 'GET',
       body: undefined,
     })

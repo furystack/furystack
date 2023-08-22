@@ -8,6 +8,7 @@ import { DefaultSession } from './models/default-session'
 import { JsonResult } from './request-action-implementation'
 import { useHttpAuthentication, useRestService } from './helpers'
 import { describe, it, expect } from 'vitest'
+import { serializeValue } from '@furystack/rest'
 
 class UserWithPassword extends User {
   password!: string
@@ -139,7 +140,7 @@ describe('@furystack/rest-service inregration tests', () => {
     await usingAsync(new Injector(), async (i) => {
       const { apiUrl } = await prepareInjector(i)
 
-      const response = await fetch(PathHelper.joinPaths(apiUrl, 'testQuery?param1=foo'))
+      const response = await fetch(PathHelper.joinPaths(apiUrl, `testQuery?param1=${serializeValue('foo')}`))
       expect(response.status).toBe(200)
       const result = await response.json()
       expect(result).toEqual({ param1Value: 'foo' })
