@@ -66,8 +66,6 @@ export class CollectionService<T> implements Disposable {
     this.isSelected(entry) ? this.removeFromSelection(entry) : this.addToSelection(entry)
   }
 
-  private readonly loadLock = new Lock()
-
   public getEntries: EntryLoader<T>
 
   public data = new ObservableValue<CollectionData<T>>({ count: 0, entries: [] })
