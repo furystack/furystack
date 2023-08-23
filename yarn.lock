@@ -433,7 +433,6 @@ __metadata:
     "@furystack/shades": "workspace:^"
     "@furystack/utils": "workspace:^"
     path-to-regexp: ^6.2.1
-    semaphore-async-await: ^1.5.1
     typescript: ^5.1.6
     vitest: ^0.34.2
   languageName: unknown
