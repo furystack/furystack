@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { Injector } from '@furystack/inject'
-import { LocationService, createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { defaultLightTheme, ThemeProviderService, useThemeCssVariables } from '@furystack/shades-common-components'
 import { App } from './app.js'
 import './style.css'
@@ -19,10 +19,3 @@ initializeShadeRoot({
   rootElement: el,
   jsxElement: <App />,
 })
-
-shadesInjector
-  .getInstance(LocationService)
-  .useSearchParam('searchValue', 'default value')
-  .subscribe((value) => {
-    console.log('searchValue param changed', value)
-  })
