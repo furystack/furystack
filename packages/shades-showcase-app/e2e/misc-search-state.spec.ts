@@ -18,5 +18,15 @@ test.describe('useSearchState', () => {
     await input.press('Enter')
 
     await expect(testComponent).toHaveText('Search state change (2)')
+
+    await page.goBack()
+
+    await expect(input).toHaveValue('test1')
+    await expect(testComponent).toHaveText('Search state change (3)')
+
+    await page.goForward()
+
+    await expect(input).toHaveValue('test2')
+    await expect(testComponent).toHaveText('Search state change (4)')
   })
 })

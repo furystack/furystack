@@ -26,10 +26,13 @@ export class LocationService implements Disposable {
   public onLocationHashChanged = new ObservableValue(location.hash)
 
   /**
-   * Observable value that will be updated when the location search (e.g. ?search=1) changes
+   * Observable value that will be updated when the location search (e.g. ?foo=some-encoded-value) changes
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
+  /**
+   * Observable value that will be updated when the location search (e.g. ?foo=some-encoded-value) changes and will be populated with the deserialized value of the search (e.g. {foo: true})
+   */
   public onDeserializedLocationSearchChanged = new ObservableValue(
     deserializeQueryString(this.onLocationSearchChanged.getValue()),
   )
@@ -63,7 +66,9 @@ export class LocationService implements Disposable {
       newObservable.subscribe((value) => {
         const params = serializeToQueryString({ ...deserializeQueryString(location.search), [key]: value })
         const newUrl = `${location.pathname}?${params}`
-        history.pushState({}, '', newUrl)
+        if (newUrl !== location.pathname + location.search) {
+          history.pushState({}, '', newUrl)
+        }
       })
 
       this.onDeserializedLocationSearchChanged.subscribe((search) => {
