@@ -1,4 +1,5 @@
 import type { PartialResult, FindOptions } from '@furystack/core'
+import { Lock } from 'semaphore-async-await'
 import type { Disposable } from '@furystack/utils'
 import { debounce, ObservableValue } from '@furystack/utils'
 
@@ -198,6 +199,7 @@ export class CollectionService<T> implements Disposable {
       : this.options.loader
 
     this.getEntries = async (opt) => {
+      await this.loadLock.acquire()
       try {
         this.error.setValue(undefined)
         this.isLoading.setValue(true)
@@ -208,6 +210,7 @@ export class CollectionService<T> implements Disposable {
         this.error.setValue(error)
         throw error
       } finally {
+        this.loadLock.release()
         this.isLoading.setValue(false)
       }
     }
