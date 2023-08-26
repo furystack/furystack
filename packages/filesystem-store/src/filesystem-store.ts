@@ -28,7 +28,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     this.hasChanges = true
   }
 
-  public tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
+  public tick: ReturnType<typeof setInterval>
   public hasChanges = false
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>) {
     return await this.fileLock.execute(async () => {
@@ -120,6 +120,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     this.primaryKey = options.primaryKey
     this.model = options.model
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
+    this.tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
 
     try {
       this.reloadData()
