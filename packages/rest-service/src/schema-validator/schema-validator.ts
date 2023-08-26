@@ -4,14 +4,15 @@ import useFormats from 'ajv-formats'
 import { SchemaValidationError } from './schema-validation-error.js'
 
 export class SchemaValidator<TSchema extends { definitions: {} }> {
-  private readonly ajv = new Ajv.default({
-    allErrors: true,
-    ...this.ajvOptions,
-  })
+  private readonly ajv: Ajv.default
   constructor(
     private readonly schema: TSchema,
-    private readonly ajvOptions?: Options,
+    ajvOptions?: Options,
   ) {
+    this.ajv = new Ajv.default({
+      allErrors: true,
+      ...ajvOptions,
+    })
     useFormats.default(this.ajv)
   }
 
