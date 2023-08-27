@@ -40,7 +40,7 @@ export class Injector implements Disposable {
   /**
    * Static class metadata map, filled by the @Injectable() decorator
    */
-  public static options: Map<Constructable<any>, InjectableOptions<any>> = new Map()
+  public static options: Map<Constructable<any>, InjectableOptions> = new Map()
 
   public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
