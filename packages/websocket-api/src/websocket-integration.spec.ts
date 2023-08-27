@@ -7,15 +7,25 @@ import { useRestService } from '@furystack/rest-service'
 import { useWebsockets } from './helpers'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
+const portGenerator = function* () {
+  const initialPort = 19000
+  let port = initialPort
+  while (true) {
+    yield port++
+  }
+}
+
+const getPort = () => portGenerator().next().value
+
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'
-  const port = 9999
   const path = '/ws'
   let i!: Injector
   let client: ws
 
   beforeEach(async () => {
     i = new Injector()
+    const port = getPort()
     useRestService({
       injector: i,
       api: {},
