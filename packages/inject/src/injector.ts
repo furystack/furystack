@@ -2,7 +2,7 @@ import type { Disposable } from '@furystack/utils'
 import type { InjectableOptions } from './injectable.js'
 import type { Constructable } from './models/constructable.js'
 
-const hasInitMethod = (obj: Object): obj is { init: () => void } => {
+const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as any).init === 'function'
 }
 
@@ -40,7 +40,7 @@ export class Injector implements Disposable {
   /**
    * Static class metadata map, filled by the @Injectable() decorator
    */
-  public static options: Map<Constructable<any>, InjectableOptions> = new Map()
+  public static options: Map<Constructable<any>, InjectableOptions<any>> = new Map()
 
   public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
@@ -75,7 +75,7 @@ export class Injector implements Disposable {
       throw Error(`Circular dependencies found.`)
     }
 
-    const { lifetime } = meta
+    const { lifetime = 'singleton' } = meta
 
     const injectedFields = Object.entries(Injector.injectableFields.get(ctor) || {})
 
@@ -117,7 +117,7 @@ export class Injector implements Disposable {
     }
 
     if (hasInitMethod(newInstance)) {
-      newInstance.init()
+      newInstance.init(this)
     }
     return newInstance
   }
