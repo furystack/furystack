@@ -2,6 +2,10 @@ import type { Disposable } from '@furystack/utils'
 import type { InjectableOptions } from './injectable.js'
 import type { Constructable } from './models/constructable.js'
 
+const hasInitMethod = (obj: Object): obj is { init: () => void } => {
+  return typeof (obj as any).init === 'function'
+}
+
 export class Injector implements Disposable {
   /**
    * Disposes the Injector object and all its disposable injectables
@@ -110,6 +114,10 @@ export class Injector implements Disposable {
     })
     if (lifetime !== 'transient') {
       this.setExplicitInstance(newInstance)
+    }
+
+    if (hasInitMethod(newInstance)) {
+      newInstance.init()
     }
     return newInstance
   }
