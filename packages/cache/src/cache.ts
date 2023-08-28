@@ -19,6 +19,10 @@ interface CacheSettings<TData, TArgs extends any[]> {
 }
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
+  constructor(private readonly options: CacheSettings<TData, TArgs>) {
+    this.stateManager = new CacheStateManager<TData>({ capacity: this.options.capacity })
+  }
+
   private readonly cacheLockManager = new CacheLockManager()
 
   /**
@@ -31,7 +35,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
 
-  private readonly stateManager = new CacheStateManager<TData>({ capacity: this.options.capacity })
+  private readonly stateManager: CacheStateManager<TData>
 
   /**
    * Method that returns the entity from the cache - or loads it if it's not in the cache
@@ -159,6 +163,4 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   public flushAll() {
     this.stateManager.flushAll()
   }
-
-  constructor(private readonly options: CacheSettings<TData, TArgs>) {}
 }

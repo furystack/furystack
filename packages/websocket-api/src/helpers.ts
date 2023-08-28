@@ -18,5 +18,5 @@ export const useWebsockets = (injector: Injector, settings?: Partial<WebSocketAp
   const s = new WebSocketApiSettings()
   Object.assign(s, settings)
   injector.setExplicitInstance(s, WebSocketApiSettings)
-  injector.getInstance(WebSocketApi).init()
+  injector.getInstance(WebSocketApi)
 }
