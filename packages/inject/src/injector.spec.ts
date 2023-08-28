@@ -222,4 +222,19 @@ describe('Injector', () => {
       )
     })
   })
+
+  it('Should exec an init() method, if present', () => {
+    @Injectable()
+    class InitClass {
+      public initWasCalled = false
+      public init() {
+        this.initWasCalled = true
+      }
+    }
+
+    using(new Injector(), (i) => {
+      const instance = i.getInstance(InitClass)
+      expect(instance.initWasCalled).toBe(true)
+    })
+  })
 })

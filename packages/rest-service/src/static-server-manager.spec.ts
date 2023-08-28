@@ -10,7 +10,7 @@ import { describe, it, expect, vi } from 'vitest'
  * @yields a port for testing
  * @returns The Port number
  */
-function* getPort(initialPort = 1234) {
+function* portGenerator(initialPort = 1234) {
   let port = initialPort
 
   while (true) {
@@ -19,14 +19,14 @@ function* getPort(initialPort = 1234) {
   return port
 }
 
-describe('StaticServerManager', () => {
-  const portGenerator = getPort()
+const getPort = () => portGenerator().next().value
 
+describe('StaticServerManager', () => {
   describe('Top level routing', () => {
     it('Should return a 404 without fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
         await staticServerManager.addStaticSite({
           baseUrl: '/',
           path: '.',
@@ -45,7 +45,7 @@ describe('StaticServerManager', () => {
     it('Should return a fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
@@ -67,7 +67,7 @@ describe('StaticServerManager', () => {
     it('Should return a fallback for root files', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
@@ -89,7 +89,7 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a root directory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
@@ -110,7 +110,7 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a subdirectory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
@@ -129,7 +129,7 @@ describe('StaticServerManager', () => {
     it('Should not handle a request when the path is not matching', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
@@ -154,7 +154,7 @@ describe('StaticServerManager', () => {
     it('Should return a 404 without fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
@@ -174,7 +174,7 @@ describe('StaticServerManager', () => {
     it('Should return a fallback', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/bundle',
@@ -192,7 +192,7 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a root directory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',
@@ -209,7 +209,7 @@ describe('StaticServerManager', () => {
     it('Should return a defined file from a subdirectory', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const staticServerManager = injector.getInstance(StaticServerManager)
-        const port = portGenerator.next().value
+        const port = getPort()
 
         await staticServerManager.addStaticSite({
           baseUrl: '/',

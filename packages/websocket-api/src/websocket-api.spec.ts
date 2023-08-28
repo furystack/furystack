@@ -6,28 +6,39 @@ import type { WebSocketAction } from './models'
 import { useWebsockets } from './helpers'
 import { describe, it, expect } from 'vitest'
 
+const portGenerator = function* () {
+  const initialPort = 19998
+  let port = initialPort
+  while (true) {
+    yield port++
+  }
+}
+
+const getPort = () => portGenerator().next().value
+
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
     await usingAsync(new Injector(), async (i) => {
-      useWebsockets(i, { port: 19998 })
+      useWebsockets(i, { port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
   it('Should be built with settings', async () => {
     await usingAsync(new Injector(), async (i) => {
-      useWebsockets(i, { path: '/web-socket', port: 19996 })
+      useWebsockets(i, { path: '/web-socket', port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
 
   it('Should broadcast messages', async () => {
+    const port = getPort()
     await usingAsync(new Injector(), async (i) => {
       expect.assertions(4) // All 4 clients should receive the message
-      useWebsockets(i, { path: '/web-socket', port: 19994 })
+      useWebsockets(i, { path: '/web-socket', port })
       const api = i.getInstance(WebSocketApi)
       await Promise.all(
         [1, 2, 3, 4, 5].map(async (idx) => {
-          const client = new WebSocket('ws://localhost:19994/web-socket')
+          const client = new WebSocket(`ws://localhost:${port}/web-socket`)
           await new Promise<void>((resolve) =>
             client.once('open', () => {
               if (idx === 5) {
@@ -51,6 +62,7 @@ describe('WebSocketApi', () => {
   })
 
   it('Should receive client messages', async () => {
+    const port = getPort()
     await usingAsync(new Injector(), async (i) => {
       expect.assertions(1)
       const data = { value: 'alma' }
@@ -68,8 +80,8 @@ describe('WebSocketApi', () => {
         }
       }
 
-      useWebsockets(i, { path: '/web-socket', port: 19995, actions: [ExampleWsAction] })
-      const client = new WebSocket('ws://localhost:19995/web-socket')
+      useWebsockets(i, { path: '/web-socket', port, actions: [ExampleWsAction] })
+      const client = new WebSocket(`ws://localhost:${port}/web-socket`)
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
 
       await new Promise<void>((resolve, reject) =>
