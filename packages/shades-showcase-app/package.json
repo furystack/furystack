@@ -17,7 +17,7 @@
     "@playwright/test": "^1.37.1",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vitest": "^0.34.3"
+    "vitest": "^0.34.4"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
@@ -29,6 +29,6 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.2",
-    "monaco-editor": "^0.41.0"
+    "monaco-editor": "^0.43.0"
   }
 }
