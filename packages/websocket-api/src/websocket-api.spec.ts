@@ -41,10 +41,6 @@ describe('WebSocketApi', () => {
           const client = new WebSocket(`ws://localhost:${port}/web-socket`)
           await new Promise<void>((resolve) =>
             client.once('open', () => {
-              if (idx === 5) {
-                client.close()
-                client.terminate()
-              }
               resolve()
             }),
           )
