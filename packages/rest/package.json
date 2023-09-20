@@ -41,7 +41,7 @@
     "@furystack/inject": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^20.6.0",
+    "@types/node": "^20.6.3",
     "typescript": "^5.2.2",
     "vitest": "^0.34.4"
   },
