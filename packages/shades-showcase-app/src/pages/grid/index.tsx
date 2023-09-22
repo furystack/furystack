@@ -8,7 +8,7 @@ export const GridPage = Shade({
   shadowDomName: 'shades-grid-page',
 
   render: ({ useDisposable, injector }) => {
-    const service = useDisposable('service', () => injector.getInstance(GridPageService).init())
+    const service = useDisposable('service', () => injector.getInstance(GridPageService))
     return (
       <div
         style={{

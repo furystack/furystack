@@ -167,7 +167,7 @@ describe('Injector', () => {
     class UndecoratedTestClass {}
     using(new Injector(), (i) => {
       expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
-        `No metadata found for 'UndecoratedTestClass'. Dependencies: _Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+        `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
       )
     })
   })
@@ -220,6 +220,21 @@ describe('Injector', () => {
       expect(() => i.getInstance(Sc2)).toThrowError(
         `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
       )
+    })
+  })
+
+  it('Should exec an init() method, if present', () => {
+    @Injectable()
+    class InitClass {
+      public initWasCalled = false
+      public init() {
+        this.initWasCalled = true
+      }
+    }
+
+    using(new Injector(), (i) => {
+      const instance = i.getInstance(InitClass)
+      expect(instance.initWasCalled).toBe(true)
     })
   })
 })

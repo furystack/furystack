@@ -20,7 +20,7 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   /**
    * Primary key of the contained entity
    */
-  public primaryKey: TPrimaryKey = this.settings.physicalStore.primaryKey
+  public primaryKey: TPrimaryKey
 
   /**
    * Adds an entity to the DataSet
@@ -184,5 +184,7 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     key: T[TPrimaryKey]
   }>()
 
-  constructor(public readonly settings: DataSetSettings<T, TPrimaryKey, TWritableData>) {}
+  constructor(public readonly settings: DataSetSettings<T, TPrimaryKey, TWritableData>) {
+    this.primaryKey = this.settings.physicalStore.primaryKey
+  }
 }
