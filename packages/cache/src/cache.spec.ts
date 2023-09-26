@@ -1,5 +1,5 @@
 import { sleepAsync } from '@furystack/utils'
-import { Cache } from './cache'
+import { Cache } from './cache.js'
 import { describe, it, expect, vi } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
@@ -182,8 +182,8 @@ describe('Cache', () => {
 
     it('Reload should be able to set an error state', async () => {
       const loader = vi.fn(
-        (a: number, b: number) =>
-          new Promise((resolve, reject) =>
+        (_a: number, _b: number) =>
+          new Promise((_resolve, reject) =>
             setTimeout(() => {
               reject(new Error('Failed'))
             }, 1000),

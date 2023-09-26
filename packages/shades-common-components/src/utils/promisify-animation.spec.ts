@@ -1,5 +1,5 @@
 import { sleepAsync } from '@furystack/utils'
-import { promisifyAnimation } from './promisify-animation'
+import { promisifyAnimation } from './promisify-animation.js'
 import { describe, it, expect, vi } from 'vitest'
 
 describe('promisifyAnimation', () => {

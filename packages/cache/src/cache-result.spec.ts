@@ -5,7 +5,7 @@ import {
   isLoadedCacheResult,
   isObsoleteCacheResult,
   isPendingCacheResult,
-} from './cache-result'
+} from './cache-result.js'
 import { describe, it, expect } from 'vitest'
 
 describe('CacheResult', () => {

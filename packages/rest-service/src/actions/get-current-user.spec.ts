@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { GetCurrentUser } from './get-current-user'
+import { GetCurrentUser } from './get-current-user.js'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
 import { describe, it, expect } from 'vitest'

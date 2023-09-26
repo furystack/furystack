@@ -1,11 +1,11 @@
 import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { HttpUserContext } from './http-user-context'
-import { Authenticate } from './authenticate'
+import { HttpUserContext } from './http-user-context.js'
+import { Authenticate } from './authenticate.js'
 import type { ServerResponse } from 'http'
 import { IdentityContext } from '@furystack/core'
-import { EmptyResult } from './request-action-implementation'
+import { EmptyResult } from './request-action-implementation.js'
 import { describe, it, expect, vi } from 'vitest'
 
 describe('Authenticate', () => {

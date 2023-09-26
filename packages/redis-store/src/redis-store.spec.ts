@@ -1,9 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { createClient } from 'redis'
 import { StoreManager } from '@furystack/core'
-import { RedisStore } from './redis-store'
-import './store-manager-helpers'
-import { useRedis } from './store-manager-helpers'
+import { RedisStore } from './redis-store.js'
+import { useRedis } from './store-manager-helpers.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 const redisUrl = process?.env?.REDIS_URL || 'redis://localhost:6379'

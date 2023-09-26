@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { deepMerge } from './deep-merge'
+import { deepMerge } from './deep-merge.js'
 
 describe('DeepMerge tests', () => {
   it('Should return the target object if no merge sources are defined', () => {
@@ -24,7 +24,7 @@ describe('DeepMerge tests', () => {
   })
 
   it('Should respect falsy but defined values (false)', () => {
-    expect(deepMerge({ a: true }, { a: false })).toEqual({ a: false })
+    expect(deepMerge<{ a: boolean }>({ a: true }, { a: false })).toEqual({ a: false })
   })
 
   it('Should respect falsy but defined values (empty string)', () => {

@@ -1,4 +1,4 @@
-import { createClient } from './'
+import { createClient } from './create-client.js'
 import { describe, it, expect, vi } from 'vitest'
 
 const endpointUrl = 'http://localhost'

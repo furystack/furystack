@@ -1,10 +1,11 @@
 import { promises, existsSync } from 'fs'
-import { FileSystemStore } from './index'
-import { useFileSystemStore } from './store-manager-helpers'
+import { FileSystemStore } from './index.js'
+import { useFileSystemStore } from './store-manager-helpers.js'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { StoreManager, TestClass } from '@furystack/core'
+import { StoreManager } from '@furystack/core'
 import { describe, it, expect, afterAll } from 'vitest'
+import { TestClass } from '@furystack/core/create-physical-store-tests'
 
 let storeCount = 0
 

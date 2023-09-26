@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
-import { ServerManager } from './server-manager'
-import { StaticServerManager } from './static-server-manager'
+import { ServerManager } from './server-manager.js'
+import { StaticServerManager } from './static-server-manager.js'
 import { describe, it, expect, vi } from 'vitest'
 
 /**

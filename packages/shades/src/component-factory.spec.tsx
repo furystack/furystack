@@ -1,6 +1,6 @@
-import { createComponent } from './shade-component'
+import { createComponent } from './shade-component.js'
 import './jsx'
-import { Shade } from './shade'
+import { Shade } from './shade.js'
 import { Injector } from '@furystack/inject'
 import { describe, it, expect, vi } from 'vitest'
 

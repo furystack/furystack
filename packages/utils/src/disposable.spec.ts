@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import type { Disposable } from './disposable'
-import { using, usingAsync } from './disposable'
+import type { Disposable } from './disposable.js'
+import { using, usingAsync } from './disposable.js'
 
 export class MockDisposable implements Disposable {
   private disposed = false

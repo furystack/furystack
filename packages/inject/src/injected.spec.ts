@@ -1,5 +1,5 @@
-import { Injected } from './injected'
-import { Injector } from './injector'
+import { Injected } from './injected.js'
+import { Injector } from './injector.js'
 import { describe, expect, it } from 'vitest'
 describe('@Injected()', () => {
   it('Should register into the injectable fields', () => {

@@ -6,7 +6,7 @@ global.TextDecoder = TextDecoder as any
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
 import { serializeValue } from '@furystack/rest'
-import { LocationService } from './'
+import { LocationService } from './location-service.js'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 describe('LocationService', () => {

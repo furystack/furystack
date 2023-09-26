@@ -1,5 +1,5 @@
-import { Injectable } from './injectable'
-import { Injector } from './injector'
+import { Injectable } from './injectable.js'
+import { Injector } from './injector.js'
 import { describe, expect, it } from 'vitest'
 
 describe('@Injectable()', () => {
