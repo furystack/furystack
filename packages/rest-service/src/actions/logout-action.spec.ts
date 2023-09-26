@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { HttpUserContext } from '../http-user-context'
-import { LogoutAction } from './logout'
+import { HttpUserContext } from '../http-user-context.js'
+import { LogoutAction } from './logout.js'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, it, expect, vi } from 'vitest'
 

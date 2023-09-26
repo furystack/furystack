@@ -1,5 +1,5 @@
 import { ObservableValue, using } from '@furystack/utils'
-import { ResourceManager } from './resource-manager'
+import { ResourceManager } from './resource-manager.js'
 import { describe, it, expect } from 'vitest'
 describe('ResourceManager', () => {
   it('Should return an observable from cache', () => {

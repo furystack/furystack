@@ -1,10 +1,11 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/rest-service'
-import { GoogleLoginAction, GoogleLoginService } from '.'
+import { GoogleLoginAction } from './login-action.js'
 import { ServerResponse } from 'http'
 import type { IncomingMessage } from 'http'
 import { describe, it, expect, vi } from 'vitest'
+import { GoogleLoginService } from './login-service.js'
 
 describe('GoogleLoginAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage

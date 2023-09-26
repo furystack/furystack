@@ -1,9 +1,9 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { PostEndpoint } from '@furystack/rest'
-import { createPostEndpoint } from './create-post-endpoint'
-import { MockClass, setupContext } from './utils'
-import { useRestService } from '../helpers'
+import { createPostEndpoint } from './create-post-endpoint.js'
+import { MockClass, setupContext } from './utils.js'
+import { useRestService } from '../helpers.js'
 import { getDataSetFor } from '@furystack/repository'
 import { describe, it, expect } from 'vitest'
 

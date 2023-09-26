@@ -1,4 +1,4 @@
-import { tuple } from './tuple'
+import { tuple } from './tuple.js'
 import { describe, it, expect } from 'vitest'
 
 describe('Tuple', () => {

@@ -2,10 +2,10 @@ import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { GetEntityEndpoint } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
-import { MockClass, setupContext } from './utils'
-import { createGetEntityEndpoint } from './create-get-entity-endpoint'
+import { MockClass, setupContext } from './utils.js'
+import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
 import { getDataSetFor } from '@furystack/repository'
-import { useRestService } from '../helpers'
+import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
 
 describe('createGetEntityEndpoint', () => {

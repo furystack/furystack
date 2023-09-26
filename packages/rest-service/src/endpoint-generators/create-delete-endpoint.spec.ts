@@ -1,9 +1,9 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { DeleteEndpoint } from '@furystack/rest'
-import { createDeleteEndpoint } from './create-delete-endpoint'
-import { MockClass, setupContext } from './utils'
-import { useRestService } from '../helpers'
+import { createDeleteEndpoint } from './create-delete-endpoint.js'
+import { MockClass, setupContext } from './utils.js'
+import { useRestService } from '../helpers.js'
 import { getDataSetFor } from '@furystack/repository'
 import { describe, it, expect } from 'vitest'
 
