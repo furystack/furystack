@@ -37,9 +37,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.7.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.4"
+    "vitest": "^0.34.5"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",

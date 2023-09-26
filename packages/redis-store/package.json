@@ -39,12 +39,12 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "redis": "^4.6.9"
+    "redis": "^4.6.10"
   },
   "devDependencies": {
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.7.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.4"
+    "vitest": "^0.34.5"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
