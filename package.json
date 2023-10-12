@@ -34,7 +34,7 @@
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
     "clean": "npm run rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
-    "test": "npm run vitest",
+    "test": "vitest",
     "test:debug": "npm run --inspect-brk vitest --runInBand",
     "create-schemas": "npm run build && ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && npm run build"
   },

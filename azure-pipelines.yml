@@ -96,7 +96,7 @@ jobs:
       - script: npm run build:showcase
         displayName: 'Build Showcase app'
              
-      - script: npm --workspace=@furystack/shades-showcase-app e2e install --with-deps
+      - script: npm --workspace=@furystack/shades-showcase-app run e2e install --with-deps
         displayName: Install Playwright browsers
       
       - script: npm --workspace=@furystack/shades-showcase-app e2e test
