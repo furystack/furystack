@@ -74,7 +74,7 @@ jobs:
         node_19_x:
           node_version: 19.x
         node_20_x:
-          node_version: 20.5.x
+          node_version: 20.x
     displayName: Showcase app UI tests
     steps:
       - task: NodeTool@0
