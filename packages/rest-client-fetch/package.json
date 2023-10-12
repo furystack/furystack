@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/rest": "workspace:^",
+    "@furystack/rest": "^5.0.11",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {

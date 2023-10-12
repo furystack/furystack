@@ -35,10 +35,10 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@furystack/core": "workspace:^",
-    "@furystack/inject": "workspace:^",
-    "@furystack/shades": "workspace:^",
-    "@furystack/utils": "workspace:^",
+    "@furystack/core": "^12.0.10",
+    "@furystack/inject": "^8.1.0",
+    "@furystack/shades": "^8.0.11",
+    "@furystack/utils": "^4.0.9",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },

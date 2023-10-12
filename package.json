@@ -27,11 +27,11 @@
     "vitest": "^0.34.6"
   },
   "scripts": {
-    "start": "yarn workspace @furystack/shades-showcase-app start",
+    "start": "npm --workspace=@furystack/shades-showcase-app start",
     "bumpVersions": "yarn version check --interactive",
     "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
     "build:esm": "tsc -b packages",
-    "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
+    "build:showcase": "npm run build && npm --workspace=@furystack/shades-showcase-app build",
     "build": "yarn build:esm",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",

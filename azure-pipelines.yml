@@ -36,7 +36,7 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: yarn install --immutable
+      - script: npm ci
         displayName: 'Install'
 
       - script: yarn lint
@@ -90,16 +90,16 @@ jobs:
           detached: true
           buildImages: true
 
-      - script: yarn install --immutable
+      - script: npm ci
         displayName: 'Install'
 
       - script: yarn build:showcase
         displayName: 'Build Showcase app'
              
-      - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+      - script: npm --workspace=@furystack/shades-showcase-app e2e install --with-deps
         displayName: Install Playwright browsers
       
-      - script: yarn workspace @furystack/shades-showcase-app e2e test
+      - script: npm --workspace=@furystack/shades-showcase-app e2e test
         env:
           CI: true
         displayName: execute tests

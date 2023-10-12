@@ -42,8 +42,8 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^"
+    "@furystack/inject": "^8.1.0",
+    "@furystack/utils": "^4.0.9"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

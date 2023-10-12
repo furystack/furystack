@@ -37,8 +37,8 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "workspace:^",
-    "@furystack/inject": "workspace:^"
+    "@furystack/core": "^12.0.10",
+    "@furystack/inject": "^8.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.4",

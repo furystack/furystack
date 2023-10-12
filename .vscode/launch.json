@@ -7,8 +7,7 @@
     {
       "name": "Showcase app Start",
       "request": "launch",
-      // "runtimeArgs": ["run-script", "debug"],
-      "runtimeExecutable": "yarn",
+      "runtimeExecutable": "npm", // TODO: ChekcMe
       "args": ["workspace", "@furystack/shades-showcase-app", "start"],
       "skipFiles": ["<node_internals>/**"],
       "type": "node"
@@ -16,9 +15,8 @@
     {
       "name": "Debug current Showcase App Playwright tests",
       "type": "node",
-      "runtimeExecutable": "yarn",
+      "runtimeExecutable": "npm", // TODO: ChekcMe
       "request": "launch",
-      // "program": "${file}",
       "runtimeArgs": [
         "workspace",
         "@furystack/shades-showcase-app",

@@ -18,13 +18,15 @@ jobs:
         with:
           node-version: '19'
       - name: Install dependencies
-        run: yarn install --immutable
+        run: npm ci
       - name: Build
         run: yarn build
       - name: Create .npmrc
-        run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
+        ## run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
+        ## TODO: Check me
+        run: npm config set always-auth true && npm config set _authToken=${NPM_TOKEN}
       - name: Publish to NPM with Yarn
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn workspaces foreach --no-private npm publish --tolerate-republish ## yarn lerna publish from-package -y
+        run: npm --workspaces --no-private npm publish --tolerate-republish
 

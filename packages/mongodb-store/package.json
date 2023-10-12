@@ -37,9 +37,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "workspace:^",
-    "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^",
+    "@furystack/core": "^12.0.10",
+    "@furystack/inject": "^8.1.0",
+    "@furystack/utils": "^4.0.9",
     "mongodb": "6.1.0",
     "semaphore-async-await": "^1.5.1"
   },

@@ -44,9 +44,9 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@furystack/inject": "workspace:^",
-    "@furystack/rest": "workspace:^",
-    "@furystack/utils": "workspace:^",
+    "@furystack/inject": "^8.1.0",
+    "@furystack/rest": "^5.0.11",
+    "@furystack/utils": "^4.0.9",
     "path-to-regexp": "^6.2.1",
     "semaphore-async-await": "^1.5.1"
   },

@@ -38,8 +38,8 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^",
+    "@furystack/inject": "^8.1.0",
+    "@furystack/utils": "^4.0.9",
     "semaphore-async-await": "^1.5.1"
   },
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"

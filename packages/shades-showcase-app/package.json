@@ -13,21 +13,21 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@furystack/logging": "workspace:^",
+    "@furystack/logging": "^4.0.9",
     "@playwright/test": "^1.39.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@furystack/core": "workspace:^",
-    "@furystack/inject": "workspace:^",
-    "@furystack/repository": "workspace:^",
-    "@furystack/shades": "workspace:^",
-    "@furystack/shades-common-components": "workspace:^",
-    "@furystack/shades-lottie": "workspace:^",
-    "@furystack/shades-nipple": "workspace:^",
-    "@furystack/utils": "workspace:^",
+    "@furystack/core": "^12.0.10",
+    "@furystack/inject": "^8.1.0",
+    "@furystack/repository": "^7.0.10",
+    "@furystack/shades": "^8.0.11",
+    "@furystack/shades-common-components": "^5.0.11",
+    "@furystack/shades-lottie": "^4.0.11",
+    "@furystack/shades-nipple": "^4.0.11",
+    "@furystack/utils": "^4.0.9",
     "@lottiefiles/lottie-player": "^2.0.2",
     "monaco-editor": "^0.44.0"
   }

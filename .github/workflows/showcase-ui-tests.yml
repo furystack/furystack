@@ -17,13 +17,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
       - name: Build Showcase app
         run: yarn build:showcase
       - name: Install Playwright browsers
-        run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
+        run: npm --workspace=@furystack/shades-showcase-app e2e install --with-deps
       - name: execute tests
-        run: yarn workspace @furystack/shades-showcase-app e2e test
+        run: npm --workspace=@furystack/shades-showcase-app e2e test
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
