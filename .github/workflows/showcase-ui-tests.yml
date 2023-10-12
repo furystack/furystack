@@ -23,7 +23,7 @@ jobs:
       - name: Install Playwright browsers
         run: npm --workspace=@furystack/shades-showcase-app run e2e install --with-deps
       - name: execute tests
-        run: npm --workspace=@furystack/shades-showcase-app e2e test
+        run: npm --workspace=@furystack/shades-showcase-app run e2e test
       - uses: actions/upload-artifact@v2
         if: failure()
         with:

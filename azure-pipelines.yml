@@ -99,7 +99,7 @@ jobs:
       - script: npm --workspace=@furystack/shades-showcase-app run e2e install --with-deps
         displayName: Install Playwright browsers
       
-      - script: npm --workspace=@furystack/shades-showcase-app e2e test
+      - script: npm --workspace=@furystack/shades-showcase-app run e2e test
         env:
           CI: true
         displayName: execute tests
