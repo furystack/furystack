@@ -28,17 +28,15 @@
   },
   "scripts": {
     "start": "npm --workspace=@furystack/shades-showcase-app start",
-    "bumpVersions": "yarn version check --interactive",
-    "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
     "build:esm": "tsc -b packages",
     "build:showcase": "npm run build && npm --workspace=@furystack/shades-showcase-app build",
-    "build": "yarn build:esm",
+    "build": "npm run build:esm",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
-    "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
-    "test": "yarn run vitest",
-    "test:debug": "yarn run --inspect-brk vitest --runInBand",
-    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
+    "clean": "npm run rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
+    "test": "npm run vitest",
+    "test:debug": "npm run --inspect-brk vitest --runInBand",
+    "create-schemas": "npm run build && npm run ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && npm run build"
   },
   "husky": {
     "hooks": {
@@ -55,7 +53,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "yarn@3.6.4",
   "dependenciesMeta": {
     "prettier@3.0.2": {
       "unplugged": true

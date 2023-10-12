@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
     },
   ],
   webServer: {
-    command: 'yarn start',
+    command: 'npm run start',
     reuseExistingServer: !isInCi,
     url: 'http://localhost:8080',
   },

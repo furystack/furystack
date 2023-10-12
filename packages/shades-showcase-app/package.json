@@ -5,10 +5,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && yarn vite build",
+    "build": "tsc -b && vite build",
     "build:stats": "echo todo",
-    "start": "yarn vite --port 8080",
-    "e2e": "yarn playwright"
+    "start": "vite --port 8080",
+    "e2e": "playwright"
   },
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",

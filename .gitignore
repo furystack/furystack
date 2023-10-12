@@ -2,8 +2,6 @@
 logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Runtime data
 pids
@@ -51,9 +49,6 @@ typings/
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
-.yarn-integrity
-
 # dotenv environment variables file
 .env
 
@@ -68,17 +63,6 @@ tsconfig.tsbuildinfo
 packages/**/cjs
 packages/**/esm
 packages/**/types
-
-.yarn/unplugged
-.yarn/build-state.yml
-
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
 
 packages/shades-showcase-app/test-results
 packages/shades-showcase-app/dist

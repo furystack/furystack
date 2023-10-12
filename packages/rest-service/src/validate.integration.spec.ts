@@ -8,7 +8,7 @@ import type { ValidationApi } from './validate.integration.schema.js'
 import { useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 
-// To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
+// To recreate: npm run ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
 const createValidateApi = async () => {
   const injector = new Injector()

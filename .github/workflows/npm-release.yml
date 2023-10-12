@@ -20,12 +20,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: yarn build
+        run: npm run build
       - name: Create .npmrc
         ## run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
         ## TODO: Check me
         run: npm config set always-auth true && npm config set _authToken=${NPM_TOKEN}
-      - name: Publish to NPM with Yarn
+      - name: Publish to NPM
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm --workspaces --no-private npm publish --tolerate-republish
