@@ -29,7 +29,7 @@
   "scripts": {
     "start": "npm --workspace=@furystack/shades-showcase-app start",
     "build:esm": "tsc -b packages",
-    "build:showcase": "npm run build && npm --workspace=@furystack/shades-showcase-app build",
+    "build:showcase": "npm run build && npm --workspace=@furystack/shades-showcase-app run build",
     "build": "npm run build:esm",
     "lint": "eslint . --cache --ext .tsx --ext .ts",
     "prettier": "prettier --write",
