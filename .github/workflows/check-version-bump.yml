@@ -8,12 +8,12 @@ on:
 jobs:
   build:
     name: Check version bumps
-    timeout-minutes: 10
+    timeout-minutes: 5
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [19.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout
