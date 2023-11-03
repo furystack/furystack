@@ -26,5 +26,5 @@ jobs:
       - name: Publish to NPM with Yarn
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn workspaces foreach --no-private npm publish --tolerate-republish ## yarn lerna publish from-package -y
+        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish ## yarn lerna publish from-package -y
 
