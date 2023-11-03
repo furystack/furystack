@@ -1,4 +1,4 @@
-import { CacheLockManager } from './cache-lock-manager'
+import { CacheLockManager } from './cache-lock-manager.js'
 import { describe, it, expect } from 'vitest'
 
 describe('CacheLockManager', () => {

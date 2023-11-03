@@ -1,9 +1,9 @@
 import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { WebSocketApi } from './websocket-api'
+import { WebSocketApi } from './websocket-api.js'
 import WebSocket from 'ws'
-import type { WebSocketAction } from './models'
-import { useWebsockets } from './helpers'
+import type { WebSocketAction } from './models/websocket-action.js'
+import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 
 const portGenerator = function* () {
@@ -33,18 +33,14 @@ describe('WebSocketApi', () => {
   it('Should broadcast messages', async () => {
     const port = getPort()
     await usingAsync(new Injector(), async (i) => {
-      expect.assertions(4) // All 4 clients should receive the message
+      expect.assertions(5) // All 5 clients should receive the message
       useWebsockets(i, { path: '/web-socket', port })
       const api = i.getInstance(WebSocketApi)
       await Promise.all(
-        [1, 2, 3, 4, 5].map(async (idx) => {
+        [1, 2, 3, 4, 5].map(async () => {
           const client = new WebSocket(`ws://localhost:${port}/web-socket`)
           await new Promise<void>((resolve) =>
             client.once('open', () => {
-              if (idx === 5) {
-                client.close()
-                client.terminate()
-              }
               resolve()
             }),
           )

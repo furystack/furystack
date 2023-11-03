@@ -1,10 +1,10 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import type { PatchEndpoint } from '@furystack/rest'
-import { createPatchEndpoint } from './create-patch-endpoint'
-import { MockClass, setupContext } from './utils'
+import { createPatchEndpoint } from './create-patch-endpoint.js'
+import { MockClass, setupContext } from './utils.js'
 import { getDataSetFor } from '@furystack/repository'
-import { useRestService } from '../helpers'
+import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
 
 describe('createPatchEndpoint', () => {

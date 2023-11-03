@@ -1,9 +1,9 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { ApiManager } from './api-manager'
-import { HttpAuthenticationSettings } from './http-authentication-settings'
-import { useHttpAuthentication, useRestService, useStaticFiles } from './helpers'
-import { StaticServerManager } from './static-server-manager'
+import { ApiManager } from './api-manager.js'
+import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { useHttpAuthentication, useRestService, useStaticFiles } from './helpers.js'
+import { StaticServerManager } from './static-server-manager.js'
 import { describe, it, expect } from 'vitest'
 
 describe('Injector extensions', () => {

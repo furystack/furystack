@@ -1,5 +1,5 @@
-import { InMemoryStore } from './in-memory-store'
-import { TestClass, createStoreTest, createMockEntity } from './create-physical-store-tests'
+import { InMemoryStore } from './in-memory-store.js'
+import { TestClass, createStoreTest, createMockEntity } from './create-physical-store-tests.js'
 import { describe, it, expect } from 'vitest'
 
 describe('InMemoryStore', () => {
