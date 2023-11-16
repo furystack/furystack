@@ -88,10 +88,10 @@ const getLabelStyle = ({
     color: props.disabled
       ? themeProvider.theme.text.disabled
       : state.validity?.valid === false || validationResult?.isValid === false
-      ? themeProvider.theme.palette.error.main
-      : state.focused
-      ? themeProvider.theme.text.primary
-      : themeProvider.theme.text.secondary,
+        ? themeProvider.theme.palette.error.main
+        : state.focused
+          ? themeProvider.theme.text.primary
+          : themeProvider.theme.text.secondary,
     marginBottom: '1em',
     padding: '1em',
     borderRadius: '5px',
@@ -112,8 +112,8 @@ const getLabelStyle = ({
             state.validity?.valid === false || validationResult?.isValid === false
               ? themeProvider.theme.palette.error.main
               : state.focused
-              ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
-              : themeProvider.theme.text.primary
+                ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
+                : themeProvider.theme.text.primary
           }`
         : 'none',
     filter: props.disabled ? 'grayscale(100%)' : 'none',
