@@ -39,12 +39,12 @@
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.35.0"
+    "sequelize": "^6.35.1"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.9.4",
     "sqlite3": "5.1.6",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.2",
     "vitest": "^0.34.6"
   },
   "typings": "./types/index.d.ts"

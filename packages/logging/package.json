@@ -33,7 +33,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.2",
     "vitest": "^0.34.6"
   },
   "homepage": "https://github.com/furystack/furystack",
