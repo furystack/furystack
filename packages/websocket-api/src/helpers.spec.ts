@@ -1,8 +1,8 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { useWebsockets } from './helpers'
-import { WebSocketApiSettings } from '.'
+import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
+import { WebSocketApiSettings } from './websocket-api-settings.js'
 
 describe('WebSocket Helpers', () => {
   it('Should register the settings', async () => {

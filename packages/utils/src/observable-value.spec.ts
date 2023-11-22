@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ObservableValue } from './observable-value'
+import { ObservableValue } from './observable-value.js'
 
 /**
  * Observable Value tests

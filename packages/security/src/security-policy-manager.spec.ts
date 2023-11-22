@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import { usePasswordPolicy } from './helpers'
-import { SecurityPolicyManager } from './security-policy-manager'
+import { usePasswordPolicy } from './helpers.js'
+import { SecurityPolicyManager } from './security-policy-manager.js'
 import { describe, it, expect } from 'vitest'
 
 describe('SecurityPolicyManager', () => {

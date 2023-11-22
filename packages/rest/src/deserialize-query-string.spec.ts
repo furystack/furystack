@@ -1,5 +1,5 @@
-import { deserializeQueryString } from './deserialize-query-string'
-import { serializeToQueryString, serializeValue } from './serialize-to-query-string'
+import { deserializeQueryString } from './deserialize-query-string.js'
+import { serializeToQueryString, serializeValue } from './serialize-to-query-string.js'
 import { describe, it, expect } from 'vitest'
 
 describe('deserializeQueryString', () => {

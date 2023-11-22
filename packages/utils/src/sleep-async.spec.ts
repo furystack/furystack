@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sleepAsync } from './sleep-async'
+import { sleepAsync } from './sleep-async.js'
 
 /**
  * Tests for async sleep

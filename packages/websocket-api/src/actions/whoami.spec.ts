@@ -1,4 +1,4 @@
-import { WhoAmI } from './whoami'
+import { WhoAmI } from './whoami.js'
 import { HttpUserContext } from '@furystack/rest-service'
 import ws from 'ws'
 import { usingAsync } from '@furystack/utils'

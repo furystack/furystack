@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { Trace } from './trace'
+import { Trace } from './trace.js'
 
 class MockClass {
   constructor(private testValue?: string) {}

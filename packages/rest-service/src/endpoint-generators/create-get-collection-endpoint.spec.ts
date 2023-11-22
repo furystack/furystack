@@ -1,12 +1,12 @@
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { MockClass, setupContext } from './utils'
-import { createGetCollectionEndpoint } from './create-get-collection-endpoint'
+import { MockClass, setupContext } from './utils.js'
+import { createGetCollectionEndpoint } from './create-get-collection-endpoint.js'
 import type { GetCollectionEndpoint, GetCollectionResult } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
 import type { FindOptions } from '@furystack/core'
 import { getDataSetFor, getRepository } from '@furystack/repository'
-import { useRestService } from '../helpers'
+import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
 
 const addMockEntities = async (i: Injector) =>

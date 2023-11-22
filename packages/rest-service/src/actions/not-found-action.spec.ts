@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { NotFoundAction } from './not-found-action'
+import { NotFoundAction } from './not-found-action.js'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, it, expect } from 'vitest'
 

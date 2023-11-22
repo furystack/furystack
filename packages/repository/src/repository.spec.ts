@@ -1,8 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import { getDataSetFor, getRepository } from './helpers'
+import { getDataSetFor, getRepository } from './helpers.js'
 import { addStore, InMemoryStore } from '@furystack/core'
-import { DataSet } from './data-set'
+import { DataSet } from './data-set.js'
 import { describe, it, expect } from 'vitest'
 
 describe('Repository', () => {

@@ -1,9 +1,9 @@
 import { using, usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { StoreManager } from './store-manager'
-import { InMemoryStore } from './in-memory-store'
-import { AggregatedError } from './errors'
-import { TestClass } from './create-physical-store-tests'
+import { StoreManager } from './store-manager.js'
+import { InMemoryStore } from './in-memory-store.js'
+import { AggregatedError } from './errors/aggregated-error.js'
+import { TestClass } from './create-physical-store-tests.js'
 import { describe, it, expect } from 'vitest'
 
 class Test {
