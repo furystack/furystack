@@ -18,8 +18,8 @@ const getBackground = (buttonProps: ButtonProps, theme: Theme) =>
         ? theme.palette[buttonProps.color].dark
         : theme.palette[buttonProps.color].main
       : buttonProps.disabled
-      ? theme.button.disabledBackground
-      : theme.text.primary
+        ? theme.button.disabledBackground
+        : theme.text.primary
     : 'rgba(0,0,0,0)'
 
 const getHoveredBackground = (buttonProps: ButtonProps, theme: Theme, fallback: () => string) =>
@@ -27,8 +27,8 @@ const getHoveredBackground = (buttonProps: ButtonProps, theme: Theme, fallback: 
     ? buttonProps.color
       ? theme.palette[buttonProps.color].dark
       : buttonProps.disabled
-      ? theme.button.disabledBackground
-      : theme.text.secondary
+        ? theme.button.disabledBackground
+        : theme.text.secondary
     : fallback()
 
 const getBoxShadow = (buttonProps: ButtonProps, theme: Theme) =>

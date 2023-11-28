@@ -1,6 +1,6 @@
 {
   "name": "@furystack/cache",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Cache providers for FuryStack package",
   "type": "module",
   "scripts": {
@@ -33,7 +33,7 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.2",
     "vitest": "^0.34.6"
   },
   "homepage": "https://github.com/furystack/furystack",
