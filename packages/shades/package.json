@@ -38,8 +38,8 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jsdom": "^21.1.6",
-    "@types/node": "^20.9.4",
-    "jsdom": "^22.1.0",
+    "@types/node": "^20.10.0",
+    "jsdom": "^23.0.0",
     "typescript": "^5.3.2",
     "vitest": "^0.34.6"
   },
