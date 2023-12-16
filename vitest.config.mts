@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       enabled: true,
-      include: ['packages/**/src/**/*.ts'],
+      include: ['packages/**/src/**/*.ts', 'packages/**/src/**/*.tsx'],
     },
   },
 })
