@@ -1,6 +1,6 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "7.0.12",
+  "version": "7.0.13",
   "description": "MongoDB Store implementation for FuryStack",
   "type": "module",
   "scripts": {
