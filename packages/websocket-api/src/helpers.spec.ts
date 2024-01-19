@@ -3,16 +3,7 @@ import { Injector } from '@furystack/inject'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 import { WebSocketApiSettings } from './websocket-api-settings.js'
-
-const portGenerator = function* () {
-  const initialPort = 17000
-  let port = initialPort
-  while (true) {
-    yield port++
-  }
-}
-
-const getPort = () => portGenerator().next().value
+import { getPort } from '@furystack/core/port-generator'
 
 describe('WebSocket Helpers', () => {
   it('Should register the settings', async () => {

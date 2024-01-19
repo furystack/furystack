@@ -6,16 +6,7 @@ import { DefaultSession, ServerManager, useHttpAuthentication } from '@furystack
 import { useRestService } from '@furystack/rest-service'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-
-const portGenerator = function* () {
-  const initialPort = 19000
-  let port = initialPort
-  while (true) {
-    yield port++
-  }
-}
-
-const getPort = () => portGenerator().next().value
+import { getPort } from '@furystack/core/port-generator'
 
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'
