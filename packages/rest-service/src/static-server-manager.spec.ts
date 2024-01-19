@@ -10,7 +10,7 @@ import { describe, it, expect, vi } from 'vitest'
  * @yields a port for testing
  * @returns The Port number
  */
-function* portGenerator(initialPort = 1234) {
+function* portGenerator(initialPort = 17000) {
   let port = initialPort
 
   while (true) {

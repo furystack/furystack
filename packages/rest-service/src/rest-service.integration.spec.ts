@@ -29,7 +29,7 @@ interface IntegrationTestApi extends RestApi {
 }
 
 const portGenerator = function* () {
-  const initialPort = 19090
+  const initialPort = 16000
   let port = initialPort
   while (true) {
     yield port++
