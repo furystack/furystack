@@ -7,7 +7,7 @@ import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 
 const portGenerator = function* () {
-  const initialPort = 19998
+  const initialPort = 18000
   let port = initialPort
   while (true) {
     yield port++
