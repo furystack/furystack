@@ -7,12 +7,13 @@ import schema from './validate.integration.spec.schema.json' assert { type: 'jso
 import type { ValidationApi } from './validate.integration.schema.js'
 import { useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
 const createValidateApi = async () => {
   const injector = new Injector()
-  const port = Math.round(Math.random() * 1000) + 10000
+  const port = getPort()
   useRestService<ValidationApi>({
     injector,
     api: {

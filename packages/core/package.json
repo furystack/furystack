@@ -12,6 +12,9 @@
     },
     "./create-physical-store-tests": {
       "import": "./esm/create-physical-store-tests.js"
+    },
+    "./port-generator": {
+      "import": "./esm/port-generator.js"
     }
   },
   "files": [
