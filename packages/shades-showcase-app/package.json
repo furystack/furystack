@@ -14,9 +14,9 @@
   "license": "ISC",
   "devDependencies": {
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.41.0",
+    "@playwright/test": "^1.41.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
+    "vite": "^5.0.12",
     "vitest": "^1.2.1"
   },
   "dependencies": {
@@ -28,7 +28,7 @@
     "@furystack/shades-lottie": "workspace:^",
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "@lottiefiles/lottie-player": "^2.0.2",
+    "@lottiefiles/lottie-player": "^2.0.3",
     "monaco-editor": "^0.45.0"
   }
 }
