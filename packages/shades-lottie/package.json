@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-lottie",
-  "version": "4.0.15",
+  "version": "4.0.16",
   "description": "Lottie animation player wrapper for FuryStack Shades",
   "type": "module",
   "scripts": {
