@@ -5,6 +5,7 @@ import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation.js'
 import { useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 export interface EchoApi extends RestApi {
   GET: {
@@ -29,7 +30,7 @@ export interface EchoApi extends RestApi {
 }
 
 const createEchoApiServer = async () => {
-  const port = Math.round(Math.random() * 1000) + 10000
+  const port = getPort()
   const root = '/api'
   const injector = new Injector()
   await useRestService<EchoApi>({

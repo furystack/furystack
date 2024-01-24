@@ -9,6 +9,7 @@ import { JsonResult } from './request-action-implementation.js'
 import { useHttpAuthentication, useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 import { serializeValue } from '@furystack/rest'
+import { getPort } from '@furystack/core/port-generator'
 
 class UserWithPassword extends User {
   password!: string
@@ -27,16 +28,6 @@ interface IntegrationTestApi extends RestApi {
     '/testPostBody': { body: { value: string }; result: { bodyValue: string } }
   }
 }
-
-const portGenerator = function* () {
-  const initialPort = 19090
-  let port = initialPort
-  while (true) {
-    yield port++
-  }
-}
-
-const getPort = () => portGenerator().next().value
 
 const prepareInjector = async (i: Injector) => {
   const port = getPort()

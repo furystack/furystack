@@ -5,16 +5,7 @@ import WebSocket from 'ws'
 import type { WebSocketAction } from './models/websocket-action.js'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
-
-const portGenerator = function* () {
-  const initialPort = 19998
-  let port = initialPort
-  while (true) {
-    yield port++
-  }
-}
-
-const getPort = () => portGenerator().next().value
+import { getPort } from '@furystack/core/port-generator'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {

@@ -8,7 +8,7 @@ import type { WebSocketAction, WebSocketActionStatic } from './models/websocket-
  */
 @Injectable({ lifetime: 'scoped' })
 export class WebSocketApiSettings {
-  public port = 19090
+  public port = 80
   public host?: string
   public path = '/socket'
   public actions: Array<Constructable<WebSocketAction> & WebSocketActionStatic> = [WhoAmI]
