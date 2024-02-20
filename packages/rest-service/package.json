@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "7.0.17",
+  "version": "7.0.18",
   "description": "Repository implementation for FuryStack",
   "type": "module",
   "scripts": {
