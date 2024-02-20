@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-client-fetch",
-  "version": "5.0.16",
+  "version": "5.0.17",
   "description": "Native browser fetch based REST API implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "vitest": "^1.2.1"
+    "vitest": "^1.3.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
