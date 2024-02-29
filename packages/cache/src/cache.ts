@@ -20,7 +20,7 @@ interface CacheSettings<TData, TArgs extends any[]> {
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
   constructor(private readonly options: CacheSettings<TData, TArgs>) {
-    this.stateManager = new CacheStateManager<TData>({ capacity: this.options.capacity })
+    this.stateManager = new CacheStateManager<TData, TArgs>({ capacity: this.options.capacity })
   }
 
   private readonly cacheLockManager = new CacheLockManager()
@@ -35,7 +35,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
 
-  private readonly stateManager: CacheStateManager<TData>
+  private readonly stateManager: CacheStateManager<TData, TArgs>
 
   /**
    * Method that returns the entity from the cache - or loads it if it's not in the cache
@@ -145,7 +145,18 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
    * Marks specific entities in the cache as obsolete based on a predicate function.
    * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be marked as obsolete.
    */
-  public obsoleteRange(callback: (entity: TData) => boolean) {
+  public obsoleteRange(
+    callback: (
+      /**
+       * The entity to check
+       */
+      entity: TData,
+      /**
+       * The arguments that resulted to get the specific entity
+       */
+      args: TArgs,
+    ) => boolean,
+  ) {
     this.stateManager.obsoleteRange(callback)
   }
 
@@ -153,7 +164,18 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
    * Removes specific entities from the cache based on a predicate function.
    * @param callback A callback that will be called for each entity in the cache. If the callback returns true, the entity will be removed from the cache.
    */
-  public removeRange(callback: (entity: TData) => boolean) {
+  public removeRange(
+    callback: (
+      /**
+       * The entity to check
+       */
+      entity: TData,
+      /**
+       * The arguments that resulted to get the specific entity
+       */
+      args: TArgs,
+    ) => boolean,
+  ) {
     this.stateManager.removeRange(callback)
   }
 
