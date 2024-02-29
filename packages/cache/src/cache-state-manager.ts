@@ -7,7 +7,7 @@ interface CacheStateManagerOptions {
   capacity?: number
 }
 
-export class CacheStateManager<T> implements Disposable {
+export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, ObservableValue<CacheResult<T>>>()
 
   public dispose() {
@@ -97,19 +97,21 @@ export class CacheStateManager<T> implements Disposable {
     this.store.clear()
   }
 
-  public obsoleteRange(predicate: (value: T) => boolean) {
+  public obsoleteRange(predicate: (value: T, args: TArgs) => boolean) {
     ;[...this.store.entries()].forEach(([key, value]) => {
       const currentValue = value.getValue().value
-      if (currentValue && predicate(currentValue)) {
+      const args = JSON.parse(key)
+      if (currentValue && predicate(currentValue, args)) {
         this.setObsoleteState(key)
       }
     })
   }
 
-  public removeRange(predicate: (value: T) => boolean) {
+  public removeRange(predicate: (value: T, args: TArgs) => boolean) {
     ;[...this.store.entries()].forEach(([key, value]) => {
       const currentValue = value.getValue().value
-      if (currentValue && predicate(currentValue)) {
+      const args = JSON.parse(key)
+      if (currentValue && predicate(currentValue, args)) {
         this.remove(key)
       }
     })
