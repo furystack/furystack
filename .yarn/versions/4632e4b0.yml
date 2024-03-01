@@ -1,3 +1,8 @@
 releases:
   "@furystack/cache": minor
+  "@furystack/shades": minor
+  "@furystack/shades-common-components": patch
+  "@furystack/shades-lottie": patch
+  "@furystack/shades-nipple": patch
+  "@furystack/shades-showcase-app": patch
   furystack: minor
