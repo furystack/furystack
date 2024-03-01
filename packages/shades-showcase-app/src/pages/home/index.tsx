@@ -1,11 +1,26 @@
-import { createComponent, Shade } from '@furystack/shades'
+import type { Route } from '@furystack/shades'
+import { createComponent, LinkToRoute, RouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
+
+const CustomHeader = styledElement('h1', {
+  color: 'black',
+})
+
+const CustomRouteLink = styledShade(RouteLink, {
+  color: 'blue',
+})
+
+const CustomLinkToRoute = styledShade(LinkToRoute, {
+  color: 'black',
+})
+
+const route = { url: '/wizard/:id' } as Route<{ id: number }>
 
 export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <>
-        <h1>Home</h1>
+      <div>
+        <CustomHeader style={{ color: 'white' }}>Home</CustomHeader>
         <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
         magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
@@ -51,7 +66,16 @@ export const HomePage = Shade({
         be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of
         selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse
         pains."
-      </>
+        <hr />
+        Custom elements:
+        <div>
+          <CustomLinkToRoute route={route} params={{ id: 123 }}>
+            Go to wizard
+          </CustomLinkToRoute>
+          &nbsp;
+          <CustomRouteLink href="/">RouteLink</CustomRouteLink>
+        </div>
+      </div>
     )
   },
 })

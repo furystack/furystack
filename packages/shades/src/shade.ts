@@ -276,7 +276,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
   }
 
-  return (props: TProps & PartialElement<TElementBase>, children: ChildrenList) => {
+  return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {
     const ElementType = customElements.get(customElementName)
     const el = new (ElementType as CustomElementConstructor)({
       ...(props as TProps & ElementCreationOptions & PartialElement<TElementBase>),
