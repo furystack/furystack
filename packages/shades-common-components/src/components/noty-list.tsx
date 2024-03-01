@@ -126,18 +126,15 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
 export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
+  style: {
+    position: 'fixed',
+    bottom: '1em',
+    right: '1em',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   render: ({ useObservable, injector, element }) => {
     const notyService = injector.getInstance(NotyService)
-
-    attachProps(element, {
-      style: {
-        position: 'fixed',
-        bottom: '1em',
-        right: '1em',
-        display: 'flex',
-        flexDirection: 'column',
-      },
-    })
 
     const currentNotys = notyService.notys.getValue()
 

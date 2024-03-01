@@ -5,7 +5,7 @@ import { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { LocationService } from './services/location-service.js'
-import { attachProps } from './shade-component.js'
+import { attachProps, attachStyles } from './shade-component.js'
 
 export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>> = {
   /**
@@ -49,6 +49,11 @@ export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>
    * Base class for the custom element. Defaults to HTMLElement. E.g. HTMLButtonElement
    */
   elementBase?: TElementBase
+
+  /**
+   * A default style that will be applied to the element. Can be overridden by external styles.
+   */
+  style?: Partial<CSSStyleDeclaration>
 }
 
 /**
@@ -280,6 +285,7 @@ export const Shade = <TProps, TElementBase extends Constructable<HTMLElement> = 
     el.props = props || ({} as TProps)
     el.shadeChildren = children
 
+    attachStyles(el, { style: o.style })
     attachProps(el, props)
 
     return el as JSX.Element

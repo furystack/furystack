@@ -1,27 +1,24 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
-import { AppBar, AppBarLink, fadeIn, fadeOut, Paper, ThemeProviderService } from '@furystack/shades-common-components'
+import { AppBar, AppBarLink, fadeIn, fadeOut, Paper } from '@furystack/shades-common-components'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
 import { sleepAsync } from '@furystack/utils'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  render: ({ injector }) => {
-    const { theme } = injector.getInstance(ThemeProviderService)
-
+  style: {
+    width: '100%',
+    height: '100%',
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    padding: '0',
+    margin: '0',
+    background: 'var(--shades-theme-background-default)',
+  },
+  render: () => {
     return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          padding: '0',
-          margin: '0',
-          background: theme.background.default,
-        }}
-      >
+      <>
         <AppBar>
           <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
           <div
@@ -309,7 +306,7 @@ export const App = Shade({
             }
           />
         </Paper>
-      </div>
+      </>
     )
   },
 })
