@@ -25,8 +25,10 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   SuggestProps<any>
 >({
   shadowDomName: 'shade-suggest',
+  style: {
+    flexGrow: '1',
+  },
   render: ({ props, injector, element, useDisposable, useObservable }) => {
-    element.style.flexGrow = '1'
     const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
     const { theme } = injector.getInstance(ThemeProviderService)
     const inputContainer = element.querySelector('.input-container') as HTMLDivElement

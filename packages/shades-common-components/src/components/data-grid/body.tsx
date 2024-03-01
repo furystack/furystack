@@ -24,9 +24,10 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
   DataGridBodyProps<any>
 >({
   shadowDomName: 'shade-data-grid-body',
-  render: ({ props, element, useObservable }) => {
-    element.style.display = 'table-row-group'
-
+  style: {
+    display: 'table-row-group',
+  },
+  render: ({ props, useObservable }) => {
     const [data] = useObservable('data', props.service.data)
     const [isLoading] = useObservable('isLoading', props.service.isLoading)
 

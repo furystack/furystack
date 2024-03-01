@@ -2,11 +2,12 @@ import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
-import type { ChildrenList, RenderOptions } from './models/index.js'
+import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { LocationService } from './services/location-service.js'
+import { attachProps, attachStyles } from './shade-component.js'
 
-export type ShadeOptions<TProps> = {
+export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -15,29 +16,29 @@ export type ShadeOptions<TProps> = {
   /**
    * Render hook, this method will be executed on each and every render.
    */
-  render: (options: RenderOptions<TProps>) => JSX.Element | string | null
+  render: (options: RenderOptions<TProps, TElementBase>) => JSX.Element | string | null
 
   /**
    * Construct hook. Will be executed once when the element has been constructed and initialized
    */
   constructed?: (
-    options: RenderOptions<TProps>,
+    options: RenderOptions<TProps, TElementBase>,
   ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
 
   /**
    * Will be executed when the element is attached to the DOM.
    */
-  onAttach?: (options: RenderOptions<TProps>) => void
+  onAttach?: (options: RenderOptions<TProps, TElementBase>) => void
 
   /**
    * Will be executed when the element is detached from the DOM.
    */
-  onDetach?: (options: RenderOptions<TProps>) => void
+  onDetach?: (options: RenderOptions<TProps, TElementBase>) => void
 
   /**
    * A factory method that creates a list of disposable resources that will be disposed when the element is detached.
    */
-  resources?: (options: RenderOptions<TProps>) => Disposable[]
+  resources?: (options: RenderOptions<TProps, TElementBase>) => Disposable[]
 
   /**
    * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
@@ -47,7 +48,12 @@ export type ShadeOptions<TProps> = {
   /**
    * Base class for the custom element. Defaults to HTMLElement. E.g. HTMLButtonElement
    */
-  elementBase?: Constructable<HTMLElement>
+  elementBase?: Constructable<TElementBase>
+
+  /**
+   * A default style that will be applied to the element. Can be overridden by external styles.
+   */
+  style?: Partial<CSSStyleDeclaration>
 }
 
 /**
@@ -55,7 +61,9 @@ export type ShadeOptions<TProps> = {
  * @param o for component creation
  * @returns the JSX element
  */
-export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
+export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
+  o: ShadeOptions<TProps, TElementBase>,
+) => {
   // register shadow-dom element
   const customElementName = o.shadowDomName
 
@@ -65,7 +73,7 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
 
     customElements.define(
       customElementName,
-      class extends ElementBase implements JSX.Element {
+      class extends (ElementBase as Constructable<HTMLElement>) implements JSX.Element {
         private _renderCount = 0
 
         /**
@@ -91,7 +99,7 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
         /**
          * Will be triggered when updating the external props object
          */
-        public props!: TProps & { children?: JSX.Element[] }
+        public props!: TProps & { children?: JSX.Element[] } & PartialElement<TElementBase>
 
         /**
          * Will be updated when on children change
@@ -102,7 +110,7 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
          * @param options Options for rendering the component
          * @returns the JSX element
          */
-        public render = (options: RenderOptions<TProps>) => {
+        public render = (options: RenderOptions<TProps, TElementBase>) => {
           this._renderCount++
           return o.render(options)
         }
@@ -110,8 +118,8 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
         /**
          * @returns values for the current render options
          */
-        private getRenderOptions = (): RenderOptions<TProps> => {
-          const renderOptions: RenderOptions<TProps> = {
+        private getRenderOptions = (): RenderOptions<TProps, TElementBase> => {
+          const renderOptions: RenderOptions<TProps, TElementBase> = {
             props: this.props,
             injector: this.injector,
             children: this.shadeChildren,
@@ -186,7 +194,7 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 
-          return renderOptions as RenderOptions<TProps>
+          return renderOptions as RenderOptions<TProps, TElementBase>
         }
 
         /**
@@ -268,14 +276,18 @@ export const Shade = <TProps>(o: ShadeOptions<TProps>) => {
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
   }
 
-  return (props: TProps, children?: ChildrenList) => {
+  return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {
     const ElementType = customElements.get(customElementName)
     const el = new (ElementType as CustomElementConstructor)({
-      ...(props as TProps & ElementCreationOptions),
+      ...(props as TProps & ElementCreationOptions & PartialElement<TElementBase>),
     }) as JSX.Element<TProps>
 
-    el.props = props || ({} as TProps)
+    el.props = props || ({} as TProps & PartialElement<TElementBase>)
     el.shadeChildren = children
+
+    attachStyles(el, { style: o.style })
+    attachProps(el, props)
+
     return el as JSX.Element
   }
 }

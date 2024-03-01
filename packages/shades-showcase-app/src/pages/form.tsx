@@ -16,28 +16,27 @@ const FormStatusMonitor = Shade({
     const [validationResult] = useObservable('validationResult', formService.validationResult)
     const [fieldErrors] = useObservable('fieldErrors', formService.fieldErrors)
     return (
-      <div>
+      <>
         <pre id="raw">Raw: {JSON.stringify(rawFormData, null, 2)}</pre>
         <pre id="validated">Validated: {JSON.stringify(validatedFormData, null, 2)}</pre>
         <pre id="status">Status: {JSON.stringify(validationResult, null, 2)}</pre>
         <pre id="fieldErrors">Field errors: {JSON.stringify(fieldErrors, null, 2)}</pre>
-      </div>
+      </>
     )
   },
 })
 
 export const FormPage = Shade({
   shadowDomName: 'forms-page',
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
   render: () => {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-        }}
-      >
+      <>
         <h1>Form</h1>
         <div style={{ display: 'flex', gap: '32px' }}>
           <Form<FormDataType>
@@ -91,7 +90,7 @@ export const FormPage = Shade({
             <FormStatusMonitor />
           </Form>
         </div>
-      </div>
+      </>
     )
   },
 })

@@ -3,6 +3,12 @@ import { Button } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
   render: ({ useSearchState }) => {
     const [isEnabledObject, setIsEnabledObject] = useSearchState('disabled', { isEnabled: false })
 
@@ -10,15 +16,9 @@ export const ButtonsPage = Shade({
     const onclick = () => {
       /** */
     }
+
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-        }}
-      >
+      <>
         <h1>Buttons</h1>
         <div>
           <div>
@@ -91,7 +91,7 @@ export const ButtonsPage = Shade({
         >
           Custom Style
         </Button>
-      </div>
+      </>
     )
   },
 })

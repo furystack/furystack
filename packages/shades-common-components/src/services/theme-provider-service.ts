@@ -1,6 +1,6 @@
 import { Injectable } from '@furystack/inject'
 import type { DeepPartial } from '@furystack/utils'
-import { defaultVariableTheme, getCssVariable, useThemeCssVariables } from './default-variable-theme.js'
+import { cssVariableTheme, getCssVariable, useThemeCssVariables } from './css-variable-theme.js'
 
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
 
@@ -122,7 +122,7 @@ export class ThemeProviderService {
     throw Error(`Color format '${color}' is not supported.'`)
   }
 
-  public readonly theme = defaultVariableTheme
+  public readonly theme = cssVariableTheme
 
   public set(change: DeepPartial<Theme>) {
     useThemeCssVariables(change)

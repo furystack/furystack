@@ -1,6 +1,6 @@
 import type { DeepPartial } from '@furystack/utils'
 import type { Theme } from './theme-provider-service.js'
-export const defaultVariableTheme: Theme = {
+export const cssVariableTheme: Theme = {
   text: {
     primary: 'var(--shades-theme-text-primary)',
     secondary: 'var(--shades-theme-text-secondary)',
@@ -79,5 +79,5 @@ const assignValue = <T extends object>(
 
 export const useThemeCssVariables = (theme: DeepPartial<Theme>) => {
   const root = document.querySelector(':root') as HTMLElement
-  assignValue(defaultVariableTheme, theme, root)
+  assignValue(cssVariableTheme, theme, root)
 }
