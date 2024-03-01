@@ -7,12 +7,22 @@ interface CacheStateManagerOptions {
   capacity?: number
 }
 
+export class CannotObsoleteUnloadedError<T> extends Error {
+  constructor(public readonly cacheResult: CacheResult<T>) {
+    super('Cannot set obsolete state for a non-loaded value')
+  }
+}
+
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, ObservableValue<CacheResult<T>>>()
 
   public dispose() {
     ;[...this.store.values()].forEach((value) => value.dispose())
     this.store.clear()
+  }
+
+  public has(index: string) {
+    return this.store.has(index)
   }
 
   public getObservable(
@@ -29,6 +39,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
     if (this.store.size > (this.options.capacity || Infinity)) {
       const [firstKey] = this.store.keys()
+      this.store.get(firstKey)?.dispose()
       this.store.delete(firstKey)
     }
 
@@ -76,7 +87,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
       this.setValue(key, newValue)
       return newValue
     } else {
-      throw new Error('Cannot set obsolete state for a non-loaded value')
+      throw new CannotObsoleteUnloadedError(currentValue)
     }
   }
 
@@ -89,7 +100,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
     if (existing) {
       existing.dispose()
     }
-    this.store.delete(key)
+    return this.store.delete(key)
   }
 
   public flushAll() {
