@@ -1,6 +1,8 @@
-import type { ChildrenList, Route } from '@furystack/shades'
-import { Shade, createComponent, attachProps } from '@furystack/shades'
 import { compile } from 'path-to-regexp'
+import type { Route } from './router.js'
+import { Shade } from '../shade.js'
+import type { ChildrenList } from '../models/children-list.js'
+import { attachProps, createComponent } from '../shade-component.js'
 
 export type LinkToRouteProps<T extends object> = {
   route: Pick<Route<T>, 'url'>
