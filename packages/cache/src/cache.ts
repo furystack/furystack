@@ -48,6 +48,15 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   private readonly stateManager: CacheStateManager<TData, TArgs>
 
   /**
+   *
+   * @param args The arguments for getting the entity
+   * @returns if the entity is in the cache
+   */
+  public has(...args: TArgs) {
+    return this.stateManager.has(this.getIndex(...args))
+  }
+
+  /**
    * Method that returns the entity from the cache - or loads it if it's not in the cache
    * @param args The arguments for getting the entity
    * @returns The loaded result

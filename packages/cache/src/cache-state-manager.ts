@@ -21,6 +21,10 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
     this.store.clear()
   }
 
+  public has(index: string) {
+    return this.store.has(index)
+  }
+
   public getObservable(
     key: string,
     initialState: CacheResult<T> = { status: 'uninitialized', updatedAt: new Date() },

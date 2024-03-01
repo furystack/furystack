@@ -59,12 +59,20 @@ describe('Cache', () => {
     cache.dispose()
   })
 
+  it('Should swallow errors when stale time has passed and try to set stale state for a non-loaded value', async () => {
+    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 })
+    await cache.get(1, 2)
+    await cache.remove(1, 2) // The "Cannot set obsolete state for a non-loaded value" error should be swallowed when the stale time has passed
+    await sleepAsync(200)
+    cache.dispose()
+  })
+
   it('Should remove the value from the cache after the cache time has passed', async () => {
     const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 })
     await cache.get(1, 2)
+    await cache.remove(1, 2)
     await sleepAsync(200)
-    const obs = cache.getObservable(1, 2)
-    expect(obs.getValue().status).toEqual('uninitialized')
+    expect(cache.has(1, 2)).toEqual(false)
     cache.dispose()
   })
 
