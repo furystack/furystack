@@ -5,7 +5,7 @@ import { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { LocationService } from './services/location-service.js'
-import { attachProps, attachStyles } from './shade-component.js'
+import { attachProps } from './shade-component.js'
 
 export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>> = {
   /**
@@ -281,7 +281,6 @@ export const Shade = <TProps, TElementBase extends Constructable<HTMLElement> = 
     el.shadeChildren = children
 
     attachProps(el, props)
-    attachStyles(el, props)
 
     return el as JSX.Element
   }
