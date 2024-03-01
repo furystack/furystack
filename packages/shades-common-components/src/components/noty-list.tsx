@@ -39,6 +39,16 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       )
     })
   },
+  style: {
+    margin: '8px',
+    overflow: 'hidden',
+    borderRadius: '6px',
+    boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
+    width: '300px',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '0px',
+  },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
@@ -69,16 +79,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     attachProps(element, {
       className: `noty ${props.model.type}`,
       style: {
-        width: '300px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '0px',
         backgroundColor: colors.main,
         color: textColor,
-        margin: '8px',
-        overflow: 'hidden',
-        borderRadius: '6px',
-        boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
       },
     })
 
