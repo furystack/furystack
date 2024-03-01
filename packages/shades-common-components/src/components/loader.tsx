@@ -25,12 +25,14 @@ interface LoaderProps {
 
 export const Loader = Shade<LoaderProps>({
   shadowDomName: 'shade-loader',
+  style: {
+    display: 'inline-block',
+    transformOrigin: 'center',
+    opacity: '0',
+  },
   render: ({ element, props, injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
 
-    element.style.display = 'inline-block'
-    element.style.transformOrigin = 'center'
-    element.style.opacity = '0'
     const { delay = 500 } = props
     const { borderWidth = 15 } = props
     const { borderColor = theme.palette.primary.main } = props

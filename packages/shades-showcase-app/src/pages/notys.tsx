@@ -3,19 +3,11 @@ import { Button, NotyList, NotyService } from '@furystack/shades-common-componen
 
 export const NotysPage = Shade({
   shadowDomName: 'shade-notys',
+  style: { position: 'fixed', top: '32px', left: '0', width: '100%', height: '100%', padding: '32px' },
   render: ({ injector }) => {
     const notyService = injector.getInstance(NotyService)
     return (
-      <div
-        style={{
-          position: 'fixed',
-          top: '32px',
-          left: '0',
-          width: '100%',
-          height: '100%',
-          padding: '32px',
-        }}
-      >
+      <>
         <h1>Notys</h1>
         <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
           <Button
@@ -68,7 +60,7 @@ export const NotysPage = Shade({
           </Button>
         </div>
         <NotyList />
-      </div>
+      </>
     )
   },
 })

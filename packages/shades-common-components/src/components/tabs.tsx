@@ -9,15 +9,17 @@ export interface Tab {
 
 const TabHeader = Shade<{ isActive?: boolean; onActivate: () => void }>({
   shadowDomName: 'shade-tab-header',
+  style: {
+    padding: '1em 2.5em',
+    cursor: 'pointer',
+    transition: 'box-shadow 1s linear',
+  },
   render: ({ children, element, injector, props }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
     const { isActive } = props
 
     attachProps(element, {
       style: {
-        padding: '1em 2.5em',
-        cursor: 'pointer',
-        transition: 'box-shadow 1s linear',
         fontWeight: isActive ? 'bolder' : 'inherit',
         background: isActive ? theme.background.paper : theme.background.default,
         color: isActive ? theme.text.primary : theme.text.secondary,

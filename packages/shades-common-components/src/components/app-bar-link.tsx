@@ -25,12 +25,7 @@ export const AppBarLink = Shade<RouteLinkProps>({
       }
     }
 
-    const [currentUrl] = useObservable(
-      'locationChange',
-      injector.getInstance(LocationService).onLocationPathChanged /*, (newUrl) => {
-      attachProps(element as HTMLElement, { style: getAnchorStyle(newUrl) })
-    }*/,
-    )
+    const [currentUrl] = useObservable('locationChange', injector.getInstance(LocationService).onLocationPathChanged)
 
     attachProps(element as HTMLElement, { style: getAnchorStyle(currentUrl) })
 

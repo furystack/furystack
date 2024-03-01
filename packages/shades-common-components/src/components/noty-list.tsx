@@ -1,4 +1,4 @@
-import { attachProps, createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
@@ -39,6 +39,16 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       )
     })
   },
+  style: {
+    margin: '8px',
+    overflow: 'hidden',
+    borderRadius: '6px',
+    boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
+    width: '300px',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '0px',
+  },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
@@ -66,21 +76,17 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       setTimeout(removeSelf, timeout)
     }
 
-    attachProps(element, {
-      className: `noty ${props.model.type}`,
-      style: {
-        width: '300px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '0px',
-        backgroundColor: colors.main,
-        color: textColor,
-        margin: '8px',
-        overflow: 'hidden',
-        borderRadius: '6px',
-        boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
-      },
-    })
+    element.className = `noty ${props.model.type}`
+    element.style.backgroundColor = colors.main
+    element.style.color = textColor
+
+    // attachProps(element, {
+    //   className: `noty ${props.model.type}`,
+    //   style: {
+    //     backgroundColor: colors.main,
+    //     color: textColor,
+    //   },
+    // })
 
     return (
       <>
@@ -126,18 +132,15 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
 export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
+  style: {
+    position: 'fixed',
+    bottom: '1em',
+    right: '1em',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   render: ({ useObservable, injector, element }) => {
     const notyService = injector.getInstance(NotyService)
-
-    attachProps(element, {
-      style: {
-        position: 'fixed',
-        bottom: '1em',
-        right: '1em',
-        display: 'flex',
-        flexDirection: 'column',
-      },
-    })
 
     const currentNotys = notyService.notys.getValue()
 

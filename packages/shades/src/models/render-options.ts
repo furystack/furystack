@@ -1,9 +1,10 @@
 import type { Injector } from '@furystack/inject'
 import type { ChildrenList } from './children-list.js'
 import type { Disposable, ObservableValue } from '@furystack/utils'
+import type { PartialElement } from './partial-element.js'
 
-export type RenderOptions<TProps> = {
-  readonly props: TProps
+export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
+  readonly props: TProps & PartialElement<TElementBase>
   renderCount: number
   injector: Injector
   children?: ChildrenList

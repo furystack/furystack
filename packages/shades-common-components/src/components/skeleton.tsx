@@ -1,4 +1,4 @@
-import { attachStyles, Shade } from '@furystack/shades'
+import { Shade } from '@furystack/shades'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export type SkeletonProps = {
@@ -10,6 +10,15 @@ export type SkeletonProps = {
 
 export const Skeleton = Shade<SkeletonProps>({
   shadowDomName: 'shade-skeleton',
+  style: {
+    opacity: '0',
+    display: 'inline-block',
+    background: 'linear-gradient(-45deg, rgba(128,128,128,0.1), rgba(128,128,128,0.3), rgba(128,128,128,0.1))',
+    backgroundSize: '400% 400%',
+    width: '100%',
+    height: '100%',
+    minHeight: '1em',
+  },
   render: ({ element, props }) => {
     const { delay = 1500 } = props
     setTimeout(() => {
@@ -29,17 +38,7 @@ export const Skeleton = Shade<SkeletonProps>({
         )
       })
     })
-    attachStyles(element, {
-      style: {
-        opacity: '0',
-        display: 'inline-block',
-        background: 'linear-gradient(-45deg, rgba(128,128,128,0.1), rgba(128,128,128,0.3), rgba(128,128,128,0.1))',
-        backgroundSize: '400% 400%',
-        width: '100%',
-        height: '100%',
-        minHeight: '1em',
-      },
-    })
+
     return null
   },
 })
