@@ -40,7 +40,7 @@ describe('LinkToRoute', () => {
       ),
     })
     expect(document.body.innerHTML).toBe(
-      '<div id="root"><a is="pi-rat-route-link" id="route" href="/subroute/123">Link</a></div>',
+      '<div id="root"><a is="link-to-route" id="route" href="/subroute/123">Link</a></div>',
     )
   })
 })

@@ -9,7 +9,7 @@ export type LinkToRouteProps<T extends object> = {
 
 export const LinkToRoute: <T extends object>(props: LinkToRouteProps<T>, children: ChildrenList) => JSX.Element = Shade(
   {
-    shadowDomName: 'pi-rat-route-link',
+    shadowDomName: 'link-to-route',
     elementBase: HTMLAnchorElement,
     elementBaseName: 'a',
     render: ({ props, element, children }) => {
