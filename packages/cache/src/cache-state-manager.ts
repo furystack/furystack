@@ -100,7 +100,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
     if (existing) {
       existing.dispose()
     }
-    this.store.delete(key)
+    return this.store.delete(key)
   }
 
   public flushAll() {

@@ -146,10 +146,11 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   /**
    * Removes an entity from the cache
    * @param args The arguments for getting the entity
+   * @returns a boolean that indicates if the entity was been present in the cache and was removed
    */
   public remove(...args: TArgs) {
     const index = this.getIndex(...args)
-    this.stateManager.remove(index)
+    return this.stateManager.remove(index)
   }
 
   /**
