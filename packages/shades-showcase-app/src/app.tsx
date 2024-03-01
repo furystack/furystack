@@ -1,4 +1,4 @@
-import { createComponent, LazyLoad, Router, Shade, styled } from '@furystack/shades'
+import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
 import { AppBar, AppBarLink, fadeIn, fadeOut, Paper, ThemeProviderService } from '@furystack/shades-common-components'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
