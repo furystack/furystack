@@ -97,7 +97,7 @@ describe('Shades Component Factory', () => {
 
       const component = (
         <div>
-          <Example injector={new Injector()} />
+          <Example />
         </div>
       )
 

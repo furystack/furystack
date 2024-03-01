@@ -51,8 +51,6 @@ export const App = Shade({
           style={{
             paddingTop: '32px',
             position: 'fixed',
-            top: '0',
-            left: '0',
             overflow: 'auto',
             height: 'calc(100% - 64px)',
             width: 'calc(100% - 48px)',

@@ -4,7 +4,7 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <div>
+      <>
         <h1>Home</h1>
         <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
@@ -51,7 +51,7 @@ export const HomePage = Shade({
         be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of
         selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse
         pains."
-      </div>
+      </>
     )
   },
 })

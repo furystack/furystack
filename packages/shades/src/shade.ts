@@ -7,7 +7,7 @@ import { ResourceManager } from './services/resource-manager.js'
 import { LocationService } from './services/location-service.js'
 import { attachProps, attachStyles } from './shade-component.js'
 
-export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>> = {
+export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
    * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
    */
@@ -48,7 +48,7 @@ export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>
   /**
    * Base class for the custom element. Defaults to HTMLElement. E.g. HTMLButtonElement
    */
-  elementBase?: TElementBase
+  elementBase?: Constructable<TElementBase>
 
   /**
    * A default style that will be applied to the element. Can be overridden by external styles.
@@ -61,7 +61,7 @@ export type ShadeOptions<TProps, TElementBase extends Constructable<HTMLElement>
  * @param o for component creation
  * @returns the JSX element
  */
-export const Shade = <TProps, TElementBase extends Constructable<HTMLElement> = Constructable<HTMLElement>>(
+export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
 ) => {
   // register shadow-dom element
@@ -276,13 +276,13 @@ export const Shade = <TProps, TElementBase extends Constructable<HTMLElement> = 
     throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
   }
 
-  return (props: TProps, children: ChildrenList) => {
+  return (props: TProps & PartialElement<TElementBase>, children: ChildrenList) => {
     const ElementType = customElements.get(customElementName)
     const el = new (ElementType as CustomElementConstructor)({
-      ...(props as TProps & ElementCreationOptions),
+      ...(props as TProps & ElementCreationOptions & PartialElement<TElementBase>),
     }) as JSX.Element<TProps>
 
-    el.props = props || ({} as TProps)
+    el.props = props || ({} as TProps & PartialElement<TElementBase>)
     el.shadeChildren = children
 
     attachStyles(el, { style: o.style })
