@@ -47,7 +47,7 @@ export const App = Shade({
             <AppBarLink href="/tabs">Tabs</AppBarLink>
             <AppBarLink href="/misc">Misc</AppBarLink>
           </div>
-          <ThemeSwitch />
+          <ThemeSwitch style={{ background: 'red' }} />
         </AppBar>
         <Paper
           elevation={3}
