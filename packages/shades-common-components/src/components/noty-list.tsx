@@ -1,4 +1,4 @@
-import { attachProps, createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
@@ -76,13 +76,17 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       setTimeout(removeSelf, timeout)
     }
 
-    attachProps(element, {
-      className: `noty ${props.model.type}`,
-      style: {
-        backgroundColor: colors.main,
-        color: textColor,
-      },
-    })
+    element.className = `noty ${props.model.type}`
+    element.style.backgroundColor = colors.main
+    element.style.color = textColor
+
+    // attachProps(element, {
+    //   className: `noty ${props.model.type}`,
+    //   style: {
+    //     backgroundColor: colors.main,
+    //     color: textColor,
+    //   },
+    // })
 
     return (
       <>
