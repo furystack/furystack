@@ -50,6 +50,24 @@ describe('Cache', () => {
     cache.dispose()
   })
 
+  it('Should mark the value as obsolete after the stale time has passed', async () => {
+    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 })
+    await cache.get(1, 2)
+    await sleepAsync(200)
+    const obs = cache.getObservable(1, 2)
+    expect(obs.getValue().status).toEqual('obsolete')
+    cache.dispose()
+  })
+
+  it('Should remove the value from the cache after the cache time has passed', async () => {
+    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 })
+    await cache.get(1, 2)
+    await sleepAsync(200)
+    const obs = cache.getObservable(1, 2)
+    expect(obs.getValue().status).toEqual('uninitialized')
+    cache.dispose()
+  })
+
   it('Should remove value from the cache', async () => {
     const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
     await cache.get(1, 2)

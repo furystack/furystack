@@ -7,6 +7,12 @@ interface CacheStateManagerOptions {
   capacity?: number
 }
 
+export class CannotObsoleteUnloadedError<T> extends Error {
+  constructor(public readonly cacheResult: CacheResult<T>) {
+    super('Cannot set obsolete state for a non-loaded value')
+  }
+}
+
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, ObservableValue<CacheResult<T>>>()
 
@@ -76,7 +82,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
       this.setValue(key, newValue)
       return newValue
     } else {
-      throw new Error('Cannot set obsolete state for a non-loaded value')
+      throw new CannotObsoleteUnloadedError(currentValue)
     }
   }
 

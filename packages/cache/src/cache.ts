@@ -1,6 +1,6 @@
 import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager.js'
-import { CacheStateManager } from './cache-state-manager.js'
+import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 
@@ -16,6 +16,16 @@ interface CacheSettings<TData, TArgs extends any[]> {
    * The maximum number of entities to store in the cache. The oldest will be removed when the limit is reached.
    */
   capacity?: number
+
+  /**
+   * The entity will be marked as obsolete after this time has passed since it was last loaded
+   */
+  staleTimeMs?: number
+
+  /**
+   * The entity will be removed from the cache after this time has passed since it was last loaded
+   */
+  cacheTimeMs?: number
 }
 
 export class Cache<TData, TArgs extends any[]> implements Disposable {
@@ -60,6 +70,19 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
       this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
+
+      this.options.staleTimeMs &&
+        setTimeout(() => {
+          try {
+            this.setObsolete(...args)
+          } catch (error) {
+            if (!(error instanceof CannotObsoleteUnloadedError)) {
+              throw error
+            }
+          }
+        }, this.options.staleTimeMs)
+      this.options.cacheTimeMs && setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
+
       return loaded
     } catch (error) {
       this.stateManager.setFailedState(index, error)
