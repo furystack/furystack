@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Input } from '@furystack/shades-common-components'
+import { Autocomplete, Input } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
@@ -165,6 +165,16 @@ export const InputsPage = Shade({
                 step="0.5"
                 type="color"
                 getHelperText={() => 'You can pick a color'}
+              />
+
+              <Autocomplete
+                suggestions={['Apple', 'Banana', 'Orange', 'Pineapple', 'Strawberry']}
+                inputProps={{
+                  variant,
+                  required: true,
+                  labelTitle: 'Autocomplete Field',
+                  getHelperText: () => 'You can select a fruit from the list',
+                }}
               />
             </div>
           ))}

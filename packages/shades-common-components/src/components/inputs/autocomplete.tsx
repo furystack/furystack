@@ -9,14 +9,17 @@ export const Autocomplete = Shade<{
   onchange?: (value: string) => void
 }>({
   shadowDomName: 'shade-autocomplete',
+  constructed({ element, useState }) {
+    const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
+    element.querySelector('input')?.setAttribute('list', dataListId)
+  },
   render: ({ props, useState }) => {
     const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
 
     return (
-      <div>
+      <>
         <Input
           {...props.inputProps}
-          list={dataListId as any}
           onchange={(ev) => {
             const { value } = ev.target as any
             if (props.strict) {
@@ -33,7 +36,7 @@ export const Autocomplete = Shade<{
             <option value={s} />
           ))}
         </datalist>
-      </div>
+      </>
     )
   },
 })
