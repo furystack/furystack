@@ -4,11 +4,12 @@ import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   shadowDomName: 'shades-suggest-input',
+  style: {
+    width: '100%',
+    overflow: 'hidden',
+  },
   render: ({ element, props, useObservable, injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
-
-    element.style.width = '100%'
-    element.style.overflow = 'hidden'
 
     useObservable(
       'isOpened',
