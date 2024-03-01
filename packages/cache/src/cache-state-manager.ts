@@ -35,6 +35,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
     if (this.store.size > (this.options.capacity || Infinity)) {
       const [firstKey] = this.store.keys()
+      this.store.get(firstKey)?.dispose()
       this.store.delete(firstKey)
     }
 
