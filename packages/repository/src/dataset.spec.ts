@@ -55,6 +55,15 @@ describe('DataSet', () => {
         expect(() => i.getInstance(Repository).getDataSetFor(TestClass, 'id')).toThrowError('')
       })
     })
+
+    it('Should throw error on mismatched primary key', () => {
+      using(new Injector(), (i) => {
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', {})
+
+        expect(() => getDataSetFor(i, TestClass, 'name' as any)).toThrowError()
+      })
+    })
   })
 
   describe('Authorizers', () => {

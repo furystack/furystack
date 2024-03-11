@@ -5,7 +5,7 @@ export class AggregatedError extends Error {
    */
   constructor(
     message: string,
-    public readonly rejections: PromiseRejectedResult[],
+    public readonly rejections: unknown[],
   ) {
     super(message)
   }

@@ -6,7 +6,6 @@ module.exports = {
   rules: {
     'arrow-parens': ['error', 'always'],
     '@typescript-eslint/no-unused-vars': 'off', // Use Typescript own check for this
-    '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/explicit-member-accessibility': [
       'error',

@@ -41,7 +41,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
     return values.filter((item) => {
       for (const key in filter) {
         if (isLogicalOperator(key)) {
-          const filterValue = (filter as any)[key] as Array<FilterType<T>>
+          const filterValue = filter[key] as Array<FilterType<T>>
           switch (key) {
             case '$and':
               if (filterValue.some((v: FilterType<T>) => !this.filterInternal([item], v).length)) {
@@ -104,7 +104,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
                   }
                   return false
                 case '$regex':
-                  if (!new RegExp(filterValue).test((itemValue as any).toString())) {
+                  if (!new RegExp(filterValue).test(itemValue.toString())) {
                     return false
                   }
                   break

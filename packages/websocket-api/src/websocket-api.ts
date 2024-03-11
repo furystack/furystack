@@ -71,7 +71,7 @@ export class WebSocketApi implements Disposable {
   public async broadcast(
     callback: (options: { injector: Injector; ws: ws; message: IncomingMessage }) => void | Promise<void>,
   ) {
-    const errors: any[] = []
+    const errors: unknown[] = []
     await Promise.all(
       [...this.clients.values()]
         .filter((client) => client.ws.readyState === ws.OPEN)
