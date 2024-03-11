@@ -84,7 +84,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
     try {
       await this.fileLock.acquire()
       const data = await this.readFile(this.options.fileName)
-      const json = (data ? JSON.parse(data.toString()) : []) as T[]
+      const json: T[] = data ? JSON.parse(data.toString()) : []
       this.cache.clear()
       for (const entity of json) {
         this.cache.set(entity[this.primaryKey], entity)

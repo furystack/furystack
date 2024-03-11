@@ -1,9 +1,18 @@
 import { usingAsync, using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, User, StoreManager, addStore } from '@furystack/core'
+import type { GoogleApiPayload } from './login-service.js'
 import { GoogleLoginSettings, GoogleLoginService } from './login-service.js'
 import { useHttpAuthentication } from '@furystack/rest-service'
 import { describe, it, expect } from 'vitest'
+import type { get } from 'http'
+
+const getGoogleUser = (overrides?: Partial<GoogleApiPayload>) =>
+  ({
+    email: 'user@example.com',
+    email_verified: true,
+    ...overrides,
+  }) as GoogleApiPayload
 
 describe('Google Login Service', () => {
   describe('Settings', () => {
@@ -16,13 +25,7 @@ describe('Google Login Service', () => {
 
         i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
 
-        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(
-          {
-            email: 'user@example.com',
-            email_verified: true,
-          } as any,
-          i,
-        )
+        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser(), i)
         expect(user && user.roles).toEqual([])
       })
     })
@@ -43,11 +46,10 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async () =>
-          ({
-            email: 'user@example.com',
+        loginService.utils.readPostBody = async <T>() =>
+          getGoogleUser({
             email_verified: false,
-          }) as any
+          }) as T
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 404,
@@ -64,11 +66,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async () =>
-          ({
-            email: 'user@example.com',
-            email_verified: true,
-          }) as any
+        loginService.utils.readPostBody = async <T>() => getGoogleUser() as T
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
@@ -85,16 +83,15 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async () =>
-          ({
-            email: 'user@example.com',
+        loginService.utils.readPostBody = async <T>() =>
+          getGoogleUser({
             email_verified: false,
-          }) as any
+          }) as T
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
           })
-        }) as any
+        }) as typeof get
         await expect(loginService.login('token')).rejects.toThrow()
       })
     })
@@ -120,7 +117,7 @@ describe('Google Login Service', () => {
           done({
             statusCode: 200,
           })
-        }) as any
+        }) as typeof get
 
         const user = await loginService.login('token')
 

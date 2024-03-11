@@ -14,17 +14,16 @@ export class TestClass {
 }
 
 let idIndex = 0
-export const createMockEntity = (part?: Partial<TestClass>) =>
-  ({
-    id: idIndex++,
-    stringValue1: 'foo',
-    stringValue2: 'bar',
-    numberValue1: Math.round(Math.random() * 1000),
-    numberValue2: Math.round(Math.random() * 10000) / 100,
-    booleanValue: true,
-    dateValue: new Date(),
-    ...part,
-  }) as TestClass
+export const createMockEntity = (part?: Partial<TestClass>): TestClass => ({
+  id: idIndex++,
+  stringValue1: 'foo',
+  stringValue2: 'bar',
+  numberValue1: Math.round(Math.random() * 1000),
+  numberValue2: Math.round(Math.random() * 10000) / 100,
+  booleanValue: true,
+  dateValue: new Date(),
+  ...part,
+})
 
 export interface StoreTestOptions<T, TPrimaryKey extends keyof T> {
   typeName: string
@@ -114,7 +113,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           await store.add(entity)
           const retrieved = await store.get(entity.id, ['id', 'stringValue1'])
           expect(retrieved).not.toEqual(entity)
-          expect(Object.keys(retrieved as any)).toEqual(['id', 'stringValue1'])
+          expect(retrieved).to.have.all.keys('id', 'stringValue1')
           expect(retrieved?.id).toBe(entity.id)
           expect(retrieved?.stringValue1).toBe(entity.stringValue1)
         })

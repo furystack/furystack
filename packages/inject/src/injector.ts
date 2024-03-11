@@ -60,7 +60,7 @@ export class Injector implements Disposable {
     }
 
     if (this.cachedSingletons.has(ctor)) {
-      return this.cachedSingletons.get(ctor) as T
+      return this.cachedSingletons.get(ctor)
     }
 
     const meta = Injector.options.get(ctor)

@@ -29,7 +29,8 @@ export class Repository implements Disposable {
     if (instance.primaryKey !== primaryKey) {
       throw Error('Primary key mismatch')
     }
-    return instance as unknown as DataSet<T, TPrimaryKey, TWritableData>
+
+    return instance as any as DataSet<T, TPrimaryKey, TWritableData>
   }
   public createDataSet<T, TPrimaryKey extends keyof T>(
     model: Constructable<T>,
