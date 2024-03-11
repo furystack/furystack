@@ -10,9 +10,10 @@ export class ResourceManager {
 
   public useDisposable<T extends Disposable>(key: string, factory: () => T): T {
     const existing = this.disposables.get(key)
-    if (existing) {
+    if (!existing) {
       const created = factory()
       this.disposables.set(key, created)
+      return created
     }
     return existing as T
   }
