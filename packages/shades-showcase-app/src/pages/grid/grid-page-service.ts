@@ -32,7 +32,7 @@ export class GridPageService implements Disposable {
     await store.add(this.injector, ...entries)
   }
 
-  private createTestClassInstance = () => {
+  private createTestClassInstance = (): TestClass => {
     const dateValue = new Date()
     dateValue.setHours(dateValue.getHours() + Math.floor((Math.random() - 0.5) * 24))
     return {
@@ -43,7 +43,7 @@ export class GridPageService implements Disposable {
       dateValue,
       stringValue1: `string value ${Math.random()}`,
       stringValue2: `string value ${Math.random()}`,
-    } as TestClass
+    }
   }
 
   private entityLoader: EntryLoader<TestClass> = async (options) => {

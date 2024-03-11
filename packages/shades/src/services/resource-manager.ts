@@ -9,10 +9,12 @@ export class ResourceManager {
   private readonly disposables = new Map<string, Disposable>()
 
   public useDisposable<T extends Disposable>(key: string, factory: () => T): T {
-    if (!this.disposables.has(key)) {
-      this.disposables.set(key, factory())
+    const existing = this.disposables.get(key)
+    if (existing) {
+      const created = factory()
+      this.disposables.set(key, created)
     }
-    return this.disposables.get(key) as T
+    return existing as T
   }
 
   public readonly observers = new Map<string, ValueObserver<any>>()
