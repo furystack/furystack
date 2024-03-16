@@ -18,7 +18,7 @@ export class EventHub<T extends string, EventTypeMap extends { [K in T]: any }> 
     }
   }
 
-  public subscribe(event: T, listener: ListenerFunction<T, EventTypeMap>): Disposable {
+  public subscribe<TEvent extends T>(event: TEvent, listener: ListenerFunction<TEvent, EventTypeMap>): Disposable {
     this.addListener(event, listener)
     return { dispose: () => this.removeListener(event, listener) }
   }

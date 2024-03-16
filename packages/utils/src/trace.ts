@@ -229,10 +229,23 @@ export class Trace {
     if (!objectTrace.methodMappings.has(options.method.name)) {
       objectTrace.methodMappings.set(options.method.name, {
         originalMethod: options.method,
-        callObservable: new ObservableValue<TraceMethodCall<TArgs>>(),
-        finishedObservable: new ObservableValue<TraceMethodFinished<ReturnType<TMethod>, TArgs>>(),
-        errorObservable: new ObservableValue<TraceMethodError<TArgs>>(),
-      } as any)
+        callObservable: new ObservableValue<TraceMethodCall<any>>({
+          methodArguments: [],
+          startDateTime: new Date(''),
+        }),
+        finishedObservable: new ObservableValue<TraceMethodFinished<ReturnType<TMethod>, any>>({
+          methodArguments: [],
+          startDateTime: new Date(''),
+          finishedDateTime: new Date(''),
+          returned: undefined as ReturnType<TMethod>,
+        }),
+        errorObservable: new ObservableValue<TraceMethodError<any>>({
+          methodArguments: [],
+          startDateTime: new Date(''),
+          errorDateTime: new Date(''),
+          error: undefined,
+        }),
+      })
     }
     const methodTrace = objectTrace.methodMappings.get(options.method.name) as any as MethodMapping<
       ReturnType<TMethod>,

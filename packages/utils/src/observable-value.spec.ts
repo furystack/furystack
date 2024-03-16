@@ -5,8 +5,8 @@ import { ObservableValue } from './observable-value.js'
  * Observable Value tests
  */
 export const observableTests = describe('Observable', () => {
-  it('should be constructed without initial value', () => {
-    const v = new ObservableValue()
+  it('should be constructed with an undefined initial value', () => {
+    const v = new ObservableValue(undefined)
     const doneCallback = vi.fn()
     v.subscribe(() => {
       expect(v.getValue()).toBe(undefined)
