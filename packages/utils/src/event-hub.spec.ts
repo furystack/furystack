@@ -24,7 +24,23 @@ describe('EventHub', () => {
     eventHub.emit('ExampleStringEvent', 1)
   })
 
-  it('should add listener', () => {
+  it('Should remove a listener', () => {
+    // Arrange
+    const eventHub = new EventHub<'ExampleNumberEvent', { ExampleNumberEvent: number }>()
+    const numberListener = vi.fn((val: number) => {
+      console.log(val)
+    })
+
+    // Act
+    eventHub.addListener('ExampleNumberEvent', numberListener)
+    eventHub.removeListener('ExampleNumberEvent', numberListener)
+    eventHub.emit('ExampleNumberEvent', 1)
+
+    // Assert
+    expect(numberListener).not.toBeCalled()
+  })
+
+  it('should distribute events through listeners', () => {
     // Arrange
     const eventHub = new EventHub<
       'ExampleNumberEvent' | 'ExampleStringEvent' | 'ExampleObjectEvent1' | 'ExampleObjectEvent2',
@@ -76,5 +92,33 @@ describe('EventHub', () => {
 
     expect(objectListener2).toBeCalledWith({ b: '1' })
     expect(objectListener2).toBeCalledTimes(1)
+  })
+
+  it('Should add and remove a listener with subscription', () => {
+    const eventHub = new EventHub<'ExampleNumberEvent', { ExampleNumberEvent: number }>()
+    const numberListener = vi.fn((val: number) => {
+      console.log(val)
+    })
+
+    const subscription = eventHub.subscribe('ExampleNumberEvent', numberListener)
+    eventHub.emit('ExampleNumberEvent', 1)
+
+    expect(numberListener).toBeCalledWith(1)
+    subscription.dispose()
+    eventHub.emit('ExampleNumberEvent', 2)
+    expect(numberListener).toBeCalledTimes(1)
+  })
+
+  it('should clear all listeners on dispose', () => {
+    const hub = new EventHub<'test', { test: string }>()
+
+    const listener = vi.fn((val: string) => {
+      console.log(val)
+    })
+
+    hub.addListener('test', listener)
+    hub.dispose()
+    hub.emit('test', 'test')
+    expect(listener).not.toBeCalled()
   })
 })
