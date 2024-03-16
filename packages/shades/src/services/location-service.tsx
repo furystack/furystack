@@ -54,7 +54,12 @@ export class LocationService implements Disposable {
     const existing = this.searchParamObservables.get(key)
 
     if (!existing) {
-      const actualValue = (this.onDeserializedLocationSearchChanged.getValue()[key] as T) ?? defaultValue
+      const currentDeserialized = this.onDeserializedLocationSearchChanged.getValue()
+
+      const actualValue = Object.prototype.hasOwnProperty.call(currentDeserialized, key)
+        ? (currentDeserialized[key] as T)
+        : defaultValue
+
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
 
