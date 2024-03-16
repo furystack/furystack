@@ -77,8 +77,8 @@ export class LocationService implements Disposable {
   private replaceStateTracer: Disposable
 
   constructor() {
-    window.addEventListener('popstate', () => this.updateState())
-    window.addEventListener('hashchange', () => this.updateState())
+    window.addEventListener('popstate', this.updateState)
+    window.addEventListener('hashchange', this.updateState)
 
     this.pushStateTracer = Trace.method({
       object: history,
