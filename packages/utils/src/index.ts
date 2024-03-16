@@ -1,6 +1,7 @@
 export * from './disposable.js'
 export * from './deep-merge.js'
 export * from './debounce.js'
+export * from './event-hub.js'
 export * from './observable-value.js'
 export * from './value-observer.js'
 export * from './path-helper.js'
