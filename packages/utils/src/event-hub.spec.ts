@@ -1,4 +1,4 @@
-import { EventHub } from 'event-hub.js'
+import { EventHub } from './event-hub.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('EventHub', () => {
