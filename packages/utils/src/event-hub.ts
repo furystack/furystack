@@ -18,6 +18,11 @@ export class EventHub<T extends string, EventTypeMap extends { [K in T]: any }> 
     }
   }
 
+  public subscribe(event: T, listener: ListenerFunction<T, EventTypeMap>): Disposable {
+    this.addListener(event, listener)
+    return { dispose: () => this.removeListener(event, listener) }
+  }
+
   public emit<TEvent extends T>(event: TEvent, arg: EventTypeMap[TEvent]) {
     if (this.listeners.has(event)) {
       this.listeners.get(event)!.forEach((listener) => listener(arg))
