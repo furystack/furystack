@@ -30,9 +30,7 @@ export class LocationService implements Disposable {
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
-  public onDeserializedLocationSearchChanged = new ObservableValue(
-    deserializeQueryString(this.onLocationSearchChanged.getValue()),
-  )
+  public onDeserializedLocationSearchChanged = new ObservableValue(deserializeQueryString(location.search))
 
   public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
     this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
