@@ -50,7 +50,7 @@ export class ObservableValue<T> implements Disposable {
     this._isDisposed = true
   }
   private observers: Set<ValueObserver<T>> = new Set()
-  private currentValue!: T
+  private currentValue: T
 
   /**
    * Subscribes to a value changes
@@ -117,9 +117,7 @@ export class ObservableValue<T> implements Disposable {
   /**
    * @param initialValue Optional initial value
    */
-  constructor(initialValue?: T) {
-    if (initialValue !== undefined) {
-      this.currentValue = initialValue
-    }
+  constructor(initialValue: T) {
+    this.currentValue = initialValue
   }
 }

@@ -30,9 +30,7 @@ export class LocationService implements Disposable {
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
-  public onDeserializedLocationSearchChanged = new ObservableValue(
-    deserializeQueryString(this.onLocationSearchChanged.getValue()),
-  )
+  public onDeserializedLocationSearchChanged = new ObservableValue(deserializeQueryString(location.search))
 
   public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
     this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
@@ -56,7 +54,12 @@ export class LocationService implements Disposable {
     const existing = this.searchParamObservables.get(key)
 
     if (!existing) {
-      const actualValue = (this.onDeserializedLocationSearchChanged.getValue()[key] as T) ?? defaultValue
+      const currentDeserialized = this.onDeserializedLocationSearchChanged.getValue()
+
+      const actualValue = Object.prototype.hasOwnProperty.call(currentDeserialized, key)
+        ? (currentDeserialized[key] as T)
+        : defaultValue
+
       const newObservable = new ObservableValue(actualValue)
       this.searchParamObservables.set(key, newObservable)
 
@@ -79,8 +82,8 @@ export class LocationService implements Disposable {
   private replaceStateTracer: Disposable
 
   constructor() {
-    window.addEventListener('popstate', () => this.updateState())
-    window.addEventListener('hashchange', () => this.updateState())
+    window.addEventListener('popstate', this.updateState)
+    window.addEventListener('hashchange', this.updateState)
 
     this.pushStateTracer = Trace.method({
       object: history,

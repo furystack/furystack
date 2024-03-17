@@ -79,7 +79,7 @@ export class CollectionService<T> implements Disposable {
 
   public querySettings: ObservableValue<FindOptions<T, Array<keyof T>>>
 
-  public focusedEntry = new ObservableValue<T | undefined>()
+  public focusedEntry = new ObservableValue<T | undefined>(undefined)
 
   public selection = new ObservableValue<T[]>([])
 

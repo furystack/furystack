@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "5.0.20",
+  "version": "6.0.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -32,7 +32,7 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "typescript": "^5.4.2",
-    "vitest": "^1.3.1"
+    "vitest": "^1.4.0"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",

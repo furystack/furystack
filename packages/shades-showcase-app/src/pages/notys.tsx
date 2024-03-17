@@ -12,7 +12,7 @@ export const NotysPage = Shade({
         <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
           <Button
             onclick={() => {
-              notyService.addNoty({
+              notyService.emit('onNotyAdded', {
                 type: 'info',
                 title: 'An example info noty',
                 body: <>This is an example info notification</>,
@@ -24,7 +24,7 @@ export const NotysPage = Shade({
           </Button>
           <Button
             onclick={() => {
-              notyService.addNoty({
+              notyService.emit('onNotyAdded', {
                 type: 'success',
                 title: 'An example success noty',
                 body: <>This is an example success notification</>,
@@ -36,7 +36,7 @@ export const NotysPage = Shade({
           </Button>
           <Button
             onclick={() => {
-              notyService.addNoty({
+              notyService.emit('onNotyAdded', {
                 type: 'warning',
                 title: 'An example warning noty',
                 body: <>This is an example warning notification</>,
@@ -48,7 +48,7 @@ export const NotysPage = Shade({
           </Button>
           <Button
             onclick={() => {
-              notyService.addNoty({
+              notyService.emit('onNotyAdded', {
                 type: 'error',
                 title: 'An example error noty',
                 body: <>This is an example error notification</>,

@@ -145,7 +145,7 @@ describe('DataSet', () => {
 
           getRepository(i)
             .getDataSetFor(TestClass, 'id')
-            .onEntityAdded.subscribe(({ entity }) => {
+            .subscribe('onEntityAdded', ({ entity }) => {
               expect(entity.value).toBe('asd')
             })
 
@@ -265,7 +265,7 @@ describe('DataSet', () => {
 
           getRepository(i)
             .getDataSetFor(TestClass, 'id')
-            .onEntityUpdated.subscribe(({ change }) => {
+            .subscribe('onEntityUpdated', ({ change }) => {
               expect(change).toEqual({ id: 1, value: 'asd2' })
             })
 
@@ -525,7 +525,7 @@ describe('DataSet', () => {
 
         getRepository(i)
           .getDataSetFor(TestClass, 'id')
-          .onEntityRemoved.subscribe(({ key }) => {
+          .subscribe('onEntityRemoved', ({ key }) => {
             expect(key).toEqual(1)
           })
 
