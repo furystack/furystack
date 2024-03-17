@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "8.1.8",
+  "version": "9.0.0",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "4.0.17",
+  "version": "5.0.0",
   "description": "Logging API for FuryStack package",
   "type": "module",
   "scripts": {
