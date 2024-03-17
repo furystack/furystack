@@ -28,7 +28,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   style: {
     flexGrow: '1',
   },
-  render: ({ props, injector, element, useDisposable, useObservable }) => {
+  render: ({ props, injector, element, useDisposable }) => {
     const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
     const { theme } = injector.getInstance(ThemeProviderService)
     const inputContainer = element.querySelector('.input-container') as HTMLDivElement
@@ -85,7 +85,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
         })
       }
     })
-    useObservable('onSelectSuggestion', manager.onSelectSuggestion, props.onSelectSuggestion)
+    useDisposable('onSelectSuggestion', () => manager.subscribe('onSelectSuggestion', props.onSelectSuggestion))
     return (
       <div
         style={{ display: 'flex', flexDirection: 'column' }}

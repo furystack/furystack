@@ -1,17 +1,16 @@
 import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
-import { debounce, ObservableValue } from '@furystack/utils'
+import { debounce, EventHub, ObservableValue } from '@furystack/utils'
 import type { SuggestionResult } from './suggestion-result.js'
 
 @Injectable({ lifetime: 'singleton' })
-export class SuggestManager<T> implements Disposable {
+export class SuggestManager<T> extends EventHub<'onSelectSuggestion', { onSelectSuggestion: T }> implements Disposable {
   public isOpened = new ObservableValue(false)
   public isLoading = new ObservableValue(false)
   public term = new ObservableValue('')
   public selectedIndex = new ObservableValue(0)
   public currentSuggestions = new ObservableValue<Array<{ entry: T; suggestion: SuggestionResult }>>([])
-  public onSelectSuggestion = new ObservableValue<T>()
 
   public keyPressListener = ((ev: KeyboardEvent) => {
     if (ev.key === 'Escape') {
@@ -38,13 +37,13 @@ export class SuggestManager<T> implements Disposable {
     this.term.dispose()
     this.selectedIndex.dispose()
     this.currentSuggestions.dispose()
-    this.onSelectSuggestion.dispose()
+    super.dispose()
   }
 
   public selectSuggestion(index: number = this.selectedIndex.getValue()) {
     const selectedSuggestion = this.currentSuggestions.getValue()[index]
     this.isOpened.setValue(false)
-    this.onSelectSuggestion.setValue(selectedSuggestion.entry)
+    this.emit('onSelectSuggestion', selectedSuggestion.entry)
   }
 
   private lastGetSuggestionOptions?: { injector: Injector; term: string }
@@ -74,6 +73,7 @@ export class SuggestManager<T> implements Disposable {
     private readonly getEntries: (term: string) => Promise<T[]>,
     private readonly getSuggestionEntry: (entry: T) => SuggestionResult,
   ) {
+    super()
     window.addEventListener('keyup', this.keyPressListener, true)
     window.addEventListener('click', this.clickOutsideListener, true)
   }

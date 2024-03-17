@@ -3,18 +3,24 @@ import type { FindOptions, PartialResult, FilterType, WithOptionalId, CreateResu
 import { AuthorizationError } from '@furystack/core'
 import type { DataSetSettings } from './data-set-setting.js'
 import type { Disposable } from '@furystack/utils'
-import { ObservableValue } from '@furystack/utils'
+import { EventHub } from '@furystack/utils'
 
 /**
  * An authorized Repository Store instance
  */
 export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>>
+  extends EventHub<
+    'onEntityAdded' | 'onEntityUpdated' | 'onEntityRemoved',
+    {
+      onEntityAdded: { injector: Injector; entity: T }
+      onEntityUpdated: { injector: Injector; id: T[TPrimaryKey]; change: Partial<T> }
+      onEntityRemoved: { injector: Injector; key: T[TPrimaryKey] }
+    }
+  >
   implements Disposable
 {
   public dispose() {
-    this.onEntityAdded.dispose()
-    this.onEntityRemoved.dispose()
-    this.onEntityUpdated.dispose()
+    super.dispose()
   }
 
   /**
@@ -47,14 +53,11 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     )
 
     const createResult = await this.settings.physicalStore.add(...parsed)
-    createResult.created.map((entity) => this.onEntityAdded.setValue({ injector, entity }))
+    createResult.created.map((entity) => {
+      this.emit('onEntityAdded', { injector, entity })
+    })
     return createResult
   }
-
-  /**
-   * Observable that will be updated after the entity has been persisted
-   */
-  public readonly onEntityAdded = new ObservableValue<{ injector: Injector; entity: T }>()
 
   /**
    * Updates an entity in the store
@@ -82,13 +85,8 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       ? await this.settings.modifyOnUpdate({ injector, id, entity: change })
       : change
     await this.settings.physicalStore.update(id, parsed)
-    this.onEntityUpdated.setValue({ injector, change: parsed, id })
+    this.emit('onEntityUpdated', { injector, change: parsed, id })
   }
-
-  /**
-   * Observable that will be updated right after an entity update
-   */
-  public readonly onEntityUpdated = new ObservableValue<{ injector: Injector; id: T[keyof T]; change: Partial<T> }>()
 
   /**
    * Returns a Promise with the entity count
@@ -173,18 +171,11 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       }
     }
     await this.settings.physicalStore.remove(key)
-    this.onEntityRemoved.setValue({ injector, key })
+    this.emit('onEntityRemoved', { injector, key })
   }
 
-  /**
-   * Callback that fires right after entity update
-   */
-  public readonly onEntityRemoved = new ObservableValue<{
-    injector: Injector
-    key: T[TPrimaryKey]
-  }>()
-
   constructor(public readonly settings: DataSetSettings<T, TPrimaryKey, TWritableData>) {
+    super()
     this.primaryKey = this.settings.physicalStore.primaryKey
   }
 }

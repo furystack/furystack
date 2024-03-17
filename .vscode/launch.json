@@ -18,10 +18,16 @@
       "request": "launch",
       "name": "Debug Current Test File",
       "autoAttachChildProcesses": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "./.pnp.cjs",
+        "./.yarn/releases/*.cjs",
+        "./vitest.mjs"
+      ],
       "runtimeExecutable": "yarn",
       "program": "vitest",
-      "args": ["${relativeFile}"],
+      "args": ["${relativeFile}", "--coverage=false", "--run"],
       // "smartStep": true,
       "console": "integratedTerminal"
     },

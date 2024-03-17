@@ -1,4 +1,4 @@
-import { ObservableValue } from '@furystack/utils'
+import { EventHub } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 
 export interface NotyModel {
@@ -9,19 +9,31 @@ export interface NotyModel {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class NotyService {
-  public onNotyAdded = new ObservableValue<NotyModel>()
-  public onNotyRemoved = new ObservableValue<NotyModel>()
+export class NotyService extends EventHub<
+  'onNotyAdded' | 'onNotyRemoved',
+  { onNotyAdded: NotyModel; onNotyRemoved: NotyModel }
+> {
+  private notyList: NotyModel[] = []
 
-  public notys = new ObservableValue<NotyModel[]>([])
+  public getNotyList = () => [...this.notyList]
 
-  public addNoty = (noty: NotyModel) => {
-    this.onNotyAdded.setValue(noty)
-    this.notys.setValue([...this.notys.getValue(), noty])
+  private onNotyAddListener(newNoty: NotyModel) {
+    this.notyList = [...this.notyList, newNoty]
   }
 
-  public removeNoty = (noty: NotyModel) => {
-    this.onNotyRemoved.setValue(noty)
-    this.notys.setValue(this.notys.getValue().filter((n) => n !== noty))
+  private onNotyRemoveListener(removedNoty: NotyModel) {
+    this.notyList = this.notyList.filter((noty) => noty !== removedNoty)
+  }
+
+  public dispose(): void {
+    this.notyList = []
+    this.removeListener('onNotyAdded', this.onNotyAddListener.bind(this))
+    this.removeListener('onNotyRemoved', this.onNotyRemoveListener.bind(this))
+  }
+
+  constructor() {
+    super()
+    this.addListener('onNotyAdded', this.onNotyAddListener.bind(this))
+    this.addListener('onNotyRemoved', this.onNotyRemoveListener.bind(this))
   }
 }
