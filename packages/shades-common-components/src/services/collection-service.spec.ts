@@ -13,6 +13,7 @@ describe('CollectionService', () => {
           loader: async () => ({ count: 3, entries: testEntries }),
         }),
         async (collectionService) => {
+          await collectionService.getEntries({})
           testEntries.forEach((entry) => {
             expect(collectionService.isSelected(entry)).toBe(false)
           })
