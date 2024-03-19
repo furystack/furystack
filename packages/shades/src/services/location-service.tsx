@@ -36,11 +36,11 @@ export class LocationService implements Disposable {
     this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
   })
 
-  public updateState() {
+  public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash)
     this.onLocationSearchChanged.setValue(location.search)
-  }
+  }).bind(this)
 
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
