@@ -53,14 +53,15 @@ export const Router = Shade<RouterProps>({
             return
           }
         }
-        if (lastRoute?.onLeave) {
-          await lastRoute.onLeave({ ...options, element: lastJsx })
+
+        if (lastRoute !== null) {
+          await lastRoute?.onLeave?.({ ...options, element: lastJsx })
+          setState({
+            jsx: options.props.notFound || <div />,
+            activeRoute: null,
+            activeRouteParams: null,
+          })
         }
-        setState({
-          jsx: options.props.notFound || <div />,
-          activeRoute: null,
-          activeRouteParams: null,
-        })
       } catch (e) {
         // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
