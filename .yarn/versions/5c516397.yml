@@ -20,6 +20,4 @@ releases:
   "@furystack/shades-showcase-app": major
   "@furystack/utils": major
   "@furystack/websocket-api": major
-
-undecided:
-  - furystack
+  furystack: major
