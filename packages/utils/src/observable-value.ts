@@ -1,4 +1,5 @@
 import type { Disposable } from './disposable.js'
+import type { ValueObserverOptions } from './value-observer.js'
 import { ValueObserver } from './value-observer.js'
 
 /**
@@ -69,13 +70,14 @@ export class ObservableValue<T> implements Disposable {
   /**
    * Subscribes to a value changes
    * @param callback The callback method that will be called on each change
+   * @param options Additional ObservableValue options
    * @returns The ValueObserver instance
    */
-  public subscribe(callback: ValueChangeCallback<T>) {
+  public subscribe(callback: ValueChangeCallback<T>, options?: ValueObserverOptions<T>) {
     if (this._isDisposed) {
       throw new ObservableAlreadyDisposedError()
     }
-    const observer = new ValueObserver<T>(this, callback)
+    const observer = new ValueObserver<T>(this, callback, options)
     this.observers.add(observer)
     return observer
   }
@@ -110,9 +112,11 @@ export class ObservableValue<T> implements Disposable {
     }
     if (this.options.compare(this.currentValue, newValue)) {
       this.currentValue = newValue
-      for (const subscription of this.observers) {
-        subscription.callback(newValue)
-      }
+      this.observers.forEach((observer) => {
+        if (observer.options?.filter?.(this.currentValue, newValue) !== false) {
+          observer.callback(newValue)
+        }
+      })
     }
   }
 

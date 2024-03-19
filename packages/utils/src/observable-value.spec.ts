@@ -156,4 +156,25 @@ export const observableTests = describe('Observable', () => {
       expect(onChange).toBeCalledTimes(1)
     })
   })
+
+  describe('Filtered subscriptions', () => {
+    it('should not trigger the callback if the filter returns false', () => {
+      const v = new ObservableValue({ shouldNotify: true, value: 1 })
+      const onChange = vi.fn()
+      v.subscribe(onChange, {
+        filter: (nextValue) => nextValue.shouldNotify,
+      })
+
+      v.setValue({ shouldNotify: false, value: 1 })
+      expect(onChange).not.toBeCalled()
+
+      v.setValue({ shouldNotify: false, value: 2 })
+      expect(onChange).not.toBeCalled()
+      expect(v.getValue()).toEqual({ shouldNotify: false, value: 2 })
+
+      v.setValue({ shouldNotify: true, value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+      expect(onChange).toBeCalledWith({ shouldNotify: true, value: 3 })
+    })
+  })
 })
