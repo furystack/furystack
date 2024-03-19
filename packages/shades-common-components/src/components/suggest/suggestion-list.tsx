@@ -13,10 +13,9 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
 
       const [suggestions] = useObservable('suggestions', manager.currentSuggestions)
 
-      const [selectedIndex] = useObservable(
-        'selectedIndex',
-        manager.selectedIndex,
-        (idx) => {
+      // todo: GetLast is eliminated, do we need it?
+      const [selectedIndex] = useObservable('selectedIndex', manager.selectedIndex, {
+        onChange: (idx) => {
           ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
             if (i === idx) {
               s.style.background = theme.background.paper
@@ -27,35 +26,36 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
             }
           })
         },
-        true,
-      )
+      })
 
-      const [isListOpened] = useObservable('isOpened', manager.isOpened, async (isOpened) => {
-        const container = element.firstElementChild as HTMLDivElement
-        if (isOpened) {
-          container.style.zIndex = '1'
-          container.style.width = `calc(${Math.round(
-            element.parentElement?.getBoundingClientRect().width || 200,
-          )}px - 3em)`
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 0, transform: 'translate(0, -50px)' },
-              { opacity: 1, transform: 'translate(0, 0)' },
-            ],
-            { fill: 'forwards', duration: 500 },
-          )
-        } else {
-          await promisifyAnimation(
-            container,
-            [
-              { opacity: 1, transform: 'translate(0, 0)' },
-              { opacity: 0, transform: 'translate(0, -50px)' },
-            ],
-            { fill: 'forwards', duration: 200 },
-          )
-          container.style.zIndex = '-1'
-        }
+      const [isListOpened] = useObservable('isOpened', manager.isOpened, {
+        onChange: async (isOpened) => {
+          const container = element.firstElementChild as HTMLDivElement
+          if (isOpened) {
+            container.style.zIndex = '1'
+            container.style.width = `calc(${Math.round(
+              element.parentElement?.getBoundingClientRect().width || 200,
+            )}px - 3em)`
+            await promisifyAnimation(
+              container,
+              [
+                { opacity: 0, transform: 'translate(0, -50px)' },
+                { opacity: 1, transform: 'translate(0, 0)' },
+              ],
+              { fill: 'forwards', duration: 500 },
+            )
+          } else {
+            await promisifyAnimation(
+              container,
+              [
+                { opacity: 1, transform: 'translate(0, 0)' },
+                { opacity: 0, transform: 'translate(0, -50px)' },
+              ],
+              { fill: 'forwards', duration: 200 },
+            )
+            container.style.zIndex = '-1'
+          }
+        },
       })
 
       return (

@@ -71,14 +71,20 @@ test.describe('Navigation', () => {
       const homeMenuElement = await getNavigationEntry(page, 'Home')
       await expectSelected(homeMenuElement)
 
-      const buttonsMenuElement = await getNavigationEntry(page, name)
-      await expectNotSelected(buttonsMenuElement)
+      const targetMenuElement = await getNavigationEntry(page, name)
+      await expectNotSelected(targetMenuElement)
 
-      await buttonsMenuElement.click()
+      await targetMenuElement.click()
       await expect(page).toHaveURL(url)
 
-      await expectSelected(buttonsMenuElement)
+      await expectSelected(targetMenuElement)
       await expectNotSelected(homeMenuElement)
+
+      await page.goBack()
+      await expectSelected(homeMenuElement)
+
+      await page.goForward()
+      await expectSelected(targetMenuElement)
     })
     test(`${name} Should be available from URL`, async ({ page }) => {
       await page.goto(url)
@@ -86,5 +92,13 @@ test.describe('Navigation', () => {
       await expectSelected(menuEntry)
       await expectPageTitle(page, name)
     })
+  })
+
+  test('Should have a 404 page', async ({ page }) => {
+    await page.goto('/non-existing-page')
+    const notFoundTitle = await page.locator('shade-router h1', { hasText: '404' })
+    await expect(notFoundTitle).toBeVisible()
+    const notFoundContent = await page.locator('shade-router p', { hasText: 'Have you seen this cat? 😸' })
+    await expect(notFoundContent).toBeVisible()
   })
 })

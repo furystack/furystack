@@ -30,8 +30,8 @@ export class SuggestManager<T> extends EventHub<'onSelectSuggestion', { onSelect
   }).bind(this)
 
   public dispose() {
-    window.removeEventListener('keyup', this.keyPressListener)
-    window.removeEventListener('click', this.clickOutsideListener)
+    window.removeEventListener('keyup', this.keyPressListener, true)
+    window.removeEventListener('click', this.clickOutsideListener, true)
     this.isOpened.dispose()
     this.isLoading.dispose()
     this.term.dispose()

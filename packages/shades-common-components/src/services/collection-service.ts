@@ -217,7 +217,8 @@ export class CollectionService<T> implements Disposable {
       }
     }
 
-    this.querySettings.subscribe((val) => this.getEntries(val), true)
+    this.querySettings.subscribe((val) => this.getEntries(val))
+    this.getEntries(this.querySettings.getValue())
   }
 
   public async handleRowDoubleClick(entry: T) {

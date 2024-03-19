@@ -6,9 +6,8 @@ import { GridStatus } from './grid-status.js'
 
 export const GridPage = Shade({
   shadowDomName: 'shades-grid-page',
-
-  render: ({ useDisposable, injector }) => {
-    const service = useDisposable('service', () => injector.getInstance(GridPageService))
+  render: ({ injector }) => {
+    const service = injector.getInstance(GridPageService)
     return (
       <div
         style={{

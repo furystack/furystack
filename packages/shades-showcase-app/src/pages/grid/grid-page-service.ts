@@ -8,7 +8,7 @@ import type { Disposable } from '@furystack/utils'
 
 let currentId = 0
 
-@Injectable({ lifetime: 'transient' })
+@Injectable({ lifetime: 'singleton' })
 export class GridPageService implements Disposable {
   private isInitialized = false
 

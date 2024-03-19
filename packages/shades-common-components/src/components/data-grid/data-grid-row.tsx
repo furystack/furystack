@@ -39,14 +39,14 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
       }
     }
 
-    const [selection] = useObservable('isSelected', service.selection, attachSelectedStyles, true)
+    // TODO: getLast is elmiminated, do we need it?
+    const [selection] = useObservable('isSelected', service.selection, { onChange: attachSelectedStyles })
 
     attachSelectedStyles(selection)
 
-    const [focus] = useObservable(
-      'focus',
-      service.focusedEntry,
-      (newEntry) => {
+    // TODO: getLast is elmiminated, do we need it?
+    const [focus] = useObservable('focus', service.focusedEntry, {
+      onChange: (newEntry) => {
         if (newEntry === props.entry) {
           attachStyles(element, {
             style: props.focusedRowStyle || {
@@ -84,8 +84,7 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
           })
         }
       },
-      true,
-    )
+    })
 
     element.style.display = 'table-row'
     element.style.cursor = 'default'

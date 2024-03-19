@@ -1,4 +1,3 @@
-import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
@@ -34,11 +33,6 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
    * Will be executed when the element is detached from the DOM.
    */
   onDetach?: (options: RenderOptions<TProps, TElementBase>) => void
-
-  /**
-   * A factory method that creates a list of disposable resources that will be disposed when the element is detached.
-   */
-  resources?: (options: RenderOptions<TProps, TElementBase>) => Disposable[]
 
   /**
    * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
@@ -125,8 +119,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             children: this.shadeChildren,
             element: this,
             renderCount: this._renderCount,
-            useObservable: (key, obesrvable, callback, getLast) =>
-              this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent()), getLast),
+            useObservable: (key, obesrvable, options) => {
+              const onChange = options?.onChange || (() => this.updateComponent())
+              return this.resourceManager.useObservable(key, obesrvable, onChange, options)
+            },
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
             useSearchState: (key, initialValue) =>

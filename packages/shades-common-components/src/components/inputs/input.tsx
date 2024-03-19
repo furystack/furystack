@@ -226,7 +226,7 @@ export const Input = Shade<TextInputProps>({
         validity: element.querySelector('input')?.validity || ({} as ValidityState),
         element,
       }),
-      updateState,
+      { onChange: updateState },
     )
 
     return (

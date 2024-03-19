@@ -5,8 +5,8 @@ import { deserializeQueryString, serializeToQueryString } from '@furystack/rest'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   public dispose() {
-    window.removeEventListener('popstate', this.updateState)
-    window.removeEventListener('hashchange', this.updateState)
+    window.removeEventListener('popstate', this.popStateListener)
+    window.removeEventListener('hashchange', this.hashChangeListener)
     this.pushStateTracer.dispose()
     this.replaceStateTracer.dispose()
     this.onLocationPathChanged.dispose()
@@ -36,11 +36,11 @@ export class LocationService implements Disposable {
     this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
   })
 
-  public updateState() {
+  public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash)
     this.onLocationSearchChanged.setValue(location.search)
-  }
+  }).bind(this)
 
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
@@ -64,9 +64,12 @@ export class LocationService implements Disposable {
       this.searchParamObservables.set(key, newObservable)
 
       newObservable.subscribe((value) => {
-        const params = serializeToQueryString({ ...deserializeQueryString(location.search), [key]: value })
-        const newUrl = `${location.pathname}?${params}`
-        history.pushState({}, '', newUrl)
+        const currentQueryStringObject = this.onDeserializedLocationSearchChanged.getValue()
+        if (currentQueryStringObject[key] !== value) {
+          const params = serializeToQueryString({ ...currentQueryStringObject, [key]: value })
+          const newUrl = `${location.pathname}?${params}`
+          history.pushState({}, '', newUrl)
+        }
       })
 
       this.onDeserializedLocationSearchChanged.subscribe((search) => {
@@ -81,9 +84,17 @@ export class LocationService implements Disposable {
   private pushStateTracer: Disposable
   private replaceStateTracer: Disposable
 
+  private popStateListener = (_ev: PopStateEvent) => {
+    this.updateState()
+  }
+
+  private hashChangeListener = (_ev: HashChangeEvent) => {
+    this.updateState()
+  }
+
   constructor() {
-    window.addEventListener('popstate', this.updateState)
-    window.addEventListener('hashchange', this.updateState)
+    window.addEventListener('popstate', this.popStateListener)
+    window.addEventListener('hashchange', this.hashChangeListener)
 
     this.pushStateTracer = Trace.method({
       object: history,
