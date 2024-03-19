@@ -1,6 +1,6 @@
 import type { Injector } from '@furystack/inject'
 import type { ChildrenList } from './children-list.js'
-import type { Disposable, ObservableValue } from '@furystack/utils'
+import type { Disposable, ObservableValue, ValueObserverOptions } from '@furystack/utils'
 import type { PartialElement } from './partial-element.js'
 
 export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
@@ -27,7 +27,7 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   useObservable: <T>(
     key: string,
     observable: ObservableValue<T>,
-    onChange?: (newValue: T) => void,
+    options?: ValueObserverOptions<T> & { onChange?: (newValue: T) => void },
   ) => [value: T, setValue: (newValue: T) => void]
 
   /**

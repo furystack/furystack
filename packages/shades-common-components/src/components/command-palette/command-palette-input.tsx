@@ -31,9 +31,9 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
     const { theme } = injector.getInstance(ThemeProviderService)
     const { manager } = props
 
-    const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, (newValue) =>
-      updateComponent(element, newValue),
-    )
+    const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, {
+      onChange: (newValue) => updateComponent(element, newValue),
+    })
     element.style.width = isCurrentlyOpened ? '100%' : '0%'
     element.style.overflow = 'hidden'
     return (

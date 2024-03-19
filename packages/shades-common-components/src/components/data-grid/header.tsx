@@ -61,14 +61,16 @@ export const OrderButton = Shade<{ collectionService: CollectionService<any>; fi
 const SearchButton = Shade<{ service: CollectionService<any>; fieldName: string; onclick: () => void }>({
   shadowDomName: 'data-grid-search-button',
   render: ({ props, useObservable, element }) => {
-    const [queryState] = useObservable('currentFilterState', props.service.querySettings, (currentQueryState) => {
-      const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
+    const [queryState] = useObservable('currentFilterState', props.service.querySettings, {
+      onChange: (currentQueryState) => {
+        const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
 
-      const button = element.querySelector('button') as HTMLInputElement
-      button.innerHTML = currentValue ? '🔍' : '🔎'
-      button.style.textShadow = currentValue
-        ? '1px 1px 20px rgba(235,225,45,0.9), 1px 1px 12px rgba(235,225,45,0.9), 0px 0px 3px  rgba(255,200,145,0.6)'
-        : 'none'
+        const button = element.querySelector('button') as HTMLInputElement
+        button.innerHTML = currentValue ? '🔍' : '🔎'
+        button.style.textShadow = currentValue
+          ? '1px 1px 20px rgba(235,225,45,0.9), 1px 1px 12px rgba(235,225,45,0.9), 0px 0px 3px  rgba(255,200,145,0.6)'
+          : 'none'
+      },
     })
 
     const filterValue = (queryState.filter as any)?.[props.fieldName]?.$regex || ''
@@ -100,9 +102,11 @@ const SearchForm = Shade<{
   render: ({ props, useObservable, element }) => {
     type SearchSubmitType = { searchValue: string }
 
-    const [queryState] = useObservable('currentFilterState', props.service.querySettings, (currentQueryState) => {
-      const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
-      ;(element.querySelector('input') as HTMLInputElement).value = currentValue
+    const [queryState] = useObservable('currentFilterState', props.service.querySettings, {
+      onChange: (currentQueryState) => {
+        const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
+        ;(element.querySelector('input') as HTMLInputElement).value = currentValue
+      },
     })
 
     return (
@@ -157,17 +161,19 @@ export const DataGridHeader: <T, K extends keyof T>(
 ) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
   shadowDomName: 'data-grid-header',
   render: ({ props, element, useObservable }) => {
-    const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), (newValue) => {
-      const searchForm = element.querySelector('.search-form') as HTMLElement
-      const headerContent = element.querySelector('.header-content') as HTMLElement
-      if (!newValue) {
-        collapse(searchForm)
-        expand(headerContent)
-      } else {
-        searchForm.style.display = 'flex'
-        expand(searchForm).then(() => searchForm.querySelector('input')?.focus())
-        collapse(headerContent)
-      }
+    const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), {
+      onChange: (newValue) => {
+        const searchForm = element.querySelector('.search-form') as HTMLElement
+        const headerContent = element.querySelector('.header-content') as HTMLElement
+        if (!newValue) {
+          collapse(searchForm)
+          expand(headerContent)
+        } else {
+          searchForm.style.display = 'flex'
+          expand(searchForm).then(() => searchForm.querySelector('input')?.focus())
+          collapse(headerContent)
+        }
+      },
     })
     const updateSearchValue = (value?: string) => {
       const currentSettings = props.collectionService.querySettings.getValue()

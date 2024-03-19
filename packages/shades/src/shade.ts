@@ -119,8 +119,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             children: this.shadeChildren,
             element: this,
             renderCount: this._renderCount,
-            useObservable: (key, obesrvable, callback) =>
-              this.resourceManager.useObservable(key, obesrvable, callback || (() => this.updateComponent())),
+            useObservable: (key, obesrvable, options) => {
+              const onChange = options?.onChange || (() => this.updateComponent())
+              return this.resourceManager.useObservable(key, obesrvable, onChange, options)
+            },
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
             useSearchState: (key, initialValue) =>

@@ -29,69 +29,73 @@ export const CommandPalette = Shade<CommandPaletteProps>({
 
     useDisposable('clickAwayService', () => new ClickAwayService(element, () => manager.isOpened.setValue(false)))
 
-    const [isLoadingAtRender] = useObservable('isLoading', manager.isLoading, async (isLoading) => {
-      const loader = element.querySelector('.loader-container')
-      if (isLoading) {
-        promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: 100,
-          fill: 'forwards',
-        })
-      } else {
-        promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
-          duration: 100,
-          fill: 'forwards',
-        })
-      }
-    })
-
-    const [isOpenedAtRender, setIsOpened] = useObservable('isOpened', manager.isOpened, (isOpened) => {
-      {
-        const suggestions = element.querySelector('.close-suggestions')
-        const postControls = element.querySelector('.post-controls')
-        const inputContainer = element.querySelector('.input-container') as HTMLDivElement
-        if (isOpened) {
-          promisifyAnimation(suggestions, [{ opacity: 0 }, { opacity: 1 }], {
-            duration: 500,
-            fill: 'forwards',
-          })
-
-          promisifyAnimation(postControls, [{ width: '0px' }, { width: '50px' }], {
+    const [isLoadingAtRender] = useObservable('isLoading', manager.isLoading, {
+      onChange: async (isLoading) => {
+        const loader = element.querySelector('.loader-container')
+        if (isLoading) {
+          promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
             duration: 100,
             fill: 'forwards',
           })
+        } else {
+          promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
+            duration: 100,
+            fill: 'forwards',
+          })
+        }
+      },
+    })
 
-          promisifyAnimation(
-            inputContainer,
-            [{ background: 'transparent' }, { background: theme.background.default }],
-            {
+    const [isOpenedAtRender, setIsOpened] = useObservable('isOpened', manager.isOpened, {
+      onChange: (isOpened) => {
+        {
+          const suggestions = element.querySelector('.close-suggestions')
+          const postControls = element.querySelector('.post-controls')
+          const inputContainer = element.querySelector('.input-container') as HTMLDivElement
+          if (isOpened) {
+            promisifyAnimation(suggestions, [{ opacity: 0 }, { opacity: 1 }], {
               duration: 500,
               fill: 'forwards',
-              easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
-            },
-          )
-        } else {
-          promisifyAnimation(suggestions, [{ opacity: 1 }, { opacity: 0 }], {
-            duration: 500,
-            fill: 'forwards',
-          })
+            })
 
-          promisifyAnimation(postControls, [{ width: '50px' }, { width: '0px' }], {
-            duration: 500,
-            fill: 'forwards',
-            delay: 300,
-          })
-
-          promisifyAnimation(
-            inputContainer,
-            [{ background: theme.background.default }, { background: 'transparent' }],
-            {
-              duration: 300,
+            promisifyAnimation(postControls, [{ width: '0px' }, { width: '50px' }], {
+              duration: 100,
               fill: 'forwards',
-              easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
-            },
-          )
+            })
+
+            promisifyAnimation(
+              inputContainer,
+              [{ background: 'transparent' }, { background: theme.background.default }],
+              {
+                duration: 500,
+                fill: 'forwards',
+                easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
+              },
+            )
+          } else {
+            promisifyAnimation(suggestions, [{ opacity: 1 }, { opacity: 0 }], {
+              duration: 500,
+              fill: 'forwards',
+            })
+
+            promisifyAnimation(postControls, [{ width: '50px' }, { width: '0px' }], {
+              duration: 500,
+              fill: 'forwards',
+              delay: 300,
+            })
+
+            promisifyAnimation(
+              inputContainer,
+              [{ background: theme.background.default }, { background: 'transparent' }],
+              {
+                duration: 300,
+                fill: 'forwards',
+                easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
+              },
+            )
+          }
         }
-      }
+      },
     })
 
     return (
