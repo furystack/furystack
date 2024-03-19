@@ -22,14 +22,12 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    * @param key The key for caching the observable value
    * @param observable The observable value to observe
    * @param callback Optional callback for reacting to changes. If no callback provided, the component will re-render on change
-   * @param getLast An option to trigger the callback with the initial value
    * @returns tuple with the current value and a setter function
    */
   useObservable: <T>(
     key: string,
     observable: ObservableValue<T>,
     onChange?: (newValue: T) => void,
-    getLast?: boolean,
   ) => [value: T, setValue: (newValue: T) => void]
 
   /**

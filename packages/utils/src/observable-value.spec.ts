@@ -7,24 +7,13 @@ import { ObservableValue } from './observable-value.js'
 export const observableTests = describe('Observable', () => {
   it('should be constructed with an undefined initial value', () => {
     const v = new ObservableValue(undefined)
-    const doneCallback = vi.fn()
-    v.subscribe(() => {
-      expect(v.getValue()).toBe(undefined)
-      doneCallback()
-    }, true)
     expect(v).toBeInstanceOf(ObservableValue)
-    expect(doneCallback).toBeCalled()
+    expect(v.getValue()).toBe(undefined)
   })
 
   it('should be constructed with initial value', () => {
     const v = new ObservableValue(1)
-    const doneCallback = vi.fn()
-
-    v.subscribe(() => {
-      expect(v.getValue()).toBe(1)
-      doneCallback()
-    }, true)
-    expect(doneCallback).toBeCalled()
+    expect(v.getValue()).toBe(1)
   })
 
   describe('Subscription callback', () => {
@@ -35,21 +24,21 @@ export const observableTests = describe('Observable', () => {
       v.subscribe(() => {
         expect(v.getValue()).toBe(2)
         doneCallback()
-      }, false)
+      })
       v.setValue(1)
       v.setValue(1)
       v.setValue(2)
       expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('should be triggered only on change when getLast is false', () => {
+    it('should be triggered only on change', () => {
       const v = new ObservableValue(1)
       const doneCallback = vi.fn()
 
       v.subscribe((value) => {
         expect(value).toBe(2)
         doneCallback()
-      }, false)
+      })
       v.setValue(2)
       expect(doneCallback).toBeCalledTimes(1)
     })

@@ -55,18 +55,14 @@ export class ObservableValue<T> implements Disposable {
   /**
    * Subscribes to a value changes
    * @param callback The callback method that will be called on each change
-   * @param getLast Will call the callback with the last known value right after subscription
    * @returns The ValueObserver instance
    */
-  public subscribe(callback: ValueChangeCallback<T>, getLast = false) {
+  public subscribe(callback: ValueChangeCallback<T>) {
     if (this._isDisposed) {
       throw new ObservableAlreadyDisposedError()
     }
     const observer = new ValueObserver<T>(this, callback)
     this.observers.add(observer)
-    if (getLast) {
-      callback(this.currentValue)
-    }
     return observer
   }
 

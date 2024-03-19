@@ -13,22 +13,18 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
 
       const [suggestions] = useObservable('suggestions', manager.currentSuggestions)
 
-      const [selectedIndex] = useObservable(
-        'selectedIndex',
-        manager.selectedIndex,
-        (idx) => {
-          ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
-            if (i === idx) {
-              s.style.background = theme.background.paper
-              s.style.fontWeight = 'bolder'
-            } else {
-              s.style.background = theme.background.default
-              s.style.fontWeight = 'normal'
-            }
-          })
-        },
-        true,
-      )
+      // todo: GetLast is eliminated, do we need it?
+      const [selectedIndex] = useObservable('selectedIndex', manager.selectedIndex, (idx) => {
+        ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
+          if (i === idx) {
+            s.style.background = theme.background.paper
+            s.style.fontWeight = 'bolder'
+          } else {
+            s.style.background = theme.background.default
+            s.style.fontWeight = 'normal'
+          }
+        })
+      })
 
       const [isListOpened] = useObservable('isOpened', manager.isOpened, async (isOpened) => {
         const container = element.firstElementChild as HTMLDivElement

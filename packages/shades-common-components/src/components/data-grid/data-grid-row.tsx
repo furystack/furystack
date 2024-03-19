@@ -39,53 +39,50 @@ export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList
       }
     }
 
-    const [selection] = useObservable('isSelected', service.selection, attachSelectedStyles, true)
+    // TODO: getLast is elmiminated, do we need it?
+    const [selection] = useObservable('isSelected', service.selection, attachSelectedStyles)
 
     attachSelectedStyles(selection)
 
-    const [focus] = useObservable(
-      'focus',
-      service.focusedEntry,
-      (newEntry) => {
-        if (newEntry === props.entry) {
-          attachStyles(element, {
-            style: props.focusedRowStyle || {
-              boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
-              fontWeight: 'bolder',
-            },
-          })
+    // TODO: getLast is elmiminated, do we need it?
+    const [focus] = useObservable('focus', service.focusedEntry, (newEntry) => {
+      if (newEntry === props.entry) {
+        attachStyles(element, {
+          style: props.focusedRowStyle || {
+            boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
+            fontWeight: 'bolder',
+          },
+        })
 
-          element.classList.add('focused')
+        element.classList.add('focused')
 
-          const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
+        const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
 
-          const parent = element.closest('.shade-grid-wrapper') as HTMLElement
-          const maxTop = element.offsetTop - headerHeight
-          const currentTop = parent.scrollTop
-          if (maxTop < currentTop) {
-            parent.scrollTo({ top: maxTop, behavior: 'smooth' })
-          }
-
-          const footerHeight =
-            element.closest('shade-data-grid')?.querySelector('shade-data-grid-footer')?.getBoundingClientRect()
-              .height || 42
-          const visibleMaxTop = parent.clientHeight - footerHeight
-          const desiredMaxTop = element.offsetTop + element.clientHeight
-          if (desiredMaxTop > visibleMaxTop) {
-            parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
-          }
-        } else {
-          element.classList.remove('focused')
-          attachStyles(element, {
-            style: props.unfocusedRowStyle || {
-              boxShadow: 'none',
-              fontWeight: 'inherit',
-            },
-          })
+        const parent = element.closest('.shade-grid-wrapper') as HTMLElement
+        const maxTop = element.offsetTop - headerHeight
+        const currentTop = parent.scrollTop
+        if (maxTop < currentTop) {
+          parent.scrollTo({ top: maxTop, behavior: 'smooth' })
         }
-      },
-      true,
-    )
+
+        const footerHeight =
+          element.closest('shade-data-grid')?.querySelector('shade-data-grid-footer')?.getBoundingClientRect().height ||
+          42
+        const visibleMaxTop = parent.clientHeight - footerHeight
+        const desiredMaxTop = element.offsetTop + element.clientHeight
+        if (desiredMaxTop > visibleMaxTop) {
+          parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
+        }
+      } else {
+        element.classList.remove('focused')
+        attachStyles(element, {
+          style: props.unfocusedRowStyle || {
+            boxShadow: 'none',
+            fontWeight: 'inherit',
+          },
+        })
+      }
+    })
 
     element.style.display = 'table-row'
     element.style.cursor = 'default'
