@@ -130,4 +130,30 @@ export const observableTests = describe('Observable', () => {
       expect(doneCallback).toBeCalledTimes(1)
     })
   })
+
+  describe('Custom Compare function', () => {
+    it('Should compare the values with the custom compare function', () => {
+      const v = new ObservableValue(
+        { value: 2 },
+        {
+          compare: (a, b) => a.value !== b.value,
+        },
+      )
+      const onChange = vi.fn()
+      v.subscribe(onChange)
+
+      v.setValue({ value: 2 })
+      expect(v.getValue()).toEqual({ value: 2 })
+      expect(onChange).not.toBeCalled()
+
+      v.setValue({ value: 3 })
+      expect(v.getValue()).toEqual({ value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+      expect(onChange).toBeCalledWith({ value: 3 })
+
+      v.setValue({ value: 3 })
+      expect(v.getValue()).toEqual({ value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+    })
+  })
 })
