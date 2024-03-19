@@ -24,9 +24,11 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
     const [isLargeScreenInitial] = useObservable(
       'screenSizeChange',
       injector.getInstance(ScreenService).screenSize.atLeast.md,
-      (isLargeScreen) => {
-        const form = element.querySelector('form')
-        form && attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+      {
+        onChange: (isLargeScreen) => {
+          const form = element.querySelector('form')
+          form && attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+        },
       },
     )
 

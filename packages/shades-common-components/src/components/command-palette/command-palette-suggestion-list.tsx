@@ -10,46 +10,50 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
     const { theme } = injector.getInstance(ThemeProviderService)
 
     const [suggestions] = useObservable('suggestions', props.manager.currentSuggestions)
-    const [selectedIndex] = useObservable('selectedIndex', props.manager.selectedIndex, (idx) => {
-      ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
-        if (i === idx) {
-          s.style.background = theme.background.paper
-          s.style.fontWeight = 'bolder'
-        } else {
-          s.style.background = theme.background.default
-          s.style.fontWeight = 'normal'
-        }
-      })
+    const [selectedIndex] = useObservable('selectedIndex', props.manager.selectedIndex, {
+      onChange: (idx) => {
+        ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
+          if (i === idx) {
+            s.style.background = theme.background.paper
+            s.style.fontWeight = 'bolder'
+          } else {
+            s.style.background = theme.background.default
+            s.style.fontWeight = 'normal'
+          }
+        })
+      },
     })
 
-    const [isOpenedAtRender] = useObservable('isOpenedAtRender', props.manager.isOpened, async (isOpened) => {
-      const container = element.firstElementChild as HTMLDivElement
-      if (isOpened) {
-        container.style.display = 'initial'
-        container.style.zIndex = '1'
-        container.style.width = `calc(${Math.round(
-          element.parentElement?.getBoundingClientRect().width || 200,
-        )}px - 3em)`
-        await promisifyAnimation(
-          container,
-          [
-            { opacity: 0, transform: 'translate(0, -50px)' },
-            { opacity: 1, transform: 'translate(0, 0)' },
-          ],
-          { fill: 'forwards', duration: 500 },
-        )
-      } else {
-        await promisifyAnimation(
-          container,
-          [
-            { opacity: 1, transform: 'translate(0, 0)' },
-            { opacity: 0, transform: 'translate(0, -50px)' },
-          ],
-          { fill: 'forwards', duration: 200 },
-        )
-        container.style.zIndex = '-1'
-        container.style.display = 'none'
-      }
+    const [isOpenedAtRender] = useObservable('isOpenedAtRender', props.manager.isOpened, {
+      onChange: async (isOpened) => {
+        const container = element.firstElementChild as HTMLDivElement
+        if (isOpened) {
+          container.style.display = 'initial'
+          container.style.zIndex = '1'
+          container.style.width = `calc(${Math.round(
+            element.parentElement?.getBoundingClientRect().width || 200,
+          )}px - 3em)`
+          await promisifyAnimation(
+            container,
+            [
+              { opacity: 0, transform: 'translate(0, -50px)' },
+              { opacity: 1, transform: 'translate(0, 0)' },
+            ],
+            { fill: 'forwards', duration: 500 },
+          )
+        } else {
+          await promisifyAnimation(
+            container,
+            [
+              { opacity: 1, transform: 'translate(0, 0)' },
+              { opacity: 0, transform: 'translate(0, -50px)' },
+            ],
+            { fill: 'forwards', duration: 200 },
+          )
+          container.style.zIndex = '-1'
+          container.style.display = 'none'
+        }
+      },
     })
 
     return (

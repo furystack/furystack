@@ -1,4 +1,5 @@
 import type { Disposable } from './disposable.js'
+import type { ValueObserverOptions } from './value-observer.js'
 import { ValueObserver } from './value-observer.js'
 
 /**
@@ -14,6 +15,18 @@ export class ObservableAlreadyDisposedError extends Error {
  * Callback type for observable value changes
  */
 export type ValueChangeCallback<T> = (next: T) => void
+
+export type ObservableValueOptions<T> = {
+  /**
+   * Defines a custom compare function to determine if the value should be updated and the observers should be notified
+   * @param lastValue the last value
+   * @param nextValue the next value
+   * @returns if the value should be updated and the observers should be notified
+   */
+  compare: (lastValue: T, nextValue: T) => boolean
+}
+
+const defaultComparer = <T>(a: T, b: T) => a !== b
 
 /**
  * Defines an ObservableValue value object.
@@ -48,6 +61,8 @@ export class ObservableValue<T> implements Disposable {
   public dispose() {
     this.observers.clear()
     this._isDisposed = true
+    // @ts-expect-error getting currentValue after disposing is not allowed
+    this.currentValue = null
   }
   private observers: Set<ValueObserver<T>> = new Set()
   private currentValue: T
@@ -55,18 +70,15 @@ export class ObservableValue<T> implements Disposable {
   /**
    * Subscribes to a value changes
    * @param callback The callback method that will be called on each change
-   * @param getLast Will call the callback with the last known value right after subscription
+   * @param options Additional ObservableValue options
    * @returns The ValueObserver instance
    */
-  public subscribe(callback: ValueChangeCallback<T>, getLast = false) {
+  public subscribe(callback: ValueChangeCallback<T>, options?: ValueObserverOptions<T>) {
     if (this._isDisposed) {
       throw new ObservableAlreadyDisposedError()
     }
-    const observer = new ValueObserver<T>(this, callback)
+    const observer = new ValueObserver<T>(this, callback, options)
     this.observers.add(observer)
-    if (getLast) {
-      callback(this.currentValue)
-    }
     return observer
   }
 
@@ -98,11 +110,13 @@ export class ObservableValue<T> implements Disposable {
     if (this._isDisposed) {
       throw new ObservableAlreadyDisposedError()
     }
-    if (this.currentValue !== newValue) {
+    if (this.options.compare(this.currentValue, newValue)) {
       this.currentValue = newValue
-      for (const subscription of this.observers) {
-        subscription.callback(newValue)
-      }
+      this.observers.forEach((observer) => {
+        if (observer.options?.filter?.(this.currentValue, newValue) !== false) {
+          observer.callback(newValue)
+        }
+      })
     }
   }
 
@@ -114,10 +128,17 @@ export class ObservableValue<T> implements Disposable {
     return [...this.observers] as ReadonlyArray<ValueObserver<T>>
   }
 
+  private readonly options: ObservableValueOptions<T>
+
   /**
    * @param initialValue Optional initial value
+   * @param options Additional options
    */
-  constructor(initialValue: T) {
+  constructor(initialValue: T, options?: Partial<ObservableValueOptions<T>>) {
+    this.options = {
+      compare: defaultComparer,
+      ...options,
+    }
     this.currentValue = initialValue
   }
 }

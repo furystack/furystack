@@ -11,10 +11,9 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   render: ({ element, props, useObservable, injector }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
 
-    useObservable(
-      'isOpened',
-      props.manager.isOpened,
-      (isOpened) => {
+    // todo: getLast is eliminated, do we need it?
+    useObservable('isOpened', props.manager.isOpened, {
+      onChange: (isOpened) => {
         const input = element.firstChild as HTMLInputElement
         if (isOpened) {
           input.focus()
@@ -22,8 +21,7 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
           input.value = ''
         }
       },
-      true,
-    )
+    })
 
     return (
       <input

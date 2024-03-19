@@ -7,24 +7,13 @@ import { ObservableValue } from './observable-value.js'
 export const observableTests = describe('Observable', () => {
   it('should be constructed with an undefined initial value', () => {
     const v = new ObservableValue(undefined)
-    const doneCallback = vi.fn()
-    v.subscribe(() => {
-      expect(v.getValue()).toBe(undefined)
-      doneCallback()
-    }, true)
     expect(v).toBeInstanceOf(ObservableValue)
-    expect(doneCallback).toBeCalled()
+    expect(v.getValue()).toBe(undefined)
   })
 
   it('should be constructed with initial value', () => {
     const v = new ObservableValue(1)
-    const doneCallback = vi.fn()
-
-    v.subscribe(() => {
-      expect(v.getValue()).toBe(1)
-      doneCallback()
-    }, true)
-    expect(doneCallback).toBeCalled()
+    expect(v.getValue()).toBe(1)
   })
 
   describe('Subscription callback', () => {
@@ -35,21 +24,21 @@ export const observableTests = describe('Observable', () => {
       v.subscribe(() => {
         expect(v.getValue()).toBe(2)
         doneCallback()
-      }, false)
+      })
       v.setValue(1)
       v.setValue(1)
       v.setValue(2)
       expect(doneCallback).toBeCalledTimes(1)
     })
 
-    it('should be triggered only on change when getLast is false', () => {
+    it('should be triggered only on change', () => {
       const v = new ObservableValue(1)
       const doneCallback = vi.fn()
 
       v.subscribe((value) => {
         expect(value).toBe(2)
         doneCallback()
-      }, false)
+      })
       v.setValue(2)
       expect(doneCallback).toBeCalledTimes(1)
     })
@@ -139,6 +128,53 @@ export const observableTests = describe('Observable', () => {
       v.setValue(3)
 
       expect(doneCallback).toBeCalledTimes(1)
+    })
+  })
+
+  describe('Custom Compare function', () => {
+    it('Should compare the values with the custom compare function', () => {
+      const v = new ObservableValue(
+        { value: 2 },
+        {
+          compare: (a, b) => a.value !== b.value,
+        },
+      )
+      const onChange = vi.fn()
+      v.subscribe(onChange)
+
+      v.setValue({ value: 2 })
+      expect(v.getValue()).toEqual({ value: 2 })
+      expect(onChange).not.toBeCalled()
+
+      v.setValue({ value: 3 })
+      expect(v.getValue()).toEqual({ value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+      expect(onChange).toBeCalledWith({ value: 3 })
+
+      v.setValue({ value: 3 })
+      expect(v.getValue()).toEqual({ value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+    })
+  })
+
+  describe('Filtered subscriptions', () => {
+    it('should not trigger the callback if the filter returns false', () => {
+      const v = new ObservableValue({ shouldNotify: true, value: 1 })
+      const onChange = vi.fn()
+      v.subscribe(onChange, {
+        filter: (nextValue) => nextValue.shouldNotify,
+      })
+
+      v.setValue({ shouldNotify: false, value: 1 })
+      expect(onChange).not.toBeCalled()
+
+      v.setValue({ shouldNotify: false, value: 2 })
+      expect(onChange).not.toBeCalled()
+      expect(v.getValue()).toEqual({ shouldNotify: false, value: 2 })
+
+      v.setValue({ shouldNotify: true, value: 3 })
+      expect(onChange).toBeCalledTimes(1)
+      expect(onChange).toBeCalledWith({ shouldNotify: true, value: 3 })
     })
   })
 })

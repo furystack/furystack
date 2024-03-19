@@ -18,6 +18,9 @@ test.describe('Data Grid component', () => {
 
   const expectSelectionCount = async (page: Page, count: number) => {
     await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
+    await expect(await page.locator('shades-grid-status input[name="selectionCount"]').inputValue()).toBe(
+      count.toString(),
+    )
   }
 
   const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {

@@ -1,6 +1,10 @@
 import type { Disposable } from './disposable.js'
 import type { ObservableValue, ValueChangeCallback } from './observable-value.js'
 
+export type ValueObserverOptions<T> = {
+  filter?: (nextValue: T, lastValue: T) => boolean
+}
+
 /**
  * Defines a generic ValueObserver instance
  *
@@ -35,9 +39,11 @@ export class ValueObserver<T> implements Disposable {
    * @constructs ValueObserver<T> the ValueObserver instance
    * @param observable The related Observable object
    * @param callback The callback that will be fired on change
+   * @param options Additional options
    */
   constructor(
     public readonly observable: ObservableValue<T>,
     public callback: ValueChangeCallback<T>,
+    public readonly options?: ValueObserverOptions<T>,
   ) {}
 }

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "Repository implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^20.11.28",
+    "@types/node": "^20.11.29",
     "typescript": "^5.4.2",
     "vitest": "^1.4.0"
   },
