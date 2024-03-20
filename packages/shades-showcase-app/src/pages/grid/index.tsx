@@ -26,8 +26,9 @@ export const GridPage = Shade({
         </div>
         <DataGrid<TestClass>
           columns={['id', 'stringValue1', 'stringValue2', 'booleanValue', 'dateValue', 'numberValue1', 'numberValue2']}
+          findOptions={service.findOptions}
           styles={undefined}
-          service={service.collectionService}
+          collectionService={service.collectionService}
           headerComponents={{}}
           rowComponents={{
             id: (entry) => <SelectionCell entry={entry} service={service.collectionService} />,

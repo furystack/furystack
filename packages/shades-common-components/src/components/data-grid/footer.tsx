@@ -1,20 +1,29 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
+import type { FindOptions } from '@furystack/core'
+import type { ObservableValue } from '@furystack/utils'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
-export const DataGridFooter = Shade<{ service: CollectionService<any> }>({
+export const DataGridFooter = Shade<{
+  service: CollectionService<any>
+  findOptions: ObservableValue<FindOptions<any, any[]>>
+}>({
   shadowDomName: 'shade-data-grid-footer',
   render: ({ props, injector, useObservable }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
 
-    const [currentData] = useObservable('dataUpdater', props.service.data)
+    const { service, findOptions } = props
+    const [currentData] = useObservable('dataUpdater', service.data)
+    const [currentOptions, setCurrentOptions] = useObservable('optionsUpdater', findOptions, {
+      filter: (newValue, oldValue) => {
+        return newValue.top !== oldValue.top || newValue.skip !== oldValue.skip
+      },
+    })
 
-    const [currentQuerySettings] = useObservable('querySettings', props.service.querySettings)
-
-    const top = currentQuerySettings.top || Infinity
-    const skip = currentQuerySettings.skip || 0
+    const top = currentOptions.top || Infinity
+    const skip = currentOptions.skip || 0
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
 
@@ -39,13 +48,10 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }>({
               style={{ margin: '0 1em' }}
               onchange={(ev) => {
                 const value = parseInt((ev.target as any).value, 10)
-                const currentQuery = props.service.querySettings.getValue()
-                props.service.querySettings.setValue({ ...currentQuery, skip: (currentQuery.top || 0) * value })
+                setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
               }}
             >
-              {[
-                ...new Array(Math.ceil(currentData.count / (props.service.querySettings.getValue().top || Infinity))),
-              ].map((_val, index) => (
+              {[...new Array(Math.ceil(currentData.count / (currentOptions.top || Infinity)))].map((_val, index) => (
                 <option value={index.toString()} selected={currentPage === index}>
                   {(index + 1).toString()}
                 </option>
@@ -59,8 +65,8 @@ export const DataGridFooter = Shade<{ service: CollectionService<any> }>({
             style={{ margin: '0 1em' }}
             onchange={(ev) => {
               const value = parseInt((ev.currentTarget as any).value as string, 10)
-              props.service.querySettings.setValue({
-                ...currentQuerySettings,
+              setCurrentOptions({
+                ...currentOptions,
                 top: value,
                 skip: currentPage * value,
               })

@@ -1,10 +1,10 @@
 import { TestClass } from './test-class.js'
+import type { FindOptions } from '@furystack/core'
 import { addStore, InMemoryStore } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
 import { Injectable, Injected, Injector } from '@furystack/inject'
-import type { EntryLoader } from '@furystack/shades-common-components'
 import { CollectionService } from '@furystack/shades-common-components'
-import type { Disposable } from '@furystack/utils'
+import { ObservableValue, type Disposable } from '@furystack/utils'
 
 let currentId = 0
 
@@ -12,18 +12,31 @@ let currentId = 0
 export class GridPageService implements Disposable {
   private isInitialized = false
 
-  public init() {
+  public findOptions = new ObservableValue<FindOptions<TestClass, Array<keyof TestClass>>>({})
+
+  private async updateCollectionService(newFindOptions: FindOptions<TestClass, any>) {
+    const dataSet = getDataSetFor(this.injector, TestClass, 'id')
+    const entries = await dataSet.find(this.injector, newFindOptions)
+    const count = await dataSet.count(this.injector, newFindOptions.filter)
+    this.collectionService.data.setValue({
+      count,
+      entries: entries as TestClass[],
+    })
+  }
+
+  public async init() {
     if (!this.isInitialized) {
+      this.isInitialized = true
       addStore(this.injector, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
       getRepository(this.injector).createDataSet(TestClass, 'id')
-      this.fillStore()
+      await this.fillStore()
+      this.findOptions.subscribe((newValue) => this.updateCollectionService(newValue))
+      this.updateCollectionService(this.findOptions.getValue())
     }
     return this
   }
 
   public readonly collectionService = new CollectionService<TestClass>({
-    loader: (options) => this.entityLoader(options),
-    defaultSettings: {},
     searchField: 'stringValue1',
   })
   private fillStore = async (count = 100) => {
@@ -43,16 +56,6 @@ export class GridPageService implements Disposable {
       dateValue,
       stringValue1: `string value ${Math.random()}`,
       stringValue2: `string value ${Math.random()}`,
-    }
-  }
-
-  private entityLoader: EntryLoader<TestClass> = async (options) => {
-    const dataSet = await getDataSetFor(this.injector, TestClass, 'id')
-    const result = await dataSet.find(this.injector, options)
-    const totalCount = await dataSet.count(this.injector)
-    return {
-      count: totalCount,
-      entries: result,
     }
   }
 
