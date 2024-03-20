@@ -1,33 +1,33 @@
-import type { FindOptions } from '@furystack/core'
+import type { FilterType, FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { CollectionService } from '../../services/collection-service.js'
 import { Input } from '../inputs/input.js'
 import { Form } from '../form.js'
 import { Button } from '../button.js'
-import { ObservableValue } from '@furystack/utils'
+import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { collapse, expand } from '../animations.js'
 
 export interface DataGridHeaderProps<T, K extends keyof T> {
-  collectionService: CollectionService<T>
   field: K
+  findOptions: ObservableValue<FindOptions<T, K[]>>
 }
 
-export interface DataGridHeaderState<T> {
-  querySettings: FindOptions<T, any>
+export interface DataGridHeaderState<T, K extends keyof T> {
+  findOptions: FindOptions<T, K[]>
   isSearchOpened: boolean
   updateSearchValue: (value: string) => void
 }
 
-export const OrderButton = Shade<{ collectionService: CollectionService<any>; field: string }>({
+export const OrderButton = Shade<{
+  field: string
+  findOptions: ObservableValue<FindOptions<any, any[]>>
+}>({
   shadowDomName: 'data-grid-order-button',
   render: ({ props, useObservable }) => {
-    const [currentQuerySettings, setQuerySettings] = useObservable(
-      'currentQuerySettings',
-      props.collectionService.querySettings,
-    )
-    const currentOrder = Object.keys(currentQuerySettings.order || {})[0]
-    const currentOrderDirection = Object.values(currentQuerySettings.order || {})[0]
+    const [findOptions, onFindOptionsChange] = useObservable('findOptions', props.findOptions, {})
+
+    const currentOrder = Object.keys(findOptions.order || {})[0]
+    const currentOrderDirection = Object.values(findOptions.order || {})[0]
     return (
       <Button
         title="Change order"
@@ -46,8 +46,8 @@ export const OrderButton = Shade<{ collectionService: CollectionService<any>; fi
             newDirection = currentOrderDirection === 'ASC' ? 'DESC' : 'ASC'
           }
           newOrder[props.field] = newDirection
-          setQuerySettings({
-            ...currentQuerySettings,
+          onFindOptionsChange({
+            ...findOptions,
             order: newOrder,
           })
         }}
@@ -58,22 +58,21 @@ export const OrderButton = Shade<{ collectionService: CollectionService<any>; fi
   },
 })
 
-const SearchButton = Shade<{ service: CollectionService<any>; fieldName: string; onclick: () => void }>({
+const SearchButton = Shade<{
+  fieldName: string
+  onclick: () => void
+  findOptions: ObservableValue<FindOptions<any, any[]>>
+}>({
   shadowDomName: 'data-grid-search-button',
-  render: ({ props, useObservable, element }) => {
-    const [queryState] = useObservable('currentFilterState', props.service.querySettings, {
-      onChange: (currentQueryState) => {
-        const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
-
-        const button = element.querySelector('button') as HTMLInputElement
-        button.innerHTML = currentValue ? '🔍' : '🔎'
-        button.style.textShadow = currentValue
-          ? '1px 1px 20px rgba(235,225,45,0.9), 1px 1px 12px rgba(235,225,45,0.9), 0px 0px 3px  rgba(255,200,145,0.6)'
-          : 'none'
+  render: ({ props, useObservable }) => {
+    const [findOptions] = useObservable('currentValue', props.findOptions, {
+      filter: (newValue) => {
+        return !!newValue.filter?.[props.fieldName]
       },
     })
 
-    const filterValue = (queryState.filter as any)?.[props.fieldName]?.$regex || ''
+    const filterValue =
+      (findOptions.filter?.[props.fieldName] as FilterType<{ [K in typeof props.fieldName]: string }>)?.$regex || ''
 
     return (
       <Button
@@ -95,19 +94,22 @@ const SearchButton = Shade<{ service: CollectionService<any>; fieldName: string;
 const SearchForm = Shade<{
   onSubmit: (newValue: string) => void
   onClear: () => void
-  service: CollectionService<any>
   fieldName: string
+  findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
   shadowDomName: 'data-grid-search-form',
-  render: ({ props, useObservable, element }) => {
+  render: ({ props, useObservable }) => {
     type SearchSubmitType = { searchValue: string }
 
-    const [queryState] = useObservable('currentFilterState', props.service.querySettings, {
-      onChange: (currentQueryState) => {
-        const currentValue = (currentQueryState.filter?.[props.fieldName] as any)?.$regex || ''
-        ;(element.querySelector('input') as HTMLInputElement).value = currentValue
+    const [findOptions] = useObservable('currentValue', props.findOptions, {
+      filter: (newValue, lastValue) => {
+        const newFilter = newValue.filter?.[props.fieldName] as FilterType<{ [K in typeof props.fieldName]: string }>
+        const lastFilter = lastValue.filter?.[props.fieldName] as FilterType<{ [K in typeof props.fieldName]: string }>
+        return newFilter?.$regex !== lastFilter?.$regex
       },
     })
+
+    const currentValue = (findOptions.filter?.[props.fieldName] as any)?.$regex || ''
 
     return (
       <Form<SearchSubmitType>
@@ -131,7 +133,7 @@ const SearchForm = Shade<{
           autofocus
           labelTitle={`${props.fieldName}`}
           name="searchValue"
-          value={(queryState.filter?.[props.fieldName] as any)?.$regex || ''}
+          value={currentValue}
           labelProps={{
             style: { padding: '0px 2em' },
           }}
@@ -140,7 +142,9 @@ const SearchForm = Shade<{
           <Button
             type="reset"
             style={{ padding: '4px', margin: '0' }}
-            onclick={() => {
+            onclick={(ev) => {
+              ev.preventDefault()
+              ev.stopPropagation()
               props.onClear()
             }}
           >
@@ -158,6 +162,7 @@ const SearchForm = Shade<{
 export const DataGridHeader: <T, K extends keyof T>(
   props: DataGridHeaderProps<T, K>,
   children: ChildrenList,
+  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>,
 ) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
   shadowDomName: 'data-grid-header',
   render: ({ props, element, useObservable }) => {
@@ -170,25 +175,34 @@ export const DataGridHeader: <T, K extends keyof T>(
           expand(headerContent)
         } else {
           searchForm.style.display = 'flex'
-          expand(searchForm).then(() => searchForm.querySelector('input')?.focus())
+          expand(searchForm).then(async () => {
+            await sleepAsync(100)
+            searchForm.querySelector('input')?.focus()
+          })
           collapse(headerContent)
         }
       },
     })
+
+    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions, {
+      filter: (newValue, oldValue) => {
+        return newValue.filter?.[props.field] !== oldValue.filter?.[props.field]
+      },
+    })
+
     const updateSearchValue = (value?: string) => {
-      const currentSettings = props.collectionService.querySettings.getValue()
       if (value) {
         const newSettings: FindOptions<unknown, any> = {
-          ...currentSettings,
+          ...findOptions,
           filter: {
-            ...currentSettings.filter,
+            ...findOptions.filter,
             [props.field]: { $regex: value },
           },
         }
-        props.collectionService.querySettings.setValue(newSettings)
+        setFindOptions(newSettings)
       } else {
-        const { [props.field]: _, ...newFilter } = currentSettings.filter || {}
-        props.collectionService.querySettings.setValue({ ...currentSettings, filter: newFilter })
+        const { [props.field]: _, ...newFilter } = findOptions.filter || {}
+        setFindOptions({ ...findOptions, filter: newFilter })
       }
 
       setIsSearchOpened(false)
@@ -199,8 +213,8 @@ export const DataGridHeader: <T, K extends keyof T>(
         <SearchForm
           onSubmit={updateSearchValue}
           onClear={updateSearchValue}
-          service={props.collectionService}
           fieldName={props.field}
+          findOptions={props.findOptions}
         />
         <div
           className="header-content"
@@ -223,11 +237,11 @@ export const DataGridHeader: <T, K extends keyof T>(
               onclick={() => {
                 setIsSearchOpened(true)
               }}
-              service={props.collectionService}
+              findOptions={props.findOptions}
               fieldName={props.field}
             />
 
-            <OrderButton collectionService={props.collectionService} field={props.field} />
+            <OrderButton field={props.field} findOptions={props.findOptions} />
           </div>
         </div>
       </>

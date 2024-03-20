@@ -7,6 +7,8 @@ import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { ClickAwayService } from '../../services/click-away-service.js'
+import type { FindOptions } from '@furystack/core'
+import type { ObservableValue } from '@furystack/utils'
 
 export type DataHeaderCells<T> = {
   [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element
@@ -27,7 +29,12 @@ export interface DataGridProps<T> {
   /**
    * A collection service to use for data source
    */
-  service: CollectionService<T>
+  collectionService: CollectionService<T>
+  /**
+   * The query settings to use for the data source
+   */
+  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+
   /**
    * A list of custom header components to use
    */
@@ -68,12 +75,10 @@ export interface DataGridProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
-  DataGridProps<any>
->({
+export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
   shadowDomName: 'shade-data-grid',
   constructed: ({ props }) => {
-    const listener = (ev: KeyboardEvent) => props.service.handleKeyDown(ev)
+    const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
     window.addEventListener('keydown', listener)
     return () => window.removeEventListener('keydown', listener)
   },
@@ -85,12 +90,13 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
       'clickAway',
       () =>
         new ClickAwayService(element, () => {
-          props.service.hasFocus.setValue(false)
+          props.collectionService.hasFocus.setValue(false)
         }),
     )
 
     const headerStyle: Partial<CSSStyleDeclaration> = {
       backdropFilter: 'blur(12px) saturate(180%)',
+      background: 'rgba(128,128,128,0.3)',
       color: theme.text.secondary,
       height: '38px',
       alignItems: 'center',
@@ -114,18 +120,24 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           zIndex: '1',
         }}
         onclick={() => {
-          props.service.hasFocus.setValue(true)
+          props.collectionService.hasFocus.setValue(true)
         }}
         ariaMultiSelectable="true"
       >
         <table style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative' }}>
           <thead>
             <tr>
-              {props.columns.map((column: any) => {
+              {props.columns.map((column) => {
                 return (
                   <th style={headerStyle}>
                     {props.headerComponents?.[column]?.(column) || props.headerComponents?.default?.(column) || (
-                      <DataGridHeader<any, typeof column> field={column} collectionService={props.service} />
+                      <DataGridHeader<
+                        ReturnType<typeof props.collectionService.data.getValue>['entries'][number],
+                        typeof column
+                      >
+                        field={column}
+                        findOptions={props.findOptions}
+                      />
                     )}
                   </th>
                 )
@@ -134,10 +146,10 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
           </thead>
           <DataGridBody
             columns={props.columns}
-            service={props.service}
+            service={props.collectionService}
             rowComponents={props.rowComponents}
-            onRowClick={(entry, ev) => props.service.handleRowClick(entry, ev)}
-            onRowDoubleClick={(entry) => props.service.handleRowDoubleClick(entry)}
+            onRowClick={(entry, ev) => props.collectionService.handleRowClick(entry, ev)}
+            onRowDoubleClick={(entry) => props.collectionService.handleRowDoubleClick(entry)}
             style={props.styles?.cell}
             focusedRowStyle={props.focusedRowStyle}
             selectedRowStyle={props.selectedRowStyle}
@@ -147,7 +159,7 @@ export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => J
             loaderComponent={props.loaderComponent}
           />
         </table>
-        <DataGridFooter service={props.service} />
+        <DataGridFooter service={props.collectionService} findOptions={props.findOptions} />
       </div>
     )
   },
