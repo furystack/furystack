@@ -2,7 +2,6 @@ import type { CollectionService } from '../../services/collection-service.js'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import type { DataRowCells } from './data-grid.js'
-import { Loader } from '../loader.js'
 import { DataGridRow } from './data-grid-row.js'
 
 export interface DataGridBodyProps<T> {
@@ -29,16 +28,6 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
   },
   render: ({ props, useObservable }) => {
     const [data] = useObservable('data', props.service.data)
-    const [isLoading] = useObservable('isLoading', props.service.isLoading)
-
-    if (isLoading) {
-      return (
-        <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          {/* TODO: Skeleton */}
-          {props.loaderComponent || <Loader style={{ height: '128px', width: '128px' }} />}
-        </div>
-      )
-    }
 
     if (!data?.entries?.length) {
       return props.emptyComponent || <div> - No Data - </div>

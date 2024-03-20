@@ -1,31 +1,16 @@
-import type { PartialResult, FindOptions } from '@furystack/core'
-import { Lock } from 'semaphore-async-await'
 import type { Disposable } from '@furystack/utils'
-import { debounce, ObservableValue } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 
 export interface CollectionData<T> {
   entries: T[]
   count: number
 }
 
-export type EntryLoader<T> = <TFields extends Array<keyof T>>(
-  searchOptions: FindOptions<T, TFields>,
-) => Promise<CollectionData<PartialResult<T, TFields>>>
-
 export interface CollectionServiceOptions<T> {
-  /**
-   * A method used to retrieve the entries from the data source
-   */
-  loader: EntryLoader<T>
-  /**
-   * The default filter / top / skip / etc... options
-   */
-  defaultSettings: FindOptions<T, Array<keyof T>>
   /**
    * An optional field that can be used for quick search
    */
   searchField?: keyof T
-
   /**
    * @param entry The clicked entry
    * optional callback for row clicks
@@ -38,19 +23,15 @@ export interface CollectionServiceOptions<T> {
    */
 
   onRowDoubleClick?: (entry: T) => void
-
-  /**
-   * An optional debounce interval in milliseconds
-   */
-  debounceMs?: number
 }
 
 export class CollectionService<T> implements Disposable {
   public dispose() {
-    this.querySettings.dispose()
     this.data.dispose()
-    this.error.dispose()
-    this.isLoading.dispose()
+    this.selection.dispose()
+    this.searchTerm.dispose()
+    this.hasFocus.dispose()
+    this.focusedEntry.dispose()
   }
 
   public isSelected = (entry: T) => this.selection.getValue().includes(entry)
@@ -67,17 +48,7 @@ export class CollectionService<T> implements Disposable {
     this.isSelected(entry) ? this.removeFromSelection(entry) : this.addToSelection(entry)
   }
 
-  private readonly loadLock = new Lock()
-
-  public getEntries: EntryLoader<T>
-
   public data = new ObservableValue<CollectionData<T>>({ count: 0, entries: [] })
-
-  public error = new ObservableValue<unknown | undefined>(undefined)
-
-  public isLoading = new ObservableValue<boolean>(false)
-
-  public querySettings: ObservableValue<FindOptions<T, Array<keyof T>>>
 
   public focusedEntry = new ObservableValue<T | undefined>(undefined)
 
@@ -193,35 +164,9 @@ export class CollectionService<T> implements Disposable {
     this.focusedEntry.setValue(entry)
   }
 
-  constructor(private options: CollectionServiceOptions<T>) {
-    this.querySettings = new ObservableValue<FindOptions<T, Array<keyof T>>>(this.options.defaultSettings)
+  constructor(private options: CollectionServiceOptions<T> = {}) {}
 
-    const loader = this.options.debounceMs
-      ? debounce(this.options.loader, this.options.debounceMs)
-      : this.options.loader
-
-    this.getEntries = async (opt) => {
-      await this.loadLock.acquire()
-      try {
-        this.error.setValue(undefined)
-        this.isLoading.setValue(true)
-        const result = await loader(opt)
-        this.data.setValue(result)
-        return result
-      } catch (error) {
-        this.error.setValue(error)
-        throw error
-      } finally {
-        this.loadLock.release()
-        this.isLoading.setValue(false)
-      }
-    }
-
-    this.querySettings.subscribe((val) => this.getEntries(val))
-    this.getEntries(this.querySettings.getValue())
-  }
-
-  public async handleRowDoubleClick(entry: T) {
+  public handleRowDoubleClick(entry: T) {
     this.options.onRowDoubleClick?.(entry)
   }
 }
