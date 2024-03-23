@@ -1,13 +1,7 @@
-const portGenerator = function* () {
-  const initialPort = 16000
-  let port = initialPort
-  while (true) {
-    yield port++
-  }
-}
+const defaultPort = 16000
 
 /**
  *
  * @returns the next port number starting from 16000
  */
-export const getPort = () => portGenerator().next().value
+export const getPort = () => defaultPort

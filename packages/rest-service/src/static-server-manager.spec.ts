@@ -3,23 +3,7 @@ import { sleepAsync, usingAsync } from '@furystack/utils'
 import { ServerManager } from './server-manager.js'
 import { StaticServerManager } from './static-server-manager.js'
 import { describe, it, expect, vi } from 'vitest'
-
-/**
- * Generator for an incremental port number
- * @param initialPort The initial port number
- * @yields a port for testing
- * @returns The Port number
- */
-function* portGenerator(initialPort = 17000) {
-  let port = initialPort
-
-  while (true) {
-    yield port++
-  }
-  return port
-}
-
-const getPort = () => portGenerator().next().value
+import { getPort } from '@furystack/core/port-generator'
 
 describe('StaticServerManager', () => {
   describe('Top level routing', () => {
