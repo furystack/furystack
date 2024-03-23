@@ -41,7 +41,7 @@ describe('createGetCollectionEndpoint', () => {
       const count = await getDataSetFor(i, MockClass, 'id').count(i)
       const allEntities = await getDataSetFor(i, MockClass, 'id').find(i, {})
 
-      const response = await fetch('http://127.0.0.1:1112/api/entities', { method: 'GET' })
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities`, { method: 'GET' })
       expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
       expect(response.status).toBe(200)
@@ -68,7 +68,7 @@ describe('createGetCollectionEndpoint', () => {
       const findOptions: FindOptions<MockClass, Array<keyof MockClass>> = { order: { value: 'ASC' } }
       const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
       const orderedEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
@@ -103,7 +103,7 @@ describe('createGetCollectionEndpoint', () => {
 
       expect(filteredEntities).not.toContainEqual({ id: 'mock2', value: '3' })
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
@@ -138,7 +138,7 @@ describe('createGetCollectionEndpoint', () => {
 
       selectedEntities.forEach((e) => expect(e.value).toBeUndefined())
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
 
@@ -176,7 +176,7 @@ describe('createGetCollectionEndpoint', () => {
       expect(topSkipEntities).not.toContainEqual({ id: 'mock1', value: '4' })
       expect(topSkipEntities).not.toContainEqual({ id: 'mock4', value: '1' })
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.status).toBe(200)

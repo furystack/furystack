@@ -24,7 +24,7 @@ describe('createPostEndpoint', () => {
         },
       })
       const entityToPost = { id: 'mock', value: 'posted' }
-      const response = await fetch('http://127.0.0.1:1117/api', {
+      const response = await fetch(`http://127.0.0.1:${port}/api`, {
         method: 'POST',
         body: JSON.stringify(entityToPost),
       })

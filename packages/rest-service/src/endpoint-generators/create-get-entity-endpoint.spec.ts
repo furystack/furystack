@@ -27,7 +27,7 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await fetch('http://127.0.0.1:1113/api/mock', { method: 'GET' })
+      const response = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(response.status).toBe(200)
       const body = await response.json()
       expect(body).toEqual(mockEntity)
@@ -51,7 +51,7 @@ describe('createGetEntityEndpoint', () => {
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
       await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
 
-      const response = await fetch(`http://127.0.0.1:1114/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
         method: 'GET',
       })
       expect(response.status).toBe(200)
@@ -74,7 +74,7 @@ describe('createGetEntityEndpoint', () => {
           },
         },
       })
-      const result = await fetch(`http://127.0.0.1:1115/api/mock`, { method: 'GET' })
+      const result = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(result.status).toBe(404)
       const body = await result.json()
       expect(body).toEqual({ message: 'Entity not found' })

@@ -28,7 +28,7 @@ describe('createPatchEndpoint', () => {
       const countBeforeDelete = await getDataSetFor(i, MockClass, 'id').count(i)
       expect(countBeforeDelete).toBe(1)
 
-      const response = await fetch('http://127.0.0.1:1116/api/mock', {
+      const response = await fetch(`http://127.0.0.1:${port}/api/mock`, {
         method: 'PATCH',
         body: JSON.stringify({ value: 'updated' }),
       })
