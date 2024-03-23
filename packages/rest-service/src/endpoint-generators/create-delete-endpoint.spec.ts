@@ -6,15 +6,17 @@ import { MockClass, setupContext } from './utils.js'
 import { useRestService } from '../helpers.js'
 import { getDataSetFor } from '@furystack/repository'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 describe('createDeleteEndpoint', () => {
   it('Should delete the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
+      const port = getPort()
       setupContext(i)
       await useRestService<{ DELETE: { '/:id': DeleteEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1111,
+        port,
         api: {
           DELETE: {
             '/:id': createDeleteEndpoint({ model: MockClass, primaryKey: 'id' }),

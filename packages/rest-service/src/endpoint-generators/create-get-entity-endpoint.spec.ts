@@ -7,15 +7,17 @@ import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
 import { getDataSetFor } from '@furystack/repository'
 import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 describe('createGetEntityEndpoint', () => {
   it('Should return the entity', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -35,10 +37,11 @@ describe('createGetEntityEndpoint', () => {
   it('Should return the entity with the selected fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1114,
+        port,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -60,10 +63,11 @@ describe('createGetEntityEndpoint', () => {
   it('Should return 404 if no entity has been found', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1115,
+        port,
         api: {
           GET: {
             '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),

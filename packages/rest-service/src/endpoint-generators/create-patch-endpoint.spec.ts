@@ -6,15 +6,17 @@ import { MockClass, setupContext } from './utils.js'
 import { getDataSetFor } from '@furystack/repository'
 import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 describe('createPatchEndpoint', () => {
   it('Should update the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ PATCH: { '/:id': PatchEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1116,
+        port,
         api: {
           PATCH: {
             '/:id': createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),

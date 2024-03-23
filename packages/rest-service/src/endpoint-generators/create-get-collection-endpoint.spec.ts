@@ -8,6 +8,7 @@ import type { FindOptions } from '@furystack/core'
 import { getDataSetFor, getRepository } from '@furystack/repository'
 import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 const addMockEntities = async (i: Injector) =>
   await getRepository(i)
@@ -24,10 +25,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return the collection without filter / order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1112,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -51,10 +53,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities in order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -79,10 +82,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with filtering', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -113,10 +117,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with selecting specific fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -148,10 +153,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with top/skip', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
