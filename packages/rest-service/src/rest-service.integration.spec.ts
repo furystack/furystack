@@ -29,9 +29,9 @@ interface IntegrationTestApi extends RestApi {
   }
 }
 
-const prepareInjector = async (i: Injector) => {
+const createIntegrationApi = async () => {
+  const i = new Injector()
   const port = getPort()
-  const hostName = 'localhost'
   const root = 'test-api'
 
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
@@ -44,8 +44,7 @@ const prepareInjector = async (i: Injector) => {
   await useRestService<IntegrationTestApi>({
     injector: i,
     root,
-    port: getPort(),
-    hostName,
+    port,
     cors: {
       credentials: true,
       origins: ['http://localhost:8080'],
@@ -71,23 +70,22 @@ const prepareInjector = async (i: Injector) => {
   })
 
   return {
-    apiUrl: `http://${hostName}:${port}/${root}`,
+    apiUrl: `http://127.0.0.1:${port}/${root}`,
     port,
-    hostName,
+    dispose: i.dispose.bind(i),
   }
 }
 
 describe('@furystack/rest-service inregration tests', () => {
   it('Should be started and disposed', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      await prepareInjector(i)
-    })
+    await usingAsync(await createIntegrationApi(), async () => {})
   })
 
   it('Should respond with 404 when a route is not found', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
-      const result = await fetch(PathHelper.joinPaths(apiUrl, 'some-route-that-does-not-exists'))
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
+      const result = await fetch(PathHelper.joinPaths(apiUrl, 'some-route-that-does-not-exists'), {
+        method: 'GET',
+      })
       expect(result.ok).toBe(false)
       expect(result.status).toBe(404)
       const responseText = await result.json()
@@ -96,8 +94,7 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should respond with 401 for unauthorized request errors', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
@@ -107,8 +104,7 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should respond with 401 for unauthorized request errors', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
@@ -118,8 +114,7 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should respond with the correct result body', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'isAuthenticated'))
       expect(response.status).toBe(200)
       const result = await response.json()
@@ -128,9 +123,8 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should be able to read query parameters', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
-
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
+      console.log('apiUrl', apiUrl)
       const response = await fetch(PathHelper.joinPaths(apiUrl, `testQuery?param1=${serializeValue('foo')}`))
       expect(response.status).toBe(200)
       const result = await response.json()
@@ -139,9 +133,7 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should be able to read url parameters', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
-
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testUrlParams/bar'))
       expect(response.status).toBe(200)
       const result = await response.json()
@@ -150,9 +142,7 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should be able to read post body', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
-
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testPostBody'), {
         method: 'POST',
         body: JSON.stringify({ value: 'baz' }),
@@ -164,20 +154,20 @@ describe('@furystack/rest-service inregration tests', () => {
   })
 
   it('Should respond with OK to OPTIONS requests', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { apiUrl } = await prepareInjector(i)
-
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testPostBody'), {
         method: 'OPTIONS',
+      }).catch((e) => {
+        console.log(e)
+        throw e
       })
       expect(response.status).toBe(200)
     })
   })
 
   it('Should reject requests outside of the API Root', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const { hostName, port } = await prepareInjector(i)
-      await expect(fetch(PathHelper.joinPaths(`http://${hostName}:${port}`, 'not-my-api-root'))).rejects.toThrowError(
+    await usingAsync(await createIntegrationApi(), async ({ port }) => {
+      await expect(fetch(PathHelper.joinPaths(`http://127.0.0.1:${port}`, 'not-my-api-root'))).rejects.toThrowError(
         'fetch failed',
       )
     })

@@ -56,7 +56,7 @@ const createEchoApiServer = async () => {
     },
   })
   const client = createClient<EchoApi>({
-    endpointUrl: `http://localhost:${port}/api`,
+    endpointUrl: `http://127.0.0.1:${port}/api`,
   })
   return {
     dispose: injector.dispose.bind(injector),
