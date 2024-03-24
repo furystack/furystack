@@ -14,7 +14,7 @@ import { getPort } from '@furystack/core/port-generator'
 const createValidateApi = async () => {
   const injector = new Injector()
   const port = getPort()
-  useRestService<ValidationApi>({
+  await useRestService<ValidationApi>({
     injector,
     api: {
       GET: {
@@ -54,7 +54,7 @@ const createValidateApi = async () => {
     root: '/api',
   })
   const client = createClient<ValidationApi>({
-    endpointUrl: `http://localhost:${port}/api`,
+    endpointUrl: `http://127.0.0.1:${port}/api`,
   })
   return {
     dispose: injector.dispose.bind(injector),

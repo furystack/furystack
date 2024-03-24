@@ -17,7 +17,7 @@ describe('StaticServerManager', () => {
           port,
         })
 
-        const result = await fetch(`http://localhost:${port}/not-found.html`)
+        const result = await fetch(`http://127.0.0.1:${port}/not-found.html`)
         expect(result.ok).toBe(false)
         expect(result.status).toBe(404)
         expect(result?.headers.get('content-type')).toBe('text/plain')
