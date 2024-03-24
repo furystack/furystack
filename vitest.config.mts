@@ -5,6 +5,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       include: ['packages/**/src/**/*.ts', 'packages/**/src/**/*.tsx'],
+      exclude: ['index.ts'],
     },
   },
 })
