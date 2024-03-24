@@ -237,4 +237,36 @@ describe('Injector', () => {
       expect(instance.initWasCalled).toBe(true)
     })
   })
+
+  describe('Disposed injector', () => {
+    it('Should throw an error on getInstance', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.getInstance(Injector)).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on setExplicitInstance', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.setExplicitInstance({})).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on remove', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.remove(Object)).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on createChild', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.createChild()).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on dispose', async () => {
+      const i = new Injector()
+      await i.dispose()
+      await expect(async () => await i.dispose()).rejects.toThrowError('Injector already disposed')
+    })
+  })
 })
