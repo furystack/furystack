@@ -5,7 +5,7 @@ import { LogLevel } from './log-entries.js'
 import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger.js'
 import { LoggerCollection } from './logger-collection.js'
 import { TestLogger } from './test-logger.js'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterAll, beforeEach } from 'vitest'
 
 describe('Loggers', () => {
   it('Can be set up and retrieved with a helper', () => {
@@ -159,32 +159,103 @@ describe('Loggers', () => {
     })
   })
 
-  describe('Scoped Logger', () => {
-    const scopedConsoleLogger = new ConsoleLogger().withScope('scope')
-    it('Should print with addEntry', () =>
-      scopedConsoleLogger.addEntry({ message: 'Example Verbose Message', level: LogLevel.Verbose }))
-    it('Should print Verbose', () => scopedConsoleLogger.verbose({ message: 'Example Verbose Message' }))
-    it('Should print Debug', () => scopedConsoleLogger.debug({ message: 'Example Debug Message' }))
-    it('Should print Information', () => scopedConsoleLogger.information({ message: 'Example Information Message' }))
-    it('Should print Warning', () => scopedConsoleLogger.warning({ message: 'Example Warning Message' }))
-    it('Should print Error', () => scopedConsoleLogger.error({ message: 'Example Error Message' }))
-    it('Should print Fatal', () => scopedConsoleLogger.fatal({ message: 'Example Fatal Message' }))
-    it('Should print additional data', () =>
-      scopedConsoleLogger.fatal({ message: 'Example Fatal Message', data: { a: 1 } }))
-  })
+  describe('Console Logger', () => {
+    const scope = 'exampleScope'
 
-  describe('ConsoleLogger', () => {
-    const consoleLogger = new ConsoleLogger()
-    it('Should print Verbose', () => consoleLogger.verbose({ scope: 'scope', message: 'Example Verbose Message' }))
-    it('Should print Debug', () => consoleLogger.debug({ scope: 'scope', message: 'Example Debug Message' }))
-    it('Should print Information', () =>
-      consoleLogger.information({ scope: 'scope', message: 'Example Information Message' }))
-    it('Should print Warning', () => consoleLogger.warning({ scope: 'scope', message: 'Example Warning Message' }))
-    it('Should print Error', () => consoleLogger.error({ scope: 'scope', message: 'Example Error Message' }))
-    it('Should print Fatal', () => consoleLogger.fatal({ scope: 'scope', message: 'Example Fatal Message' }))
+    const scopedConsoleLogger = new ConsoleLogger().withScope(scope)
+    const consoleMock = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    it('Should print additional data', () =>
-      consoleLogger.fatal({ scope: 'scope', message: 'Example Fatal Message', data: { a: 1 } }))
+    afterAll(() => {
+      consoleMock.mockRestore()
+    })
+
+    beforeEach(() => {
+      consoleMock.mockReset()
+    })
+
+    describe('With scope', () => {
+      it('Should print with addEntry', async () => {
+        const message = { message: 'Example Verbose Message', level: LogLevel.Verbose }
+        await scopedConsoleLogger.addEntry(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, scope }))
+      })
+
+      it('Should print Verbose', async () => {
+        const message = { message: 'Example Verbose Message' }
+        await scopedConsoleLogger.verbose(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Verbose, scope }))
+      })
+      it('Should print Debug', async () => {
+        const message = { message: 'Example Debug Message' }
+        await scopedConsoleLogger.debug(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Debug, scope }))
+      })
+      it('Should print Information', async () => {
+        const message = { message: 'Example Information Message' }
+        await scopedConsoleLogger.information(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Information, scope }))
+      })
+      it('Should print Warning', async () => {
+        const message = { message: 'Example Warning Message' }
+        await scopedConsoleLogger.warning(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Warning, scope }))
+      })
+      it('Should print Error', async () => {
+        const message = { message: 'Example Error Message' }
+        await scopedConsoleLogger.error(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Error, scope }))
+      })
+      it('Should print Fatal', async () => {
+        const message = { message: 'Example Fatal Message' }
+        await scopedConsoleLogger.fatal(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Fatal, scope }))
+      })
+      it('Should print additional data', async () => {
+        const message = { message: 'Example Fatal Message', data: { a: 1 } }
+        await scopedConsoleLogger.fatal(message)
+        expect(consoleMock).toHaveBeenCalledWith(
+          ...defaultFormat({ ...message, level: LogLevel.Fatal, scope, data: { a: 1 } }),
+        )
+      })
+    })
+
+    describe('Without scope', () => {
+      const consoleLogger = new ConsoleLogger()
+      it('Should print Verbose', async () => {
+        const message = { message: 'Example Verbose Message', scope }
+        await consoleLogger.verbose(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Verbose }))
+      })
+      it('Should print Debug', async () => {
+        const message = { message: 'Example Debug Message', scope }
+        await consoleLogger.debug(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Debug }))
+      })
+      it('Should print Information', async () => {
+        const message = { message: 'Example Information Message', scope }
+        await consoleLogger.information(message)
+      })
+      it('Should print Warning', async () => {
+        const message = { message: 'Example Warning Message', scope }
+        await consoleLogger.warning(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Warning }))
+      })
+      it('Should print Error', async () => {
+        const message = { message: 'Example Error Message', scope }
+        await consoleLogger.error(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Error }))
+      })
+      it('Should print Fatal', async () => {
+        const message = { message: 'Example Fatal Message', scope }
+        consoleLogger.fatal(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Fatal }))
+      })
+      it('Should print additional data', async () => {
+        const message = { message: 'Example Fatal Message', data: { a: 1 }, scope }
+        consoleLogger.fatal(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: LogLevel.Fatal }))
+      })
+    })
   })
 
   describe('defaultFormatter', () => {
