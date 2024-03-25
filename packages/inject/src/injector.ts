@@ -1,5 +1,5 @@
 import type { Disposable } from '@furystack/utils'
-import type { InjectableOptions } from './injectable.js'
+import { getInjectableOptions } from './injectable.js'
 import type { Constructable } from './models/constructable.js'
 
 const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
@@ -51,11 +51,6 @@ export class Injector implements Disposable {
    */
   public options: { parent?: Injector; owner?: any } = {}
 
-  /**
-   * Static class metadata map, filled by the @Injectable() decorator
-   */
-  public static options: Map<Constructable<any>, InjectableOptions> = new Map()
-
   public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
   public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
@@ -87,14 +82,7 @@ export class Injector implements Disposable {
       return this.cachedSingletons.get(ctor)
     }
 
-    const meta = Injector.options.get(ctor)
-    if (!meta) {
-      throw Error(
-        `No metadata found for '${ctor.name}'. Dependencies: ${dependencies
-          .map((d) => d.name)
-          .join(',')}. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
-      )
-    }
+    const meta = getInjectableOptions(ctor)
     if (dependencies.includes(ctor)) {
       throw Error(`Circular dependencies found.`)
     }
@@ -105,7 +93,7 @@ export class Injector implements Disposable {
 
     if (lifetime === 'singleton') {
       const invalidDeps = [...injectedFields]
-        .map(([, dep]) => ({ meta: Injector.options.get(dep), dep }))
+        .map(([, dep]) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && (m.meta.lifetime === 'scoped' || m.meta.lifetime === 'transient'))
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
       if (invalidDeps.length) {
@@ -117,7 +105,7 @@ export class Injector implements Disposable {
       }
     } else if (lifetime === 'scoped') {
       const invalidDeps = [...injectedFields.values()]
-        .map(([, dep]) => ({ meta: Injector.options.get(dep), dep }))
+        .map(([, dep]) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && m.meta.lifetime === 'transient')
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
       if (invalidDeps.length) {
