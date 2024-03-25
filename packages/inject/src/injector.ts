@@ -1,5 +1,5 @@
 import type { Disposable } from '@furystack/utils'
-import { getInjectableOptions } from './injectable.js'
+import { Injectable, getInjectableOptions } from './injectable.js'
 import type { Constructable } from './models/constructable.js'
 
 const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
@@ -12,6 +12,7 @@ export class InjectorAlreadyDisposedError extends Error {
   }
 }
 
+@Injectable({ lifetime: 'system' as any })
 export class Injector implements Disposable {
   private isDisposed = false
 
@@ -82,12 +83,13 @@ export class Injector implements Disposable {
       return this.cachedSingletons.get(ctor)
     }
 
-    const meta = getInjectableOptions(ctor)
     if (dependencies.includes(ctor)) {
       throw Error(`Circular dependencies found.`)
     }
 
-    const { lifetime = 'singleton' } = meta
+    const meta = getInjectableOptions(ctor)
+
+    const { lifetime } = meta
 
     const injectedFields = Object.entries(Injector.injectableFields.get(ctor) || {})
 
