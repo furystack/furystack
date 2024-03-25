@@ -1,5 +1,4 @@
 import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@furystack/utils'
 import { globalDisposables, exitHandler } from './global-disposables.js'
 import { disposeOnProcessExit } from './helpers.js'
 import { describe, it, expect, vi } from 'vitest'
@@ -17,18 +16,19 @@ describe('Global Disposables', () => {
     expect(process.listeners('uncaughtException')).toContain(exitHandler)
   })
 
-  it('Should be filled from an injector extension', () => {
-    using(new Injector(), (i) => {
-      disposeOnProcessExit(i)
-      expect(globalDisposables).toContain(i)
-    })
+  it('Should be filled from an injector extension', async () => {
+    const i = new Injector()
+    disposeOnProcessExit(i)
+    expect(globalDisposables).toContain(i)
+    globalDisposables.delete(i)
+    await i.dispose()
   })
   it('Should dispose the injector on exit', async () => {
-    usingAsync(new Injector(), async (i) => {
-      i.dispose = vi.fn(i.dispose)
-      disposeOnProcessExit(i)
-      await exitHandler()
-      expect(i.dispose).toBeCalled()
-    })
+    const i = new Injector()
+    i.dispose = vi.fn(i.dispose)
+    disposeOnProcessExit(i)
+    await exitHandler()
+    expect(i.dispose).toBeCalled()
+    globalDisposables.delete(i)
   })
 })

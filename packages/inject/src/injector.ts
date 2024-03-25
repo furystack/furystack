@@ -6,11 +6,25 @@ const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void
   return typeof (obj as any).init === 'function'
 }
 
+export class InjectorAlreadyDisposedError extends Error {
+  constructor() {
+    super('Injector already disposed')
+  }
+}
+
 export class Injector implements Disposable {
+  private isDisposed = false
+
   /**
    * Disposes the Injector object and all its disposable injectables
    */
   public async dispose() {
+    if (this.isDisposed) {
+      throw new InjectorAlreadyDisposedError()
+    }
+
+    this.isDisposed = true
+
     const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1])
     const disposeRequests = singletons
       .filter((s) => s !== this)
@@ -46,7 +60,13 @@ export class Injector implements Disposable {
 
   public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
 
-  public remove = <T>(ctor: Constructable<T>) => this.cachedSingletons.delete(ctor)
+  public remove = <T>(ctor: Constructable<T>) => {
+    if (this.isDisposed) {
+      throw new InjectorAlreadyDisposedError()
+    }
+
+    this.cachedSingletons.delete(ctor)
+  }
 
   /**
    *
@@ -55,6 +75,10 @@ export class Injector implements Disposable {
    * @returns The instance of the requested service
    */
   public getInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
+    if (this.isDisposed) {
+      throw new InjectorAlreadyDisposedError()
+    }
+
     if (ctor === this.constructor) {
       return this as any as T
     }
@@ -128,6 +152,10 @@ export class Injector implements Disposable {
    * @param key The class key to be persisted (optional, calls back to the instance's constructor)
    */
   public setExplicitInstance<T extends object>(instance: T, key?: Constructable<any>) {
+    if (this.isDisposed) {
+      throw new InjectorAlreadyDisposedError()
+    }
+
     const ctor = key || (instance.constructor as Constructable<T>)
 
     if (instance.constructor === this.constructor) {
@@ -142,6 +170,10 @@ export class Injector implements Disposable {
    * @returns the created Injector
    */
   public createChild(options?: Partial<Injector['options']>) {
+    if (this.isDisposed) {
+      throw new InjectorAlreadyDisposedError()
+    }
+
     const i = new Injector()
     i.options = i.options || options
     i.options.parent = this
