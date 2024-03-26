@@ -25,7 +25,7 @@ describe('Google Login Service', () => {
 
         i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
 
-        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser(), i)
+        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser())
         expect(user && user.roles).toEqual([])
       })
     })
