@@ -1,6 +1,8 @@
 import type { Disposable } from '@furystack/utils'
 import { Injectable, getInjectableOptions } from './injectable.js'
 import type { Constructable } from './models/constructable.js'
+import { withInjectorReference } from './with-injector-reference.js'
+import { getDependencyList } from './injected.js'
 
 const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as any).init === 'function'
@@ -52,7 +54,7 @@ export class Injector implements Disposable {
    */
   public options: { parent?: Injector; owner?: any } = {}
 
-  public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
+  // public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
   public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
 
@@ -64,13 +66,17 @@ export class Injector implements Disposable {
     this.cachedSingletons.delete(ctor)
   }
 
+  public getInstance<T>(ctor: Constructable<T>): T {
+    return withInjectorReference(this.getInstanceInternal(ctor), this)
+  }
+
   /**
    *
    * @param ctor The constructor object (e.g. MyClass)
    * @param dependencies Resolved dependencies (usually provided by the framework)
    * @returns The instance of the requested service
    */
-  public getInstance<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
+  private getInstanceInternal<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
     if (this.isDisposed) {
       throw new InjectorAlreadyDisposedError()
     }
@@ -91,11 +97,11 @@ export class Injector implements Disposable {
 
     const { lifetime } = meta
 
-    const injectedFields = Object.entries(Injector.injectableFields.get(ctor) || {})
+    const injectedFields = getDependencyList(ctor)
 
     if (lifetime === 'singleton') {
       const invalidDeps = [...injectedFields]
-        .map(([, dep]) => ({ meta: getInjectableOptions(dep), dep }))
+        .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && (m.meta.lifetime === 'scoped' || m.meta.lifetime === 'transient'))
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
       if (invalidDeps.length) {
@@ -107,7 +113,7 @@ export class Injector implements Disposable {
       }
     } else if (lifetime === 'scoped') {
       const invalidDeps = [...injectedFields.values()]
-        .map(([, dep]) => ({ meta: getInjectableOptions(dep), dep }))
+        .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && m.meta.lifetime === 'transient')
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
       if (invalidDeps.length) {
@@ -117,15 +123,11 @@ export class Injector implements Disposable {
       }
     }
 
-    const fromParent = lifetime === 'singleton' && this.options.parent && this.options.parent.getInstance(ctor)
+    const fromParent = lifetime === 'singleton' && this.options.parent && this.options.parent.getInstanceInternal(ctor)
     if (fromParent) {
       return fromParent
     }
-    const deps = injectedFields.map(([key, dep]) => [key, this.getInstance(dep, [...dependencies, ctor])])
     const newInstance = new ctor()
-    deps.forEach(([key, value]) => {
-      newInstance[key as keyof T] = value
-    })
     if (lifetime !== 'transient') {
       this.setExplicitInstance(newInstance)
     }

@@ -1,5 +1,4 @@
-import { Injected } from './injected.js'
-import { Injector } from './injector.js'
+import { Injected, getDependencyList } from './injected.js'
 import { describe, expect, it } from 'vitest'
 describe('@Injected()', () => {
   it('Should register into the injectable fields', () => {
@@ -16,10 +15,7 @@ describe('@Injected()', () => {
       property3!: Property
     }
 
-    expect(Injector.injectableFields.has(TestClass)).toBe(true)
-    expect(Injector.injectableFields.get(TestClass)).toEqual({
-      property: Property,
-      property3: Property,
-    })
+    const dependencyList = getDependencyList(TestClass)
+    expect(dependencyList.has(Property)).toBeTruthy()
   })
 })

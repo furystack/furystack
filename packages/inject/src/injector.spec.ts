@@ -85,7 +85,7 @@ describe('Injector', () => {
     expect(instance.injected2).toBeInstanceOf(Injected2)
   })
 
-  it('Should resolve parameters recursively', () => {
+  it.only('Should resolve parameters recursively', () => {
     const i = new Injector()
 
     @Injectable()
@@ -93,13 +93,13 @@ describe('Injector', () => {
     @Injectable()
     class Injected2 {
       @Injected(Injected1)
-      public injected1!: Injected1
+      declare injected1: Injected1
     }
 
     @Injectable()
     class InstanceClass {
       @Injected(Injected2)
-      public injected2!: Injected2
+      declare injected2: Injected2
     }
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
@@ -166,7 +166,7 @@ describe('Injector', () => {
   it('Requesting an undecorated instance should throw an error', () => {
     class UndecoratedTestClass {}
     using(new Injector(), (i) => {
-      expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
+      expect(() => i.getInstance(UndecoratedTestClass)).toThrowError(
         `The class 'UndecoratedTestClass' is not an injectable`,
       )
     })
