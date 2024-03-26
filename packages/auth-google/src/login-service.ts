@@ -2,7 +2,7 @@ import { get } from 'https'
 import type { PhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
 import { HttpAuthenticationSettings } from '@furystack/rest-service'
-import { Injectable, Injector, Injected } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { readPostBody } from '@furystack/rest-service'
 
 /**
