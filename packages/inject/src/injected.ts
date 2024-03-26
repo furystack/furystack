@@ -41,7 +41,7 @@ export const Injected: <T>(injectable: Constructable<unknown> | ((injector: Inje
           throw new Error('Injected properties are read-only')
         },
         get() {
-          return (injectable as (injector: Injector) => unknown)(getInjectorReference(this))
+          return (injectable as (injector: Injector) => unknown).call(this, getInjectorReference(this))
         },
       })
     }

@@ -16,7 +16,9 @@ export class PasswordAuthenticator {
   @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token'))
   private declare readonly tokenStore
 
-  @Injected((injector) => injector.getInstance(injector.getInstance(SecurityPolicyManager).policy.hasher))
+  @Injected(function (this: PasswordAuthenticator, injector) {
+    return injector.getInstance(this.policyManager.policy.hasher)
+  })
   public declare readonly hasher: PasswordHasher
 
   /**
@@ -94,5 +96,5 @@ export class PasswordAuthenticator {
   }
 
   @Injected(SecurityPolicyManager)
-  public policyManager!: SecurityPolicyManager
+  public declare policyManager: SecurityPolicyManager
 }
