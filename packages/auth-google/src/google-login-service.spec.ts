@@ -25,7 +25,7 @@ describe('Google Login Service', () => {
 
         i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
 
-        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser(), i)
+        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser())
         expect(user && user.roles).toEqual([])
       })
     })
@@ -46,7 +46,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async <T>() =>
+        loginService.readPostBody = async <T>() =>
           getGoogleUser({
             email_verified: false,
           }) as T
@@ -66,7 +66,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async <T>() => getGoogleUser() as T
+        loginService.readPostBody = async <T>() => getGoogleUser() as T
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
@@ -83,7 +83,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.utils.readPostBody = async <T>() =>
+        loginService.readPostBody = async <T>() =>
           getGoogleUser({
             email_verified: false,
           }) as T
@@ -108,7 +108,7 @@ describe('Google Login Service', () => {
 
         const loginService = i.getInstance(GoogleLoginService)
 
-        loginService.utils.readPostBody = async () =>
+        loginService.readPostBody = async () =>
           ({
             email: 'user@example.com',
             email_verified: true,

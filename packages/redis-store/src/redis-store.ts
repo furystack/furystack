@@ -11,7 +11,7 @@ export class RedisStore<
   TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
 > implements PhysicalStore<T, TPrimaryKey, TWriteableData>
 {
-  public primaryKey!: TPrimaryKey
+  public primaryKey: TPrimaryKey
 
   public readonly model: Constructable<T>
 

@@ -2,11 +2,11 @@ import type { Constructable } from '@furystack/inject'
 import type { PostEndpoint } from '@furystack/rest'
 import { RequestError } from '@furystack/rest'
 import '@furystack/repository'
-import '../incoming-message-extensions.js'
 import type { RequestAction } from '../request-action-implementation.js'
 import { JsonResult } from '../request-action-implementation.js'
 import type { WithOptionalId } from '@furystack/core'
 import { getRepository } from '@furystack/repository'
+import { readPostBody } from '../read-post-body.js'
 /**
  * Creates a POST endpoint for updating entities
  * @param options The options for endpoint creation
@@ -28,7 +28,7 @@ export const createPostEndpoint = <
       options.primaryKey,
     )
 
-    const entityToCreate = await request.readPostBody<TWritableData>()
+    const entityToCreate = await readPostBody<TWritableData>(request)
     const { created } = await dataSet.add(injector, entityToCreate)
     if (!created || !created.length) {
       throw new RequestError('Entity not found', 404)

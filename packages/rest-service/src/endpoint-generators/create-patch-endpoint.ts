@@ -1,11 +1,11 @@
 import type { Constructable } from '@furystack/inject'
 import type { PatchEndpoint } from '@furystack/rest'
 import '@furystack/repository'
-import '../incoming-message-extensions.js'
 import type { RequestAction } from '../request-action-implementation.js'
 import { JsonResult } from '../request-action-implementation.js'
 import { getRepository } from '@furystack/repository'
 import type { WithOptionalId } from '@furystack/core'
+import { readPostBody } from '../read-post-body.js'
 
 /**
  * Creates a PATCH endpoint for updating entities
@@ -28,7 +28,7 @@ export const createPatchEndpoint = <
     getUrlParams,
   }) => {
     const { id } = getUrlParams()
-    const patchData = await request.readPostBody<T>()
+    const patchData = await readPostBody<T>(request)
     const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
     await dataSet.update(injector, id, patchData)
     return JsonResult({})

@@ -12,8 +12,8 @@ import { describe, it, expect } from 'vitest'
 import { createStoreTest, TestClass } from '@furystack/core/create-physical-store-tests'
 
 class TestClassWithId {
-  _id!: string
-  value!: string
+  declare _id: string
+  declare value: string
 }
 
 let storeCount = 0

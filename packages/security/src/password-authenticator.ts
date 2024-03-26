@@ -1,20 +1,25 @@
+import type { PhysicalStore } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
-import { Injectable, Injected, Injector } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { SecurityPolicyManager } from './security-policy-manager.js'
 import { UnauthenticatedError } from './errors/index.js'
 import type { PasswordCheckResult } from './models/index.js'
 import { PasswordCredential, PasswordResetToken } from './models/index.js'
 import { PasswordComplexityError } from './errors/password-complexity-error.js'
+import type { PasswordHasher } from './password-hasher.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class PasswordAuthenticator {
-  private readonly getPasswordStore = () =>
-    this.injector.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
+  @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName'))
+  private declare readonly passwordStore: PhysicalStore<PasswordCredential, 'userName'>
 
-  private readonly getTokenStore = () =>
-    this.injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
+  @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token'))
+  private declare readonly tokenStore
 
-  public readonly getHasher = () => this.injector.getInstance(this.policyManager.policy.hasher)
+  @Injected(function (this: PasswordAuthenticator, injector) {
+    return injector.getInstance(this.policyManager.policy.hasher)
+  })
+  public declare readonly hasher: PasswordHasher
 
   /**
    * @param userName The User's unique name
@@ -22,14 +27,14 @@ export class PasswordAuthenticator {
    * @returns An object that contains an { isValid } value that indicates if the password is valid
    */
   public async checkPasswordForUser(userName: string, plainPassword: string): Promise<PasswordCheckResult> {
-    const entry = await this.getPasswordStore().get(userName)
+    const entry = await this.passwordStore.get(userName)
     if (!entry) {
       return {
         isValid: false,
         reason: 'badUsernameOrPassword',
       }
     }
-    const result = await this.getHasher().verifyCredential(plainPassword, entry)
+    const result = await this.hasher.verifyCredential(plainPassword, entry)
     if (result.isValid && this.policyManager.hasPasswordExpired(entry)) {
       return {
         isValid: false,
@@ -56,11 +61,10 @@ export class PasswordAuthenticator {
     if (!lastResult.isValid) {
       throw new UnauthenticatedError()
     }
-    const store = this.getPasswordStore()
-    const newCredential = await this.getHasher().createCredential(userName, plainPassword)
-    const existing = await store.get(userName)
-    existing && (await store.remove(existing.userName))
-    await store.add(newCredential)
+    const newCredential = await this.hasher.createCredential(userName, plainPassword)
+    const existing = await this.passwordStore.get(userName)
+    existing && (await this.passwordStore.remove(existing.userName))
+    await this.passwordStore.add(newCredential)
   }
 
   /**
@@ -69,14 +73,14 @@ export class PasswordAuthenticator {
    * @param plainPassword The new password in plain string
    */
   public async resetPasswordForUser(resetToken: string, plainPassword: string): Promise<void> {
-    const token = await this.getTokenStore().get(resetToken)
+    const token = await this.tokenStore.get(resetToken)
 
     if (!token) {
       throw new UnauthenticatedError()
     }
 
     if (this.policyManager.hasTokenExpired(token)) {
-      await this.getTokenStore().remove(resetToken) // clean up token
+      await this.tokenStore.remove(resetToken) // clean up token
       throw new UnauthenticatedError()
     }
 
@@ -85,16 +89,12 @@ export class PasswordAuthenticator {
       throw new PasswordComplexityError(complexityResult.errors)
     }
 
-    const newCredential = await this.getHasher().createCredential(token.userName, plainPassword)
-    const store = this.getPasswordStore()
-    const existing = await store.get(token.userName)
-    existing && (await store.remove(existing.userName))
-    await store.add(newCredential)
+    const newCredential = await this.hasher.createCredential(token.userName, plainPassword)
+    const existing = await this.passwordStore.get(token.userName)
+    existing && (await this.passwordStore.remove(existing.userName))
+    await this.passwordStore.add(newCredential)
   }
 
-  @Injected(Injector)
-  private readonly injector!: Injector
-
   @Injected(SecurityPolicyManager)
-  public policyManager!: SecurityPolicyManager
+  public declare policyManager: SecurityPolicyManager
 }

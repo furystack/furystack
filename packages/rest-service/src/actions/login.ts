@@ -1,5 +1,4 @@
 import { HttpUserContext } from '../http-user-context.js'
-import '../helpers.js'
 import type { User } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
 import type { RequestAction } from '../request-action-implementation.js'
