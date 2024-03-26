@@ -9,8 +9,8 @@ Initialization
 import '@furystack/sequelize-store'
 
 export class TestEntry extends Model<...,...> {
-  public _id!: string
-  public value!: string
+  public declare _id: string
+  public declare value: string
 }
 
 myInjector

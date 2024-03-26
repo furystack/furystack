@@ -45,7 +45,7 @@ describe('PasswordAuthenticator', () => {
         )
         usePasswordPolicy(i, {})
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
 
         const entry = await hasher.createCredential(userName, password)
@@ -66,7 +66,7 @@ describe('PasswordAuthenticator', () => {
 
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
 
         const entry = await hasher.createCredential(userName, password)
@@ -87,7 +87,7 @@ describe('PasswordAuthenticator', () => {
         )
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
 
         const entry = await hasher.createCredential(userName, password)
@@ -109,7 +109,7 @@ describe('PasswordAuthenticator', () => {
 
         usePasswordPolicy(i, { passwordExpirationDays: 1 })
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
 
         const entry = await hasher.createCredential(userName, password)
@@ -138,7 +138,7 @@ describe('PasswordAuthenticator', () => {
         )
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
         const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
@@ -174,7 +174,7 @@ describe('PasswordAuthenticator', () => {
         )
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
         const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
@@ -214,7 +214,7 @@ describe('PasswordAuthenticator', () => {
         )
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const policyManager = i.getInstance(SecurityPolicyManager)
         const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
@@ -257,7 +257,7 @@ describe('PasswordAuthenticator', () => {
           .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
 
@@ -287,7 +287,7 @@ describe('PasswordAuthenticator', () => {
           .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
 
@@ -316,7 +316,7 @@ describe('PasswordAuthenticator', () => {
           .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
 
@@ -347,7 +347,7 @@ describe('PasswordAuthenticator', () => {
           .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
         usePasswordPolicy(i, { resetTokenExpirationSeconds: 1 })
         const authenticator = i.getInstance(PasswordAuthenticator)
-        const hasher = authenticator.getHasher()
+        const { hasher } = authenticator
         const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
         const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
 

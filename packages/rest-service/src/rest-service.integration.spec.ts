@@ -12,7 +12,7 @@ import { serializeValue } from '@furystack/rest'
 import { getPort } from '@furystack/core/port-generator'
 
 class UserWithPassword extends User {
-  password!: string
+  declare password: string
 }
 
 interface IntegrationTestApi extends RestApi {

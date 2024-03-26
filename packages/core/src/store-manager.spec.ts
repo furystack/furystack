@@ -7,8 +7,8 @@ import { TestClass } from './create-physical-store-tests.js'
 import { describe, it, expect } from 'vitest'
 
 class Test {
-  id!: number
-  value!: string
+  declare id: number
+  declare value: string
 }
 
 describe('StoreManager', () => {

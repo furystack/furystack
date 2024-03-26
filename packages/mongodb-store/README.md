@@ -9,8 +9,8 @@ Initialization
 import '@furystack/mongodb-store'
 
 export class TestEntry {
-  public _id!: string
-  public value!: string
+  declare _id: string
+  declare value: string
 }
 
 myInjector

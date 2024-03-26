@@ -9,13 +9,13 @@ import type { SequelizeStore } from './sequelize-store.js'
 import { describe, it, expect } from 'vitest'
 
 class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClass {
-  id!: number
-  stringValue1!: string
-  stringValue2!: string
-  numberValue1!: number
-  numberValue2!: number
-  booleanValue!: boolean
-  dateValue!: Date
+  declare id: number
+  declare stringValue1: string
+  declare stringValue2: string
+  declare numberValue1: number
+  declare numberValue2: number
+  declare booleanValue: boolean
+  declare dateValue: Date
 }
 
 describe('Sequelize Store', () => {

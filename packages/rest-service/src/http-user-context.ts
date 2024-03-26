@@ -159,11 +159,11 @@ export class HttpUserContext {
   }
 
   @Injected(HttpAuthenticationSettings)
-  public readonly authentication!: HttpAuthenticationSettings<User, DefaultSession>
+  public declare readonly authentication: HttpAuthenticationSettings<User, DefaultSession>
 
   @Injected(StoreManager)
-  private readonly storeManager!: StoreManager
+  private declare readonly storeManager: StoreManager
 
   @Injected(PasswordAuthenticator)
-  private readonly authenticator!: PasswordAuthenticator
+  private declare readonly authenticator: PasswordAuthenticator
 }
