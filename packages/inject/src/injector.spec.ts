@@ -85,7 +85,7 @@ describe('Injector', () => {
     expect(instance.injected2).toBeInstanceOf(Injected2)
   })
 
-  it.only('Should resolve parameters recursively', () => {
+  it('Should resolve parameters recursively', () => {
     const i = new Injector()
 
     @Injectable()
