@@ -4,7 +4,7 @@ import { IncomingMessage } from 'http'
 import { HttpUserContext, ServerManager } from '@furystack/rest-service'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
-import type { Disposable } from '@furystack/utils'
+import { usingAsync, type Disposable } from '@furystack/utils'
 import type { Data } from 'ws'
 import type WebSocket from 'ws'
 import { WebSocketServer } from 'ws'
@@ -88,11 +88,12 @@ export class WebSocketApi implements Disposable {
     }
   }
 
-  public execute(data: Data, request: IncomingMessage, injector: Injector, socket: WebSocket) {
-    const action = this.settings.actions.find((a) => a.canExecute({ data, request, socket }))
-    if (action) {
-      const actionInstance = injector.getInstance<WebSocketAction>(action)
-      actionInstance.execute({ data, request, socket })
+  public async execute(data: Data, request: IncomingMessage, injector: Injector, socket: WebSocket) {
+    const Action = this.settings.actions.find((a) => a.canExecute({ data, request, socket }))
+    if (Action) {
+      await usingAsync(injector.getInstance<WebSocketAction>(Action), async (action) => {
+        await action.execute({ data, request, socket })
+      })
     }
   }
 }
