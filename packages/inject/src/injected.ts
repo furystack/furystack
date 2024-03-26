@@ -38,7 +38,7 @@ export const Injected: <T>(injectable: Constructable<unknown> | ((injector: Inje
       // The provided injectable is a getter function
       Object.defineProperty(target.constructor.prototype, propertyKey, {
         set() {
-          throw new Error('Injected properties are read-only')
+          throw new Error(`Injected property '${target.constructor.name}.${propertyKey.toString()}' is read-only`)
         },
         get() {
           return (injectable as (injector: Injector) => unknown).call(this, getInjectorReference(this))
