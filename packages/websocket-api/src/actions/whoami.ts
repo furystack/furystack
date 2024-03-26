@@ -1,7 +1,6 @@
 import { HttpUserContext } from '@furystack/rest-service'
 import { Injectable, Injected } from '@furystack/inject'
-import type { Data } from 'ws'
-import ws from 'ws'
+import type { Data, WebSocket } from 'ws'
 import type { WebSocketAction } from '../models/websocket-action.js'
 import type { IncomingMessage } from 'http'
 
@@ -17,18 +16,15 @@ export class WhoAmI implements WebSocketAction {
     return options.data.toString() === 'whoami' || options.data.toString() === 'whoami /claims'
   }
 
-  public async execute(options: { data: Data; request: IncomingMessage }) {
+  public async execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }) {
     try {
       const currentUser = await this.httpUserContext.getCurrentUser(options.request)
-      this.websocket.send(JSON.stringify({ currentUser }))
+      options.socket.send(JSON.stringify({ currentUser }))
     } catch (error) {
-      this.websocket.send(JSON.stringify({ currentUser: null }))
+      options.socket.send(JSON.stringify({ currentUser: null }))
     }
   }
 
   @Injected(HttpUserContext)
   private declare readonly httpUserContext: HttpUserContext
-
-  @Injected(ws)
-  private declare readonly websocket: ws
 }

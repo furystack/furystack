@@ -133,7 +133,7 @@ export class Injector implements Disposable {
     }
 
     if (hasInitMethod(newInstance)) {
-      newInstance.init(this)
+      withInjectorReference(newInstance, this).init(this)
     }
     return newInstance
   }

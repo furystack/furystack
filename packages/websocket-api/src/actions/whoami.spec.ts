@@ -33,8 +33,7 @@ describe('Whoami action', () => {
       injector.setExplicitInstance(contextMock, HttpUserContext)
       injector.setExplicitInstance(wsMock, ws)
       const instance = injector.getInstance(WhoAmI)
-
-      await instance.execute({ request, data: '' })
+      await instance.execute({ request, data: '', socket: wsMock })
       expect(wsMock.send).toBeCalledWith(JSON.stringify({ currentUser }))
     })
   })
