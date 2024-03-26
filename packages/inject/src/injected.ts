@@ -1,5 +1,7 @@
 import { getInjectorReference } from './with-injector-reference.js'
 import type { Constructable } from './models/constructable.js'
+import type { Injector } from './injector.js'
+import { hasInjectableOptions } from './injectable.js'
 
 export const InjectableDependencyList = Symbol('InjectableDependencyList')
 
@@ -18,16 +20,29 @@ const addDependency = <T extends Constructable<unknown>>(ctor: T, dependency: Co
   list.add(dependency)
 }
 
-export const Injected: <T extends Constructable<unknown>>(injectable: T) => PropertyDecorator =
+export const Injected: <T>(injectable: Constructable<unknown> | ((injector: Injector) => T)) => PropertyDecorator =
   (injectable) => (target, propertyKey) => {
-    addDependency(target.constructor as Constructable<unknown>, injectable)
-
-    Object.defineProperty(target.constructor.prototype, propertyKey, {
-      set() {
-        throw new Error('Injected properties are read-only')
-      },
-      get() {
-        return getInjectorReference(this).getInstance(injectable)
-      },
-    })
+    const hasMeta = hasInjectableOptions(injectable as Constructable<unknown>)
+    // The provided injectable is a constructor
+    if (hasMeta) {
+      addDependency(target.constructor as Constructable<unknown>, injectable as Constructable<unknown>)
+      Object.defineProperty(target.constructor.prototype, propertyKey, {
+        set() {
+          throw new Error('Injected properties are read-only')
+        },
+        get() {
+          return getInjectorReference(this).getInstance(injectable as Constructable<unknown>)
+        },
+      })
+    } else {
+      // The provided injectable is a getter function
+      Object.defineProperty(target.constructor.prototype, propertyKey, {
+        set() {
+          throw new Error('Injected properties are read-only')
+        },
+        get() {
+          return (injectable as (injector: Injector) => unknown)(getInjectorReference(this))
+        },
+      })
+    }
   }
