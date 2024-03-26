@@ -1,4 +1,5 @@
 import type { IncomingMessage } from 'http'
+import './incoming-message-extensions.js'
 
 export const readPostBodyRaw = async (incomingMessage: IncomingMessage) => {
   if (!incomingMessage.readable) {
