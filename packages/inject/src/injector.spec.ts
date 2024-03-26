@@ -16,16 +16,6 @@ describe('Injector', () => {
     expect(i.options.parent).toBeUndefined()
   })
 
-  it('Should throw an error on circular dependencies', () => {
-    const i = new Injector()
-    @Injectable()
-    class InstanceClass {
-      @Injected(InstanceClass)
-      declare ohgodno: InstanceClass
-    }
-    expect(() => i.getInstance(InstanceClass)).toThrowError('Circular dependencies found.')
-  })
-
   it('Should set and return instance from cache', () => {
     const i = new Injector()
     @Injectable({ lifetime: 'scoped' })

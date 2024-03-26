@@ -1,7 +1,9 @@
+import { Injectable } from './injectable.js'
 import { Injected, getDependencyList } from './injected.js'
 import { describe, expect, it } from 'vitest'
 describe('@Injected()', () => {
   it('Should register into the injectable fields', () => {
+    @Injectable()
     class Property {
       foo = 3
     }

@@ -73,10 +73,9 @@ export class Injector implements Disposable {
   /**
    *
    * @param ctor The constructor object (e.g. MyClass)
-   * @param dependencies Resolved dependencies (usually provided by the framework)
    * @returns The instance of the requested service
    */
-  private getInstanceInternal<T>(ctor: Constructable<T>, dependencies: Array<Constructable<T>> = []): T {
+  private getInstanceInternal<T>(ctor: Constructable<T>): T {
     if (this.isDisposed) {
       throw new InjectorAlreadyDisposedError()
     }
@@ -89,6 +88,8 @@ export class Injector implements Disposable {
       return this.cachedSingletons.get(ctor)
     }
 
+    const dependencies = [...getDependencyList(ctor)]
+
     if (dependencies.includes(ctor)) {
       throw Error(`Circular dependencies found.`)
     }
@@ -97,10 +98,8 @@ export class Injector implements Disposable {
 
     const { lifetime } = meta
 
-    const injectedFields = getDependencyList(ctor)
-
     if (lifetime === 'singleton') {
-      const invalidDeps = [...injectedFields]
+      const invalidDeps = dependencies
         .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && (m.meta.lifetime === 'scoped' || m.meta.lifetime === 'transient'))
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
@@ -112,7 +111,7 @@ export class Injector implements Disposable {
         )
       }
     } else if (lifetime === 'scoped') {
-      const invalidDeps = [...injectedFields.values()]
+      const invalidDeps = dependencies
         .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
         .filter((m) => m.meta && m.meta.lifetime === 'transient')
         .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
