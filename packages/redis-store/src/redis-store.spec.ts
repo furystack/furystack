@@ -9,8 +9,8 @@ const redisUrl = process?.env?.REDIS_URL || 'redis://localhost:6379'
 
 describe('Redis Store', () => {
   class ExampleClass {
-    id!: string
-    value!: string
+    declare id: string
+    declare value: string
   }
 
   let i!: Injector

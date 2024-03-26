@@ -21,7 +21,7 @@ describe('Injector', () => {
     @Injectable()
     class InstanceClass {
       @Injected(InstanceClass)
-      public ohgodno!: InstanceClass
+      declare ohgodno: InstanceClass
     }
     expect(() => i.getInstance(InstanceClass)).toThrowError('Circular dependencies found.')
   })
@@ -72,10 +72,10 @@ describe('Injector', () => {
     @Injectable()
     class InstanceClass {
       @Injected(Injected1)
-      public injected1!: Injected1
+      declare injected1: Injected1
 
       @Injected(Injected2)
-      public injected2!: Injected2
+      declare injected2: Injected2
     }
 
     const instance = i.getInstance(InstanceClass)
@@ -179,7 +179,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'singleton' })
     class St1 {
       @Injected(Trs1)
-      lt!: Trs1
+      declare lt: Trs1
     }
 
     using(new Injector(), (i) => {
@@ -196,7 +196,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'singleton' })
     class St2 {
       @Injected(Sc1)
-      public sc!: Sc1
+      declare sc: Sc1
     }
 
     using(new Injector(), (i) => {
@@ -213,7 +213,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'scoped' })
     class Sc2 {
       @Injected(Tr2)
-      public sc!: Tr2
+      declare sc: Tr2
     }
 
     using(new Injector(), (i) => {

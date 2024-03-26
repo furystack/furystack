@@ -22,13 +22,13 @@ export class WebSocketApi implements Disposable {
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 
   @Injected(WebSocketApiSettings)
-  private readonly settings!: WebSocketApiSettings
+  private declare readonly settings: WebSocketApiSettings
 
   @Injected(ServerManager)
-  private readonly serverManager!: ServerManager
+  private declare readonly serverManager: ServerManager
 
   @Injected(Injector)
-  private readonly injector!: Injector
+  private declare readonly injector: Injector
 
   private isInitialized = false
   public init() {

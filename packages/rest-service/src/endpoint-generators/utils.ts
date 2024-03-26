@@ -6,8 +6,8 @@ import '../helpers.js'
 import { getRepository } from '@furystack/repository'
 
 export class MockClass {
-  id!: string
-  value!: string
+  declare id: string
+  declare value: string
 }
 
 export const setupContext = (i: Injector) => {

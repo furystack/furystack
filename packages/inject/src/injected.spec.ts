@@ -7,12 +7,12 @@ describe('@Injected()', () => {
     }
     class TestClass {
       @Injected(Property)
-      public property!: Property
+      declare property: Property
 
-      property2?: Property
+      declare property2?: Property
 
       @Injected(Property)
-      property3!: Property
+      declare property3: Property
     }
 
     const dependencyList = getDependencyList(TestClass)

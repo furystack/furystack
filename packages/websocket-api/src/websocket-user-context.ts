@@ -33,5 +33,5 @@ export class WebsocketUserContext implements IdentityContext {
   }
 
   @Injected(Injector)
-  private readonly injector!: Injector
+  private declare readonly injector: Injector
 }

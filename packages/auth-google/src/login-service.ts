@@ -49,13 +49,13 @@ export class GoogleLoginSettings {
 @Injectable({ lifetime: 'transient' })
 export class GoogleLoginService {
   @Injected(GoogleLoginSettings)
-  private readonly settings!: GoogleLoginSettings
+  private declare readonly settings: GoogleLoginSettings
 
   @Injected(Utils)
-  public readonly utils!: Utils
+  public declare readonly utils: Utils
 
   @Injected(Injector)
-  private readonly injector!: Injector
+  private declare readonly injector: Injector
 
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 

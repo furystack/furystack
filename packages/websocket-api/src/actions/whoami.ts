@@ -27,8 +27,8 @@ export class WhoAmI implements WebSocketAction {
   }
 
   @Injected(HttpUserContext)
-  private readonly httpUserContext!: HttpUserContext
+  private declare readonly httpUserContext: HttpUserContext
 
   @Injected(ws)
-  private readonly websocket!: ws
+  private declare readonly websocket: ws
 }

@@ -5,10 +5,10 @@ export class User {
   /**
    * Name of the user
    */
-  public username!: string
+  declare username: string
 
   /**
    * List of roles
    */
-  public roles!: string[]
+  declare roles: string[]
 }
