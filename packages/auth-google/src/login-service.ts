@@ -1,8 +1,9 @@
 import { get } from 'https'
-import type { User } from '@furystack/core'
+import type { PhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
-import { HttpAuthenticationSettings, Utils } from '@furystack/rest-service'
+import { HttpAuthenticationSettings } from '@furystack/rest-service'
 import { Injectable, Injector, Injected } from '@furystack/inject'
+import { readPostBody } from '@furystack/rest-service'
 
 /**
  * Payload model from Google
@@ -26,21 +27,22 @@ export interface GoogleApiPayload {
 export class GoogleLoginSettings {
   public get = get
 
-  public getUserFromGooglePayload: (payload: GoogleApiPayload, injector: Injector) => Promise<User | undefined> =
-    async (payload, injector) => {
-      const userStore = injector
-        .getInstance(HttpAuthenticationSettings)
-        .getUserStore(injector.getInstance(StoreManager))
-      const users = await userStore.find({
-        top: 2,
-        filter: {
-          username: { $eq: payload.email },
-        },
-      })
-      if (users.length === 1) {
-        return users[0]
-      }
+  @Injected((injector) =>
+    injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager)),
+  )
+  private declare readonly userStore: PhysicalStore<User, 'username'>
+
+  public getUserFromGooglePayload: (payload: GoogleApiPayload) => Promise<User | undefined> = async (payload) => {
+    const users = await this.userStore.find({
+      top: 2,
+      filter: {
+        username: { $eq: payload.email },
+      },
+    })
+    if (users.length === 1) {
+      return users[0]
     }
+  }
 }
 
 /**
@@ -51,13 +53,9 @@ export class GoogleLoginService {
   @Injected(GoogleLoginSettings)
   private declare readonly settings: GoogleLoginSettings
 
-  @Injected(Utils)
-  public declare readonly utils: Utils
-
-  @Injected(Injector)
-  private declare readonly injector: Injector
-
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
+
+  public readPostBody = readPostBody
 
   /**
    * @param token The ID Token
@@ -67,7 +65,7 @@ export class GoogleLoginService {
     return await new Promise<GoogleApiPayload>((resolve, reject) =>
       this.settings.get(`${this.googleApiEndpoint}${token}`, async (response) => {
         if (response.statusCode && response.statusCode < 400) {
-          const body = await this.utils.readPostBody<GoogleApiPayload>(response)
+          const body = await this.readPostBody<GoogleApiPayload>(response)
           return resolve(body)
         } else {
           return reject(new Error('Invalid response!'))
@@ -83,7 +81,7 @@ export class GoogleLoginService {
    */
   public async login(token: string): Promise<User> {
     const googleData = await this.getGoogleUserData(token)
-    const user = await this.settings.getUserFromGooglePayload(googleData, this.injector)
+    const user = await this.settings.getUserFromGooglePayload(googleData)
     if (!user) {
       throw Error(`Attached user not found.`)
     }

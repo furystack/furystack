@@ -1,5 +1,5 @@
 import http from 'http'
-import { Utils } from './utils.js'
+import { readPostBody, readPostBodyRaw } from './read-post-body.js'
 
 declare module 'http' {
   export interface IncomingMessage {
@@ -10,11 +10,9 @@ declare module 'http' {
 }
 
 http.IncomingMessage.prototype.readPostBody = async function <T>() {
-  const utils = new Utils()
-  return await utils.readPostBody<T>(this)
+  return await readPostBody<T>(this)
 }
 
 http.IncomingMessage.prototype.readPostBodyRaw = async function () {
-  const utils = new Utils()
-  return await utils.readPostBodyRaw(this)
+  return await readPostBodyRaw(this)
 }
