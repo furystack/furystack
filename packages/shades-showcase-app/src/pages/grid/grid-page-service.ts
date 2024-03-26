@@ -60,7 +60,7 @@ export class GridPageService implements Disposable {
   }
 
   @Injected(Injector)
-  private readonly injector!: Injector
+  private declare readonly injector: Injector
 
   public dispose() {
     this.collectionService.dispose()
