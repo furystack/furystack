@@ -1,6 +1,6 @@
 {
   "name": "@furystack/repository",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Repository implementation for FuryStack",
   "type": "module",
   "scripts": {
