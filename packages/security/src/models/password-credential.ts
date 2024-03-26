@@ -5,19 +5,19 @@ export class PasswordCredential {
   /**
    * The unique name of the user
    */
-  userName!: string
+  declare userName: string
   /**
    * The hashed password value
    */
-  passwordHash!: string
+  declare passwordHash: string
 
   /**
    * Salt value for password hashing // TODO
    */
-  salt!: string
+  declare salt: string
 
   /**
    * The Creation date in ISO String format
    */
-  creationDate!: string
+  declare creationDate: string
 }

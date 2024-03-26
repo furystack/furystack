@@ -13,11 +13,12 @@ import type { OnRequest } from './server-manager.js'
 import { ServerManager } from './server-manager.js'
 import { NotFoundAction } from './actions/not-found-action.js'
 import type { CorsOptions } from './models/cors-options.js'
-import { Utils } from './utils.js'
 import { ErrorAction } from './actions/error-action.js'
 import './server-response-extensions.js'
 import { HttpUserContext } from './http-user-context.js'
 import type { RequestAction } from './request-action-implementation.js'
+import { addCorsHeaders } from './add-cors-header.js'
+import { readPostBody } from './read-post-body.js'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
@@ -167,7 +168,6 @@ export class ApiManager implements Disposable {
     params: any
   }) {
     await usingAsync(injector.createChild(), async (i) => {
-      const utils = i.getInstance(Utils)
       const httpUserContext = i.getInstance(HttpUserContext)
       i.setExplicitInstance<IdentityContext>(
         {
@@ -182,7 +182,7 @@ export class ApiManager implements Disposable {
           request: req,
           response: res,
           injector: i,
-          getBody: () => utils.readPostBody<any>(req),
+          getBody: () => readPostBody<any>(req),
           headers: req.headers,
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
@@ -213,7 +213,7 @@ export class ApiManager implements Disposable {
       ),
     )
 
-    options.cors && options.injector.getInstance(Utils).addCorsHeaders(options.cors, options.req, options.res)
+    options.cors && addCorsHeaders(options.cors, options.req, options.res)
     if (options.req.method === 'OPTIONS') {
       options.res.writeHead(200)
       options.res.end()
@@ -231,5 +231,5 @@ export class ApiManager implements Disposable {
   }
 
   @Injected(ServerManager)
-  private readonly serverManager!: ServerManager
+  private declare readonly serverManager: ServerManager
 }

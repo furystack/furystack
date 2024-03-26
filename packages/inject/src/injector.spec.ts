@@ -16,16 +16,6 @@ describe('Injector', () => {
     expect(i.options.parent).toBeUndefined()
   })
 
-  it('Should throw an error on circular dependencies', () => {
-    const i = new Injector()
-    @Injectable()
-    class InstanceClass {
-      @Injected(InstanceClass)
-      public ohgodno!: InstanceClass
-    }
-    expect(() => i.getInstance(InstanceClass)).toThrowError('Circular dependencies found.')
-  })
-
   it('Should set and return instance from cache', () => {
     const i = new Injector()
     @Injectable({ lifetime: 'scoped' })
@@ -72,10 +62,10 @@ describe('Injector', () => {
     @Injectable()
     class InstanceClass {
       @Injected(Injected1)
-      public injected1!: Injected1
+      declare injected1: Injected1
 
       @Injected(Injected2)
-      public injected2!: Injected2
+      declare injected2: Injected2
     }
 
     const instance = i.getInstance(InstanceClass)
@@ -93,13 +83,13 @@ describe('Injector', () => {
     @Injectable()
     class Injected2 {
       @Injected(Injected1)
-      public injected1!: Injected1
+      declare injected1: Injected1
     }
 
     @Injectable()
     class InstanceClass {
       @Injected(Injected2)
-      public injected2!: Injected2
+      declare injected2: Injected2
     }
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
@@ -166,8 +156,8 @@ describe('Injector', () => {
   it('Requesting an undecorated instance should throw an error', () => {
     class UndecoratedTestClass {}
     using(new Injector(), (i) => {
-      expect(() => i.getInstance(UndecoratedTestClass, [Injector])).toThrowError(
-        `No metadata found for 'UndecoratedTestClass'. Dependencies: Injector. Be sure that it's decorated with '@Injectable()' or added explicitly with SetInstance()`,
+      expect(() => i.getInstance(UndecoratedTestClass)).toThrowError(
+        `The class 'UndecoratedTestClass' is not an injectable`,
       )
     })
   })
@@ -179,7 +169,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'singleton' })
     class St1 {
       @Injected(Trs1)
-      lt!: Trs1
+      declare lt: Trs1
     }
 
     using(new Injector(), (i) => {
@@ -196,7 +186,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'singleton' })
     class St2 {
       @Injected(Sc1)
-      public sc!: Sc1
+      declare sc: Sc1
     }
 
     using(new Injector(), (i) => {
@@ -213,7 +203,7 @@ describe('Injector', () => {
     @Injectable({ lifetime: 'scoped' })
     class Sc2 {
       @Injected(Tr2)
-      public sc!: Tr2
+      declare sc: Tr2
     }
 
     using(new Injector(), (i) => {
@@ -235,6 +225,38 @@ describe('Injector', () => {
     using(new Injector(), (i) => {
       const instance = i.getInstance(InitClass)
       expect(instance.initWasCalled).toBe(true)
+    })
+  })
+
+  describe('Disposed injector', () => {
+    it('Should throw an error on getInstance', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.getInstance(Injector)).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on setExplicitInstance', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.setExplicitInstance({})).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on remove', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.remove(Object)).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on createChild', async () => {
+      const i = new Injector()
+      await i.dispose()
+      expect(() => i.createChild()).toThrowError('Injector already disposed')
+    })
+
+    it('Should throw an error on dispose', async () => {
+      const i = new Injector()
+      await i.dispose()
+      await expect(async () => await i.dispose()).rejects.toThrowError('Injector already disposed')
     })
   })
 })

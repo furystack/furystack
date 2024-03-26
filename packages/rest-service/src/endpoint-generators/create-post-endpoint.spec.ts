@@ -6,15 +6,17 @@ import { MockClass, setupContext } from './utils.js'
 import { useRestService } from '../helpers.js'
 import { getDataSetFor } from '@furystack/repository'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 describe('createPostEndpoint', () => {
   it('Should create the entity and report the success', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ POST: { '/': PostEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
-        port: 1117,
+        port,
         api: {
           POST: {
             '/': createPostEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -22,7 +24,7 @@ describe('createPostEndpoint', () => {
         },
       })
       const entityToPost = { id: 'mock', value: 'posted' }
-      const response = await fetch('http://127.0.0.1:1117/api', {
+      const response = await fetch(`http://127.0.0.1:${port}/api`, {
         method: 'POST',
         body: JSON.stringify(entityToPost),
       })

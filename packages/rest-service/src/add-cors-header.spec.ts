@@ -1,9 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'http'
-import { Utils } from './utils.js'
 import { describe, it, expect, vi } from 'vitest'
+import { addCorsHeaders } from './add-cors-header.js'
 
 describe('AddCorsHeaders', () => {
-  const utils = new Utils()
   it('Should NOT add headers for non-cross-site requests', () => {
     const req: IncomingMessage = {
       headers: { origin: 'http://localhost/', host: 'http://localhost' },
@@ -12,7 +11,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['https://google.com'],
         credentials: true,
@@ -32,7 +31,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['https://github.com'],
         credentials: true,
@@ -52,7 +51,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['http://localhost/'],
       },
@@ -71,7 +70,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['http://localhost/'],
         credentials: true,
@@ -96,7 +95,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['http://localhost/'],
         headers: ['my-custom-header', 'header-2'],
@@ -119,7 +118,7 @@ describe('AddCorsHeaders', () => {
       setHeader: vi.fn(),
     } as unknown as ServerResponse
 
-    utils.addCorsHeaders(
+    addCorsHeaders(
       {
         origins: ['http://localhost/'],
         methods: ['DELETE', 'GET', 'POST', 'PUT', 'PATCH'],

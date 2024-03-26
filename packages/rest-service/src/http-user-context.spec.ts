@@ -19,8 +19,7 @@ export const prepareInjector = async (i: Injector) => {
 const setupUser = async (i: Injector, userName: string, password: string) => {
   const sm = i.getInstance(StoreManager)
   const pw = i.getInstance(PasswordAuthenticator)
-  const hasher = pw.getHasher()
-  const cred = await hasher.createCredential(userName, password)
+  const cred = await pw.hasher.createCredential(userName, password)
   await sm.getStoreFor(PasswordCredential, 'userName').add(cred)
   await sm.getStoreFor(User, 'username').add({ username: userName, roles: [] })
 }

@@ -18,7 +18,7 @@ export interface StaticServerOptions {
 @Injectable({ lifetime: 'singleton' })
 export class StaticServerManager {
   @Injected(ServerManager)
-  private readonly serverManager!: ServerManager
+  private declare readonly serverManager: ServerManager
 
   private async sendFile({
     fullPath,

@@ -8,6 +8,7 @@ import type { FindOptions } from '@furystack/core'
 import { getDataSetFor, getRepository } from '@furystack/repository'
 import { useRestService } from '../helpers.js'
 import { describe, it, expect } from 'vitest'
+import { getPort } from '@furystack/core/port-generator'
 
 const addMockEntities = async (i: Injector) =>
   await getRepository(i)
@@ -24,10 +25,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return the collection without filter / order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1112,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -39,7 +41,7 @@ describe('createGetCollectionEndpoint', () => {
       const count = await getDataSetFor(i, MockClass, 'id').count(i)
       const allEntities = await getDataSetFor(i, MockClass, 'id').find(i, {})
 
-      const response = await fetch('http://127.0.0.1:1112/api/entities', { method: 'GET' })
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities`, { method: 'GET' })
       expect(response.ok).toBe(true)
       const json: GetCollectionResult<MockClass> = await response.json()
       expect(response.status).toBe(200)
@@ -51,10 +53,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities in order', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -65,7 +68,7 @@ describe('createGetCollectionEndpoint', () => {
       const findOptions: FindOptions<MockClass, Array<keyof MockClass>> = { order: { value: 'ASC' } }
       const count = await getDataSetFor(i, MockClass, 'id').count(i, findOptions.filter)
       const orderedEntities = await getDataSetFor(i, MockClass, 'id').find(i, findOptions)
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
@@ -79,10 +82,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with filtering', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -99,7 +103,7 @@ describe('createGetCollectionEndpoint', () => {
 
       expect(filteredEntities).not.toContainEqual({ id: 'mock2', value: '3' })
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
@@ -113,10 +117,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with selecting specific fields', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -133,7 +138,7 @@ describe('createGetCollectionEndpoint', () => {
 
       selectedEntities.forEach((e) => expect(e.value).toBeUndefined())
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
 
@@ -148,10 +153,11 @@ describe('createGetCollectionEndpoint', () => {
   it('Should return entities with top/skip', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupContext(i)
+      const port = getPort()
       await useRestService<{ GET: { '/entities': GetCollectionEndpoint<MockClass> } }>({
         injector: i,
         root: '/api',
-        port: 1113,
+        port,
         api: {
           GET: {
             '/entities': createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
@@ -170,7 +176,7 @@ describe('createGetCollectionEndpoint', () => {
       expect(topSkipEntities).not.toContainEqual({ id: 'mock1', value: '4' })
       expect(topSkipEntities).not.toContainEqual({ id: 'mock4', value: '1' })
 
-      const response = await fetch(`http://127.0.0.1:1113/api/entities?${serializeToQueryString({ findOptions })}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/api/entities?${serializeToQueryString({ findOptions })}`, {
         method: 'GET',
       })
       expect(response.status).toBe(200)
