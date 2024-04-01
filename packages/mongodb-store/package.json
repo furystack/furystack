@@ -44,7 +44,7 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.2",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0"
   },
