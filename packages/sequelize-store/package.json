@@ -39,7 +39,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
     "semaphore-async-await": "^1.5.1",
-    "sequelize": "^6.37.1"
+    "sequelize": "^6.37.2"
   },
   "devDependencies": {
     "@types/node": "^20.12.2",
