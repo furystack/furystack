@@ -15,9 +15,9 @@
   "devDependencies": {
     "@furystack/logging": "workspace:^",
     "@playwright/test": "^1.43.1",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.5",
     "vite": "^5.2.8",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
