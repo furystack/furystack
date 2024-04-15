@@ -1,6 +1,5 @@
-import type { TestClass } from './test-class.js'
 import { createComponent, Shade } from '@furystack/shades'
-import { DataGrid, SelectionCell } from '@furystack/shades-common-components'
+import { Button, DataGrid, SelectionCell } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
 
@@ -24,8 +23,17 @@ export const GridPage = Shade({
           <h1>Grid</h1>
           <GridStatus />
         </div>
-        <DataGrid<TestClass>
-          columns={['id', 'stringValue1', 'stringValue2', 'booleanValue', 'dateValue', 'numberValue1', 'numberValue2']}
+        <DataGrid
+          columns={[
+            'id',
+            'stringValue1',
+            'stringValue2',
+            'booleanValue',
+            'dateValue',
+            'numberValue1',
+            'numberValue2',
+            'customAction',
+          ]}
           findOptions={service.findOptions}
           styles={undefined}
           collectionService={service.collectionService}
@@ -36,6 +44,11 @@ export const GridPage = Shade({
             dateValue: ({ dateValue }) => <span>{dateValue.toLocaleString()}</span>,
             numberValue1: ({ numberValue1 }) => <span>{numberValue1.toFixed(2)}</span>,
             numberValue2: ({ numberValue2 }) => <span>{numberValue2.toFixed(2)}</span>,
+            customAction: () => (
+              <>
+                <Button>🚀</Button>
+              </>
+            ),
           }}
         />
       </div>
