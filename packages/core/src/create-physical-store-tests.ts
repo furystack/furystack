@@ -1,7 +1,7 @@
 import type { PhysicalStore } from './models/physical-store.js'
 import { usingAsync } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
 export class TestClass {
   declare id: number
@@ -45,46 +45,77 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       it('Should be able to store an entity', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const onAddListener = vi.fn()
+
           const store = options.createStore(i)
+
+          store.addListener('onEntityAdded', onAddListener)
+
           const entity = createMockEntity()
           await store.add(entity)
           const count = await store.count()
           expect(count).toBe(1)
+
+          expect(onAddListener).toHaveBeenCalledTimes(1)
+          expect(onAddListener).toHaveBeenCalledWith({ entity })
         })
       })
 
       it('Should be able to store an entity without providing an unique Id', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const onAddListener = vi.fn()
           const store = options.createStore(i)
+
+          store.addListener('onEntityAdded', onAddListener)
+
           const { id, ...entityWithoutId } = createMockEntity()
+
           const { created } = await store.add(entityWithoutId)
           expect(created.length).toBe(1)
           const count = await store.count()
           expect(count).toBe(1)
           const retrieved = await store.get(created[0].id)
           expect(retrieved).toEqual(created[0])
+
+          expect(onAddListener).toHaveBeenCalledTimes(1)
+          expect(onAddListener).toHaveBeenCalledWith({ entity: created[0] })
         })
       })
 
       it('Should be able to store multiple entities', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const onAddListener = vi.fn()
+
           const store = options.createStore(i)
+          store.addListener('onEntityAdded', onAddListener)
           const entity1 = createMockEntity()
           const entity2 = createMockEntity()
           await store.add(entity1, entity2)
           const count = await store.count()
           expect(count).toBe(2)
+
+          expect(onAddListener).toHaveBeenCalledTimes(2)
+          expect(onAddListener).toHaveBeenCalledWith({ entity: entity1 })
+          expect(onAddListener).toHaveBeenCalledWith({ entity: entity2 })
         })
       })
 
       it('Add should throw and skip adding on duplicate IDs', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const onAddListener = vi.fn()
+
           const store = options.createStore(i)
+
+          store.addListener('onEntityAdded', onAddListener)
+
           const entity = createMockEntity()
           await store.add(entity)
           await expect(store.add(entity)).rejects.toThrow()
           const count = await store.count()
           expect(count).toBe(1)
+
+          expect(onAddListener).toHaveBeenCalledTimes(1)
+          expect(onAddListener).toHaveBeenCalledWith({ entity })
         })
       })
 
@@ -121,26 +152,45 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       it('Should be able to update an added entity', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const updateListener = vi.fn()
+
           const store = options.createStore(i)
+
+          store.addListener('onEntityUpdated', updateListener)
+
           const entity = createMockEntity()
           await store.add(entity)
           await store.update(entity.id, { stringValue1: 'modified' })
           const retrieved = await store.get(entity.id)
           expect(retrieved?.stringValue1).toEqual('modified')
+
+          expect(updateListener).toHaveBeenCalledTimes(1)
+          expect(updateListener).toHaveBeenCalledWith({ id: entity.id, change: { stringValue1: 'modified' } })
         })
       })
 
       it('Update should throw an error if the entity does not exists', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const updateListener = vi.fn()
+
           const store = options.createStore(i)
+
+          store.addListener('onEntityUpdated', updateListener)
+
           const entity = createMockEntity()
           await expect(store.update(entity.id, entity)).rejects.toThrow('Entity not found')
+
+          expect(updateListener).not.toHaveBeenCalled()
         })
       })
 
       it('Should remove an entity', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const removeListener = vi.fn()
+
           const store = options.createStore(i)
+          store.addListener('onEntityRemoved', removeListener)
+
           const entity = createMockEntity()
           await store.add(entity)
           const count = await store.count()
@@ -148,12 +198,17 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           await store.remove(entity.id)
           const countAferDelete = await store.count()
           expect(countAferDelete).toBe(0)
+
+          expect(removeListener).toHaveBeenCalledTimes(1)
         })
       })
 
       it('Should remove multiple entities at once', async () => {
         await usingAsync(new Injector(), async (i) => {
+          const removeListener = vi.fn()
           const store = options.createStore(i)
+          store.addListener('onEntityRemoved', removeListener)
+
           const entity1 = createMockEntity()
           const entity2 = createMockEntity()
           const entity3 = createMockEntity()
@@ -163,9 +218,17 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           await store.remove(entity1.id, entity2.id)
           const countAferDelete = await store.count()
           expect(countAferDelete).toBe(1)
+
+          expect(removeListener).toHaveBeenCalledTimes(2)
+          expect(removeListener).toHaveBeenCalledWith({ key: entity1.id })
+          expect(removeListener).toHaveBeenCalledWith({ key: entity2.id })
+
           await store.remove(entity3.id)
           const countAferDeleteAll = await store.count()
           expect(countAferDeleteAll).toBe(0)
+
+          expect(removeListener).toHaveBeenCalledTimes(3)
+          expect(removeListener).toHaveBeenCalledWith({ key: entity3.id })
         })
       })
     })

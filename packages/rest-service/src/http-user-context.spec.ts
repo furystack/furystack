@@ -277,7 +277,11 @@ describe('HttpUserContext', () => {
     it('Should return the current user from authenticateRequest() once per request', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
+
         const ctx = i.getInstance(HttpUserContext)
+        const listenerFn = vi.fn()
+        ctx.addListener('onLogin', listenerFn)
+
         const setHeader = vi.fn()
         ctx.getSessionStore().add = vi.fn(async () => {
           return {} as any
@@ -286,6 +290,8 @@ describe('HttpUserContext', () => {
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
         expect(ctx.getSessionStore().add).toBeCalled()
+
+        expect(listenerFn).toBeCalledWith(testUser)
       })
     })
   })
@@ -293,8 +299,11 @@ describe('HttpUserContext', () => {
   describe('cookieLogout', () => {
     it('Should invalidate the current session id cookie', async () => {
       await usingAsync(new Injector(), async (i) => {
+        const logoutListenerFn = vi.fn()
+
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
+        ctx.addListener('onLogout', logoutListenerFn)
         const setHeader = vi.fn()
         ctx.getSessionStore().add = vi.fn(async () => {
           return {} as any
@@ -307,6 +316,7 @@ describe('HttpUserContext', () => {
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
         expect(ctx.getSessionStore().remove).toBeCalled()
+        expect(logoutListenerFn).toBeCalledWith(testUser)
       })
     })
   })
