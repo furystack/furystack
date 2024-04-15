@@ -8,12 +8,18 @@ import type { ValidationApi } from './validate.integration.schema.js'
 import { useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 import { getPort } from '@furystack/core/port-generator'
+import { getStoreManager, InMemoryStore, User } from '@furystack/core'
+import { DefaultSession } from './models/default-session.js'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
 const createValidateApi = async () => {
   const injector = new Injector()
   const port = getPort()
+
+  getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+  getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+
   await useRestService<ValidationApi>({
     injector,
     api: {
@@ -56,6 +62,7 @@ const createValidateApi = async () => {
   const client = createClient<ValidationApi>({
     endpointUrl: `http://127.0.0.1:${port}/api`,
   })
+
   return {
     dispose: injector.dispose.bind(injector),
     client,

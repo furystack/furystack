@@ -20,7 +20,7 @@ describe('Google Login Service', () => {
       await usingAsync(new Injector(), async (i) => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
         useHttpAuthentication(i, {
-          getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+          getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
 
         i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
@@ -43,7 +43,7 @@ describe('Google Login Service', () => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
 
         useHttpAuthentication(i, {
-          getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+          getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() =>
@@ -63,7 +63,7 @@ describe('Google Login Service', () => {
       await usingAsync(new Injector(), async (i) => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
         useHttpAuthentication(i, {
-          getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+          getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() => getGoogleUser() as T
@@ -80,7 +80,7 @@ describe('Google Login Service', () => {
       await usingAsync(new Injector(), async (i) => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
         useHttpAuthentication(i, {
-          getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+          getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() =>
@@ -100,7 +100,7 @@ describe('Google Login Service', () => {
       await usingAsync(new Injector(), async (i) => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
         useHttpAuthentication(i, {
-          getUserStore: (sm) => sm.getStoreFor<User & { password: string }, 'username'>(User as any, 'username'),
+          getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
 
         const usr = { username: 'user@example.com', roles: [] }

@@ -11,10 +11,6 @@ import { describe, it, expect } from 'vitest'
 import { serializeValue } from '@furystack/rest'
 import { getPort } from '@furystack/core/port-generator'
 
-class UserWithPassword extends User {
-  declare password: string
-}
-
 interface IntegrationTestApi extends RestApi {
   GET: {
     '/isAuthenticated': { result: { isAuthenticated: boolean } }
@@ -38,7 +34,7 @@ const createIntegrationApi = async () => {
     new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
   )
   useHttpAuthentication(i, {
-    getUserStore: (sm) => sm.getStoreFor(UserWithPassword, 'username'),
+    getUserStore: (sm) => sm.getStoreFor(User, 'username'),
     getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
   })
   await useRestService<IntegrationTestApi>({
