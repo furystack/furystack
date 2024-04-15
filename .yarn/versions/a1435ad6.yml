@@ -15,5 +15,6 @@ releases:
   "@furystack/shades-lottie": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": minor
+  "@furystack/utils": major
   "@furystack/websocket-api": patch
   furystack: patch
