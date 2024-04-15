@@ -6,14 +6,14 @@ import { HttpAuthenticationSettings } from './http-authentication-settings.js'
 import type { DefaultSession } from './models/default-session.js'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 import { randomBytes } from 'crypto'
-import { EventHub } from '@furystack/utils'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext extends EventHub<{ onLogin: User; onLogout: User }> {
+export class HttpUserContext {
   public getUserStore = () => this.authentication.getUserStore(this.storeManager)
+
   public getSessionStore = () => this.authentication.getSessionStore(this.storeManager)
 
   private getUserByName = async (userName: string) => {
@@ -144,19 +144,13 @@ export class HttpUserContext extends EventHub<{ onLogin: User; onLogout: User }>
     await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     this.user = user
-    this.emit('onLogin', user)
     return user
   }
 
   public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
-
-    if (this.user) {
-      this.emit('onLogout', this.user)
-      this.user = undefined
-    }
-
+    this.user = undefined
     if (sessionId) {
       const sessionStore = this.getSessionStore()
       const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } } })
