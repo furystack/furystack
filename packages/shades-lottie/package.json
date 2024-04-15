@@ -29,8 +29,8 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "typescript": "^5.4.3",
-    "vitest": "^1.4.0"
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
