@@ -139,11 +139,10 @@ export class MongodbStore<
     const collection = await this.getCollection()
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
 
-    this.emit('onEntityUpdated', { id, change: data })
-
     if (updateResult.matchedCount < 1) {
       throw Error(`Entity not found with id '${id}', cannot update!`)
     }
+    this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const collection = await this.getCollection()
