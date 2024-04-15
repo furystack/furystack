@@ -25,7 +25,7 @@ export const useRestService = async <T extends RestApi>(api: ImplementApiOptions
 export const useHttpAuthentication = <TUser extends User, TSession extends DefaultSession>(
   injector: Injector,
   settings?: Partial<HttpAuthenticationSettings<TUser, TSession>>,
-) => injector.setExplicitInstance({ ...new HttpAuthenticationSettings(), ...settings }, HttpAuthenticationSettings)
+) => injector.setExplicitInstance(Object.assign(new HttpAuthenticationSettings(), settings), HttpAuthenticationSettings)
 
 /**
  * Sets up a static file server

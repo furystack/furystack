@@ -310,4 +310,82 @@ describe('HttpUserContext', () => {
       })
     })
   })
+
+  describe('Changes in the store during the context lifetime', () => {
+    it('Should update user roles', () => {
+      return usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        userStore.add(testUser)
+
+        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
+        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+
+        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
+
+        const originalUser = await ctx.getCurrentUser(request)
+        expect(originalUser).toEqual(testUser)
+
+        const updatedUser = { ...testUser, roles: ['newFancyRole'] }
+        await userStore.update(testUser.username, updatedUser)
+        const updatedUserFromContext = await ctx.getCurrentUser(request)
+        expect(updatedUserFromContext.roles).toEqual(['newFancyRole'])
+
+        await userStore.update(testUser.username, { ...updatedUser, roles: [] })
+        const reloadedUserFromContext = await ctx.getCurrentUser(request)
+        expect(reloadedUserFromContext.roles).toEqual([])
+      })
+    })
+
+    it('Should remove current user when the user is removed from the store', () => {
+      return usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        userStore.add(testUser)
+
+        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
+        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+
+        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
+
+        const originalUser = await ctx.getCurrentUser(request)
+        expect(originalUser).toEqual(testUser)
+
+        await userStore.remove(testUser.username)
+
+        await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
+      })
+    })
+
+    it('Should remove current user when the session is removed from the store', () => {
+      return usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        userStore.add(testUser)
+
+        let sessionId = ''
+
+        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
+        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+
+        await ctx.cookieLogin(testUser, {
+          setHeader: (_headerName, headerValue) => {
+            sessionId = headerValue as string
+            return {} as ServerResponse
+          },
+        })
+
+        const originalUser = await ctx.getCurrentUser(request)
+        expect(originalUser).toEqual(testUser)
+
+        const sessionStore = ctx.getSessionStore()
+        await sessionStore.remove(sessionId as string)
+
+        await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
+      })
+    })
+  })
 })

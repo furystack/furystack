@@ -1,15 +1,22 @@
 import type { PhysicalStore, CreateResult } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
 
 /**
  * TypeORM Store implementation for FuryStack
  */
 export class RedisStore<
-  T,
-  TPrimaryKey extends keyof T,
-  TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
-> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
+    T,
+    TPrimaryKey extends keyof T,
+    TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
+  >
+  extends EventHub<{
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
+  }>
+  implements PhysicalStore<T, TPrimaryKey, TWriteableData>
 {
   public primaryKey: TPrimaryKey
 
@@ -22,6 +29,7 @@ export class RedisStore<
       primaryKey: TPrimaryKey
     },
   ) {
+    super()
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
@@ -34,12 +42,15 @@ export class RedisStore<
       }),
     )
 
+    created.forEach((entry) => this.emit('onEntityAdded', { entity: entry as T }))
+
     return {
       created: created as T[],
     }
   }
   public async update(id: T[TPrimaryKey], data: T): Promise<void> {
     await this.options.client.set((id as any).toString(), JSON.stringify(data))
+    this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(): Promise<number> {
     throw Error('Not supported :(')
@@ -53,6 +64,7 @@ export class RedisStore<
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     await Promise.all(keys.map(async (key) => await this.options.client.del((key as any).toString(), [])))
+    keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
   public async dispose() {
     /** */

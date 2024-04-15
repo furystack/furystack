@@ -3,10 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 describe('EventHub', () => {
   it('Should fail on type errors', () => {
-    const eventHub = new EventHub<
-      'ExampleNumberEvent' | 'ExampleStringEvent',
-      { ExampleNumberEvent: number; ExampleStringEvent: string }
-    >()
+    const eventHub = new EventHub<{ ExampleNumberEvent: number; ExampleStringEvent: string }>()
     const numberListener = vi.fn((_val: number) => {})
     const stringListener = vi.fn((_val: string) => {})
     // @ts-expect-error Type 'string' is not assignable to type 'number'
@@ -22,7 +19,7 @@ describe('EventHub', () => {
 
   it('Should remove a listener', () => {
     // Arrange
-    const eventHub = new EventHub<'ExampleNumberEvent', { ExampleNumberEvent: number }>()
+    const eventHub = new EventHub<{ ExampleNumberEvent: number }>()
     const numberListener = vi.fn((_val: number) => {})
 
     // Act
@@ -36,15 +33,12 @@ describe('EventHub', () => {
 
   it('should distribute events through listeners', () => {
     // Arrange
-    const eventHub = new EventHub<
-      'ExampleNumberEvent' | 'ExampleStringEvent' | 'ExampleObjectEvent1' | 'ExampleObjectEvent2',
-      {
-        ExampleNumberEvent: number
-        ExampleStringEvent: string
-        ExampleObjectEvent1: { a: number }
-        ExampleObjectEvent2: { b: string }
-      }
-    >()
+    const eventHub = new EventHub<{
+      ExampleNumberEvent: number
+      ExampleStringEvent: string
+      ExampleObjectEvent1: { a: number }
+      ExampleObjectEvent2: { b: string }
+    }>()
     const numberListener = vi.fn((_val: number) => {})
 
     const stringListener = vi.fn((_val: string) => {})
@@ -81,7 +75,7 @@ describe('EventHub', () => {
   })
 
   it('Should add and remove a listener with subscription', () => {
-    const eventHub = new EventHub<'ExampleNumberEvent', { ExampleNumberEvent: number }>()
+    const eventHub = new EventHub<{ ExampleNumberEvent: number }>()
     const numberListener = vi.fn((_val: number) => {})
 
     const subscription = eventHub.subscribe('ExampleNumberEvent', numberListener)
@@ -94,7 +88,7 @@ describe('EventHub', () => {
   })
 
   it('should clear all listeners on dispose', () => {
-    const hub = new EventHub<'test', { test: string }>()
+    const hub = new EventHub<{ test: string }>()
 
     const listener = vi.fn((_val: string) => {})
 

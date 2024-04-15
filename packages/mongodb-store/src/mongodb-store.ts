@@ -7,6 +7,7 @@ import type {
   CreateResult,
 } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 import type { MongoClient, Filter, Collection, Sort, OptionalUnlessRequiredId, UpdateFilter } from 'mongodb'
 import { ObjectId } from 'mongodb'
 import { Lock } from 'semaphore-async-await'
@@ -15,10 +16,16 @@ import { Lock } from 'semaphore-async-await'
  * TypeORM Store implementation for FuryStack
  */
 export class MongodbStore<
-  T extends object,
-  TPrimaryKey extends keyof T,
-  TWriteableData = WithOptionalId<T, TPrimaryKey>,
-> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
+    T extends object,
+    TPrimaryKey extends keyof T,
+    TWriteableData = WithOptionalId<T, TPrimaryKey>,
+  >
+  extends EventHub<{
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
+  }>
+  implements PhysicalStore<T, TPrimaryKey, TWriteableData>
 {
   public readonly primaryKey: TPrimaryKey
 
@@ -103,31 +110,39 @@ export class MongodbStore<
       mongoClient: () => Promise<MongoClient>
     },
   ) {
+    super()
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
   public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const collection = await this.getCollection()
     const result = await collection.insertMany(entries.map((e) => ({ ...e }) as any as OptionalUnlessRequiredId<T>))
+
+    const created =
+      this.primaryKey === '_id'
+        ? Object.values(result.insertedIds).map((insertedId, index) =>
+            this.stringifyResultId({ _id: insertedId, ...entries[index] }),
+          )
+        : (Object.values(result.insertedIds).map((insertedId, index) => {
+            const entity = { _id: insertedId, ...entries[index] }
+            const { _id, ...r } = entity
+            return r
+          }) as any as T[])
+
+    created.forEach((entity) => this.emit('onEntityAdded', { entity }))
+
     return {
-      created:
-        this.primaryKey === '_id'
-          ? Object.values(result.insertedIds).map((insertedId, index) =>
-              this.stringifyResultId({ _id: insertedId, ...entries[index] }),
-            )
-          : (Object.values(result.insertedIds).map((insertedId, index) => {
-              const entity = { _id: insertedId, ...entries[index] }
-              const { _id, ...r } = entity
-              return r
-            }) as any as T[]),
+      created,
     }
   }
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
+
     if (updateResult.matchedCount < 1) {
       throw Error(`Entity not found with id '${id}', cannot update!`)
     }
+    this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const collection = await this.getCollection()
@@ -175,6 +190,7 @@ export class MongodbStore<
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const collection = await this.getCollection()
     await collection.deleteMany(this.createIdFilter(...keys))
+    keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
   public async dispose() {
     /** */

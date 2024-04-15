@@ -7,9 +7,9 @@ import { Button } from '../button.js'
 import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { collapse, expand } from '../animations.js'
 
-export interface DataGridHeaderProps<T, K extends keyof T> {
-  field: K
-  findOptions: ObservableValue<FindOptions<T, K[]>>
+export interface DataGridHeaderProps<T, Column extends string> {
+  field: Column
+  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
 }
 
 export interface DataGridHeaderState<T, K extends keyof T> {
@@ -159,11 +159,11 @@ const SearchForm = Shade<{
   },
 })
 
-export const DataGridHeader: <T, K extends keyof T>(
-  props: DataGridHeaderProps<T, K>,
+export const DataGridHeader: <T, Column extends string>(
+  props: DataGridHeaderProps<T, Column>,
   children: ChildrenList,
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>,
-) => JSX.Element<any> = Shade<DataGridHeaderProps<any, any>>({
+) => JSX.Element<any> = Shade({
   shadowDomName: 'data-grid-header',
   render: ({ props, element, useObservable }) => {
     const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), {
@@ -184,11 +184,7 @@ export const DataGridHeader: <T, K extends keyof T>(
       },
     })
 
-    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions, {
-      filter: (newValue, oldValue) => {
-        return newValue.filter?.[props.field] !== oldValue.filter?.[props.field]
-      },
-    })
+    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
 
     const updateSearchValue = (value?: string) => {
       if (value) {
