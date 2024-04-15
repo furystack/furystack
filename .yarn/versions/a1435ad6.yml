@@ -4,7 +4,7 @@ releases:
   "@furystack/core": patch
   "@furystack/filesystem-store": patch
   "@furystack/inject": patch
-  "@furystack/logging": patch
+  "@furystack/logging": major
   "@furystack/mongodb-store": patch
   "@furystack/redis-store": patch
   "@furystack/repository": patch

@@ -1,7 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import { AbstractLogger } from './abstract-logger.js'
 import type { LeveledLogEntry } from './log-entries.js'
-import { LogLevel } from './log-entries.js'
+import type { LogLevel } from './log-entries.js'
 
 /**
  * Resets the console color
@@ -49,15 +49,15 @@ export const FgWhite = '\x1b[37m'
  */
 export const getLevelColor = (level: LogLevel) => {
   switch (level) {
-    case LogLevel.Verbose:
+    case 'verbose':
       return FgCyan
-    case LogLevel.Debug:
+    case 'debug':
       return FgBlue
-    case LogLevel.Information:
+    case 'information':
       return FgGreen
-    case LogLevel.Warning:
+    case 'warning':
       return FgYellow
-    case LogLevel.Error:
+    case 'error':
       return FgRed
     default:
       return FgRed
