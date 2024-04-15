@@ -4,11 +4,19 @@ import type { Constructable } from '@furystack/inject'
 import { Lock } from 'semaphore-async-await'
 import type { PhysicalStore, FindOptions, FilterType } from '@furystack/core'
 import { InMemoryStore } from '@furystack/core'
+import { EventHub } from '@furystack/utils'
 
 /**
  * Store implementation that stores info in a simple JSON file
  */
-export class FileSystemStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey, T> {
+export class FileSystemStore<T, TPrimaryKey extends keyof T>
+  extends EventHub<{
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
+  }>
+  implements PhysicalStore<T, TPrimaryKey, T>
+{
   private readonly watcher?: FSWatcher
 
   public readonly model: Constructable<T>
@@ -117,10 +125,21 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T> implements Physical
       model: Constructable<T>
     },
   ) {
+    super()
     this.primaryKey = options.primaryKey
     this.model = options.model
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
     this.tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
+
+    this.inMemoryStore.subscribe('onEntityAdded', ({ entity }) => {
+      this.emit('onEntityAdded', { entity })
+    })
+    this.inMemoryStore.subscribe('onEntityUpdated', ({ id, change }) => {
+      this.emit('onEntityUpdated', { id, change })
+    })
+    this.inMemoryStore.subscribe('onEntityRemoved', ({ key }) => {
+      this.emit('onEntityRemoved', { key })
+    })
 
     try {
       this.reloadData()

@@ -9,6 +9,7 @@ import type {
 import type { Constructable } from '@furystack/inject'
 import type { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
 import { Lock } from 'semaphore-async-await'
+import { EventHub } from '@furystack/utils'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -38,11 +39,17 @@ export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TP
  * TypeORM Store implementation for FuryStack
  */
 export class SequelizeStore<
-  T extends object,
-  M extends Model<T>,
-  TPrimaryKey extends keyof T,
-  TWriteableData = WithOptionalId<T, TPrimaryKey>,
-> implements PhysicalStore<T, TPrimaryKey, TWriteableData>
+    T extends object,
+    M extends Model<T>,
+    TPrimaryKey extends keyof T,
+    TWriteableData = WithOptionalId<T, TPrimaryKey>,
+  >
+  extends EventHub<{
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
+  }>
+  implements PhysicalStore<T, TPrimaryKey, TWriteableData>
 {
   public readonly primaryKey: TPrimaryKey
 
@@ -80,15 +87,20 @@ export class SequelizeStore<
   }
 
   constructor(private readonly options: SequelizeStoreSettings<T, M, TPrimaryKey>) {
+    super()
     this.primaryKey = options.primaryKey
     this.model = options.model
     this.sequelizeModel = options.sequelizeModel
   }
   public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const model = await this.getModel()
-    const created = await model.bulkCreate(entries as any)
+    const createdModels = await model.bulkCreate(entries as any)
+
+    const created = createdModels.map((c) => c.toJSON() as T)
+
+    created.forEach((entity) => this.emit('onEntityAdded', { entity }))
     return {
-      created: created.map((c) => c.toJSON() as T),
+      created,
     }
   }
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
@@ -98,6 +110,7 @@ export class SequelizeStore<
     if (result[0] < 1) {
       throw Error('Entity not found')
     }
+    this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(filter?: FilterType<T>): Promise<number> {
     const model = await this.getModel()
@@ -134,8 +147,9 @@ export class SequelizeStore<
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const model = await this.getModel()
     await model.destroy({ where: { [this.primaryKey]: keys } } as any)
+    keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
   public async dispose() {
-    /** */
+    await super.dispose()
   }
 }

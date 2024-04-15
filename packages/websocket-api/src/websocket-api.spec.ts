@@ -1,21 +1,30 @@
 import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api.js'
-import WebSocket from 'ws'
+import { WebSocket } from 'ws'
 import type { WebSocketAction } from './models/websocket-action.js'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
 import { getPort } from '@furystack/core/port-generator'
+import { InMemoryStore, User, addStore } from '@furystack/core'
+import { DefaultSession } from '@furystack/rest-service'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
     await usingAsync(new Injector(), async (i) => {
+      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+      )
       useWebsockets(i, { port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
   it('Should be built with settings', async () => {
     await usingAsync(new Injector(), async (i) => {
+      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+      )
+
       useWebsockets(i, { path: '/web-socket', port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
@@ -24,6 +33,10 @@ describe('WebSocketApi', () => {
   it('Should broadcast messages', async () => {
     const port = getPort()
     await usingAsync(new Injector(), async (i) => {
+      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+      )
+
       expect.assertions(5) // All 5 clients should receive the message
       useWebsockets(i, { path: '/web-socket', port })
       const api = i.getInstance(WebSocketApi)
@@ -51,6 +64,10 @@ describe('WebSocketApi', () => {
   it('Should receive client messages', async () => {
     const port = getPort()
     await usingAsync(new Injector(), async (i) => {
+      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
+        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
+      )
+
       expect.assertions(1)
       const data = { value: 'alma' }
       @Injectable()

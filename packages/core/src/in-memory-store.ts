@@ -1,14 +1,25 @@
 import type { Constructable } from '@furystack/inject'
 import type { PhysicalStore, FindOptions, PartialResult, FilterType, CreateResult } from './models/physical-store.js'
 import { selectFields, isOperator, isLogicalOperator } from './models/physical-store.js'
+import { EventHub } from '@furystack/utils'
 
-export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalStore<T, TPrimaryKey, T> {
+export class InMemoryStore<T, TPrimaryKey extends keyof T>
+  extends EventHub<{
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
+  }>
+  implements PhysicalStore<T, TPrimaryKey, T>
+{
   /**
    *
    * @param keys The keys to remove from the store
    */
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
-    keys.map((key) => this.cache.delete(key))
+    keys.forEach((key) => {
+      this.cache.delete(key)
+      this.emit('onEntityRemoved', { key })
+    })
   }
 
   public async add(...entries: T[]): Promise<CreateResult<T>> {
@@ -18,6 +29,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
         throw new Error('Item with the primary key already exists.')
       }
       this.cache.set(entry[this.primaryKey], entry)
+      this.emit('onEntityAdded', { entity: entry })
       return entry
     })
     return { created }
@@ -177,6 +189,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
       ...this.cache.get(id),
       ...data,
     })
+    this.emit('onEntityUpdated', { id, change: data })
   }
 
   public dispose() {
@@ -202,6 +215,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T> implements PhysicalSt
      */
     model: Constructable<T>
   }) {
+    super()
     this.primaryKey = options.primaryKey
     this.model = options.model
   }
