@@ -37,7 +37,9 @@ export const GridPage = Shade({
           findOptions={service.findOptions}
           styles={undefined}
           collectionService={service.collectionService}
-          headerComponents={{}}
+          headerComponents={{
+            customAction: () => <span style={{ paddingLeft: '1em' }}>Custom Action</span>,
+          }}
           rowComponents={{
             id: (entry) => <SelectionCell entry={entry} service={service.collectionService} />,
             booleanValue: ({ booleanValue }) => <span>{booleanValue ? `✅` : `❌`}</span>,
