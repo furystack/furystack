@@ -9,14 +9,11 @@ import { EventHub } from '@furystack/utils'
  * An authorized Repository Store instance
  */
 export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>>
-  extends EventHub<
-    'onEntityAdded' | 'onEntityUpdated' | 'onEntityRemoved',
-    {
-      onEntityAdded: { injector: Injector; entity: T }
-      onEntityUpdated: { injector: Injector; id: T[TPrimaryKey]; change: Partial<T> }
-      onEntityRemoved: { injector: Injector; key: T[TPrimaryKey] }
-    }
-  >
+  extends EventHub<{
+    onEntityAdded: { injector: Injector; entity: T }
+    onEntityUpdated: { injector: Injector; id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { injector: Injector; key: T[TPrimaryKey] }
+  }>
   implements Disposable
 {
   public dispose() {

@@ -5,7 +5,7 @@ import { debounce, EventHub, ObservableValue } from '@furystack/utils'
 import type { SuggestionResult } from './suggestion-result.js'
 
 @Injectable({ lifetime: 'singleton' })
-export class SuggestManager<T> extends EventHub<'onSelectSuggestion', { onSelectSuggestion: T }> implements Disposable {
+export class SuggestManager<T> extends EventHub<{ onSelectSuggestion: T }> implements Disposable {
   public isOpened = new ObservableValue(false)
   public isLoading = new ObservableValue(false)
   public term = new ObservableValue('')
