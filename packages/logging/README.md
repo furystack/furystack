@@ -30,7 +30,7 @@ You can log a simple event with
 
 ```ts
 myLogger.addEntry({
-  level: LogLevel.Verbose,
+  level: 'verbose',
   message: 'My log message',
   scope: '@furystack/logging/test',
   data: {
