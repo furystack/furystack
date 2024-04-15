@@ -42,7 +42,7 @@
     "redis": "^4.6.13"
   },
   "devDependencies": {
-    "@types/node": "^20.12.2",
+    "@types/node": "^20.12.7",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0"
   },
