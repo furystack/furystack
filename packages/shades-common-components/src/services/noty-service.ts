@@ -9,10 +9,7 @@ export interface NotyModel {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class NotyService extends EventHub<
-  'onNotyAdded' | 'onNotyRemoved',
-  { onNotyAdded: NotyModel; onNotyRemoved: NotyModel }
-> {
+export class NotyService extends EventHub<{ onNotyAdded: NotyModel; onNotyRemoved: NotyModel }> {
   private notyList: NotyModel[] = []
 
   public getNotyList = () => [...this.notyList]
