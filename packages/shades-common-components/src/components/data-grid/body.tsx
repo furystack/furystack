@@ -4,12 +4,12 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { DataRowCells } from './data-grid.js'
 import { DataGridRow } from './data-grid-row.js'
 
-export interface DataGridBodyProps<T> {
+export interface DataGridBodyProps<T, Column extends string> {
   service: CollectionService<T>
   onRowClick?: (row: T, ev: MouseEvent) => void
   onRowDoubleClick?: (entry: T, ev: MouseEvent) => void
-  columns: Array<keyof T>
-  rowComponents?: DataRowCells<T>
+  columns: Column[]
+  rowComponents?: DataRowCells<T, Column>
   style?: Partial<CSSStyleDeclaration>
   focusedRowStyle?: Partial<CSSStyleDeclaration>
   unfocusedRowStyle?: Partial<CSSStyleDeclaration>
@@ -19,9 +19,10 @@ export interface DataGridBodyProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
-  DataGridBodyProps<any>
->({
+export const DataGridBody: <T, Column extends string>(
+  props: DataGridBodyProps<T, Column>,
+  children: ChildrenList,
+) => JSX.Element<any> = Shade<DataGridBodyProps<any, string>>({
   shadowDomName: 'shade-data-grid-body',
   style: {
     display: 'table-row-group',
@@ -36,7 +37,7 @@ export const DataGridBody: <T>(props: DataGridBodyProps<T>, children: ChildrenLi
     return (
       <>
         {data?.entries?.map((entry) => (
-          <DataGridRow<any>
+          <DataGridRow
             columns={props.columns}
             entry={entry}
             service={props.service}

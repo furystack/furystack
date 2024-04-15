@@ -4,11 +4,11 @@ import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import type { DataRowCells } from './data-grid.js'
 
-export interface DataGridRowProps<T> {
+export interface DataGridRowProps<T, Column extends string> {
   entry: T
   columns: Array<keyof T>
   service: CollectionService<T>
-  rowComponents?: DataRowCells<T>
+  rowComponents?: DataRowCells<T, Column>
   onRowClick?: (row: T, event: MouseEvent) => void
   onRowDoubleClick?: (row: T, event: MouseEvent) => void
   focusedRowStyle?: Partial<CSSStyleDeclaration>
@@ -17,9 +17,10 @@ export interface DataGridRowProps<T> {
   unselectedRowStyle?: Partial<CSSStyleDeclaration>
 }
 
-export const DataGridRow: <T>(props: DataGridRowProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
-  DataGridRowProps<any>
->({
+export const DataGridRow: <T, Column extends string>(
+  props: DataGridRowProps<T, Column>,
+  children: ChildrenList,
+) => JSX.Element<any> = Shade({
   shadowDomName: 'shades-data-grid-row',
 
   render: ({ props, element, useObservable, injector }) => {

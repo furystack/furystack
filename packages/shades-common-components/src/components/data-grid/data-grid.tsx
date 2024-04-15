@@ -10,22 +10,22 @@ import { ClickAwayService } from '../../services/click-away-service.js'
 import type { FindOptions } from '@furystack/core'
 import type { ObservableValue } from '@furystack/utils'
 
-export type DataHeaderCells<T> = {
-  [TKey in keyof T | 'default']?: (name: keyof T) => JSX.Element
+export type DataHeaderCells<Column extends string> = {
+  [TKey in Column | 'default']?: (name: Column) => JSX.Element
 }
-export type DataRowCells<T> = {
-  [TKey in keyof T | 'default']?: (element: T, state: { focus?: T; selection: T[] }) => JSX.Element
+export type DataRowCells<T, Column extends string> = {
+  [TKey in Column | 'default']?: (element: T, state: { focus?: T; selection: T[] }) => JSX.Element
 }
 
-export interface DataGridProps<T> {
+export interface DataGridProps<T, Column extends string> {
   /**
    * A list of columns to display
    */
-  columns: Array<keyof T>
+  columns: Column[]
   /**
    * Optional style overrides for the grid
    */
-  styles: GridProps<T>['styles']
+  styles: GridProps<T, Column>['styles']
   /**
    * A collection service to use for data source
    */
@@ -38,11 +38,11 @@ export interface DataGridProps<T> {
   /**
    * A list of custom header components to use
    */
-  headerComponents: DataHeaderCells<T>
+  headerComponents: DataHeaderCells<Column>
   /**
    * A list of custom row components to use
    */
-  rowComponents: DataRowCells<T>
+  rowComponents: DataRowCells<T, Column>
   /**
    * Optional autoFocus property to set the grid as focused
    */
@@ -75,7 +75,10 @@ export interface DataGridProps<T> {
   loaderComponent?: JSX.Element
 }
 
-export const DataGrid: <T>(props: DataGridProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
+export const DataGrid: <T, Column extends string>(
+  props: DataGridProps<T, Column>,
+  children: ChildrenList,
+) => JSX.Element<any> = Shade({
   shadowDomName: 'shade-data-grid',
   constructed: ({ props }) => {
     const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
