@@ -1,4 +1,4 @@
-import type { Constructable, Injector } from '@furystack/inject'
+import type { Constructable } from '@furystack/inject'
 import type { EventHub } from '@furystack/utils'
 
 export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
@@ -90,9 +90,9 @@ export const selectFields = <T extends object, TField extends Array<keyof T>>(en
  */
 export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = WithOptionalId<T, TPrimaryKey>>
   extends EventHub<{
-    onEntityAdded: { injector: Injector; entity: T }
-    onEntityUpdated: { injector: Injector; id: T[TPrimaryKey]; change: Partial<T> }
-    onEntityRemoved: { injector: Injector; key: T[TPrimaryKey] }
+    onEntityAdded: { entity: T }
+    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+    onEntityRemoved: { key: T[TPrimaryKey] }
   }> {
   /**
    * The Primary key field name
