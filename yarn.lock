@@ -471,7 +471,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -495,7 +495,7 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -508,7 +508,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
@@ -543,7 +543,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     mongodb: "npm:6.5.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.4.3"
@@ -558,7 +558,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     redis: "npm:^4.6.13"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
@@ -599,7 +599,7 @@ __metadata:
     "@furystack/rest-client-fetch": "workspace:^"
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     ajv: "npm:^8.12.0"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^6.2.2"
@@ -615,7 +615,7 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -628,7 +628,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     typescript: "npm:^5.4.3"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -641,7 +641,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     semaphore-async-await: "npm:^1.5.1"
     sequelize: "npm:^6.37.2"
     sqlite3: "npm:5.1.7"
@@ -718,7 +718,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/jsdom": "npm:^21.1.6"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.12.7"
     jsdom: "npm:^24.0.0"
     path-to-regexp: "npm:^6.2.2"
     semaphore-async-await: "npm:^1.5.1"
@@ -1198,12 +1198,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.12.2":
-  version: 20.12.2
-  resolution: "@types/node@npm:20.12.2"
+"@types/node@npm:^20.12.7":
+  version: 20.12.7
+  resolution: "@types/node@npm:20.12.7"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10/f1f0ebfe475aefa183763b856e0023b81b76554196e8676a45b9fcfd1012cdd20d32adefb3c0330001c0011e074676603c34c24821a4924228250ea13a75da43
+  checksum: 10/b4a28a3b593a9bdca5650880b6a9acef46911d58cf7cfa57268f048e9a7157a7c3196421b96cea576850ddb732e3b54bc982c8eb5e1e5ef0635d4424c2fce801
   languageName: node
   linkType: hard
 
