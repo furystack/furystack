@@ -84,7 +84,7 @@ export class HttpUserContext {
     return user
   }
 
-  public async getCurrentUser(request: IncomingMessage) {
+  public async getCurrentUser(request: Pick<IncomingMessage, 'headers'>) {
     if (!this.user) {
       this.user = await this.authenticateRequest(request)
       return this.user
@@ -92,7 +92,7 @@ export class HttpUserContext {
     return this.user
   }
 
-  public getSessionIdFromRequest(request: IncomingMessage): string | null {
+  public getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null {
     if (request.headers.cookie) {
       const cookies = request.headers.cookie
         .toString()
@@ -100,7 +100,7 @@ export class HttpUserContext {
         .filter((val) => val.length > 0)
         .map((val) => {
           const [name, value] = val.split('=')
-          return { name: name.trim(), value: value.trim() }
+          return { name: name?.trim(), value: value?.trim() }
         })
       const sessionCookie = cookies.find((c) => c.name === this.authentication.cookieName)
       if (sessionCookie) {
@@ -110,7 +110,7 @@ export class HttpUserContext {
     return null
   }
 
-  public async authenticateRequest(request: IncomingMessage): Promise<User> {
+  public async authenticateRequest(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
     // Basic auth
     if (this.authentication.enableBasicAuth && request.headers.authorization) {
       const authData = Buffer.from(request.headers.authorization.toString().split(' ')[1], 'base64')
@@ -139,7 +139,7 @@ export class HttpUserContext {
    * @param serverResponse A serverResponse to set the cookie
    * @returns the current User
    */
-  public async cookieLogin(user: User, serverResponse: ServerResponse): Promise<User> {
+  public async cookieLogin(user: User, serverResponse: Pick<ServerResponse, 'setHeader'>): Promise<User> {
     const sessionId = randomBytes(32).toString('hex')
     await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
@@ -147,10 +147,11 @@ export class HttpUserContext {
     return user
   }
 
-  public async cookieLogout(request: IncomingMessage, response: ServerResponse) {
+  public async cookieLogout(request: Pick<IncomingMessage, 'headers'>, response: Pick<ServerResponse, 'setHeader'>) {
+    this.user = undefined
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
-    this.user = undefined
+
     if (sessionId) {
       const sessionStore = this.getSessionStore()
       const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } } })
@@ -166,4 +167,22 @@ export class HttpUserContext {
 
   @Injected(PasswordAuthenticator)
   private declare readonly authenticator: PasswordAuthenticator
+
+  public async init() {
+    this.getUserStore().addListener('onEntityUpdated', ({ id, change }) => {
+      if (this.user?.username === id) {
+        this.user = { ...this.user, ...change }
+      }
+    })
+
+    this.getUserStore().addListener('onEntityRemoved', ({ key }) => {
+      if (this.user?.username === key) {
+        this.user = undefined
+      }
+    })
+
+    this.getSessionStore().addListener('onEntityRemoved', () => {
+      this.user = undefined // as user cannot be determined by the session id anymore
+    })
+  }
 }
