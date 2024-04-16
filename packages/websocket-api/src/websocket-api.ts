@@ -11,7 +11,7 @@ import { WebSocketServer } from 'ws'
 import ws from 'ws'
 import { WebSocketApiSettings } from './websocket-api-settings.js'
 import type { WebSocketAction } from './models/websocket-action.js'
-import { AggregatedError, IdentityContext } from '@furystack/core'
+import { AggregatedError, IdentityContext, type User } from '@furystack/core'
 
 /**
  * A WebSocket API implementation for FuryStack
@@ -37,7 +37,17 @@ export class WebSocketApi implements Disposable {
         const connectionInjector = this.injector.createChild({ owner: msg })
         connectionInjector.setExplicitInstance(websocket, ws)
         connectionInjector.setExplicitInstance(msg, IncomingMessage)
-        connectionInjector.setExplicitInstance(connectionInjector.getInstance(HttpUserContext), IdentityContext)
+
+        const httpUserContext = connectionInjector.getInstance(HttpUserContext)
+        connectionInjector.setExplicitInstance<IdentityContext>(
+          {
+            getCurrentUser: <TUser extends User>() => httpUserContext.getCurrentUser(msg) as Promise<TUser>,
+            isAuthorized: (...roles) => httpUserContext.isAuthorized(msg, ...roles),
+            isAuthenticated: () => httpUserContext.isAuthenticated(msg),
+          },
+          IdentityContext,
+        )
+
         this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
         websocket.on('message', (message) => {
           this.execute(message, msg, connectionInjector, websocket)
