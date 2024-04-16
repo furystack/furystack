@@ -1,0 +1,3 @@
+releases:
+  "@furystack/websocket-api": patch
+  furystack: patch
