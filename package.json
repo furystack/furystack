@@ -23,7 +23,7 @@
     "rimraf": "^5.0.5",
     "ts-json-schema-generator": "^2.0.1",
     "typescript": "^5.4.5",
-    "vite": "^5.2.8",
+    "vite": "^5.2.10",
     "vitest": "^1.5.0"
   },
   "scripts": {
