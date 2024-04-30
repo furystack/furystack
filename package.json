@@ -33,7 +33,7 @@
     "build:esm": "tsc -b packages",
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
     "build": "yarn build:esm",
-    "lint": "eslint . --cache --ext .tsx --ext .ts",
+    "lint": "eslint",
     "prettier": "prettier --write",
     "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",
