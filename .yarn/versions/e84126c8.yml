@@ -1,3 +1,4 @@
 releases:
-  "@furystack/shades-showcase-app": patch
+  '@furystack/shades-showcase-app': patch
+  '@furystack/websocket-api': patch
   furystack: patch
