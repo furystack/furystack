@@ -16,7 +16,7 @@
     "@furystack/logging": "workspace:^",
     "@playwright/test": "^1.43.1",
     "typescript": "^5.4.5",
-    "vite": "^5.2.10",
+    "vite": "^5.2.11",
     "vitest": "^1.5.2"
   },
   "dependencies": {
