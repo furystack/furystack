@@ -1411,9 +1411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-istanbul@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "@vitest/coverage-istanbul@npm:1.5.2"
+"@vitest/coverage-istanbul@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@vitest/coverage-istanbul@npm:1.6.0"
   dependencies:
     debug: "npm:^4.3.4"
     istanbul-lib-coverage: "npm:^3.2.2"
@@ -1425,8 +1425,8 @@ __metadata:
     picocolors: "npm:^1.0.0"
     test-exclude: "npm:^6.0.0"
   peerDependencies:
-    vitest: 1.5.2
-  checksum: 10/ff97bcb38c82afd830608b155fdd0cc962f8fce8062fc788dd26fd4b230ce1394c5aacae017c975345f0b113ae560b710205106108cdaffc8c8c1a5930633517
+    vitest: 1.6.0
+  checksum: 10/a77796e01f5b9c280a40dde7d9581aadeebeeb1d2fdc1598cbdaf736e14c72716bb46c9311fe7ee6776621b05f7ef52aa1ec6c750a04f0a29085f8971991fc54
   languageName: node
   linkType: hard
 
@@ -2790,7 +2790,7 @@ __metadata:
     "@types/jsdom": "npm:^21.1.6"
     "@typescript-eslint/eslint-plugin": "npm:^7.8.0"
     "@typescript-eslint/parser": "npm:^7.8.0"
-    "@vitest/coverage-istanbul": "npm:^1.5.2"
+    "@vitest/coverage-istanbul": "npm:^1.6.0"
     ajv: "npm:^8.13.0"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
