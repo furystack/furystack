@@ -464,7 +464,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
   languageName: unknown
@@ -488,7 +488,7 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
   languageName: unknown
@@ -501,7 +501,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
@@ -536,8 +536,8 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
-    mongodb: "npm:6.5.0"
+    "@types/node": "npm:^20.12.8"
+    mongodb: "npm:6.6.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
@@ -551,7 +551,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     redis: "npm:^4.6.13"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
@@ -592,7 +592,7 @@ __metadata:
     "@furystack/rest-client-fetch": "workspace:^"
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     ajv: "npm:^8.13.0"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^6.2.2"
@@ -608,7 +608,7 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
   languageName: unknown
@@ -621,7 +621,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.5.2"
   languageName: unknown
@@ -634,7 +634,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     semaphore-async-await: "npm:^1.5.1"
     sequelize: "npm:^6.37.3"
     sqlite3: "npm:5.1.7"
@@ -698,7 +698,7 @@ __metadata:
     "@playwright/test": "npm:^1.43.1"
     monaco-editor: "npm:^0.48.0"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.2.10"
+    vite: "npm:^5.2.11"
     vitest: "npm:^1.5.2"
   languageName: unknown
   linkType: soft
@@ -711,7 +711,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/jsdom": "npm:^21.1.6"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.12.8"
     jsdom: "npm:^24.0.0"
     path-to-regexp: "npm:^6.2.2"
     semaphore-async-await: "npm:^1.5.1"
@@ -1203,12 +1203,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.12.7":
+"@types/node@npm:*":
   version: 20.12.7
   resolution: "@types/node@npm:20.12.7"
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10/b4a28a3b593a9bdca5650880b6a9acef46911d58cf7cfa57268f048e9a7157a7c3196421b96cea576850ddb732e3b54bc982c8eb5e1e5ef0635d4424c2fce801
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.12.8":
+  version: 20.12.8
+  resolution: "@types/node@npm:20.12.8"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10/1feab4c8cb08588eea10811ed4d02485a5cde47fdf92e7b3193fc9f8ee39ea556f6e3124dc6d5378354466ed5f7e5fbe5e20f625908de40ea37560368a50f72c
   languageName: node
   linkType: hard
 
@@ -1402,9 +1411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-istanbul@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "@vitest/coverage-istanbul@npm:1.5.2"
+"@vitest/coverage-istanbul@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@vitest/coverage-istanbul@npm:1.6.0"
   dependencies:
     debug: "npm:^4.3.4"
     istanbul-lib-coverage: "npm:^3.2.2"
@@ -1416,8 +1425,8 @@ __metadata:
     picocolors: "npm:^1.0.0"
     test-exclude: "npm:^6.0.0"
   peerDependencies:
-    vitest: 1.5.2
-  checksum: 10/ff97bcb38c82afd830608b155fdd0cc962f8fce8062fc788dd26fd4b230ce1394c5aacae017c975345f0b113ae560b710205106108cdaffc8c8c1a5930633517
+    vitest: 1.6.0
+  checksum: 10/a77796e01f5b9c280a40dde7d9581aadeebeeb1d2fdc1598cbdaf736e14c72716bb46c9311fe7ee6776621b05f7ef52aa1ec6c750a04f0a29085f8971991fc54
   languageName: node
   linkType: hard
 
@@ -1770,10 +1779,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bson@npm:^6.4.0":
-  version: 6.6.0
-  resolution: "bson@npm:6.6.0"
-  checksum: 10/22f6f9395ffd0306efc03aa876149307738ec3ccb2384eca421493b8c71498d057b1f5b6caddf6f3154feaa5b24de988c502aaa1b519d502d3affdc35d623fd9
+"bson@npm:^6.7.0":
+  version: 6.7.0
+  resolution: "bson@npm:6.7.0"
+  checksum: 10/d4bc1d9514c67dbcb8451b7be95704e6e7cb262f0d11c938715c21297ab5550b0e2f3badf5480d53c4b3f899a84f2ed8708f3f46cad83ec52059f076aad8e1cd
   languageName: node
   linkType: hard
 
@@ -2781,7 +2790,7 @@ __metadata:
     "@types/jsdom": "npm:^21.1.6"
     "@typescript-eslint/eslint-plugin": "npm:^7.8.0"
     "@typescript-eslint/parser": "npm:^7.8.0"
-    "@vitest/coverage-istanbul": "npm:^1.5.2"
+    "@vitest/coverage-istanbul": "npm:^1.6.0"
     ajv: "npm:^8.13.0"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -2794,7 +2803,7 @@ __metadata:
     rimraf: "npm:^5.0.5"
     ts-json-schema-generator: "npm:^2.1.1"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.2.10"
+    vite: "npm:^5.2.11"
     vitest: "npm:^1.5.2"
   dependenciesMeta:
     prettier@3.0.2:
@@ -3949,12 +3958,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:6.5.0":
-  version: 6.5.0
-  resolution: "mongodb@npm:6.5.0"
+"mongodb@npm:6.6.0":
+  version: 6.6.0
+  resolution: "mongodb@npm:6.6.0"
   dependencies:
     "@mongodb-js/saslprep": "npm:^1.1.5"
-    bson: "npm:^6.4.0"
+    bson: "npm:^6.7.0"
     mongodb-connection-string-url: "npm:^3.0.0"
   peerDependencies:
     "@aws-sdk/credential-providers": ^3.188.0
@@ -3979,7 +3988,7 @@ __metadata:
       optional: true
     socks:
       optional: true
-  checksum: 10/537fcb59035c907b5e0a85f806893c4a0936e8d04a0cf788f0720b539195160036d6c43e40bdc0c48432d24c42e969c296adcb1eabbf70a2c5a7aafe5459e800
+  checksum: 10/6c314cddc882c093292a092e2b9ac0554d30035224d89464843d89dde4126406e9abc82bab716d30595ed91fa1979b927cbba3255499b107d1374e3302bd11ad
   languageName: node
   linkType: hard
 
@@ -5544,7 +5553,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.0, vite@npm:^5.2.10":
+"vite@npm:^5.0.0":
   version: 5.2.10
   resolution: "vite@npm:5.2.10"
   dependencies:
@@ -5581,6 +5590,46 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10/a0c4ac7b95e9a2a59f4e73e5b42a63f33569f5ec505af9dd019f19ff419fd20d66ad9aad6708987d4da173d485358f0024f410af78ac97cf5c92a38f8c96c451
+  languageName: node
+  linkType: hard
+
+"vite@npm:^5.2.11":
+  version: 5.2.11
+  resolution: "vite@npm:5.2.11"
+  dependencies:
+    esbuild: "npm:^0.20.1"
+    fsevents: "npm:~2.3.3"
+    postcss: "npm:^8.4.38"
+    rollup: "npm:^4.13.0"
+  peerDependencies:
+    "@types/node": ^18.0.0 || >=20.0.0
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.4.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: 10/ee0ad038f0831c9514796522deb1e2dcb84bc311abbccb77e4b12216d37fc9559137f4f1b8e75187d51007b954e845c6518e36ee3acac2e2a2789c1181ebb16c
   languageName: node
   linkType: hard
 
