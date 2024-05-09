@@ -24,7 +24,7 @@
     "ts-json-schema-generator": "^2.1.1",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
-    "vitest": "^1.5.2"
+    "vitest": "^1.6.0"
   },
   "scripts": {
     "start": "yarn workspace @furystack/shades-showcase-app start",
@@ -55,7 +55,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "yarn@4.1.1",
+  "packageManager": "yarn@4.2.2",
   "dependenciesMeta": {
     "prettier@3.0.2": {
       "unplugged": true

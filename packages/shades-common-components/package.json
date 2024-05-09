@@ -32,7 +32,7 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "typescript": "^5.4.5",
-    "vitest": "^1.5.2"
+    "vitest": "^1.6.0"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
