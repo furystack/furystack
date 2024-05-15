@@ -1,14 +1,14 @@
 import type { RouteLinkProps } from '@furystack/shades'
 import { attachProps } from '@furystack/shades'
 import { createComponent, LocationService, RouteLink, Shade } from '@furystack/shades'
-import { match } from 'path-to-regexp'
+import { match, type TokensToRegexpOptions } from 'path-to-regexp'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 
-export const AppBarLink = Shade<RouteLinkProps>({
+export const AppBarLink = Shade<RouteLinkProps & { routingOptions: TokensToRegexpOptions }>({
   shadowDomName: 'shade-app-bar-link',
   render: ({ children, props, useObservable, injector, element }) => {
     const getAnchorStyle = (currentUrl: string) => {
-      const isActive = !!match(props.href as string)(currentUrl)
+      const isActive = !!match(props.href as string, props.routingOptions)(currentUrl)
       const themeProviderService = injector.getInstance(ThemeProviderService)
       const { theme } = themeProviderService
       return {
