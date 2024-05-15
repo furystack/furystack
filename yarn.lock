@@ -5359,9 +5359,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-json-schema-generator@npm:2.1.2-next.1":
-  version: 2.1.2-next.1
-  resolution: "ts-json-schema-generator@npm:2.1.2-next.1"
+"ts-json-schema-generator@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "ts-json-schema-generator@npm:2.1.1"
   dependencies:
     "@types/json-schema": "npm:^7.0.15"
     commander: "npm:^12.0.0"
@@ -5372,7 +5372,7 @@ __metadata:
     typescript: "npm:^5.4.5"
   bin:
     ts-json-schema-generator: bin/ts-json-schema-generator.js
-  checksum: 10/98070d246bdc6c2f0cc3f0b4688b9cf7900c61f723e0375c4cee927217de00d075ca6d644b908888dff61bab9ca8cf2732a201ef8e5b540c8f830f3dfa737326
+  checksum: 10/f00a7a243cb3b70e9e324f210e1df331e8e27796fe4922751c461946b2bafd2e32e18ed64ef09a8520220356786b03e00f741ad496dbb3178f0e6ca8196d89c5
   languageName: node
   linkType: hard
 
