@@ -92,14 +92,14 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     try {
       await this.fileLock.acquire()
       const data = await this.readFile(this.options.fileName)
-      const json: T[] = data ? JSON.parse(data.toString()) : []
+      const json = data ? (JSON.parse(data.toString()) as T[]) : []
       this.cache.clear()
       for (const entity of json) {
         this.cache.set(entity[this.primaryKey], entity)
       }
     } catch (err) {
       // ignore if file not exists yet
-      if (err instanceof Error && (err as any).code !== 'ENOENT') {
+      if (err instanceof Error && (err as { code?: string }).code !== 'ENOENT') {
         throw err
       }
     } finally {

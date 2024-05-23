@@ -14,17 +14,17 @@ describe('GoogleLoginAction', () => {
   it('Should be activated and disposed', async () => {
     await usingAsync(new Injector(), async (i) => {
       const testUser = { username: 'example', roles: [] }
-      const cookieLogin = vi.fn(async () => testUser)
+      const cookieLogin = vi.fn(() => Promise.resolve(testUser))
       i.setExplicitInstance({}, ServerResponse)
 
       i.setExplicitInstance(i.getInstance(GoogleLoginService))
-      i.getInstance(GoogleLoginService).login = async () => testUser
+      i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
       i.setExplicitInstance({ cookieLogin }, HttpUserContext)
       const result = await GoogleLoginAction({
         request,
         response,
         injector: i,
-        getBody: async () => ({ token: 'asd123' }),
+        getBody: () => Promise.resolve({ token: 'asd123' }),
       })
       expect(cookieLogin).toBeCalled()
       expect(result.chunk.username).toBe('example')

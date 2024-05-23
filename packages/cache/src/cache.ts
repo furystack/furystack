@@ -162,7 +162,13 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     const index = this.getIndex(...args)
     const observable = this.stateManager.getObservable(index)
     if (observable.getValue().status === 'uninitialized') {
-      this.get(...args) // Trigger reload if needed
+      this.get(...args)
+        .then(() => {
+          /** */
+        })
+        .catch(() => {
+          /** */
+        }) // Trigger reload if needed
     }
     return observable
   }

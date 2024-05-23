@@ -1,10 +1,10 @@
 name: Version checks
-on: 
+on:
   push:
     branches-ignore:
-      - "release/**"
-      - "master"
-      - "develop"
+      - 'release/**'
+      - 'master'
+      - 'develop'
 jobs:
   build:
     name: Check version bumps
@@ -28,4 +28,3 @@ jobs:
         run: yarn version check
         env:
           CI: true
-  

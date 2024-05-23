@@ -43,7 +43,7 @@ describe('createGetCollectionEndpoint', () => {
 
       const response = await fetch(`http://127.0.0.1:${port}/api/entities`, { method: 'GET' })
       expect(response.ok).toBe(true)
-      const json: GetCollectionResult<MockClass> = await response.json()
+      const json = (await response.json()) as GetCollectionResult<MockClass>
       expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(allEntities)
@@ -72,7 +72,7 @@ describe('createGetCollectionEndpoint', () => {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
-      const json: GetCollectionResult<MockClass> = await response.json()
+      const json = (await response.json()) as GetCollectionResult<MockClass>
       expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(orderedEntities)
@@ -107,7 +107,7 @@ describe('createGetCollectionEndpoint', () => {
         method: 'GET',
       })
       expect(response.ok).toBe(true)
-      const json: GetCollectionResult<MockClass> = await response.json()
+      const json = (await response.json()) as GetCollectionResult<MockClass>
       expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(filteredEntities)
@@ -143,7 +143,7 @@ describe('createGetCollectionEndpoint', () => {
       })
 
       expect(response.ok).toBe(true)
-      const json: GetCollectionResult<MockClass> = await response.json()
+      const json = (await response.json()) as GetCollectionResult<MockClass>
       expect(response.status).toBe(200)
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(selectedEntities)
@@ -180,7 +180,7 @@ describe('createGetCollectionEndpoint', () => {
         method: 'GET',
       })
       expect(response.status).toBe(200)
-      const json: GetCollectionResult<MockClass> = await response.json()
+      const json = (await response.json()) as GetCollectionResult<MockClass>
       expect(json.count).toBe(count)
       expect(json.entries).toEqual(topSkipEntities)
     })

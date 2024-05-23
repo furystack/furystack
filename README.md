@@ -3,7 +3,6 @@
 [![Unit tests](https://github.com/furystack/furystack/actions/workflows/build-test.yml/badge.svg)](https://github.com/furystack/furystack/actions/workflows/build-test.yml)
 [![UI tests](https://github.com/furystack/furystack/actions/workflows/showcase-ui-tests.yml/badge.svg)](https://github.com/furystack/furystack/actions/workflows/showcase-ui-tests.yml)
 
-
 FuryStack is a flexible end-to-end framework that allows you to build complex services fast and easily.
 
 - Written in Typescript. The public APIs are clean and readable.

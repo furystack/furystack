@@ -1,4 +1,4 @@
-import { usingAsync } from '@furystack/utils'
+import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
@@ -6,8 +6,8 @@ import { WebSocketApiSettings } from './websocket-api-settings.js'
 import { getPort } from '@furystack/core/port-generator'
 
 describe('WebSocket Helpers', () => {
-  it('Should register the settings', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('Should register the settings', () => {
+    using(new Injector(), (i) => {
       const port = getPort()
       useWebsockets(i, { port })
       const settings = i.getInstance(WebSocketApiSettings)

@@ -18,7 +18,7 @@ describe('WebSocket Integration tests', () => {
   beforeEach(async () => {
     i = new Injector()
     port = getPort()
-    useRestService({
+    await useRestService({
       injector: i,
       api: {},
       root: '',
@@ -31,17 +31,18 @@ describe('WebSocket Integration tests', () => {
     useHttpAuthentication(i, {})
     useWebsockets(i, { actions: [WhoAmI], path, port, host })
 
-    await new Promise<void>((done, reject) => {
+    await new Promise<void>((resolve, reject) => {
       i.getInstance(ServerManager)
         .getOrCreate({ port })
         .then(() => {
           client = new WebSocket(`ws://${host}:${port}/ws`)
           client
             .on('open', () => {
-              done()
+              resolve()
             })
             .on('error', reject)
         })
+        .catch(reject)
     })
   })
 
@@ -50,8 +51,8 @@ describe('WebSocket Integration tests', () => {
   })
   const getWhoAmIResult = async (subjectClient: WebSocket) => {
     return new Promise<{ currentUser: User }>((resolve, reject) => {
-      subjectClient.once('message', (data: any) => {
-        resolve(JSON.parse(data.toString()))
+      subjectClient.once('message', (data: Buffer) => {
+        resolve(JSON.parse(data.toString()) as { currentUser: User })
       })
       subjectClient.once('error', reject)
       subjectClient.send('whoami')
@@ -68,15 +69,14 @@ describe('WebSocket Integration tests', () => {
     const testUser = { username: 'test', password: 'test', roles: [] } as User
 
     const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-    userStore.add(testUser)
+    await userStore.add(testUser)
 
     const userCtx = i.getInstance(HttpUserContext)
 
     let cookie = ''
     await userCtx.cookieLogin(testUser, {
       setHeader: (_setCookie, cookieValue) => {
-        cookie = cookieValue as string
-        return {} as any
+        cookie = cookieValue
       },
     })
 
@@ -91,7 +91,7 @@ describe('WebSocket Integration tests', () => {
     const whoAmIResult = await getWhoAmIResult(authenticatedClient)
     expect(whoAmIResult.currentUser).toEqual(testUser)
 
-    userStore.update(testUser.username, { ...testUser, roles: ['newFancyRole'] })
+    await userStore.update(testUser.username, { ...testUser, roles: ['newFancyRole'] })
 
     const updatedWhoAmIResult = await getWhoAmIResult(authenticatedClient)
     expect(updatedWhoAmIResult.currentUser.roles).toEqual(['newFancyRole'])

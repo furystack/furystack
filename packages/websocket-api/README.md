@@ -7,11 +7,10 @@ WebSocket implementation for FuryStack
 You can initialize the WebSocket package in the following way
 
 ```ts
-const myInjector = new Injector()
-  .useWebsockets({
-    path: '/api/sockets',
-    actions: [WhoAmI],
-  })
+const myInjector = new Injector().useWebsockets({
+  path: '/api/sockets',
+  actions: [WhoAmI],
+})
 ```
 
 ### Implement your own actions
@@ -40,6 +39,9 @@ export class WhoAmI implements WebSocketAction {
     this.websocket.send(JSON.stringify(currentUser))
   }
 
-  constructor(private httpUserContext: HttpUserContext<User>, private websocket: ws) {}
+  constructor(
+    private httpUserContext: HttpUserContext<User>,
+    private websocket: ws,
+  ) {}
 }
 ```

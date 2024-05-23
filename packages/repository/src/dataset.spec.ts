@@ -102,7 +102,7 @@ describe('DataSet', () => {
 
           getRepository(i).createDataSet(TestClass, 'id', { authorizeAdd })
 
-          const dataSet = await getDataSetFor(i, TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })
@@ -189,7 +189,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdateEntity })
 
-          const dataSet = await getDataSetFor(i, TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })
@@ -223,7 +223,7 @@ describe('DataSet', () => {
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { authorizeUpdate })
 
-          const dataSet = await getDataSetFor(i, TestClass, 'id')
+          const dataSet = getDataSetFor(i, TestClass, 'id')
 
           try {
             await dataSet.add(i, { id: 1, value: 'asd' })

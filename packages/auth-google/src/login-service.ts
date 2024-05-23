@@ -63,12 +63,11 @@ export class GoogleLoginService {
    */
   public async getGoogleUserData(token: string): Promise<GoogleApiPayload> {
     return await new Promise<GoogleApiPayload>((resolve, reject) =>
-      this.settings.get(`${this.googleApiEndpoint}${token}`, async (response) => {
+      this.settings.get(`${this.googleApiEndpoint}${token}`, (response) => {
         if (response.statusCode && response.statusCode < 400) {
-          const body = await this.readPostBody<GoogleApiPayload>(response)
-          return resolve(body)
+          this.readPostBody<GoogleApiPayload>(response).then(resolve).catch(reject)
         } else {
-          return reject(new Error('Invalid response!'))
+          reject(new Error('Invalid response!'))
         }
       }),
     )

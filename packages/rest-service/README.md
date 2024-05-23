@@ -11,7 +11,6 @@ You can start with importing your custom API Endpoint interface (see `@furystack
 Usage example - Authenticated GET, GET Collection and POST APIs for a custom entity that has a physical store and repository set up
 
 ```ts
-
 import { MyApi, MyEntity } from 'my-common-package'
 import {
   createGetCollectionEndpoint,
@@ -20,39 +19,38 @@ import {
   createPostEndpoint,
 } from '@furystack/rest-service'
 
-
 myInjector.useHttpAuthentication().useRestService<MyApi>({
-    port: 8080, // The port to listen
-    root: '/api', // Routes will be joined on this root path
-    cors: { // Enable CORS
-      credentials: true, // Enable cookies for CORS
-      origins: ['https://my-frontend-1', 'https://my-frontend-2'], // Allowed origins
+  port: 8080, // The port to listen
+  root: '/api', // Routes will be joined on this root path
+  cors: {
+    // Enable CORS
+    credentials: true, // Enable cookies for CORS
+    origins: ['https://my-frontend-1', 'https://my-frontend-2'], // Allowed origins
+  },
+  // This API should implement *all* methods that are defined in `MyApi`
+  api: {
+    // Endpoints that can be called with GET Http method
+    GET: {
+      '/my-entities': Authenticate()(createGetCollectionEndpoint({ model: MyEntity, primaryKey: 'id' })),
+      '/my-entities/:id': Authenticate()(createGetEntityEndpoint({ model: MyEntity, primaryKey: 'id' })),
     },
-    // This API should implement *all* methods that are defined in `MyApi`
-    api: {
-        // Endpoints that can be called with GET Http method
-        GET: {
-            '/my-entities': Authenticate()(createGetCollectionEndpoint({ model: MyEntity, primaryKey: 'id' })),
-            '/my-entities/:id': Authenticate()(createGetEntityEndpoint({ model: MyEntity, primaryKey: 'id' })),
-        },
-        // Endpoints that can be called with GET Http method
-        POST: {
-            '/my-entities': Authenticate()(createPostEndpoint({ model: MyEntity, primaryKey: 'id' })),
-        },
+    // Endpoints that can be called with GET Http method
+    POST: {
+      '/my-entities': Authenticate()(createPostEndpoint({ model: MyEntity, primaryKey: 'id' })),
     },
+  },
 })
-
 ```
 
 ### Endpoint generators (based on Repository DataSets)
 
 If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) for an entity type, you can easily create some CRUD endpoints for them. These are the followings:
- 
- - createDeleteEndpoint()
- - createGetCollectionEndpoint()
- - createGetEntityEndpoint()
- - createPatchEndpoint()
- - createPostEndpoint()
+
+- createDeleteEndpoint()
+- createGetCollectionEndpoint()
+- createGetEntityEndpoint()
+- createPatchEndpoint()
+- createPostEndpoint()
 
 The endpoints will use the defined Physical Stores for retrieving entities and the Repository for authorization / event subscriptions.
 
@@ -61,33 +59,32 @@ The endpoints will use the defined Physical Stores for retrieving entities and t
 If you want to implement an endpoint with custom logic, you can define it in the following way:
 
 ```ts
-
 import { Injector } from '@furystack/inject'
 import { RestApi } from '@furystack/rest'
 
 export type MyCustomRequestAction = {
-      /** The request should contain this POST Body structure */
-      body: {
-        foo: string
-        bar: number
-      }
-      /** Parameter(s) from the URL */
-      url: {
-        /** This should be also a part of the URL with the `:entityId` syntax */
-        entityId: string
-      }
+  /** The request should contain this POST Body structure */
+  body: {
+    foo: string
+    bar: number
+  }
+  /** Parameter(s) from the URL */
+  url: {
+    /** This should be also a part of the URL with the `:entityId` syntax */
+    entityId: string
+  }
 
-      /** The request should contain this query string parameters in the `?foo=asd&bar=2&baz=false` format */
-      query: { foo?: string; bar?: number; baz?: boolean }
+  /** The request should contain this query string parameters in the `?foo=asd&bar=2&baz=false` format */
+  query: { foo?: string; bar?: number; baz?: boolean }
 
-      /** The request should contain these header values */
-      headers: { foo: string; bar: number; baz: boolean }
+  /** The request should contain these header values */
+  headers: { foo: string; bar: number; baz: boolean }
 
-      /** The endpoint will return the following structure in the response */
-      result: {
-        success: boolean
-      }
-    }
+  /** The endpoint will return the following structure in the response */
+  result: {
+    success: boolean
+  }
+}
 
 /** In a Common module */
 export interface MyApiWithCustomEndpoint extends RestApi {
@@ -169,14 +166,13 @@ getResult().then((data) => {
   console.log(data.result) // will be { success: true }
   console.log(data.response.status) // will be 200
 })
-
-
 ```
 
 ### Payload validation
 
 Type-safe APIs does **NOT** comes with built-in validation by default - but you can use the JSON Schema for full payload validation.
 The prefferred way is:
+
 1. Create your API interface
 1. Create JSON Schemas from the API (The `ts-json-schema-generator` package is the best solution nowdays, you can check how it works, [here](https://github.com/furystack/furystack/blob/develop/package.json#L39))
 1. Use the Validate middleware, as shown in the following example:
@@ -191,7 +187,6 @@ const myValidatedApi = Validate({
 ```
 
 In that way, you will get full validation for _all_ defined endpoint data (header, body, url parameters, query string) with verbose error messages from `ajv` (see [integration tests](https://github.com/furystack/furystack/blob/develop/packages/rest-service/src/validate.integration.spec.ts))
-
 
 ### Authentication and HttpUserContext
 
@@ -211,9 +206,10 @@ myInjector.useCommonAuth({{
 ### Built-in actions
 
 The package contains the following built-in actions
- - `ErrorAction` - for default error handling and dumping errors in the response
- - `GetCurrentUser` - Returns the current user
- - `IsAuthenticated` - Returns if a user is logged in
- - `Login` - Login with a simple username + password combo
- - `Logout` - Destroys the current session
- - `NotFoundAction` - The default '404' fallback route
+
+- `ErrorAction` - for default error handling and dumping errors in the response
+- `GetCurrentUser` - Returns the current user
+- `IsAuthenticated` - Returns if a user is logged in
+- `Login` - Login with a simple username + password combo
+- `Logout` - Destroys the current session
+- `NotFoundAction` - The default '404' fallback route

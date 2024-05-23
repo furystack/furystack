@@ -246,12 +246,12 @@ describe('Loggers', () => {
       })
       it('Should print Fatal', async () => {
         const message = { message: 'Example Fatal Message', scope }
-        consoleLogger.fatal(message)
+        await consoleLogger.fatal(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal' }))
       })
       it('Should print additional data', async () => {
         const message = { message: 'Example Fatal Message', data: { a: 1 }, scope }
-        consoleLogger.fatal(message)
+        await consoleLogger.fatal(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal' }))
       })
     })
