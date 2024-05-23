@@ -53,7 +53,6 @@ export default tseslint.config(
       '@typescript-eslint/no-useless-constructor': 'error',
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      'prettier/prettier': 'error',
       'jsdoc/require-param-type': 'off',
       'jsdoc/require-returns-type': 'off',
       'object-shorthand': 'error',
