@@ -76,7 +76,7 @@ describe('WebSocket Integration tests', () => {
     let cookie = ''
     await userCtx.cookieLogin(testUser, {
       setHeader: (_setCookie, cookieValue) => {
-        cookie = cookieValue as string
+        cookie = cookieValue
       },
     })
 
