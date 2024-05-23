@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "General utilities",
   "type": "module",
   "scripts": {
@@ -35,6 +35,6 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^5.4.5",
-    "vitest": "^1.5.2"
+    "vitest": "^1.6.0"
   }
 }
