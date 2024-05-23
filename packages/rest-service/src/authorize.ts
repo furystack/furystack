@@ -1,7 +1,7 @@
 import { isAuthorized } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
-import { JsonResult } from './request-action-implementation.js'
+import { RequestError } from '@furystack/rest'
 
 export const Authorize =
   (...roles: string[]) =>
@@ -11,11 +11,11 @@ export const Authorize =
         const authorized = await isAuthorized(options.injector, ...roles)
         if (!authorized) {
           await sleepAsync(Math.random() * 1000)
-          return JsonResult({ error: 'forbidden' }, 403) as any
+          throw new RequestError('forbidden', 403)
         }
       } catch (error) {
-        return JsonResult({ error: 'forbidden' }, 403) as any
+        throw new RequestError('forbidden', 403)
       }
-      return (await action(options)) as any
+      return (await action(options)) as ActionResult<T>
     }
   }

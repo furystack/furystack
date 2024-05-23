@@ -8,12 +8,17 @@ export const globalDisposables: Set<Disposable> = new Set()
 /**
  * Will be triggered via process event listeners
  */
-export const exitHandler = (async () => {
-  const result = await Promise.allSettled([...globalDisposables].map((d) => d.dispose()))
-  const fails = result.filter((r) => r.status === 'rejected')
-  if (fails && fails.length) {
-    console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
-  }
+export const exitHandler = (() => {
+  Promise.allSettled([...globalDisposables].map((d) => d.dispose()))
+    .then((result) => {
+      const fails = result.filter((r) => r.status === 'rejected')
+      if (fails && fails.length) {
+        console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
+      }
+    })
+    .catch(() => {
+      /** should not happen with allSettled */
+    })
 }).bind(null)
 
 // do something when app is closing
@@ -32,4 +37,5 @@ globalThis.process?.on?.('SIGUSR2', exitHandler)
 globalThis.process?.on?.('uncaughtException', exitHandler)
 
 // Browser environment
-;(globalThis as any).window?.addEventListener('beforeunload', exitHandler)
+;(globalThis instanceof Window || globalThis instanceof Document) &&
+  globalThis.window?.addEventListener('beforeunload', exitHandler)

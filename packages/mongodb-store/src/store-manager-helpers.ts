@@ -49,7 +49,7 @@ export const useMongoDb = <T extends object>({
     primaryKey,
     db,
     collection,
-    mongoClient: async () => await clientFactory.getClientFor(url, options),
+    mongoClient: () => clientFactory.getClientFor(url, options),
   })
   addStore(injector, store)
 }
