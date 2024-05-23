@@ -13,6 +13,7 @@
     "@vitest/coverage-istanbul": "^1.6.0",
     "ajv": "^8.13.0",
     "eslint": "^9.3.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^48.2.5",
     "husky": "^9.0.11",
     "jsdom": "^24.0.0",
