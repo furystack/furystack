@@ -93,15 +93,14 @@ jobs:
 
       - script: yarn build:showcase
         displayName: 'Build Showcase app'
-             
+
       - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
         displayName: Install Playwright browsers
-      
+
       - script: yarn workspace @furystack/shades-showcase-app e2e test
         env:
           CI: true
         displayName: execute tests
-        
 
       # TODO: Check me
       # - task: PublishTestResults@2
@@ -110,4 +109,3 @@ jobs:
       #   inputs:
       #     testRunner: JUnit
       #     testResultsFiles: 'packages/shades-showcase-app/test-results'
-

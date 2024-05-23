@@ -28,4 +28,4 @@ jobs:
         if: failure()
         with:
           path: packages/shades-showcase-app/test-results
-          name: Download-screenshots  
+          name: Download-screenshots
