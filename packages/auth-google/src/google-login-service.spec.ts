@@ -23,7 +23,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
 
-        i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
+        await i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
 
         const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser())
         expect(user && user.roles).toEqual([])
@@ -83,7 +83,7 @@ describe('Google Login Service', () => {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
         const loginService = i.getInstance(GoogleLoginService)
-        loginService.readPostBody = async <T>() =>
+        loginService.readPostBody = <T>() =>
           getGoogleUser({
             email_verified: false,
           }) as T

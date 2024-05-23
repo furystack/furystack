@@ -36,9 +36,9 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
   }
 
   public cache: Map<T[TPrimaryKey], T> = new Map()
-  public get = async (key: T[TPrimaryKey], select?: Array<keyof T>) => {
+  public get = (key: T[TPrimaryKey], select?: Array<keyof T>) => {
     const item = this.cache.get(key)
-    return item && select ? selectFields(item, ...select) : item
+    return Promise.resolve(item && select ? selectFields(item, ...select) : item)
   }
 
   private evaluateLike = (value: string, likeString: string) => {

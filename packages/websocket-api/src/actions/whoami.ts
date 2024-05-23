@@ -13,7 +13,16 @@ export class WhoAmI implements WebSocketAction {
     /** */
   }
   public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {
-    return options.data.toString() === 'whoami' || options.data.toString() === 'whoami /claims'
+    const stringifiedValue =
+      typeof options.data === 'string'
+        ? options.data
+        : options.data instanceof Buffer
+          ? options.data.toString()
+          : options.data instanceof ArrayBuffer
+            ? Buffer.from(options.data).toString()
+            : options.data.map((buf) => buf.toString()).join('')
+
+    return stringifiedValue === 'whoami' || stringifiedValue === 'whoami /claims'
   }
 
   public async execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }) {
