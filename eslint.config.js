@@ -7,10 +7,10 @@ import jsdoc from 'eslint-plugin-jsdoc'
 export default tseslint.config(
   {
     ignores: [
-      'coverage/**',
+      'coverage',
       'packages/*/node_modules/*',
       'packages/*/esm/*',
-      'packages**/types/*',
+      'packages/*/types/*',
       'packages/*/dist/*',
       '.yarn/*',
     ],
