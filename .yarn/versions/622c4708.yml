@@ -1,6 +1,7 @@
 releases:
-  "@furystack/auth-google": patch
-  "@furystack/redis-store": patch
-  "@furystack/rest-service": patch
-  "@furystack/websocket-api": patch
+  '@furystack/auth-google': patch
+  '@furystack/redis-store': patch
+  '@furystack/mongodb-store': patch
+  '@furystack/rest-service': patch
+  '@furystack/websocket-api': patch
   furystack: patch
