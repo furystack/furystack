@@ -2,7 +2,6 @@
 
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
-import prettier from 'eslint-plugin-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
 
 export default tseslint.config(
@@ -29,7 +28,6 @@ export default tseslint.config(
       },
     },
     plugins: {
-      prettier,
       jsdoc,
     },
     rules: {
