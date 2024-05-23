@@ -1,7 +1,7 @@
 import { Injector, Injectable } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { WebSocketApi } from './websocket-api.js'
-import { WebSocket } from 'ws'
+import { WebSocket, type Data } from 'ws'
 import type { WebSocketAction } from './models/websocket-action.js'
 import { useWebsockets } from './helpers.js'
 import { describe, it, expect } from 'vitest'
@@ -79,7 +79,7 @@ describe('WebSocketApi', () => {
           return true
         }
 
-        public async execute(incomingData: any) {
+        public async execute(incomingData: { data: Data }) {
           expect(JSON.parse(incomingData.data.toString())).toEqual(data)
         }
       }

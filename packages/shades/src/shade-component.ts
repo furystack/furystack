@@ -70,7 +70,6 @@ type CreateComponentArgs<TProps> = [
   ...children: ChildrenList,
 ]
 
-// eslint-disable-next-line jsdoc/require-param
 /**
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
  * @returns the created JSX element
