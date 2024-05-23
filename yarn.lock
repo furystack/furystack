@@ -540,7 +540,7 @@ __metadata:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^20.12.12"
-    mongodb: "npm:6.6.1"
+    mongodb: "npm:6.6.2"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.4.5"
     vitest: "npm:^1.6.0"
