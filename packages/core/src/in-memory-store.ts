@@ -24,7 +24,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public async add(...entries: T[]): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
-      const entry = { ...e } as T
+      const entry = { ...e }
       if (this.cache.has(entry[this.primaryKey])) {
         throw new Error('Item with the primary key already exists.')
       }
