@@ -11,6 +11,8 @@
     "packages/shades-showcase-app/vite.config.ts",
     "vitest.workspace.mts",
     "vitest.config.mts",
-    "prettier.config.js"
+    "prettier.config.js",
+    "packages/**/src/**/*.ts",
+    "packages/**/src/**/*.tsx"
   ]
 }
