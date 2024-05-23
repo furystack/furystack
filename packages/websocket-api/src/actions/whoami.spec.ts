@@ -12,9 +12,9 @@ describe('Whoami action', () => {
 
   const request = { url: 'https://google.com' } as IncomingMessage
 
-  const wsMock: ws = {
+  const wsMock = {
     send: vi.fn(() => undefined),
-  } as unknown as ws
+  } as unknown as ws & { send: (this: void, ...args: unknown[]) => void }
 
   it('cannot be executed if data does not match', () => {
     expect(WhoAmI.canExecute({ request, data: 'asd' })).toBeFalsy()

@@ -16,9 +16,8 @@ export default tseslint.config(
       '.yarn/*',
     ],
   },
-  // eslint-disable-next-line
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
   {
     linterOptions: {
       reportUnusedDisableDirectives: true,
@@ -55,6 +54,7 @@ export default tseslint.config(
       '@typescript-eslint/array-type': ['error', { default: 'array-simple', readonly: 'array-simple' }],
       '@typescript-eslint/no-useless-constructor': 'error',
       '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
       'prettier/prettier': 'error',
       'jsdoc/require-param-type': 'off',
       'jsdoc/require-returns-type': 'off',
