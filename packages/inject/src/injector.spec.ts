@@ -123,7 +123,7 @@ describe('Injector', () => {
     }
   })
 
-  it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
+  it('Should dispose cached entries on dispose and tolerate non-disposable ones', () => {
     const doneCallback = vi.fn()
     class TestDisposable implements Disposable {
       public dispose() {
@@ -132,7 +132,7 @@ describe('Injector', () => {
     }
     class TestInstance {}
 
-    await usingAsync(new Injector(), async (i) => {
+    using(new Injector(), (i) => {
       i.setExplicitInstance(new TestDisposable())
       i.setExplicitInstance(new TestInstance())
     })

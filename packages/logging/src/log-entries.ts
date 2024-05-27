@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 /**
  * The verbosity level of a log entry
  */

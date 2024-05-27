@@ -37,7 +37,7 @@ export class RedisStore<
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
-        this.options.client.set((key as any).toString(), JSON.stringify(entry))
+        await this.options.client.set((key as any).toString(), JSON.stringify(entry))
         return entry
       }),
     )

@@ -14,11 +14,11 @@ class Resource implements IDisposable {
   }
 }
 
-using(new Resource(), resource => {
+using(new Resource(), (resource) => {
   // do something with the resource
 })
 
-usingAsync(new Resource(), async resource => {
+usingAsync(new Resource(), async (resource) => {
   // do something with the resource, allows awaiting promises
 })
 ```
@@ -31,7 +31,7 @@ Example:
 
 ```ts
 const observableValue = new ObservableValue<number>(0)
-const observer = observableValue.subscribe(newValue => {
+const observer = observableValue.subscribe((newValue) => {
   console.log('Value changed:', newValue)
 })
 
@@ -77,13 +77,13 @@ const methodTracer: IDisposable = Trace.method({
   object: myObjectInstance, // You can define an object constructor for static methods as well
   method: myObjectInstance.method, // The method to be tracked
   isAsync: true, // if you set to async, method finished will be *await*-ed
-  onCalled: traceData => {
+  onCalled: (traceData) => {
     console.log('Method called:', traceData)
   },
-  onFinished: traceData => {
+  onFinished: (traceData) => {
     console.log('Method call finished:', traceData)
   },
-  onError: traceData => {
+  onError: (traceData) => {
     console.log('Method throwed an error:', traceData)
   },
 })

@@ -21,12 +21,11 @@ The generic way to implement authentication and authorization logic is an Identi
 ### Global Disposables
 
 Global Disposables is a list that you can fill with disposables that will be disposed on app exit - this helps graceful app shutdowns.
-```ts
 
+```ts
 import { globalDisposables } from '@furystack/core/dist/create-physical-store-tests'
 
 globalDisposables.add(myRootInjector)
-
 ```
 
 ### Generic tests for physical stores
@@ -36,12 +35,10 @@ There is a set of generic store test that you can use to test your custom store 
 ```ts
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
 
-describe('myStore', ()=>{
-    createStoreTest({
-        createStore: () => new MyStoreImplementation(TestClass, ...ctorArgs),
-        typeName: 'MyStoreImplementation',
-    })
+describe('myStore', () => {
+  createStoreTest({
+    createStore: () => new MyStoreImplementation(TestClass, ...ctorArgs),
+    typeName: 'MyStoreImplementation',
+  })
 })
-
-
 ```

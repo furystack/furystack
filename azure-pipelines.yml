@@ -104,7 +104,7 @@ jobs:
       - script: yarn workspace @furystack/shades-showcase-app e2e test
         env:
           CI: true
-        displayName: Execute tests
+        displayName: execute tests
 
       # TODO: Check me
       # - task: PublishTestResults@2

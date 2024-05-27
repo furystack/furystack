@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage } from 'http'
 import type { User } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
 import { Injectable, Injected } from '@furystack/inject'
@@ -139,7 +139,10 @@ export class HttpUserContext {
    * @param serverResponse A serverResponse to set the cookie
    * @returns the current User
    */
-  public async cookieLogin(user: User, serverResponse: Pick<ServerResponse, 'setHeader'>): Promise<User> {
+  public async cookieLogin(
+    user: User,
+    serverResponse: { setHeader: (header: string, value: string) => void },
+  ): Promise<User> {
     const sessionId = randomBytes(32).toString('hex')
     await this.getSessionStore().add({ sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
@@ -147,7 +150,10 @@ export class HttpUserContext {
     return user
   }
 
-  public async cookieLogout(request: Pick<IncomingMessage, 'headers'>, response: Pick<ServerResponse, 'setHeader'>) {
+  public async cookieLogout(
+    request: Pick<IncomingMessage, 'headers'>,
+    response: { setHeader: (header: string, value: string) => void },
+  ) {
     this.user = undefined
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
@@ -168,7 +174,7 @@ export class HttpUserContext {
   @Injected(PasswordAuthenticator)
   private declare readonly authenticator: PasswordAuthenticator
 
-  public async init() {
+  public init() {
     this.getUserStore().addListener('onEntityUpdated', ({ id, change }) => {
       if (this.user?.username === id) {
         this.user = { ...this.user, ...change }

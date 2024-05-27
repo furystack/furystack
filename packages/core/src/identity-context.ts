@@ -3,15 +3,15 @@ import type { User } from './models/user.js'
 
 @Injectable({ lifetime: 'scoped' })
 export class IdentityContext {
-  public async isAuthenticated() {
-    return false
+  public isAuthenticated() {
+    return Promise.resolve(false)
   }
 
-  public async isAuthorized(..._roles: string[]) {
-    return false
+  public isAuthorized(..._roles: string[]) {
+    return Promise.resolve(false)
   }
 
-  public async getCurrentUser<TUser extends User>(): Promise<TUser> {
-    throw Error('No IdentityContext')
+  public getCurrentUser<TUser extends User>(): Promise<TUser> {
+    throw new Error('No IdentityContext')
   }
 }

@@ -15,7 +15,7 @@ export class MongoClientFactory implements Disposable {
     this.connections.clear()
   }
 
-  public async getClientFor(url: string, options?: MongoClientOptions) {
+  public getClientFor(url: string, options?: MongoClientOptions) {
     const existing = this.connections.get(url)
     if (existing) {
       return existing

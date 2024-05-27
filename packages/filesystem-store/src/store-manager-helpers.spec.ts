@@ -1,7 +1,7 @@
 import { promises, existsSync } from 'fs'
 import { FileSystemStore } from './index.js'
 import { useFileSystemStore } from './store-manager-helpers.js'
-import { usingAsync } from '@furystack/utils'
+import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
 import { StoreManager } from '@furystack/core'
 import { describe, it, expect, afterAll } from 'vitest'
@@ -12,8 +12,8 @@ let storeCount = 0
 describe('FileSystemStore store manager extensions', () => {
   const storeNames: string[] = []
 
-  it('Should create a store with an extensions method from Store Manages', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('Should create a store with an extensions method from Store Manages', () => {
+    using(new Injector(), (i) => {
       const storeManager = i.getInstance(StoreManager)
       const fileName = `filestore-test-${storeCount++}.json`
       storeNames.push(fileName)

@@ -24,7 +24,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public async add(...entries: T[]): Promise<CreateResult<T>> {
     const created = entries.map((e) => {
-      const entry = { ...e } as T
+      const entry = { ...e }
       if (this.cache.has(entry[this.primaryKey])) {
         throw new Error('Item with the primary key already exists.')
       }
@@ -36,9 +36,9 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
   }
 
   public cache: Map<T[TPrimaryKey], T> = new Map()
-  public get = async (key: T[TPrimaryKey], select?: Array<keyof T>) => {
+  public get = (key: T[TPrimaryKey], select?: Array<keyof T>) => {
     const item = this.cache.get(key)
-    return item && select ? selectFields(item, ...select) : item
+    return Promise.resolve(item && select ? selectFields(item, ...select) : item)
   }
 
   private evaluateLike = (value: string, likeString: string) => {
