@@ -3,7 +3,7 @@ import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import { JsonResult } from './request-action-implementation.js'
 import { Validate } from './validate.js'
-import schema from './validate.integration.spec.schema.json' assert { type: 'json' }
+import schema from './validate.integration.spec.schema.json' with { type: 'json' }
 import type { ValidationApi } from './validate.integration.schema.js'
 import { useRestService } from './helpers.js'
 import { describe, it, expect } from 'vitest'
