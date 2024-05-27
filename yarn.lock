@@ -595,7 +595,7 @@ __metadata:
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^20.12.12"
-    ajv: "npm:^8.13.0"
+    ajv: "npm:^8.14.0"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^6.2.2"
     semaphore-async-await: "npm:^1.5.1"
@@ -1570,7 +1570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.13.0":
+"ajv@npm:^8.0.0, ajv@npm:^8.14.0":
   version: 8.14.0
   resolution: "ajv@npm:8.14.0"
   dependencies:
@@ -2725,7 +2725,7 @@ __metadata:
     "@eslint/js": "npm:^9.3.0"
     "@types/jsdom": "npm:^21.1.6"
     "@vitest/coverage-istanbul": "npm:^1.6.0"
-    ajv: "npm:^8.13.0"
+    ajv: "npm:^8.14.0"
     eslint: "npm:^9.3.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-jsdoc: "npm:^48.2.6"
