@@ -54,7 +54,7 @@ jobs:
       # - script: bash <(curl -s https://codecov.io/bash)
       #   displayName: 'Publish test results to Codecov'
 
-      - task: PublishCodeCoverageResults@1
+      - task: PublishCodeCoverageResults@2
         displayName: 'Publish test coverage results'
         inputs:
           codeCoverageTool: Cobertura
