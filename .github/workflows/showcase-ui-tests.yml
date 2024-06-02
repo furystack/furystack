@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 21.x]
+        node-version: [20.x, 21.x, 22.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -22,10 +22,10 @@ jobs:
         run: yarn build:showcase
       - name: Install Playwright browsers
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
-      - name: execute tests
+      - name: Execute tests
         run: yarn workspace @furystack/shades-showcase-app e2e test
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
           path: packages/shades-showcase-app/test-results
-          name: Download-screenshots  
+          name: Download-screenshots

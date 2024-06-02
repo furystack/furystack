@@ -11,7 +11,7 @@ describe('isAuthenticated', () => {
   it('exec', async () => {
     await usingAsync(new Injector(), async (i) => {
       i.setExplicitInstance({ isAuthenticated: async () => true }, IdentityContext)
-      const result = await IsAuthenticated({ injector: i, request, response } as any)
+      const result = await IsAuthenticated({ injector: i, request, response })
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toEqual({ isAuthenticated: true })
     })

@@ -18,6 +18,8 @@ jobs:
           node_version: 20.x
         node_21_x:
           node_version: 21.x
+        node_22_x:
+          node_version: 22.x
 
     displayName: Build and test
     steps:
@@ -52,7 +54,7 @@ jobs:
       # - script: bash <(curl -s https://codecov.io/bash)
       #   displayName: 'Publish test results to Codecov'
 
-      - task: PublishCodeCoverageResults@1
+      - task: PublishCodeCoverageResults@2
         displayName: 'Publish test coverage results'
         inputs:
           codeCoverageTool: Cobertura
@@ -73,6 +75,8 @@ jobs:
           node_version: 20.x
         node_21_x:
           node_version: 21.x
+        node_22_x:
+          node_version: 22.x
     displayName: Showcase app UI tests
     steps:
       - task: NodeTool@0
@@ -93,15 +97,14 @@ jobs:
 
       - script: yarn build:showcase
         displayName: 'Build Showcase app'
-             
+
       - script: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
         displayName: Install Playwright browsers
-      
+
       - script: yarn workspace @furystack/shades-showcase-app e2e test
         env:
           CI: true
         displayName: execute tests
-        
 
       # TODO: Check me
       # - task: PublishTestResults@2
@@ -110,4 +113,3 @@ jobs:
       #   inputs:
       #     testRunner: JUnit
       #     testResultsFiles: 'packages/shades-showcase-app/test-results'
-

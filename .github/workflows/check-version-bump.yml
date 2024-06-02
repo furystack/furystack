@@ -1,10 +1,10 @@
 name: Version checks
-on: 
+on:
   push:
     branches-ignore:
-      - "release/**"
-      - "master"
-      - "develop"
+      - 'release/**'
+      - 'master'
+      - 'develop'
 jobs:
   build:
     name: Check version bumps
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout
@@ -28,4 +28,3 @@ jobs:
         run: yarn version check
         env:
           CI: true
-  

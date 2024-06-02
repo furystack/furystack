@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "9.0.3",
+  "version": "9.0.4",
   "description": "Repository implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -43,14 +43,14 @@
     "@furystack/rest": "workspace:^",
     "@furystack/security": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ajv": "^8.13.0",
+    "ajv": "^8.14.0",
     "ajv-formats": "^3.0.1",
     "path-to-regexp": "^6.2.2",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.13",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },

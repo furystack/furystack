@@ -2,7 +2,7 @@ import type { IncomingMessage } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import type { User } from '@furystack/core'
-import { IdentityContext } from '@furystack/core'
+import { AuthorizationError, IdentityContext } from '@furystack/core'
 import { Authorize } from './authorize.js'
 import type { ServerResponse } from 'http'
 import { EmptyResult } from './request-action-implementation.js'
@@ -22,9 +22,7 @@ describe('Authorize', () => {
       const exampleAuthorizedAction = vi.fn(async () => EmptyResult())
       const authorized = Authorize('Role1')(exampleAuthorizedAction)
 
-      const result = await authorized({ injector: i, request, response })
-      expect(result.statusCode).toBe(403)
-      expect(result.chunk).toEqual({ error: 'forbidden' })
+      await expect(() => authorized({ injector: i, request, response })).rejects.toThrow(AuthorizationError)
       expect(exampleAuthorizedAction).not.toBeCalled()
     })
   })
@@ -42,9 +40,7 @@ describe('Authorize', () => {
       const exampleAuthorizedAction = vi.fn(async () => EmptyResult())
       const authorized = Authorize('Role2')(exampleAuthorizedAction)
 
-      const result = await authorized({ injector: i, request, response })
-      expect(result.statusCode).toBe(403)
-      expect(result.chunk).toEqual({ error: 'forbidden' })
+      await expect(() => authorized({ injector: i, request, response })).rejects.toThrow(AuthorizationError)
       expect(exampleAuthorizedAction).not.toBeCalled()
     })
   })

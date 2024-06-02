@@ -16,16 +16,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "type": "object"
         }
       },
-      "required": [
-        "url",
-        "result"
-      ],
+      "required": ["url", "result"],
       "type": "object"
     },
     "FilterType<Mock>": {
@@ -175,17 +170,11 @@
           "description": "Sets up an order by a field and a direction",
           "properties": {
             "id": {
-              "enum": [
-                "ASC",
-                "DESC"
-              ],
+              "enum": ["ASC", "DESC"],
               "type": "string"
             },
             "value": {
-              "enum": [
-                "ASC",
-                "DESC"
-              ],
+              "enum": ["ASC", "DESC"],
               "type": "string"
             }
           },
@@ -194,10 +183,7 @@
         "select": {
           "description": "The result set will be limited to these fields",
           "items": {
-            "enum": [
-              "id",
-              "value"
-            ],
+            "enum": ["id", "value"],
             "type": "string"
           },
           "type": "array"
@@ -230,10 +216,7 @@
           "$ref": "#/definitions/GetCollectionResult%3CMock%3E"
         }
       },
-      "required": [
-        "query",
-        "result"
-      ],
+      "required": ["query", "result"],
       "type": "object"
     },
     "GetCollectionResult<Mock>": {
@@ -252,10 +235,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "count",
-        "entries"
-      ],
+      "required": ["count", "entries"],
       "type": "object"
     },
     "GetEntityEndpoint<Mock,\"id\">": {
@@ -268,10 +248,7 @@
             "select": {
               "description": "The list of fields to select",
               "items": {
-                "enum": [
-                  "id",
-                  "value"
-                ],
+                "enum": ["id", "value"],
                 "type": "string"
               },
               "type": "array"
@@ -290,17 +267,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "type": "object"
         }
       },
-      "required": [
-        "query",
-        "url",
-        "result"
-      ],
+      "required": ["query", "url", "result"],
       "type": "object"
     },
     "Mock": {
@@ -313,10 +284,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "id",
-        "value"
-      ],
+      "required": ["id", "value"],
       "type": "object"
     },
     "PatchEndpoint<Mock,\"id\">": {
@@ -346,17 +314,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "type": "object"
         }
       },
-      "required": [
-        "body",
-        "url",
-        "result"
-      ],
+      "required": ["body", "url", "result"],
       "type": "object"
     },
     "PostEndpoint<Mock,\"id\">": {
@@ -370,10 +332,7 @@
           "$ref": "#/definitions/Mock"
         }
       },
-      "required": [
-        "body",
-        "result"
-      ],
+      "required": ["body", "result"],
       "type": "object"
     },
     "RestApi": {
@@ -389,9 +348,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -406,9 +363,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -423,9 +378,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -440,9 +393,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -457,9 +408,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -474,9 +423,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -491,9 +438,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -508,9 +453,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -525,9 +468,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -551,11 +492,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         },
         "result": {
@@ -571,18 +508,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         }
       },
-      "required": [
-        "body",
-        "result"
-      ],
+      "required": ["body", "result"],
       "type": "object"
     },
     "ValidateHeaders": {
@@ -601,11 +531,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         },
         "result": {
@@ -621,18 +547,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         }
       },
-      "required": [
-        "headers",
-        "result"
-      ],
+      "required": ["headers", "result"],
       "type": "object"
     },
     "ValidateQuery": {
@@ -651,11 +570,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         },
         "result": {
@@ -671,18 +586,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "foo",
-            "bar",
-            "baz"
-          ],
+          "required": ["foo", "bar", "baz"],
           "type": "object"
         }
       },
-      "required": [
-        "query",
-        "result"
-      ],
+      "required": ["query", "result"],
       "type": "object"
     },
     "ValidateUrl": {
@@ -695,9 +603,7 @@
               "type": "number"
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "type": "object"
         },
         "url": {
@@ -707,16 +613,11 @@
               "type": "number"
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "type": "object"
         }
       },
-      "required": [
-        "url",
-        "result"
-      ],
+      "required": ["url", "result"],
       "type": "object"
     },
     "ValidationApi": {
@@ -732,9 +633,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -746,9 +645,7 @@
               "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E"
             }
           },
-          "required": [
-            "/mock/:id"
-          ],
+          "required": ["/mock/:id"],
           "type": "object"
         },
         "GET": {
@@ -770,13 +667,7 @@
               "$ref": "#/definitions/ValidateUrl"
             }
           },
-          "required": [
-            "/validate-query",
-            "/validate-url/:id",
-            "/validate-headers",
-            "/mock",
-            "/mock/:id"
-          ],
+          "required": ["/validate-query", "/validate-url/:id", "/validate-headers", "/mock", "/mock/:id"],
           "type": "object"
         },
         "HEAD": {
@@ -789,9 +680,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -806,9 +695,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -820,9 +707,7 @@
               "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E"
             }
           },
-          "required": [
-            "/mock/:id"
-          ],
+          "required": ["/mock/:id"],
           "type": "object"
         },
         "POST": {
@@ -835,10 +720,7 @@
               "$ref": "#/definitions/ValidateBody"
             }
           },
-          "required": [
-            "/validate-body",
-            "/mock"
-          ],
+          "required": ["/validate-body", "/mock"],
           "type": "object"
         },
         "PUT": {
@@ -851,9 +733,7 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
@@ -868,20 +748,13 @@
               "result": {},
               "url": {}
             },
-            "required": [
-              "result"
-            ],
+            "required": ["result"],
             "type": "object"
           },
           "type": "object"
         }
       },
-      "required": [
-        "GET",
-        "POST",
-        "PATCH",
-        "DELETE"
-      ],
+      "required": ["GET", "POST", "PATCH", "DELETE"],
       "type": "object"
     },
     "WithOptionalId<Mock,\"id\">": {
@@ -894,9 +767,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "value"
-      ],
+      "required": ["value"],
       "type": "object"
     }
   }

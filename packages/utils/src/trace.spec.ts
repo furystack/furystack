@@ -12,15 +12,15 @@ class MockClass {
     return this.testValue
   }
 
-  public static addStatic(...args: number[]) {
+  public static addStatic(this: void, ...args: number[]) {
     return args.reduce((a, b) => a + b, 0)
   }
 
-  public addInstance(...args: number[]) {
+  public addInstance(this: void, ...args: number[]) {
     return args.reduce((a, b) => a + b, 0)
   }
 
-  public async addInstanceAsync(...args: number[]): Promise<number> {
+  public async addInstanceAsync(this: void, ...args: number[]): Promise<number> {
     return args.reduce((a, b) => a + b, 0)
   }
 

@@ -89,7 +89,7 @@ export class MongodbStore<
       return this.collection
     }
     try {
-      const client = await this.options.mongoClient()
+      const client = this.options.mongoClient()
       const collection = client.db(this.options.db).collection<T>(this.options.collection)
       if (this.primaryKey !== '_id') {
         await collection.createIndex({ [this.primaryKey]: 1 }, { unique: true })
@@ -107,7 +107,7 @@ export class MongodbStore<
       primaryKey: TPrimaryKey
       db: string
       collection: string
-      mongoClient: () => Promise<MongoClient>
+      mongoClient: () => MongoClient
     },
   ) {
     super()
