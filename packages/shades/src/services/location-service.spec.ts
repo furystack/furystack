@@ -5,8 +5,8 @@ global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
 import { using } from '@furystack/utils'
-import { serializeValue } from '@furystack/rest'
-import { LocationService } from './location-service.js'
+import { deserializeQueryString, serializeToQueryString, serializeValue } from '@furystack/rest'
+import { LocationService, useCustomSearchStateSerializer } from './location-service.js'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 describe('LocationService', () => {
@@ -99,6 +99,21 @@ describe('LocationService', () => {
         const testSearchParam = service.useSearchParam('test', '')
         testSearchParam.setValue('2')
         expect(location.search).toBe('?test=IjIi')
+      })
+    })
+
+    it('Should use custom serializer and deserializer', ()=>{
+      using(new Injector(), (i) => {
+        const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
+        const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
+        const locationService = i.getInstance(LocationService)
+        const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
+
+        useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
+
+        testSearchParam.setValue({ value: 'bar' })
+        expect(customSerializer).toBeCalledWith({test: { value: 'bar' }})
+        expect(customDeserializer).toBeCalledWith('?test=eyJ2YWx1ZSI6ImJhciJ9')
       })
     })
   })
