@@ -1,9 +1,13 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue, Trace } from '@furystack/utils'
-import { Injectable } from '@furystack/inject'
+import { Injectable, type Injector } from '@furystack/inject'
 import { deserializeQueryString, serializeToQueryString } from '@furystack/rest'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
+  public serializeToQueryString = serializeToQueryString
+
+  public deserializeQueryString = deserializeQueryString
+
   public dispose() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
@@ -30,10 +34,10 @@ export class LocationService implements Disposable {
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
-  public onDeserializedLocationSearchChanged = new ObservableValue(deserializeQueryString(location.search))
+  public onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
 
   public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
-    this.onDeserializedLocationSearchChanged.setValue(deserializeQueryString(search))
+    this.onDeserializedLocationSearchChanged.setValue(this.deserializeQueryString(search))
   })
 
   public updateState = (() => {
@@ -66,7 +70,7 @@ export class LocationService implements Disposable {
       newObservable.subscribe((value) => {
         const currentQueryStringObject = this.onDeserializedLocationSearchChanged.getValue()
         if (currentQueryStringObject[key] !== value) {
-          const params = serializeToQueryString({ ...currentQueryStringObject, [key]: value })
+          const params = this.serializeToQueryString({ ...currentQueryStringObject, [key]: value })
           const newUrl = `${location.pathname}?${params}`
           history.pushState({}, '', newUrl)
         }
@@ -110,4 +114,14 @@ export class LocationService implements Disposable {
       onFinished: () => this.updateState(),
     })
   }
+}
+
+export const useCustomSearchStateSerializer = (
+  injector: Injector,
+  serialize: typeof serializeToQueryString,
+  deserialize: typeof deserializeQueryString,
+) => {
+  const locationService = injector.getInstance(LocationService)
+  locationService.serializeToQueryString = serialize
+  locationService.deserializeQueryString = deserialize
 }

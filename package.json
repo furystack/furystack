@@ -14,16 +14,16 @@
     "ajv": "^8.16.0",
     "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsdoc": "^48.2.7",
+    "eslint-plugin-jsdoc": "^48.2.9",
     "husky": "^9.0.11",
     "jsdom": "^24.1.0",
     "lint-staged": "^15.2.5",
-    "prettier": "^3.3.1",
+    "prettier": "^3.3.2",
     "rimraf": "^5.0.7",
     "ts-json-schema-generator": "^2.3.0",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.12.0",
-    "vite": "^5.2.12",
+    "typescript-eslint": "^7.13.0",
+    "vite": "^5.2.13",
     "vitest": "^1.6.0"
   },
   "scripts": {
@@ -34,7 +34,7 @@
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
     "build": "yarn build:esm",
     "lint": "eslint .",
-    "prettier": "prettier --write",
+    "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
     "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",
@@ -57,10 +57,5 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "yarn@4.2.2",
-  "dependenciesMeta": {
-    "prettier@3.0.2": {
-      "unplugged": true
-    }
-  }
+  "packageManager": "yarn@4.2.2"
 }
