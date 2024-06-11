@@ -34,7 +34,7 @@
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
     "build": "yarn build:esm",
     "lint": "eslint .",
-    "prettier": "prettier --write",
+    "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
     "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",

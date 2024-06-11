@@ -102,7 +102,7 @@ describe('LocationService', () => {
       })
     })
 
-    it('Should use custom serializer and deserializer', ()=>{
+    it('Should use custom serializer and deserializer', () => {
       using(new Injector(), (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
@@ -112,7 +112,7 @@ describe('LocationService', () => {
         useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
 
         testSearchParam.setValue({ value: 'bar' })
-        expect(customSerializer).toBeCalledWith({test: { value: 'bar' }})
+        expect(customSerializer).toBeCalledWith({ test: { value: 'bar' } })
         expect(customDeserializer).toBeCalledWith('?test=eyJ2YWx1ZSI6ImJhciJ9')
       })
     })

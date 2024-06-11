@@ -4,7 +4,6 @@ import { Injectable, type Injector } from '@furystack/inject'
 import { deserializeQueryString, serializeToQueryString } from '@furystack/rest'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
-
   public serializeToQueryString = serializeToQueryString
 
   public deserializeQueryString = deserializeQueryString
@@ -117,7 +116,11 @@ export class LocationService implements Disposable {
   }
 }
 
-export const useCustomSearchStateSerializer = (injector: Injector, serialize: typeof serializeToQueryString, deserialize: typeof deserializeQueryString) => {
+export const useCustomSearchStateSerializer = (
+  injector: Injector,
+  serialize: typeof serializeToQueryString,
+  deserialize: typeof deserializeQueryString,
+) => {
   const locationService = injector.getInstance(LocationService)
   locationService.serializeToQueryString = serialize
   locationService.deserializeQueryString = deserialize
