@@ -3,3 +3,4 @@ releases:
   "@furystack/rest-client-fetch": minor
   "@furystack/rest-service": patch
   "@furystack/websocket-api": patch
+  furystack: patch
