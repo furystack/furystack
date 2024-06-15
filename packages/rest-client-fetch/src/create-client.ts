@@ -21,6 +21,31 @@ export interface ClientOptions {
   serializeQueryParams?: (param: any) => string
 }
 
+export const defaultResponseParser = async <T>(response: Response): Promise<{ response: Response; result: T }> => {
+  if (!response.ok) {
+    throw new ResponseError(response.statusText, response)
+  }
+
+  const contentType = response.headers?.get?.('Content-Type')
+
+  if (contentType?.startsWith('text/')) {
+    const result = (await response.text()) as T
+    return { response, result }
+  }
+
+  if (contentType === 'form/multipart') {
+    const result = (await response.formData()) as T
+    return { response, result }
+  }
+
+  try {
+    const result = (await response.json()) as T
+    return { response, result }
+  } catch (error) {
+    return { response, result: null as T }
+  }
+}
+
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   const fetchMethod = clientOptions.fetch || fetch
 
@@ -36,6 +61,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     options: {
       method: TMethod
       action: TAction
+      responseParser?: (response: Response) => Promise<{ response: Response; result: TReturns }>
     } & TBodyType &
       TQuery &
       TUrlParams &
@@ -64,27 +90,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           }
         : {}),
     })
-    if (!response.ok) {
-      throw new ResponseError(response.statusText, response)
-    }
 
-    const contentType = response.headers?.get?.('Content-Type')
-
-    if (contentType?.startsWith('text/')) {
-      const result = (await response.text()) as TReturns
-      return { response, result }
-    }
-
-    if (contentType === 'form/multipart') {
-      const result = (await response.formData()) as TReturns
-      return { response, result }
-    }
-
-    try {
-      const result = (await response.json()) as TReturns
-      return { response, result }
-    } catch (error) {
-      return { response, result: null as TReturns }
-    }
+    return (options.responseParser || defaultResponseParser)(response)
   }
 }
