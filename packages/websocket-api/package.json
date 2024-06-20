@@ -38,7 +38,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ws": "^8.17.0"
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@types/ws": "^8.5.10",
