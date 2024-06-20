@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import type { DeepPartial } from '@furystack/utils'
+import { EventHub, type DeepPartial } from '@furystack/utils'
 import { cssVariableTheme, getCssVariable, useThemeCssVariables } from './css-variable-theme.js'
 
 export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
@@ -39,6 +39,7 @@ export interface Background {
 }
 
 export interface Theme {
+  name: string
   palette: Palette
   text: Text
   button: ButtonColor
@@ -68,7 +69,7 @@ export class RgbColor {
  * Service class for theme-related operations
  */
 @Injectable({ lifetime: 'singleton' })
-export class ThemeProviderService {
+export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<Theme> }> {
   /**
    * @deprecated does not respect CSS vars
    * @param color The background color
@@ -124,8 +125,23 @@ export class ThemeProviderService {
 
   public readonly theme = cssVariableTheme
 
-  public set(change: DeepPartial<Theme>) {
-    useThemeCssVariables(change)
+  private _assignedTheme: DeepPartial<Theme> = cssVariableTheme
+
+  /**
+   * Returns the last assigned theme object
+   */
+  public getAssignedTheme(): DeepPartial<Theme> {
+    return this._assignedTheme
+  }
+
+  /**
+   *
+   * @param v The Theme instance
+   */
+  public setAssignedTheme(theme: DeepPartial<Theme>) {
+    this._assignedTheme = theme
+    useThemeCssVariables(theme)
+    this.emit('themeChanged', theme)
   }
 
   public dispose() {
