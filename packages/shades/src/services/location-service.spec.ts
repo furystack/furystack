@@ -106,10 +106,11 @@ describe('LocationService', () => {
       using(new Injector(), (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
-        const locationService = i.getInstance(LocationService)
-        const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
 
         useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
+
+        const locationService = i.getInstance(LocationService)
+        const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
 
         testSearchParam.setValue({ value: 'bar' })
         expect(customSerializer).toBeCalledWith({ test: { value: 'bar' } })
