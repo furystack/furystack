@@ -11,7 +11,6 @@ export const MonacoEditorPage = Shade({
         <MonacoEditor
           options={{
             language: 'typescript',
-            theme: 'vs-dark',
             automaticLayout: true,
           }}
         />

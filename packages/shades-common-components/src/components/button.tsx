@@ -4,7 +4,6 @@ import { Shade, createComponent } from '@furystack/shades'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 import type { Palette, Theme } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
-import { Trace } from '@furystack/utils'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   variant?: 'contained' | 'outlined'
@@ -106,15 +105,11 @@ export const Button = Shade<ButtonProps>({
 
     if (props.variant === 'contained') {
       useDisposable('themeChanged', () =>
-        Trace.method({
-          object: themeProvider,
-          method: themeProvider.set,
-          onFinished: () => {
-            const el = element
-            el.style.color = getTextColor(props, themeProvider.theme, () =>
-              themeProvider.getTextColor(el.style.background || el.style.backgroundColor),
-            )
-          },
+        themeProvider.subscribe('themeChanged', () => {
+          const el = element
+          el.style.color = getTextColor(props, themeProvider.theme, () =>
+            themeProvider.getTextColor(el.style.background || el.style.backgroundColor),
+          )
         }),
       )
     }

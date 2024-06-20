@@ -5,10 +5,8 @@ export const ThemeSwitch = Shade({
   shadowDomName: 'theme-switch',
   render: ({ injector, useStoredState }) => {
     const [theme, setTheme] = useStoredState<'dark' | 'light'>('theme', 'dark')
-
     const themeProvider = injector.getInstance(ThemeProviderService)
-
-    themeProvider.set(theme === 'dark' ? defaultDarkTheme : defaultLightTheme)
+    themeProvider.setAssignedTheme(theme === 'dark' ? defaultDarkTheme : defaultLightTheme)
 
     return (
       <>

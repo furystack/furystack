@@ -2,6 +2,7 @@ import { defaultPalette } from './default-palette.js'
 import type { Theme } from './theme-provider-service.js'
 
 export const defaultLightTheme: Theme = {
+  name: 'default-light-theme',
   palette: defaultPalette,
   text: {
     primary: 'rgba(0, 0, 0, 0.87)',

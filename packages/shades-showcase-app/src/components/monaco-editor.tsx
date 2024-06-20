@@ -3,6 +3,7 @@ import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main.js'
 
 import './worker-config.js'
+import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
@@ -11,14 +12,28 @@ export interface MonacoEditorProps {
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
-  constructed: ({ element, props }) => {
-    const editorInstance = editor.create(element as HTMLElement, props.options)
+  constructed: ({ element, props, useDisposable, injector }) => {
+    const themeProvider = injector.getInstance(ThemeProviderService)
+
+    const editorInstance = editor.create(element as HTMLElement, {
+      theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+      ...props.options,
+    })
     editorInstance.setValue(props.value || '')
     props.onchange &&
       editorInstance.onKeyUp(() => {
         const value = editorInstance.getValue()
         props.onchange && props.onchange(value)
       })
+
+    useDisposable('themeChange', () =>
+      themeProvider.subscribe('themeChanged', () => {
+        editorInstance.updateOptions({
+          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+        })
+      }),
+    )
+
     return () => editorInstance.dispose()
   },
   render: ({ element }) => {
