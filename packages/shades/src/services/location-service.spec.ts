@@ -107,7 +107,9 @@ describe('LocationService', () => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
         i.getInstance(LocationService)
-        expect(()=>useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrowError('useCustomSearchStateSerializer must be called before the LocationService is instantiated')
+        expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrowError(
+          'useCustomSearchStateSerializer must be called before the LocationService is instantiated',
+        )
       })
     })
 
