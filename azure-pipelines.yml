@@ -32,6 +32,7 @@ jobs:
       - task: DockerCompose@0
         displayName: Start services from docker-compose
         inputs:
+          projectName: furystack
           action: Run services
           detached: true
           buildImages: true
@@ -88,6 +89,7 @@ jobs:
       - task: DockerCompose@0
         displayName: Start services from docker-compose
         inputs:
+          projectName: furystack
           action: Run services
           detached: true
           buildImages: true
