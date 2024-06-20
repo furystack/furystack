@@ -102,14 +102,26 @@ describe('LocationService', () => {
       })
     })
 
+    it('Should throw an error when trying to use a custom serializer after LocationService has been instantiated', () => {
+      using(new Injector(), (i) => {
+        const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
+        const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
+        i.getInstance(LocationService)
+        expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrowError(
+          'useCustomSearchStateSerializer must be called before the LocationService is instantiated',
+        )
+      })
+    })
+
     it('Should use custom serializer and deserializer', () => {
       using(new Injector(), (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
-        const locationService = i.getInstance(LocationService)
-        const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
 
         useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
+
+        const locationService = i.getInstance(LocationService)
+        const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
 
         testSearchParam.setValue({ value: 'bar' })
         expect(customSerializer).toBeCalledWith({ test: { value: 'bar' } })
