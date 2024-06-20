@@ -1,12 +1,36 @@
 import type { Disposable } from '@furystack/utils'
 import { ObservableValue, Trace } from '@furystack/utils'
 import { Injectable, type Injector } from '@furystack/inject'
-import { deserializeQueryString, serializeToQueryString } from '@furystack/rest'
+import {
+  deserializeQueryString as defaultDeserializeQueryString,
+  serializeToQueryString as defaultSerializeToQueryString,
+} from '@furystack/rest'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
-  public serializeToQueryString = serializeToQueryString
+  constructor(
+    private readonly serializeToQueryString = defaultSerializeToQueryString,
 
-  public deserializeQueryString = deserializeQueryString
+    public readonly deserializeQueryString = defaultDeserializeQueryString,
+  ) {
+    window.addEventListener('popstate', this.popStateListener)
+    window.addEventListener('hashchange', this.hashChangeListener)
+
+    this.pushStateTracer = Trace.method({
+      object: history,
+      method: history.pushState,
+      isAsync: false,
+      onFinished: () => this.updateState(),
+    })
+
+    this.replaceStateTracer = Trace.method({
+      object: history,
+      method: history.replaceState,
+      isAsync: false,
+      onFinished: () => this.updateState(),
+    })
+
+    this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
+  }
 
   public dispose() {
     window.removeEventListener('popstate', this.popStateListener)
@@ -34,7 +58,7 @@ export class LocationService implements Disposable {
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
-  public onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
+  public onDeserializedLocationSearchChanged: ObservableValue<any>
 
   public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
     this.onDeserializedLocationSearchChanged.setValue(this.deserializeQueryString(search))
@@ -95,33 +119,17 @@ export class LocationService implements Disposable {
   private hashChangeListener = (_ev: HashChangeEvent) => {
     this.updateState()
   }
-
-  constructor() {
-    window.addEventListener('popstate', this.popStateListener)
-    window.addEventListener('hashchange', this.hashChangeListener)
-
-    this.pushStateTracer = Trace.method({
-      object: history,
-      method: history.pushState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
-    this.replaceStateTracer = Trace.method({
-      object: history,
-      method: history.replaceState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-  }
 }
 
 export const useCustomSearchStateSerializer = (
   injector: Injector,
-  serialize: typeof serializeToQueryString,
-  deserialize: typeof deserializeQueryString,
+  serialize: typeof defaultSerializeToQueryString,
+  deserialize: typeof defaultDeserializeQueryString,
 ) => {
-  const locationService = injector.getInstance(LocationService)
-  locationService.serializeToQueryString = serialize
-  locationService.deserializeQueryString = deserialize
+  if (injector.cachedSingletons.has(LocationService)) {
+    throw new Error('useCustomSearchStateSerializer must be called before the LocationService is instantiated')
+  }
+
+  const locationService = new LocationService(serialize, deserialize)
+  injector.setExplicitInstance(locationService, LocationService)
 }
