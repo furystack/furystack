@@ -91,6 +91,7 @@ jobs:
           action: Run services
           detached: true
           buildImages: true
+          projectName: 'furystack'
 
       - script: yarn install --immutable
         displayName: 'Install'
