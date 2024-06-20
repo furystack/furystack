@@ -2,6 +2,7 @@ import { defaultPalette } from './default-palette.js'
 import type { Theme } from './theme-provider-service.js'
 
 export const defaultDarkTheme: Theme = {
+  name: 'default-dark-theme',
   text: {
     primary: '#fff',
     secondary: 'rgba(255, 255, 255, 0.7)',
