@@ -39,7 +39,7 @@ export interface ImplementApiOptions<T extends RestApi> {
 export type NewCompiledApiEntry = {
   method: Method
   fullPath: string
-  matcher: MatchFunction
+  matcher: MatchFunction<Partial<Record<string, string | string[]>>>
   action: RequestAction<any>
 }
 

@@ -1,7 +1,7 @@
 import { Shade } from '../shade.js'
 import { createComponent } from '../shade-component.js'
 import { LocationService } from '../services/location-service.js'
-import type { MatchResult, TokensToRegexpOptions } from 'path-to-regexp'
+import type { MatchResult, MatchOptions } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
 import type { RenderOptions } from '../models/render-options.js'
 import { Lock } from 'semaphore-async-await'
@@ -10,7 +10,7 @@ import { ObservableAlreadyDisposedError } from '@furystack/utils'
 export interface Route<TMatchResult extends object> {
   url: string
   component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
-  routingOptions?: TokensToRegexpOptions
+  routingOptions?: MatchOptions
   onVisit?: (options: RenderOptions<unknown>) => Promise<void>
   onLeave?: (options: RenderOptions<unknown>) => Promise<void>
 }
