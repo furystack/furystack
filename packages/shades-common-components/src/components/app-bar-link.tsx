@@ -1,6 +1,5 @@
 import type { RouteLinkProps } from '@furystack/shades'
-import { attachProps } from '@furystack/shades'
-import { createComponent, LocationService, RouteLink, Shade } from '@furystack/shades'
+import { attachProps, createComponent, LocationService, RouteLink, Shade } from '@furystack/shades'
 import { match, type MatchOptions } from 'path-to-regexp'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 

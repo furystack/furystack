@@ -1,8 +1,8 @@
 import { compile } from 'path-to-regexp'
-import type { Route } from './router.js'
-import { Shade } from '../shade.js'
 import type { ChildrenList } from '../models/children-list.js'
 import { createComponent } from '../shade-component.js'
+import { Shade } from '../shade.js'
+import type { Route } from './router.js'
 
 export type LinkToRouteProps<T extends {}> = {
   route: Route<T>
