@@ -38,10 +38,10 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/rest": "workspace:^",
-    "path-to-regexp": "^6.2.2"
+    "path-to-regexp": "^7.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vitest": "^1.6.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
