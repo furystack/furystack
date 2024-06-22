@@ -38,11 +38,11 @@
     "@furystack/inject": "workspace:^",
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ws": "^8.17.0"
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@types/ws": "^8.5.10",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vitest": "^1.6.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"

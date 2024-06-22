@@ -1,24 +1,23 @@
-import type { Disposable } from '@furystack/utils'
-import { PathHelper, usingAsync } from '@furystack/utils'
-import type { Method, RestApi } from '@furystack/rest'
-import { deserializeQueryString } from '@furystack/rest'
-import type { Injector } from '@furystack/inject'
-import { Injectable, Injected } from '@furystack/inject'
-import type { MatchFunction } from 'path-to-regexp'
-import { match } from 'path-to-regexp'
 import type { User } from '@furystack/core'
 import { IdentityContext } from '@furystack/core'
-
+import type { Injector } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
+import type { Method, RestApi } from '@furystack/rest'
+import { deserializeQueryString } from '@furystack/rest'
+import type { Disposable } from '@furystack/utils'
+import { PathHelper, usingAsync } from '@furystack/utils'
+import type { MatchFunction } from 'path-to-regexp'
+import { match } from 'path-to-regexp'
+import { ErrorAction } from './actions/error-action.js'
+import { NotFoundAction } from './actions/not-found-action.js'
+import { addCorsHeaders } from './add-cors-header.js'
+import { HttpUserContext } from './http-user-context.js'
+import type { CorsOptions } from './models/cors-options.js'
+import { readPostBody } from './read-post-body.js'
+import type { RequestAction } from './request-action-implementation.js'
 import type { OnRequest } from './server-manager.js'
 import { ServerManager } from './server-manager.js'
-import { NotFoundAction } from './actions/not-found-action.js'
-import type { CorsOptions } from './models/cors-options.js'
-import { ErrorAction } from './actions/error-action.js'
 import './server-response-extensions.js'
-import { HttpUserContext } from './http-user-context.js'
-import type { RequestAction } from './request-action-implementation.js'
-import { addCorsHeaders } from './add-cors-header.js'
-import { readPostBody } from './read-post-body.js'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
@@ -39,7 +38,7 @@ export interface ImplementApiOptions<T extends RestApi> {
 export type NewCompiledApiEntry = {
   method: Method
   fullPath: string
-  matcher: MatchFunction
+  matcher: MatchFunction<Partial<Record<string, string | string[]>>>
   action: RequestAction<any>
 }
 

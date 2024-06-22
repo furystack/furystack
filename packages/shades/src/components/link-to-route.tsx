@@ -1,8 +1,8 @@
-import { compile } from 'path-to-regexp'
-import type { Route } from './router.js'
-import { Shade } from '../shade.js'
+import { compileRoute } from '../compile-route.js'
 import type { ChildrenList } from '../models/children-list.js'
 import { createComponent } from '../shade-component.js'
+import { Shade } from '../shade.js'
+import type { Route } from './router.js'
 
 export type LinkToRouteProps<T extends {}> = {
   route: Route<T>
@@ -16,7 +16,7 @@ export const LinkToRoute: <T extends {}>(props: LinkToRouteProps<T>, children?: 
   render: ({ props, element, children }) => {
     const { route, params } = props
 
-    const url = compile(route.url)(params)
+    const url = compileRoute(route.url, params)
     element.setAttribute('href', url)
     return <>{children}</>
   },

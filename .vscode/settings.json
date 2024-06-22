@@ -3,13 +3,11 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.validate": ["typescript", "typescriptreact"],
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
-  "search.exclude": {
-    "**/.yarn": true,
-    "**/.pnp.*": true
-  },
-  "eslint.nodePath": ".yarn/sdks",
   "editor.formatOnSaveMode": "file",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
   "typescript.preferences.preferTypeOnlyAutoImports": true,
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "[jsonc]": {
