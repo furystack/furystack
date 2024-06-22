@@ -46,8 +46,10 @@ export const defaultResponseParser = async <T>(response: Response): Promise<{ re
   }
 }
 
-const stringifyObjectValues = (obj: Record<string, any>) =>
-  Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value?.toString()]))
+const stringifyObjectValues = (params: Record<string, any>) =>
+  Object.fromEntries(Object.entries(params).map(([key, value]) => [key, value?.toString()]))
+
+export const compileRoute = <T extends Object>(url: string, params: T) => compile(url)(stringifyObjectValues(params))
 
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   const fetchMethod = clientOptions.fetch || fetch
@@ -73,7 +75,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     const { url, query, body, headers } = options as any
 
     const urlToSend =
-      (url ? compile(options.action as string)(stringifyObjectValues(url)) : (options.action as string)) +
+      (url ? compileRoute(options.action as string, url) : (options.action as string)) +
       (query
         ? clientOptions.serializeQueryParams
           ? clientOptions.serializeQueryParams(query)
