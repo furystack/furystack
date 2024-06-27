@@ -1,6 +1,6 @@
+import { AggregatedError } from '@furystack/core'
 import type { ValueChangeCallback, ValueObserver, ValueObserverOptions } from '@furystack/utils'
 import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/utils'
-import { AggregatedError } from '../../../core/src/errors/aggregated-error.js'
 
 /**
  * Class for managing observables and disposables for components, based on key-value maps
