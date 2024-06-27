@@ -48,8 +48,8 @@ describe('WebSocketApi', () => {
               resolve()
             }),
           )
-          client.once('message', (data: string) => {
-            expect(data).toBe('alma')
+          client.once('message', (data) => {
+            expect((data as Buffer).toString()).toBe('alma')
           })
           await api.broadcast(({ ws }) => {
             ws.send('alma')
@@ -80,7 +80,7 @@ describe('WebSocketApi', () => {
         }
 
         public async execute(incomingData: { data: Data }) {
-          expect(JSON.parse(incomingData.data as string)).toEqual(data)
+          expect(JSON.parse((incomingData.data as Buffer).toString())).toEqual(data)
         }
       }
 
