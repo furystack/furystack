@@ -66,7 +66,4 @@ export class RedisStore<
     await Promise.all(keys.map(async (key) => await this.options.client.del((key as any).toString(), [])))
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
-  public async [Symbol.asyncDispose]() {
-    /** */
-  }
 }

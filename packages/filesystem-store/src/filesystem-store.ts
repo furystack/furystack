@@ -86,6 +86,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     await this.saveChanges()
     this.watcher && this.watcher.close()
     clearInterval(this.tick)
+    super[Symbol.dispose]()
   }
 
   public async reloadData() {

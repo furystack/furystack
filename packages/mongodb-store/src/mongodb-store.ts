@@ -192,7 +192,4 @@ export class MongodbStore<
     await collection.deleteMany(this.createIdFilter(...keys))
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
-  public async [Symbol.asyncDispose]() {
-    /** */
-  }
 }

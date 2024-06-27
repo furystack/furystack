@@ -1,3 +1,4 @@
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 import { Injectable, getInjectableOptions } from './injectable.js'
 import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
@@ -31,15 +32,15 @@ export class Injector implements AsyncDisposable {
     const disposeRequests = singletons
       .filter((s) => s !== this)
       .map(async (s) => {
-        if (s[Symbol.dispose]) {
+        if (isDisposable(s)) {
           return s[Symbol.dispose]()
         }
-        if (s[Symbol.asyncDispose]) {
+        if (isAsyncDisposable(s)) {
           return await s[Symbol.asyncDispose]()
         }
       })
     const result = await Promise.allSettled(disposeRequests)
-    const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
+    const fails = result.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       throw new Error(
         `There was an error during disposing '${fails.length}' global disposable objects: ${fails.map(

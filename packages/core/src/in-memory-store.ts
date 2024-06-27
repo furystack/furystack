@@ -194,6 +194,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public [Symbol.dispose]() {
     this.cache.clear()
+    super[Symbol.dispose]()
   }
 
   public readonly primaryKey: TPrimaryKey

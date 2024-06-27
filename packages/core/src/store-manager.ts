@@ -1,5 +1,6 @@
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 import { AggregatedError } from './errors/aggregated-error.js'
 import type { PhysicalStore } from './models/physical-store.js'
 
@@ -13,9 +14,16 @@ export class StoreManager implements AsyncDisposable {
    */
   public async [Symbol.asyncDispose]() {
     const result = await Promise.allSettled(
-      [...this.stores.entries()].map(async ([_model, store]) => store[Symbol.dispose]()),
+      [...this.stores.entries()].map(async ([_model, store]) => {
+        if (isDisposable(store)) {
+          store[Symbol.dispose]()
+        }
+        if (isAsyncDisposable(store)) {
+          await store[Symbol.asyncDispose]()
+        }
+      }),
     )
-    const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
+    const fails = result.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       const error = new AggregatedError(
         `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason)}`,
