@@ -53,7 +53,7 @@ export type OnRequestOptions = OnRequest & {
   injector: Injector
   cors?: CorsOptions
   supportedMethods: string[]
-  deserializeQueryParams?: (param: string) => any
+  deserializeQueryParams?: (param: string) => Record<string, unknown>
 }
 
 @Injectable({ lifetime: 'singleton' })
@@ -64,7 +64,7 @@ export class ApiManager implements Disposable {
     this.apis.clear()
   }
 
-  private getSuportedMethods(api: RestApiImplementation<any>): Method[] {
+  private getSuportedMethods(api: RestApiImplementation<RestApi>): Method[] {
     return Object.keys(api) as Method[]
   }
 
@@ -136,7 +136,7 @@ export class ApiManager implements Disposable {
   }
 
   private getActionFromEndpoint(compiledEndpoint: NewCompiledApi, fullUrl: URL, method: Method) {
-    let resolvedParams: any
+    let resolvedParams: unknown
     const action = compiledEndpoint[method]?.find((route) => {
       const result = route.matcher(fullUrl.pathname)
       if (result) {
@@ -163,7 +163,7 @@ export class ApiManager implements Disposable {
   }: OnRequestOptions & {
     fullUrl: URL
     action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
-    params: any
+    params: unknown
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const httpUserContext = i.getInstance(HttpUserContext)
@@ -185,7 +185,7 @@ export class ApiManager implements Disposable {
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
-            return params
+            return params as {}
           },
         })
         res.sendActionResult(actionResult)

@@ -108,11 +108,11 @@ describe('Google Login Service', () => {
 
         const loginService = i.getInstance(GoogleLoginService)
 
-        loginService.readPostBody = async () =>
+        loginService.readPostBody = async <T>() =>
           ({
             email: 'user@example.com',
             email_verified: true,
-          }) as any
+          }) as T
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,

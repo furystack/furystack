@@ -105,7 +105,7 @@ describe('LocationService', () => {
     it('Should throw an error when trying to use a custom serializer after LocationService has been instantiated', async () => {
       await usingAsync(new Injector(), async (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
-        const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
+        const customDeserializer = vi.fn((value: string) => deserializeQueryString(value))
         i.getInstance(LocationService)
         expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrowError(
           'useCustomSearchStateSerializer must be called before the LocationService is instantiated',
@@ -116,7 +116,7 @@ describe('LocationService', () => {
     it('Should use custom serializer and deserializer', async () => {
       await usingAsync(new Injector(), async (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
-        const customDeserializer = vi.fn((value: any) => deserializeQueryString(value))
+        const customDeserializer = vi.fn((value: string) => deserializeQueryString(value))
 
         useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
 

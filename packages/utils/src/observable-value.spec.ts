@@ -122,8 +122,8 @@ export const observableTests = describe('Observable', () => {
         }
       }
       const v = new ObservableValue(1)
-      const observer = v.subscribe(new Alma().Callback)
-      v.subscribe(new Alma().Callback)
+      const observer = v.subscribe(() => new Alma().Callback())
+      v.subscribe(() => new Alma().Callback())
       expect(v.getObservers().length).toBe(2)
       observer[Symbol.dispose]()
       expect(v.getObservers().length).toBe(1)

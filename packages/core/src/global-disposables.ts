@@ -8,8 +8,8 @@ export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
 /**
  * Will be triggered via process event listeners
  */
-export const exitHandler = (async () => {
-  const result = await Promise.allSettled(
+export const exitHandler = (() => {
+  Promise.allSettled(
     [...globalDisposables].map(async (d) => {
       if (isAsyncDisposable(d)) {
         await d[Symbol.asyncDispose]()
@@ -19,10 +19,15 @@ export const exitHandler = (async () => {
       }
     }),
   )
-  const fails = result.filter((r) => r.status === 'rejected')
-  if (fails && fails.length) {
-    console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
-  }
+    .then((result) => {
+      const fails = result.filter((r) => r.status === 'rejected')
+      if (fails && fails.length) {
+        console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
+      }
+    })
+    .catch((error) => {
+      console.error('Error during disposing global disposables', error)
+    })
 }).bind(null)
 
 // do something when app is closing
