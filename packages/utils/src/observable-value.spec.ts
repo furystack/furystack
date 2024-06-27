@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ObservableValue } from './observable-value.js'
 
 /**
@@ -76,6 +76,8 @@ export const observableTests = describe('Observable', () => {
       expect(v.getObservers().length).toBe(2)
       v[Symbol.dispose]()
       expect(v.getObservers().length).toBe(0)
+
+      expect(v.isDisposed).toBe(true)
     })
 
     it('should remove the subscription on Observer dispose', () => {
