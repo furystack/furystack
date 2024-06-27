@@ -24,7 +24,7 @@ export const InputsPage = Shade({
                 required
                 pattern="[a-zA-Z0-9]{3,}"
                 minLength={3}
-                maxLength={10}
+                maxLength={15}
                 getStartIcon={({ state }) => <span>{state.validity.valid ? '✅' : '🛑'}</span>}
                 getHelperText={({ state }) => {
                   if (!state.validity.valid) {
