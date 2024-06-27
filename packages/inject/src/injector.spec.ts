@@ -113,13 +113,23 @@ describe('Injector', () => {
     const i = new Injector()
     i.getInstance(TestDisposableThrows)
 
-    try {
-      await i[Symbol.asyncDispose]()
-    } catch (error) {
-      expect((error as Error).message).toBe(
-        "There was an error during disposing '1' global disposable objects: Error: :(",
-      )
+    await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: There was an error during disposing '1' global disposable objects: Error: :(]`)
+  })
+
+  it('Should throw if failed to dispose async one or more entries', async () => {
+    expect.assertions(1)
+
+    @Injectable({ lifetime: 'singleton' })
+    class TestDisposableThrows implements AsyncDisposable {
+      public async [Symbol.asyncDispose]() {
+        throw Error(':(')
+      }
     }
+
+    const i = new Injector()
+    i.getInstance(TestDisposableThrows)
+
+    await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: There was an error during disposing '1' global disposable objects: Error: :(]`)
   })
 
   it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
