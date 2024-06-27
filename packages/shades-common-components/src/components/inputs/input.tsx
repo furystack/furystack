@@ -1,5 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
-import { Shade, createComponent, attachStyles } from '@furystack/shades'
+import { Shade, attachStyles, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
