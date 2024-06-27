@@ -23,14 +23,6 @@
  */
 /** */
 
-export const isDisposable = (value: unknown): value is Disposable => {
-  return (value as Disposable)?.[Symbol.dispose] instanceof Function
-}
-
-export const isAsyncDisposable = (value: unknown): value is AsyncDisposable => {
-  return (value as AsyncDisposable)?.[Symbol.asyncDispose] instanceof Function
-}
-
 /**
  * Method that accepts an IDisposable resource that will be disposed after the callback
  * @param resource The resource that is used in the callback and will be disposed afterwards
