@@ -1,11 +1,11 @@
 import type { FilterType, FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { Input } from '../inputs/input.js'
-import { Form } from '../form.js'
-import { Button } from '../button.js'
 import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { collapse, expand } from '../animations.js'
+import { Button } from '../button.js'
+import { Form } from '../form.js'
+import { Input } from '../inputs/input.js'
 
 export interface DataGridHeaderProps<T, Column extends string> {
   field: Column

@@ -113,17 +113,17 @@ export interface ObjectTrace {
 export class Trace {
   private static objectTraces: Map<object, ObjectTrace> = new Map()
 
-  private static getMethodTrace<TArgs extends any[], TReturns>(
+  private static getMethodTrace<TArgs extends unknown[], TReturns>(
     object: object,
     method: (...args: TArgs) => TReturns,
   ): MethodMapping<TReturns, TArgs> {
-    const objectTrace = this.objectTraces.get(object) as any as ObjectTrace
+    const objectTrace = this.objectTraces.get(object) as ObjectTrace
     return objectTrace.methodMappings.get(method.name) as any as MethodMapping<TReturns, TArgs>
   }
 
-  private static traceStart<TReturns, TArgs extends any[]>(
-    methodTrace: MethodMapping<TReturns, TArgs[]>,
-    args: TArgs[],
+  private static traceStart<TReturns, TArgs extends unknown[]>(
+    methodTrace: MethodMapping<TReturns, TArgs>,
+    args: TArgs,
   ) {
     const startDateTime = new Date()
     const traceValue = {
@@ -134,7 +134,7 @@ export class Trace {
     return traceValue
   }
 
-  private static traceFinished<TReturns, TArgs extends any[]>(
+  private static traceFinished<TReturns, TArgs extends unknown[]>(
     methodTrace: MethodMapping<TReturns, TArgs>,
     args: TArgs,
     callTrace: TraceMethodCall<TArgs>,
@@ -165,12 +165,12 @@ export class Trace {
     return errorTrace
   }
 
-  private static callMethod<TReturns, TArgs extends any[]>(
+  private static callMethod<TReturns, TArgs extends unknown[]>(
     object: object,
     method: (...args: TArgs) => TReturns,
     args: TArgs,
   ) {
-    const methodTrace: any = this.getMethodTrace(object, method)
+    const methodTrace = this.getMethodTrace(object, method)
     const start = this.traceStart(methodTrace, args)
     try {
       const returned = methodTrace.originalMethod.call(object, ...args)
@@ -182,12 +182,12 @@ export class Trace {
     }
   }
 
-  private static async callMethodAsync<TReturns, TArgs extends any[]>(
+  private static async callMethodAsync<TReturns, TArgs extends unknown[]>(
     object: object,
     method: (...args: TArgs) => TReturns,
     args: TArgs,
   ) {
-    const methodTrace: any = this.getMethodTrace(object, method)
+    const methodTrace = this.getMethodTrace(object, method)
     const start = this.traceStart(methodTrace, args)
     try {
       const returned = await methodTrace.originalMethod.call(object, ...args)
