@@ -20,8 +20,10 @@ export const appendChild = (el: HTMLElement | DocumentFragment, children: Childr
   }
 }
 
-export const hasStyle = (props: any): props is { style: Partial<CSSStyleDeclaration> } => {
-  return props?.style !== undefined
+export const hasStyle = (props: unknown): props is { style: Partial<CSSStyleDeclaration> } => {
+  return (
+    !!props && typeof props === 'object' && typeof (props as { style: Partial<CSSStyleDeclaration> }).style === 'object'
+  )
 }
 
 /**
@@ -37,7 +39,7 @@ export const attachStyles = (el: HTMLElement, props: any) => {
     }
 }
 
-export const attachDataAttributes = (el: HTMLElement, props: any) => {
+export const attachDataAttributes = <TProps extends object>(el: HTMLElement, props: TProps) => {
   props &&
     Object.entries(props)
       .filter(([key]) => key.startsWith('data-'))
@@ -49,17 +51,17 @@ export const attachDataAttributes = (el: HTMLElement, props: any) => {
  * @param el The Target HTML Element
  * @param props The Props to attach
  */
-export const attachProps = (el: HTMLElement, props: any) => {
+export const attachProps = <TProps extends object>(el: HTMLElement, props: TProps) => {
   if (!props) {
     return
   }
+  attachStyles(el, props)
 
-  const { style, ...rest } = props
-
-  Object.assign(el, rest)
-
-  if (props && (props).style) {
-    attachStyles(el, props)
+  if (hasStyle(props)) {
+    const { style, ...rest } = props
+    Object.assign(el, rest)
+  } else {
+    Object.assign(el, props)
   }
   attachDataAttributes(el, props)
 }
@@ -74,7 +76,9 @@ type CreateComponentArgs<TProps> = [
  * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
  * @returns the created JSX element
  */
-export const createComponentInner = <TProps>(...[elementType, props, ...children]: CreateComponentArgs<TProps>) => {
+export const createComponentInner = <TProps extends object>(
+  ...[elementType, props, ...children]: CreateComponentArgs<TProps>
+) => {
   if (typeof elementType === 'string') {
     const el = document.createElement(elementType)
 
@@ -100,7 +104,7 @@ export const createFragmentInner = (...[_props, ...children]: CreateFragmentArgs
   return fragment
 }
 
-export const createComponent = <TProps>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
+export const createComponent = <TProps extends object>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
   if (args[0] === null) {
     return createFragmentInner(...args)
   }
