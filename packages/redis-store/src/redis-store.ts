@@ -37,7 +37,7 @@ export class RedisStore<
     const created = await Promise.all(
       entries.map(async (entry) => {
         const key = entry[this.primaryKey]
-        await this.options.client.set((key as any).toString(), JSON.stringify(entry))
+        await this.options.client.set(key.toString(), JSON.stringify(entry))
         return entry
       }),
     )
@@ -49,7 +49,7 @@ export class RedisStore<
     }
   }
   public async update(id: T[TPrimaryKey], data: T): Promise<void> {
-    await this.options.client.set((id as any).toString(), JSON.stringify(data))
+    await this.options.client.set((id as string).toString(), JSON.stringify(data))
     this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(): Promise<number> {
@@ -59,11 +59,11 @@ export class RedisStore<
     throw Error('Not supported :(')
   }
   public async get(key: T[TPrimaryKey]): Promise<T | undefined> {
-    const value = await this.options.client.get((key as any).toString())
-    return value ? JSON.parse(value) : undefined
+    const value = await this.options.client.get((key as string).toString())
+    return value ? (JSON.parse(value) as T) : undefined
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
-    await Promise.all(keys.map(async (key) => await this.options.client.del((key as any).toString(), [])))
+    await this.options.client.del(keys.map((key) => (key as string).toString()))
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
 }

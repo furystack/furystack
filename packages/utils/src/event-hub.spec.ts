@@ -82,7 +82,7 @@ describe('EventHub', () => {
     eventHub.emit('ExampleNumberEvent', 1)
 
     expect(numberListener).toBeCalledWith(1)
-    await subscription[Symbol.dispose]()
+    subscription[Symbol.dispose]()
     eventHub.emit('ExampleNumberEvent', 2)
     expect(numberListener).toBeCalledTimes(1)
   })

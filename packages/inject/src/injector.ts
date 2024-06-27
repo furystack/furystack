@@ -14,7 +14,7 @@ export class InjectorAlreadyDisposedError extends Error {
   }
 }
 
-@Injectable({ lifetime: 'system' as any })
+@Injectable({ lifetime: 'system' as 'singleton' })
 export class Injector implements AsyncDisposable {
   private isDisposed = false
 
@@ -43,9 +43,9 @@ export class Injector implements AsyncDisposable {
     const fails = result.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       throw new Error(
-        `There was an error during disposing '${fails.length}' global disposable objects: ${fails.map(
-          (f) => f.reason,
-        )}`,
+        `There was an error during disposing '${fails.length}' global disposable objects: ${fails
+          .map((f) => f.reason as string)
+          .join(', ')}`,
       )
     }
 
@@ -55,11 +55,11 @@ export class Injector implements AsyncDisposable {
   /**
    * Options object for an injector instance
    */
-  public options: { parent?: Injector; owner?: any } = {}
+  public options: { parent?: Injector; owner?: unknown } = {}
 
   // public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
-  public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
+  public readonly cachedSingletons: Map<Constructable<unknown>, unknown> = new Map()
 
   public remove = <T>(ctor: Constructable<T>) => {
     if (this.isDisposed) {
@@ -87,8 +87,10 @@ export class Injector implements AsyncDisposable {
       return this as any as T
     }
 
-    if (this.cachedSingletons.has(ctor)) {
-      return this.cachedSingletons.get(ctor)
+    const existing = this.cachedSingletons.get(ctor)
+
+    if (existing) {
+      return existing as T
     }
 
     const dependencies = [...getDependencyList(ctor)]
