@@ -1,15 +1,15 @@
 import { Injector } from '@furystack/inject'
 
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
+import { ObservableValue, sleepAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
-import { Shade } from './shade.js'
 import { createComponent } from './shade-component.js'
-import { ObservableValue } from '@furystack/utils'
-import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
+import { Shade } from './shade.js'
 
 describe('Shade Resources integration tests', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('Shade Resources integration tests', () => {
     document.body.innerHTML = ''
   })
 
-  it('Should update the component based on a custom observable value change', () => {
+  it('Should update the component based on a custom observable value change', async () => {
     const injector = new Injector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -76,6 +76,8 @@ describe('Shade Resources integration tests', () => {
     expect(element.getRenderCount()).toBe(3)
 
     document.body.innerHTML = ''
+
+    await sleepAsync(10) // Cleanup can be async
 
     expect(obs1.getObservers().length).toBe(0)
     expect(obs2.getObservers().length).toBe(0)
