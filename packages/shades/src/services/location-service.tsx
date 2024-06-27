@@ -34,7 +34,7 @@ export class LocationService implements Disposable {
   /**
    * Observable value that will be updated when the location hash (e.g. #hash) changes
    */
-  public onLocationHashChanged = new ObservableValue(location.hash)
+  public onLocationHashChanged = new ObservableValue(location.hash.replace('#', ''))
 
   /**
    * Observable value that will be updated when the location search (e.g. ?search=1) changes
@@ -49,7 +49,7 @@ export class LocationService implements Disposable {
 
   public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
-    this.onLocationHashChanged.setValue(location.hash)
+    this.onLocationHashChanged.setValue(location.hash.replace('#', ''))
     this.onLocationSearchChanged.setValue(location.search)
   }).bind(this)
 
@@ -96,9 +96,9 @@ export class LocationService implements Disposable {
     this.updateState()
   }
 
-  private hashChangeListener = (_ev: HashChangeEvent) => {
+  private hashChangeListener = ((_ev: HashChangeEvent) => {
     this.updateState()
-  }
+  }).bind(this)
 }
 
 export const useCustomSearchStateSerializer = (
