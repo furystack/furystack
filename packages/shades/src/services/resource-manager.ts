@@ -4,7 +4,7 @@ import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/uti
 /**
  * Class for managing observables and disposables for components, based on key-value maps
  */
-export class ResourceManager {
+export class ResourceManager implements AsyncDisposable {
   private readonly disposables = new Map<string, Disposable | AsyncDisposable>()
 
   public useDisposable<T extends Disposable | AsyncDisposable>(key: string, factory: () => T): T {
@@ -50,15 +50,23 @@ export class ResourceManager {
     return [observable.getValue(), observable.setValue.bind(observable)]
   }
 
-  public [Symbol.dispose]() {
-    this.disposables.forEach((r) => {
-      if (isDisposable(r)) {
-        r[Symbol.dispose]()
-      }
-      if (isAsyncDisposable(r)) {
-        r[Symbol.asyncDispose]()
-      }
-    })
+  public async [Symbol.asyncDispose]() {
+    const disposeResult = await Promise.allSettled(
+      [...this.disposables].map(async (r) => {
+        if (isDisposable(r)) {
+          r[Symbol.dispose]()
+        }
+        if (isAsyncDisposable(r)) {
+          await r[Symbol.asyncDispose]()
+        }
+      }),
+    )
+
+    const fails = disposeResult.filter((r) => r.status === 'rejected')
+    if (fails && fails.length) {
+      console.warn(`There was an error during disposing '${fails.length}' disposable objects`, fails)
+    }
+
     this.disposables.clear()
     this.observers.forEach((r) => r[Symbol.dispose]())
     this.observers.clear()

@@ -84,9 +84,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           this.callConstructed()
         }
 
-        public disconnectedCallback() {
+        public async disconnectedCallback() {
           o.onDetach?.(this.getRenderOptions())
-          this.resourceManager[Symbol.dispose]()
+          await this.resourceManager[Symbol.asyncDispose]()
           this.cleanup?.()
         }
 
