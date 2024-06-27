@@ -32,5 +32,5 @@ export const readPostBodyRaw = async (incomingMessage: IncomingMessage) => {
 export const readPostBody = async <T>(incomingMessage: IncomingMessage): Promise<T> => {
   const body = incomingMessage.postBody || JSON.parse(await readPostBodyRaw(incomingMessage))
   incomingMessage.postBody = body
-  return body
+  return body as T
 }

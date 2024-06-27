@@ -1,5 +1,5 @@
-import { EventHub } from './event-hub.js'
 import { describe, expect, it, vi } from 'vitest'
+import { EventHub } from './event-hub.js'
 
 describe('EventHub', () => {
   it('Should fail on type errors', () => {
@@ -74,7 +74,7 @@ describe('EventHub', () => {
     expect(objectListener2).toBeCalledTimes(1)
   })
 
-  it('Should add and remove a listener with subscription', () => {
+  it('Should add and remove a listener with subscription', async () => {
     const eventHub = new EventHub<{ ExampleNumberEvent: number }>()
     const numberListener = vi.fn((_val: number) => {})
 
@@ -82,7 +82,7 @@ describe('EventHub', () => {
     eventHub.emit('ExampleNumberEvent', 1)
 
     expect(numberListener).toBeCalledWith(1)
-    subscription.dispose()
+    await subscription.dispose()
     eventHub.emit('ExampleNumberEvent', 2)
     expect(numberListener).toBeCalledTimes(1)
   })

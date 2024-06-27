@@ -1,8 +1,8 @@
-import type { CollectionService } from '../../services/collection-service.js'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { DataRowCells } from './data-grid.js'
+import type { CollectionService } from '../../services/collection-service.js'
 import { DataGridRow } from './data-grid-row.js'
+import type { DataRowCells } from './data-grid.js'
 
 export interface DataGridBodyProps<T, Column extends string> {
   service: CollectionService<T>
@@ -24,6 +24,8 @@ export const DataGridBody: <T, Column extends string>(
   children: ChildrenList,
 ) => JSX.Element<any> = Shade<DataGridBodyProps<any, string>>({
   shadowDomName: 'shade-data-grid-body',
+  elementBase: HTMLTableSectionElement,
+  elementBaseName: 'tbody',
   style: {
     display: 'table-row-group',
   },

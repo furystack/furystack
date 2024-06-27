@@ -1,9 +1,9 @@
-import type { IncomingMessage, ServerResponse } from 'http'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { LoginAction } from './login.js'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it, vi } from 'vitest'
 import { HttpUserContext } from '../http-user-context.js'
-import { describe, it, expect, vi } from 'vitest'
+import { LoginAction } from './login.js'
 
 describe('LoginAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
@@ -25,7 +25,7 @@ describe('LoginAction', () => {
         response,
         injector: i,
         getBody: async () => ({ username: 'testuser', password: 'alma' }),
-      } as any)
+      })
       expect(result.chunk).toEqual(testUser)
       expect(result.statusCode).toBe(200)
     })

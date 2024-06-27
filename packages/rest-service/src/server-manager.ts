@@ -1,10 +1,9 @@
 import { Injectable } from '@furystack/inject'
 import type { Disposable } from '@furystack/utils'
-import type { Server } from 'http'
+import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
-import { Lock } from 'semaphore-async-await'
-import type { IncomingMessage, ServerResponse } from 'http'
 import type { Socket } from 'net'
+import { Lock } from 'semaphore-async-await'
 
 export interface ServerOptions {
   hostName?: string
@@ -18,7 +17,7 @@ export interface OnRequest {
 
 export interface ServerApi {
   shouldExec: (options: OnRequest) => boolean
-  onRequest: (options: OnRequest) => void
+  onRequest: (options: OnRequest) => Promise<void>
 }
 
 export interface ServerRecord {

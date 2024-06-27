@@ -1,13 +1,13 @@
-import { Injector, Injectable } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
-import { WebSocketApi } from './websocket-api.js'
-import { WebSocket, type Data } from 'ws'
-import type { WebSocketAction } from './models/websocket-action.js'
-import { useWebsockets } from './helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
 import { InMemoryStore, User, addStore } from '@furystack/core'
+import { getPort } from '@furystack/core/port-generator'
+import { Injectable, Injector } from '@furystack/inject'
 import { DefaultSession } from '@furystack/rest-service'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
+import { WebSocket, type Data } from 'ws'
+import { useWebsockets } from './helpers.js'
+import type { WebSocketAction } from './models/websocket-action.js'
+import { WebSocketApi } from './websocket-api.js'
 
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
@@ -49,7 +49,7 @@ describe('WebSocketApi', () => {
             }),
           )
           client.once('message', (data) => {
-            expect(data.toString()).toBe('alma')
+            expect((data as Buffer).toString()).toBe('alma')
           })
           await api.broadcast(({ ws }) => {
             ws.send('alma')
@@ -80,7 +80,7 @@ describe('WebSocketApi', () => {
         }
 
         public async execute(incomingData: { data: Data }) {
-          expect(JSON.parse(incomingData.data.toString())).toEqual(data)
+          expect(JSON.parse((incomingData.data as Buffer).toString())).toEqual(data)
         }
       }
 
