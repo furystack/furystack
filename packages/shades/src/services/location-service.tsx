@@ -102,7 +102,7 @@ export class LocationService implements Disposable {
 
       this.onDeserializedLocationSearchChanged.subscribe((search) => {
         const value = (search[key] as T) ?? defaultValue
-        this.searchParamObservables.get(key)?.setValue(value as T)
+        this.searchParamObservables.get(key)?.setValue(value)
       })
       return newObservable
     }

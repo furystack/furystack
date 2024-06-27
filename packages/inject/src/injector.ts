@@ -37,7 +37,7 @@ export class Injector implements Disposable {
         }
       })
     const result = await Promise.allSettled(disposeRequests)
-    const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
+    const fails = result.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       throw new Error(
         `There was an error during disposing '${fails.length}' global disposable objects: ${fails.map(

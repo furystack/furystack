@@ -14,7 +14,7 @@ export const styledShade = <T extends (props: any, children?: ChildrenList) => J
     const mergedProps = {
       ...props,
       style: {
-        ...((props as any)?.style || {}),
+        ...((props)?.style || {}),
         ...styles,
       },
     }

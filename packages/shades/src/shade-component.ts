@@ -58,7 +58,7 @@ export const attachProps = (el: HTMLElement, props: any) => {
 
   Object.assign(el, rest)
 
-  if (props && (props as any).style) {
+  if (props && (props).style) {
     attachStyles(el, props)
   }
   attachDataAttributes(el, props)

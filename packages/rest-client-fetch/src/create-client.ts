@@ -82,7 +82,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           : `?${serializeToQueryString(query)}`
         : '')
 
-    const response = await fetchMethod((clientOptions.endpointUrl + urlToSend) as string, {
+    const response = await fetchMethod((clientOptions.endpointUrl + urlToSend), {
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: body ? JSON.stringify(body) : undefined,

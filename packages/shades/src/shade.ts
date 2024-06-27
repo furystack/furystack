@@ -190,7 +190,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
           }
 
-          return renderOptions as RenderOptions<TProps, TElementBase>
+          return renderOptions
         }
 
         /**
