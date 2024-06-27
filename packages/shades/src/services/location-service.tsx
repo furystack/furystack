@@ -3,7 +3,7 @@ import {
   deserializeQueryString as defaultDeserializeQueryString,
   serializeToQueryString as defaultSerializeToQueryString,
 } from '@furystack/rest'
-import { ObservableValue, Trace } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   constructor(
@@ -14,28 +14,12 @@ export class LocationService implements Disposable {
     window.addEventListener('popstate', this.popStateListener)
     window.addEventListener('hashchange', this.hashChangeListener)
 
-    this.pushStateTracer = Trace.method({
-      object: history,
-      method: history.pushState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
-    this.replaceStateTracer = Trace.method({
-      object: history,
-      method: history.replaceState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
     this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
   }
 
   public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.pushStateTracer[Symbol.dispose]()
-    this.replaceStateTracer[Symbol.dispose]()
     this.onLocationPathChanged[Symbol.dispose]()
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
@@ -107,9 +91,6 @@ export class LocationService implements Disposable {
     }
     return existing as ObservableValue<T>
   }
-
-  private pushStateTracer: Disposable
-  private replaceStateTracer: Disposable
 
   private popStateListener = (_ev: PopStateEvent) => {
     this.updateState()
