@@ -53,7 +53,7 @@ describe('StoreManager', () => {
     })
   })
 
-  it('Dispose should throw if failed to dispose async one or more store', async () => {
+  it('should throw if failed to dispose async one or more store', async () => {
     await usingAsync(new Injector(), async (i) => {
       const sm = i.getInstance(StoreManager)
       const MockStore = class extends InMemoryStore<any, any> {
@@ -76,7 +76,7 @@ describe('StoreManager', () => {
     })
   })
 
-  it('Dispose should throw if failed to dispose one or more store', async () => {
+  it('should throw if failed to dispose one or more store', async () => {
     await usingAsync(new Injector(), async (i) => {
       const sm = i.getInstance(StoreManager)
       const MockStore = class extends InMemoryStore<any, any> {
