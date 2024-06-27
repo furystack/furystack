@@ -1,5 +1,6 @@
 import type { ValueChangeCallback, ValueObserver, ValueObserverOptions } from '@furystack/utils'
 import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/utils'
+import { AggregatedError } from '../../../core/src/errors/aggregated-error.js'
 
 /**
  * Class for managing observables and disposables for components, based on key-value maps
@@ -52,19 +53,23 @@ export class ResourceManager implements AsyncDisposable {
 
   public async [Symbol.asyncDispose]() {
     const disposeResult = await Promise.allSettled(
-      [...this.disposables].map(async (r) => {
-        if (isDisposable(r)) {
-          r[Symbol.dispose]()
+      [...this.disposables].map(async ([_key, resource]) => {
+        if (isDisposable(resource)) {
+          resource[Symbol.dispose]()
         }
-        if (isAsyncDisposable(r)) {
-          await r[Symbol.asyncDispose]()
+        if (isAsyncDisposable(resource)) {
+          await resource[Symbol.asyncDispose]()
         }
       }),
     )
 
     const fails = disposeResult.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
-      console.warn(`There was an error during disposing '${fails.length}' disposable objects`, fails)
+      const error = new AggregatedError(
+        `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason)}`,
+        fails,
+      )
+      throw error
     }
 
     this.disposables.clear()

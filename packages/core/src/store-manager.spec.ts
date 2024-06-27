@@ -53,11 +53,36 @@ describe('StoreManager', () => {
     })
   })
 
+  it('Dispose should throw if failed to dispose async one or more store', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const sm = i.getInstance(StoreManager)
+      const MockStore = class extends InMemoryStore<any, any> {
+        public [Symbol.asyncDispose] = () => Promise.reject(':(')
+      }
+
+      sm.addStore(
+        new MockStore({
+          model: Test,
+          primaryKey: 'id',
+        }),
+      )
+      try {
+        await sm[Symbol.asyncDispose]()
+      } catch (error) {
+        expect(error).toBeInstanceOf(AggregatedError)
+        expect((error as AggregatedError).rejections).toHaveLength(1)
+      }
+      i.cachedSingletons.clear()
+    })
+  })
+
   it('Dispose should throw if failed to dispose one or more store', async () => {
     await usingAsync(new Injector(), async (i) => {
       const sm = i.getInstance(StoreManager)
       const MockStore = class extends InMemoryStore<any, any> {
-        public dispose = () => Promise.reject(':(')
+        public [Symbol.dispose] = () => {
+          throw new Error(':(')
+        }
       }
 
       sm.addStore(
