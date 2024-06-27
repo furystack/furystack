@@ -3,7 +3,7 @@ import {
   deserializeQueryString as defaultDeserializeQueryString,
   serializeToQueryString as defaultSerializeToQueryString,
 } from '@furystack/rest'
-import { ObservableValue, Trace } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   constructor(
@@ -14,28 +14,12 @@ export class LocationService implements Disposable {
     window.addEventListener('popstate', this.popStateListener)
     window.addEventListener('hashchange', this.hashChangeListener)
 
-    this.pushStateTracer = Trace.method({
-      object: history,
-      method: history.pushState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
-    this.replaceStateTracer = Trace.method({
-      object: history,
-      method: history.replaceState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
     this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
   }
 
   public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.pushStateTracer[Symbol.dispose]()
-    this.replaceStateTracer[Symbol.dispose]()
     this.onLocationPathChanged[Symbol.dispose]()
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
@@ -50,7 +34,7 @@ export class LocationService implements Disposable {
   /**
    * Observable value that will be updated when the location hash (e.g. #hash) changes
    */
-  public onLocationHashChanged = new ObservableValue(location.hash)
+  public onLocationHashChanged = new ObservableValue(location.hash.replace('#', ''))
 
   /**
    * Observable value that will be updated when the location search (e.g. ?search=1) changes
@@ -65,7 +49,7 @@ export class LocationService implements Disposable {
 
   public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
-    this.onLocationHashChanged.setValue(location.hash)
+    this.onLocationHashChanged.setValue(location.hash.replace('#', ''))
     this.onLocationSearchChanged.setValue(location.search)
   }).bind(this)
 
@@ -108,16 +92,13 @@ export class LocationService implements Disposable {
     return existing as ObservableValue<T>
   }
 
-  private pushStateTracer: Disposable
-  private replaceStateTracer: Disposable
-
   private popStateListener = (_ev: PopStateEvent) => {
     this.updateState()
   }
 
-  private hashChangeListener = (_ev: HashChangeEvent) => {
+  private hashChangeListener = ((_ev: HashChangeEvent) => {
     this.updateState()
-  }
+  }).bind(this)
 }
 
 export const useCustomSearchStateSerializer = (
