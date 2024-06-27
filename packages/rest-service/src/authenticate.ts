@@ -18,6 +18,6 @@ export const Authenticate =
           injector.getInstance(HttpUserContext).authentication.enableBasicAuth ? { 'WWW-Authenticate': 'Basic' } : {},
         ) as unknown as ActionResult<T>
       }
-      return (await action(args)) as any
+      return (await action(args)) as ActionResult<T>
     }
   }

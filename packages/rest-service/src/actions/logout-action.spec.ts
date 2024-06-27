@@ -1,9 +1,9 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it, vi } from 'vitest'
 import { HttpUserContext } from '../http-user-context.js'
 import { LogoutAction } from './logout.js'
-import type { IncomingMessage, ServerResponse } from 'http'
-import { describe, it, expect, vi } from 'vitest'
 
 describe('LogoutAction', () => {
   const request = { url: 'https://google.com' } as IncomingMessage
@@ -19,7 +19,7 @@ describe('LogoutAction', () => {
         HttpUserContext,
       )
 
-      const result = await LogoutAction({ request, response, injector: i } as any)
+      const result = await LogoutAction({ request, response, injector: i })
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
       expect(cookieLogout).toBeCalled()
