@@ -59,4 +59,44 @@ describe('ResourceManager', () => {
 
     expect(disposable[Symbol.asyncDispose]).toHaveBeenCalledTimes(1)
   })
+
+  it('Should throw an aggregated error when failed to dispose something', async () => {
+    const disposable = {
+      [Symbol.dispose]: vi.fn(() => {
+        throw new Error('Failed to dispose')
+      }),
+    }
+    const factory = vi.fn(() => disposable)
+    await expect(
+      async () =>
+        await usingAsync(new ResourceManager(), async (rm) => {
+          rm.useDisposable('test', factory)
+          expect(factory).toHaveBeenCalledTimes(1)
+        }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: There was an error during disposing 1 stores: Error: Failed to dispose]`,
+    )
+
+    expect(disposable[Symbol.dispose]).toHaveBeenCalledTimes(1)
+  })
+
+  it('Should throw an aggregated error when failed to async dispose something', async () => {
+    const disposable = {
+      [Symbol.asyncDispose]: vi.fn(async () => {
+        throw new Error('Failed to dispose')
+      }),
+    }
+    const factory = vi.fn(() => disposable)
+    await expect(
+      async () =>
+        await usingAsync(new ResourceManager(), async (rm) => {
+          rm.useDisposable('test', factory)
+          expect(factory).toHaveBeenCalledTimes(1)
+        }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: There was an error during disposing 1 stores: Error: Failed to dispose]`,
+    )
+
+    expect(disposable[Symbol.asyncDispose]).toHaveBeenCalledTimes(1)
+  })
 })
