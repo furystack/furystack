@@ -1,5 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
-import type { Disposable } from './disposable.js'
+import { describe, expect, it, vi } from 'vitest'
 import { using, usingAsync } from './disposable.js'
 
 export class MockDisposable implements Disposable {
@@ -8,7 +7,31 @@ export class MockDisposable implements Disposable {
   /**
    * Disposes the MockDisposable instance, calls the dispose callback
    */
-  public dispose = () => {
+  public [Symbol.dispose]() {
+    this.disposed = true
+    this.disposeCallback && this.disposeCallback()
+  }
+
+  /**
+   * Mock to throw an error
+   */
+  public whooops() {
+    throw Error('Whooops')
+  }
+
+  /**
+   * Defines the callback that will be called on dispose
+   */
+  public disposeCallback!: () => void
+}
+
+export class MockAsyncDisposable implements AsyncDisposable {
+  private disposed = false
+  public isDisposed = () => this.disposed
+  /**
+   * Disposes the MockDisposable instance, calls the dispose callback
+   */
+  public async [Symbol.asyncDispose]() {
     this.disposed = true
     this.disposeCallback && this.disposeCallback()
   }
@@ -44,7 +67,7 @@ export const disposableTests = describe('Disposable', () => {
   })
 
   it('Should return a value from an async callback', async () => {
-    const returned = await usingAsync(new MockDisposable(), async () => {
+    const returned = await usingAsync(new MockAsyncDisposable(), async () => {
       return 2
     })
     expect(returned).toBe(2)
@@ -54,7 +77,7 @@ export const disposableTests = describe('Disposable', () => {
     it('should return a correct value before and after disposition', () => {
       const d = new MockDisposable()
       expect(d.isDisposed()).toBe(false)
-      d.dispose()
+      d[Symbol.dispose]()
       expect(d.isDisposed()).toBe(true)
     })
   })
@@ -77,7 +100,7 @@ export const disposableTests = describe('Disposable', () => {
 
     it('should be called with usingAsync()', async () => {
       const callbackMethod = vi.fn()
-      await usingAsync(new MockDisposable(), async (d) => {
+      await usingAsync(new MockAsyncDisposable(), async (d) => {
         d.disposeCallback = () => {
           callbackMethod()
         }
@@ -91,7 +114,7 @@ export const disposableTests = describe('Disposable', () => {
     it('should be called when async fails', async () => {
       const callbackMethod = vi.fn()
       try {
-        await usingAsync(new MockDisposable(), async (d) => {
+        await usingAsync(new MockAsyncDisposable(), async (d) => {
           d.disposeCallback = () => {
             callbackMethod()
           }
@@ -106,11 +129,11 @@ export const disposableTests = describe('Disposable', () => {
     })
 
     it('should await dispose for asyncs with usingAsync()', async () => {
-      class AsyncDispose {
+      class AsyncDispose implements AsyncDisposable {
         /** flag */
         public isDisposed = false
         /** set isDisposed with a timeout */
-        public async dispose() {
+        public async [Symbol.asyncDispose]() {
           await new Promise<void>((resolve) =>
             setTimeout(() => {
               this.isDisposed = true

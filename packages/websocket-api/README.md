@@ -27,7 +27,7 @@ import { IWebSocketAction } from '../models/IWebSocketAction'
 
 @Injectable({ lifetime: 'transient' })
 export class WhoAmI implements WebSocketAction {
-  public dispose() {
+  public [Symbol.dispose]() {
     /** */
   }
   public static canExecute(data: Data): boolean {

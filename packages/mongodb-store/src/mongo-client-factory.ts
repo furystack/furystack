@@ -1,4 +1,3 @@
-import type { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 import type { MongoClientOptions } from 'mongodb'
 import { MongoClient } from 'mongodb'
@@ -7,10 +6,10 @@ import { MongoClient } from 'mongodb'
  * Factory for instantiating MongoDb clients
  */
 @Injectable({ lifetime: 'singleton' })
-export class MongoClientFactory implements Disposable {
+export class MongoClientFactory implements AsyncDisposable {
   private connections: Map<string, MongoClient> = new Map()
 
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     await Promise.all([...this.connections.values()].map((c) => c.close(true)))
     this.connections.clear()
   }

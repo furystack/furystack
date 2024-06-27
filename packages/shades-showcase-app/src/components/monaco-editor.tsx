@@ -2,8 +2,8 @@ import { Shade } from '@furystack/shades'
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main.js'
 
-import './worker-config.js'
 import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
+import './worker-config.js'
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions

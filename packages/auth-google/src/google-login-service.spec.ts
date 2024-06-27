@@ -1,11 +1,11 @@
-import { usingAsync, using } from '@furystack/utils'
+import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { InMemoryStore, User, StoreManager, addStore } from '@furystack/core'
-import type { GoogleApiPayload } from './login-service.js'
-import { GoogleLoginSettings, GoogleLoginService } from './login-service.js'
 import { useHttpAuthentication } from '@furystack/rest-service'
-import { describe, it, expect } from 'vitest'
+import { usingAsync } from '@furystack/utils'
 import type { get } from 'http'
+import { describe, expect, it } from 'vitest'
+import type { GoogleApiPayload } from './login-service.js'
+import { GoogleLoginService, GoogleLoginSettings } from './login-service.js'
 
 const getGoogleUser = (overrides?: Partial<GoogleApiPayload>) =>
   ({
@@ -32,8 +32,8 @@ describe('Google Login Service', () => {
   })
 
   describe('Service', () => {
-    it('Can be constructed', () => {
-      using(new Injector(), (i) => {
+    it('Can be constructed', async () => {
+      await usingAsync(new Injector(), async (i) => {
         expect(i.getInstance(GoogleLoginService)).toBeInstanceOf(GoogleLoginService)
       })
     })

@@ -1,7 +1,7 @@
 import type { Constructable } from '@furystack/inject'
-import type { PhysicalStore, FindOptions, PartialResult, FilterType, CreateResult } from './models/physical-store.js'
-import { selectFields, isOperator, isLogicalOperator } from './models/physical-store.js'
 import { EventHub } from '@furystack/utils'
+import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
+import { isLogicalOperator, isOperator, selectFields } from './models/physical-store.js'
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T>
   extends EventHub<{
@@ -192,7 +192,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
     this.emit('onEntityUpdated', { id, change: data })
   }
 
-  public dispose() {
+  public [Symbol.dispose]() {
     this.cache.clear()
   }
 

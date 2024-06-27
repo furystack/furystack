@@ -1,4 +1,3 @@
-import type { Disposable } from './disposable.js'
 import { ObservableValue } from './observable-value.js'
 
 /**
@@ -259,7 +258,7 @@ export class Trace {
 
     // Subscribe and return the observer
     return {
-      dispose: () => callbacks.forEach((c) => c && c.dispose()),
+      [Symbol.dispose]: () => callbacks.forEach((c) => c && c[Symbol.dispose]()),
     }
   }
 }

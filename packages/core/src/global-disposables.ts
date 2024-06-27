@@ -1,15 +1,25 @@
-import type { Disposable } from '@furystack/utils'
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 
 /**
  * Readonly set that stores references of the disposables that should be disposed on process exit
  */
-export const globalDisposables: Set<Disposable> = new Set()
+export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
 
 /**
  * Will be triggered via process event listeners
  */
 export const exitHandler = (async () => {
-  const result = await Promise.allSettled([...globalDisposables].map((d) => d.dispose()))
+  const result = await Promise.allSettled(
+    [...globalDisposables].map((d) => {
+      if (isAsyncDisposable(d)) {
+        return d[Symbol.asyncDispose]()
+      }
+      if (isDisposable(d)) {
+        return d[Symbol.dispose]()
+      }
+      return Promise.resolve({ status: 'fulfilled' })
+    }),
+  )
   const fails = result.filter((r) => r.status === 'rejected')
   if (fails && fails.length) {
     console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)

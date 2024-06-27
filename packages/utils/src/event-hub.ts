@@ -1,5 +1,3 @@
-import type { Disposable } from './disposable.js'
-
 type ListenerFunction<EventTypeMap extends Object, T extends keyof EventTypeMap> = (arg: EventTypeMap[T]) => void
 
 export class EventHub<EventTypeMap extends Object> implements Disposable {
@@ -29,7 +27,7 @@ export class EventHub<EventTypeMap extends Object> implements Disposable {
     listener: ListenerFunction<EventTypeMap, TEvent>,
   ): Disposable {
     this.addListener(event, listener)
-    return { dispose: () => this.removeListener(event, listener) }
+    return { [Symbol.dispose]: () => this.removeListener(event, listener) }
   }
 
   public emit<TEvent extends keyof EventTypeMap>(event: TEvent, arg: EventTypeMap[TEvent]) {
@@ -38,7 +36,7 @@ export class EventHub<EventTypeMap extends Object> implements Disposable {
     }
   }
 
-  public dispose() {
+  public [Symbol.dispose]() {
     this.listeners.clear()
   }
 }

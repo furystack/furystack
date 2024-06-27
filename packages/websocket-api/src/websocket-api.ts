@@ -1,23 +1,22 @@
-import { URL } from 'url'
-import type { Socket } from 'net'
-import { IncomingMessage } from 'http'
-import { HttpUserContext, ServerManager } from '@furystack/rest-service'
+import { AggregatedError, IdentityContext, type User } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
-import { using, type Disposable } from '@furystack/utils'
-import type { Data } from 'ws'
+import { HttpUserContext, ServerManager } from '@furystack/rest-service'
+import { using } from '@furystack/utils'
+import { IncomingMessage } from 'http'
+import type { Socket } from 'net'
+import { URL } from 'url'
 import type WebSocket from 'ws'
-import { WebSocketServer } from 'ws'
-import ws from 'ws'
-import { WebSocketApiSettings } from './websocket-api-settings.js'
+import type { Data } from 'ws'
+import ws, { WebSocketServer } from 'ws'
 import type { WebSocketAction } from './models/websocket-action.js'
-import { AggregatedError, IdentityContext, type User } from '@furystack/core'
+import { WebSocketApiSettings } from './websocket-api-settings.js'
 
 /**
  * A WebSocket API implementation for FuryStack
  */
 @Injectable({ lifetime: 'scoped' })
-export class WebSocketApi implements Disposable {
+export class WebSocketApi implements AsyncDisposable {
   public readonly socket = new WebSocketServer({ noServer: true })
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
@@ -74,7 +73,7 @@ export class WebSocketApi implements Disposable {
       throw Error('WebSocket API is already initialized')
     }
   }
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     this.socket.clients.forEach((client) => client.close())
     this.socket.clients.forEach((client) => client.terminate())
     await new Promise<void>((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))

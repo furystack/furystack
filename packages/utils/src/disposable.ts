@@ -23,15 +23,12 @@
  */
 /** */
 
-/**
- * Resources in using an usingAsync should implement this interface
- *
- */
-export interface Disposable {
-  /**
-   * Method called when the IDisposable is disposed.
-   */
-  dispose: () => void | Promise<void>
+export const isDisposable = (value: unknown): value is Disposable => {
+  return (value as Disposable)?.[Symbol.dispose] instanceof Function
+}
+
+export const isAsyncDisposable = (value: unknown): value is AsyncDisposable => {
+  return (value as AsyncDisposable)?.[Symbol.asyncDispose] instanceof Function
 }
 
 /**
@@ -44,7 +41,7 @@ export const using = <T extends Disposable, TReturns>(resource: T, callback: (r:
   try {
     return callback(resource)
   } finally {
-    resource.dispose()
+    resource[Symbol.dispose]()
   }
 }
 
@@ -54,16 +51,13 @@ export const using = <T extends Disposable, TReturns>(resource: T, callback: (r:
  * @param callback The callback that will be executed asynchrounously before the resource will be disposed
  * @returns A promise that will be resolved with a return value after the resource is disposed
  */
-export const usingAsync = async <T extends Disposable, TReturns>(
+export const usingAsync = async <T extends AsyncDisposable, TReturns>(
   resource: T,
   callback: (r: T) => Promise<TReturns>,
 ) => {
   try {
     return await callback(resource)
   } finally {
-    const disposeResult = resource.dispose()
-    if (disposeResult instanceof Promise) {
-      await disposeResult
-    }
+    await resource[Symbol.asyncDispose]()
   }
 }

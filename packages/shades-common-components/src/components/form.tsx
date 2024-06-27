@@ -1,9 +1,8 @@
-import type { ChildrenList, PartialElement } from '@furystack/shades'
-import { attachProps } from '@furystack/shades'
-import { Shade, createComponent } from '@furystack/shades'
-import type { InputValidationResult } from './inputs/input.js'
 import { Injectable } from '@furystack/inject'
+import type { ChildrenList, PartialElement } from '@furystack/shades'
+import { Shade, attachProps, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
+import type { InputValidationResult } from './inputs/input.js'
 
 type UnknownFormValidationResult = { isValid: null }
 
@@ -34,10 +33,10 @@ export class FormService<T> {
     this.fieldErrors.setValue({ ...this.fieldErrors.getValue(), [key]: { validationResult, validity } })
   }
 
-  public dispose() {
-    this.validatedFormData.dispose()
-    this.rawFormData.dispose()
-    this.validationResult.dispose()
+  public [Symbol.dispose]() {
+    this.validatedFormData[Symbol.dispose]()
+    this.rawFormData[Symbol.dispose]()
+    this.validationResult[Symbol.dispose]()
   }
 }
 

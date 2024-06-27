@@ -1,9 +1,9 @@
-import { ObservableValue } from '@furystack/utils'
 import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
+import { ObservableValue } from '@furystack/utils'
 import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
-import { ResourceManager } from './services/resource-manager.js'
 import { LocationService } from './services/location-service.js'
+import { ResourceManager } from './services/resource-manager.js'
 import { attachProps, attachStyles } from './shade-component.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
@@ -86,7 +86,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 
         public disconnectedCallback() {
           o.onDetach?.(this.getRenderOptions())
-          this.resourceManager.dispose()
+          this.resourceManager[Symbol.dispose]()
           this.cleanup?.()
         }
 
@@ -173,9 +173,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
                 })
 
                 return {
-                  dispose: () => {
+                  [Symbol.dispose]: () => {
                     window.removeEventListener('storage', updateFromStorageEvent)
-                    subscription.dispose()
+                    subscription[Symbol.dispose]()
                     messageChannel.close()
                   },
                 }

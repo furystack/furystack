@@ -1,14 +1,14 @@
 import type {
-  FindOptions,
-  PhysicalStore,
-  PartialResult,
-  FilterType,
-  WithOptionalId,
   CreateResult,
+  FilterType,
+  FindOptions,
+  PartialResult,
+  PhysicalStore,
+  WithOptionalId,
 } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
-import type { MongoClient, Filter, Collection, Sort, OptionalUnlessRequiredId, UpdateFilter } from 'mongodb'
+import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, UpdateFilter } from 'mongodb'
 import { ObjectId } from 'mongodb'
 import { Lock } from 'semaphore-async-await'
 
@@ -192,7 +192,7 @@ export class MongodbStore<
     await collection.deleteMany(this.createIdFilter(...keys))
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     /** */
   }
 }

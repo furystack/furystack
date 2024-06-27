@@ -1,6 +1,6 @@
 import { ObservableValue, using } from '@furystack/utils'
+import { describe, expect, it, vi } from 'vitest'
 import { ResourceManager } from './resource-manager.js'
-import { describe, it, expect, vi } from 'vitest'
 describe('ResourceManager', () => {
   it('Should return an observable from cache', () => {
     using(new ResourceManager(), (rm) => {
@@ -21,7 +21,7 @@ describe('ResourceManager', () => {
   it('Should return a disposable from cache', () => {
     using(new ResourceManager(), (rm) => {
       const factory = vi.fn(() => ({
-        dispose: () => {
+        [Symbol.dispose]: () => {
           /** ignore */
         },
       }))

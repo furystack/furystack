@@ -1,4 +1,3 @@
-import type { Disposable } from './disposable.js'
 import type { ValueObserverOptions } from './value-observer.js'
 import { ValueObserver } from './value-observer.js'
 
@@ -42,9 +41,9 @@ const defaultComparer = <T>(a: T, b: T) => a !== b
  * // To update the value
  * observableValue.setValue(Math.random());
  * // if you want to dispose a single observer
- * observer.dispose();
+ * observer[Symbol.dispose]();
  * // if you want to dispose the whole observableValue with all of its observers:
- * observableValue.dispose();
+ * observableValue[Symbol.dispose]();
  * ```
  * @param T Generic argument to indicate the value type
  */
@@ -58,7 +57,7 @@ export class ObservableValue<T> implements Disposable {
   /**
    * Disposes the ObservableValue object, removes all observers
    */
-  public dispose() {
+  public [Symbol.dispose]() {
     this.observers.clear()
     this._isDisposed = true
     // @ts-expect-error getting currentValue after disposing is not allowed

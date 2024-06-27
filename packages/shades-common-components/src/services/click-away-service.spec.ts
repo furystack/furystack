@@ -4,7 +4,7 @@ import { ClickAwayService } from './click-away-service.js'
 describe('ClickAwayService', () => {
   it('Should be constructed and disposed', () => {
     const service = new ClickAwayService(document.createElement('div'), () => {})
-    service.dispose()
+    service[Symbol.dispose]()
   })
 
   it('Should call onClickAway when clicking outside the element', () => {
@@ -17,7 +17,7 @@ describe('ClickAwayService', () => {
 
     expect(onClickAway).toBeCalled()
 
-    service.dispose()
+    service[Symbol.dispose]()
   })
 
   it('Should not call onClickAway when clicking inside the element', () => {
@@ -30,6 +30,6 @@ describe('ClickAwayService', () => {
 
     expect(onClickAway).not.toBeCalled()
 
-    service.dispose()
+    service[Symbol.dispose]()
   })
 })

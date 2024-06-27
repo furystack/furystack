@@ -1,14 +1,13 @@
-import { ObservableValue } from '@furystack/utils'
-import type { Disposable, ValueChangeCallback, ValueObserverOptions } from '@furystack/utils'
-import type { ValueObserver } from '@furystack/utils'
+import type { ValueChangeCallback, ValueObserver, ValueObserverOptions } from '@furystack/utils'
+import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/utils'
 
 /**
  * Class for managing observables and disposables for components, based on key-value maps
  */
 export class ResourceManager {
-  private readonly disposables = new Map<string, Disposable>()
+  private readonly disposables = new Map<string, Disposable | AsyncDisposable>()
 
-  public useDisposable<T extends Disposable>(key: string, factory: () => T): T {
+  public useDisposable<T extends Disposable | AsyncDisposable>(key: string, factory: () => T): T {
     const existing = this.disposables.get(key)
     if (!existing) {
       const created = factory()
@@ -51,13 +50,20 @@ export class ResourceManager {
     return [observable.getValue(), observable.setValue.bind(observable)]
   }
 
-  public dispose() {
-    this.disposables.forEach((r) => r.dispose())
+  public [Symbol.dispose]() {
+    this.disposables.forEach((r) => {
+      if (isDisposable(r)) {
+        r[Symbol.dispose]()
+      }
+      if (isAsyncDisposable(r)) {
+        r[Symbol.asyncDispose]()
+      }
+    })
     this.disposables.clear()
-    this.observers.forEach((r) => r.dispose())
+    this.observers.forEach((r) => r[Symbol.dispose]())
     this.observers.clear()
 
-    this.stateObservers.forEach((r) => r.dispose())
+    this.stateObservers.forEach((r) => r[Symbol.dispose]())
     this.stateObservers.clear()
   }
 }

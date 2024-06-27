@@ -1,16 +1,15 @@
 import type { Injector } from '@furystack/inject'
 import { globalDisposables } from './global-disposables.js'
 import { IdentityContext } from './identity-context.js'
-import type { Disposable } from '@furystack/utils'
-import { StoreManager } from './store-manager.js'
 import type { PhysicalStore } from './models/physical-store.js'
+import { StoreManager } from './store-manager.js'
 
 /**
  * The disposable will be disposed on process exit
  * @param disposable The Disposable object to dispose on process exit
  * @returns A set of global disposables
  */
-export const disposeOnProcessExit = (disposable: Disposable) => globalDisposables.add(disposable)
+export const disposeOnProcessExit = (disposable: Disposable | AsyncDisposable) => globalDisposables.add(disposable)
 
 /**
  *  @param injector The Injector instance

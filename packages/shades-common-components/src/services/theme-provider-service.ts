@@ -144,7 +144,7 @@ export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<T
     this.emit('themeChanged', theme)
   }
 
-  public dispose() {
+  public [Symbol.dispose]() {
     /** */
   }
 }

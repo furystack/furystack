@@ -1,11 +1,11 @@
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
-import { JsonResult } from './request-action-implementation.js'
+import { describe, expect, it } from 'vitest'
 import { useRestService } from './helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
+import { JsonResult } from './request-action-implementation.js'
 
 export interface EchoApi extends RestApi {
   GET: {
@@ -59,7 +59,7 @@ const createEchoApiServer = async () => {
     endpointUrl: `http://127.0.0.1:${port}/api`,
   })
   return {
-    dispose: injector.dispose.bind(injector),
+    [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
     root,
     port,
     client,

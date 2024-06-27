@@ -74,7 +74,7 @@ export const observableTests = describe('Observable', () => {
       v.subscribe(callback1)
       v.subscribe(callback2)
       expect(v.getObservers().length).toBe(2)
-      v.dispose()
+      v[Symbol.dispose]()
       expect(v.getObservers().length).toBe(0)
     })
 
@@ -85,25 +85,25 @@ export const observableTests = describe('Observable', () => {
       const v = new ObservableValue(1)
       const observer = v.subscribe(callback1)
       expect(v.getObservers().length).toBe(1)
-      observer.dispose()
+      observer[Symbol.dispose]()
       expect(v.getObservers().length).toBe(0)
     })
 
     it('should throw an error for setValue() when the observer has been disposed', () => {
       const v = new ObservableValue(1)
-      v.dispose()
+      v[Symbol.dispose]()
       expect(() => v.setValue(3)).toThrowError('Observable already disposed')
     })
 
     it('should throw an error for getValue() when the observer has been disposed', () => {
       const v = new ObservableValue(1)
-      v.dispose()
+      v[Symbol.dispose]()
       expect(() => v.getValue()).toThrowError('Observable already disposed')
     })
 
     it('should throw an error for subscribe() when the observer has been disposed', () => {
       const v = new ObservableValue(1)
-      v.dispose()
+      v[Symbol.dispose]()
       expect(() =>
         v.subscribe(() => {
           /** */
@@ -123,7 +123,7 @@ export const observableTests = describe('Observable', () => {
       const observer = v.subscribe(new Alma().Callback)
       v.subscribe(new Alma().Callback)
       expect(v.getObservers().length).toBe(2)
-      observer.dispose()
+      observer[Symbol.dispose]()
       expect(v.getObservers().length).toBe(1)
       v.setValue(3)
 

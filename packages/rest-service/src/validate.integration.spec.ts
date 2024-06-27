@@ -1,15 +1,15 @@
+import { getStoreManager, InMemoryStore, User } from '@furystack/core'
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
-import { JsonResult } from './request-action-implementation.js'
-import { Validate } from './validate.js'
-import schema from './validate.integration.spec.schema.json' with { type: 'json' }
-import type { ValidationApi } from './validate.integration.schema.js'
+import { describe, expect, it } from 'vitest'
 import { useRestService } from './helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
-import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { DefaultSession } from './models/default-session.js'
+import { JsonResult } from './request-action-implementation.js'
+import type { ValidationApi } from './validate.integration.schema.js'
+import schema from './validate.integration.spec.schema.json' with { type: 'json' }
+import { Validate } from './validate.js'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
@@ -64,7 +64,7 @@ const createValidateApi = async () => {
   })
 
   return {
-    dispose: injector.dispose.bind(injector),
+    [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
     client,
   }
 }

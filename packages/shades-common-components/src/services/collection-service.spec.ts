@@ -1,4 +1,4 @@
-import { usingAsync } from '@furystack/utils'
+import { using } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { CollectionService } from './collection-service.js'
 
@@ -6,8 +6,8 @@ const testEntries = [{ foo: 1 }, { foo: 2 }, { foo: 3 }]
 
 describe('CollectionService', () => {
   describe('Selection', () => {
-    it('Should add and remove selection', async () => {
-      await usingAsync(new CollectionService({}), async (collectionService) => {
+    it('Should add and remove selection', () => {
+      using(new CollectionService({}), (collectionService) => {
         collectionService.data.setValue({ count: 3, entries: testEntries })
         testEntries.forEach((entry) => {
           expect(collectionService.isSelected(entry)).toBe(false)

@@ -1,12 +1,12 @@
 import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it, vi } from 'vitest'
+import { getCurrentUser, isAuthenticated, isAuthorized } from './helpers.js'
 import { IdentityContext } from './identity-context.js'
-import { isAuthorized, isAuthenticated, getCurrentUser } from './helpers.js'
-import { describe, it, expect, vi } from 'vitest'
 
 describe('IdentityContext', () => {
-  it('Should be retrieved from an Injector', () => {
-    using(new Injector(), (i) => {
+  it('Should be retrieved from an Injector', async () => {
+    await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       expect(ctx).toBeInstanceOf(IdentityContext)
     })

@@ -1,15 +1,15 @@
+import { InMemoryStore, User, addStore } from '@furystack/core'
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
-import './helpers'
-import { usingAsync, PathHelper } from '@furystack/utils'
-import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions/index.js'
 import type { RestApi } from '@furystack/rest'
-import { User, InMemoryStore, addStore } from '@furystack/core'
+import { serializeValue } from '@furystack/rest'
+import { PathHelper, usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
+import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions/index.js'
+import './helpers'
+import { useHttpAuthentication, useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
 import { JsonResult } from './request-action-implementation.js'
-import { useHttpAuthentication, useRestService } from './helpers.js'
-import { describe, it, expect } from 'vitest'
-import { serializeValue } from '@furystack/rest'
-import { getPort } from '@furystack/core/port-generator'
 
 interface IntegrationTestApi extends RestApi {
   GET: {
@@ -68,7 +68,7 @@ const createIntegrationApi = async () => {
   return {
     apiUrl: `http://127.0.0.1:${port}/${root}`,
     port,
-    dispose: i.dispose.bind(i),
+    [Symbol.asyncDispose]: i[Symbol.asyncDispose].bind(i),
   }
 }
 

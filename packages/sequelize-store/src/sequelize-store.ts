@@ -149,7 +149,7 @@ export class SequelizeStore<
     await model.destroy({ where: { [this.primaryKey]: keys } } as any)
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
-  public async dispose() {
-    await super.dispose()
+  public async [Symbol.asyncDispose]() {
+    await super[Symbol.dispose]()
   }
 }

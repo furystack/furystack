@@ -1,6 +1,5 @@
-import type { Disposable } from '@furystack/utils'
-import type { Data, WebSocket } from 'ws'
 import type { IncomingMessage } from 'http'
+import type { Data, WebSocket } from 'ws'
 
 /**
  * Static methods of a WebSocket Action

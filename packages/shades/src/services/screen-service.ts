@@ -1,5 +1,4 @@
 import { Injectable } from '@furystack/inject'
-import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 
 export const ScreenSizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const
@@ -26,7 +25,7 @@ export class ScreenService implements Disposable {
     xs: { minSize: 0 },
   }
 
-  public dispose() {
+  public [Symbol.dispose]() {
     window.removeEventListener('resize', this.onResizeListener)
   }
 

@@ -1,8 +1,7 @@
 import { Lock } from 'semaphore-async-await'
-import type { Disposable } from '@furystack/utils'
 
 export class CacheLockManager implements Disposable {
-  public dispose() {
+  public [Symbol.dispose]() {
     this.locks.clear()
   }
 

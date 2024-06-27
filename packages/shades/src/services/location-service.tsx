@@ -1,10 +1,9 @@
-import type { Disposable } from '@furystack/utils'
-import { ObservableValue, Trace } from '@furystack/utils'
 import { Injectable, type Injector } from '@furystack/inject'
 import {
   deserializeQueryString as defaultDeserializeQueryString,
   serializeToQueryString as defaultSerializeToQueryString,
 } from '@furystack/rest'
+import { ObservableValue, Trace } from '@furystack/utils'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   constructor(
@@ -32,15 +31,15 @@ export class LocationService implements Disposable {
     this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
   }
 
-  public dispose() {
+  public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.pushStateTracer.dispose()
-    this.replaceStateTracer.dispose()
-    this.onLocationPathChanged.dispose()
-    this.onLocationSearchChanged.dispose()
-    this.onDeserializedLocationSearchChanged.dispose()
-    this.locationDeserializerObserver.dispose()
+    this.pushStateTracer[Symbol.dispose]()
+    this.replaceStateTracer[Symbol.dispose]()
+    this.onLocationPathChanged[Symbol.dispose]()
+    this.onLocationSearchChanged[Symbol.dispose]()
+    this.onDeserializedLocationSearchChanged[Symbol.dispose]()
+    this.locationDeserializerObserver[Symbol.dispose]()
   }
 
   /**

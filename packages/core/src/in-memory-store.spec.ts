@@ -14,7 +14,7 @@ describe('InMemoryStore', () => {
   it('dispose should empty the cache', async () => {
     const f = createStore()
     await f.add(createMockEntity())
-    f.dispose()
+    f[Symbol.dispose]()
     const count = await f.count()
     expect(count).toBe(0)
   })

@@ -1,12 +1,17 @@
-import { Injector } from '@furystack/inject'
-import { WhoAmI } from './actions/whoami.js'
-import { WebSocket } from 'ws'
 import { addStore, InMemoryStore, StoreManager, User } from '@furystack/core'
-import { DefaultSession, HttpUserContext, ServerManager, useHttpAuthentication } from '@furystack/rest-service'
-import { useRestService } from '@furystack/rest-service'
-import { useWebsockets } from './helpers.js'
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getPort } from '@furystack/core/port-generator'
+import { Injector } from '@furystack/inject'
+import {
+  DefaultSession,
+  HttpUserContext,
+  ServerManager,
+  useHttpAuthentication,
+  useRestService,
+} from '@furystack/rest-service'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { WebSocket } from 'ws'
+import { WhoAmI } from './actions/whoami.js'
+import { useWebsockets } from './helpers.js'
 
 describe('WebSocket Integration tests', () => {
   const host = 'localhost'
@@ -47,7 +52,7 @@ describe('WebSocket Integration tests', () => {
   })
 
   afterEach(async () => {
-    await i.dispose()
+    await i[Symbol.asyncDispose]()
   })
   const getWhoAmIResult = async (subjectClient: WebSocket) => {
     return new Promise<{ currentUser: User }>((resolve, reject) => {

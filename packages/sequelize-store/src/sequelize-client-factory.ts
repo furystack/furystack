@@ -1,7 +1,6 @@
-import type { Disposable } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
 import type { Options } from 'sequelize'
-import { Sequelize, Op } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 
 const operatorsAliases = {
   $eq: Op.eq,
@@ -48,10 +47,10 @@ const operatorsAliases = {
  * Factory for instantiating Sequelize clients
  */
 @Injectable({ lifetime: 'singleton' })
-export class SequelizeClientFactory implements Disposable {
+export class SequelizeClientFactory implements AsyncDisposable {
   private connections: Map<string, Sequelize> = new Map()
 
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     await Promise.all([...this.connections.values()].map((c) => c.close()))
     this.connections.clear()
   }
