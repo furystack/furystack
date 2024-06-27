@@ -33,10 +33,10 @@ export class Injector implements AsyncDisposable {
       .filter((s) => s !== this)
       .map(async (s) => {
         if (isDisposable(s)) {
-          return s[Symbol.dispose]()
+          s[Symbol.dispose]()
         }
         if (isAsyncDisposable(s)) {
-          return await s[Symbol.asyncDispose]()
+          await s[Symbol.asyncDispose]()
         }
       })
     const result = await Promise.allSettled(disposeRequests)

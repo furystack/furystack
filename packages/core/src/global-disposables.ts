@@ -10,14 +10,13 @@ export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
  */
 export const exitHandler = (async () => {
   const result = await Promise.allSettled(
-    [...globalDisposables].map((d) => {
+    [...globalDisposables].map(async (d) => {
       if (isAsyncDisposable(d)) {
-        return d[Symbol.asyncDispose]()
+        await d[Symbol.asyncDispose]()
       }
       if (isDisposable(d)) {
-        return d[Symbol.dispose]()
+        d[Symbol.dispose]()
       }
-      return Promise.resolve({ status: 'fulfilled' })
     }),
   )
   const fails = result.filter((r) => r.status === 'rejected')
