@@ -1,15 +1,15 @@
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
-import { Shade } from './shade.js'
 import { createComponent } from './shade-component.js'
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
+import { Shade } from './shade.js'
 
 describe('Shades integration tests', () => {
   beforeEach(() => {
@@ -199,6 +199,7 @@ describe('Shades integration tests', () => {
       expect(constructed).toBeCalled()
       expect(cleanup).not.toBeCalled()
       document.body.innerHTML = ''
+      await sleepAsync(10) // Dispose can be async
       expect(cleanup).toBeCalled()
     })
   })
@@ -325,6 +326,7 @@ describe('Shades integration tests', () => {
 
       const plus = () => document.getElementById('plus')?.click()
       const minus = () => document.getElementById('minus')?.click()
+
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
       const toggleChildren = () => document.getElementById('showHideChildren')?.click()
 
@@ -335,6 +337,8 @@ describe('Shades integration tests', () => {
       toggleChildren()
 
       expect(document.getElementById('plus')).toBeNull()
+
+      await sleepAsync(10) // Dispose can be async
 
       toggleChildren()
       expect(document.getElementById('plus')).toBeDefined()
