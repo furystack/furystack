@@ -1,6 +1,5 @@
 import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
-import type { Disposable } from '@furystack/utils'
 import { debounce, EventHub, ObservableValue } from '@furystack/utils'
 import type { SuggestionResult } from './suggestion-result.js'
 
@@ -29,15 +28,15 @@ export class SuggestManager<T> extends EventHub<{ onSelectSuggestion: T }> imple
     }
   }).bind(this)
 
-  public dispose() {
+  public [Symbol.dispose]() {
     window.removeEventListener('keyup', this.keyPressListener, true)
     window.removeEventListener('click', this.clickOutsideListener, true)
-    this.isOpened.dispose()
-    this.isLoading.dispose()
-    this.term.dispose()
-    this.selectedIndex.dispose()
-    this.currentSuggestions.dispose()
-    super.dispose()
+    this.isOpened[Symbol.dispose]()
+    this.isLoading[Symbol.dispose]()
+    this.term[Symbol.dispose]()
+    this.selectedIndex[Symbol.dispose]()
+    this.currentSuggestions[Symbol.dispose]()
+    super[Symbol.dispose]()
   }
 
   public selectSuggestion(index: number = this.selectedIndex.getValue()) {

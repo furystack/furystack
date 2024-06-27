@@ -1,30 +1,30 @@
 import { addStore, InMemoryStore, StoreManager, User } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
+import { randomBytes } from 'crypto'
+import { describe, expect, it, vi } from 'vitest'
+import { PasswordComplexityError } from './errors/password-complexity-error.js'
+import { UnauthenticatedError } from './errors/unauthenticated-error.js'
 import { usePasswordPolicy } from './helpers.js'
 import type { PasswordCheckFailedResult } from './models/password-check-result.js'
+import { PasswordCredential } from './models/password-credential.js'
+import { PasswordResetToken } from './models/password-reset-token.js'
 import { PasswordAuthenticator } from './password-authenticator.js'
 import { createMinLengthComplexityRule } from './password-complexity-rules/min-length.js'
 import { SecurityPolicyManager } from './security-policy-manager.js'
-import { PasswordComplexityError } from './errors/password-complexity-error.js'
-import { randomBytes } from 'crypto'
-import { describe, it, expect, vi } from 'vitest'
-import { PasswordCredential } from './models/password-credential.js'
-import { UnauthenticatedError } from './errors/unauthenticated-error.js'
-import { PasswordResetToken } from './models/password-reset-token.js'
 
 const randomString = () => randomBytes(32).toString('hex')
 
 describe('PasswordAuthenticator', () => {
-  it('Should be instantiated', () => {
-    using(new Injector(), (i) => {
+  it('Should be instantiated', async () => {
+    await usingAsync(new Injector(), async (i) => {
       const auth = i.getInstance(PasswordAuthenticator)
       expect(auth).toBeInstanceOf(PasswordAuthenticator)
     })
   })
 
-  it('Should inherit policy from the extension method', () => {
-    using(new Injector(), (i) => {
+  it('Should inherit policy from the extension method', async () => {
+    await usingAsync(new Injector(), async (i) => {
       usePasswordPolicy(i, {
         passwordComplexityRules: [createMinLengthComplexityRule(3)],
       })

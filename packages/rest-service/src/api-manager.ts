@@ -4,7 +4,6 @@ import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Method, RestApi } from '@furystack/rest'
 import { deserializeQueryString } from '@furystack/rest'
-import type { Disposable } from '@furystack/utils'
 import { PathHelper, usingAsync } from '@furystack/utils'
 import type { MatchFunction } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
@@ -61,7 +60,7 @@ export type OnRequestOptions = OnRequest & {
 export class ApiManager implements Disposable {
   private readonly apis = new Map<string, NewCompiledApi>()
 
-  public dispose() {
+  public [Symbol.dispose]() {
     this.apis.clear()
   }
 

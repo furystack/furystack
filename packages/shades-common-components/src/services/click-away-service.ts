@@ -1,5 +1,5 @@
 export class ClickAwayService<T extends HTMLElement> {
-  public dispose() {
+  public [Symbol.dispose]() {
     window.removeEventListener('click', this.clickOutsideListener, true)
   }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { PathHelper } from './path-helper.js'
 
 /**
@@ -67,6 +67,15 @@ export const pathHelperTests = describe('PathHelper', () => {
 
     it('Should return the path in case of 1 segments', () => {
       expect(PathHelper.getParentPath('Root')).toBe('Root')
+    })
+  })
+
+  describe('#normalize()', () => {
+    it('Should normalize the path', () => {
+      expect(PathHelper.normalize('Root/Example/Content')).toBe('Root/Example/Content')
+      expect(PathHelper.normalize('/Root/Example/Content')).toBe('Root/Example/Content')
+      expect(PathHelper.normalize('Root/Example/Content/')).toBe('Root/Example/Content')
+      expect(PathHelper.normalize('/Root/Example/Content/')).toBe('Root/Example/Content')
     })
   })
 })

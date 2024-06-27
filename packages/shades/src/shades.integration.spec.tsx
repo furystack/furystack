@@ -1,15 +1,16 @@
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
+import { serializeToQueryString } from '@furystack/rest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
-import { Shade } from './shade.js'
 import { createComponent } from './shade-component.js'
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
+import { Shade } from './shade.js'
 
 describe('Shades integration tests', () => {
   beforeEach(() => {
@@ -199,6 +200,7 @@ describe('Shades integration tests', () => {
       expect(constructed).toBeCalled()
       expect(cleanup).not.toBeCalled()
       document.body.innerHTML = ''
+      await sleepAsync(10) // Dispose can be async
       expect(cleanup).toBeCalled()
     })
   })
@@ -271,6 +273,104 @@ describe('Shades integration tests', () => {
     })
   })
 
+  it('Should update the stored state', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      const ExampleComponent = Shade({
+        shadowDomName: 'example-component-3-stored-state',
+        render: ({ useStoredState }) => {
+          const [count, setCount] = useStoredState('count', 0)
+          return (
+            <div>
+              Count is {count}
+              <button id="plus" onclick={() => setCount(count + 1)}>
+                +
+              </button>
+              <button id="minus" onclick={() => setCount(count - 1)}>
+                -
+              </button>
+            </div>
+          )
+        },
+      })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+
+      const plus = () => document.getElementById('plus')?.click()
+      const minus = () => document.getElementById('minus')?.click()
+      const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
+
+      expectCount(0)
+
+      await sleepAsync(100)
+      plus()
+      expectCount(1)
+      expect(localStorage.getItem('count')).toBe('1')
+
+      plus()
+      expectCount(2)
+      expect(localStorage.getItem('count')).toBe('2')
+
+      minus()
+      minus()
+      expectCount(0)
+      expect(localStorage.getItem('count')).toBe('0')
+    })
+  })
+
+  it('Should update the search state', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      const ExampleComponent = Shade({
+        shadowDomName: 'example-component-3-search-state',
+        render: ({ useSearchState }) => {
+          const [count, setCount] = useSearchState('count', 0)
+          return (
+            <div>
+              Count is {count}
+              <button id="plus" onclick={() => setCount(count + 1)}>
+                +
+              </button>
+              <button id="minus" onclick={() => setCount(count - 1)}>
+                -
+              </button>
+            </div>
+          )
+        },
+      })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+
+      const plus = () => document.getElementById('plus')?.click()
+      const minus = () => document.getElementById('minus')?.click()
+      const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
+
+      expectCount(0)
+
+      await sleepAsync(100)
+      plus()
+      expectCount(1)
+      expect(location.search).toBe(`?${serializeToQueryString({ count: 1 })}`)
+
+      plus()
+      expectCount(2)
+      expect(location.search).toBe(`?${serializeToQueryString({ count: 2 })}`)
+
+      minus()
+      minus()
+      expectCount(0)
+      expect(location.search).toBe(`?${serializeToQueryString({ count: 0 })}`)
+    })
+  })
+
   it('Should allow children update after unmount and remount', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -325,6 +425,7 @@ describe('Shades integration tests', () => {
 
       const plus = () => document.getElementById('plus')?.click()
       const minus = () => document.getElementById('minus')?.click()
+
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
       const toggleChildren = () => document.getElementById('showHideChildren')?.click()
 
@@ -335,6 +436,8 @@ describe('Shades integration tests', () => {
       toggleChildren()
 
       expect(document.getElementById('plus')).toBeNull()
+
+      await sleepAsync(10) // Dispose can be async
 
       toggleChildren()
       expect(document.getElementById('plus')).toBeDefined()

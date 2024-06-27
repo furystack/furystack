@@ -1,8 +1,8 @@
-import type { Disposable } from '@furystack/utils'
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 import { Injectable, getInjectableOptions } from './injectable.js'
+import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
 import { withInjectorReference } from './with-injector-reference.js'
-import { getDependencyList } from './injected.js'
 
 const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as any).init === 'function'
@@ -15,13 +15,13 @@ export class InjectorAlreadyDisposedError extends Error {
 }
 
 @Injectable({ lifetime: 'system' as any })
-export class Injector implements Disposable {
+export class Injector implements AsyncDisposable {
   private isDisposed = false
 
   /**
    * Disposes the Injector object and all its disposable injectables
    */
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     if (this.isDisposed) {
       throw new InjectorAlreadyDisposedError()
     }
@@ -32,8 +32,11 @@ export class Injector implements Disposable {
     const disposeRequests = singletons
       .filter((s) => s !== this)
       .map(async (s) => {
-        if (s.dispose) {
-          await s.dispose()
+        if (isDisposable(s)) {
+          s[Symbol.dispose]()
+        }
+        if (isAsyncDisposable(s)) {
+          await s[Symbol.asyncDispose]()
         }
       })
     const result = await Promise.allSettled(disposeRequests)

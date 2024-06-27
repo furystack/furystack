@@ -1,4 +1,3 @@
-import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 import type { CacheResult, FailedCacheResult, LoadedCacheResult, ObsoleteCacheResult } from './cache-result.js'
 import { isLoadedCacheResult, isObsoleteCacheResult } from './cache-result.js'
@@ -16,8 +15,8 @@ export class CannotObsoleteUnloadedError<T> extends Error {
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, ObservableValue<CacheResult<T>>>()
 
-  public dispose() {
-    ;[...this.store.values()].forEach((value) => value.dispose())
+  public [Symbol.dispose]() {
+    ;[...this.store.values()].forEach((value) => value[Symbol.dispose]())
     this.store.clear()
   }
 
@@ -39,7 +38,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
     if (this.store.size > (this.options.capacity || Infinity)) {
       const [firstKey] = this.store.keys()
-      this.store.get(firstKey)?.dispose()
+      this.store.get(firstKey)?.[Symbol.dispose]()
       this.store.delete(firstKey)
     }
 
@@ -98,13 +97,13 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   public remove(key: string) {
     const existing = this.store.get(key)
     if (existing) {
-      existing.dispose()
+      existing[Symbol.dispose]()
     }
     return this.store.delete(key)
   }
 
   public flushAll() {
-    this.store.forEach((value) => value.dispose())
+    this.store.forEach((value) => value[Symbol.dispose]())
     this.store.clear()
   }
 

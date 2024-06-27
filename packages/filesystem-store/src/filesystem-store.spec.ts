@@ -48,7 +48,7 @@ describe('FileSystemStore', () => {
     await sleepAsync(501)
     expect(store.saveChanges).toHaveBeenCalled()
 
-    await store.dispose()
+    await store[Symbol.dispose]()
   })
 
   it('Should reload data from disk', async () => {
@@ -69,7 +69,7 @@ describe('FileSystemStore', () => {
     await store.reloadData()
     const count = await store.count()
     expect(count).toBe(1)
-    await store.dispose()
+    await store[Symbol.dispose]()
   })
 
   afterAll(async () => {

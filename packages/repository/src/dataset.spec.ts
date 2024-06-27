@@ -1,11 +1,11 @@
-import { Injector } from '@furystack/inject'
-import { using, usingAsync } from '@furystack/utils'
 import type { WithOptionalId } from '@furystack/core'
 import { InMemoryStore, addStore } from '@furystack/core'
-import { Repository } from './repository.js'
+import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it, vi } from 'vitest'
 import type { AuthorizationResult, DataSetSettings } from './data-set-setting.js'
 import { getDataSetFor, getRepository } from './helpers.js'
-import { describe, it, expect, vi } from 'vitest'
+import { Repository } from './repository.js'
 
 class TestClass {
   public id = 1
@@ -14,8 +14,8 @@ class TestClass {
 
 describe('DataSet', () => {
   describe('Construction', () => {
-    it('can be retrieved from an extension method with class', () => {
-      using(new Injector(), (i) => {
+    it('can be retrieved from an extension method with class', async () => {
+      await usingAsync(new Injector(), async (i) => {
         addStore(
           i,
           new InMemoryStore({
@@ -29,8 +29,8 @@ describe('DataSet', () => {
       })
     })
 
-    it('can be retrieved from an extension method with string', () => {
-      using(new Injector(), (i) => {
+    it('can be retrieved from an extension method with string', async () => {
+      await usingAsync(new Injector(), async (i) => {
         addStore(
           i,
           new InMemoryStore({
@@ -44,20 +44,20 @@ describe('DataSet', () => {
       })
     })
 
-    it('Should throw if dataset is not registered through extension', () => {
-      using(new Injector(), (i) => {
+    it('Should throw if dataset is not registered through extension', async () => {
+      await usingAsync(new Injector(), async (i) => {
         expect(() => getDataSetFor(i, TestClass, 'id')).toThrowError('')
       })
     })
 
-    it('Should throw if dataset is not registered through service', () => {
-      using(new Injector(), (i) => {
+    it('Should throw if dataset is not registered through service', async () => {
+      await usingAsync(new Injector(), async (i) => {
         expect(() => i.getInstance(Repository).getDataSetFor(TestClass, 'id')).toThrowError('')
       })
     })
 
-    it('Should throw error on mismatched primary key', () => {
-      using(new Injector(), (i) => {
+    it('Should throw error on mismatched primary key', async () => {
+      await usingAsync(new Injector(), async (i) => {
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
         getRepository(i).createDataSet(TestClass, 'id', {})
 

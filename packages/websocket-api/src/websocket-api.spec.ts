@@ -72,7 +72,7 @@ describe('WebSocketApi', () => {
       const data = { value: 'alma' }
       @Injectable()
       class ExampleWsAction implements WebSocketAction {
-        public dispose() {
+        public [Symbol.dispose]() {
           /** */
         }
         public static canExecute() {

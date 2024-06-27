@@ -1,14 +1,14 @@
-import { ObservableValue } from '@furystack/utils'
-import type { Disposable, ValueChangeCallback, ValueObserverOptions } from '@furystack/utils'
-import type { ValueObserver } from '@furystack/utils'
+import { AggregatedError } from '@furystack/core'
+import type { ValueChangeCallback, ValueObserver, ValueObserverOptions } from '@furystack/utils'
+import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/utils'
 
 /**
  * Class for managing observables and disposables for components, based on key-value maps
  */
-export class ResourceManager {
-  private readonly disposables = new Map<string, Disposable>()
+export class ResourceManager implements AsyncDisposable {
+  private readonly disposables = new Map<string, Disposable | AsyncDisposable>()
 
-  public useDisposable<T extends Disposable>(key: string, factory: () => T): T {
+  public useDisposable<T extends Disposable | AsyncDisposable>(key: string, factory: () => T): T {
     const existing = this.disposables.get(key)
     if (!existing) {
       const created = factory()
@@ -51,13 +51,32 @@ export class ResourceManager {
     return [observable.getValue(), observable.setValue.bind(observable)]
   }
 
-  public dispose() {
-    this.disposables.forEach((r) => r.dispose())
+  public async [Symbol.asyncDispose]() {
+    const disposeResult = await Promise.allSettled(
+      [...this.disposables].map(async ([_key, resource]) => {
+        if (isDisposable(resource)) {
+          resource[Symbol.dispose]()
+        }
+        if (isAsyncDisposable(resource)) {
+          await resource[Symbol.asyncDispose]()
+        }
+      }),
+    )
+
+    const fails = disposeResult.filter((r) => r.status === 'rejected')
+    if (fails && fails.length) {
+      const error = new AggregatedError(
+        `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason)}`,
+        fails,
+      )
+      throw error
+    }
+
     this.disposables.clear()
-    this.observers.forEach((r) => r.dispose())
+    this.observers.forEach((r) => r[Symbol.dispose]())
     this.observers.clear()
 
-    this.stateObservers.forEach((r) => r.dispose())
+    this.stateObservers.forEach((r) => r[Symbol.dispose]())
     this.stateObservers.clear()
   }
 }

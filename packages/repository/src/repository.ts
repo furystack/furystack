@@ -2,7 +2,6 @@ import type { WithOptionalId } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
-import type { Disposable } from '@furystack/utils'
 import type { DataSetSettings } from './data-set-setting.js'
 import { DataSet } from './data-set.js'
 
@@ -11,8 +10,8 @@ import { DataSet } from './data-set.js'
  */
 @Injectable({ lifetime: 'singleton' })
 export class Repository implements Disposable {
-  public dispose() {
-    this.dataSets.forEach((ds) => ds.dispose())
+  public [Symbol.dispose]() {
+    this.dataSets.forEach((ds) => ds[Symbol.dispose]())
     this.dataSets.clear()
   }
 

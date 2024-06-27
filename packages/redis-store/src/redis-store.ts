@@ -1,4 +1,4 @@
-import type { PhysicalStore, CreateResult } from '@furystack/core'
+import type { CreateResult, PhysicalStore } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
@@ -65,8 +65,5 @@ export class RedisStore<
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     await Promise.all(keys.map(async (key) => await this.options.client.del((key as any).toString(), [])))
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
-  }
-  public async dispose() {
-    /** */
   }
 }

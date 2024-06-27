@@ -1,4 +1,3 @@
-import type { Disposable } from '@furystack/utils'
 import { ObservableValue } from '@furystack/utils'
 
 export interface CollectionData<T> {
@@ -26,12 +25,12 @@ export interface CollectionServiceOptions<T> {
 }
 
 export class CollectionService<T> implements Disposable {
-  public dispose() {
-    this.data.dispose()
-    this.selection.dispose()
-    this.searchTerm.dispose()
-    this.hasFocus.dispose()
-    this.focusedEntry.dispose()
+  public [Symbol.dispose]() {
+    this.data[Symbol.dispose]()
+    this.selection[Symbol.dispose]()
+    this.searchTerm[Symbol.dispose]()
+    this.hasFocus[Symbol.dispose]()
+    this.focusedEntry[Symbol.dispose]()
   }
 
   public isSelected = (entry: T) => this.selection.getValue().includes(entry)

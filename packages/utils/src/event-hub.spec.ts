@@ -82,7 +82,7 @@ describe('EventHub', () => {
     eventHub.emit('ExampleNumberEvent', 1)
 
     expect(numberListener).toBeCalledWith(1)
-    await subscription.dispose()
+    await subscription[Symbol.dispose]()
     eventHub.emit('ExampleNumberEvent', 2)
     expect(numberListener).toBeCalledTimes(1)
   })
@@ -93,7 +93,7 @@ describe('EventHub', () => {
     const listener = vi.fn((_val: string) => {})
 
     hub.addListener('test', listener)
-    hub.dispose()
+    hub[Symbol.dispose]()
     hub.emit('test', 'test')
     expect(listener).not.toBeCalled()
   })

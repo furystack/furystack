@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Trace } from './trace.js'
 
 class MockClass {
@@ -39,7 +39,7 @@ export const traceTests = describe('Trace tests', () => {
         method: MockClass.addStatic,
         onCalled: (traceData) => {
           expect(args).toEqual(traceData.methodArguments)
-          observer.dispose()
+          observer[Symbol.dispose]()
           doneCallback()
         },
       })
@@ -56,7 +56,7 @@ export const traceTests = describe('Trace tests', () => {
         onFinished: (traceData) => {
           expect(args).toEqual(traceData.methodArguments)
           expect(traceData.returned).toBe(1 + 2 + 3)
-          observer.dispose()
+          observer[Symbol.dispose]()
           doneCallback()
         },
       })
@@ -80,11 +80,11 @@ export const traceTests = describe('Trace tests', () => {
         object: MockClass,
         method: MockClass.addStatic,
         onCalled: () => {
-          observer2.dispose()
+          observer2[Symbol.dispose]()
           doneCallback()
         },
       })
-      observer.dispose()
+      observer[Symbol.dispose]()
       const returned = MockClass.addStatic(...args)
       expect(returned).toEqual(1 + 2 + 3)
       expect(doneCallback).toBeCalled()
@@ -104,7 +104,7 @@ export const traceTests = describe('Trace tests', () => {
         onFinished: (traceData) => {
           expect(args).toEqual(traceData.methodArguments)
           expect(traceData.returned).toBe(1 + 2 + 3)
-          observer.dispose()
+          observer[Symbol.dispose]()
           doneCallback()
         },
       })
@@ -125,7 +125,7 @@ export const traceTests = describe('Trace tests', () => {
           expect(args).toEqual(traceData.methodArguments)
           const { returned } = traceData
           expect(returned).toBe(1 + 2 + 3)
-          observer.dispose()
+          observer[Symbol.dispose]()
           doneCallback()
         },
       })
@@ -143,7 +143,7 @@ export const traceTests = describe('Trace tests', () => {
         onFinished: (traceData) => {
           if (traceData.returned) {
             expect(traceData.returned).toBe('testValue')
-            observer.dispose()
+            observer[Symbol.dispose]()
             doneCallback()
           }
         },
@@ -162,7 +162,7 @@ export const traceTests = describe('Trace tests', () => {
         onError: (traceData) => {
           if (traceData.error) {
             expect(traceData.error.message).toBe('message')
-            observer.dispose()
+            observer[Symbol.dispose]()
             doneCallback()
           }
         },
@@ -184,7 +184,7 @@ export const traceTests = describe('Trace tests', () => {
         onError: (traceData) => {
           if (traceData.error) {
             expect(traceData.error.message).toBe('message')
-            observer.dispose()
+            observer[Symbol.dispose]()
             doneCallback()
           }
         },

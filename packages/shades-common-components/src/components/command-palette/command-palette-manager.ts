@@ -1,7 +1,7 @@
 import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import { debounce, ObservableValue } from '@furystack/utils'
-import type { CommandProvider, CommandPaletteSuggestionResult } from './command-provider.js'
+import type { CommandPaletteSuggestionResult, CommandProvider } from './command-provider.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class CommandPaletteManager {
@@ -21,13 +21,13 @@ export class CommandPaletteManager {
     }
   }).bind(this)
 
-  public dispose() {
+  public [Symbol.dispose]() {
     window.removeEventListener('keyup', this.keyPressListener)
-    this.isOpened.dispose()
-    this.isLoading.dispose()
-    this.term.dispose()
-    this.selectedIndex.dispose()
-    this.currentSuggestions.dispose()
+    this.isOpened[Symbol.dispose]()
+    this.isLoading[Symbol.dispose]()
+    this.term[Symbol.dispose]()
+    this.selectedIndex[Symbol.dispose]()
+    this.currentSuggestions[Symbol.dispose]()
   }
 
   public selectSuggestion(injector: Injector, index: number = this.selectedIndex.getValue()) {

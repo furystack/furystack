@@ -1,9 +1,8 @@
-import type { Injector } from '@furystack/inject'
-import type { FindOptions, PartialResult, FilterType, WithOptionalId, CreateResult } from '@furystack/core'
+import type { CreateResult, FilterType, FindOptions, PartialResult, WithOptionalId } from '@furystack/core'
 import { AuthorizationError } from '@furystack/core'
-import type { DataSetSettings } from './data-set-setting.js'
-import type { Disposable } from '@furystack/utils'
+import type { Injector } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
+import type { DataSetSettings } from './data-set-setting.js'
 
 /**
  * An authorized Repository Store instance
@@ -16,8 +15,8 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   }>
   implements Disposable
 {
-  public dispose() {
-    super.dispose()
+  public [Symbol.dispose]() {
+    super[Symbol.dispose]()
   }
 
   /**

@@ -1,4 +1,3 @@
-import type { Disposable } from './disposable.js'
 import type { ObservableValue, ValueChangeCallback } from './observable-value.js'
 
 export type ValueObserverOptions<T> = {
@@ -21,9 +20,9 @@ export type ValueObserverOptions<T> = {
  * // To update the value
  * observableValue.setValue(Math.random());
  * // if you want to dispose a single observer
- * observer.dispose();
+ * observer[Symbol.dispose]();
  * // if you want to dispose the whole observableValue with all of its observers:
- * observableValue.dispose();
+ * observableValue[Symbol.dispose]();
  * ```
  * @param T This type parameter is the value type to observe
  */
@@ -31,7 +30,7 @@ export class ValueObserver<T> implements Disposable {
   /**
    * Disposes the ValueObserver instance. Unsubscribes from the observable
    */
-  public dispose() {
+  public [Symbol.dispose]() {
     this.observable.unsubscribe(this)
   }
 

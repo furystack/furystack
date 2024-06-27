@@ -1,6 +1,6 @@
 import type { Injector } from '@furystack/inject'
+import type { ObservableValue, ValueObserverOptions } from '@furystack/utils'
 import type { ChildrenList } from './children-list.js'
-import type { Disposable, ObservableValue, ValueObserverOptions } from '@furystack/utils'
 import type { PartialElement } from './partial-element.js'
 
 export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
@@ -15,7 +15,7 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    * @param factory A factory method for creating the disposable resource
    * @returns The Disposable instance
    */
-  useDisposable: <T extends Disposable>(key: string, factory: () => T) => T
+  useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T) => T
 
   /**
    *
