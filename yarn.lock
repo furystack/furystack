@@ -561,7 +561,7 @@ __metadata:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^20.14.9"
-    mongodb: "npm:6.7.0"
+    mongodb: "npm:6.8.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.5.2"
     vitest: "npm:^1.6.0"
@@ -3902,9 +3902,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:6.7.0":
-  version: 6.7.0
-  resolution: "mongodb@npm:6.7.0"
+"mongodb@npm:6.8.0":
+  version: 6.8.0
+  resolution: "mongodb@npm:6.8.0"
   dependencies:
     "@mongodb-js/saslprep": "npm:^1.1.5"
     bson: "npm:^6.7.0"
@@ -3932,7 +3932,7 @@ __metadata:
       optional: true
     socks:
       optional: true
-  checksum: 10/47695b6668098e3e468446ecf070c5bf823b1c3a769e99e5659aa949575c36cb488fff4a05c7fd00cece2cd19ceda1e7f2862fc68631cc77d98d2b116a24a82d
+  checksum: 10/c9adf8b694e8e510421c8e6e44c337fe6d58e7d33374dc28b355095df92a807fb5a3c691eaf376a87ae693f6ec0779e8aae41a32bbdc63f2961289c616bcbb9a
   languageName: node
   linkType: hard
 
