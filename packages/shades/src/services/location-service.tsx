@@ -15,7 +15,22 @@ export class LocationService implements Disposable {
     window.addEventListener('hashchange', this.hashChangeListener)
 
     this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
+
+    this.originalPushState = window.history.pushState.bind(window.history)
+    window.history.pushState = ((...args: Parameters<typeof window.history.pushState>) => {
+      this.originalPushState(...args)
+      this.updateState()
+    }).bind(this)
+
+    this.originalReplaceState = window.history.replaceState.bind(window.history)
+    window.history.replaceState = ((...args: Parameters<typeof window.history.replaceState>) => {
+      this.originalReplaceState(...args)
+      this.updateState()
+    }).bind(this)
   }
+
+  private originalPushState: typeof window.history.pushState
+  private originalReplaceState: typeof window.history.replaceState
 
   public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
@@ -24,6 +39,9 @@ export class LocationService implements Disposable {
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
     this.locationDeserializerObserver[Symbol.dispose]()
+
+    window.history.pushState = this.originalPushState
+    window.history.replaceState = this.originalReplaceState
   }
 
   /**
