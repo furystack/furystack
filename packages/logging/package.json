@@ -33,13 +33,13 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
+    "@furystack/utils": "workspace:^",
     "typescript": "^5.5.3",
     "vitest": "^1.6.0"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^"
+    "@furystack/inject": "workspace:^"
   },
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }
