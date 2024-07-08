@@ -35,7 +35,7 @@ export class PathHelper {
    * @returns the joined path string
    */
   public static joinPaths(...args: string[]) {
-    return args.map(this.trimSlashes).join('/')
+    return args.map((path) => this.trimSlashes(path)).join('/')
   }
 
   /**

@@ -1,8 +1,7 @@
-import type { Disposable } from '@furystack/utils'
 import { CacheLockManager } from './cache-lock-manager.js'
-import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
+import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 
 interface CacheSettings<TData, TArgs extends any[]> {
   /**
@@ -38,9 +37,9 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   /**
    * Disposes the cache
    */
-  public dispose() {
-    this.cacheLockManager.dispose()
-    this.stateManager.dispose()
+  public [Symbol.dispose]() {
+    this.cacheLockManager[Symbol.dispose]()
+    this.stateManager[Symbol.dispose]()
   }
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)

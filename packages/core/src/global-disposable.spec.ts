@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
-import { globalDisposables, exitHandler } from './global-disposables.js'
+import { describe, expect, it, vi } from 'vitest'
+import { exitHandler, globalDisposables } from './global-disposables.js'
 import { disposeOnProcessExit } from './helpers.js'
-import { describe, it, expect, vi } from 'vitest'
 
 describe('Global Disposables', () => {
   it('Should be empty by default', () => {
@@ -21,14 +21,14 @@ describe('Global Disposables', () => {
     disposeOnProcessExit(i)
     expect(globalDisposables).toContain(i)
     globalDisposables.delete(i)
-    await i.dispose()
+    await i[Symbol.asyncDispose]()
   })
   it('Should dispose the injector on exit', async () => {
     const i = new Injector()
-    i.dispose = vi.fn(i.dispose)
+    i[Symbol.asyncDispose] = vi.fn(i[Symbol.asyncDispose])
     disposeOnProcessExit(i)
     await exitHandler()
-    expect(i.dispose).toBeCalled()
+    expect(i[Symbol.asyncDispose]).toBeCalled()
     globalDisposables.delete(i)
   })
 })

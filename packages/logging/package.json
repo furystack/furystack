@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "7.0.2",
+  "version": "8.0.0",
   "description": "Logging API for FuryStack package",
   "type": "module",
   "scripts": {
@@ -33,13 +33,13 @@
     "url": "https://github.com/furystack/furystack/issues"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "@furystack/utils": "workspace:^",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.0"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^"
+    "@furystack/inject": "workspace:^"
   },
   "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
 }

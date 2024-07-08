@@ -1,10 +1,10 @@
+import type { FilterType, FindOptions, PhysicalStore } from '@furystack/core'
+import { InMemoryStore } from '@furystack/core'
+import type { Constructable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 import type { FSWatcher } from 'fs'
 import { promises, watch } from 'fs'
-import type { Constructable } from '@furystack/inject'
 import { Lock } from 'semaphore-async-await'
-import type { PhysicalStore, FindOptions, FilterType } from '@furystack/core'
-import { InMemoryStore } from '@furystack/core'
-import { EventHub } from '@furystack/utils'
 
 /**
  * Store implementation that stores info in a simple JSON file
@@ -82,10 +82,11 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     }
   }
 
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     await this.saveChanges()
     this.watcher && this.watcher.close()
     clearInterval(this.tick)
+    super[Symbol.dispose]()
   }
 
   public async reloadData() {

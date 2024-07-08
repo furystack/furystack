@@ -1,10 +1,9 @@
-import type { Disposable } from '@furystack/utils'
-import { ObservableValue, Trace } from '@furystack/utils'
 import { Injectable, type Injector } from '@furystack/inject'
 import {
   deserializeQueryString as defaultDeserializeQueryString,
   serializeToQueryString as defaultSerializeToQueryString,
 } from '@furystack/rest'
+import { ObservableValue } from '@furystack/utils'
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   constructor(
@@ -15,32 +14,34 @@ export class LocationService implements Disposable {
     window.addEventListener('popstate', this.popStateListener)
     window.addEventListener('hashchange', this.hashChangeListener)
 
-    this.pushStateTracer = Trace.method({
-      object: history,
-      method: history.pushState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
-    this.replaceStateTracer = Trace.method({
-      object: history,
-      method: history.replaceState,
-      isAsync: false,
-      onFinished: () => this.updateState(),
-    })
-
     this.onDeserializedLocationSearchChanged = new ObservableValue(this.deserializeQueryString(location.search))
+
+    this.originalPushState = window.history.pushState.bind(window.history)
+    window.history.pushState = ((...args: Parameters<typeof window.history.pushState>) => {
+      this.originalPushState(...args)
+      this.updateState()
+    }).bind(this)
+
+    this.originalReplaceState = window.history.replaceState.bind(window.history)
+    window.history.replaceState = ((...args: Parameters<typeof window.history.replaceState>) => {
+      this.originalReplaceState(...args)
+      this.updateState()
+    }).bind(this)
   }
 
-  public dispose() {
+  private originalPushState: typeof window.history.pushState
+  private originalReplaceState: typeof window.history.replaceState
+
+  public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.pushStateTracer.dispose()
-    this.replaceStateTracer.dispose()
-    this.onLocationPathChanged.dispose()
-    this.onLocationSearchChanged.dispose()
-    this.onDeserializedLocationSearchChanged.dispose()
-    this.locationDeserializerObserver.dispose()
+    this.onLocationPathChanged[Symbol.dispose]()
+    this.onLocationSearchChanged[Symbol.dispose]()
+    this.onDeserializedLocationSearchChanged[Symbol.dispose]()
+    this.locationDeserializerObserver[Symbol.dispose]()
+
+    window.history.pushState = this.originalPushState
+    window.history.replaceState = this.originalReplaceState
   }
 
   /**
@@ -51,7 +52,7 @@ export class LocationService implements Disposable {
   /**
    * Observable value that will be updated when the location hash (e.g. #hash) changes
    */
-  public onLocationHashChanged = new ObservableValue(location.hash)
+  public onLocationHashChanged = new ObservableValue(location.hash.replace('#', ''))
 
   /**
    * Observable value that will be updated when the location search (e.g. ?search=1) changes
@@ -66,7 +67,7 @@ export class LocationService implements Disposable {
 
   public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
-    this.onLocationHashChanged.setValue(location.hash)
+    this.onLocationHashChanged.setValue(location.hash.replace('#', ''))
     this.onLocationSearchChanged.setValue(location.search)
   }).bind(this)
 
@@ -102,23 +103,20 @@ export class LocationService implements Disposable {
 
       this.onDeserializedLocationSearchChanged.subscribe((search) => {
         const value = (search[key] as T) ?? defaultValue
-        this.searchParamObservables.get(key)?.setValue(value as T)
+        this.searchParamObservables.get(key)?.setValue(value)
       })
       return newObservable
     }
     return existing as ObservableValue<T>
   }
 
-  private pushStateTracer: Disposable
-  private replaceStateTracer: Disposable
-
   private popStateListener = (_ev: PopStateEvent) => {
     this.updateState()
   }
 
-  private hashChangeListener = (_ev: HashChangeEvent) => {
+  private hashChangeListener = ((_ev: HashChangeEvent) => {
     this.updateState()
-  }
+  }).bind(this)
 }
 
 export const useCustomSearchStateSerializer = (

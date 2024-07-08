@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "9.0.0",
+  "version": "10.0.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -31,15 +31,15 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.0"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/shades": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "path-to-regexp": "^6.2.2",
+    "path-to-regexp": "^7.0.0",
     "semaphore-async-await": "^1.5.1"
   },
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"

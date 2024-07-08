@@ -1,14 +1,14 @@
-import { using } from '@furystack/utils'
 import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js'
 import { getLogger, useLogging } from './helpers.js'
-import { ConsoleLogger, verboseFormat, defaultFormat } from './console-logger.js'
 import { LoggerCollection } from './logger-collection.js'
 import { TestLogger } from './test-logger.js'
-import { describe, it, expect, vi, afterAll, beforeEach } from 'vitest'
 
 describe('Loggers', () => {
-  it('Can be set up and retrieved with a helper', () => {
-    using(new Injector(), (i) => {
+  it('Can be set up and retrieved with a helper', async () => {
+    await usingAsync(new Injector(), async (i) => {
       useLogging(i)
       expect(getLogger(i)).toBeInstanceOf(LoggerCollection)
     })

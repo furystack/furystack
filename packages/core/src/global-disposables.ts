@@ -1,19 +1,33 @@
-import type { Disposable } from '@furystack/utils'
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 
 /**
  * Readonly set that stores references of the disposables that should be disposed on process exit
  */
-export const globalDisposables: Set<Disposable> = new Set()
+export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
 
 /**
  * Will be triggered via process event listeners
  */
-export const exitHandler = (async () => {
-  const result = await Promise.allSettled([...globalDisposables].map((d) => d.dispose()))
-  const fails = result.filter((r) => r.status === 'rejected')
-  if (fails && fails.length) {
-    console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
-  }
+export const exitHandler = (() => {
+  Promise.allSettled(
+    [...globalDisposables].map(async (d) => {
+      if (isAsyncDisposable(d)) {
+        await d[Symbol.asyncDispose]()
+      }
+      if (isDisposable(d)) {
+        d[Symbol.dispose]()
+      }
+    }),
+  )
+    .then((result) => {
+      const fails = result.filter((r) => r.status === 'rejected')
+      if (fails && fails.length) {
+        console.warn(`There was an error during disposing '${fails.length}' global disposable objects`, fails)
+      }
+    })
+    .catch((error) => {
+      console.error('Error during disposing global disposables', error)
+    })
 }).bind(null)
 
 // do something when app is closing

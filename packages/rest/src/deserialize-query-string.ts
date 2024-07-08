@@ -9,7 +9,7 @@ export const decode = <T>(value: string) => JSON.parse(decodeURIComponent(escape
 export const deserializeQueryString = (fullQueryString: string) => {
   const params = [...new URLSearchParams(fullQueryString).entries()]
     .filter(([key, value]) => key && value)
-    .map(([key, value]) => [key, decode(value)])
+    .map(([key, value]) => [key, decode(value)] as const)
 
-  return Object.fromEntries(params)
+  return Object.fromEntries(params) as Record<string, unknown>
 }

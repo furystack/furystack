@@ -1,8 +1,8 @@
-import type { Disposable } from '@furystack/utils'
+import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 import { Injectable, getInjectableOptions } from './injectable.js'
+import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
 import { withInjectorReference } from './with-injector-reference.js'
-import { getDependencyList } from './injected.js'
 
 const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as any).init === 'function'
@@ -14,14 +14,14 @@ export class InjectorAlreadyDisposedError extends Error {
   }
 }
 
-@Injectable({ lifetime: 'system' as any })
-export class Injector implements Disposable {
+@Injectable({ lifetime: 'system' as 'singleton' })
+export class Injector implements AsyncDisposable {
   private isDisposed = false
 
   /**
    * Disposes the Injector object and all its disposable injectables
    */
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     if (this.isDisposed) {
       throw new InjectorAlreadyDisposedError()
     }
@@ -32,17 +32,20 @@ export class Injector implements Disposable {
     const disposeRequests = singletons
       .filter((s) => s !== this)
       .map(async (s) => {
-        if (s.dispose) {
-          await s.dispose()
+        if (isDisposable(s)) {
+          s[Symbol.dispose]()
+        }
+        if (isAsyncDisposable(s)) {
+          await s[Symbol.asyncDispose]()
         }
       })
     const result = await Promise.allSettled(disposeRequests)
-    const fails = result.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
+    const fails = result.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       throw new Error(
-        `There was an error during disposing '${fails.length}' global disposable objects: ${fails.map(
-          (f) => f.reason,
-        )}`,
+        `There was an error during disposing '${fails.length}' global disposable objects: ${fails
+          .map((f) => f.reason as string)
+          .join(', ')}`,
       )
     }
 
@@ -52,11 +55,11 @@ export class Injector implements Disposable {
   /**
    * Options object for an injector instance
    */
-  public options: { parent?: Injector; owner?: any } = {}
+  public options: { parent?: Injector; owner?: unknown } = {}
 
   // public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
 
-  public readonly cachedSingletons: Map<Constructable<any>, any> = new Map()
+  public readonly cachedSingletons: Map<Constructable<unknown>, unknown> = new Map()
 
   public remove = <T>(ctor: Constructable<T>) => {
     if (this.isDisposed) {
@@ -84,8 +87,10 @@ export class Injector implements Disposable {
       return this as any as T
     }
 
-    if (this.cachedSingletons.has(ctor)) {
-      return this.cachedSingletons.get(ctor)
+    const existing = this.cachedSingletons.get(ctor)
+
+    if (existing) {
+      return existing as T
     }
 
     const dependencies = [...getDependencyList(ctor)]

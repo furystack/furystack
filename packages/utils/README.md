@@ -38,9 +38,9 @@ const observer = observableValue.subscribe((newValue) => {
 // To update the value
 observableValue.setValue(Math.random())
 // if you want to dispose a single observer
-observer.dispose()
+observer[Symbol.dispose]()
 // if you want to dispose the whole observableValue with all of its observers:
-observableValue.dispose()
+observableValue[Symbol.dispose]()
 ```
 
 ### PathHelper
@@ -89,5 +89,5 @@ const methodTracer: IDisposable = Trace.method({
 })
 
 // if you want to stop receiving events
-methodTracer.dispose()
+methodTracer[Symbol.dispose]()
 ```

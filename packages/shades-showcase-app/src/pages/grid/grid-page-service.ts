@@ -1,11 +1,11 @@
-import { TestClass } from './test-class.js'
 import type { FindOptions } from '@furystack/core'
 import { addStore, InMemoryStore } from '@furystack/core'
-import { getRepository, getDataSetFor, type DataSet } from '@furystack/repository'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
+import { getDataSetFor, getRepository, type DataSet } from '@furystack/repository'
 import { CollectionService } from '@furystack/shades-common-components'
-import { ObservableValue, type Disposable } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
+import { TestClass } from './test-class.js'
 
 let currentId = 0
 
@@ -62,7 +62,7 @@ export class GridPageService implements Disposable {
     }
   }
 
-  public dispose() {
-    this.collectionService.dispose()
+  public [Symbol.dispose]() {
+    this.collectionService[Symbol.dispose]()
   }
 }

@@ -1,10 +1,8 @@
 import { Injectable } from '@furystack/inject'
-import type { Disposable } from '@furystack/utils'
-import type { Server } from 'http'
+import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
-import { Lock } from 'semaphore-async-await'
-import type { IncomingMessage, ServerResponse } from 'http'
 import type { Socket } from 'net'
+import { Lock } from 'semaphore-async-await'
 
 export interface ServerOptions {
   hostName?: string
@@ -18,7 +16,7 @@ export interface OnRequest {
 
 export interface ServerApi {
   shouldExec: (options: OnRequest) => boolean
-  onRequest: (options: OnRequest) => void
+  onRequest: (options: OnRequest) => Promise<void>
 }
 
 export interface ServerRecord {
@@ -27,7 +25,7 @@ export interface ServerRecord {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class ServerManager implements Disposable {
+export class ServerManager implements AsyncDisposable {
   public static DEFAULT_HOST = 'localhost'
 
   public servers = new Map<string, ServerRecord>()
@@ -43,7 +41,7 @@ export class ServerManager implements Disposable {
     socket.once('close', () => this.openedSockets.delete(socket))
   }
 
-  public async dispose() {
+  public async [Symbol.asyncDispose]() {
     try {
       await this.listenLock.waitFor(5000)
     } finally {

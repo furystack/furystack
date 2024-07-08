@@ -1,24 +1,22 @@
-import type { Disposable } from '@furystack/utils'
-import { PathHelper, usingAsync } from '@furystack/utils'
-import type { Method, RestApi } from '@furystack/rest'
-import { deserializeQueryString } from '@furystack/rest'
-import type { Injector } from '@furystack/inject'
-import { Injectable, Injected } from '@furystack/inject'
-import type { MatchFunction } from 'path-to-regexp'
-import { match } from 'path-to-regexp'
 import type { User } from '@furystack/core'
 import { IdentityContext } from '@furystack/core'
-
+import type { Injector } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
+import type { Method, RestApi } from '@furystack/rest'
+import { deserializeQueryString } from '@furystack/rest'
+import { PathHelper, usingAsync } from '@furystack/utils'
+import type { MatchFunction } from 'path-to-regexp'
+import { match } from 'path-to-regexp'
+import { ErrorAction } from './actions/error-action.js'
+import { NotFoundAction } from './actions/not-found-action.js'
+import { addCorsHeaders } from './add-cors-header.js'
+import { HttpUserContext } from './http-user-context.js'
+import type { CorsOptions } from './models/cors-options.js'
+import { readPostBody } from './read-post-body.js'
+import type { RequestAction } from './request-action-implementation.js'
 import type { OnRequest } from './server-manager.js'
 import { ServerManager } from './server-manager.js'
-import { NotFoundAction } from './actions/not-found-action.js'
-import type { CorsOptions } from './models/cors-options.js'
-import { ErrorAction } from './actions/error-action.js'
 import './server-response-extensions.js'
-import { HttpUserContext } from './http-user-context.js'
-import type { RequestAction } from './request-action-implementation.js'
-import { addCorsHeaders } from './add-cors-header.js'
-import { readPostBody } from './read-post-body.js'
 
 export type RestApiImplementation<T extends RestApi> = {
   [TMethod in keyof T]: {
@@ -39,7 +37,7 @@ export interface ImplementApiOptions<T extends RestApi> {
 export type NewCompiledApiEntry = {
   method: Method
   fullPath: string
-  matcher: MatchFunction
+  matcher: MatchFunction<Partial<Record<string, string | string[]>>>
   action: RequestAction<any>
 }
 
@@ -55,18 +53,18 @@ export type OnRequestOptions = OnRequest & {
   injector: Injector
   cors?: CorsOptions
   supportedMethods: string[]
-  deserializeQueryParams?: (param: string) => any
+  deserializeQueryParams?: (param: string) => Record<string, unknown>
 }
 
 @Injectable({ lifetime: 'singleton' })
 export class ApiManager implements Disposable {
   private readonly apis = new Map<string, NewCompiledApi>()
 
-  public dispose() {
+  public [Symbol.dispose]() {
     this.apis.clear()
   }
 
-  private getSuportedMethods(api: RestApiImplementation<any>): Method[] {
+  private getSuportedMethods(api: RestApiImplementation<RestApi>): Method[] {
     return Object.keys(api) as Method[]
   }
 
@@ -138,7 +136,7 @@ export class ApiManager implements Disposable {
   }
 
   private getActionFromEndpoint(compiledEndpoint: NewCompiledApi, fullUrl: URL, method: Method) {
-    let resolvedParams: any
+    let resolvedParams: unknown
     const action = compiledEndpoint[method]?.find((route) => {
       const result = route.matcher(fullUrl.pathname)
       if (result) {
@@ -165,7 +163,7 @@ export class ApiManager implements Disposable {
   }: OnRequestOptions & {
     fullUrl: URL
     action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
-    params: any
+    params: unknown
   }) {
     await usingAsync(injector.createChild(), async (i) => {
       const httpUserContext = i.getInstance(HttpUserContext)
@@ -187,7 +185,7 @@ export class ApiManager implements Disposable {
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
-            return params
+            return params as {}
           },
         })
         res.sendActionResult(actionResult)

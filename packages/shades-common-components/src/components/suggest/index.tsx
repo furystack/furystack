@@ -1,12 +1,12 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import { Loader } from '../loader.js'
-import { SuggestManager } from './suggest-manager.js'
-import type { SuggestionResult } from './suggestion-result.js'
 import { SuggestInput } from './suggest-input.js'
+import { SuggestManager } from './suggest-manager.js'
 import { SuggestionList } from './suggestion-list.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { SuggestionResult } from './suggestion-result.js'
 
 export * from './suggest-input.js'
 export * from './suggest-manager.js'
@@ -31,9 +31,10 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   render: ({ props, injector, element, useDisposable }) => {
     const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
     const { theme } = injector.getInstance(ThemeProviderService)
-    const inputContainer = element.querySelector('.input-container') as HTMLDivElement
     manager.element = element
     manager.isOpened.subscribe((isOpened) => {
+      const inputContainer = element.querySelector('.input-container') as HTMLDivElement
+
       const suggestions = element.querySelector('.close-suggestions')
       const postControls = element.querySelector('.post-controls')
       if (isOpened) {

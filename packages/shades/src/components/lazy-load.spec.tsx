@@ -1,13 +1,13 @@
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
 import { LazyLoad } from './lazy-load.js'
 
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
 

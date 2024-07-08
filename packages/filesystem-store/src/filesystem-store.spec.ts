@@ -1,11 +1,11 @@
-import { promises } from 'fs'
-import { FileSystemStore } from './filesystem-store.js'
-import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
-import { sleepAsync } from '@furystack/utils'
-import type { Injector } from '@furystack/inject'
-import { useFileSystemStore } from './store-manager-helpers.js'
-import { describe, it, expect, vi, afterAll } from 'vitest'
 import { StoreManager } from '@furystack/core'
+import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
+import type { Injector } from '@furystack/inject'
+import { sleepAsync } from '@furystack/utils'
+import { promises } from 'fs'
+import { afterAll, describe, expect, it, vi } from 'vitest'
+import { FileSystemStore } from './filesystem-store.js'
+import { useFileSystemStore } from './store-manager-helpers.js'
 
 let storeCount = 0
 
@@ -48,7 +48,7 @@ describe('FileSystemStore', () => {
     await sleepAsync(501)
     expect(store.saveChanges).toHaveBeenCalled()
 
-    await store.dispose()
+    await store[Symbol.asyncDispose]()
   })
 
   it('Should reload data from disk', async () => {
@@ -69,7 +69,7 @@ describe('FileSystemStore', () => {
     await store.reloadData()
     const count = await store.count()
     expect(count).toBe(1)
-    await store.dispose()
+    await store[Symbol.asyncDispose]()
   })
 
   afterAll(async () => {

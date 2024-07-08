@@ -1,11 +1,11 @@
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
-import { JsonResult } from './request-action-implementation.js'
+import { describe, expect, it } from 'vitest'
 import { useRestService } from './helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
+import { JsonResult } from './request-action-implementation.js'
 
 export interface EchoApi extends RestApi {
   GET: {
@@ -19,7 +19,7 @@ export interface EchoApi extends RestApi {
     '/segment': { result: { name: 'segment' } }
     '/segment/subsegment': { result: { name: 'segment-subsegment' } }
     '/segment/:id/subsegment': { url: { id: string }; result: { url: { id: string; name: 'segment-subsegment' } } }
-    '/segment/:optionalId?/optionalSubsegment/': {
+    '/segment{/:optionalId}?/optionalSubsegment/': {
       url: { optionalId?: string }
       result: { url: { optionalId?: string }; name: 'optional-id' }
     }
@@ -47,7 +47,7 @@ const createEchoApiServer = async () => {
         '/segment/subsegment': async () => JsonResult({ name: 'segment-subsegment' }),
         '/segment/:id/subsegment': async ({ getUrlParams }) =>
           JsonResult({ url: { ...getUrlParams(), name: 'segment-subsegment' } }),
-        '/segment/:optionalId?/optionalSubsegment/': async ({ getUrlParams }) =>
+        '/segment{/:optionalId}?/optionalSubsegment/': async ({ getUrlParams }) =>
           JsonResult({ url: getUrlParams(), name: 'optional-id' }),
       },
       POST: {
@@ -59,7 +59,7 @@ const createEchoApiServer = async () => {
     endpointUrl: `http://127.0.0.1:${port}/api`,
   })
   return {
-    dispose: injector.dispose.bind(injector),
+    [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
     root,
     port,
     client,
@@ -166,7 +166,7 @@ describe('REST Integration tests with FETCH client', () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
       const result = await client({
         method: 'GET',
-        action: '/segment/:optionalId?/optionalSubsegment/',
+        action: '/segment{/:optionalId}?/optionalSubsegment/',
         url: {},
       })
       expect(result.response.status).toBe(200)
@@ -175,7 +175,7 @@ describe('REST Integration tests with FETCH client', () => {
 
       const result2 = await client({
         method: 'GET',
-        action: '/segment/:optionalId?/optionalSubsegment/',
+        action: '/segment{/:optionalId}?/optionalSubsegment/',
         url: {
           optionalId: 'value',
         },

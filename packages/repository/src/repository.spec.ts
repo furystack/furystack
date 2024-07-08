@@ -1,14 +1,14 @@
-import { Injector } from '@furystack/inject'
-import { using } from '@furystack/utils'
-import { getDataSetFor, getRepository } from './helpers.js'
-import { addStore, InMemoryStore } from '@furystack/core'
-import { DataSet } from './data-set.js'
-import { describe, it, expect } from 'vitest'
+import { InMemoryStore, addStore } from '@furystack/core'
 import { TestClass } from '@furystack/core/create-physical-store-tests'
+import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
+import { DataSet } from './data-set.js'
+import { getDataSetFor, getRepository } from './helpers.js'
 
 describe('Repository', () => {
-  it('Should retrieve a dataSet', () => {
-    using(new Injector(), (i) => {
+  it('Should retrieve a dataSet', async () => {
+    await usingAsync(new Injector(), async (i) => {
       addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
       getRepository(i).createDataSet(TestClass, 'id', {})
 

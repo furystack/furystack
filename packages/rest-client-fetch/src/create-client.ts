@@ -1,7 +1,7 @@
 import type { RestApi } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
-import { ResponseError } from './response-error.js'
 import { compile } from 'path-to-regexp'
+import { ResponseError } from './response-error.js'
 export type BodyParameter<T> = T extends { result: unknown; body: infer U } ? { body: U } : unknown
 
 export type QueryParameter<T> = T extends { result: unknown; query: infer U } ? { query: U } : unknown
@@ -46,6 +46,12 @@ export const defaultResponseParser = async <T>(response: Response): Promise<{ re
   }
 }
 
+const stringifyObjectValues = (params: Record<string, unknown>) =>
+  Object.fromEntries(Object.entries(params).map(([key, value]) => [key, value?.toString()]))
+
+export const compileRoute = <T extends Record<string, unknown>>(url: string, params: T) =>
+  compile(url)(stringifyObjectValues(params))
+
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   const fetchMethod = clientOptions.fetch || fetch
 
@@ -70,14 +76,14 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
     const { url, query, body, headers } = options as any
 
     const urlToSend =
-      (url ? compile(options.action as string)(url) : (options.action as string)) +
+      (url ? compileRoute(options.action as string, url) : (options.action as string)) +
       (query
         ? clientOptions.serializeQueryParams
           ? clientOptions.serializeQueryParams(query)
           : `?${serializeToQueryString(query)}`
         : '')
 
-    const response = await fetchMethod((clientOptions.endpointUrl + urlToSend) as string, {
+    const response = await fetchMethod(clientOptions.endpointUrl + urlToSend, {
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: body ? JSON.stringify(body) : undefined,

@@ -1,15 +1,15 @@
-import { HttpUserContext } from '@furystack/rest-service'
 import { Injectable, Injected } from '@furystack/inject'
+import { HttpUserContext } from '@furystack/rest-service'
+import type { IncomingMessage } from 'http'
 import type { Data, WebSocket } from 'ws'
 import type { WebSocketAction } from '../models/websocket-action.js'
-import type { IncomingMessage } from 'http'
 
 /**
  * Example action that returns the current user instance
  */
 @Injectable({ lifetime: 'transient' })
 export class WhoAmI implements WebSocketAction {
-  public dispose() {
+  public [Symbol.dispose]() {
     /** */
   }
   public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {

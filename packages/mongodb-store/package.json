@@ -1,6 +1,6 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "9.0.5",
+  "version": "10.0.0",
   "description": "MongoDB Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -40,13 +40,13 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "6.7.0",
+    "mongodb": "6.8.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/node": "^20.14.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

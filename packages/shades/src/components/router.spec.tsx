@@ -60,7 +60,7 @@ describe('Router', () => {
           <Router
             routes={[
               { url: '/route-a', component: () => <div id="content">route-a</div>, onVisit, onLeave },
-              { url: '/route-b/:id?', component: ({ match }) => <div id="content">route-b{match.params.id}</div> },
+              { url: '/route-b{/:id}?', component: ({ match }) => <div id="content">route-b{match.params.id}</div> },
               {
                 url: '/route-c',
                 component: () => <div id="content">route-c</div>,

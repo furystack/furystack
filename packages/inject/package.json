@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "11.0.3",
+  "version": "12.0.0",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
@@ -40,8 +40,8 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

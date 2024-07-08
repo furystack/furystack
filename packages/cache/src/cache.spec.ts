@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
     const cache = new Cache({ load: () => Promise.resolve(1) })
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should return values as observables', async () => {
@@ -18,7 +18,7 @@ describe('Cache', () => {
     expect(obs.getValue().status).toEqual('loaded')
     expect(obs.getValue().value).toEqual(3)
 
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should trigger loader only if the value is not in the cache when getting an observable', async () => {
@@ -38,7 +38,7 @@ describe('Cache', () => {
 
     expect(loader).toHaveBeenCalledTimes(1)
 
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should remove the oldest entry when capacity limit is reached', async () => {
@@ -47,7 +47,7 @@ describe('Cache', () => {
     await cache.get(1, 3)
     await cache.get(1, 4)
     expect(cache.getCount()).toEqual(2)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should mark the value as obsolete after the stale time has passed', async () => {
@@ -56,7 +56,7 @@ describe('Cache', () => {
     await sleepAsync(200)
     const obs = cache.getObservable(1, 2)
     expect(obs.getValue().status).toEqual('obsolete')
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should swallow errors when stale time has passed and try to set stale state for a non-loaded value', async () => {
@@ -64,7 +64,7 @@ describe('Cache', () => {
     await cache.get(1, 2)
     cache.remove(1, 2) // The "Cannot set obsolete state for a non-loaded value" error should be swallowed when the stale time has passed
     await sleepAsync(200)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should remove the value from the cache after the cache time has passed', async () => {
@@ -73,7 +73,7 @@ describe('Cache', () => {
     cache.remove(1, 2)
     await sleepAsync(200)
     expect(cache.has(1, 2)).toEqual(false)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should remove value from the cache', async () => {
@@ -83,7 +83,7 @@ describe('Cache', () => {
     expect(cache.getCount()).toEqual(2)
     cache.remove(1, 2)
     expect(cache.getCount()).toEqual(1)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should remove a value from the cache, based on a predicate', async () => {
@@ -93,7 +93,7 @@ describe('Cache', () => {
     expect(cache.getCount()).toEqual(2)
     cache.removeRange((v) => v === 3)
     expect(cache.getCount()).toEqual(1)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should remove all values from the cache', async () => {
@@ -103,7 +103,7 @@ describe('Cache', () => {
     expect(cache.getCount()).toEqual(2)
     cache.flushAll()
     expect(cache.getCount()).toEqual(0)
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   it('Should set an explicit value', async () => {
@@ -116,7 +116,7 @@ describe('Cache', () => {
     expect(result).toEqual(3)
     expect(load).not.toHaveBeenCalled()
 
-    cache.dispose()
+    cache[Symbol.dispose]()
   })
 
   describe('Loading, locking and reloading', () => {
@@ -141,7 +141,7 @@ describe('Cache', () => {
 
       expect(loader).toHaveBeenCalledTimes(2)
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Should return the cached value after the lock resolves', async () => {
@@ -162,7 +162,7 @@ describe('Cache', () => {
       expect(result).toStrictEqual(result2)
       expect(result).toEqual(3)
       expect(loader).toHaveBeenCalledTimes(1)
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Should reload regardless of the already loaded state', async () => {
@@ -181,7 +181,7 @@ describe('Cache', () => {
       expect(result).toStrictEqual(result2)
       expect(result).toEqual(3)
       expect(loader).toHaveBeenCalledTimes(2)
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Reload should create a lock', async () => {
@@ -203,7 +203,7 @@ describe('Cache', () => {
       expect(reloaded).toStrictEqual(loaded)
       expect(reloaded).toEqual(3)
       expect(loader).toHaveBeenCalledTimes(1)
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Reload should be able to set an error state', async () => {
@@ -222,7 +222,7 @@ describe('Cache', () => {
       const actualValue = cache.getObservable(1, 2).getValue()
       expect(actualValue.status).toEqual('failed')
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
   })
 
@@ -241,7 +241,7 @@ describe('Cache', () => {
 
       expect(loader).toHaveBeenCalledTimes(2)
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Should skip setting for already obsolete values', async () => {
@@ -259,13 +259,13 @@ describe('Cache', () => {
 
       expect(subscription).toHaveBeenCalledTimes(1)
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Should throw an error when trying to set obsolete for a non-loaded value', () => {
       const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
       expect(() => cache.setObsolete(1, 2)).toThrow()
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
 
     it('Should set an obsolete state based on a predicate', async () => {
@@ -282,7 +282,7 @@ describe('Cache', () => {
 
       expect(loader).toHaveBeenCalledTimes(2)
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
   })
 
@@ -317,7 +317,7 @@ describe('Cache', () => {
 
       expect(loader).toHaveBeenCalledTimes(2)
 
-      cache.dispose()
+      cache[Symbol.dispose]()
     })
   })
 })

@@ -1,15 +1,15 @@
 import type {
-  FindOptions,
-  PhysicalStore,
-  PartialResult,
-  FilterType,
-  WithOptionalId,
   CreateResult,
+  FilterType,
+  FindOptions,
+  PartialResult,
+  PhysicalStore,
+  WithOptionalId,
 } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
-import type { Sequelize, ModelStatic, Model, WhereOptions, Attributes } from 'sequelize'
-import { Lock } from 'semaphore-async-await'
 import { EventHub } from '@furystack/utils'
+import { Lock } from 'semaphore-async-await'
+import type { Attributes, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -96,7 +96,7 @@ export class SequelizeStore<
     const model = await this.getModel()
     const createdModels = await model.bulkCreate(entries as any)
 
-    const created = createdModels.map((c) => c.toJSON() as T)
+    const created = createdModels.map((c) => c.toJSON())
 
     created.forEach((entity) => this.emit('onEntityAdded', { entity }))
     return {
@@ -137,7 +137,7 @@ export class SequelizeStore<
       limit: filter.top,
       offset: filter.skip,
     })
-    return result.map((r) => r.toJSON() as T)
+    return result.map((r) => r.toJSON())
   }
 
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>): Promise<T | undefined> {
@@ -148,8 +148,5 @@ export class SequelizeStore<
     const model = await this.getModel()
     await model.destroy({ where: { [this.primaryKey]: keys } } as any)
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
-  }
-  public async dispose() {
-    await super.dispose()
   }
 }

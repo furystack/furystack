@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { deepMerge } from './deep-merge.js'
 
 describe('DeepMerge tests', () => {
@@ -12,7 +12,7 @@ describe('DeepMerge tests', () => {
   })
 
   it('Should skip falsy sources', () => {
-    expect(deepMerge({ a: 1, b: 0, c: 0 }, null as any, { b: 2 }, { c: 3 })).toEqual({ a: 1, b: 2, c: 3 })
+    expect(deepMerge({ a: 1, b: 0, c: 0 }, null as any as {}, { b: 2 }, { c: 3 })).toEqual({ a: 1, b: 2, c: 3 })
   })
 
   it('Should override arrays', () => {

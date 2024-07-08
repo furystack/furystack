@@ -373,7 +373,7 @@ describe('HttpUserContext', () => {
 
         await ctx.cookieLogin(testUser, {
           setHeader: (_headerName, headerValue) => {
-            sessionId = headerValue as string
+            sessionId = headerValue
             return {} as ServerResponse
           },
         })
@@ -382,7 +382,7 @@ describe('HttpUserContext', () => {
         expect(originalUser).toEqual(testUser)
 
         const sessionStore = ctx.getSessionStore()
-        await sessionStore.remove(sessionId as string)
+        await sessionStore.remove(sessionId)
 
         await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
       })
