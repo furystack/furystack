@@ -41,7 +41,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@furystack/utils": "workspace:^",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "typescript": "^5.5.3",
     "vitest": "^1.6.0"
   }
