@@ -45,7 +45,7 @@
     "@types/node": "^20.14.10",
     "sqlite3": "5.1.7",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.2"
   },
   "typings": "./types/index.d.ts"
 }
