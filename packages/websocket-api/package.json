@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/ws": "^8.5.10",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.2"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
