@@ -43,16 +43,16 @@
     "@furystack/rest": "workspace:^",
     "@furystack/security": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ajv": "^8.16.0",
+    "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "path-to-regexp": "^7.0.0",
+    "path-to-regexp": "^7.1.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.14.11",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.2"
+    "vitest": "^2.0.3"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
