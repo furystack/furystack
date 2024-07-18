@@ -1,6 +1,6 @@
 {
   "name": "@furystack/sequelize-store",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Sequelize-based Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -42,10 +42,10 @@
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.14.11",
     "sqlite3": "5.1.7",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.3"
   },
   "typings": "./types/index.d.ts"
 }

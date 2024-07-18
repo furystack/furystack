@@ -1,6 +1,6 @@
 {
   "name": "@furystack/cache",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Cache providers for FuryStack package",
   "type": "module",
   "scripts": {
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.3"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-client-fetch",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "Native browser fetch based REST API implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -38,11 +38,11 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/rest": "workspace:^",
-    "path-to-regexp": "^7.0.0"
+    "path-to-regexp": "^7.1.0"
   },
   "devDependencies": {
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.3"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
