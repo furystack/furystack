@@ -21,9 +21,11 @@ export default tseslint.config(
       '.yarn/*',
     ],
   },
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
   eslint.configs.recommended,
-  // ...tseslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   prettierConfig,
   {
     linterOptions: {
@@ -81,6 +83,12 @@ export default tseslint.config(
       'prefer-template': 'error',
       'prefer-destructuring': ['error', { array: false, object: true }],
       'default-case': 'error',
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.spec.tsx'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off', // vi.fn() is fine in tests
     },
   },
 )

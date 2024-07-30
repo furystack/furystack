@@ -118,7 +118,7 @@ export const CommandPalette = Shade<CommandPaletteProps>({
             )
           }
 
-          void manager.getSuggestion({ injector, term: (ev.target as any).value })
+          void manager.getSuggestion({ injector, term: (ev.target as HTMLInputElement).value })
         }}
       >
         <div
