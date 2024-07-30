@@ -41,9 +41,9 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@types/ws": "^8.5.11",
-    "typescript": "^5.5.3",
-    "vitest": "^2.0.3"
+    "@types/ws": "^8.5.12",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.4"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
