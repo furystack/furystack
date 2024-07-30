@@ -22,10 +22,11 @@ export default tseslint.config(
     ],
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  ...tseslint.configs.recommended,
+  //...tseslint.configs.recommendedTypeChecked,
+  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   prettierConfig,
   {
     linterOptions: {
