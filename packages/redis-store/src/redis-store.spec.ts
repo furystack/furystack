@@ -27,7 +27,7 @@ describe('Redis Store', () => {
 
   afterEach(async () => {
     await client.quit()
-    await store[Symbol.dispose]()
+    store[Symbol.dispose]()
     await i[Symbol.asyncDispose]()
   })
 
