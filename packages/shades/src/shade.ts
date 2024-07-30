@@ -1,7 +1,6 @@
 import type { Constructable } from '@furystack/inject'
-import { Injector } from '@furystack/inject'
+import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import { hasInjectorReference } from '../../inject/src/with-injector-reference.js'
 import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
