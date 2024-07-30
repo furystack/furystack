@@ -1,6 +1,7 @@
 import type { Constructable } from '@furystack/inject'
 import { Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
+import { hasInjectorReference } from '../../inject/src/with-injector-reference.js'
 import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
@@ -84,9 +85,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           this.callConstructed()
         }
 
-        public disconnectedCallback() {
+        public async disconnectedCallback() {
           o.onDetach?.(this.getRenderOptions())
-          this.resourceManager[Symbol.asyncDispose]()
+          await this.resourceManager[Symbol.asyncDispose]()
           this.cleanup?.()
         }
 
@@ -135,7 +136,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             useStoredState: <T>(key: string, initialValue: T, storageArea = localStorage) => {
               const getFromStorage = () => {
                 const value = storageArea?.getItem(key)
-                return value ? JSON.parse(value) : initialValue
+                return value ? (JSON.parse(value) as T) : initialValue
               }
 
               const setToStorage = (value: T) => {
@@ -156,14 +157,14 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               const updateFromStorageEvent = (e: StorageEvent) => {
                 e.key === key &&
                   e.storageArea === storageArea &&
-                  setToStorage((e.newValue && JSON.parse(e.newValue)) || initialValue)
+                  setToStorage((e.newValue && (JSON.parse(e.newValue) as T)) || initialValue)
               }
 
               this.resourceManager.useDisposable(`useStoredState-${key}-storage-event`, () => {
                 window.addEventListener('storage', updateFromStorageEvent)
                 const channelName = `useStoredState-broadcast-channel`
                 const messageChannel = new BroadcastChannel(channelName)
-                messageChannel.onmessage = (e) => {
+                messageChannel.onmessage = (e: MessageEvent<{ key?: string; value: T }>) => {
                   if (e.data.key === key) {
                     setToStorage(e.data.value)
                   }
@@ -222,7 +223,11 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           this.updateComponent()
           const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
           if (cleanupResult instanceof Promise) {
-            cleanupResult.then((cleanup) => (this.cleanup = cleanup))
+            cleanupResult
+              .then((cleanup) => (this.cleanup = cleanup))
+              .catch(() => {
+                /** */
+              })
           } else {
             // construct is not async
             this.cleanup = cleanupResult
@@ -248,7 +253,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             return this._injector
           }
 
-          const fromProps = (this.props as any)?.injector
+          const fromProps = hasInjectorReference(this.props) && this.props.injector
           if (fromProps && fromProps instanceof Injector) {
             return fromProps
           }

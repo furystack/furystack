@@ -1,11 +1,16 @@
 // @ts-check
 
 import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import jsdoc from 'eslint-plugin-jsdoc'
 import prettierConfig from 'eslint-config-prettier'
+import jsdoc from 'eslint-plugin-jsdoc'
+import playwright from 'eslint-plugin-playwright'
+import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
+  {
+    ...playwright.configs['flat/recommended'],
+    files: ['packages/shades-showcase-app/e2e'],
+  },
   {
     ignores: [
       'coverage',
@@ -17,7 +22,8 @@ export default tseslint.config(
     ],
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  // ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   prettierConfig,
   {
     linterOptions: {

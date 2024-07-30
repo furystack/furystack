@@ -1,23 +1,23 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Form', () => {
   test('should submit form after performing validation', async ({ page }) => {
     await page.goto('/form')
 
-    const form = await page.locator('form')
+    const form = page.locator('form')
 
-    const fieldset = await form.locator('#fieldset')
+    const fieldset = form.locator('#fieldset')
 
-    const emailField = await form.locator('[name=email]')
-    const passwordField = await form.locator('[name=password]')
-    const confirmPasswordField = await form.locator('[name=confirmPassword]')
+    const emailField = form.locator('[name=email]')
+    const passwordField = form.locator('[name=password]')
+    const confirmPasswordField = form.locator('[name=confirmPassword]')
 
-    const rawValue = await page.locator('#raw')
-    const validatedValue = await page.locator('#validated')
-    const statusValue = await page.locator('#status')
-    const fieldErrorsValue = await page.locator('#fieldErrors')
+    const rawValue = page.locator('#raw')
+    const validatedValue = page.locator('#validated')
+    const statusValue = page.locator('#status')
+    const fieldErrorsValue = page.locator('#fieldErrors')
 
-    const submitButton = await form.locator('text=Submit')
+    const submitButton = form.locator('text=Submit')
 
     await expect(rawValue).toHaveText(`Raw: null`)
     await expect(validatedValue).toHaveText('Validated: null')
@@ -304,13 +304,13 @@ test.describe('Form', () => {
     await confirmPasswordField.type('123456')
     await submitButton.click()
 
-    page.on('dialog', (dialog) => {
+    page.on('dialog', async (dialog) => {
       expect(dialog.message).toBe(`Submitted: {
   "email": "asd@gmail.com",
   "password": "123456",
   "confirmPassword": "123456"
 }`)
-      dialog.accept()
+      await dialog.accept()
     })
 
     await expect(fieldset).toHaveScreenshot('fieldset-6.png')

@@ -2341,6 +2341,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-playwright@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "eslint-plugin-playwright@npm:1.6.2"
+  dependencies:
+    globals: "npm:^13.23.0"
+  peerDependencies:
+    eslint: ">=8.40.0"
+    eslint-plugin-jest: ">=25"
+  peerDependenciesMeta:
+    eslint-plugin-jest:
+      optional: true
+  checksum: 10/cd3ed38a768f91f37894b8db7d0c6b87d26d49bc548a9fa4f1a1d20f0386570486c16925033938c8f0a56c412409e86f0b6c29832f308dfe13b3237af40d94f9
+  languageName: node
+  linkType: hard
+
 "eslint-scope@npm:^8.0.2":
   version: 8.0.2
   resolution: "eslint-scope@npm:8.0.2"
@@ -2702,9 +2717,10 @@ __metadata:
     ajv: "npm:^8.17.1"
     eslint: "npm:^9.7.0"
     eslint-config-prettier: "npm:^9.1.0"
-    eslint-plugin-jsdoc: "npm:^48.7.0"
-    husky: "npm:^9.0.11"
-    jsdom: "npm:^24.1.0"
+    eslint-plugin-jsdoc: "npm:^48.9.2"
+    eslint-plugin-playwright: "npm:^1.6.2"
+    husky: "npm:^9.1.4"
+    jsdom: "npm:^24.1.1"
     lint-staged: "npm:^15.2.7"
     prettier: "npm:^3.3.3"
     rimraf: "npm:^6.0.1"
@@ -2842,6 +2858,15 @@ __metadata:
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
   checksum: 10/9f054fa38ff8de8fa356502eb9d2dae0c928217b8b5c8de1f09f5c9b6c8a96d8b9bd3afc49acbcd384a98a81fea713c859e1b09e214c60509517bb8fc2bc13c2
+  languageName: node
+  linkType: hard
+
+"globals@npm:^13.23.0":
+  version: 13.24.0
+  resolution: "globals@npm:13.24.0"
+  dependencies:
+    type-fest: "npm:^0.20.2"
+  checksum: 10/62c5b1997d06674fc7191d3e01e324d3eda4d65ac9cc4e78329fa3b5c4fd42a0e1c8722822497a6964eee075255ce21ccf1eec2d83f92ef3f06653af4d0ee28e
   languageName: node
   linkType: hard
 
@@ -5295,9 +5320,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^7.16.1":
-  version: 7.16.1
-  resolution: "typescript-eslint@npm:7.16.1"
+"type-fest@npm:^0.20.2":
+  version: 0.20.2
+  resolution: "type-fest@npm:0.20.2"
+  checksum: 10/8907e16284b2d6cfa4f4817e93520121941baba36b39219ea36acfe64c86b9dbc10c9941af450bd60832c8f43464974d51c0957f9858bc66b952b66b6914cbb9
+  languageName: node
+  linkType: hard
+
+"typescript-eslint@npm:^7.18.0":
+  version: 7.18.0
+  resolution: "typescript-eslint@npm:7.18.0"
   dependencies:
     "@typescript-eslint/eslint-plugin": "npm:7.16.1"
     "@typescript-eslint/parser": "npm:7.16.1"
