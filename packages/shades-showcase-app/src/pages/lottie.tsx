@@ -1,5 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import '@furystack/shades-lottie'
+import type { LottiePlayer } from '@lottiefiles/lottie-player'
 import lottieExample from './lottie-example.json'
 
 export const LottiePage = Shade({
@@ -20,7 +21,7 @@ export const LottiePage = Shade({
           src={example}
           loop
           onclick={(ev) => {
-            ;(ev.currentTarget as any)?.play()
+            ;(ev.currentTarget as LottiePlayer)?.play()
           }}
         ></lottie-player>
       </>
