@@ -30,11 +30,13 @@ export const hasStyle = (props: unknown): props is { style: Partial<CSSStyleDecl
  * @param el The Target HTML Element
  * @param props The Properties to fetch The Styles Object
  */
-export const attachStyles = (el: HTMLElement, props: any) => {
+export const attachStyles = (el: HTMLElement, props: unknown) => {
   if (hasStyle(props))
     for (const key in props.style) {
       if (Object.prototype.hasOwnProperty.call(props.style, key)) {
-        ;(el.style as any)[key] = props.style[key]
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        el.style[key] = props.style[key]
       }
     }
 }

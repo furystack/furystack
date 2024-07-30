@@ -25,7 +25,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   constructed: ({ element }) => {
     setTimeout(() => {
       const height = element.scrollHeight || 80
-      promisifyAnimation(
+      void promisifyAnimation(
         element,
         [
           { opacity: '0', height: '0px' },
@@ -73,20 +73,12 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     const timeout = props.model.timeout || getDefaultNotyTimeouts(props.model.type)
     if (timeout) {
-      setTimeout(removeSelf, timeout)
+      setTimeout(() => void removeSelf(), timeout)
     }
 
     element.className = `noty ${props.model.type}`
     element.style.backgroundColor = colors.main
     element.style.color = textColor
-
-    // attachProps(element, {
-    //   className: `noty ${props.model.type}`,
-    //   style: {
-    //     backgroundColor: colors.main,
-    //     color: textColor,
-    //   },
-    // })
 
     return (
       <>
@@ -153,7 +145,7 @@ export const NotyList = Shade({
     useDisposable('removeNoty', () =>
       notyService.subscribe('onNotyRemoved', (n) => {
         element.querySelectorAll('shade-noty').forEach((e) => {
-          if ((e as JSX.Element).props.model === n) {
+          if ((e as JSX.Element<{ model?: NotyModel }>).props.model === n) {
             e.remove()
           }
         })

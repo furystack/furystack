@@ -171,15 +171,15 @@ export const DataGridHeader: <T, Column extends string>(
         const searchForm = element.querySelector('.search-form') as HTMLElement
         const headerContent = element.querySelector('.header-content') as HTMLElement
         if (!newValue) {
-          collapse(searchForm)
-          expand(headerContent)
+          void collapse(searchForm)
+          void expand(headerContent)
         } else {
           searchForm.style.display = 'flex'
-          expand(searchForm).then(async () => {
+          void expand(searchForm).then(async () => {
             await sleepAsync(100)
             searchForm.querySelector('input')?.focus()
           })
-          collapse(headerContent)
+          void collapse(headerContent)
         }
       },
     })

@@ -8,7 +8,7 @@ export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
 /**
  * Will be triggered via process event listeners
  */
-export const exitHandler = (() => {
+export const exitHandler = (() =>
   Promise.allSettled(
     [...globalDisposables].map(async (d) => {
       if (isAsyncDisposable(d)) {
@@ -27,23 +27,22 @@ export const exitHandler = (() => {
     })
     .catch((error) => {
       console.error('Error during disposing global disposables', error)
-    })
-}).bind(null)
+    })).bind(null)
 
 // do something when app is closing
-globalThis.process?.on?.('exit', exitHandler)
+globalThis.process?.on?.('exit', () => void exitHandler())
 
 // catches ctrl+c event
-globalThis.process?.on?.('SIGINT', exitHandler)
+globalThis.process?.on?.('SIGINT', () => void exitHandler())
 
-globalThis.process?.on?.('SIGTERM', () => exitHandler)
+globalThis.process?.on?.('SIGTERM', () => void exitHandler())
 
 // catches "kill pid" (for example: nodemon restart)
-globalThis.process?.on?.('SIGUSR1', exitHandler)
-globalThis.process?.on?.('SIGUSR2', exitHandler)
+globalThis.process?.on?.('SIGUSR1', () => void exitHandler())
+globalThis.process?.on?.('SIGUSR2', () => void exitHandler())
 
 // catches uncaught exceptions
-globalThis.process?.on?.('uncaughtException', exitHandler)
+globalThis.process?.on?.('uncaughtException', () => void exitHandler())
 
 // Browser environment
-;(globalThis as any).window?.addEventListener('beforeunload', exitHandler)
+globalThis.window?.addEventListener('beforeunload', () => void exitHandler())

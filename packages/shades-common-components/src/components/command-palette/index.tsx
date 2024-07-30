@@ -30,15 +30,15 @@ export const CommandPalette = Shade<CommandPaletteProps>({
     useDisposable('clickAwayService', () => new ClickAwayService(element, () => manager.isOpened.setValue(false)))
 
     const [isLoadingAtRender] = useObservable('isLoading', manager.isLoading, {
-      onChange: async (isLoading) => {
+      onChange: (isLoading) => {
         const loader = element.querySelector('.loader-container')
         if (isLoading) {
-          promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
+          void promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
             duration: 100,
             fill: 'forwards',
           })
         } else {
-          promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
+          void promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
             duration: 100,
             fill: 'forwards',
           })
@@ -53,17 +53,17 @@ export const CommandPalette = Shade<CommandPaletteProps>({
           const postControls = element.querySelector('.post-controls')
           const inputContainer = element.querySelector('.input-container') as HTMLDivElement
           if (isOpened) {
-            promisifyAnimation(suggestions, [{ opacity: 0 }, { opacity: 1 }], {
+            void promisifyAnimation(suggestions, [{ opacity: 0 }, { opacity: 1 }], {
               duration: 500,
               fill: 'forwards',
             })
 
-            promisifyAnimation(postControls, [{ width: '0px' }, { width: '50px' }], {
+            void promisifyAnimation(postControls, [{ width: '0px' }, { width: '50px' }], {
               duration: 100,
               fill: 'forwards',
             })
 
-            promisifyAnimation(
+            void promisifyAnimation(
               inputContainer,
               [{ background: 'transparent' }, { background: theme.background.default }],
               {
@@ -73,18 +73,18 @@ export const CommandPalette = Shade<CommandPaletteProps>({
               },
             )
           } else {
-            promisifyAnimation(suggestions, [{ opacity: 1 }, { opacity: 0 }], {
+            void promisifyAnimation(suggestions, [{ opacity: 1 }, { opacity: 0 }], {
               duration: 500,
               fill: 'forwards',
             })
 
-            promisifyAnimation(postControls, [{ width: '50px' }, { width: '0px' }], {
+            void promisifyAnimation(postControls, [{ width: '50px' }, { width: '0px' }], {
               duration: 500,
               fill: 'forwards',
               delay: 300,
             })
 
-            promisifyAnimation(
+            void promisifyAnimation(
               inputContainer,
               [{ background: theme.background.default }, { background: 'transparent' }],
               {
@@ -118,7 +118,7 @@ export const CommandPalette = Shade<CommandPaletteProps>({
             )
           }
 
-          manager.getSuggestion({ injector, term: (ev.target as any).value })
+          void manager.getSuggestion({ injector, term: (ev.target as any).value })
         }}
       >
         <div

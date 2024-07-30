@@ -305,7 +305,7 @@ test.describe('Form', () => {
     await submitButton.click()
 
     page.on('dialog', async (dialog) => {
-      expect(dialog.message).toBe(`Submitted: {
+      expect(dialog.message()).toBe(`Submitted: {
   "email": "asd@gmail.com",
   "password": "123456",
   "confirmPassword": "123456"

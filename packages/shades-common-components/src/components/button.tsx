@@ -1,9 +1,8 @@
 import type { PartialElement } from '@furystack/shades'
-import { attachProps } from '@furystack/shades'
-import { Shade, createComponent } from '@furystack/shades'
-import { promisifyAnimation } from '../utils/promisify-animation.js'
+import { Shade, attachProps, createComponent } from '@furystack/shades'
 import type { Palette, Theme } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
+import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   variant?: 'contained' | 'outlined'
@@ -77,7 +76,7 @@ export const Button = Shade<ButtonProps>({
      */
     function mouseUp(this: Document, ev: MouseEvent) {
       if (ev.target === element) {
-        promisifyAnimation(
+        void promisifyAnimation(
           element,
           [
             {
@@ -131,14 +130,14 @@ export const Button = Shade<ButtonProps>({
       options?: number | KeyframeAnimationOptions | undefined,
     ) => {
       const el = element
-      el && promisifyAnimation(el, keyframes, options)
+      el && void promisifyAnimation(el, keyframes, options)
     }
 
     attachProps(element, {
       ...props,
       onmousedown(this: HTMLElement, ev: MouseEvent) {
         mouseDownHandler?.call(this, ev)
-        tryAnimate(
+        void tryAnimate(
           [
             {
               filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
@@ -152,7 +151,7 @@ export const Button = Shade<ButtonProps>({
         mouseUpHandler?.call(this, ev)
       },
       onmouseenter: () => {
-        tryAnimate(
+        void tryAnimate(
           [
             {
               background,
@@ -169,7 +168,7 @@ export const Button = Shade<ButtonProps>({
         )
       },
       onmouseout: () => {
-        tryAnimate(
+        void tryAnimate(
           [
             { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
             { background, boxShadow, color: getTextColorInner() },

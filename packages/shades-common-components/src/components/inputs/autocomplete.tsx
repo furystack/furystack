@@ -21,7 +21,7 @@ export const Autocomplete = Shade<{
         <Input
           {...props.inputProps}
           onchange={(ev) => {
-            const { value } = ev.target as any
+            const { value } = ev.target as HTMLInputElement
             if (props.strict) {
               if (!props.suggestions.includes(value)) {
                 ;(ev.target as HTMLInputElement).setCustomValidity('Please select a valid entry!')

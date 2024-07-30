@@ -125,7 +125,7 @@ export class CollectionService<T> implements Disposable {
             const newFocusedEntry = entries.find(
               (e) =>
                 this.options.searchField &&
-                (e[this.options.searchField] as any)?.toString().startsWith(newSearchExpression),
+                (e[this.options.searchField] as string)?.toString().startsWith(newSearchExpression),
             )
             this.focusedEntry.setValue(newFocusedEntry)
             this.searchTerm.setValue(newSearchExpression)

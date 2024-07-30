@@ -25,8 +25,8 @@ type WithInjectableOptions<T> = T & { [InjectableOptionsSymbol]: InjectableOptio
  */
 export const hasInjectableOptions = <T extends Constructable<any>>(ctor: T): ctor is WithInjectableOptions<T> => {
   return (
-    typeof (ctor as any)[InjectableOptionsSymbol] === 'object' &&
-    typeof ((ctor as any)[InjectableOptionsSymbol] as InjectableOptions).lifetime === 'string'
+    typeof (ctor as WithInjectableOptions<T>)[InjectableOptionsSymbol] === 'object' &&
+    typeof (ctor as WithInjectableOptions<T>)[InjectableOptionsSymbol].lifetime === 'string'
   )
 }
 

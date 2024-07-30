@@ -38,12 +38,12 @@ export const Loader = Shade<LoaderProps>({
     const { borderColor = theme.palette.primary.main } = props
 
     setTimeout(() => {
-      promisifyAnimation(element, [{ opacity: '0' }, { opacity: '1' }], {
+      void promisifyAnimation(element, [{ opacity: '0' }, { opacity: '1' }], {
         duration: 500,
         delay,
         fill: 'forwards',
       })
-      promisifyAnimation(
+      void promisifyAnimation(
         element.firstElementChild,
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }, { transform: 'rotate(360deg)' }],
         {

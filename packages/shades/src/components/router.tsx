@@ -75,9 +75,9 @@ export const Router = Shade<RouterProps>({
     const [locationPath] = useObservable(
       'locationPathChanged',
       injector.getInstance(LocationService).onLocationPathChanged,
-      { onChange: updateUrl },
+      { onChange: void updateUrl },
     )
-    updateUrl(locationPath)
+    void updateUrl(locationPath)
     return state.jsx
   },
 })
