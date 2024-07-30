@@ -1,36 +1,34 @@
 import type { Page } from '@playwright/test'
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Data Grid component', () => {
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
-    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
+    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
   }
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
-      await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
+      await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
-    await expect(await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
+    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
-    await expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
-    await expect(await page.locator('shades-grid-status input[name="selectionCount"]').inputValue()).toBe(
-      count.toString(),
-    )
+    expect(await page.locator('shades-data-grid-row[aria-selected="true"]').count()).toBe(count)
+    expect(await page.locator('shades-grid-status input[name="selectionCount"]').inputValue()).toBe(count.toString())
   }
 
   const clickOnRow = async (page: Page, rowNumber: number, modifiers?: Array<'Alt' | 'Control' | 'Meta' | 'Shift'>) => {
     await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
   }
 
-  test.describe('Focus', async () => {
+  test.describe('Focus', () => {
     test('With mouse click', async ({ page }) => {
       await page.goto('/grid')
-      const numbers = new Array(10).fill(Math.round(Math.random() * 100))
+      const numbers = new Array<number>(10).fill(Math.round(Math.random() * 100))
       for (const no of numbers) {
         await clickOnRow(page, no)
         await expectRowHasFocus(page, no)
@@ -49,7 +47,7 @@ test.describe('Data Grid component', () => {
     })
   })
 
-  test.describe('Selection', async () => {
+  test.describe('Selection', () => {
     test.describe('Keyboard shortcuts', () => {
       test('space should invert selection and keep focus', async ({ page }) => {
         await page.goto('/grid')
@@ -146,7 +144,7 @@ test.describe('Data Grid component', () => {
     })
   })
 
-  test.describe('Gestures', async () => {
+  test.describe('Gestures', () => {
     test('CTRL+click should toggle selection', async ({ page }) => {
       await page.goto('/grid')
       /** TODO */

@@ -3,6 +3,7 @@ import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
+import type Ajv from 'ajv'
 import { describe, expect, it } from 'vitest'
 import { useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
@@ -84,7 +85,7 @@ describe('Validation integration tests', () => {
           if (error instanceof ResponseError) {
             expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
-            const responseJson = await error.response.json()
+            const responseJson: { errors: Ajv.ErrorObject[] } = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('foo')
             expect(responseJson.errors[1].params.missingProperty).toEqual('bar')
             expect(responseJson.errors[2].params.missingProperty).toEqual('baz')
@@ -105,7 +106,7 @@ describe('Validation integration tests', () => {
           if (error instanceof ResponseError) {
             expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
-            const responseJson = await error.response.json()
+            const responseJson: { errors: Ajv.ErrorObject[] } = await error.response.json()
             expect(responseJson.errors[0].params.type).toEqual('number')
             expect(responseJson.errors[0].instancePath).toEqual('/url/id')
           }
@@ -125,9 +126,9 @@ describe('Validation integration tests', () => {
           if (error instanceof ResponseError) {
             expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
-            const responseJson = await error.response.json()
+            const responseJson: { errors: Ajv.ErrorObject[] } = await error.response.json()
             expect(
-              responseJson.errors.find((e: any) => e.keyword === 'required' && e.message.includes('foo')),
+              responseJson.errors.find((e) => e.keyword === 'required' && e.message?.includes('foo')),
             ).toBeDefined()
           }
         }
@@ -146,7 +147,7 @@ describe('Validation integration tests', () => {
           if (error instanceof ResponseError) {
             expect(error.message).toBe('Bad Request')
             expect(error.response?.status).toBe(400)
-            const responseJson = await error.response.json()
+            const responseJson: { errors: Ajv.ErrorObject[] } = await error.response.json()
             expect(responseJson.errors[0].params.missingProperty).toEqual('body')
           }
         }

@@ -183,7 +183,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public async update(id: T[TPrimaryKey], data: T) {
     if (!this.cache.has(id)) {
-      throw Error(`Entity not found with id '${id}', cannot update!`)
+      throw Error(`Entity not found with id '${id as string}', cannot update!`)
     }
     this.cache.set(id, {
       ...this.cache.get(id),

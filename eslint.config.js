@@ -1,11 +1,16 @@
 // @ts-check
 
 import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import jsdoc from 'eslint-plugin-jsdoc'
 import prettierConfig from 'eslint-config-prettier'
+import jsdoc from 'eslint-plugin-jsdoc'
+import playwright from 'eslint-plugin-playwright'
+import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
+  {
+    ...playwright.configs['flat/recommended'],
+    files: ['packages/shades-showcase-app/e2e'],
+  },
   {
     ignores: [
       'coverage',
@@ -16,8 +21,12 @@ export default tseslint.config(
       '.yarn/*',
     ],
   },
+
+  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  //...tseslint.configs.recommendedTypeChecked,
+  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   prettierConfig,
   {
     linterOptions: {
@@ -75,6 +84,12 @@ export default tseslint.config(
       'prefer-template': 'error',
       'prefer-destructuring': ['error', { array: false, object: true }],
       'default-case': 'error',
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.spec.tsx'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off', // vi.fn() is fine in tests
     },
   },
 )

@@ -1,8 +1,8 @@
-import { createComponent } from './shade-component.js'
-import './jsx'
-import { Shade } from './shade.js'
 import { Injector } from '@furystack/inject'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import './jsx'
+import { createComponent } from './shade-component.js'
+import { Shade } from './shade.js'
 
 describe('Shades Component Factory', () => {
   describe('HTML Elements', () => {
@@ -76,7 +76,7 @@ describe('Shades Component Factory', () => {
         </div>
       )
 
-      const shade = component.firstElementChild as JSX.Element
+      const shade = component.firstElementChild as JSX.Element<{ foo: string }>
 
       shade.callConstructed()
 

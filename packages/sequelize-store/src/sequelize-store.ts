@@ -9,7 +9,7 @@ import type {
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import { Lock } from 'semaphore-async-await'
-import type { Attributes, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
+import type { Attributes, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -142,11 +142,11 @@ export class SequelizeStore<
 
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>): Promise<T | undefined> {
     const model = await this.getModel()
-    return (await (await model.findByPk(key as any, { attributes: select } as any))?.toJSON()) as T
+    return (await model.findByPk(key as Identifier, { attributes: select as string[] }))?.toJSON()
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const model = await this.getModel()
-    await model.destroy({ where: { [this.primaryKey]: keys } } as any)
+    await model.destroy({ where: { [this.primaryKey]: keys } as any })
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
 }

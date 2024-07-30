@@ -1,8 +1,8 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { SuggestManager } from './suggest-manager.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children: ChildrenList) => JSX.Element<any> =
   Shade<{ manager: SuggestManager<any> }>({
@@ -29,14 +29,14 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
       })
 
       const [isListOpened] = useObservable('isOpened', manager.isOpened, {
-        onChange: async (isOpened) => {
+        onChange: (isOpened) => {
           const container = element.firstElementChild as HTMLDivElement
           if (isOpened) {
             container.style.zIndex = '1'
             container.style.width = `calc(${Math.round(
               element.parentElement?.getBoundingClientRect().width || 200,
             )}px - 3em)`
-            await promisifyAnimation(
+            void promisifyAnimation(
               container,
               [
                 { opacity: 0, transform: 'translate(0, -50px)' },
@@ -45,7 +45,7 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
               { fill: 'forwards', duration: 500 },
             )
           } else {
-            await promisifyAnimation(
+            void promisifyAnimation(
               container,
               [
                 { opacity: 1, transform: 'translate(0, 0)' },

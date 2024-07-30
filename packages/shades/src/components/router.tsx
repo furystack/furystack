@@ -1,5 +1,5 @@
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
-import type { MatchOptions, MatchResult } from 'path-to-regexp'
+import type { MatchOptions, MatchResult, ParamData } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
 import { Lock } from 'semaphore-async-await'
 import type { RenderOptions } from '../models/render-options.js'
@@ -17,7 +17,7 @@ export interface Route<TMatchResult extends object> {
 
 export interface RouterProps {
   style?: CSSStyleDeclaration
-  routes: Array<Route<any>>
+  routes: Array<Route<ParamData>>
   notFound?: JSX.Element
 }
 
@@ -75,9 +75,9 @@ export const Router = Shade<RouterProps>({
     const [locationPath] = useObservable(
       'locationPathChanged',
       injector.getInstance(LocationService).onLocationPathChanged,
-      { onChange: updateUrl },
+      { onChange: void updateUrl },
     )
-    updateUrl(locationPath)
+    void updateUrl(locationPath)
     return state.jsx
   },
 })
