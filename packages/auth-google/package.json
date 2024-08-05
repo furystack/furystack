@@ -45,7 +45,7 @@
     "@furystack/utils": "workspace:^",
     "@types/node": "^22.0.0",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

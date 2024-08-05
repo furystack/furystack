@@ -41,7 +41,7 @@
     "@types/node": "^22.0.0",
     "jsdom": "^24.1.1",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",

@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
