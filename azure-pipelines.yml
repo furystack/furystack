@@ -30,7 +30,7 @@ jobs:
       - checkout: self
         fetchDepth: 1
       - task: DockerCompose@0
-        displayName: Start services from docker-compose
+        displayName: Start services from docker compose
         inputs:
           projectName: furystack
           action: Run services
@@ -87,7 +87,7 @@ jobs:
       - checkout: self
         fetchDepth: 1
       - task: DockerCompose@0
-        displayName: Start services from docker-compose
+        displayName: Start services from docker compose
         inputs:
           projectName: furystack
           action: Run services
