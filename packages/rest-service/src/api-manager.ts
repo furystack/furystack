@@ -162,7 +162,7 @@ export class ApiManager implements Disposable {
     params,
   }: OnRequestOptions & {
     fullUrl: URL
-    action: RequestAction<{ body: {}; result: {}; query: {}; url: {}; headers: {} }>
+    action: RequestAction<{ body: object; result: object; query: object; url: object; headers: object }>
     params: unknown
   }) {
     await usingAsync(injector.createChild(), async (i) => {
@@ -185,7 +185,7 @@ export class ApiManager implements Disposable {
           getQuery: () =>
             deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
           getUrlParams: () => {
-            return params as {}
+            return params as object
           },
         })
         res.sendActionResult(actionResult)
@@ -211,7 +211,10 @@ export class ApiManager implements Disposable {
       ),
     )
 
-    options.cors && addCorsHeaders(options.cors, options.req, options.res)
+    if (options.cors) {
+      addCorsHeaders(options.cors, options.req, options.res)
+    }
+
     if (options.req.method === 'OPTIONS') {
       options.res.writeHead(200)
       options.res.end()

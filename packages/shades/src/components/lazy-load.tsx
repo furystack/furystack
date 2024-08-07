@@ -18,10 +18,14 @@ export const LazyLoad = Shade<LazyLoadProps>({
     const [_errorState, setErrorState] = useState<unknown>('error', undefined)
     try {
       const loaded = await props.component()
-      element.isConnected && setComponent(loaded)
+      if (element.isConnected) {
+        setComponent(loaded)
+      }
     } catch (error) {
       if (props.error) {
-        element.isConnected && setErrorState(error)
+        if (element.isConnected) {
+          setErrorState(error)
+        }
       } else {
         throw error
       }

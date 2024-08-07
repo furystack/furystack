@@ -20,11 +20,12 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       ...props.options,
     })
     editorInstance.setValue(props.value || '')
-    props.onchange &&
+    if (props.onchange) {
       editorInstance.onKeyUp(() => {
         const value = editorInstance.getValue()
-        props.onchange && props.onchange(value)
+        props.onchange?.(value)
       })
+    }
 
     useDisposable('themeChange', () =>
       themeProvider.subscribe('themeChanged', () => {

@@ -9,7 +9,7 @@ export class MockDisposable implements Disposable {
    */
   public [Symbol.dispose]() {
     this.disposed = true
-    this.disposeCallback && this.disposeCallback()
+    this.disposeCallback?.()
   }
 
   /**

@@ -27,7 +27,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
       {
         onChange: (isLargeScreen) => {
           const form = element.querySelector('form')
-          form && attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+          if (form) {
+            attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+          }
         },
       },
     )

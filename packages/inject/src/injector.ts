@@ -4,7 +4,7 @@ import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
 import { withInjectorReference } from './with-injector-reference.js'
 
-const hasInitMethod = (obj: Object): obj is { init: (injector: Injector) => void } => {
+const hasInitMethod = (obj: object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as { init?: (injector: Injector) => void }).init === 'function'
 }
 

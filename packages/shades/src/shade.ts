@@ -154,9 +154,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               )
 
               const updateFromStorageEvent = (e: StorageEvent) => {
-                e.key === key &&
-                  e.storageArea === storageArea &&
+                if (e.key === key && e.storageArea === storageArea) {
                   setToStorage((e.newValue && (JSON.parse(e.newValue) as T)) || initialValue)
+                }
               }
 
               this.resourceManager.useDisposable(`useStoredState-${key}-storage-event`, () => {

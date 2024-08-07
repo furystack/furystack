@@ -80,7 +80,9 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
           <div
             className="suggestion-item"
             onclick={() => {
-              isOpenedAtRender && manager.selectSuggestion(injector, i)
+              if (isOpenedAtRender) {
+                manager.selectSuggestion(injector, i)
+              }
             }}
             style={{
               padding: '1em',

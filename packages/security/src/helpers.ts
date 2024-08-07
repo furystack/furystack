@@ -8,6 +8,10 @@ import { SecurityPolicy } from './security-policy.js'
  */
 export const usePasswordPolicy = (injector: Injector, policy?: Partial<SecurityPolicy>) => {
   const plainPolicy = new SecurityPolicy()
-  policy && Object.assign(plainPolicy, policy)
+
+  if (policy) {
+    Object.assign(plainPolicy, policy)
+  }
+
   injector.setExplicitInstance(plainPolicy, SecurityPolicy)
 }

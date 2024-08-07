@@ -10,7 +10,7 @@ export class MockAsyncDisposable implements AsyncDisposable {
    */
   public async [Symbol.asyncDispose]() {
     this.disposed = true
-    this.disposeCallback && this.disposeCallback()
+    this.disposeCallback?.()
   }
 
   /**

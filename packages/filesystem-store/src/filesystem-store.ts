@@ -84,7 +84,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
 
   public async [Symbol.asyncDispose]() {
     await this.saveChanges()
-    this.watcher && this.watcher.close()
+    this.watcher?.close()
     clearInterval(this.tick)
     super[Symbol.dispose]()
   }

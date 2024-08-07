@@ -18,6 +18,7 @@ export default tseslint.config(
       'packages/*/esm/*',
       'packages/*/types/*',
       'packages/*/dist/*',
+      'packages/shades-showcase-app/bundle/*',
       '.yarn/*',
     ],
   },

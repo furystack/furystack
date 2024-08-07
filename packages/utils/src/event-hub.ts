@@ -1,6 +1,6 @@
-type ListenerFunction<EventTypeMap extends Object, T extends keyof EventTypeMap> = (arg: EventTypeMap[T]) => void
+type ListenerFunction<EventTypeMap extends object, T extends keyof EventTypeMap> = (arg: EventTypeMap[T]) => void
 
-export class EventHub<EventTypeMap extends Object> implements Disposable {
+export class EventHub<EventTypeMap extends object> implements Disposable {
   private listeners = new Map<keyof EventTypeMap, Set<ListenerFunction<EventTypeMap, keyof EventTypeMap>>>()
 
   public addListener<TEvent extends keyof EventTypeMap>(

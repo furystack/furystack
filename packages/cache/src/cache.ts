@@ -79,7 +79,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
 
-      this.options.staleTimeMs &&
+      if (this.options.staleTimeMs) {
         setTimeout(() => {
           try {
             this.setObsolete(...args)
@@ -89,7 +89,11 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
             }
           }
         }, this.options.staleTimeMs)
-      this.options.cacheTimeMs && setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
+      }
+
+      if (this.options.cacheTimeMs) {
+        setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
+      }
 
       return loaded
     } catch (error) {

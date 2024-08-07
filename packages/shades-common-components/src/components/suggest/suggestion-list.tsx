@@ -80,7 +80,9 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
             <div
               className="suggestion-item"
               onclick={() => {
-                isListOpened && manager.selectSuggestion(i)
+                if (isListOpened) {
+                  manager.selectSuggestion(i)
+                }
               }}
               style={{
                 padding: '1em',
