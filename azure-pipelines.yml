@@ -1,3 +1,5 @@
+# schema: https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+
 variables:
   - group: Default Variable Group
 
