@@ -130,7 +130,9 @@ export const Button = Shade<ButtonProps>({
       options?: number | KeyframeAnimationOptions | undefined,
     ) => {
       const el = element
-      el && void promisifyAnimation(el, keyframes, options)
+      if (element) {
+        void promisifyAnimation(el, keyframes, options)
+      }
     }
 
     attachProps(element, {

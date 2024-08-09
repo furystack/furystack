@@ -198,9 +198,11 @@ export const Input = Shade<TextInputProps>({
 
       const validationResult = props.getValidationResult?.({ state: newState })
 
-      validationResult?.isValid === false || newState.validity?.valid === false
-        ? element.setAttribute('data-validation-failed', 'true')
-        : element.removeAttribute('data-validation-failed')
+      if (validationResult?.isValid === false || newState.validity?.valid === false) {
+        element.setAttribute('data-validation-failed', 'true')
+      } else {
+        element.removeAttribute('data-validation-failed')
+      }
 
       attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
 

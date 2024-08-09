@@ -42,10 +42,11 @@ export const attachStyles = (el: HTMLElement, props: unknown) => {
 }
 
 export const attachDataAttributes = <TProps extends object>(el: HTMLElement, props: TProps) => {
-  props &&
+  if (props) {
     Object.entries(props)
       .filter(([key]) => key.startsWith('data-'))
       .forEach(([key, value]) => el.setAttribute(key, (value as string) || ''))
+  }
 }
 
 /**

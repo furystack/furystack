@@ -28,8 +28,8 @@ jobs:
         run: yarn create-schemas
       - name: Build showcase app
         run: yarn build:showcase
-      - name: Build the docker-compose stack
-        run: docker-compose up -d
+      - name: Build the docker compose stack
+        run: docker compose up -d
       - name: Test
         run: yarn test
       - uses: codecov/codecov-action@v2

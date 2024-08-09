@@ -44,7 +44,11 @@ export class CollectionService<T> implements Disposable {
   }
 
   public toggleSelection = (entry: T) => {
-    this.isSelected(entry) ? this.removeFromSelection(entry) : this.addToSelection(entry)
+    if (this.isSelected(entry)) {
+      this.removeFromSelection(entry)
+    } else {
+      this.addToSelection(entry)
+    }
   }
 
   public data = new ObservableValue<CollectionData<T>>({ count: 0, entries: [] })
@@ -68,12 +72,13 @@ export class CollectionService<T> implements Disposable {
       switch (ev.key) {
         case ' ':
           ev.preventDefault()
-          focusedEntry &&
+          if (focusedEntry) {
             this.selection.setValue(
               selectedEntries.includes(focusedEntry)
                 ? selectedEntries.filter((e) => e !== focusedEntry)
                 : [...selectedEntries, focusedEntry],
             )
+          }
           break
         case '*':
           this.selection.setValue(entries.filter((e) => !selectedEntries.includes(e)))
@@ -85,11 +90,14 @@ export class CollectionService<T> implements Disposable {
           this.selection.setValue([])
           break
         case 'Insert':
-          focusedEntry &&
-            (this.selection.getValue().includes(focusedEntry)
-              ? this.selection.setValue([...this.selection.getValue().filter((e) => e !== focusedEntry)])
-              : this.selection.setValue([...this.selection.getValue(), focusedEntry]))
-          this.focusedEntry.setValue(entries[entries.findIndex((e) => e === this.focusedEntry.getValue()) + 1])
+          if (focusedEntry) {
+            if (this.selection.getValue().includes(focusedEntry)) {
+              this.selection.setValue([...this.selection.getValue().filter((e) => e !== focusedEntry)])
+            } else {
+              this.selection.setValue([...this.selection.getValue(), focusedEntry])
+            }
+            this.focusedEntry.setValue(entries[entries.findIndex((e) => e === this.focusedEntry.getValue()) + 1])
+          }
 
           break
         case 'ArrowUp':

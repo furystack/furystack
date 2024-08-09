@@ -3,5 +3,5 @@
  */
 export type DeleteEndpoint<T, TPrimaryKey extends keyof T> = {
   url: { id: T[TPrimaryKey] }
-  result: {}
+  result: object
 }

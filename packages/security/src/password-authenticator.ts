@@ -1,12 +1,12 @@
 import type { PhysicalStore } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
 import { Injectable, Injected } from '@furystack/inject'
-import { SecurityPolicyManager } from './security-policy-manager.js'
 import { UnauthenticatedError } from './errors/index.js'
+import { PasswordComplexityError } from './errors/password-complexity-error.js'
 import type { PasswordCheckResult } from './models/index.js'
 import { PasswordCredential, PasswordResetToken } from './models/index.js'
-import { PasswordComplexityError } from './errors/password-complexity-error.js'
 import type { PasswordHasher } from './password-hasher.js'
+import { SecurityPolicyManager } from './security-policy-manager.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class PasswordAuthenticator {
@@ -63,7 +63,9 @@ export class PasswordAuthenticator {
     }
     const newCredential = await this.hasher.createCredential(userName, plainPassword)
     const existing = await this.passwordStore.get(userName)
-    existing && (await this.passwordStore.remove(existing.userName))
+    if (existing) {
+      await this.passwordStore.remove(existing.userName)
+    }
     await this.passwordStore.add(newCredential)
   }
 
@@ -91,7 +93,9 @@ export class PasswordAuthenticator {
 
     const newCredential = await this.hasher.createCredential(token.userName, plainPassword)
     const existing = await this.passwordStore.get(token.userName)
-    existing && (await this.passwordStore.remove(existing.userName))
+    if (existing) {
+      await this.passwordStore.remove(existing.userName)
+    }
     await this.passwordStore.add(newCredential)
   }
 

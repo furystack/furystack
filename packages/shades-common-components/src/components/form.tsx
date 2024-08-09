@@ -74,7 +74,9 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       } else if (props.validate(formData)) {
         formService.validationResult.setValue({ isValid: true })
         formService.validatedFormData.setValue(formData)
-        shouldSubmit && props.onSubmit(formData)
+        if (shouldSubmit) {
+          props.onSubmit(formData)
+        }
       } else {
         formService.validationResult.setValue({ isValid: false, reason: 'validation-failed' })
       }

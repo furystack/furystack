@@ -12,7 +12,7 @@ describe('DeepMerge tests', () => {
   })
 
   it('Should skip falsy sources', () => {
-    expect(deepMerge({ a: 1, b: 0, c: 0 }, null as any as {}, { b: 2 }, { c: 3 })).toEqual({ a: 1, b: 2, c: 3 })
+    expect(deepMerge({ a: 1, b: 0, c: 0 }, null as any as object, { b: 2 }, { c: 3 })).toEqual({ a: 1, b: 2, c: 3 })
   })
 
   it('Should override arrays', () => {

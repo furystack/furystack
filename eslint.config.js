@@ -18,6 +18,7 @@ export default tseslint.config(
       'packages/*/esm/*',
       'packages/*/types/*',
       'packages/*/dist/*',
+      'packages/shades-showcase-app/bundle/*',
       '.yarn/*',
     ],
   },
@@ -33,13 +34,10 @@ export default tseslint.config(
       reportUnusedDisableDirectives: true,
     },
     languageOptions: {
-      parserOptions: {
-        project: [
-          'tsconfig.eslint.json',
-          //'packages/*/tsconfig.json'
-        ],
-        tsconfigRootDir: import.meta.dirname,
-      },
+      // parserOptions: {
+      //   project: ['tsconfig.eslint.json'],
+      //   tsconfigRootDir: import.meta.dirname,
+      // },
     },
     plugins: {
       jsdoc,

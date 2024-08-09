@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { JoystickManagerOptions, EventData, JoystickOutputData } from 'nipplejs'
+import type { EventData, JoystickManagerOptions, JoystickOutputData } from 'nipplejs'
 import nipplejs from 'nipplejs'
 
 export interface NippleComponentProps {
@@ -18,10 +18,18 @@ export const NippleComponent = Shade<NippleComponentProps>({
       zone: element,
       ...props.managerOptions,
     })
-    props.onStart && manager.on('start', props.onStart)
-    props.onEnd && manager.on('end', props.onEnd)
-    props.onDir && manager.on('dir', props.onDir)
-    props.onMove && manager.on('move', props.onMove)
+    if (props.onStart) {
+      manager.on('start', props.onStart)
+    }
+    if (props.onEnd) {
+      manager.on('end', props.onEnd)
+    }
+    if (props.onDir) {
+      manager.on('dir', props.onDir)
+    }
+    if (props.onMove) {
+      manager.on('move', props.onMove)
+    }
     return () => manager.destroy()
   },
   render: ({ children }) => {
