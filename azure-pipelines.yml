@@ -108,6 +108,12 @@ jobs:
           CI: true
         displayName: execute tests
 
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        displayName: 'Publish Artifact: test-results'
+        inputs:
+          PathtoPublish: 'packages/shades-showcase-app/e2e/*-snapshots'
+
       # TODO: Check me
       # - task: PublishTestResults@2
       #   displayName: Publish test results
