@@ -29,7 +29,7 @@ jobs:
         displayName: 'Install Node.js'
       - checkout: self
         fetchDepth: 1
-      - task: DockerCompose@0
+      - task: DockerCompose@1
         displayName: Start services from docker compose
         inputs:
           projectName: furystack
@@ -86,7 +86,7 @@ jobs:
         displayName: 'Install Node.js'
       - checkout: self
         fetchDepth: 1
-      - task: DockerCompose@0
+      - task: DockerCompose@1
         displayName: Start services from docker compose
         inputs:
           projectName: furystack
@@ -112,7 +112,7 @@ jobs:
         condition: succeededOrFailed()
         displayName: 'Publish Artifact: test-results'
         inputs:
-          PathtoPublish: 'packages/shades-showcase-app/e2e/*-snapshots'
+          PathtoPublish: 'packages/shades-showcase-app/e2e'
 
       # TODO: Check me
       # - task: PublishTestResults@2
