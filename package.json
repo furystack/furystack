@@ -14,7 +14,7 @@
     "ajv": "^8.17.1",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsdoc": "^50.0.0",
+    "eslint-plugin-jsdoc": "^50.0.1",
     "eslint-plugin-playwright": "^1.6.2",
     "husky": "^9.1.4",
     "jsdom": "^24.1.1",
