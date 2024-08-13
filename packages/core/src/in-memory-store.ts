@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
@@ -116,7 +118,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
                   }
                   return false
                 case '$regex':
-                  if (!new RegExp(filterValue).test(itemValue.toString())) {
+                  if (!new RegExp(filterValue as string).test((itemValue as string).toString())) {
                     return false
                   }
                   break
@@ -131,7 +133,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
                   }
                   break
                 case '$like':
-                  if (!this.evaluateLike(itemValue, filterValue)) {
+                  if (!this.evaluateLike(itemValue as string, filterValue as string)) {
                     return false
                   }
                   break

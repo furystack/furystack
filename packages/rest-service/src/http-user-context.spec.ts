@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
@@ -279,10 +280,11 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        // @ts-expect-error
         ctx.getSessionStore().add = vi.fn(async () => {
-          return {} as any
+          return {}
         })
-        const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
+        const authResult = await ctx.cookieLogin(testUser, { setHeader })
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
         expect(ctx.getSessionStore().add).toBeCalled()
@@ -296,14 +298,15 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        // @ts-expect-error
         ctx.getSessionStore().add = vi.fn(async () => {
-          return {} as any
+          return {}
         })
         ctx.authenticateRequest = vi.fn(async () => testUser)
         ctx.getSessionStore().remove = vi.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
         response.setHeader = vi.fn(() => response)
-        await ctx.cookieLogin(testUser, { setHeader } as any)
+        await ctx.cookieLogin(testUser, { setHeader })
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
         expect(ctx.getSessionStore().remove).toBeCalled()

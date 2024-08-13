@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
 import { SchemaValidator } from './schema-validator/schema-validator.js'
 
 export const Validate =
-  <TSchema extends { definitions: { [K: string]: { required?: string[] } | any } }>(validationOptions: {
+  <TSchema extends { definitions: { [K: string]: any } }>(validationOptions: {
     /**
      * The Schema object
      */
@@ -47,6 +51,7 @@ export const Validate =
         },
         { schemaName: validationOptions.schemaName },
       )
+      // @ts-expect-error
       return await action({
         request: args.request,
         response: args.response,
@@ -55,6 +60,6 @@ export const Validate =
         getQuery: () => query,
         getUrlParams: () => url,
         getBody: () => Promise.resolve(body),
-      } as any)
+      })
     }
   }

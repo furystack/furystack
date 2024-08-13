@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type {
   CreateResult,
   FilterType,
@@ -142,7 +146,7 @@ export class MongodbStore<
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
 
     if (updateResult.matchedCount < 1) {
-      throw Error(`Entity not found with id '${id}', cannot update!`)
+      throw Error(`Entity not found with id '${id as string}', cannot update!`)
     }
     this.emit('onEntityUpdated', { id, change: data })
   }

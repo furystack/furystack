@@ -103,7 +103,7 @@ export class WebSocketApi implements AsyncDisposable {
     const Action = this.settings.actions.find((a) => a.canExecute({ data, request, socket }))
     if (Action) {
       using(injector.getInstance<WebSocketAction>(Action), (action) => {
-        action.execute({ data, request, socket })
+        void action.execute({ data, request, socket })
       })
     }
   }

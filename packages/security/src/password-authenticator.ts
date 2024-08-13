@@ -14,7 +14,7 @@ export class PasswordAuthenticator {
   private declare readonly passwordStore: PhysicalStore<PasswordCredential, 'userName'>
 
   @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token'))
-  private declare readonly tokenStore
+  private declare readonly tokenStore: PhysicalStore<PasswordResetToken, 'token'>
 
   @Injected(function (this: PasswordAuthenticator, injector) {
     return injector.getInstance(this.policyManager.policy.hasher)

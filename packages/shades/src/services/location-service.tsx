@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, type Injector } from '@furystack/inject'
 import {
   deserializeQueryString as defaultDeserializeQueryString,
