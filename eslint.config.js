@@ -20,24 +20,23 @@ export default tseslint.config(
       'packages/*/dist/*',
       'packages/shades-showcase-app/bundle/*',
       '.yarn/*',
+      'prettier.config.js',
+      'eslint.config.js',
     ],
   },
-
-  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  //...tseslint.configs.recommendedTypeChecked,
-  /// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  ...tseslint.configs.recommendedTypeChecked,
   prettierConfig,
   {
     linterOptions: {
       reportUnusedDisableDirectives: true,
     },
     languageOptions: {
-      // parserOptions: {
-      //   project: ['tsconfig.eslint.json'],
-      //   tsconfigRootDir: import.meta.dirname,
-      // },
+      parserOptions: {
+        project: ['tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     plugins: {
       jsdoc,

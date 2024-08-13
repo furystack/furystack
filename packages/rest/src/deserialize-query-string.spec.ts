@@ -1,14 +1,17 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { describe, expect, it } from 'vitest'
 import { deserializeQueryString } from './deserialize-query-string.js'
 import { serializeToQueryString, serializeValue } from './serialize-to-query-string.js'
-import { describe, it, expect } from 'vitest'
 
 describe('deserializeQueryString', () => {
   it('Should deserialize a null value', () => {
-    expect(deserializeQueryString(null as any)).toEqual({})
+    // @ts-expect-error
+    expect(deserializeQueryString(null)).toEqual({})
   })
 
   it('Should deserialize an undefined value', () => {
-    expect(deserializeQueryString(undefined as any)).toEqual({})
+    // @ts-expect-error
+    expect(deserializeQueryString(undefined)).toEqual({})
   })
 
   it('Should deserialize an empty string value', () => {

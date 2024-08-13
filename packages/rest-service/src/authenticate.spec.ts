@@ -1,12 +1,11 @@
-import type { IncomingMessage } from 'http'
+import { IdentityContext } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { HttpUserContext } from './http-user-context.js'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it, vi } from 'vitest'
 import { Authenticate } from './authenticate.js'
-import type { ServerResponse } from 'http'
-import { IdentityContext } from '@furystack/core'
+import { HttpUserContext } from './http-user-context.js'
 import { EmptyResult } from './request-action-implementation.js'
-import { describe, it, expect, vi } from 'vitest'
 
 describe('Authenticate', () => {
   const response = {} as any as ServerResponse
@@ -17,7 +16,7 @@ describe('Authenticate', () => {
       const isAuthenticatedAction = vi.fn(async () => false)
 
       i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
+        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
         IdentityContext,
       )
 
@@ -44,7 +43,7 @@ describe('Authenticate', () => {
       i.setExplicitInstance(
         {
           isAuthenticated: isAuthenticatedAction,
-          getCurrentUser: async () => Promise.reject(':('),
+          getCurrentUser: async () => Promise.reject(new Error(':(')),
           authentication: { enableBasicAuth: true },
         },
         HttpUserContext,
@@ -64,7 +63,7 @@ describe('Authenticate', () => {
     await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = vi.fn(async () => true)
       i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(':(') },
+        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
         IdentityContext,
       )
       const exampleAuthenticatedAction = vi.fn(async () => EmptyResult())

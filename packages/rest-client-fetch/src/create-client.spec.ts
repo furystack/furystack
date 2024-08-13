@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { describe, expect, it, vi } from 'vitest'
 import { createClient } from './create-client.js'
 
 const endpointUrl = 'http://localhost'
 
-globalThis.fetch = (globalThis as any).fecth || (() => null)
+// @ts-expect-error
+globalThis.fetch = globalThis.fecth || (() => null)
 
 describe('@furystack/rest-client-fetch', () => {
   it('Should return a method', () => {
-    const result = createClient({ endpointUrl, fetch: () => undefined as any })
+    // @ts-expect-error
+    const result = createClient({ endpointUrl, fetch: () => undefined })
     expect(typeof result).toBe('function')
   })
 

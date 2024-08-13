@@ -27,7 +27,7 @@ describe('Global Disposables', () => {
     const i = new Injector()
     i[Symbol.asyncDispose] = vi.fn(i[Symbol.asyncDispose])
     disposeOnProcessExit(i)
-    await exitHandler()
+    exitHandler()
     expect(i[Symbol.asyncDispose]).toBeCalled()
     globalDisposables.delete(i)
   })

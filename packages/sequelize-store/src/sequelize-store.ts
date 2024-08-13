@@ -94,7 +94,9 @@ export class SequelizeStore<
   }
   public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const model = await this.getModel()
-    const createdModels = await model.bulkCreate(entries as any)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const createdModels = await model.bulkCreate(entries)
 
     const created = createdModels.map((c) => c.toJSON())
 
@@ -125,6 +127,7 @@ export class SequelizeStore<
       ? [
           ...Object.keys(filter.order).map<[string, string]>((key) => [
             key,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             (filter.order as any)[key] === 'ASC' ? 'ASC' : 'DESC',
           ]),
         ]

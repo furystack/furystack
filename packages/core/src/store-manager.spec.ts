@@ -57,7 +57,7 @@ describe('StoreManager', () => {
     await usingAsync(new Injector(), async (i) => {
       const sm = i.getInstance(StoreManager)
       const MockStore = class extends InMemoryStore<any, any> {
-        public [Symbol.asyncDispose] = () => Promise.reject(':(')
+        public [Symbol.asyncDispose] = () => Promise.reject(new Error(':('))
       }
 
       sm.addStore(
