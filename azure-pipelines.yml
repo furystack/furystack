@@ -42,11 +42,11 @@ jobs:
       - script: yarn install --immutable
         displayName: 'Install'
 
-      - script: yarn lint
-        displayName: 'Lint'
-
       - script: yarn build
         displayName: 'Build'
+
+      - script: yarn lint
+        displayName: 'Lint'
 
       - script: yarn create-schemas
         displayName: Recreate JSON Schemas
