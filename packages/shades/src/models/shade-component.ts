@@ -3,7 +3,7 @@ import type { ChildrenList } from './children-list.js'
 /**
  * Type definition for a Shade component
  */
-export type ShadeComponent<TProps = {}> = (arg: TProps, children?: ChildrenList) => JSX.Element
+export type ShadeComponent<TProps = object> = (arg: TProps, children?: ChildrenList) => JSX.Element
 
 /**
  * Type guard that checks if an object is a stateless component

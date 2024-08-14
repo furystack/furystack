@@ -12,5 +12,5 @@ export interface WebSocketActionStatic {
  * A WebSocket action implementaion
  */
 export interface WebSocketAction extends Disposable {
-  execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }): void
+  execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }): Promise<void>
 }

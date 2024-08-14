@@ -22,13 +22,13 @@ export const Skeleton = Shade<SkeletonProps>({
   render: ({ element, props }) => {
     const { delay = 1500 } = props
     setTimeout(() => {
-      promisifyAnimation(element, [{ opacity: 0 }, { opacity: 1 }], {
+      void promisifyAnimation(element, [{ opacity: 0 }, { opacity: 1 }], {
         fill: 'forwards',
         duration: 300,
         easing: 'ease-out',
         delay,
       }).then(() => {
-        promisifyAnimation(
+        void promisifyAnimation(
           element,
           [{ backgroundPosition: '0% 50%' }, { backgroundPosition: '100% 50%' }, { backgroundPosition: '0% 50%' }],
           {

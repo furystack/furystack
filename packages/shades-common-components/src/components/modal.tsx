@@ -15,7 +15,7 @@ export const Modal = Shade<ModalProps>({
     const [isVisible] = useObservable('isVisible', props.isVisible)
 
     if (isVisible) {
-      props.showAnimation?.(element)
+      void props.showAnimation?.(element)
     }
 
     return isVisible ? (

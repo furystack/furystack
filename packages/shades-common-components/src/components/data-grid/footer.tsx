@@ -1,8 +1,8 @@
-import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
-import type { CollectionService } from '../../services/collection-service.js'
 import type { FindOptions } from '@furystack/core'
+import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
+import type { CollectionService } from '../../services/collection-service.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
@@ -47,7 +47,7 @@ export const DataGridFooter = Shade<{
             <select
               style={{ margin: '0 1em' }}
               onchange={(ev) => {
-                const value = parseInt((ev.target as any).value, 10)
+                const value = parseInt((ev.target as HTMLInputElement).value, 10)
                 setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
               }}
             >
@@ -64,7 +64,7 @@ export const DataGridFooter = Shade<{
           <select
             style={{ margin: '0 1em' }}
             onchange={(ev) => {
-              const value = parseInt((ev.currentTarget as any).value as string, 10)
+              const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
               setCurrentOptions({
                 ...currentOptions,
                 top: value,

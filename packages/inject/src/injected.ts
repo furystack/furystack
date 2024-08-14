@@ -1,12 +1,12 @@
-import { getInjectorReference } from './with-injector-reference.js'
-import type { Constructable } from './models/constructable.js'
-import type { Injector } from './injector.js'
 import { hasInjectableOptions } from './injectable.js'
+import type { Injector } from './injector.js'
+import type { Constructable } from './models/constructable.js'
+import { getInjectorReference } from './with-injector-reference.js'
 
 export const InjectableDependencyList = Symbol('InjectableDependencyList')
 
-export const getDependencyList = <T extends Constructable<unknown>>(ctor: T): Set<Constructable<any>> => {
-  const existing = (ctor as any)[InjectableDependencyList] as Set<Constructable<any>>
+export const getDependencyList = <T extends Constructable<unknown>>(ctor: T): Set<Constructable<unknown>> => {
+  const existing = (ctor as T & { [InjectableDependencyList]: Set<Constructable<any>> })[InjectableDependencyList]
   if (existing && existing instanceof Set) {
     return existing
   }

@@ -9,7 +9,7 @@ import type {
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import { Lock } from 'semaphore-async-await'
-import type { Attributes, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
+import type { Attributes, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -94,7 +94,9 @@ export class SequelizeStore<
   }
   public async add(...entries: TWriteableData[]): Promise<CreateResult<T>> {
     const model = await this.getModel()
-    const createdModels = await model.bulkCreate(entries as any)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const createdModels = await model.bulkCreate(entries)
 
     const created = createdModels.map((c) => c.toJSON())
 
@@ -125,6 +127,7 @@ export class SequelizeStore<
       ? [
           ...Object.keys(filter.order).map<[string, string]>((key) => [
             key,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             (filter.order as any)[key] === 'ASC' ? 'ASC' : 'DESC',
           ]),
         ]
@@ -142,11 +145,11 @@ export class SequelizeStore<
 
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>): Promise<T | undefined> {
     const model = await this.getModel()
-    return (await (await model.findByPk(key as any, { attributes: select } as any))?.toJSON()) as T
+    return (await model.findByPk(key as Identifier, { attributes: select as string[] }))?.toJSON()
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const model = await this.getModel()
-    await model.destroy({ where: { [this.primaryKey]: keys } } as any)
+    await model.destroy({ where: { [this.primaryKey]: keys } as any })
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
 }

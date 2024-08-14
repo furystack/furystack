@@ -2,7 +2,7 @@ import { Shade } from '../shade.js'
 
 export interface LazyLoadProps {
   loader: JSX.Element
-  error?: (error: unknown, retry: () => void) => JSX.Element
+  error?: (error: unknown, retry: () => Promise<void>) => JSX.Element
   component: () => Promise<JSX.Element>
 }
 
@@ -15,20 +15,24 @@ export const LazyLoad = Shade<LazyLoadProps>({
   shadowDomName: 'lazy-load',
   constructed: async ({ props, useState, element }) => {
     const [_component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
-    const [_errorState, setErrorState] = useState<unknown | undefined>('error', undefined)
+    const [_errorState, setErrorState] = useState<unknown>('error', undefined)
     try {
       const loaded = await props.component()
-      element.isConnected && setComponent(loaded)
+      if (element.isConnected) {
+        setComponent(loaded)
+      }
     } catch (error) {
       if (props.error) {
-        element.isConnected && setErrorState(error)
+        if (element.isConnected) {
+          setErrorState(error)
+        }
       } else {
         throw error
       }
     }
   },
   render: ({ props, useState }) => {
-    const [error, setError] = useState<unknown | undefined>('error', undefined)
+    const [error, setError] = useState<unknown>('error', undefined)
     const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
 
     if (error && props.error) {

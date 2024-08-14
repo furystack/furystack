@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 const wizardPageUrl = '/wizard'
 
@@ -7,9 +7,9 @@ test.describe('Wizard', () => {
     const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
     await page.goto(wizardPageUrl)
-    const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
+    const wizardButton = page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
-    const wizard = await page.locator('shades-wizard')
+    const wizard = page.locator('shades-wizard')
 
     await wizard.waitFor({ state: 'visible' })
 
@@ -17,7 +17,7 @@ test.describe('Wizard', () => {
 
     await expect(wizard).toHaveScreenshot('wizard-1.png')
 
-    const backdrop = await page.locator('shade-modal > div')
+    const backdrop = page.locator('shade-modal > div')
 
     const boundingBox = await backdrop.boundingBox()
     const position = { y: (boundingBox?.height || 100) - 10, x: (boundingBox?.width || 100) - 50 }
@@ -33,18 +33,18 @@ test.describe('Wizard', () => {
     await wizard.waitFor({
       state: 'detached',
     })
-    await expect(await wizard.count()).toBe(0)
+    expect(await wizard.count()).toBe(0)
   })
 
   test('Should be opened and finished by walking through the steps', async ({ page }) => {
     await page.goto(wizardPageUrl)
-    const wizardButton = await page.locator('button', { hasText: 'Open Wizard' })
+    const wizardButton = page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
 
-    const wizard = await page.locator('shades-wizard')
+    const wizard = page.locator('shades-wizard')
 
     const input = wizard.locator('input[name=username]')
-    expect(input).toBeFocused()
+    await expect(input).toBeFocused()
 
     await input.type('PlaywrightBot')
 
@@ -52,11 +52,11 @@ test.describe('Wizard', () => {
     await nextButton.click()
 
     const step2Text = wizard.locator('text=Step 2')
-    expect(step2Text).toBeVisible()
+    await expect(step2Text).toBeVisible()
     await nextButton.click()
 
     const step3Text = wizard.locator('text=Step 3')
-    expect(step3Text).toBeVisible()
+    await expect(step3Text).toBeVisible()
 
     const finishButton = wizard.locator('button', { hasText: 'Finish' })
     await finishButton.click()
@@ -64,6 +64,6 @@ test.describe('Wizard', () => {
     await wizard.waitFor({
       state: 'detached',
     })
-    await expect(await wizard.count()).toBe(0)
+    expect(await wizard.count()).toBe(0)
   })
 })

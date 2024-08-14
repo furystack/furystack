@@ -30,8 +30,8 @@ export class GridPageService implements Disposable {
       addStore(injector, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
       getRepository(injector).createDataSet(TestClass, 'id')
       await this.fillStore(injector)
-      this.findOptions.subscribe((newValue) => this.updateCollectionService(injector, newValue))
-      this.updateCollectionService(injector, this.findOptions.getValue())
+      this.findOptions.subscribe((newValue) => void this.updateCollectionService(injector, newValue))
+      void this.updateCollectionService(injector, this.findOptions.getValue())
     }
     return this
   }

@@ -3,6 +3,7 @@ import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
 import { Lock } from 'semaphore-async-await'
+import { EventEmitter } from 'stream'
 
 export interface ServerOptions {
   hostName?: string
@@ -25,14 +26,14 @@ export interface ServerRecord {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class ServerManager implements AsyncDisposable {
+export class ServerManager
+  extends EventEmitter<{ onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>] }>
+  implements AsyncDisposable
+{
   public static DEFAULT_HOST = 'localhost'
-
   public servers = new Map<string, ServerRecord>()
   private openedSockets = new Set<Socket>()
-
   private readonly listenLock = new Lock()
-
   private getHostUrl = (options: ServerOptions) =>
     `http://${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`
 
@@ -40,7 +41,6 @@ export class ServerManager implements AsyncDisposable {
     this.openedSockets.add(socket)
     socket.once('close', () => this.openedSockets.delete(socket))
   }
-
   public async [Symbol.asyncDispose]() {
     try {
       await this.listenLock.waitFor(5000)
@@ -71,7 +71,9 @@ export class ServerManager implements AsyncDisposable {
             const server = createServer((req, res) => {
               const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
               if (apiMatch) {
-                apiMatch.onRequest({ req, res })
+                apiMatch.onRequest({ req, res }).catch((error) => {
+                  this.emit('onRequestFailed', error, req, res)
+                })
               } else {
                 res.destroy()
               }

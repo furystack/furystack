@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "",
   "private": true,
   "type": "module",
@@ -14,10 +14,10 @@
   "license": "ISC",
   "devDependencies": {
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.45.2",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4",
-    "vitest": "^2.0.3"
+    "@playwright/test": "^1.46.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",

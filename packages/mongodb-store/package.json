@@ -1,6 +1,6 @@
 {
   "name": "@furystack/mongodb-store",
-  "version": "10.0.1",
+  "version": "10.0.2",
   "description": "MongoDB Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -44,9 +44,9 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11",
-    "typescript": "^5.5.3",
-    "vitest": "^2.0.3"
+    "@types/node": "^22.2.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

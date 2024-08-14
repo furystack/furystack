@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 const pages = {
   buttons: {
@@ -49,8 +49,8 @@ const pages = {
 }
 
 const getNavigationEntry = async (page: Page, entryName: string) => {
-  const appBar = await page.locator('shade-app-bar')
-  const menuEntry = await appBar.locator('shade-app-bar-link', { has: page.locator(`text=${entryName}`) })
+  const appBar = page.locator('shade-app-bar')
+  const menuEntry = appBar.locator('shade-app-bar-link', { has: page.locator(`text=${entryName}`) })
   return menuEntry
 }
 
@@ -58,13 +58,13 @@ const expectSelected = async (menuEntry: Locator) => await expect(menuEntry).toH
 
 const expectNotSelected = async (menuEntry: Locator) => await expect(menuEntry).not.toHaveCSS('opacity', '1')
 
-const expectPageTitle = async (page: Page, title: string) => await page.locator('shade-router h1', { hasText: title })
+const expectPageTitle = async (page: Page, title: string) => page.locator('shade-router h1', { hasText: title })
 
 test.describe('Navigation', () => {
   Object.values(pages).forEach(({ name, url }) => {
     test(`${name} Should be available from Navigation menu`, async ({ page }) => {
       await page.goto('http://localhost:8080/')
-      const homePageTitle = await page.locator('shades-showcase-home')
+      const homePageTitle = page.locator('shades-showcase-home')
       await expect(homePageTitle).toBeVisible()
 
       // Home should be selected
@@ -96,9 +96,9 @@ test.describe('Navigation', () => {
 
   test('Should have a 404 page', async ({ page }) => {
     await page.goto('/non-existing-page')
-    const notFoundTitle = await page.locator('shade-router h1', { hasText: '404' })
+    const notFoundTitle = page.locator('shade-router h1', { hasText: '404' })
     await expect(notFoundTitle).toBeVisible()
-    const notFoundContent = await page.locator('shade-router p', { hasText: 'Have you seen this cat? 😸' })
+    const notFoundContent = page.locator('shade-router p', { hasText: 'Have you seen this cat? 😸' })
     await expect(notFoundContent).toBeVisible()
   })
 })

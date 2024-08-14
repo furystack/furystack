@@ -50,7 +50,7 @@ export const TextArea = Shade<TextAreaProps>({
           }}
           onfocus={() => {
             if (!props.disabled) {
-              promisifyAnimation(
+              void promisifyAnimation(
                 element.querySelector('label'),
                 [{ color: themeProvider.getTextColor(theme.background.default) }, { color: palette.primary.main }],
                 {
@@ -59,7 +59,7 @@ export const TextArea = Shade<TextAreaProps>({
                   fill: 'forwards',
                 },
               )
-              promisifyAnimation(
+              void promisifyAnimation(
                 element.querySelector('div[contenteditable="true"]'),
                 [
                   { boxShadow: '0px 0px 0px rgba(128,128,128,0.1)' },
@@ -74,7 +74,7 @@ export const TextArea = Shade<TextAreaProps>({
           }}
           onblur={() => {
             if (!props.disabled) {
-              promisifyAnimation(
+              void promisifyAnimation(
                 element.querySelector('label'),
                 [{ color: palette.primary.main }, { color: themeProvider.getTextColor(theme.background.default) }],
                 {
@@ -83,7 +83,7 @@ export const TextArea = Shade<TextAreaProps>({
                   fill: 'forwards',
                 },
               )
-              promisifyAnimation(
+              void promisifyAnimation(
                 element.querySelector('div[contenteditable="true"]'),
                 [
                   { boxShadow: '0px 3px 0px rgba(128,128,128,0.4)' },

@@ -1,12 +1,13 @@
-import type { IncomingMessage, ServerResponse } from 'http'
-import { usingAsync } from '@furystack/utils'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { User, StoreManager, InMemoryStore, addStore } from '@furystack/core'
-import { DefaultSession } from './models/default-session.js'
-import { HttpUserContext } from './http-user-context.js'
 import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
+import { usingAsync } from '@furystack/utils'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it, vi } from 'vitest'
 import { useHttpAuthentication } from './helpers.js'
-import { describe, it, expect, vi } from 'vitest'
+import { HttpUserContext } from './http-user-context.js'
+import { DefaultSession } from './models/default-session.js'
 
 export const prepareInjector = async (i: Injector) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
@@ -110,7 +111,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         await setupUser(i, 'otherUser', 'pass123')
-        expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
+        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
           UnauthenticatedError,
         )
       })
@@ -227,7 +228,7 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication
+        await ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
         await expect(
@@ -243,11 +244,11 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
 
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication
+        await ctx.authentication
           .getSessionStore(i.getInstance(StoreManager))
           .add({ sessionId: '666', username: testUser.username })
 
-        ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser })
+        await ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser })
 
         const result = await ctx.authenticateRequest({
           headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
@@ -279,10 +280,11 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        // @ts-expect-error
         ctx.getSessionStore().add = vi.fn(async () => {
-          return {} as any
+          return {}
         })
-        const authResult = await ctx.cookieLogin(testUser, { setHeader } as any)
+        const authResult = await ctx.cookieLogin(testUser, { setHeader })
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
         expect(ctx.getSessionStore().add).toBeCalled()
@@ -296,14 +298,15 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        // @ts-expect-error
         ctx.getSessionStore().add = vi.fn(async () => {
-          return {} as any
+          return {}
         })
         ctx.authenticateRequest = vi.fn(async () => testUser)
         ctx.getSessionStore().remove = vi.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
         response.setHeader = vi.fn(() => response)
-        await ctx.cookieLogin(testUser, { setHeader } as any)
+        await ctx.cookieLogin(testUser, { setHeader })
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
         expect(ctx.getSessionStore().remove).toBeCalled()
@@ -317,7 +320,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        userStore.add(testUser)
+        await userStore.add(testUser)
 
         const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
         await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
@@ -343,7 +346,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        userStore.add(testUser)
+        await userStore.add(testUser)
 
         const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
         await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
@@ -364,7 +367,7 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        userStore.add(testUser)
+        await userStore.add(testUser)
 
         let sessionId = ''
 

@@ -1,4 +1,4 @@
-import { createComponent, ScreenService, Shade, attachStyles } from '@furystack/shades'
+import { attachStyles, createComponent, ScreenService, Shade } from '@furystack/shades'
 import type { WizardStepProps } from '@furystack/shades-common-components'
 import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
@@ -16,9 +16,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
     }
 
     setTimeout(() => {
-      showParallax(element.querySelector('h1'))
-      showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
-      showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
+      void showParallax(element.querySelector('h1'))
+      void showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
+      void showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
     }, 1)
 
     const [isLargeScreenInitial] = useObservable(
@@ -27,7 +27,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
       {
         onChange: (isLargeScreen) => {
           const form = element.querySelector('form')
-          form && attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+          if (form) {
+            attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+          }
         },
       },
     )

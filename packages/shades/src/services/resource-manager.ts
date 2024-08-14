@@ -66,7 +66,7 @@ export class ResourceManager implements AsyncDisposable {
     const fails = disposeResult.filter((r) => r.status === 'rejected')
     if (fails && fails.length) {
       const error = new AggregatedError(
-        `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason)}`,
+        `There was an error during disposing ${fails.length} stores: ${fails.map((f) => f.reason as string).join(', ')}`,
         fails,
       )
       throw error

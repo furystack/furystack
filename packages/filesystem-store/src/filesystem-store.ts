@@ -84,7 +84,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
 
   public async [Symbol.asyncDispose]() {
     await this.saveChanges()
-    this.watcher && this.watcher.close()
+    this.watcher?.close()
     clearInterval(this.tick)
     super[Symbol.dispose]()
   }
@@ -130,7 +130,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     this.primaryKey = options.primaryKey
     this.model = options.model
     this.inMemoryStore = new InMemoryStore({ model: this.model, primaryKey: this.primaryKey })
-    this.tick = setInterval(() => this.saveChanges(), this.options.tickMs || 3000)
+    this.tick = setInterval(() => void this.saveChanges(), this.options.tickMs || 3000)
 
     this.inMemoryStore.subscribe('onEntityAdded', ({ entity }) => {
       this.emit('onEntityAdded', { entity })
@@ -143,9 +143,9 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     })
 
     try {
-      this.reloadData()
+      void this.reloadData()
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-        this.reloadData()
+        void this.reloadData()
       })
     } catch (error) {
       // Error registering file watcher for store. External updates won't be updated.

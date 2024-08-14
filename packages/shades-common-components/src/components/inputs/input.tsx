@@ -61,6 +61,12 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
   getEndIcon?: (options: { state: TextInputState; validationResult?: InputValidationResult }) => JSX.Element | string
 }
 
+declare global {
+  interface ValidityState {
+    toJSON: () => Partial<ValidityState>
+  }
+}
+
 export type TextInputState = {
   value: string
   focused: boolean
@@ -175,7 +181,7 @@ export const Input = Shade<TextInputProps>({
 
       newState.value = input?.value || newState.value
       newState.validity = input?.validity || newState.validity
-      ;(newState.validity as any).toJSON = () => {
+      newState.validity.toJSON = () => {
         return {
           valid: newState.validity.valid,
           valueMissing: newState.validity.valueMissing,
@@ -192,9 +198,11 @@ export const Input = Shade<TextInputProps>({
 
       const validationResult = props.getValidationResult?.({ state: newState })
 
-      validationResult?.isValid === false || newState.validity?.valid === false
-        ? element.setAttribute('data-validation-failed', 'true')
-        : element.removeAttribute('data-validation-failed')
+      if (validationResult?.isValid === false || newState.validity?.valid === false) {
+        element.setAttribute('data-validation-failed', 'true')
+      } else {
+        element.removeAttribute('data-validation-failed')
+      }
 
       attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
 
@@ -215,7 +223,6 @@ export const Input = Shade<TextInputProps>({
         const formService = injector.getInstance(FormService)
         formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, newState.validity)
       }
-      return newState
     }
 
     const [state, setState] = useObservable<TextInputState>(
@@ -247,12 +254,12 @@ export const Input = Shade<TextInputProps>({
               const el = ev.target as HTMLInputElement
               setState({ ...state, validity: el.validity })
             }}
-            onchange={(ev) => {
+            onchange={function (ev) {
               const el = ev.target as HTMLInputElement
               const newValue = el.value
               setState({ ...state, value: newValue, validity: el?.validity })
               props.onTextChange?.(newValue)
-              props.onchange && (props.onchange as any)(ev)
+              props?.onchange?.call(this, ev)
             }}
             onfocus={(ev) => {
               const el = ev.target as HTMLInputElement

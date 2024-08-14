@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type {
   CreateResult,
   FilterType,
@@ -12,8 +16,10 @@ import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, U
 import { ObjectId } from 'mongodb'
 import { Lock } from 'semaphore-async-await'
 
+const hasObjectId = (value: any): value is { _id: ObjectId } => (value as { _id: ObjectId })._id instanceof ObjectId
+
 /**
- * TypeORM Store implementation for FuryStack
+ * MongoDB Store implementation for FuryStack
  */
 export class MongodbStore<
     T extends object,
@@ -37,19 +43,19 @@ export class MongodbStore<
   private createIdFilter(...values: Array<T[TPrimaryKey]>): Filter<T> {
     return {
       [this.primaryKey]: {
-        $in: this.primaryKey === '_id' ? values.map((value) => new ObjectId(value as any)) : values,
+        $in: this.primaryKey === '_id' ? values.map((value) => new ObjectId(value as string)) : values,
       },
     } as Filter<T>
   }
 
   private stringifyResultId(item: any): T {
-    if (this.primaryKey === '_id' && item._id instanceof ObjectId) {
+    if (this.primaryKey === '_id' && hasObjectId(item)) {
       return {
         ...item,
         _id: item._id.toHexString(),
-      }
+      } as T
     }
-    return item
+    return item as T
   }
 
   private parseFilter(filter?: FilterType<T>): Filter<T> {
@@ -140,7 +146,7 @@ export class MongodbStore<
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
 
     if (updateResult.matchedCount < 1) {
-      throw Error(`Entity not found with id '${id}', cannot update!`)
+      throw Error(`Entity not found with id '${id as string}', cannot update!`)
     }
     this.emit('onEntityUpdated', { id, change: data })
   }

@@ -1,3 +1,5 @@
+# schema: https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+
 variables:
   - group: Default Variable Group
 
@@ -29,8 +31,8 @@ jobs:
         displayName: 'Install Node.js'
       - checkout: self
         fetchDepth: 1
-      - task: DockerCompose@0
-        displayName: Start services from docker-compose
+      - task: DockerCompose@1
+        displayName: Start services from docker compose
         inputs:
           projectName: furystack
           action: Run services
@@ -40,11 +42,11 @@ jobs:
       - script: yarn install --immutable
         displayName: 'Install'
 
-      - script: yarn lint
-        displayName: 'Lint'
-
       - script: yarn build
         displayName: 'Build'
+
+      - script: yarn lint
+        displayName: 'Lint'
 
       - script: yarn create-schemas
         displayName: Recreate JSON Schemas
@@ -86,8 +88,8 @@ jobs:
         displayName: 'Install Node.js'
       - checkout: self
         fetchDepth: 1
-      - task: DockerCompose@0
-        displayName: Start services from docker-compose
+      - task: DockerCompose@1
+        displayName: Start services from docker compose
         inputs:
           projectName: furystack
           action: Run services
@@ -107,6 +109,12 @@ jobs:
         env:
           CI: true
         displayName: execute tests
+
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        displayName: 'Publish Artifact: test-results'
+        inputs:
+          PathtoPublish: 'packages/shades-showcase-app/e2e'
 
       # TODO: Check me
       # - task: PublishTestResults@2

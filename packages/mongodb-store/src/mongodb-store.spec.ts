@@ -41,10 +41,10 @@ describe('MongoDB Store', () => {
       const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
       const oldDispose = i[Symbol.asyncDispose]
       i[Symbol.asyncDispose] = async () => {
-        const client = await i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
+        const client = i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
         const db = client.db(mongoOptions.db)
         await db.dropDatabase()
-        oldDispose.call(i)
+        await oldDispose.call(i)
       }
       return store
     },

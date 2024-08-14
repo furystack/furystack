@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { describe, expect, it, vi } from 'vitest'
 import { createClient } from './create-client.js'
-import { describe, it, expect, vi } from 'vitest'
 
 const endpointUrl = 'http://localhost'
 
-globalThis.fetch = (globalThis as any).fecth || (() => null)
+// @ts-expect-error
+globalThis.fetch = globalThis.fecth || (() => null)
 
 describe('@furystack/rest-client-fetch', () => {
   it('Should return a method', () => {
-    const result = createClient({ endpointUrl, fetch: () => undefined as any })
+    // @ts-expect-error
+    const result = createClient({ endpointUrl, fetch: () => undefined })
     expect(typeof result).toBe('function')
   })
 
@@ -124,7 +127,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': { result: {}; body: { foo: number } } } }>({
+    const client = createClient<{ POST: { '/test': { result: object; body: { foo: number } } } }>({
       endpointUrl,
       fetch,
     })
@@ -149,7 +152,7 @@ describe('@furystack/rest-client-fetch', () => {
       ok: true,
     }))
 
-    const client = createClient<{ POST: { '/test': { result: {}; headers: { token: string } } } }>({
+    const client = createClient<{ POST: { '/test': { result: object; headers: { token: string } } } }>({
       endpointUrl,
       fetch,
     })

@@ -1,4 +1,5 @@
 export * from './injectable.js'
-export * from './injector.js'
 export * from './injected.js'
+export * from './injector.js'
 export * from './models/index.js'
+export * from './with-injector-reference.js'

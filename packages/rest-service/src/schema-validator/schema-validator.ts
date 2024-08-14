@@ -3,7 +3,7 @@ import Ajv from 'ajv'
 import useFormats from 'ajv-formats'
 import { SchemaValidationError } from './schema-validation-error.js'
 
-export class SchemaValidator<TSchema extends { definitions: {} }> {
+export class SchemaValidator<TSchema extends { definitions: object }> {
   private readonly ajv: Ajv.default
   constructor(
     private readonly schema: TSchema,

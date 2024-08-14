@@ -33,7 +33,7 @@ describe('LoginAction', () => {
 
   it('Returns throw error with 400 on fail', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.setExplicitInstance({ cookieLogin: async () => Promise.reject(':(') }, HttpUserContext)
+      i.setExplicitInstance({ cookieLogin: async () => Promise.reject(new Error(':(')) }, HttpUserContext)
       await expect(
         LoginAction({ request, response, injector: i, getBody: async () => ({ username: '', password: '' }) }),
       ).rejects.toThrowError('Login Failed')

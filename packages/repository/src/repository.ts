@@ -23,7 +23,7 @@ export class Repository implements Disposable {
   ) {
     const instance = this.dataSets.get(model)
     if (!instance) {
-      throw Error(`No DataSet found for '${model}'`)
+      throw Error(`No DataSet found for '${model.toString()}'`)
     }
     if (instance.primaryKey !== primaryKey) {
       throw Error('Primary key mismatch')

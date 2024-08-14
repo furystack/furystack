@@ -109,7 +109,7 @@ const SearchForm = Shade<{
       },
     })
 
-    const currentValue = (findOptions.filter?.[props.fieldName] as any)?.$regex || ''
+    const currentValue = (findOptions.filter?.[props.fieldName] as FilterType<Record<string, string>>)?.$regex || ''
 
     return (
       <Form<SearchSubmitType>
@@ -122,7 +122,9 @@ const SearchForm = Shade<{
           justifyContent: 'space-around',
           opacity: '0',
         }}
-        validate={(data): data is SearchSubmitType => data.searchValue?.length}
+        validate={(data): data is SearchSubmitType =>
+          typeof (data as SearchSubmitType).searchValue?.length === 'number'
+        }
         onSubmit={({ searchValue }) => {
           props.onSubmit(searchValue)
         }}
@@ -133,7 +135,7 @@ const SearchForm = Shade<{
           autofocus
           labelTitle={`${props.fieldName}`}
           name="searchValue"
-          value={currentValue}
+          value={typeof currentValue === 'string' ? currentValue : ''}
           labelProps={{
             style: { padding: '0px 2em' },
           }}
@@ -171,15 +173,15 @@ export const DataGridHeader: <T, Column extends string>(
         const searchForm = element.querySelector('.search-form') as HTMLElement
         const headerContent = element.querySelector('.header-content') as HTMLElement
         if (!newValue) {
-          collapse(searchForm)
-          expand(headerContent)
+          void collapse(searchForm)
+          void expand(headerContent)
         } else {
           searchForm.style.display = 'flex'
-          expand(searchForm).then(async () => {
+          void expand(searchForm).then(async () => {
             await sleepAsync(100)
             searchForm.querySelector('input')?.focus()
           })
-          collapse(headerContent)
+          void collapse(headerContent)
         }
       },
     })
@@ -188,13 +190,13 @@ export const DataGridHeader: <T, Column extends string>(
 
     const updateSearchValue = (value?: string) => {
       if (value) {
-        const newSettings: FindOptions<unknown, any> = {
+        const newSettings = {
           ...findOptions,
           filter: {
             ...findOptions.filter,
             [props.field]: { $regex: value },
           },
-        }
+        } as typeof findOptions
         setFindOptions(newSettings)
       } else {
         const { [props.field]: _, ...newFilter } = findOptions.filter || {}

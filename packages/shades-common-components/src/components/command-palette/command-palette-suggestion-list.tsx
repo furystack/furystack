@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
   shadowDomName: 'shade-command-palette-suggestion-list',
@@ -25,7 +25,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
     })
 
     const [isOpenedAtRender] = useObservable('isOpenedAtRender', props.manager.isOpened, {
-      onChange: async (isOpened) => {
+      onChange: (isOpened) => {
         const container = element.firstElementChild as HTMLDivElement
         if (isOpened) {
           container.style.display = 'initial'
@@ -33,7 +33,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
           container.style.width = `calc(${Math.round(
             element.parentElement?.getBoundingClientRect().width || 200,
           )}px - 3em)`
-          await promisifyAnimation(
+          void promisifyAnimation(
             container,
             [
               { opacity: 0, transform: 'translate(0, -50px)' },
@@ -42,7 +42,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
             { fill: 'forwards', duration: 500 },
           )
         } else {
-          await promisifyAnimation(
+          void promisifyAnimation(
             container,
             [
               { opacity: 1, transform: 'translate(0, 0)' },
@@ -80,7 +80,9 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
           <div
             className="suggestion-item"
             onclick={() => {
-              isOpenedAtRender && manager.selectSuggestion(injector, i)
+              if (isOpenedAtRender) {
+                manager.selectSuggestion(injector, i)
+              }
             }}
             style={{
               padding: '1em',
