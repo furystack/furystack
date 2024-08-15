@@ -1,9 +1,9 @@
 import { Injectable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
 import { Lock } from 'semaphore-async-await'
-import { EventEmitter } from 'stream'
 
 export interface ServerOptions {
   hostName?: string
@@ -27,7 +27,7 @@ export interface ServerRecord {
 
 @Injectable({ lifetime: 'singleton' })
 export class ServerManager
-  extends EventEmitter<{ onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>] }>
+  extends EventHub<{ onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>] }>
   implements AsyncDisposable
 {
   public static DEFAULT_HOST = 'localhost'
@@ -72,7 +72,7 @@ export class ServerManager
               const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
               if (apiMatch) {
                 apiMatch.onRequest({ req, res }).catch((error) => {
-                  this.emit('onRequestFailed', error, req, res)
+                  this.emit('onRequestFailed', [error, req, res])
                 })
               } else {
                 res.destroy()
