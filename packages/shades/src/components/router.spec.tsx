@@ -1,16 +1,16 @@
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
-import { Router } from './router.js'
-import { RouteLink } from './route-link.js'
 import { sleepAsync } from '@furystack/utils'
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { LocationService } from '../services/location-service.js'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
+import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
+import { RouteLink } from './route-link.js'
+import { Router, type Route } from './router.js'
 
 describe('Router', () => {
   beforeEach(() => {
@@ -33,6 +33,26 @@ describe('Router', () => {
     const onRouteChange = vi.fn()
 
     injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
+
+    const route1: Route = {
+      url: '/route-a',
+      component: () => <div id="content">route-a</div>,
+      onVisit,
+      onLeave,
+    }
+
+    const route2: Route<{ id: string }> = {
+      url: '/route-b{/:id}?',
+      component: ({ match }) => <div id="content">route-b{match.params.id}</div>,
+    }
+
+    const route3: Route = {
+      url: '/route-c',
+      component: () => <div id="content">route-c</div>,
+      onLeave: onLastLeave,
+    }
+
+    const route4 = { url: '/', component: () => <div id="content">home</div> }
 
     initializeShadeRoot({
       injector,
@@ -57,19 +77,7 @@ describe('Router', () => {
           <RouteLink id="x" href="/route-x">
             x
           </RouteLink>
-          <Router
-            routes={[
-              { url: '/route-a', component: () => <div id="content">route-a</div>, onVisit, onLeave },
-              { url: '/route-b{/:id}?', component: ({ match }) => <div id="content">route-b{match.params.id}</div> },
-              {
-                url: '/route-c',
-                component: () => <div id="content">route-c</div>,
-                onLeave: onLastLeave,
-              },
-              { url: '/', component: () => <div id="content">home</div> },
-            ]}
-            notFound={<div id="content">not found</div>}
-          />
+          <Router routes={[route1, route2, route3, route4]} notFound={<div id="content">not found</div>} />
         </div>
       ),
     })
