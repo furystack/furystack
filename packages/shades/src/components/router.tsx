@@ -1,5 +1,5 @@
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
-import type { MatchOptions, MatchResult, ParamData } from 'path-to-regexp'
+import type { MatchOptions, MatchResult } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
 import { Lock } from 'semaphore-async-await'
 import type { RenderOptions } from '../models/render-options.js'
@@ -7,9 +7,12 @@ import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
 
-export interface Route<TMatchResult extends object> {
+export interface Route<TMatchResult = unknown> {
   url: string
-  component: (options: { currentUrl: string; match: MatchResult<TMatchResult> }) => JSX.Element
+  component: (options: {
+    currentUrl: string
+    match: MatchResult<TMatchResult extends object ? TMatchResult : object>
+  }) => JSX.Element
   routingOptions?: MatchOptions
   onVisit?: (options: RenderOptions<unknown>) => Promise<void>
   onLeave?: (options: RenderOptions<unknown>) => Promise<void>
@@ -17,7 +20,7 @@ export interface Route<TMatchResult extends object> {
 
 export interface RouterProps {
   style?: CSSStyleDeclaration
-  routes: Array<Route<ParamData>>
+  routes: Array<Route<any>>
   notFound?: JSX.Element
 }
 
