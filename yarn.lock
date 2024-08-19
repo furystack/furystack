@@ -446,7 +446,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
   languageName: unknown
@@ -470,7 +470,7 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
   languageName: unknown
@@ -483,7 +483,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
@@ -518,7 +518,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     mongodb: "npm:6.8.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.5.4"
@@ -533,7 +533,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     redis: "npm:^4.7.0"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
@@ -574,7 +574,7 @@ __metadata:
     "@furystack/rest-client-fetch": "workspace:^"
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^7.1.0"
@@ -590,7 +590,7 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
   languageName: unknown
@@ -603,7 +603,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     typescript: "npm:^5.5.4"
     vitest: "npm:^2.0.5"
   languageName: unknown
@@ -616,7 +616,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     semaphore-async-await: "npm:^1.5.1"
     sequelize: "npm:^6.37.3"
     sqlite3: "npm:5.1.7"
@@ -693,7 +693,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/jsdom": "npm:^21.1.7"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.1"
     jsdom: "npm:^24.1.1"
     path-to-regexp: "npm:^7.1.0"
     semaphore-async-await: "npm:^1.5.1"
@@ -1158,12 +1158,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.3.0":
+"@types/node@npm:*":
   version: 22.3.0
   resolution: "@types/node@npm:22.3.0"
   dependencies:
     undici-types: "npm:~6.18.2"
   checksum: 10/c31a798ed722a7417727f018ea6d621db038a613c626da643174cc6f3dcf4ce2fc9933a010aec289103d9564da2c2f9b054c9aa398828f00e17269a78c64d4ec
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.4.1":
+  version: 22.4.1
+  resolution: "@types/node@npm:22.4.1"
+  dependencies:
+    undici-types: "npm:~6.19.2"
+  checksum: 10/cce9221aea24688bccc3d7c25afd26d95c1bdab73a32ee5c43bb456e070116abf6ba537a9ff19c728bc06fe054e69a2c7ec8e5d818e34a3bf9567eae2cb20059
   languageName: node
   linkType: hard
 
@@ -5339,6 +5348,13 @@ __metadata:
   version: 6.18.2
   resolution: "undici-types@npm:6.18.2"
   checksum: 10/5c863f3cc65d012498cf0f8562b9d81e785c2b8b8a8d66343b9f4351ff40a3a29b500fbaea10667626fd91a32433d4c876810aafa5ab561369de702b62d4b323
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.19.2":
+  version: 6.19.6
+  resolution: "undici-types@npm:6.19.6"
+  checksum: 10/0ea9bc25762a86597d095b3772f6cec0bcabb796c339f7dfa2bd601c745a480289eb2939848dc285a56d4f94f50c475868160d8d6d3f54e823f1faf7ea9e9468
   languageName: node
   linkType: hard
 
