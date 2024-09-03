@@ -27,4 +27,12 @@ test.describe('useSearchState', () => {
     await expect(testComponent).toHaveText('Search state change (4)')
     await expect(input).toHaveValue('test2')
   })
+
+  test('should be populated from a query param', async ({ page }) => {
+    await page.goto('/misc?search=test')
+    const testComponent = page.locator('shades-example-search-query')
+    await testComponent.waitFor({ state: 'visible' })
+
+    await expect(testComponent).toHaveText('Search query: test')
+  })
 })
