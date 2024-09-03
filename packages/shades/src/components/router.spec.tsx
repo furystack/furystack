@@ -42,7 +42,7 @@ describe('Router', () => {
     }
 
     const route2: Route<{ id: string }> = {
-      url: '/route-b{/:id}?',
+      url: '/route-b{/:id}',
       component: ({ match }) => <div id="content">route-b{match.params.id}</div>,
     }
 
