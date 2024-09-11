@@ -7,7 +7,7 @@
 export const promisifyAnimation = async (
   el: Element | null | undefined,
   keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-  options?: number | KeyframeAnimationOptions | undefined,
+  options?: number | KeyframeAnimationOptions,
 ) =>
   new Promise<AnimationPlaybackEvent>((resolve, reject) => {
     if (!el) {

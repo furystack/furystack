@@ -127,7 +127,7 @@ export const Button = Shade<ButtonProps>({
 
     const tryAnimate = async (
       keyframes: PropertyIndexedKeyframes | Keyframe[] | null,
-      options?: number | KeyframeAnimationOptions | undefined,
+      options?: number | KeyframeAnimationOptions,
     ) => {
       const el = element
       if (element) {
