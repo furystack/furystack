@@ -24,7 +24,7 @@ jobs:
         run: yarn workspace @furystack/shades-showcase-app e2e install --with-deps
       - name: Execute tests
         run: yarn workspace @furystack/shades-showcase-app e2e test
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           path: packages/shades-showcase-app/test-results
