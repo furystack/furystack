@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "7.0.7",
+  "version": "7.0.8",
   "workspaces": {
     "packages": [
       "packages/*"
@@ -10,13 +10,13 @@
   "devDependencies": {
     "@eslint/js": "^9.10.0",
     "@types/jsdom": "^21.1.7",
-    "@vitest/coverage-istanbul": "^2.0.5",
+    "@vitest/coverage-istanbul": "^2.1.1",
     "ajv": "^8.17.1",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsdoc": "^50.2.2",
+    "eslint-plugin-jsdoc": "^50.2.3",
     "eslint-plugin-playwright": "^1.6.2",
-    "husky": "^9.1.5",
+    "husky": "^9.1.6",
     "jsdom": "^25.0.0",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
@@ -24,8 +24,8 @@
     "ts-json-schema-generator": "^2.3.0",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.5.0",
-    "vite": "^5.4.4",
-    "vitest": "^2.0.5"
+    "vite": "^5.4.5",
+    "vitest": "^2.1.1"
   },
   "scripts": {
     "start": "yarn workspace @furystack/shades-showcase-app start",
@@ -58,5 +58,5 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "yarn@4.4.1"
+  "packageManager": "yarn@4.5.0"
 }
