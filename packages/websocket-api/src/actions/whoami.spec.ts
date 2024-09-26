@@ -1,10 +1,10 @@
-import { WhoAmI } from './whoami.js'
+import { Injector } from '@furystack/inject'
 import { HttpUserContext } from '@furystack/rest-service'
-import ws from 'ws'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
-import { Injector } from '@furystack/inject'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type ws from 'ws'
+import { WhoAmI } from './whoami.js'
 
 describe('Whoami action', () => {
   const currentUser = { username: 'testuser' }
@@ -31,7 +31,6 @@ describe('Whoami action', () => {
   it('Should return the current user', async () => {
     await usingAsync(new Injector(), async (injector) => {
       injector.setExplicitInstance(contextMock, HttpUserContext)
-      injector.setExplicitInstance(wsMock, ws)
       const instance = injector.getInstance(WhoAmI)
       await instance.execute({ request, data: '', socket: wsMock })
       expect(wsMock.send).toBeCalledWith(JSON.stringify({ currentUser }))
