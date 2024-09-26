@@ -12,6 +12,7 @@ const cfg = defineWorkspace([
         'packages/logging/src/**/*.spec.ts',
         'packages/repository/src/**/*.spec.ts',
         'packages/rest-client-fetch/src/**/*.spec.ts',
+        'packages/i18n/src/**/*.spec.ts',
       ],
     },
   },

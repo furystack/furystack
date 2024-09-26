@@ -3,6 +3,7 @@ releases:
   "@furystack/cache": patch
   "@furystack/core": patch
   "@furystack/filesystem-store": patch
+  "@furystack/i18n": major
   "@furystack/inject": patch
   "@furystack/logging": patch
   "@furystack/mongodb-store": patch
