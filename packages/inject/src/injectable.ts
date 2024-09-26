@@ -4,7 +4,13 @@ import type { Constructable } from './models/constructable.js'
  * Options for the injectable instance
  */
 export interface InjectableOptions {
-  lifetime: 'transient' | 'singleton' | 'scoped'
+  /**
+   * `transient` - A new instance will be created always when the user requests an instance from the injector. The instance will not be stored in the injector cache.
+   * `singleton` - A new instance will be created only when an instance is not available in the injector or one of its parents. The owner injector will be the topmost parent in the injector chain
+   * `scoped` - Similar to transient, but the instance will be stored in the injector cache of the same injector as it's requested from. The scope wil be available to it's children.
+   * `explicit` - An instance can be only requested if the injector instance or one of it's parent has it cached (e.g. by a `use***()` helper)
+   */
+  lifetime: 'transient' | 'singleton' | 'scoped' | 'explicit'
 }
 
 /**

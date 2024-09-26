@@ -103,6 +103,11 @@ export class Injector implements AsyncDisposable {
 
     const { lifetime } = meta
 
+    const fromParent = lifetime === 'singleton' && this.options.parent && this.options.parent.getInstanceInternal(ctor)
+    if (fromParent) {
+      return fromParent
+    }
+
     if (lifetime === 'singleton') {
       const invalidDeps = dependencies
         .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
@@ -127,10 +132,6 @@ export class Injector implements AsyncDisposable {
       }
     }
 
-    const fromParent = lifetime === 'singleton' && this.options.parent && this.options.parent.getInstanceInternal(ctor)
-    if (fromParent) {
-      return fromParent
-    }
     const newInstance = new ctor()
     if (lifetime !== 'transient') {
       this.setExplicitInstance(newInstance)
