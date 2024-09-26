@@ -72,6 +72,17 @@ describe('I18nService', () => {
       })
     })
 
+    it('Should not emit change if the new language is the same as the current', () => {
+      using(new I18NService(en), (service) => {
+        const subscription = vi.fn()
+        service.addListener('languageChange', subscription)
+
+        service.currentLanguage = 'en'
+
+        expect(subscription).not.toHaveBeenCalled()
+      })
+    })
+
     it('Should throw error and keep language if the language is not available', () => {
       using(new I18NService(en), (service) => {
         const subscription = vi.fn()
