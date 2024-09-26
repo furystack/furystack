@@ -21,3 +21,6 @@ releases:
   "@furystack/shades-showcase-app": patch
   "@furystack/websocket-api": patch
   furystack: patch
+
+undecided:
+  - "@furystack/shades-i18n"
