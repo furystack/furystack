@@ -571,6 +571,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/i18n@workspace:packages/i18n":
+  version: 0.0.0-use.local
+  resolution: "@furystack/i18n@workspace:packages/i18n"
+  dependencies:
+    "@furystack/inject": "workspace:^"
+    "@types/node": "npm:^22.5.5"
+    typescript: "npm:^5.6.2"
+    vitest: "npm:^2.1.1"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/inject@workspace:^, @furystack/inject@workspace:packages/inject":
   version: 0.0.0-use.local
   resolution: "@furystack/inject@workspace:packages/inject"
@@ -1376,7 +1387,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.7.2":
+"@types/node@npm:^22.5.5, @types/node@npm:^22.7.2":
   version: 22.7.2
   resolution: "@types/node@npm:22.7.2"
   dependencies:

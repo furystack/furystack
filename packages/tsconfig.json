@@ -12,6 +12,9 @@
       "path": "./filesystem-store"
     },
     {
+      "path": "./i18n"
+    },
+    {
       "path": "./inject"
     },
     {

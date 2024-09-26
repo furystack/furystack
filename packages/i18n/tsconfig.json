@@ -7,5 +7,5 @@
     "baseUrl": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../inject" }]
+  "references": [{ "path": "../inject" }]
 }
