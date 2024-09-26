@@ -34,8 +34,6 @@ export class WebSocketApi implements AsyncDisposable {
     if (!this.isInitialized) {
       this.socket.on('connection', (websocket, msg) => {
         const connectionInjector = this.injector.createChild({ owner: msg })
-        connectionInjector.setExplicitInstance(websocket, ws)
-        connectionInjector.setExplicitInstance(msg, IncomingMessage)
 
         const httpUserContext = connectionInjector.getInstance(HttpUserContext)
         connectionInjector.setExplicitInstance<IdentityContext>(
