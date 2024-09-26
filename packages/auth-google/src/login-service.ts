@@ -1,9 +1,8 @@
-import { get } from 'https'
 import type { PhysicalStore, User } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
-import { HttpAuthenticationSettings } from '@furystack/rest-service'
 import { Injectable, Injected } from '@furystack/inject'
-import { readPostBody } from '@furystack/rest-service'
+import { HttpAuthenticationSettings, readPostBody } from '@furystack/rest-service'
+import { get } from 'https'
 
 /**
  * Payload model from Google
@@ -48,7 +47,7 @@ export class GoogleLoginSettings {
 /**
  * Service class for Google OAuth authentication
  */
-@Injectable({ lifetime: 'transient' })
+@Injectable({ lifetime: 'scoped' })
 export class GoogleLoginService {
   @Injected(GoogleLoginSettings)
   private declare readonly settings: GoogleLoginSettings
