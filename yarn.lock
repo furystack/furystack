@@ -571,11 +571,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/i18n@workspace:packages/i18n":
+"@furystack/i18n@workspace:^, @furystack/i18n@workspace:packages/i18n":
   version: 0.0.0-use.local
   resolution: "@furystack/i18n@workspace:packages/i18n"
   dependencies:
     "@furystack/inject": "workspace:^"
+    "@furystack/utils": "workspace:^"
     "@types/node": "npm:^22.5.5"
     typescript: "npm:^5.6.2"
     vitest: "npm:^2.1.1"
@@ -732,6 +733,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/shades-i18n@workspace:^, @furystack/shades-i18n@workspace:packages/shades-i18n":
+  version: 0.0.0-use.local
+  resolution: "@furystack/shades-i18n@workspace:packages/shades-i18n"
+  dependencies:
+    "@furystack/i18n": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/shades": "workspace:^"
+    "@types/node": "npm:^22.5.5"
+    typescript: "npm:^5.6.2"
+    vitest: "npm:^2.1.1"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/shades-lottie@workspace:^, @furystack/shades-lottie@workspace:packages/shades-lottie":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-lottie@workspace:packages/shades-lottie"
@@ -761,11 +775,13 @@ __metadata:
   dependencies:
     "@codecov/vite-plugin": "npm:^1.2.0"
     "@furystack/core": "workspace:^"
+    "@furystack/i18n": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/logging": "workspace:^"
     "@furystack/repository": "workspace:^"
     "@furystack/shades": "workspace:^"
     "@furystack/shades-common-components": "workspace:^"
+    "@furystack/shades-i18n": "workspace:^"
     "@furystack/shades-lottie": "workspace:^"
     "@furystack/shades-nipple": "workspace:^"
     "@furystack/utils": "workspace:^"

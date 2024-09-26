@@ -1,18 +1,38 @@
 import { Injectable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 import type { Language } from './models/language.js'
 import type { PartialLanguage } from './models/partial-language.js'
 
 @Injectable({
   lifetime: 'explicit',
 })
-export class I18NService<Keys extends string> {
+export class I18NService<Keys extends string> extends EventHub<{ languageChange: string }> {
   private readonly additionalLanguages: Array<PartialLanguage<Keys>>
+
+  private _currentLanguage: string
+  public get currentLanguage(): string {
+    return this._currentLanguage
+  }
+  public set currentLanguage(v: string) {
+    if (v === this._currentLanguage) {
+      return
+    }
+
+    if (!this.getAvailableLanguageCodes().includes(v)) {
+      throw new Error(`Language '${v}' is not available`)
+    }
+
+    this._currentLanguage = v
+    this.emit('languageChange', v)
+  }
 
   constructor(
     private readonly defaultLanguage: Language<Keys>,
     ...additionalLanguages: Array<PartialLanguage<Keys>>
   ) {
+    super()
     this.additionalLanguages = additionalLanguages
+    this._currentLanguage = defaultLanguage.code
   }
 
   /**
@@ -33,10 +53,10 @@ export class I18NService<Keys extends string> {
   /**
    *
    * @param key The translation key
-   * @param languageCode An optional language code, will fall back to the default language code if not provided
+   * @param languageCode An optional language code, will fall back to the current language code if not provided
    * @returns The translation for the given key in the given language. If the language is not found or does not contain the key, the translation from the default language will be returned.
    */
-  public translate<K extends Keys>(key: K, languageCode = this.defaultLanguage.code): string {
+  public translate<K extends Keys>(key: K, languageCode = this.currentLanguage): string {
     if (languageCode === this.defaultLanguage.code) {
       return this.defaultLanguage.values[key]
     }

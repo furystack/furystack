@@ -1,8 +1,8 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
 import { AppBar, AppBarLink, fadeIn, fadeOut, Paper } from '@furystack/shades-common-components'
+import { sleepAsync } from '@furystack/utils'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
-import { sleepAsync } from '@furystack/utils'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
@@ -42,6 +42,7 @@ export const App = Shade({
             <AppBarLink href="/wizard">Wizard</AppBarLink>
             <AppBarLink href="/notys">Notys</AppBarLink>
             <AppBarLink href="/tabs">Tabs</AppBarLink>
+            <AppBarLink href="/i18n">I18N</AppBarLink>
             <AppBarLink href="/misc">Misc</AppBarLink>
           </div>
           <ThemeSwitch />
@@ -255,6 +256,24 @@ export const App = Shade({
                     component={async () => {
                       const { TabsPage } = await import('./pages/tabs.js')
                       return <TabsPage />
+                    }}
+                  />
+                ),
+              },
+              {
+                url: '/i18n',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
+                component: () => (
+                  <LazyLoad
+                    loader={<PageLoader />}
+                    component={async () => {
+                      const { I18NPage } = await import('./pages/i18n/i18n.tsx')
+                      return <I18NPage />
                     }}
                   />
                 ),
