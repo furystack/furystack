@@ -42,6 +42,10 @@ const pages = {
     name: 'Tabs',
     url: '/tabs',
   },
+  i18n: {
+    name: 'I18N',
+    url: '/i18n',
+  },
   misc: {
     name: 'Misc',
     url: '/misc',
