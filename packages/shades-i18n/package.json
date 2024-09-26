@@ -1,7 +1,7 @@
 {
-  "name": "@furystack/i18n",
+  "name": "@furystack/shades-i18n",
   "version": "0.0.1",
-  "description": "Generic package for i18n",
+  "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
@@ -23,7 +23,7 @@
   "keywords": [
     "FuryStack",
     "i18n",
-    "translations"
+    "Shades"
   ],
   "publishConfig": {
     "access": "public"
@@ -35,8 +35,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
+    "@furystack/i18n": "workspace:^",
     "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^"
+    "@furystack/shades": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
