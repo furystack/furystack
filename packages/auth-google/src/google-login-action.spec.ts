@@ -1,10 +1,9 @@
 import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
 import { HttpUserContext } from '@furystack/rest-service'
+import { usingAsync } from '@furystack/utils'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { describe, expect, it, vi } from 'vitest'
 import { GoogleLoginAction } from './login-action.js'
-import { ServerResponse } from 'http'
-import type { IncomingMessage } from 'http'
-import { describe, it, expect, vi } from 'vitest'
 import { GoogleLoginService } from './login-service.js'
 
 describe('GoogleLoginAction', () => {
@@ -15,7 +14,6 @@ describe('GoogleLoginAction', () => {
     await usingAsync(new Injector(), async (i) => {
       const testUser = { username: 'example', roles: [] }
       const cookieLogin = vi.fn(() => Promise.resolve(testUser))
-      i.setExplicitInstance({}, ServerResponse)
 
       i.setExplicitInstance(i.getInstance(GoogleLoginService))
       i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
