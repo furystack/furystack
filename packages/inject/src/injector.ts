@@ -1,5 +1,5 @@
 import { isAsyncDisposable, isDisposable } from '@furystack/utils'
-import { Injectable, getInjectableOptions } from './injectable.js'
+import { Injectable, getInjectableOptions, type InjectorLifetime } from './injectable.js'
 import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
 import { withInjectorReference } from './with-injector-reference.js'
@@ -11,6 +11,19 @@ const hasInitMethod = (obj: object): obj is { init: (injector: Injector) => void
 export class InjectorAlreadyDisposedError extends Error {
   constructor() {
     super('Injector already disposed')
+  }
+}
+
+const lifetimesToCache: InjectorLifetime[] = ['singleton', 'scoped', 'explicit']
+
+export class CannotInstantiateExplicitLifetimeError extends Error {
+  /**
+   *
+   */
+  constructor(ctor: Constructable<unknown>) {
+    super(
+      `Cannot instantiate an instance of '${ctor.name}' as it's lifetime is set to 'explicit'. Ensure to initialize it properly`,
+    )
   }
 }
 
@@ -93,19 +106,26 @@ export class Injector implements AsyncDisposable {
       return existing as T
     }
 
-    const dependencies = [...getDependencyList(ctor)]
-
-    if (dependencies.includes(ctor)) {
-      throw Error(`Circular dependencies found.`)
-    }
-
     const meta = getInjectableOptions(ctor)
 
     const { lifetime } = meta
 
-    const fromParent = lifetime === 'singleton' && this.options.parent && this.options.parent.getInstanceInternal(ctor)
+    const fromParent =
+      (lifetime === 'singleton' || lifetime === 'explicit') &&
+      this.options.parent &&
+      this.options.parent.getInstanceInternal(ctor)
     if (fromParent) {
       return fromParent
+    }
+
+    if (lifetime === 'explicit') {
+      throw new CannotInstantiateExplicitLifetimeError(ctor)
+    }
+
+    const dependencies = [...getDependencyList(ctor)]
+
+    if (dependencies.includes(ctor)) {
+      throw Error(`Circular dependencies found.`)
     }
 
     if (lifetime === 'singleton') {
@@ -133,7 +153,7 @@ export class Injector implements AsyncDisposable {
     }
 
     const newInstance = new ctor()
-    if (lifetime !== 'transient') {
+    if (lifetimesToCache.includes(lifetime)) {
       this.setExplicitInstance(newInstance)
     }
 
@@ -155,9 +175,16 @@ export class Injector implements AsyncDisposable {
 
     const ctor = key || (instance.constructor as Constructable<T>)
 
+    const { lifetime } = getInjectableOptions(ctor)
+
     if (instance.constructor === this.constructor) {
       throw Error('Cannot set an injector instance as injectable')
     }
+
+    if (!lifetimesToCache.includes(lifetime)) {
+      throw new Error(`Cannot set an instance of '${ctor.name}' as it's lifetime is set to '${lifetime}'`)
+    }
+
     this.cachedSingletons.set(ctor, instance)
   }
 
