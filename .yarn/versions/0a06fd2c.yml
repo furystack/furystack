@@ -16,11 +16,9 @@ releases:
   "@furystack/sequelize-store": patch
   "@furystack/shades": patch
   "@furystack/shades-common-components": patch
+  "@furystack/shades-i18n": major
   "@furystack/shades-lottie": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
   "@furystack/websocket-api": patch
   furystack: patch
-
-undecided:
-  - "@furystack/shades-i18n"
