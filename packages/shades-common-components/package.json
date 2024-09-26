@@ -39,7 +39,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/shades": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "path-to-regexp": "^8.1.0",
+    "path-to-regexp": "^8.2.0",
     "semaphore-async-await": "^1.5.1"
   },
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"

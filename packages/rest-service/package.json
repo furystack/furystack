@@ -45,12 +45,12 @@
     "@furystack/utils": "workspace:^",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "path-to-regexp": "^8.1.0",
+    "path-to-regexp": "^8.2.0",
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^22.5.5",
+    "@types/node": "^22.7.2",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"
   },
