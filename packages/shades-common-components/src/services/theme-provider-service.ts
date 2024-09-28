@@ -135,16 +135,12 @@ export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<T
   }
 
   /**
-   *
-   * @param v The Theme instance
+   * Assigns a new theme, updates the CSS variables and emits a themeChanged event
+   * @param theme The Theme instance
    */
   public setAssignedTheme(theme: DeepPartial<Theme>) {
     this._assignedTheme = theme
     useThemeCssVariables(theme)
     this.emit('themeChanged', theme)
-  }
-
-  public [Symbol.dispose]() {
-    /** */
   }
 }

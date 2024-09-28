@@ -15,10 +15,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   }>
   implements Disposable
 {
-  public [Symbol.dispose]() {
-    super[Symbol.dispose]()
-  }
-
   /**
    * Primary key of the contained entity
    */
