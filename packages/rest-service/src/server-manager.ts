@@ -57,6 +57,7 @@ export class ServerManager
       )
       this.servers.clear()
       this.listenLock.release()
+      super[Symbol.dispose]?.()
     }
   }
 
