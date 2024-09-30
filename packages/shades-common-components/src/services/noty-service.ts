@@ -1,5 +1,5 @@
-import { EventHub } from '@furystack/utils'
 import { Injectable } from '@furystack/inject'
+import { EventHub } from '@furystack/utils'
 
 export interface NotyModel {
   type: 'error' | 'warning' | 'info' | 'success'
@@ -22,10 +22,11 @@ export class NotyService extends EventHub<{ onNotyAdded: NotyModel; onNotyRemove
     this.notyList = this.notyList.filter((noty) => noty !== removedNoty)
   }
 
-  public dispose(): void {
+  public [Symbol.dispose](): void {
     this.notyList = []
     this.removeListener('onNotyAdded', this.onNotyAddListener.bind(this))
     this.removeListener('onNotyRemoved', this.onNotyRemoveListener.bind(this))
+    super[Symbol.dispose]?.()
   }
 
   constructor() {

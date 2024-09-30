@@ -12,6 +12,9 @@
       "path": "./filesystem-store"
     },
     {
+      "path": "./i18n"
+    },
+    {
       "path": "./inject"
     },
     {
@@ -55,6 +58,9 @@
     },
     {
       "path": "./shades-nipple"
+    },
+    {
+      "path": "./shades-i18n"
     },
     {
       "path": "./shades-lottie"

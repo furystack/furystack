@@ -10,18 +10,15 @@ describe('Injector', () => {
     expect(i).toBeInstanceOf(Injector)
   })
 
+  it('Should be disposed', async () => {
+    await usingAsync(new Injector(), async () => {
+      /** */
+    })
+  })
+
   it('Parent should be undefined by default', () => {
     const i = new Injector()
     expect(i.options.parent).toBeUndefined()
-  })
-
-  it('Should set and return instance from cache', () => {
-    const i = new Injector()
-    @Injectable({ lifetime: 'scoped' })
-    class InstanceClass {}
-    const instance = new InstanceClass()
-    i.setExplicitInstance(instance)
-    expect(i.getInstance(InstanceClass)).toBe(instance)
   })
 
   it('Should throw an error when setting an Injector instance', async () => {
@@ -30,27 +27,166 @@ describe('Injector', () => {
     })
   })
 
-  it('Should return from a parent injector if available', () => {
-    const parent = new Injector()
-    const i = parent.createChild()
-    @Injectable({ lifetime: 'singleton' })
-    class InstanceClass {}
-    const instance = new InstanceClass()
-    parent.setExplicitInstance(instance)
-    expect(i.getInstance(InstanceClass)).toBe(instance)
-    expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
+  it('Should throw an error when trying to set an instance without decorator', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      class TestClass {}
+      expect(() => i.setExplicitInstance(new TestClass())).toThrowError(`The class 'TestClass' is not an injectable`)
+    })
   })
 
-  it('Should create instance on a parent injector if not available', () => {
-    const parent = new Injector()
-    const i = parent.createChild()
-    @Injectable({ lifetime: 'singleton' })
-    class InstanceClass {}
-    expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-    expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+  describe('Transient lifetime', () => {
+    it('Should not store an instance in the cache', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'transient' })
+        class InstanceClass {}
+
+        const instance = i.getInstance(InstanceClass)
+        expect(instance).toBeInstanceOf(InstanceClass)
+        expect(i.cachedSingletons.get(InstanceClass)).toBeUndefined()
+      })
+    })
+
+    it('Should throw an error if you try to set an explicit instance', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'transient' })
+        class InstanceClass {}
+
+        const instance = new InstanceClass()
+        expect(() => i.setExplicitInstance(instance)).toThrowError(
+          `Cannot set an instance of 'InstanceClass' as it's lifetime is set to 'transient'`,
+        )
+      })
+    })
   })
 
-  it('Should resolve parameters', () => {
+  describe('Scoped lifetime', () => {
+    it('Should set and return instance from cache', () => {
+      const i = new Injector()
+      @Injectable({ lifetime: 'scoped' })
+      class InstanceClass {}
+      const instance = new InstanceClass()
+      i.setExplicitInstance(instance)
+      expect(i.getInstance(InstanceClass)).toBe(instance)
+    })
+
+    it('Should instantiate and return an instance', () => {
+      const i = new Injector()
+      @Injectable({ lifetime: 'scoped' })
+      class InstanceClass {}
+      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+    })
+
+    it('Scoped with transient dependencies should throw an error', async () => {
+      @Injectable({ lifetime: 'transient' })
+      class Tr2 {}
+
+      @Injectable({ lifetime: 'scoped' })
+      class Sc2 {
+        @Injected(Tr2)
+        declare sc: Tr2
+      }
+
+      await usingAsync(new Injector(), async (i) => {
+        expect(() => i.getInstance(Sc2)).toThrowError(
+          `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
+        )
+      })
+    })
+  })
+
+  describe('Singleton lifetime', () => {
+    it('Should return from a parent injector if available', () => {
+      const parent = new Injector()
+      const i = parent.createChild()
+      @Injectable({ lifetime: 'singleton' })
+      class InstanceClass {}
+      const instance = new InstanceClass()
+      parent.setExplicitInstance(instance)
+      expect(i.getInstance(InstanceClass)).toBe(instance)
+      expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
+    })
+
+    it('Should create instance on a parent injector if not available', () => {
+      const parent = new Injector()
+      const i = parent.createChild()
+      @Injectable({ lifetime: 'singleton' })
+      class InstanceClass {}
+      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+      expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+    })
+
+    it('Singleton with transient dependencies should throw an error', async () => {
+      @Injectable({ lifetime: 'transient' })
+      class Trs1 {}
+
+      @Injectable({ lifetime: 'singleton' })
+      class St1 {
+        @Injected(Trs1)
+        declare lt: Trs1
+      }
+
+      await usingAsync(new Injector(), async (i) => {
+        expect(() => i.getInstance(St1)).toThrowError(
+          `Injector error: Singleton type 'St1' depends on non-singleton injectables: Trs1:transient`,
+        )
+      })
+    })
+
+    it('Singleton with transient dependencies should throw an error', async () => {
+      @Injectable({ lifetime: 'scoped' })
+      class Sc1 {}
+
+      @Injectable({ lifetime: 'singleton' })
+      class St2 {
+        @Injected(Sc1)
+        declare sc: Sc1
+      }
+
+      await usingAsync(new Injector(), async (i) => {
+        expect(() => i.getInstance(St2)).toThrowError(
+          `Injector error: Singleton type 'St2' depends on non-singleton injectables: Sc1:scoped`,
+        )
+      })
+    })
+  })
+
+  describe('Explicit lifetime', () => {
+    it('Should return the instance from the cache', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'explicit' })
+        class InstanceClass {}
+
+        const instance = new InstanceClass()
+        i.setExplicitInstance(instance)
+        expect(i.getInstance(InstanceClass)).toBe(instance)
+      })
+    })
+
+    it('Should return an instance from the parent injector', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const child = i.createChild()
+        @Injectable({ lifetime: 'explicit' })
+        class InstanceClass {}
+
+        const instance = new InstanceClass()
+        i.setExplicitInstance(instance)
+        expect(child.getInstance(InstanceClass)).toBe(instance)
+      })
+    })
+
+    it('Should throw an error if the instance is not set', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'explicit' })
+        class InstanceClass {}
+
+        expect(() => i.getInstance(InstanceClass)).toThrowError(
+          `Cannot instantiate an instance of 'InstanceClass' as it's lifetime is set to 'explicit'. Ensure to initialize it properly`,
+        )
+      })
+    })
+  })
+
+  it('Should resolve injectable fields', () => {
     const i = new Injector()
 
     @Injectable()
@@ -74,7 +210,7 @@ describe('Injector', () => {
     expect(instance.injected2).toBeInstanceOf(Injected2)
   })
 
-  it('Should resolve parameters recursively', () => {
+  it('Should resolve injectable fields recursively', () => {
     const i = new Injector()
 
     @Injectable()
@@ -92,12 +228,6 @@ describe('Injector', () => {
     }
     expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
     expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
-  })
-
-  it('Should be disposed', async () => {
-    await usingAsync(new Injector(), async () => {
-      /** */
-    })
   })
 
   it('Should throw if failed to dispose one or more entries', async () => {
@@ -138,11 +268,13 @@ describe('Injector', () => {
 
   it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
     const doneCallback = vi.fn()
+    @Injectable({ lifetime: 'explicit' })
     class TestDisposable implements Disposable {
       public [Symbol.dispose]() {
         doneCallback()
       }
     }
+    @Injectable({ lifetime: 'explicit' })
     class TestInstance {}
 
     await usingAsync(new Injector(), async (i) => {
@@ -152,10 +284,13 @@ describe('Injector', () => {
     expect(doneCallback).toBeCalledTimes(1)
   })
 
-  it('Remove should remove an entity from the cached singletons list', async () => {
+  it('Remove should remove an entity from the cached instance list', async () => {
     await usingAsync(new Injector(), async (i) => {
-      i.setExplicitInstance({}, Object)
-      i.remove(Object)
+      @Injectable({ lifetime: 'scoped' })
+      class InjectableClass {}
+
+      i.setExplicitInstance({}, InjectableClass)
+      i.remove(InjectableClass)
       expect(i.cachedSingletons.size).toBe(0)
     })
   })
@@ -171,57 +306,6 @@ describe('Injector', () => {
     await usingAsync(new Injector(), async (i) => {
       expect(() => i.getInstance(UndecoratedTestClass)).toThrowError(
         `The class 'UndecoratedTestClass' is not an injectable`,
-      )
-    })
-  })
-
-  it('Singleton with transient dependencies should throw an error', async () => {
-    @Injectable({ lifetime: 'transient' })
-    class Trs1 {}
-
-    @Injectable({ lifetime: 'singleton' })
-    class St1 {
-      @Injected(Trs1)
-      declare lt: Trs1
-    }
-
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.getInstance(St1)).toThrowError(
-        `Injector error: Singleton type 'St1' depends on non-singleton injectables: Trs1:transient`,
-      )
-    })
-  })
-
-  it('Singleton with transient dependencies should throw an error', async () => {
-    @Injectable({ lifetime: 'scoped' })
-    class Sc1 {}
-
-    @Injectable({ lifetime: 'singleton' })
-    class St2 {
-      @Injected(Sc1)
-      declare sc: Sc1
-    }
-
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.getInstance(St2)).toThrowError(
-        `Injector error: Singleton type 'St2' depends on non-singleton injectables: Sc1:scoped`,
-      )
-    })
-  })
-
-  it('Scoped with transient dependencies should throw an error', async () => {
-    @Injectable({ lifetime: 'transient' })
-    class Tr2 {}
-
-    @Injectable({ lifetime: 'scoped' })
-    class Sc2 {
-      @Injected(Tr2)
-      declare sc: Tr2
-    }
-
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.getInstance(Sc2)).toThrowError(
-        `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
       )
     })
   })
