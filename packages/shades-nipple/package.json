@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-nipple",
-  "version": "7.0.8",
+  "version": "7.0.9",
   "description": "A Nipple component wrapper for FuryStack Shades",
   "type": "module",
   "scripts": {
@@ -29,8 +29,8 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "@furystack/inject": "workspace:^",
-    "typescript": "^5.6.2",
-    "vitest": "^2.1.1"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.2"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
