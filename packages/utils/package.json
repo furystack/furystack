@@ -35,6 +35,6 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^5.6.3",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.3"
   }
 }
