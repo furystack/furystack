@@ -1,0 +1,47 @@
+{
+  "name": "@furystack/shades-mfe",
+  "version": "1.0.1",
+  "description": "I18n translation package and components for Shades",
+  "type": "module",
+  "scripts": {
+    "build:es6": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "types",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "i18n",
+    "Shades"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "gallay.lajos@gmail.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/inject": "workspace:^",
+    "@furystack/shades": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.6",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  },
+  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+}

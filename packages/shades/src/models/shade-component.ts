@@ -10,6 +10,6 @@ export type ShadeComponent<TProps = object> = (arg: TProps, children?: ChildrenL
  * @param obj The object to check
  * @returns a value that indicates if the object is a Shade component
  */
-export const isShadeComponent = (obj: any): obj is ShadeComponent<any> => {
+export const isShadeComponent = <T = any>(obj: any): obj is ShadeComponent<T> => {
   return typeof obj === 'function'
 }
