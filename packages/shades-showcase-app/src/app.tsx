@@ -43,6 +43,7 @@ export const App = Shade({
             <AppBarLink href="/notys">Notys</AppBarLink>
             <AppBarLink href="/tabs">Tabs</AppBarLink>
             <AppBarLink href="/i18n">I18N</AppBarLink>
+            <AppBarLink href="/mfe">MFE</AppBarLink>
             <AppBarLink href="/misc">Misc</AppBarLink>
           </div>
           <ThemeSwitch />
@@ -277,6 +278,26 @@ export const App = Shade({
                     }}
                   />
                 ),
+              },
+              {
+                url: '/mfe',
+                onVisit: async ({ element }) => {
+                  await fadeIn(element, {})
+                },
+                onLeave: async ({ element }) => {
+                  await fadeOut(element, {})
+                },
+                component: () => {
+                  return (
+                    <LazyLoad
+                      loader={<PageLoader />}
+                      component={async () => {
+                        const { MFEPage } = await import('./pages/mfe/mfe-page.js')
+                        return <MFEPage />
+                      }}
+                    />
+                  )
+                },
               },
               {
                 url: '/misc',

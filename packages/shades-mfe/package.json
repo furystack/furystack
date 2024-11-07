@@ -1,7 +1,7 @@
 {
-  "name": "@furystack/repository",
-  "version": "10.0.9",
-  "description": "Repository implementation for FuryStack",
+  "name": "@furystack/shades-mfe",
+  "version": "1.0.2",
+  "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
@@ -22,10 +22,8 @@
   },
   "keywords": [
     "FuryStack",
-    "Repository",
-    "Content",
-    "Business logic",
-    "Content authorization"
+    "i18n",
+    "Shades"
   ],
   "publishConfig": {
     "access": "public"
@@ -37,11 +35,11 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^"
+    "@furystack/shades": "workspace:^"
   },
   "devDependencies": {
+    "@types/node": "^22.9.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   },

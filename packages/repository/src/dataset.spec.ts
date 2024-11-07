@@ -49,13 +49,20 @@ describe('DataSet', () => {
 
     it('Should throw if dataset is not registered through extension', async () => {
       await usingAsync(new Injector(), async (i) => {
-        expect(() => getDataSetFor(i, TestClass, 'id')).toThrowError('')
+        expect(() => getDataSetFor(i, TestClass, 'id')).toThrowError(`No DataSet found for 'class TestClass {
+  id = 1;
+  value = "";
+}'`)
       })
     })
 
     it('Should throw if dataset is not registered through service', async () => {
       await usingAsync(new Injector(), async (i) => {
-        expect(() => i.getInstance(Repository).getDataSetFor(TestClass, 'id')).toThrowError('')
+        expect(() => i.getInstance(Repository).getDataSetFor(TestClass, 'id'))
+          .toThrowError(`No DataSet found for 'class TestClass {
+  id = 1;
+  value = "";
+}'`)
       })
     })
 

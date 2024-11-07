@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./esm",
+    "composite": true,
+    "rootDir": "./src",
+    "baseUrl": "./src"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../inject" },
+    {
+      "path": "../shades"
+    }
+  ]
+}

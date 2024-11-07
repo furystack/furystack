@@ -36,7 +36,7 @@ describe('IdentityContext', () => {
     await usingAsync(new Injector(), async (i) => {
       const ctx = i.getInstance(IdentityContext)
       const spy = vi.spyOn(ctx, 'getCurrentUser')
-      await expect(getCurrentUser(i)).rejects.toThrowError('')
+      await expect(getCurrentUser(i)).rejects.toThrowError('No IdentityContext')
       expect(spy).toBeCalledTimes(1)
     })
   })
