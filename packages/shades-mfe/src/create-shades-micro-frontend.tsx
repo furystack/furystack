@@ -13,8 +13,7 @@ export const createShadesMicroFrontend = <TApi extends object>(Component: ShadeC
       rootElement,
       injector: childInjector,
     })
-
-    rootElement.addEventListener('detach', () => {})
   }
+
   return new CreateMicroFrontendService(create)
 }
