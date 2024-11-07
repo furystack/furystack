@@ -773,7 +773,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/shades-mfe@workspace:packages/shades-mfe":
+"@furystack/shades-mfe@workspace:^, @furystack/shades-mfe@workspace:packages/shades-mfe":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-mfe@workspace:packages/shades-mfe"
   dependencies:
@@ -811,6 +811,7 @@ __metadata:
     "@furystack/shades-common-components": "workspace:^"
     "@furystack/shades-i18n": "workspace:^"
     "@furystack/shades-lottie": "workspace:^"
+    "@furystack/shades-mfe": "workspace:^"
     "@furystack/shades-nipple": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@lottiefiles/lottie-player": "npm:^2.0.4"
