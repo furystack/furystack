@@ -46,6 +46,10 @@ const pages = {
     name: 'I18N',
     url: '/i18n',
   },
+  mfe: {
+    name: 'MFE',
+    url: '/mfe',
+  },
   misc: {
     name: 'Misc',
     url: '/misc',
