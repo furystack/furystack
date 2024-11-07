@@ -42,6 +42,7 @@ const cfg = defineWorkspace([
         'packages/shades-lottie/src/**/*.spec.(ts|tsx)',
         'packages/shades-nipple/src/**/*.spec.(ts|tsx)',
         'packages/shades-i18n/src/**/*.spec.(ts|tsx)',
+        'packages/shades-mfe/src/**/*.spec.(ts|tsx)',
       ],
     },
   },
