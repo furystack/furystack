@@ -13,10 +13,7 @@ export class WhoAmI implements WebSocketAction {
     /** */
   }
   public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {
-    if (typeof options.data !== 'string') {
-      return false
-    }
-
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const stringifiedValue: string = options.data.toString()
 
     return stringifiedValue === 'whoami' || stringifiedValue === 'whoami /claims'
