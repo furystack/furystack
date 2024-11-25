@@ -2,7 +2,7 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.validate": ["typescript", "typescriptreact"],
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSaveMode": "file",
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
