@@ -1,7 +1,7 @@
 import { createComponent, Shade } from '@furystack/shades'
 import '@furystack/shades-lottie'
 import type { LottiePlayer } from '@lottiefiles/lottie-player'
-import lottieExample from './lottie-example.json'
+import lottieExample from './lottie-example.json' with { type: 'json' }
 
 export const LottiePage = Shade({
   shadowDomName: 'lottie-page',
