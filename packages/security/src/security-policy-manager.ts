@@ -47,5 +47,5 @@ export class SecurityPolicyManager {
   }
 
   @Injected(SecurityPolicy)
-  public declare readonly policy: SecurityPolicy
+  declare public readonly policy: SecurityPolicy
 }

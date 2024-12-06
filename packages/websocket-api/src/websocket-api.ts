@@ -22,12 +22,12 @@ export class WebSocketApi implements AsyncDisposable {
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
 
   @Injected(WebSocketApiSettings)
-  private declare readonly settings: WebSocketApiSettings
+  declare private readonly settings: WebSocketApiSettings
 
   @Injected(ServerManager)
-  private declare readonly serverManager: ServerManager
+  declare private readonly serverManager: ServerManager
 
-  private declare readonly injector: Injector
+  declare private readonly injector: Injector
 
   private isInitialized = false
   public async init() {

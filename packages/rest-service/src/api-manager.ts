@@ -232,5 +232,5 @@ export class ApiManager implements Disposable {
   }
 
   @Injected(ServerManager)
-  private declare readonly serverManager: ServerManager
+  declare private readonly serverManager: ServerManager
 }

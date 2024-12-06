@@ -46,5 +46,5 @@ export class Repository implements Disposable {
   }
 
   @Injected(StoreManager)
-  private declare readonly storeManager: StoreManager
+  declare private readonly storeManager: StoreManager
 }
