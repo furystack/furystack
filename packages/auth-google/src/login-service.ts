@@ -29,7 +29,7 @@ export class GoogleLoginSettings {
   @Injected((injector) =>
     injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager)),
   )
-  private declare readonly userStore: PhysicalStore<User, 'username'>
+  declare private readonly userStore: PhysicalStore<User, 'username'>
 
   public getUserFromGooglePayload: (payload: GoogleApiPayload) => Promise<User | undefined> = async (payload) => {
     const users = await this.userStore.find({
@@ -50,7 +50,7 @@ export class GoogleLoginSettings {
 @Injectable({ lifetime: 'scoped' })
 export class GoogleLoginService {
   @Injected(GoogleLoginSettings)
-  private declare readonly settings: GoogleLoginSettings
+  declare private readonly settings: GoogleLoginSettings
 
   private readonly googleApiEndpoint: string = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 

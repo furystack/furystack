@@ -41,7 +41,7 @@ export class GridPageService implements Disposable {
   })
 
   @Injected((injector) => getDataSetFor(injector, TestClass, 'id'))
-  private declare dataSet: DataSet<TestClass, 'id'>
+  declare private dataSet: DataSet<TestClass, 'id'>
 
   private fillStore = async (injector: Injector, count = 100) => {
     const entries = new Array(count).fill(null).map(() => this.createTestClassInstance())

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "11.0.11",
+  "version": "11.0.12",
   "description": "Google Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {
@@ -38,10 +38,10 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^22.9.3",
+    "@types/node": "^22.10.2",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.5"
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",

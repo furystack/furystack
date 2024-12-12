@@ -11,15 +11,15 @@ import { SecurityPolicyManager } from './security-policy-manager.js'
 @Injectable({ lifetime: 'singleton' })
 export class PasswordAuthenticator {
   @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName'))
-  private declare readonly passwordStore: PhysicalStore<PasswordCredential, 'userName'>
+  declare private readonly passwordStore: PhysicalStore<PasswordCredential, 'userName'>
 
   @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token'))
-  private declare readonly tokenStore: PhysicalStore<PasswordResetToken, 'token'>
+  declare private readonly tokenStore: PhysicalStore<PasswordResetToken, 'token'>
 
   @Injected(function (this: PasswordAuthenticator, injector) {
     return injector.getInstance(this.policyManager.policy.hasher)
   })
-  public declare readonly hasher: PasswordHasher
+  declare public readonly hasher: PasswordHasher
 
   /**
    * @param userName The User's unique name
@@ -100,5 +100,5 @@ export class PasswordAuthenticator {
   }
 
   @Injected(SecurityPolicyManager)
-  public declare policyManager: SecurityPolicyManager
+  declare public policyManager: SecurityPolicyManager
 }

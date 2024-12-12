@@ -166,13 +166,13 @@ export class HttpUserContext {
   }
 
   @Injected(HttpAuthenticationSettings)
-  public declare readonly authentication: HttpAuthenticationSettings<User, DefaultSession>
+  declare public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>
 
   @Injected(StoreManager)
-  private declare readonly storeManager: StoreManager
+  declare private readonly storeManager: StoreManager
 
   @Injected(PasswordAuthenticator)
-  private declare readonly authenticator: PasswordAuthenticator
+  declare private readonly authenticator: PasswordAuthenticator
 
   public init() {
     this.getUserStore().addListener('onEntityUpdated', ({ id, change }) => {

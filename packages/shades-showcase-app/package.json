@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "7.0.11",
+  "version": "7.0.12",
   "description": "",
   "private": true,
   "type": "module",
@@ -13,12 +13,12 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@codecov/vite-plugin": "^1.4.0",
+    "@codecov/vite-plugin": "^1.6.0",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.49.1",
     "typescript": "^5.7.2",
-    "vite": "^5.4.11",
-    "vitest": "^2.1.5"
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
@@ -33,6 +33,6 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
-    "monaco-editor": "^0.52.0"
+    "monaco-editor": "^0.52.2"
   }
 }
