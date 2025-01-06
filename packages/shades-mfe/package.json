@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-mfe",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
