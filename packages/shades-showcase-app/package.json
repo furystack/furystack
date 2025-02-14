@@ -13,7 +13,7 @@
   "author": "gallay.lajos@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "@codecov/vite-plugin": "^1.8.0",
+    "@codecov/vite-plugin": "^1.9.0",
     "@furystack/logging": "workspace:^",
     "@playwright/test": "^1.50.1",
     "typescript": "^5.7.3",
