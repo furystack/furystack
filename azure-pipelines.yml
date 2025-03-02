@@ -76,10 +76,10 @@ jobs:
       matrix:
         node_20_x:
           node_version: 20.x
-        node_21_x:
-          node_version: 21.x
         node_22_x:
           node_version: 22.x
+        node_23_x:
+          node_version: 23.x
     displayName: Showcase app UI tests
     steps:
       - task: NodeTool@0
