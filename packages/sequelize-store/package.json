@@ -42,10 +42,10 @@
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.8",
     "sqlite3": "5.1.7",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
   },
   "typings": "./types/index.d.ts"
 }
