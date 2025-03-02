@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "15.0.13",
+  "version": "15.0.14",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
@@ -40,9 +40,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^22.10.10",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.4"
+    "@types/node": "^22.13.8",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
