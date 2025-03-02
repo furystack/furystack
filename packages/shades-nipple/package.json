@@ -29,8 +29,8 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "@furystack/inject": "workspace:^",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
