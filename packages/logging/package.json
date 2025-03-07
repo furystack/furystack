@@ -35,7 +35,7 @@
   "devDependencies": {
     "@furystack/utils": "workspace:^",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.7"
+    "vitest": "^3.0.8"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
