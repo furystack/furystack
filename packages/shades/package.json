@@ -38,10 +38,10 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^22.13.9",
+    "@types/node": "^22.13.10",
     "jsdom": "^26.0.0",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.9"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
