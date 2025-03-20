@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "7.0.15",
+  "version": "7.0.16",
   "description": "",
   "private": true,
   "type": "module",
@@ -15,10 +15,10 @@
   "devDependencies": {
     "@codecov/vite-plugin": "^1.9.0",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.51.1",
     "typescript": "^5.8.2",
-    "vite": "^6.2.0",
-    "vitest": "^3.0.7"
+    "vite": "^6.2.2",
+    "vitest": "^3.0.9"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
