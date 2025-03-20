@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "typescript": "^5.8.2",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.9"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
