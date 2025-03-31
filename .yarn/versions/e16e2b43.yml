@@ -1,8 +1,11 @@
 releases:
   "@furystack/auth-google": patch
+  "@furystack/cache": patch
   "@furystack/core": patch
   "@furystack/filesystem-store": patch
   "@furystack/i18n": patch
+  "@furystack/inject": patch
+  "@furystack/logging": patch
   "@furystack/mongodb-store": patch
   "@furystack/redis-store": patch
   "@furystack/repository": patch
@@ -18,5 +21,6 @@ releases:
   "@furystack/shades-mfe": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
+  "@furystack/utils": patch
   "@furystack/websocket-api": patch
   furystack: patch
