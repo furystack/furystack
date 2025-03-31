@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-mfe",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
@@ -39,9 +39,9 @@
     "@furystack/shades": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
+    "@types/node": "^22.13.14",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.9"
+    "vitest": "^3.1.1"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
