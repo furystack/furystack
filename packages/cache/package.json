@@ -1,6 +1,6 @@
 {
   "name": "@furystack/cache",
-  "version": "5.0.13",
+  "version": "5.0.14",
   "description": "Cache providers for FuryStack package",
   "type": "module",
   "scripts": {
