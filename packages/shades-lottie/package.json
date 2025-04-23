@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-lottie",
-  "version": "7.0.17",
+  "version": "7.0.18",
   "description": "Lottie animation player wrapper for FuryStack Shades",
   "type": "module",
   "scripts": {
@@ -29,8 +29,8 @@
   "author": "gallay.lajos@gmail.com",
   "license": "GPL-2.0",
   "devDependencies": {
-    "typescript": "^5.8.2",
-    "vitest": "^3.1.1"
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
