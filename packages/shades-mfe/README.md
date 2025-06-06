@@ -1,7 +1,7 @@
 # shades-mfe
 
-Micro Frontend management for Shades
+Micro frontend management for Shades.
 
-## Usage example
+## Usage Example
 
 --- TODO ---

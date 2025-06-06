@@ -1,8 +1,8 @@
 # redis-store
 
-Redis Physical Store implementation for FuryStack. `filter()` and `count()` is not supported.
+Redis physical store implementation for FuryStack. `filter()` and `count()` are not supported.
 
-An usage example:
+Usage example:
 
 ```ts
 import { join } from 'path'

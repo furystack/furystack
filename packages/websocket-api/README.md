@@ -1,10 +1,10 @@
 # websocket-api
 
-WebSocket implementation for FuryStack
+WebSocket implementation for FuryStack.
 
-### Usage example
+### Usage Example
 
-You can initialize the WebSocket package in the following way
+You can initialize the WebSocket package as follows:
 
 ```ts
 const myInjector = new Injector().useWebsockets({
@@ -13,9 +13,9 @@ const myInjector = new Injector().useWebsockets({
 })
 ```
 
-### Implement your own actions
+### Implementing Your Own Actions
 
-You can implement a WebSocket action in the following way:
+You can implement a WebSocket action as follows:
 
 ```ts
 import { User } from '@furystack/core'

@@ -1,8 +1,8 @@
 # filesystem-store
 
-Filesystem Store implementation for FuryStack. Recommended for lightweight usage, embedded operations, experimenting / tryout, not for production.
+Filesystem store implementation for FuryStack. Recommended for lightweight usage, embedded operations, and experimenting/tryouts—not for production.
 
-An usage example:
+Usage example:
 
 ```ts
 import { join } from 'path'

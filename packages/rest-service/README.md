@@ -1,14 +1,14 @@
 # rest-service
 
-REST Service (implementation) package for `@furystack/rest`
+REST service (implementation) package for `@furystack/rest`.
 
 ## Usage
 
-You can start with importing your custom API Endpoint interface (see `@furystack/rest`) and with the `.useRestService<MyApi>(...)` injector extensions method. You can define multiple REST services per injector (even on the same port)
+Start by importing your custom API endpoint interface (see `@furystack/rest`) and use the `.useRestService<MyApi>(...)` injector extension method. You can define multiple REST services per injector (even on the same port).
 
-### Implementing a custom API
+### Implementing a Custom API
 
-Usage example - Authenticated GET, GET Collection and POST APIs for a custom entity that has a physical store and repository set up
+Usage example – authenticated GET, GET collection, and POST APIs for a custom entity that has a physical store and repository set up:
 
 ```ts
 import { MyApi, MyEntity } from 'my-common-package'
@@ -20,7 +20,7 @@ import {
 } from '@furystack/rest-service'
 
 myInjector.useHttpAuthentication().useRestService<MyApi>({
-  port: 8080, // The port to listen
+  port: 8080, // The port to listen on
   root: '/api', // Routes will be joined on this root path
   cors: {
     // Enable CORS
@@ -29,12 +29,12 @@ myInjector.useHttpAuthentication().useRestService<MyApi>({
   },
   // This API should implement *all* methods that are defined in `MyApi`
   api: {
-    // Endpoints that can be called with GET Http method
+    // Endpoints that can be called with GET HTTP method
     GET: {
       '/my-entities': Authenticate()(createGetCollectionEndpoint({ model: MyEntity, primaryKey: 'id' })),
       '/my-entities/:id': Authenticate()(createGetEntityEndpoint({ model: MyEntity, primaryKey: 'id' })),
     },
-    // Endpoints that can be called with GET Http method
+    // Endpoints that can be called with POST HTTP method
     POST: {
       '/my-entities': Authenticate()(createPostEndpoint({ model: MyEntity, primaryKey: 'id' })),
     },
@@ -42,9 +42,9 @@ myInjector.useHttpAuthentication().useRestService<MyApi>({
 })
 ```
 
-### Endpoint generators (based on Repository DataSets)
+### Endpoint Generators (Based on Repository DataSets)
 
-If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) for an entity type, you can easily create some CRUD endpoints for them. These are the followings:
+If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) for an entity type, you can easily create some CRUD endpoints for them. These include:
 
 - createDeleteEndpoint()
 - createGetCollectionEndpoint()
@@ -54,9 +54,9 @@ If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) 
 
 The endpoints will use the defined Physical Stores for retrieving entities and the Repository for authorization / event subscriptions.
 
-### Custom endpoint implementation
+### Custom Endpoint Implementation
 
-If you want to implement an endpoint with custom logic, you can define it in the following way:
+To implement an endpoint with custom logic, define it as follows:
 
 ```ts
 import { Injector } from '@furystack/inject'
@@ -168,13 +168,13 @@ getResult().then((data) => {
 })
 ```
 
-### Payload validation
+### Payload Validation
 
-Type-safe APIs does **NOT** comes with built-in validation by default - but you can use the JSON Schema for full payload validation.
-The prefferred way is:
+Type-safe APIs do **NOT** come with built-in validation by default - but you can use the JSON Schema for full payload validation.
+The preferred way is:
 
 1. Create your API interface
-1. Create JSON Schemas from the API (The `ts-json-schema-generator` package is the best solution nowdays, you can check how it works, [here](https://github.com/furystack/furystack/blob/develop/package.json#L39))
+1. Create JSON Schemas from the API (The `ts-json-schema-generator` package is the best solution nowadays, you can check how it works, [here](https://github.com/furystack/furystack/blob/develop/package.json#L39))
 1. Use the Validate middleware, as shown in the following example:
 
 ```ts
@@ -190,7 +190,7 @@ In that way, you will get full validation for _all_ defined endpoint data (heade
 
 ### Authentication and HttpUserContext
 
-You can use the build-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `.useCommonAuth()` injector extension:
+You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `.useCommonAuth()` injector extension:
 
 ```ts
 myInjector.useCommonAuth({{
@@ -203,9 +203,9 @@ myInjector.useCommonAuth({{
   }).useRestService<MyApi>({...api options})
 ```
 
-### Built-in actions
+### Built-in Actions
 
-The package contains the following built-in actions
+The package contains the following built-in actions:
 
 - `ErrorAction` - for default error handling and dumping errors in the response
 - `GetCurrentUser` - Returns the current user
