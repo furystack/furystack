@@ -12,10 +12,9 @@ export class TestEntry {
   declare value: string
 }
 
-myInjector
-  .setupStores(sm => {
-    sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
-  })
+myInjector.setupStores((sm) => {
+  sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+})
 
 const myMongoStore = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
 ```
