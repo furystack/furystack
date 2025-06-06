@@ -1,16 +1,15 @@
 # @furystack/utils
 
-> General utilities, forked from @furystack/utils
+General utilities for FuryStack.
 
 ### Disposable
 
-You can implement _disposable_ resources and use them with a _using()_ or _usingAsync()_ syntax.
-Example:
+You can implement disposable resources and use them with `using()` or `usingAsync()` syntax. Example:
 
 ```ts
 class Resource implements IDisposable {
   dispose() {
-    // cleanup logics
+    // cleanup logic
   }
 }
 
@@ -25,7 +24,7 @@ usingAsync(new Resource(), async (resource) => {
 
 ### ObservableValue and ValueObservers
 
-You can track value changes using with this simple Observable implementation.
+You can track value changes using this simple Observable implementation.
 
 Example:
 
@@ -37,15 +36,15 @@ const observer = observableValue.subscribe((newValue) => {
 
 // To update the value
 observableValue.setValue(Math.random())
-// if you want to dispose a single observer
+// To dispose a single observer
 observer[Symbol.dispose]()
-// if you want to dispose the whole observableValue with all of its observers:
+// To dispose the whole observableValue with all of its observers:
 observableValue[Symbol.dispose]()
 ```
 
 ### PathHelper
 
-The class contains small helper methods for path transformation and manipulation.
+This class contains helper methods for path transformation and manipulation.
 
 ### Retrier
 

@@ -2,11 +2,11 @@
 
 Repository implementation for FuryStack.
 With a repository, you can implement entity-level business logic in an easy and structured way.
-You can authorize, manipulate and observe CRUD operations.
+You can authorize, manipulate, and observe CRUD operations.
 
-## Setting up a repository
+## Setting Up a Repository
 
-You can set up a repository in the following way
+You can set up a repository as follows:
 
 ```ts
 class MyModel {
@@ -20,24 +20,24 @@ myInjector
   .setupRepository((repo) =>
     repo.createDataSet(MyModel, {
       onEntityAdded: ({ injector, entity }) => {
-        injector.logger.verbose({ message: `An entity added with value '${entity.value}'` })
+        injector.logger.verbose({ message: `An entity was added with value '${entity.value}'` })
       },
       authorizeUpdate: async () => ({
         isAllowed: false,
-        message: 'This is a read only dataset. No update is allowed. :(',
+        message: 'This is a read-only dataset. No update is allowed. :(',
       }),
       /** custom repository options */
     }),
   )
 ```
 
-In the following example we've created a physical InMemory store for the model MyModel, and we've configured a Repository with a DataSet.
-It will log to a logger when an entity has been added and it won't allow us to update entities.
+In the example above, we've created a physical InMemory store for the model `MyModel`, and we've configured a repository with a DataSet.
+It will log to a logger when an entity has been added, and it won't allow updates to entities.
 
 ### Working with the DataSet
 
 A DataSet is similar to a physical store, but it can have custom event callbacks and authorization logic.
-You can retrieve the dataset in a following way:
+You can retrieve the dataset as follows:
 
 ```ts
 const dataSet = myInjector.getDataSetFor(MyModel)
@@ -47,7 +47,7 @@ dataSet.update(myInjector, 1, { id: 1, value: 'bar' }) // <--- this one will be 
 
 ### Events
 
-Events are great for logging / monitoring DataSet changes or distribute changes to clients. They are simple optional callbacks - if they are defined, they will be called on a specific event. These events are `onEntityAdded`, `onEntityUpdated` and `onEntityRemoved`
+Events are great for logging or monitoring DataSet changes or distributing changes to clients. They are simple optional callbacks – if defined, they will be called on a specific event. These events are `onEntityAdded`, `onEntityUpdated`, and `onEntityRemoved`
 
 ### Authorizing operations
 
