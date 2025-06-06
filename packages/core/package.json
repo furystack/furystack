@@ -1,6 +1,6 @@
 {
   "name": "@furystack/core",
-  "version": "15.0.18",
+  "version": "15.0.19",
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
