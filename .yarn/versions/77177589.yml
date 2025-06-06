@@ -1,2 +1,3 @@
 releases:
+  "@furystack/mongodb-store": patch
   furystack: patch
