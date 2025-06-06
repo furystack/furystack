@@ -50,3 +50,49 @@ A powerful logging library that allows you to create log entries with scopes, le
 
 Inject is a DI/IoC utility that allows you to handle your dependencies easily and is the heart and soul of the stack. In short—just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them.
 An injector can be extended with _extension methods_, so you can configure your whole app in one place in a type-safe way.
+
+## Other Packages
+
+### @furystack/cache
+
+Simple in-memory caching utility to improve performance and reduce redundant computations.
+
+### @furystack/filesystem-store
+
+Filesystem-based store implementation, ideal for lightweight or experimental use.
+
+### @furystack/i18n
+
+General internationalization and translation management for FuryStack applications.
+
+### @furystack/mongodb-store
+
+MongoDB physical store implementation for scalable, document-based storage.
+
+### @furystack/redis-store
+
+Redis physical store implementation for fast, in-memory data storage (note: some features like `filter()` and `count()` are not supported).
+
+### @furystack/security
+
+Password management, authentication, and authorization utilities.
+
+### @furystack/sequelize-store
+
+Sequelize-based store implementation for SQL databases.
+
+### @furystack/shades-i18n
+
+Internationalization support for the Shades UI library.
+
+### @furystack/shades-mfe
+
+Micro frontend management utilities for Shades.
+
+### @furystack/shades-showcase-app
+
+Minimal showcase application demonstrating FuryStack Shades features.
+
+### @furystack/websocket-api
+
+WebSocket implementation for real-time communication in FuryStack.
