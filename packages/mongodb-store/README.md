@@ -1,11 +1,10 @@
 # mongodb-store
 
-MongoDB Physical Store implementation for FuryStack.
+MongoDB physical store implementation for FuryStack.
 
-Initialization
+## Initialization
 
 ```ts
-
 import '@furystack/mongodb-store'
 
 export class TestEntry {
@@ -13,9 +12,9 @@ export class TestEntry {
   declare value: string
 }
 
-myInjector
-  .setupStores(sm => {
-    sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+myInjector.setupStores((sm) => {
+  sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+})
 
 const myMongoStore = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
 ```

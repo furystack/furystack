@@ -1,32 +1,32 @@
 # @furystack/logging
 
-Logging package for FuryStack
+Logging package for FuryStack.
 
 ## Initializing with @furystack/inject
 
-You can start using the Logging service with an injector in the following way:
+You can start using the logging service with an injector as follows:
 
 ```ts
 import { ConsoleLogger } from '@furystack/logging'
 
-const myInjector = new Injector().useLogging(ConsoleLogger, Logger1, Logger2 /** ...your Logger implementations */)
+const myInjector = new Injector().useLogging(ConsoleLogger, Logger1, Logger2 /* ...your Logger implementations */)
 ```
 
-You can retrieve the Logger instance with
+You can retrieve the Logger instance with:
 
 ```ts
 const myLogger = myInjector.getLogger()
 ```
 
-...or with a specific scope:
+Or with a specific scope:
 
 ```ts
 myInjector.getLogger().withScope('CustomScope')
 ```
 
-## Logging events
+## Logging Events
 
-You can log a simple event with
+You can log a simple event with:
 
 ```ts
 myLogger.addEntry({
@@ -40,7 +40,7 @@ myLogger.addEntry({
 })
 ```
 
-or
+Or:
 
 ```ts
 myLogger.verbose({
@@ -55,18 +55,18 @@ myLogger.verbose({
 
 The two snippets do the same - they will add a log entry to _each_ registered logger.
 
-### Scoped loggers
+### Scoped Loggers
 
-At the most of the cases, you use a logger in a service with a specific scope. You can create and use a scoped logger in the following way
+In most cases, you use a logger in a service with a specific scope. You can create and use a scoped logger in the following way:
 
 ```ts
 const scopedLogger = myLogger.withScope('@furystack/logging/test')
 scopedLogger.verbose({ message: 'FooBarBaz' })
 ```
 
-### Implementing your own logger
+### Implementing Your Own Logger
 
-You can implement your own logging logic in the similar way as this custom log collector
+You can implement your own logging logic in a similar way as this custom log collector:
 
 ```ts
 import { AbstractLogger, ILeveledLogEntry } from '@furystack/logging'

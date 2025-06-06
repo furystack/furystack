@@ -1,11 +1,10 @@
-# mongodb-store
+# sequelize-store
 
-Sequelize Physical Store implementation for FuryStack.
+Sequelize physical store implementation for FuryStack.
 
-Initialization
+## Initialization
 
 ```ts
-
 import '@furystack/sequelize-store'
 
 export class TestEntry extends Model<...,...> {
@@ -16,8 +15,7 @@ export class TestEntry extends Model<...,...> {
 myInjector
   .setupStores(sm => {
     sm.useSequelize(TestEntry, '...other Sequelize-related options...')
-
+  })
 
 const myStore: IPhysicalStore<TestEntry> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
-
 ```

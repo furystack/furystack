@@ -1,16 +1,16 @@
 # @furystack/inject
 
-Dependency injection / Inversion of control package for FuryStack
+Dependency injection / inversion of control package for FuryStack.
 
 ## Injector
 
-Injectors act as _containers_, they are responsible for creating / retrieving service instances based on the provided Injectable metadata. You can create an injector with simply instantiating the class
+Injectors act as containers; they are responsible for creating and retrieving service instances based on the provided Injectable metadata. You can create an injector by simply instantiating the class:
 
 ```ts
 const myInjector = new Injector()
 ```
 
-You can organize your injector(s) in trees by creating _child injectors_. You can use the children and services with _scoped_ lifetime for contextual services.
+You can organize your injectors in trees by creating child injectors. You can use the children and services with scoped lifetime for contextual services:
 
 ```ts
 const childInjector = myInjector.createChild({ owner: 'myCustomContext' })
@@ -18,32 +18,32 @@ const childInjector = myInjector.createChild({ owner: 'myCustomContext' })
 
 ## Injectable
 
-### Creating an Injectable service from a class
+### Creating an Injectable Service from a Class
 
-You can create an injectable service from a plain class when decorating with the `@Injectable()` decorator.
+You can create an injectable service from a plain class by decorating it with the `@Injectable()` decorator:
 
 ```ts
 @Injectable({
   /** Injectable options */
 })
-export class MySercive {
+export class MyService {
   /** ...service implementation... */
 
   constructor(s1: OtherInjectableService, s2: AnotherInjectableService) {}
 }
 ```
 
-The constructor parameters (`s1: OtherInjectableService` and `s2: AnotherInjectableService`) should be also decorated and will be resolved recursively.
+The constructor parameters (`s1: OtherInjectableService` and `s2: AnotherInjectableService`) should also be decorated and will be resolved recursively.
 
 ### Lifetime
 
-You can define a specific Lifetime for Injectable services on the decorator
+You can define a specific lifetime for injectable services in the decorator:
 
 ```ts
 @Injectable({
   lifetime: 'transient',
 })
-export class MySercive {
+export class MyService {
   /** ...service implementation... */
 }
 ```
