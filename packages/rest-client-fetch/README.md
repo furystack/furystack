@@ -1,7 +1,7 @@
 # rest-client-fetch
 
-REST Client package for `@furystack/rest` with native Fetch implementation.
-You can use this package to operate strongly typed REST APIs in the browser with native `fetch` implementation.
+REST client package for `@furystack/rest` with a native Fetch implementation.
+You can use this package to operate strongly typed REST APIs in the browser with the native `fetch` implementation.
 
 ```ts
 import { MyApi } from 'my-common-package'

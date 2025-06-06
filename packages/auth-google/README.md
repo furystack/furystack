@@ -1,8 +1,8 @@
 # @furystack/auth-google
 
-Google Authentication package for FuryStack
+Google Authentication package for FuryStack.
 
-Use the injectable `GoogleLoginService` with a retrieved id_token to get Google User Data.
+Use the injectable `GoogleLoginService` with a retrieved `id_token` to get Google user data.
 
 ```ts
 const googleUserData = await injector.getInstance(GoogleLoginService).getGoogleUserData(loginData.token)
