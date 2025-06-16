@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-client-fetch",
-  "version": "8.0.19",
+  "version": "8.0.20",
   "description": "Native browser fetch based REST API implementation for FuryStack",
   "type": "module",
   "scripts": {
