@@ -73,4 +73,61 @@ describe('MongoDB Store', () => {
       expect(retrieved).toEqual(created)
     })
   })
+
+  it('Should filter by _id as a string', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const { created } = await store.add({ value: 'value1' })
+      const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
+      expect(retrieved.length).toBe(1)
+      expect(retrieved[0]).toEqual(created[0])
+    })
+  })
+
+  it('Should filter by _id.$eq as a string', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const { created } = await store.add({ value: 'value1' })
+      const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
+      expect(retrieved.length).toBe(1)
+      expect(retrieved[0]).toEqual(created[0])
+    })
+  })
+
+  it('Should filter by _id.$in as array of strings', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
+      const ids = created.map((c) => c._id)
+      const retrieved = await store.find({ filter: { _id: { $in: ids } } })
+      expect(retrieved.length).toBe(2)
+      expect(retrieved).toEqual(created)
+    })
+  })
+
+  it('Should filter by _id.$nin as array of strings', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
+      const ids = created.map((c) => c._id)
+      const retrieved = await store.find({ filter: { _id: { $nin: [ids[0]] } } })
+      expect(retrieved.length).toBe(1)
+      expect(retrieved[0]).toEqual(created[1])
+    })
+  })
+
+  it('Should filter by a non-_id field', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
+      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      await store.add({ value: 'value1' }, { value: 'value2' })
+      const retrieved = await store.find({ filter: { value: { $eq: 'value2' } } })
+      expect(retrieved.length).toBe(1)
+      expect(retrieved[0].value).toBe('value2')
+    })
+  })
 })
