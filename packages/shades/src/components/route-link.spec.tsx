@@ -1,14 +1,14 @@
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as any
 
 import { Injector } from '@furystack/inject'
-import { RouteLink } from './route-link.js'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { LocationService } from '../services/location-service.js'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
+import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
+import { RouteLink } from './route-link.js'
 
 describe('RouteLink', () => {
   beforeEach(() => {
@@ -35,9 +35,7 @@ describe('RouteLink', () => {
         </RouteLink>
       ),
     })
-    expect(document.body.innerHTML).toBe(
-      '<div id="root"><a is="route-link" id="route" href="/subroute" style="text-decoration: inherit;">Link</a></div>',
-    )
+    expect(document.body.innerHTML).toMatchInlineSnapshot(`"<div id="root"><a is="route-link" id="route" href="/subroute" style="color: inherit; text-decoration: inherit;">Link</a></div>"`)
     expect(onRouteChange).not.toBeCalled()
     document.getElementById('route')?.click()
     expect(onRouteChange).toBeCalledTimes(1)
