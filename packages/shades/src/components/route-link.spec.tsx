@@ -35,7 +35,9 @@ describe('RouteLink', () => {
         </RouteLink>
       ),
     })
-    expect(document.body.innerHTML).toMatchInlineSnapshot(`"<div id="root"><a is="route-link" id="route" href="/subroute" style="color: inherit; text-decoration: inherit;">Link</a></div>"`)
+    expect(document.body.innerHTML).toMatchInlineSnapshot(
+      `"<div id="root"><a is="route-link" id="route" href="/subroute" style="color: inherit; text-decoration: inherit;">Link</a></div>"`,
+    )
     expect(onRouteChange).not.toBeCalled()
     document.getElementById('route')?.click()
     expect(onRouteChange).toBeCalledTimes(1)
