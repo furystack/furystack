@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-store",
-  "version": "10.0.19",
+  "version": "10.0.20",
   "description": "Redis Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -39,12 +39,12 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "redis": "^5.5.5"
+    "redis": "^5.5.6"
   },
   "devDependencies": {
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.1",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.2"
+    "vitest": "^3.2.3"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
