@@ -4,7 +4,7 @@ import { generateSwaggerJsonFromApiSchema } from './generate-swagger-json.js'
 
 describe('generateSwaggerJsonFromApiSchema', () => {
   it('Should generate a basic Swagger document with correct OpenAPI structure', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/test': {
         method: 'GET',
         path: '/api/test',
@@ -14,7 +14,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check basic structure
     expect(result.openapi).toBe('3.1.0')
@@ -30,7 +30,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should convert API endpoints to OpenAPI paths correctly', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/users': {
         method: 'GET',
         path: '/api/users',
@@ -47,7 +47,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check paths
     expect(result.paths?.['/api/users']).toBeDefined()
@@ -63,7 +63,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should extract path parameters correctly', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/users/:userId/posts/:postId': {
         method: 'GET',
         path: '/api/users/:userId/posts/:postId',
@@ -73,7 +73,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check path parameters
     const parameters = result.paths?.['/api/users/{userId}/posts/{postId}']?.get?.parameters as ParameterObject[]
@@ -87,7 +87,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should handle different HTTP methods correctly', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/resource-get': {
         method: 'GET',
         path: '/api/resource-get',
@@ -118,7 +118,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check multiple methods
     expect(result.paths?.['/api/resource-get'].get).toBeDefined()
@@ -141,7 +141,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/test': {
         method: 'GET',
         path: '/api/test',
@@ -151,14 +151,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check schema is included in components
     expect(result.components?.schemas?.TestModel).toEqual(testSchema)
   })
 
   it('Should handle responses with correct status codes and content types', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/test': {
         method: 'GET',
         path: '/api/test',
@@ -168,7 +168,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check response structure
     const responses = result.paths?.['/api/test'].get?.responses as Record<string, ResponseObject>
@@ -186,7 +186,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should use empty path object if it does not exist - for code coverage', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/test': {
         method: 'GET',
         path: '/api/test',
@@ -196,14 +196,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // This test is mainly for coverage, checking that the path initialization logic works
     expect(result.paths?.['/api/test']).toBeDefined()
   })
 
   it('Should handle endpoints without schemas', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/no-schema': {
         method: 'GET',
         path: '/api/no-schema',
@@ -213,7 +213,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Should still create the path without errors
     expect(result.paths?.['/api/no-schema']).toBeDefined()
@@ -221,7 +221,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should use operationId based on method and path', () => {
-    const schema: Record<string, ApiEndpointDefinition> = {
+    const api: Record<string, ApiEndpointDefinition> = {
       '/api/users/:id/profile': {
         method: 'GET',
         path: '/api/users/:id/profile',
@@ -231,7 +231,7 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const result = generateSwaggerJsonFromApiSchema(schema)
+    const result = generateSwaggerJsonFromApiSchema({ api })
 
     // Check operationId format
     expect(result.paths?.['/api/users/{id}/profile'].get?.operationId).toBe('get_api_users_id_profile')

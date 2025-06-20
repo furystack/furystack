@@ -17,7 +17,12 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getSchemaFromApi(Api)
+    const schema = getSchemaFromApi({
+      api: Api,
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+    })
     expect(schema).toEqual({
       '/example': {
         isAuthenticated: false,
@@ -39,7 +44,12 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getSchemaFromApi(Api)
+    const schema = getSchemaFromApi({
+      api: Api,
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+    })
     expect(schema).toEqual({
       '/validate-query': {
         isAuthenticated: false,

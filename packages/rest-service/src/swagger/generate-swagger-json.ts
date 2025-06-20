@@ -6,13 +6,23 @@ import type { ApiEndpointDefinition, Operation, ParameterObject, SwaggerDocument
  * @param schema - The FuryStack API schema to convert
  * @returns A SwaggerDocument in OpenAPI 3.1 format
  */
-export const generateSwaggerJsonFromApiSchema = (schema: Record<string, ApiEndpointDefinition>): SwaggerDocument => {
+export const generateSwaggerJsonFromApiSchema = ({
+  api,
+  title = 'FuryStack API',
+  description = 'API documentation generated from FuryStack API schema',
+  version = '1.0.0',
+}: {
+  api: Record<string, ApiEndpointDefinition>
+  title?: string
+  description?: string
+  version?: string
+}): SwaggerDocument => {
   const swaggerJson: SwaggerDocument = {
     openapi: '3.1.0',
     info: {
-      title: 'FuryStack API',
-      version: '1.0.0',
-      description: 'API documentation generated from FuryStack API schema',
+      title,
+      version,
+      description,
     },
     jsonSchemaDialect: 'https://spec.openapis.org/oas/3.1/dialect/base',
     servers: [{ url: '/' }],
@@ -30,7 +40,7 @@ export const generateSwaggerJsonFromApiSchema = (schema: Record<string, ApiEndpo
     },
   }
 
-  for (const [path, definition] of Object.entries(schema)) {
+  for (const [path, definition] of Object.entries(api)) {
     // Normalize path to OpenAPI format (convert :param to {param})
     const normalizedPath = path.replace(/:([^/]+)/g, '{$1}')
     if (!swaggerJson.paths![normalizedPath]) {
