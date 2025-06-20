@@ -45,7 +45,7 @@ describe('EventHub', () => {
 
     const objectListener1 = vi.fn((_val: { a: number }) => {})
 
-    const objectListener2 = vi.fn((_val: { b: string }) => {})
+    const objectListener2 = vi.fn(async (_val: { b: string }) => {})
 
     // Act
     eventHub.addListener('ExampleNumberEvent', numberListener)

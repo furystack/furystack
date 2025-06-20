@@ -1,4 +1,6 @@
-type ListenerFunction<EventTypeMap extends object, T extends keyof EventTypeMap> = (arg: EventTypeMap[T]) => void
+type ListenerFunction<EventTypeMap extends object, T extends keyof EventTypeMap> = (
+  arg: EventTypeMap[T],
+) => void | PromiseLike<void>
 
 export class EventHub<EventTypeMap extends object> implements Disposable {
   private listeners = new Map<keyof EventTypeMap, Set<ListenerFunction<EventTypeMap, keyof EventTypeMap>>>()
@@ -32,7 +34,7 @@ export class EventHub<EventTypeMap extends object> implements Disposable {
 
   public emit<TEvent extends keyof EventTypeMap>(event: TEvent, arg: EventTypeMap[TEvent]) {
     if (this.listeners.has(event)) {
-      this.listeners.get(event)!.forEach((listener) => listener(arg))
+      this.listeners.get(event)!.forEach((listener) => void listener(arg))
     }
   }
 
