@@ -7,7 +7,7 @@ import { JsonResult } from './request-action-implementation.js'
 export const Authenticate =
   () =>
   <T extends { result: unknown }>(action: RequestAction<T>): RequestAction<T> => {
-    return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
+    const wrapped = async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
       const { injector } = args
       const authenticated = await isAuthenticated(injector)
       if (!authenticated) {
@@ -20,4 +20,8 @@ export const Authenticate =
       }
       return (await action(args)) as ActionResult<T>
     }
+
+    wrapped.isAuthenticated = true
+
+    return wrapped
   }

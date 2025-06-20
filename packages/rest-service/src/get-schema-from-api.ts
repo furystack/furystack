@@ -39,6 +39,8 @@ const getDefinitionFromAction = (method: Method, path: string, action: RequestAc
     path,
     schema: 'schema' in action && typeof action.schema === 'object' ? action.schema : defaultSchema,
     schemaName: 'schemaName' in action && typeof action.schemaName === 'string' ? action.schemaName : defaultSchemaName,
+    isAuthenticated:
+      'isAuthenticated' in action && typeof action.isAuthenticated === 'boolean' ? action.isAuthenticated : false,
   }
 }
 

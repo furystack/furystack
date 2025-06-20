@@ -125,6 +125,7 @@ describe('Validation integration tests', () => {
         expect(result.result).toMatchInlineSnapshot(`
           {
             "/validate-body": {
+              "isAuthenticated": false,
               "method": "POST",
               "path": "/validate-body",
               "schema": {
@@ -1022,6 +1023,7 @@ describe('Validation integration tests', () => {
               "schemaName": "ValidateBody",
             },
             "/validate-headers": {
+              "isAuthenticated": false,
               "method": "GET",
               "path": "/validate-headers",
               "schema": {
@@ -1919,6 +1921,7 @@ describe('Validation integration tests', () => {
               "schemaName": "ValidateHeaders",
             },
             "/validate-query": {
+              "isAuthenticated": false,
               "method": "GET",
               "path": "/validate-query",
               "schema": {
@@ -2816,6 +2819,7 @@ describe('Validation integration tests', () => {
               "schemaName": "ValidateQuery",
             },
             "/validate-url/:id": {
+              "isAuthenticated": false,
               "method": "GET",
               "path": "/validate-url/:id",
               "schema": {
