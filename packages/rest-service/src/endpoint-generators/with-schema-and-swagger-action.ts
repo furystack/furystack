@@ -1,5 +1,4 @@
-import type { RestApi } from '@furystack/rest'
-import type { SwaggerDocument } from '../swagger/generate-swagger-json.js'
+import type { RestApi, SwaggerDocument } from '@furystack/rest'
 
 /**
  * Extends a RestApi with endpoints for both schema.json and swagger.json
