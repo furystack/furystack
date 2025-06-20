@@ -1,7 +1,7 @@
 import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
-import type { WithSchemaAction } from '@furystack/rest'
+import type { SwaggerDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
@@ -76,9 +76,53 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
 
 describe('Validation integration tests', () => {
   describe('swagger.json schema definition', () => {
-    it.todo('Should return a 404 when not enabled')
+    it('Should return a 404 when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<any>>)({
+            method: 'GET',
+            action: '/swagger.json',
+          })
+          expect.fail('Expected response error but got success')
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
 
-    it.todo('Should return a generated swagger.json when enabled')
+    it('Should return a generated swagger.json when enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        // Verify swagger document structure
+        const swaggerJson = result.result as SwaggerDocument
+        expect(swaggerJson.openapi).toBe('3.0.0')
+        expect(swaggerJson.info).toBeDefined()
+        expect(swaggerJson.info.title).toBe('FuryStack API')
+        expect(swaggerJson.paths).toBeDefined()
+
+        // Verify our API endpoints are included
+        expect(swaggerJson.paths['/validate-query']).toBeDefined()
+        expect(swaggerJson.paths['/validate-url/{id}']).toBeDefined()
+        expect(swaggerJson.paths['/validate-headers']).toBeDefined()
+        expect(swaggerJson.paths['/validate-body']).toBeDefined()
+
+        // Verify components section
+        expect(swaggerJson.components).toBeDefined()
+        expect(swaggerJson.components.schemas).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateQuery).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateUrl).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateHeaders).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateBody).toBeDefined()
+      })
+    })
   })
 
   describe('Validation metadata', () => {
