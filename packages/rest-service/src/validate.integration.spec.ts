@@ -103,24 +103,24 @@ describe('Validation integration tests', () => {
 
         // Verify swagger document structure
         const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.0.0')
+        expect(swaggerJson.openapi).toBe('3.1.0')
         expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info.title).toBe('FuryStack API')
+        expect(swaggerJson.info?.title).toBe('FuryStack API')
         expect(swaggerJson.paths).toBeDefined()
 
         // Verify our API endpoints are included
-        expect(swaggerJson.paths['/validate-query']).toBeDefined()
-        expect(swaggerJson.paths['/validate-url/{id}']).toBeDefined()
-        expect(swaggerJson.paths['/validate-headers']).toBeDefined()
-        expect(swaggerJson.paths['/validate-body']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-query']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-url/{id}']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-headers']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-body']).toBeDefined()
 
         // Verify components section
         expect(swaggerJson.components).toBeDefined()
-        expect(swaggerJson.components.schemas).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateQuery).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateUrl).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateHeaders).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateBody).toBeDefined()
+        expect(swaggerJson.components?.schemas).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateQuery).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateUrl).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateHeaders).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateBody).toBeDefined()
       })
     })
   })
