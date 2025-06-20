@@ -1,6 +1,7 @@
 import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import type { SwaggerDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
@@ -14,15 +15,16 @@ import { Validate } from './validate.js'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
-const createValidateApi = async () => {
+const createValidateApi = async (options = { enableGetSchema: false }) => {
   const injector = new Injector()
   const port = getPort()
 
   getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
   getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
 
-  await useRestService<ValidationApi>({
+  const api = await useRestService<ValidationApi>({
     injector,
+    enableGetSchema: options.enableGetSchema,
     api: {
       GET: {
         '/validate-query': Validate({
@@ -66,11 +68,147 @@ const createValidateApi = async () => {
 
   return {
     [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
+    injector,
+    api,
     client,
   }
 }
 
 describe('Validation integration tests', () => {
+  describe('swagger.json schema definition', () => {
+    it('Should return a 404 when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<any>>)({
+            method: 'GET',
+            action: '/swagger.json',
+          })
+          expect.fail('Expected response error but got success')
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
+
+    it('Should return a generated swagger.json when enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        // Verify swagger document structure
+        const swaggerJson = result.result as SwaggerDocument
+        expect(swaggerJson.openapi).toBe('3.0.0')
+        expect(swaggerJson.info).toBeDefined()
+        expect(swaggerJson.info.title).toBe('FuryStack API')
+        expect(swaggerJson.paths).toBeDefined()
+
+        // Verify our API endpoints are included
+        expect(swaggerJson.paths['/validate-query']).toBeDefined()
+        expect(swaggerJson.paths['/validate-url/{id}']).toBeDefined()
+        expect(swaggerJson.paths['/validate-headers']).toBeDefined()
+        expect(swaggerJson.paths['/validate-body']).toBeDefined()
+
+        // Verify components section
+        expect(swaggerJson.components).toBeDefined()
+        expect(swaggerJson.components.schemas).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateQuery).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateUrl).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateHeaders).toBeDefined()
+        expect(swaggerJson.components.schemas.ValidateBody).toBeDefined()
+      })
+    })
+  })
+
+  describe('Validation metadata', () => {
+    it('Should return 404 when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+            method: 'GET',
+            action: '/schema',
+            headers: {
+              accept: 'application/schema+json',
+            },
+          })
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
+
+    it('Should return a 406 when the accept header is not supported', async () => {
+      expect.assertions(2)
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+            method: 'GET',
+            action: '/schema',
+            headers: {
+              accept: 'text/plain' as any,
+            },
+          })
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(406)
+        }
+      })
+    })
+
+    it('Should return the validation metadata', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+          method: 'GET',
+          action: '/schema',
+          headers: {
+            accept: 'application/schema+json',
+          },
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        expect(result.result['/validate-query']).toBeDefined()
+
+        expect(result.result['/validate-query'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-query'].schemaName).toBe('ValidateQuery')
+        expect(result.result['/validate-query'].method).toBe('GET')
+        expect(result.result['/validate-query'].path).toBe('/validate-query')
+        expect(result.result['/validate-query'].isAuthenticated).toBe(false)
+
+        expect(result.result['/validate-url/:id']).toBeDefined()
+        expect(result.result['/validate-url/:id'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-url/:id'].schemaName).toBe('ValidateUrl')
+        expect(result.result['/validate-url/:id'].method).toBe('GET')
+        expect(result.result['/validate-url/:id'].path).toBe('/validate-url/:id')
+        expect(result.result['/validate-url/:id'].isAuthenticated).toBe(false)
+
+        expect(result.result['/validate-headers']).toBeDefined()
+        expect(result.result['/validate-headers'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-headers'].schemaName).toBe('ValidateHeaders')
+        expect(result.result['/validate-headers'].method).toBe('GET')
+        expect(result.result['/validate-headers'].path).toBe('/validate-headers')
+        expect(result.result['/validate-headers'].isAuthenticated).toBe(false)
+
+        expect(result.result['/validate-body']).toBeDefined()
+        expect(result.result['/validate-body'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-body'].schemaName).toBe('ValidateBody')
+        expect(result.result['/validate-body'].method).toBe('POST')
+        expect(result.result['/validate-body'].path).toBe('/validate-body')
+        expect(result.result['/validate-body'].isAuthenticated).toBe(false)
+
+        expect(result.result['/mock']).toBeUndefined()
+        expect(result.result['/mock/:id']).toBeUndefined()
+      })
+    })
+  })
+
   describe('Validation errors', () => {
     it('Should validate query', async () => {
       await usingAsync(await createValidateApi(), async ({ client }) => {

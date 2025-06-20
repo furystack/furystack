@@ -1,0 +1,14 @@
+releases:
+  "@furystack/auth-google": patch
+  "@furystack/rest": minor
+  "@furystack/rest-client-fetch": patch
+  "@furystack/rest-service": minor
+  "@furystack/shades": patch
+  "@furystack/shades-common-components": patch
+  "@furystack/shades-i18n": patch
+  "@furystack/shades-lottie": patch
+  "@furystack/shades-mfe": patch
+  "@furystack/shades-nipple": patch
+  "@furystack/shades-showcase-app": patch
+  "@furystack/websocket-api": patch
+  furystack: patch
