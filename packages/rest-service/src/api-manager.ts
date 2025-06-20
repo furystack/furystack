@@ -11,6 +11,7 @@ import { ErrorAction } from './actions/error-action.js'
 import { NotFoundAction } from './actions/not-found-action.js'
 import { addCorsHeaders } from './add-cors-header.js'
 import { CreateGetSchemaAction } from './endpoint-generators/create-get-schema-action.js'
+import { CreateGetSwaggerJsonAction } from './endpoint-generators/create-get-swagger-json-action.js'
 import { HttpUserContext } from './http-user-context.js'
 import type { CorsOptions } from './models/cors-options.js'
 import { readPostBody } from './read-post-body.js'
@@ -58,6 +59,7 @@ export interface ImplementApiOptions<T extends RestApi> {
   deserializeQueryParams?: (param: string) => any
   /**
    * Adds an additional 'GET /schema' endpoint that returns the schema definitions of the API.
+   * Also adds a 'GET /swagger.json' endpoint that returns the API schema in OpenAPI 3.0 (Swagger) format.
    */
   enableGetSchema?: boolean
 }
@@ -128,6 +130,7 @@ export class ApiManager implements Disposable {
           GET: {
             ...api.GET,
             '/schema': CreateGetSchemaAction(api),
+            '/swagger.json': CreateGetSwaggerJsonAction(api),
           },
         }
       : api
