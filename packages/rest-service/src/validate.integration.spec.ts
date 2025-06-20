@@ -21,7 +21,7 @@ const createValidateApi = async () => {
   getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
   getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
 
-  await useRestService<ValidationApi>({
+  const api = await useRestService<ValidationApi>({
     injector,
     api: {
       GET: {
@@ -66,11 +66,17 @@ const createValidateApi = async () => {
 
   return {
     [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
+    injector,
+    api,
     client,
   }
 }
 
 describe('Validation integration tests', () => {
+  describe('Validation metadata', () => {
+    it.todo('Should apply validation metadata')
+  })
+
   describe('Validation errors', () => {
     it('Should validate query', async () => {
       await usingAsync(await createValidateApi(), async ({ client }) => {

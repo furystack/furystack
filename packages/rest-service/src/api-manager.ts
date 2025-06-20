@@ -14,7 +14,7 @@ import { HttpUserContext } from './http-user-context.js'
 import type { CorsOptions } from './models/cors-options.js'
 import { readPostBody } from './read-post-body.js'
 import type { RequestAction } from './request-action-implementation.js'
-import type { OnRequest } from './server-manager.js'
+import type { OnRequest, ServerApi } from './server-manager.js'
 import { ServerManager } from './server-manager.js'
 import './server-response-extensions.js'
 
@@ -97,7 +97,7 @@ export class ApiManager implements Disposable {
     const rootApiPath = PathHelper.normalize(root)
     const server = await this.serverManager.getOrCreate({ hostName, port })
     const compiledApi = this.compileApi(api, root)
-    server.apis.push({
+    const serverApi = {
       shouldExec: (msg) =>
         this.shouldExecRequest({
           ...msg,
@@ -118,7 +118,9 @@ export class ApiManager implements Disposable {
           hostName,
           deserializeQueryParams,
         }),
-    })
+    } satisfies ServerApi
+    server.apis.push(serverApi)
+    return serverApi
   }
 
   public shouldExecRequest(options: {
