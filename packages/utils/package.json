@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "8.0.16",
+  "version": "8.1.0",
   "description": "General utilities",
   "type": "module",
   "scripts": {
