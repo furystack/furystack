@@ -135,7 +135,6 @@ describe('Validation integration tests', () => {
                     "description": "Endpoint model for deleting entities",
                     "properties": {
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -462,7 +461,6 @@ describe('Validation integration tests', () => {
                         "type": "object",
                       },
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -1034,7 +1032,6 @@ describe('Validation integration tests', () => {
                     "description": "Endpoint model for deleting entities",
                     "properties": {
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -1361,7 +1358,6 @@ describe('Validation integration tests', () => {
                         "type": "object",
                       },
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -1933,7 +1929,6 @@ describe('Validation integration tests', () => {
                     "description": "Endpoint model for deleting entities",
                     "properties": {
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -2260,7 +2255,6 @@ describe('Validation integration tests', () => {
                         "type": "object",
                       },
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -2832,7 +2826,6 @@ describe('Validation integration tests', () => {
                     "description": "Endpoint model for deleting entities",
                     "properties": {
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
@@ -3159,7 +3152,6 @@ describe('Validation integration tests', () => {
                         "type": "object",
                       },
                       "result": {
-                        "additionalProperties": false,
                         "type": "object",
                       },
                       "url": {
