@@ -1,5 +1,6 @@
 import type { ApiEndpointSchema } from './api-endpoint-schema.js'
 import type { Method } from './methods.js'
+import type { SwaggerDocument } from './swagger-document.js'
 
 export type RestApi = {
   [TMethod in Method]?: {
@@ -14,5 +15,6 @@ export type RestApi = {
 export type WithSchemaAction<T extends RestApi> = T & {
   GET: {
     '/schema': { result: ApiEndpointSchema; headers: { accept: 'application/schema+json' } }
+    '/swagger.json': { result: SwaggerDocument }
   }
 }

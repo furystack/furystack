@@ -130,45 +130,37 @@ describe('Validation integration tests', () => {
         expect(result.response.status).toBe(200)
         expect(result.result).toBeDefined()
 
-        // We need to cast the result to any since we don't have the exact TypeScript type for the schema structure
-        type SchemaType = any
-        const schemaResult = result.result as SchemaType
+        expect(result.result['/validate-query']).toBeDefined()
 
-        // Test the schema structure
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(typeof schemaResult.$schema).toBe('string')
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(typeof schemaResult.definitions).toBe('object')
+        expect(result.result['/validate-query'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-query'].schemaName).toBe('ValidateQuery')
+        expect(result.result['/validate-query'].method).toBe('GET')
+        expect(result.result['/validate-query'].path).toBe('/validate-query')
+        expect(result.result['/validate-query'].isAuthenticated).toBe(false)
 
-        // Check validation endpoints are defined
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, prefer-destructuring
-        const definitions = schemaResult.definitions
-        expect(definitions).toBeDefined()
+        expect(result.result['/validate-url/:id']).toBeDefined()
+        expect(result.result['/validate-url/:id'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-url/:id'].schemaName).toBe('ValidateUrl')
+        expect(result.result['/validate-url/:id'].method).toBe('GET')
+        expect(result.result['/validate-url/:id'].path).toBe('/validate-url/:id')
+        expect(result.result['/validate-url/:id'].isAuthenticated).toBe(false)
 
-        // Verify all API endpoints exist
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(definitions.ValidationApi).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(definitions.ValidationApi.properties.GET).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(definitions.ValidationApi.properties.POST).toBeDefined()
+        expect(result.result['/validate-headers']).toBeDefined()
+        expect(result.result['/validate-headers'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-headers'].schemaName).toBe('ValidateHeaders')
+        expect(result.result['/validate-headers'].method).toBe('GET')
+        expect(result.result['/validate-headers'].path).toBe('/validate-headers')
+        expect(result.result['/validate-headers'].isAuthenticated).toBe(false)
 
-        // Verify the schema contains validation for our test endpoints
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const getEndpoints = definitions.ValidationApi.properties.GET.properties
-        expect(getEndpoints).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(getEndpoints['/validate-query']).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(getEndpoints['/validate-url/:id']).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(getEndpoints['/validate-headers']).toBeDefined()
+        expect(result.result['/validate-body']).toBeDefined()
+        expect(result.result['/validate-body'].schema).toStrictEqual(schema)
+        expect(result.result['/validate-body'].schemaName).toBe('ValidateBody')
+        expect(result.result['/validate-body'].method).toBe('POST')
+        expect(result.result['/validate-body'].path).toBe('/validate-body')
+        expect(result.result['/validate-body'].isAuthenticated).toBe(false)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const postEndpoints = definitions.ValidationApi.properties.POST.properties
-        expect(postEndpoints).toBeDefined()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(postEndpoints['/validate-body']).toBeDefined()
+        expect(result.result['/mock']).toBeUndefined()
+        expect(result.result['/mock/:id']).toBeUndefined()
       })
     })
   })
