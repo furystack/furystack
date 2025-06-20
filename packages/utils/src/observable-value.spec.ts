@@ -42,6 +42,18 @@ export const observableTests = describe('Observable', () => {
       v.setValue(2)
       expect(doneCallback).toBeCalledTimes(1)
     })
+
+    it('should be triggered only on change in async manner', () => {
+      const v = new ObservableValue(1)
+      const doneCallback = vi.fn()
+
+      v.subscribe(async (value) => {
+        expect(value).toBe(2)
+        doneCallback()
+      })
+      v.setValue(2)
+      expect(doneCallback).toBeCalledTimes(1)
+    })
   })
 
   describe('Unsubscribe', () => {

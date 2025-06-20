@@ -15,10 +15,10 @@
   "devDependencies": {
     "@codecov/vite-plugin": "^1.9.1",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.53.0",
+    "@playwright/test": "^1.53.1",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
