@@ -6,7 +6,6 @@
       "description": "Endpoint model for deleting entities",
       "properties": {
         "result": {
-          "additionalProperties": false,
           "type": "object"
         },
         "url": {
@@ -304,7 +303,6 @@
           "type": "object"
         },
         "result": {
-          "additionalProperties": false,
           "type": "object"
         },
         "url": {
