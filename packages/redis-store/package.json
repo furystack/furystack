@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-store",
-  "version": "10.0.20",
+  "version": "10.0.21",
   "description": "Redis Store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -42,9 +42,9 @@
     "redis": "^5.5.6"
   },
   "devDependencies": {
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.3",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.4"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

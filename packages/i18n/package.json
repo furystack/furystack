@@ -1,6 +1,6 @@
 {
   "name": "@furystack/i18n",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Generic package for i18n",
   "type": "module",
   "scripts": {
@@ -39,9 +39,9 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.3",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.4"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
