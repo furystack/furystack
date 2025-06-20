@@ -20,6 +20,7 @@ describe('getSchemaFromApi', () => {
     const schema = getSchemaFromApi(Api)
     expect(schema).toEqual({
       '/example': {
+        isAuthenticated: false,
         path: '/example',
         method: 'GET',
         schema: defaultSchema,
@@ -41,6 +42,7 @@ describe('getSchemaFromApi', () => {
     const schema = getSchemaFromApi(Api)
     expect(schema).toEqual({
       '/validate-query': {
+        isAuthenticated: false,
         path: '/validate-query',
         method: 'GET',
         schema: validationSchema,
