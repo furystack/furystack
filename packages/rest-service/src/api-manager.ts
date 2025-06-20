@@ -10,6 +10,7 @@ import { match } from 'path-to-regexp'
 import { ErrorAction } from './actions/error-action.js'
 import { NotFoundAction } from './actions/not-found-action.js'
 import { addCorsHeaders } from './add-cors-header.js'
+import { CreateGetSchemaAction } from './endpoint-generators/create-get-schema-action.js'
 import { HttpUserContext } from './http-user-context.js'
 import type { CorsOptions } from './models/cors-options.js'
 import { readPostBody } from './read-post-body.js'
@@ -25,13 +26,40 @@ export type RestApiImplementation<T extends RestApi> = {
 }
 
 export interface ImplementApiOptions<T extends RestApi> {
+  /**
+   * The structure of the implemented API.
+   */
   api: RestApiImplementation<T>
+  /**
+   * The Injector instance to use for dependency injection in the API actions.
+   */
   injector: Injector
+  /**
+   * The host name for the API Server. If not provided, the default host (ServerManager.DEFAULT_HOST) will be used.
+   */
   hostName?: string
+  /**
+   * The root path for the API. This will be prepended to all API paths.
+   */
   root: string
+  /**
+   * The port on which the API server will listen.
+   */
   port: number
+  /**
+   * CORS options to configure Cross-Origin Resource Sharing for the API.
+   */
   cors?: CorsOptions
+  /**
+   * An optional function to deserialize query parameters from the URL.
+   * This function should take a query string (e.g., "?key=value") and return an object with the parsed parameters.
+   * If not provided, the default deserialization will be used.
+   */
   deserializeQueryParams?: (param: string) => any
+  /**
+   * Adds an additional 'GET /schema' endpoint that returns the schema definitions of the API.
+   */
+  enableGetSchema?: boolean
 }
 
 export type NewCompiledApiEntry = {
@@ -92,11 +120,22 @@ export class ApiManager implements Disposable {
     cors,
     injector,
     deserializeQueryParams,
+    enableGetSchema,
   }: ImplementApiOptions<T>) {
-    const supportedMethods = this.getSuportedMethods(api)
+    const extendedApi: typeof api = enableGetSchema
+      ? {
+          ...api,
+          GET: {
+            ...api.GET,
+            '/schema': CreateGetSchemaAction(api),
+          },
+        }
+      : api
+
+    const supportedMethods = this.getSuportedMethods(extendedApi)
     const rootApiPath = PathHelper.normalize(root)
     const server = await this.serverManager.getOrCreate({ hostName, port })
-    const compiledApi = this.compileApi(api, root)
+    const compiledApi = this.compileApi(extendedApi, root)
     const serverApi = {
       shouldExec: (msg) =>
         this.shouldExecRequest({

@@ -1,5 +1,6 @@
 export * from './create-delete-endpoint.js'
 export * from './create-get-collection-endpoint.js'
 export * from './create-get-entity-endpoint.js'
+export * from './create-get-schema-action.js'
 export * from './create-patch-endpoint.js'
 export * from './create-post-endpoint.js'

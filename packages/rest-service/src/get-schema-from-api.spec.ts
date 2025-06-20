@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { RestApiImplementation } from './api-manager.js'
-import { defaultSchema, getApiFromSchema } from './get-schema-from-api.js'
+import { defaultSchema, getSchemaFromApi } from './get-schema-from-api.js'
 import { JsonResult, type RequestAction } from './request-action-implementation.js'
 import validationSchema from './validate.integration.spec.schema.json' with { type: 'json' }
 import { Validate } from './validate.js'
@@ -17,7 +17,7 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getApiFromSchema(Api)
+    const schema = getSchemaFromApi(Api)
     expect(schema).toEqual({
       '/example': {
         path: '/example',
@@ -38,7 +38,7 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getApiFromSchema(Api)
+    const schema = getSchemaFromApi(Api)
     expect(schema).toEqual({
       '/validate-query': {
         path: '/validate-query',

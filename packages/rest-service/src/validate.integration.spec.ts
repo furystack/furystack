@@ -1,6 +1,7 @@
 import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import type { WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
@@ -14,7 +15,7 @@ import { Validate } from './validate.js'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
-const createValidateApi = async () => {
+const createValidateApi = async (options = { enableGetSchema: false }) => {
   const injector = new Injector()
   const port = getPort()
 
@@ -23,6 +24,7 @@ const createValidateApi = async () => {
 
   const api = await useRestService<ValidationApi>({
     injector,
+    enableGetSchema: options.enableGetSchema,
     api: {
       GET: {
         '/validate-query': Validate({
@@ -74,7 +76,3654 @@ const createValidateApi = async () => {
 
 describe('Validation integration tests', () => {
   describe('Validation metadata', () => {
-    it.todo('Should apply validation metadata')
+    it('Should return 404 when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+            method: 'GET',
+            action: '/schema',
+            headers: {
+              accept: 'application/schema+json',
+            },
+          })
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
+
+    it('Should return a 406 when the accept header is not supported', async () => {
+      expect.assertions(2)
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+            method: 'GET',
+            action: '/schema',
+            headers: {
+              accept: 'text/plain' as any,
+            },
+          })
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(406)
+        }
+      })
+    })
+
+    it('Should return the validation metadata', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
+          method: 'GET',
+          action: '/schema',
+          headers: {
+            accept: 'application/schema+json',
+          },
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toMatchInlineSnapshot(`
+          {
+            "/validate-body": {
+              "method": "POST",
+              "path": "/validate-body",
+              "schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "definitions": {
+                  "DeleteEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for deleting entities",
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "FilterType<Mock>": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "$and": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$nor": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$not": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$or": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "FindOptions<Mock,("id"|"value")[]>": {
+                    "additionalProperties": true,
+                    "description": "Type for default filtering model",
+                    "properties": {
+                      "filter": {
+                        "$ref": "#/definitions/FilterType%3CMock%3E",
+                        "description": "The fields should match this filter",
+                      },
+                      "order": {
+                        "additionalProperties": false,
+                        "description": "Sets up an order by a field and a direction",
+                        "properties": {
+                          "id": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                          "value": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "select": {
+                        "description": "The result set will be limited to these fields",
+                        "items": {
+                          "enum": [
+                            "id",
+                            "value",
+                          ],
+                          "type": "string",
+                        },
+                        "type": "array",
+                      },
+                      "skip": {
+                        "description": "Skips the first N hit",
+                        "type": "number",
+                      },
+                      "top": {
+                        "description": "Limits the hits",
+                        "type": "number",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "GetCollectionEndpoint<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Rest endpoint model for getting / querying collections",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "findOptions": {
+                            "$ref": "#/definitions/FindOptions%3CMock%2C(%22id%22%7C%22value%22)%5B%5D%3E",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/GetCollectionResult%3CMock%3E",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "GetCollectionResult<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Response Model for GetCollection",
+                    "properties": {
+                      "count": {
+                        "description": "The Total count of entities",
+                        "type": "number",
+                      },
+                      "entries": {
+                        "description": "List of the selected entities",
+                        "items": {
+                          "$ref": "#/definitions/Mock",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "required": [
+                      "count",
+                      "entries",
+                    ],
+                    "type": "object",
+                  },
+                  "GetEntityEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for getting a single entity",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "select": {
+                            "description": "The list of fields to select",
+                            "items": {
+                              "enum": [
+                                "id",
+                                "value",
+                              ],
+                              "type": "string",
+                            },
+                            "type": "array",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "description": "The entity's unique identifier",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "Mock": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "id",
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                  "PatchEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for updating entities",
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                          "value": {
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "PostEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for creating new entities",
+                    "properties": {
+                      "body": {
+                        "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "RestApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "ValidateBody": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateHeaders": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "headers": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "headers",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateQuery": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateUrl": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidationApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E",
+                          },
+                          "/mock/:id": {
+                            "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-headers": {
+                            "$ref": "#/definitions/ValidateHeaders",
+                          },
+                          "/validate-query": {
+                            "$ref": "#/definitions/ValidateQuery",
+                          },
+                          "/validate-url/:id": {
+                            "$ref": "#/definitions/ValidateUrl",
+                          },
+                        },
+                        "required": [
+                          "/validate-query",
+                          "/validate-url/:id",
+                          "/validate-headers",
+                          "/mock",
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-body": {
+                            "$ref": "#/definitions/ValidateBody",
+                          },
+                        },
+                        "required": [
+                          "/validate-body",
+                          "/mock",
+                        ],
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "GET",
+                      "POST",
+                      "PATCH",
+                      "DELETE",
+                    ],
+                    "type": "object",
+                  },
+                  "WithOptionalId<Mock,"id">": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                },
+              },
+              "schemaName": "ValidateBody",
+            },
+            "/validate-headers": {
+              "method": "GET",
+              "path": "/validate-headers",
+              "schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "definitions": {
+                  "DeleteEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for deleting entities",
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "FilterType<Mock>": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "$and": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$nor": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$not": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$or": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "FindOptions<Mock,("id"|"value")[]>": {
+                    "additionalProperties": true,
+                    "description": "Type for default filtering model",
+                    "properties": {
+                      "filter": {
+                        "$ref": "#/definitions/FilterType%3CMock%3E",
+                        "description": "The fields should match this filter",
+                      },
+                      "order": {
+                        "additionalProperties": false,
+                        "description": "Sets up an order by a field and a direction",
+                        "properties": {
+                          "id": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                          "value": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "select": {
+                        "description": "The result set will be limited to these fields",
+                        "items": {
+                          "enum": [
+                            "id",
+                            "value",
+                          ],
+                          "type": "string",
+                        },
+                        "type": "array",
+                      },
+                      "skip": {
+                        "description": "Skips the first N hit",
+                        "type": "number",
+                      },
+                      "top": {
+                        "description": "Limits the hits",
+                        "type": "number",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "GetCollectionEndpoint<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Rest endpoint model for getting / querying collections",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "findOptions": {
+                            "$ref": "#/definitions/FindOptions%3CMock%2C(%22id%22%7C%22value%22)%5B%5D%3E",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/GetCollectionResult%3CMock%3E",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "GetCollectionResult<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Response Model for GetCollection",
+                    "properties": {
+                      "count": {
+                        "description": "The Total count of entities",
+                        "type": "number",
+                      },
+                      "entries": {
+                        "description": "List of the selected entities",
+                        "items": {
+                          "$ref": "#/definitions/Mock",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "required": [
+                      "count",
+                      "entries",
+                    ],
+                    "type": "object",
+                  },
+                  "GetEntityEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for getting a single entity",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "select": {
+                            "description": "The list of fields to select",
+                            "items": {
+                              "enum": [
+                                "id",
+                                "value",
+                              ],
+                              "type": "string",
+                            },
+                            "type": "array",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "description": "The entity's unique identifier",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "Mock": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "id",
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                  "PatchEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for updating entities",
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                          "value": {
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "PostEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for creating new entities",
+                    "properties": {
+                      "body": {
+                        "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "RestApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "ValidateBody": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateHeaders": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "headers": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "headers",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateQuery": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateUrl": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidationApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E",
+                          },
+                          "/mock/:id": {
+                            "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-headers": {
+                            "$ref": "#/definitions/ValidateHeaders",
+                          },
+                          "/validate-query": {
+                            "$ref": "#/definitions/ValidateQuery",
+                          },
+                          "/validate-url/:id": {
+                            "$ref": "#/definitions/ValidateUrl",
+                          },
+                        },
+                        "required": [
+                          "/validate-query",
+                          "/validate-url/:id",
+                          "/validate-headers",
+                          "/mock",
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-body": {
+                            "$ref": "#/definitions/ValidateBody",
+                          },
+                        },
+                        "required": [
+                          "/validate-body",
+                          "/mock",
+                        ],
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "GET",
+                      "POST",
+                      "PATCH",
+                      "DELETE",
+                    ],
+                    "type": "object",
+                  },
+                  "WithOptionalId<Mock,"id">": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                },
+              },
+              "schemaName": "ValidateHeaders",
+            },
+            "/validate-query": {
+              "method": "GET",
+              "path": "/validate-query",
+              "schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "definitions": {
+                  "DeleteEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for deleting entities",
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "FilterType<Mock>": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "$and": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$nor": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$not": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$or": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "FindOptions<Mock,("id"|"value")[]>": {
+                    "additionalProperties": true,
+                    "description": "Type for default filtering model",
+                    "properties": {
+                      "filter": {
+                        "$ref": "#/definitions/FilterType%3CMock%3E",
+                        "description": "The fields should match this filter",
+                      },
+                      "order": {
+                        "additionalProperties": false,
+                        "description": "Sets up an order by a field and a direction",
+                        "properties": {
+                          "id": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                          "value": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "select": {
+                        "description": "The result set will be limited to these fields",
+                        "items": {
+                          "enum": [
+                            "id",
+                            "value",
+                          ],
+                          "type": "string",
+                        },
+                        "type": "array",
+                      },
+                      "skip": {
+                        "description": "Skips the first N hit",
+                        "type": "number",
+                      },
+                      "top": {
+                        "description": "Limits the hits",
+                        "type": "number",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "GetCollectionEndpoint<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Rest endpoint model for getting / querying collections",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "findOptions": {
+                            "$ref": "#/definitions/FindOptions%3CMock%2C(%22id%22%7C%22value%22)%5B%5D%3E",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/GetCollectionResult%3CMock%3E",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "GetCollectionResult<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Response Model for GetCollection",
+                    "properties": {
+                      "count": {
+                        "description": "The Total count of entities",
+                        "type": "number",
+                      },
+                      "entries": {
+                        "description": "List of the selected entities",
+                        "items": {
+                          "$ref": "#/definitions/Mock",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "required": [
+                      "count",
+                      "entries",
+                    ],
+                    "type": "object",
+                  },
+                  "GetEntityEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for getting a single entity",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "select": {
+                            "description": "The list of fields to select",
+                            "items": {
+                              "enum": [
+                                "id",
+                                "value",
+                              ],
+                              "type": "string",
+                            },
+                            "type": "array",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "description": "The entity's unique identifier",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "Mock": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "id",
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                  "PatchEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for updating entities",
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                          "value": {
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "PostEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for creating new entities",
+                    "properties": {
+                      "body": {
+                        "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "RestApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "ValidateBody": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateHeaders": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "headers": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "headers",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateQuery": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateUrl": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidationApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E",
+                          },
+                          "/mock/:id": {
+                            "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-headers": {
+                            "$ref": "#/definitions/ValidateHeaders",
+                          },
+                          "/validate-query": {
+                            "$ref": "#/definitions/ValidateQuery",
+                          },
+                          "/validate-url/:id": {
+                            "$ref": "#/definitions/ValidateUrl",
+                          },
+                        },
+                        "required": [
+                          "/validate-query",
+                          "/validate-url/:id",
+                          "/validate-headers",
+                          "/mock",
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-body": {
+                            "$ref": "#/definitions/ValidateBody",
+                          },
+                        },
+                        "required": [
+                          "/validate-body",
+                          "/mock",
+                        ],
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "GET",
+                      "POST",
+                      "PATCH",
+                      "DELETE",
+                    ],
+                    "type": "object",
+                  },
+                  "WithOptionalId<Mock,"id">": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                },
+              },
+              "schemaName": "ValidateQuery",
+            },
+            "/validate-url/:id": {
+              "method": "GET",
+              "path": "/validate-url/:id",
+              "schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "definitions": {
+                  "DeleteEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for deleting entities",
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "FilterType<Mock>": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "$and": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$nor": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$not": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "$or": {
+                        "items": {
+                          "$ref": "#/definitions/FilterType%3CMock%3E",
+                        },
+                        "type": "array",
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$endsWith": {
+                                "type": "string",
+                              },
+                              "$like": {
+                                "type": "string",
+                              },
+                              "$regex": {
+                                "type": "string",
+                              },
+                              "$startsWith": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$eq": {
+                                "type": "string",
+                              },
+                              "$ne": {
+                                "type": "string",
+                              },
+                            },
+                            "type": "object",
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "$in": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                              "$nin": {
+                                "items": {
+                                  "type": "string",
+                                },
+                                "type": "array",
+                              },
+                            },
+                            "type": "object",
+                          },
+                        ],
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "FindOptions<Mock,("id"|"value")[]>": {
+                    "additionalProperties": true,
+                    "description": "Type for default filtering model",
+                    "properties": {
+                      "filter": {
+                        "$ref": "#/definitions/FilterType%3CMock%3E",
+                        "description": "The fields should match this filter",
+                      },
+                      "order": {
+                        "additionalProperties": false,
+                        "description": "Sets up an order by a field and a direction",
+                        "properties": {
+                          "id": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                          "value": {
+                            "enum": [
+                              "ASC",
+                              "DESC",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "select": {
+                        "description": "The result set will be limited to these fields",
+                        "items": {
+                          "enum": [
+                            "id",
+                            "value",
+                          ],
+                          "type": "string",
+                        },
+                        "type": "array",
+                      },
+                      "skip": {
+                        "description": "Skips the first N hit",
+                        "type": "number",
+                      },
+                      "top": {
+                        "description": "Limits the hits",
+                        "type": "number",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "GetCollectionEndpoint<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Rest endpoint model for getting / querying collections",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "findOptions": {
+                            "$ref": "#/definitions/FindOptions%3CMock%2C(%22id%22%7C%22value%22)%5B%5D%3E",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/GetCollectionResult%3CMock%3E",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "GetCollectionResult<Mock>": {
+                    "additionalProperties": true,
+                    "description": "Response Model for GetCollection",
+                    "properties": {
+                      "count": {
+                        "description": "The Total count of entities",
+                        "type": "number",
+                      },
+                      "entries": {
+                        "description": "List of the selected entities",
+                        "items": {
+                          "$ref": "#/definitions/Mock",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "required": [
+                      "count",
+                      "entries",
+                    ],
+                    "type": "object",
+                  },
+                  "GetEntityEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for getting a single entity",
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "select": {
+                            "description": "The list of fields to select",
+                            "items": {
+                              "enum": [
+                                "id",
+                                "value",
+                              ],
+                              "type": "string",
+                            },
+                            "type": "array",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "description": "The entity's unique identifier",
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "Mock": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "id",
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                  "PatchEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for updating entities",
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                          "value": {
+                            "type": "string",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "PostEndpoint<Mock,"id">": {
+                    "additionalProperties": true,
+                    "description": "Endpoint model for creating new entities",
+                    "properties": {
+                      "body": {
+                        "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E",
+                      },
+                      "result": {
+                        "$ref": "#/definitions/Mock",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "RestApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "ValidateBody": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "body": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "body",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateHeaders": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "headers": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "headers",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateQuery": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "query": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "bar": {
+                            "type": "number",
+                          },
+                          "baz": {
+                            "type": "boolean",
+                          },
+                          "foo": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "foo",
+                          "bar",
+                          "baz",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "query",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidateUrl": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                      "url": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "id",
+                        ],
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "url",
+                    ],
+                    "type": "object",
+                  },
+                  "ValidationApi": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "CONNECT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "DELETE": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "GET": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E",
+                          },
+                          "/mock/:id": {
+                            "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-headers": {
+                            "$ref": "#/definitions/ValidateHeaders",
+                          },
+                          "/validate-query": {
+                            "$ref": "#/definitions/ValidateQuery",
+                          },
+                          "/validate-url/:id": {
+                            "$ref": "#/definitions/ValidateUrl",
+                          },
+                        },
+                        "required": [
+                          "/validate-query",
+                          "/validate-url/:id",
+                          "/validate-headers",
+                          "/mock",
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "HEAD": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "OPTIONS": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "PATCH": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock/:id": {
+                            "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                        },
+                        "required": [
+                          "/mock/:id",
+                        ],
+                        "type": "object",
+                      },
+                      "POST": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "/mock": {
+                            "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E",
+                          },
+                          "/validate-body": {
+                            "$ref": "#/definitions/ValidateBody",
+                          },
+                        },
+                        "required": [
+                          "/validate-body",
+                          "/mock",
+                        ],
+                        "type": "object",
+                      },
+                      "PUT": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                      "TRACE": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "body": {},
+                            "headers": {},
+                            "query": {},
+                            "result": {},
+                            "url": {},
+                          },
+                          "required": [
+                            "result",
+                          ],
+                          "type": "object",
+                        },
+                        "type": "object",
+                      },
+                    },
+                    "required": [
+                      "GET",
+                      "POST",
+                      "PATCH",
+                      "DELETE",
+                    ],
+                    "type": "object",
+                  },
+                  "WithOptionalId<Mock,"id">": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                      },
+                      "value": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "value",
+                    ],
+                    "type": "object",
+                  },
+                },
+              },
+              "schemaName": "ValidateUrl",
+            },
+          }
+        `)
+      })
+    })
   })
 
   describe('Validation errors', () => {
