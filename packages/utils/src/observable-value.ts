@@ -13,7 +13,7 @@ export class ObservableAlreadyDisposedError extends Error {
 /**
  * Callback type for observable value changes
  */
-export type ValueChangeCallback<T> = (next: T) => void
+export type ValueChangeCallback<T> = (next: T) => void | PromiseLike<void>
 
 export type ObservableValueOptions<T> = {
   /**
