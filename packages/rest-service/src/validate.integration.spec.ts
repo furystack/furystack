@@ -97,9 +97,9 @@ describe('Validation integration tests', () => {
         const swaggerJson = result.result as SwaggerDocument
         expect(swaggerJson.openapi).toBe('3.1.0')
         expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe('FuryStack API')
-        expect(swaggerJson.info?.description).toBe('API documentation generated from FuryStack API schema')
-        expect(swaggerJson.info?.version).toBe('1.0.0')
+        expect(swaggerJson.info?.title).toBe(name)
+        expect(swaggerJson.info?.description).toBe(description)
+        expect(swaggerJson.info?.version).toBe(version)
       })
     })
 
@@ -132,7 +132,9 @@ describe('Validation integration tests', () => {
         const swaggerJson = result.result as SwaggerDocument
         expect(swaggerJson.openapi).toBe('3.1.0')
         expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe('FuryStack API')
+        expect(swaggerJson.info?.title).toBe(name)
+        expect(swaggerJson.info?.description).toBe(description)
+        expect(swaggerJson.info?.version).toBe(version)
         expect(swaggerJson.paths).toBeDefined()
 
         // Verify our API endpoints are included

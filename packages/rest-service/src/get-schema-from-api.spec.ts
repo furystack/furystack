@@ -24,12 +24,17 @@ describe('getSchemaFromApi', () => {
       version: '1.0.0',
     })
     expect(schema).toEqual({
-      '/example': {
-        isAuthenticated: false,
-        path: '/example',
-        method: 'GET',
-        schema: defaultSchema,
-        schemaName: 'default',
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+      endpoints: {
+        '/example': {
+          isAuthenticated: false,
+          path: '/example',
+          method: 'GET',
+          schema: defaultSchema,
+          schemaName: 'default',
+        },
       },
     })
   })
@@ -51,12 +56,17 @@ describe('getSchemaFromApi', () => {
       version: '1.0.0',
     })
     expect(schema).toEqual({
-      '/validate-query': {
-        isAuthenticated: false,
-        path: '/validate-query',
-        method: 'GET',
-        schema: validationSchema,
-        schemaName: 'ValidateQuery',
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+      endpoints: {
+        '/validate-query': {
+          isAuthenticated: false,
+          path: '/validate-query',
+          method: 'GET',
+          schema: validationSchema,
+          schemaName: 'ValidateQuery',
+        },
       },
     })
   })
