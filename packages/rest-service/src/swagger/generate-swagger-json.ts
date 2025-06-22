@@ -1,20 +1,32 @@
-import type { ApiEndpointDefinition, SwaggerDocument } from '@furystack/rest'
+import type { ApiEndpointDefinition, Operation, ParameterObject, SwaggerDocument } from '@furystack/rest'
 
 /**
- * Converts a FuryStack API schema to an OpenAPI 3.0 compatible document
+ * Converts a FuryStack API schema to an OpenAPI 3.1 compatible document
  *
  * @param schema - The FuryStack API schema to convert
- * @returns A SwaggerDocument in OpenAPI 3.0 format
+ * @returns A SwaggerDocument in OpenAPI 3.1 format
  */
-export const generateSwaggerJsonFromApiSchema = (schema: Record<string, ApiEndpointDefinition>): SwaggerDocument => {
-  // Create OpenAPI 3.0 structure
+export const generateSwaggerJsonFromApiSchema = ({
+  api,
+  title = 'FuryStack API',
+  description = 'API documentation generated from FuryStack API schema',
+  version = '1.0.0',
+}: {
+  api: Record<string, ApiEndpointDefinition>
+  title?: string
+  description?: string
+  version?: string
+}): SwaggerDocument => {
   const swaggerJson: SwaggerDocument = {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
-      title: 'FuryStack API',
-      version: '1.0.0',
-      description: 'API documentation generated from FuryStack API schema',
+      title,
+      version,
+      description,
     },
+    jsonSchemaDialect: 'https://spec.openapis.org/oas/3.1/dialect/base',
+    servers: [{ url: '/' }],
+    tags: [],
     paths: {},
     components: {
       schemas: {},
@@ -22,73 +34,90 @@ export const generateSwaggerJsonFromApiSchema = (schema: Record<string, ApiEndpo
         cookieAuth: {
           type: 'apiKey',
           in: 'cookie',
-          name: 'session', // The name of your cookie
+          name: 'session',
         },
       },
     },
   }
 
-  // Process each endpoint
-  Object.entries(schema).forEach(([path, definition]) => {
-    // Normalize path to OpenAPI format (convert route parameters)
-    // FuryStack typically uses :paramName format, OpenAPI uses {paramName}
+  for (const [path, definition] of Object.entries(api)) {
+    // Normalize path to OpenAPI format (convert :param to {param})
     const normalizedPath = path.replace(/:([^/]+)/g, '{$1}')
-
-    // Initialize path object if it doesn't exist - this is for test coverage
-    if (!swaggerJson.paths[normalizedPath]) {
-      swaggerJson.paths[normalizedPath] = {}
+    if (!swaggerJson.paths![normalizedPath]) {
+      swaggerJson.paths![normalizedPath] = {}
     }
 
-    // Add the method details
+    // Extract path parameters
+    const pathParams = Array.from(path.matchAll(/:([^/]+)/g), (m) => m[1])
+    const parameters: ParameterObject[] = pathParams.map((param) => ({
+      name: param,
+      in: 'path',
+      required: true,
+      description: `Path parameter: ${param}`,
+      schema: { type: 'string' },
+    }))
+
+    // Build operation
     const method = definition.method.toLowerCase()
-    swaggerJson.paths[normalizedPath][method] = {
+    const operation: Operation = {
       summary: `${definition.method} ${path}`,
       description: `Endpoint for ${path}`,
       operationId: `${method}${path.replace(/\//g, '_').replace(/:/g, '').replace(/-/g, '_')}`,
       security: definition.isAuthenticated ? [{ cookieAuth: [] }] : [],
-      parameters: [],
+      parameters,
       responses: {
         '200': {
           description: 'Successful operation',
           content: {
             'application/json': {
-              schema: {
-                $ref: `#/components/schemas/${definition.schemaName}`,
-              },
+              schema: definition.schemaName
+                ? { $ref: `#/components/schemas/${definition.schemaName}` }
+                : { type: 'object' },
             },
           },
         },
-        '401': {
-          description: 'Unauthorized',
-        },
-        '500': {
-          description: 'Internal server error',
-        },
+        '401': { description: 'Unauthorized' },
+        '500': { description: 'Internal server error' },
       },
-    }
-
-    // Extract path parameters
-    const pathParams = path.match(/:([^/]+)/g)
-    if (pathParams) {
-      pathParams.forEach((param) => {
-        const paramName = param.substring(1) // Remove the ':'
-        swaggerJson.paths[normalizedPath][method].parameters.push({
-          name: paramName,
-          in: 'path',
-          required: true,
-          description: `Path parameter: ${paramName}`,
-          schema: {
-            type: 'string',
-          },
-        })
-      })
     }
 
     // Add schema to components if not already there
     if (definition.schema && definition.schemaName) {
-      swaggerJson.components.schemas[definition.schemaName] = definition.schema
+      swaggerJson.components!.schemas![definition.schemaName] = definition.schema
     }
-  })
+
+    // Assign the operation to the correct HTTP method property of PathItem
+    const pathItem = swaggerJson.paths![normalizedPath]
+    switch (method) {
+      case 'get':
+        pathItem.get = operation
+        break
+      case 'put':
+        pathItem.put = operation
+        break
+      case 'post':
+        pathItem.post = operation
+        break
+      case 'delete':
+        pathItem.delete = operation
+        break
+      case 'options':
+        pathItem.options = operation
+        break
+      case 'head':
+        pathItem.head = operation
+        break
+      case 'patch':
+        pathItem.patch = operation
+        break
+      case 'trace':
+        pathItem.trace = operation
+        break
+      default:
+        // Ignore unknown methods
+        break
+    }
+  }
 
   return swaggerJson
 }

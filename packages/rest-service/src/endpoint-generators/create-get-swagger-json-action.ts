@@ -14,9 +14,12 @@ export type GetSchemaResult = Record<string, ApiEndpointDefinition>
  */
 export const CreateGetSwaggerJsonAction = <T extends RestApiImplementation<any>>(
   api: T,
+  name = 'FuryStack API',
+  description = 'API documentation generated from FuryStack API schema',
+  version = '1.0.0',
 ): RequestAction<{ result: GetSchemaResult | SwaggerDocument }> => {
-  const schema = getSchemaFromApi(api)
-  const swaggerJson = generateSwaggerJsonFromApiSchema(schema)
+  const { endpoints } = getSchemaFromApi({ api, name, description, version })
+  const swaggerJson = generateSwaggerJsonFromApiSchema({ api: endpoints, title: name, description, version })
   return async () => {
     return JsonResult(swaggerJson, 200)
   }

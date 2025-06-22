@@ -1,4 +1,4 @@
-import type { ApiEndpointDefinition, Method, RestApi, Schema } from '@furystack/rest'
+import type { ApiEndpointDefinition, ApiEndpointSchema, Method, RestApi, Schema } from '@furystack/rest'
 import type { RestApiImplementation } from './api-manager.js'
 import type { RequestAction } from './request-action-implementation.js'
 
@@ -44,18 +44,31 @@ const getDefinitionFromAction = (method: Method, path: string, action: RequestAc
   }
 }
 
-export const getSchemaFromApi = <T extends RestApiImplementation<RestApi>>(
-  schema: T,
-): Record<string, ApiEndpointDefinition> => {
-  const api: Record<string, ApiEndpointDefinition> = {}
+export const getSchemaFromApi = <T extends RestApiImplementation<RestApi>>({
+  api,
+  name = 'FuryStack API',
+  description = 'API documentation generated from FuryStack API schema',
+  version = '1.0.0',
+}: {
+  api: T
+  name?: string
+  description?: string
+  version?: string
+}): ApiEndpointSchema => {
+  const endpoints: Record<string, ApiEndpointDefinition> = {}
 
-  Object.entries(schema).forEach(([method, endpoints]) => {
-    Object.entries(endpoints as Record<string, RequestAction<any>>).forEach(([url, requestAction]) => {
+  Object.entries(api).forEach(([method, endpointList]) => {
+    Object.entries(endpointList as Record<string, RequestAction<any>>).forEach(([url, requestAction]) => {
       if (method && url && requestAction) {
-        api[url] = getDefinitionFromAction(method as Method, url, requestAction)
+        endpoints[url] = getDefinitionFromAction(method as Method, url, requestAction)
       }
     })
   })
 
-  return api
+  return {
+    name,
+    description,
+    version,
+    endpoints,
+  }
 }

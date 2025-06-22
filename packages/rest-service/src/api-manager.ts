@@ -62,6 +62,22 @@ export interface ImplementApiOptions<T extends RestApi> {
    * Also adds a 'GET /swagger.json' endpoint that returns the API schema in OpenAPI 3.0 (Swagger) format.
    */
   enableGetSchema?: boolean
+
+  /**
+   * Optional name for the API, used in the generated schema.
+   * This can be useful for documentation or identification purposes.
+   */
+  name?: string
+  /**
+   * Optional description for the API, used in the generated schema.
+   * This can provide additional context or information about the API's purpose.
+   */
+  description?: string
+  /**
+   * Optional version for the API, used in the generated schema.
+   * This can help in versioning the API and tracking changes over time.
+   */
+  version?: string
 }
 
 export type NewCompiledApiEntry = {
@@ -123,14 +139,17 @@ export class ApiManager implements Disposable {
     injector,
     deserializeQueryParams,
     enableGetSchema,
+    name,
+    description,
+    version,
   }: ImplementApiOptions<T>) {
     const extendedApi: typeof api = enableGetSchema
       ? {
           ...api,
           GET: {
             ...api.GET,
-            '/schema': CreateGetSchemaAction(api),
-            '/swagger.json': CreateGetSwaggerJsonAction(api),
+            '/schema': CreateGetSchemaAction(api, name, description, version),
+            '/swagger.json': CreateGetSwaggerJsonAction(api, name, description, version),
           },
         }
       : api

@@ -37,4 +37,9 @@ export type ApiEndpointDefinition = {
 /**
  * Represents the schema for an API, which is a record of endpoint definitions keyed by their paths.
  */
-export type ApiEndpointSchema = Record<string, ApiEndpointDefinition>
+export type ApiEndpointSchema = {
+  name: string
+  description: string
+  version: string
+  endpoints: Record<string, ApiEndpointDefinition>
+}

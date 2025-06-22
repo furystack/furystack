@@ -1,9 +1,9 @@
-import { RequestError, type ApiEndpointDefinition } from '@furystack/rest'
+import { RequestError } from '@furystack/rest'
 import type { RestApiImplementation } from '../api-manager.js'
 import { getSchemaFromApi } from '../get-schema-from-api.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
-export type GetSchemaResult = Record<string, ApiEndpointDefinition>
+export type GetSchemaResult = ReturnType<typeof getSchemaFromApi>
 
 /**
  * Creates a GET action that returns the schema of the provided API.
@@ -15,8 +15,11 @@ export type GetSchemaResult = Record<string, ApiEndpointDefinition>
  */
 export const CreateGetSchemaAction = <T extends RestApiImplementation<any>>(
   api: T,
+  name = 'FuryStack API',
+  description = 'API documentation generated from FuryStack API schema',
+  version = '1.0.0',
 ): RequestAction<{ result: GetSchemaResult }> => {
-  const schema = getSchemaFromApi(api)
+  const schema = getSchemaFromApi({ api, name, description, version })
   return async ({ request }) => {
     if (request.headers.accept?.includes('application/schema+json')) {
       return JsonResult(schema, 200)

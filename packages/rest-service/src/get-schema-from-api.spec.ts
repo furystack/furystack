@@ -17,14 +17,24 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getSchemaFromApi(Api)
+    const schema = getSchemaFromApi({
+      api: Api,
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+    })
     expect(schema).toEqual({
-      '/example': {
-        isAuthenticated: false,
-        path: '/example',
-        method: 'GET',
-        schema: defaultSchema,
-        schemaName: 'default',
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+      endpoints: {
+        '/example': {
+          isAuthenticated: false,
+          path: '/example',
+          method: 'GET',
+          schema: defaultSchema,
+          schemaName: 'default',
+        },
       },
     })
   })
@@ -39,14 +49,24 @@ describe('getSchemaFromApi', () => {
       },
     } as const satisfies RestApiImplementation<any>
 
-    const schema = getSchemaFromApi(Api)
+    const schema = getSchemaFromApi({
+      api: Api,
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+    })
     expect(schema).toEqual({
-      '/validate-query': {
-        isAuthenticated: false,
-        path: '/validate-query',
-        method: 'GET',
-        schema: validationSchema,
-        schemaName: 'ValidateQuery',
+      name: 'Test API',
+      description: 'Test API Description',
+      version: '1.0.0',
+      endpoints: {
+        '/validate-query': {
+          isAuthenticated: false,
+          path: '/validate-query',
+          method: 'GET',
+          schema: validationSchema,
+          schemaName: 'ValidateQuery',
+        },
       },
     })
   })

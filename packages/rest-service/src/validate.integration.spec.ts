@@ -15,6 +15,10 @@ import { Validate } from './validate.js'
 
 // To recreate: yarn ts-json-schema-generator -f tsconfig.json --no-type-check -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json
 
+const name = crypto.randomUUID()
+const description = crypto.randomUUID()
+const version = crypto.randomUUID()
+
 const createValidateApi = async (options = { enableGetSchema: false }) => {
   const injector = new Injector()
   const port = getPort()
@@ -25,6 +29,9 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
   const api = await useRestService<ValidationApi>({
     injector,
     enableGetSchema: options.enableGetSchema,
+    name,
+    description,
+    version,
     api: {
       GET: {
         '/validate-query': Validate({
@@ -76,6 +83,26 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
 
 describe('Validation integration tests', () => {
   describe('swagger.json schema definition', () => {
+    it('Should include name, description and version in the generated swagger.json', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        // Verify swagger document structure
+        const swaggerJson = result.result as SwaggerDocument
+        expect(swaggerJson.openapi).toBe('3.1.0')
+        expect(swaggerJson.info).toBeDefined()
+        expect(swaggerJson.info?.title).toBe(name)
+        expect(swaggerJson.info?.description).toBe(description)
+        expect(swaggerJson.info?.version).toBe(version)
+      })
+    })
+
     it('Should return a 404 when not enabled', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
         try {
@@ -103,24 +130,26 @@ describe('Validation integration tests', () => {
 
         // Verify swagger document structure
         const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.0.0')
+        expect(swaggerJson.openapi).toBe('3.1.0')
         expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info.title).toBe('FuryStack API')
+        expect(swaggerJson.info?.title).toBe(name)
+        expect(swaggerJson.info?.description).toBe(description)
+        expect(swaggerJson.info?.version).toBe(version)
         expect(swaggerJson.paths).toBeDefined()
 
         // Verify our API endpoints are included
-        expect(swaggerJson.paths['/validate-query']).toBeDefined()
-        expect(swaggerJson.paths['/validate-url/{id}']).toBeDefined()
-        expect(swaggerJson.paths['/validate-headers']).toBeDefined()
-        expect(swaggerJson.paths['/validate-body']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-query']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-url/{id}']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-headers']).toBeDefined()
+        expect(swaggerJson.paths?.['/validate-body']).toBeDefined()
 
         // Verify components section
         expect(swaggerJson.components).toBeDefined()
-        expect(swaggerJson.components.schemas).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateQuery).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateUrl).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateHeaders).toBeDefined()
-        expect(swaggerJson.components.schemas.ValidateBody).toBeDefined()
+        expect(swaggerJson.components?.schemas).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateQuery).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateUrl).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateHeaders).toBeDefined()
+        expect(swaggerJson.components?.schemas?.ValidateBody).toBeDefined()
       })
     })
   })
@@ -174,37 +203,41 @@ describe('Validation integration tests', () => {
         expect(result.response.status).toBe(200)
         expect(result.result).toBeDefined()
 
-        expect(result.result['/validate-query']).toBeDefined()
+        expect(result.result.name).toBe(name)
+        expect(result.result.description).toBe(description)
+        expect(result.result.version).toBe(version)
 
-        expect(result.result['/validate-query'].schema).toStrictEqual(schema)
-        expect(result.result['/validate-query'].schemaName).toBe('ValidateQuery')
-        expect(result.result['/validate-query'].method).toBe('GET')
-        expect(result.result['/validate-query'].path).toBe('/validate-query')
-        expect(result.result['/validate-query'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints['/validate-query']).toBeDefined()
 
-        expect(result.result['/validate-url/:id']).toBeDefined()
-        expect(result.result['/validate-url/:id'].schema).toStrictEqual(schema)
-        expect(result.result['/validate-url/:id'].schemaName).toBe('ValidateUrl')
-        expect(result.result['/validate-url/:id'].method).toBe('GET')
-        expect(result.result['/validate-url/:id'].path).toBe('/validate-url/:id')
-        expect(result.result['/validate-url/:id'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints['/validate-query'].schema).toStrictEqual(schema)
+        expect(result.result.endpoints['/validate-query'].schemaName).toBe('ValidateQuery')
+        expect(result.result.endpoints['/validate-query'].method).toBe('GET')
+        expect(result.result.endpoints['/validate-query'].path).toBe('/validate-query')
+        expect(result.result.endpoints['/validate-query'].isAuthenticated).toBe(false)
 
-        expect(result.result['/validate-headers']).toBeDefined()
-        expect(result.result['/validate-headers'].schema).toStrictEqual(schema)
-        expect(result.result['/validate-headers'].schemaName).toBe('ValidateHeaders')
-        expect(result.result['/validate-headers'].method).toBe('GET')
-        expect(result.result['/validate-headers'].path).toBe('/validate-headers')
-        expect(result.result['/validate-headers'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints['/validate-url/:id']).toBeDefined()
+        expect(result.result.endpoints['/validate-url/:id'].schema).toStrictEqual(schema)
+        expect(result.result.endpoints['/validate-url/:id'].schemaName).toBe('ValidateUrl')
+        expect(result.result.endpoints['/validate-url/:id'].method).toBe('GET')
+        expect(result.result.endpoints['/validate-url/:id'].path).toBe('/validate-url/:id')
+        expect(result.result.endpoints['/validate-url/:id'].isAuthenticated).toBe(false)
 
-        expect(result.result['/validate-body']).toBeDefined()
-        expect(result.result['/validate-body'].schema).toStrictEqual(schema)
-        expect(result.result['/validate-body'].schemaName).toBe('ValidateBody')
-        expect(result.result['/validate-body'].method).toBe('POST')
-        expect(result.result['/validate-body'].path).toBe('/validate-body')
-        expect(result.result['/validate-body'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints['/validate-headers']).toBeDefined()
+        expect(result.result.endpoints['/validate-headers'].schema).toStrictEqual(schema)
+        expect(result.result.endpoints['/validate-headers'].schemaName).toBe('ValidateHeaders')
+        expect(result.result.endpoints['/validate-headers'].method).toBe('GET')
+        expect(result.result.endpoints['/validate-headers'].path).toBe('/validate-headers')
+        expect(result.result.endpoints['/validate-headers'].isAuthenticated).toBe(false)
 
-        expect(result.result['/mock']).toBeUndefined()
-        expect(result.result['/mock/:id']).toBeUndefined()
+        expect(result.result.endpoints['/validate-body']).toBeDefined()
+        expect(result.result.endpoints['/validate-body'].schema).toStrictEqual(schema)
+        expect(result.result.endpoints['/validate-body'].schemaName).toBe('ValidateBody')
+        expect(result.result.endpoints['/validate-body'].method).toBe('POST')
+        expect(result.result.endpoints['/validate-body'].path).toBe('/validate-body')
+        expect(result.result.endpoints['/validate-body'].isAuthenticated).toBe(false)
+
+        expect(result.result.endpoints['/mock']).toBeUndefined()
+        expect(result.result.endpoints['/mock/:id']).toBeUndefined()
       })
     })
   })
