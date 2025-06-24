@@ -43,7 +43,6 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off', // Use Typescript own check for this
-      '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/explicit-member-accessibility': [
         'error',
         {
@@ -57,7 +56,6 @@ export default tseslint.config(
           },
         },
       ],
-      '@typescript-eslint/no-parameter-properties': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/array-type': ['error', { default: 'array-simple', readonly: 'array-simple' }],
