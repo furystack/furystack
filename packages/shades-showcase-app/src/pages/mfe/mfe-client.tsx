@@ -44,7 +44,9 @@ const Component = Shade<Api>({
         >
           <select name="recipient">
             <option value="">All</option>
-            {props.recipients?.map((recipient) => <option value={recipient}>{recipient}</option>)}
+            {props.recipients?.map((recipient) => (
+              <option value={recipient}>{recipient}</option>
+            ))}
           </select>
           <input type="text" name="message" placeholder="Message" required />
           <button type="submit">Send</button>

@@ -31,7 +31,7 @@ export const Validate =
 
     const validator = new SchemaValidator(schema, { coerceTypes: true, strict: false })
 
-    return async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
+    const wrapped = async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
       const anyArgs = args as any
       let body!: any
       const { headers } = anyArgs
@@ -62,4 +62,9 @@ export const Validate =
         getBody: () => Promise.resolve(body),
       })
     }
+
+    wrapped.schema = schema
+    wrapped.schemaName = validationOptions.schemaName
+
+    return wrapped
   }
