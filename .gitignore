@@ -82,3 +82,4 @@ packages/**/types
 
 packages/shades-showcase-app/test-results
 packages/shades-showcase-app/dist
+test-results
