@@ -1,13 +1,8 @@
-import { TextEncoder, TextDecoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
 import { Injector } from '@furystack/inject'
-import { LinkToRoute } from './link-to-route.js'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
+import { LinkToRoute } from './link-to-route.js'
 import type { Route } from './router.js'
 
 describe('LinkToRoute', () => {

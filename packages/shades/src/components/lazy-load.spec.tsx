@@ -1,8 +1,3 @@
-import { TextDecoder, TextEncoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as typeof global.TextDecoder
-
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
 import { LazyLoad } from './lazy-load.js'

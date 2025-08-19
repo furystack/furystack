@@ -22,6 +22,7 @@ export default defineConfig({
             'packages/rest-client-fetch/src/**/*.spec.ts',
             'packages/i18n/src/**/*.spec.ts',
           ],
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
       {
@@ -38,6 +39,7 @@ export default defineConfig({
             'packages/security/src/**/*.spec.ts',
             'packages/sequelize-store/src/**/*.spec.ts',
           ],
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
       {
@@ -52,6 +54,7 @@ export default defineConfig({
             'packages/shades-i18n/src/**/*.spec.(ts|tsx)',
             'packages/shades-mfe/src/**/*.spec.(ts|tsx)',
           ],
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
     ],

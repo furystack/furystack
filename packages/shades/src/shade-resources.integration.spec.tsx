@@ -1,10 +1,4 @@
 import { Injector } from '@furystack/inject'
-
-import { TextDecoder, TextEncoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
 import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
