@@ -1,8 +1,3 @@
-import { TextDecoder, TextEncoder } from 'util'
-
-global.TextEncoder = TextEncoder as typeof global.TextEncoder
-global.TextDecoder = TextDecoder as typeof global.TextDecoder
-
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
