@@ -2,8 +2,8 @@ import { Injector } from '@furystack/inject'
 
 import { TextDecoder, TextEncoder } from 'util'
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
+global.TextEncoder = TextEncoder as typeof global.TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

@@ -1,7 +1,7 @@
 import { TextDecoder, TextEncoder } from 'util'
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
+global.TextEncoder = TextEncoder as typeof global.TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
