@@ -1,12 +1,7 @@
-import { TextEncoder, TextDecoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ScreenService } from './screen-service.js'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('ScreenService', () => {
   beforeEach(() => {

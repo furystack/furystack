@@ -1,8 +1,3 @@
-import { TextDecoder, TextEncoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
 import { Injector } from '@furystack/inject'
 import { sleepAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

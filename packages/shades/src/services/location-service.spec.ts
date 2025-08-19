@@ -1,8 +1,3 @@
-import { TextDecoder, TextEncoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
 import { Injector } from '@furystack/inject'
 import { deserializeQueryString, serializeToQueryString, serializeValue } from '@furystack/rest'
 import { usingAsync } from '@furystack/utils'
