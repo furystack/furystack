@@ -38,8 +38,8 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^24.3.0",
-    "jsdom": "^26.1.0",
+    "@types/node": "^24.5.1",
+    "jsdom": "^27.0.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
@@ -47,7 +47,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "path-to-regexp": "^8.2.0",
+    "path-to-regexp": "^8.3.0",
     "semaphore-async-await": "^1.5.1"
   },
   "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"

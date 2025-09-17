@@ -1,6 +1,12 @@
 import type { Environment } from 'monaco-editor'
 
-const getWorker = async (_: string, label: string) => {
+declare global {
+  interface Window {
+    MonacoEnvironment: Environment
+  }
+}
+
+const getWorker = async (_workerId: string, label: string): Promise<Worker> => {
   let worker
 
   switch (label) {
@@ -29,6 +35,6 @@ const getWorker = async (_: string, label: string) => {
 }
 
 self.MonacoEnvironment = {
-  ...(self.MonacoEnvironment as Environment),
+  ...self.MonacoEnvironment,
   getWorker,
 }
