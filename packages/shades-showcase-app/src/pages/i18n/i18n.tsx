@@ -21,7 +21,6 @@ const fr = createLanguage({
   },
 })
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const service = new I18NService(en, de, hu, fr, es)
 
 const TranslatedComponent = createI18nComponent({
