@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-store",
-  "version": "7.0.26",
+  "version": "7.0.27",
   "description": "Simple File System store implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -43,7 +43,7 @@
     "semaphore-async-await": "^1.5.1"
   },
   "devDependencies": {
-    "@types/node": "^24.7.0",
+    "@types/node": "^24.7.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
