@@ -5,6 +5,10 @@ on:
     branches: [master]
     types:
       - completed
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
 jobs:
   on-success:
     name: Deploy packages to NPM
@@ -21,10 +25,7 @@ jobs:
         run: yarn install --immutable
       - name: Build
         run: yarn build
-      - name: Create .npmrc
-        run: "echo 'npmAlwaysAuth: true' >> .yarnrc.yml && echo 'npmAuthToken: ${NPM_TOKEN}' >> .yarnrc.yml"
       - name: Publish to NPM with Yarn
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish ## yarn lerna publish from-package -y
-
+        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish
