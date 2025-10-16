@@ -1,6 +1,7 @@
 import { Injectable, Injected } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
+import { Readable } from 'stream'
 import { ServerManager } from './server-manager.js'
 
 export interface ProxyOptions {
@@ -12,6 +13,7 @@ export interface ProxyOptions {
   headers?: (originalHeaders: OutgoingHttpHeaders) => OutgoingHttpHeaders
   cookies?: (originalCookies: string[]) => string[]
   responseCookies?: (responseCookies: string[]) => string[]
+  timeout?: number
 }
 
 // Headers that should not be forwarded to the target server
@@ -56,6 +58,7 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
     headers,
     cookies,
     responseCookies,
+    timeout,
   }: {
     sourceBaseUrl: string
     targetBaseUrl: string
@@ -63,6 +66,7 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
     headers?: (originalHeaders: OutgoingHttpHeaders) => OutgoingHttpHeaders
     cookies?: (originalCookies: string[]) => string[]
     responseCookies?: (responseCookiesList: string[]) => string[]
+    timeout?: number
   }) => {
     return async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       try {
@@ -97,12 +101,20 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
         const finalCookies = cookies ? cookies(originalCookies) : originalCookies
 
         // Build proxy headers, excluding hop-by-hop headers and removing any existing cookie header
-        const headersWithoutCookie = Object.fromEntries(
-          Object.entries(finalHeaders).filter(
-            ([key, value]) =>
-              typeof value === 'string' && key.toLowerCase() !== 'cookie' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase()),
-          ),
-        ) as Record<string, string>
+        const headersWithoutCookie: Record<string, string> = {}
+        for (const [key, value] of Object.entries(finalHeaders)) {
+          const lowerKey = key.toLowerCase()
+          if (lowerKey !== 'cookie' && !HOP_BY_HOP_HEADERS.has(lowerKey)) {
+            if (typeof value === 'string') {
+              headersWithoutCookie[key] = value
+            } else if (typeof value === 'number') {
+              headersWithoutCookie[key] = value.toString()
+            } else if (Array.isArray(value)) {
+              headersWithoutCookie[key] = value.join(', ')
+            }
+            // undefined is intentionally skipped
+          }
+        }
 
         // X-Forwarded-* headers
         const forwardedFor = [
@@ -121,9 +133,10 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
           Host: new URL(targetUrl).host,
           'User-Agent': (req.headers['user-agent'] as string) || 'FuryStack-Proxy/1.0',
           'X-Forwarded-For': forwardedFor,
-          'X-Forwarded-Host': (req.headers['host'] as string) || '',
+          'X-Forwarded-Host': (req.headers.host as string) || '',
           'X-Forwarded-Proto':
-            (req.headers['x-forwarded-proto'] as string) || (req.socket as any).encrypted ? 'https' : 'http',
+            (req.headers['x-forwarded-proto'] as string) ||
+            ((req.socket as { encrypted?: boolean }).encrypted ? 'https' : 'http'),
         }
 
         if (finalCookies.length > 0) {
@@ -135,76 +148,105 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
         const abortUpstream = () => {
           try {
             abortController.abort()
-          } catch {}
+          } catch {
+            // Ignore abort errors
+          }
+          // Clean up listeners to prevent memory leaks
+          res.off('close', abortUpstream)
+          req.off('aborted', abortUpstream)
         }
         res.once('close', abortUpstream)
         req.once('aborted', abortUpstream)
 
-        // Make the proxy request, stream request body when applicable
-        const proxyResponse = await fetch(targetUrl, {
-          method: req.method,
-          headers: proxyHeaders,
-          body: req.method !== 'GET' && req.method !== 'HEAD' ? (req as unknown as ReadableStream) : undefined,
-          signal: abortController.signal,
-        })
+        // Set up timeout
+        const timeoutMs = timeout ?? 30000
+        const timeoutId = setTimeout(() => abortController.abort(), timeoutMs)
 
-        // Copy and filter response headers
-        const setCookieHeaders: string[] = []
-        // Prefer undici's getSetCookie if available to correctly read multiple cookies
-        const anyHeaders = proxyResponse.headers as unknown as { getSetCookie?: () => string[] }
-        const fromGetter = anyHeaders.getSetCookie?.()
-        if (fromGetter && Array.isArray(fromGetter) && fromGetter.length) {
-          setCookieHeaders.push(...fromGetter)
-          proxyResponse.headers.forEach((value, key) => {
-            if (key.toLowerCase() !== 'set-cookie' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase())) {
-              res.setHeader(key, value)
-            }
+        try {
+          // Make the proxy request, stream request body when applicable
+          const proxyResponse = await fetch(targetUrl, {
+            method: req.method,
+            headers: proxyHeaders,
+            body:
+              req.method !== 'GET' && req.method !== 'HEAD'
+                ? (Readable.toWeb(req) as ReadableStream<Uint8Array>)
+                : undefined,
+            // @ts-expect-error - duplex is not in the types yet, but required for streaming bodies
+            duplex: 'half',
+            signal: abortController.signal,
           })
-        } else {
-          proxyResponse.headers.forEach((value, key) => {
-            const lowerKey = key.toLowerCase()
-            if (!HOP_BY_HOP_HEADERS.has(lowerKey)) {
-              if (lowerKey === 'set-cookie') {
-                setCookieHeaders.push(value)
-              } else {
+          clearTimeout(timeoutId)
+
+          // Copy and filter response headers
+          const setCookieHeaders: string[] = []
+          // Prefer undici's getSetCookie if available to correctly read multiple cookies
+          const anyHeaders = proxyResponse.headers as unknown as { getSetCookie?: () => string[] }
+          const fromGetter = anyHeaders.getSetCookie?.()
+          if (fromGetter && Array.isArray(fromGetter) && fromGetter.length) {
+            setCookieHeaders.push(...fromGetter)
+            proxyResponse.headers.forEach((value, key) => {
+              if (key.toLowerCase() !== 'set-cookie' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase())) {
                 res.setHeader(key, value)
               }
-            }
-          })
-        }
-
-        // Handle Set-Cookie header transformation
-        if (setCookieHeaders.length > 0) {
-          const finalSetCookies = responseCookies ? responseCookies(setCookieHeaders) : setCookieHeaders
-          res.setHeader('set-cookie', finalSetCookies)
-        }
-
-        // Set status code
-        res.writeHead(proxyResponse.status, res.getHeaders())
-
-        // Stream the response body
-        if (proxyResponse.body) {
-          const reader = proxyResponse.body.getReader()
-          try {
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) break
-              if (!res.write(value)) {
-                await new Promise((resolve) => res.once('drain', resolve))
+            })
+          } else {
+            proxyResponse.headers.forEach((value, key) => {
+              const lowerKey = key.toLowerCase()
+              if (!HOP_BY_HOP_HEADERS.has(lowerKey)) {
+                if (lowerKey === 'set-cookie') {
+                  setCookieHeaders.push(value)
+                } else {
+                  res.setHeader(key, value)
+                }
               }
-            }
-            res.end()
-          } catch (error) {
-            try {
-              await reader.cancel()
-            } catch {}
-            if (!res.destroyed) {
-              res.destroy()
-            }
-            throw error
+            })
           }
-        } else {
-          res.end()
+
+          // Handle Set-Cookie header transformation
+          if (setCookieHeaders.length > 0) {
+            const finalSetCookies = responseCookies ? responseCookies(setCookieHeaders) : setCookieHeaders
+            res.setHeader('set-cookie', finalSetCookies)
+          }
+
+          // Set status code
+          res.writeHead(proxyResponse.status, res.getHeaders())
+
+          // Stream the response body
+          if (proxyResponse.body) {
+            const reader = proxyResponse.body.getReader()
+            try {
+              while (true) {
+                const { done, value } = await reader.read()
+                if (done) break
+                if (!res.write(value)) {
+                  await new Promise((resolve) => res.once('drain', resolve))
+                }
+              }
+              res.end()
+            } catch (error) {
+              clearTimeout(timeoutId)
+              try {
+                await reader.cancel()
+              } catch {
+                // Ignore cancel errors
+              }
+              if (!res.destroyed) {
+                res.destroy()
+              }
+              throw error
+            }
+          } else {
+            res.end()
+          }
+        } catch (error) {
+          clearTimeout(timeoutId)
+          this.emit('onProxyFailed', { from: sourceBaseUrl, to: `${targetBaseUrl}`, error })
+          if (!res.headersSent) {
+            res.writeHead(502, { 'Content-Type': 'text/plain' })
+            res.end('Bad Gateway')
+          } else if (!res.destroyed) {
+            res.destroy()
+          }
         }
       } catch (error) {
         this.emit('onProxyFailed', { from: sourceBaseUrl, to: `${targetBaseUrl}`, error })
@@ -245,6 +287,7 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
         headers: options.headers,
         cookies: options.cookies,
         responseCookies: options.responseCookies,
+        timeout: options.timeout,
       }),
     })
   }

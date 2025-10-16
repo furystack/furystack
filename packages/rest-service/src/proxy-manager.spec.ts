@@ -595,16 +595,150 @@ describe('ProxyManager', () => {
           })
 
           const controller = new AbortController()
-          const fetchPromise = fetch(`http://127.0.0.1:${proxyPort}/api/stream`, { signal: controller.signal })
-          // Abort shortly after starting the request
-          setTimeout(() => controller.abort(), 30)
+          const fetchPromise = fetch(`http://127.0.0.1:${proxyPort}/api/stream`, { signal: controller.signal }).then(
+            async (response) => {
+              // Start reading the body stream
+              const reader = response.body?.getReader()
+              if (!reader) throw new Error('No body')
+              // Read one chunk
+              await reader.read()
+              // Then abort
+              controller.abort()
+              // Try to read more (should fail)
+              return reader.read()
+            },
+          )
 
           await expect(fetchPromise).rejects.toBeDefined()
 
           // Give the server a moment to receive the abort
-          await new Promise((r) => setTimeout(r, 50))
+          await new Promise((r) => setTimeout(r, 100))
 
           expect(closedEarly).toBe(true)
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle request timeout', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let failedEvent: { from: string; to: string; error: unknown } | undefined
+
+        proxyManager.subscribe('onProxyFailed', (event) => {
+          failedEvent = event
+        })
+
+        // Create a server that delays response longer than timeout
+        const targetServer = createServer((_req, res) => {
+          // Delay for 2 seconds (longer than our 100ms timeout)
+          setTimeout(() => {
+            res.writeHead(200, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ message: 'delayed response' }))
+          }, 2000)
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            timeout: 100, // Very short timeout to trigger quickly
+          })
+
+          const result = await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
+
+          // Should return 502 Bad Gateway due to timeout
+          expect(result.status).toBe(502)
+          expect(await result.text()).toBe('Bad Gateway')
+
+          // Should emit onProxyFailed event
+          expect(failedEvent).toBeDefined()
+          expect(failedEvent?.from).toBe('/api')
+          expect(failedEvent?.to).toContain(`http://localhost:${targetPort}`)
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should complete successfully when response is faster than timeout', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create a fast-responding server
+        const targetServer = createServer((_req, res) => {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ message: 'fast response' }))
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            timeout: 5000, // Generous timeout
+          })
+
+          const result = await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
+
+          // Should succeed
+          expect(result.status).toBe(200)
+          const data = (await result.json()) as { message: string }
+          expect(data.message).toBe('fast response')
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should use default timeout when not specified', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create a server with moderate delay (500ms)
+        const targetServer = createServer((_req, res) => {
+          setTimeout(() => {
+            res.writeHead(200, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ message: 'response after delay' }))
+          }, 500)
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          // No timeout specified - should use default 30000ms
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            // timeout not specified - uses default
+          })
+
+          const result = await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
+
+          // Should succeed with default timeout
+          expect(result.status).toBe(200)
+          const data = (await result.json()) as { message: string }
+          expect(data.message).toBe('response after delay')
         } finally {
           targetServer.close()
         }

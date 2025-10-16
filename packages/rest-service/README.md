@@ -280,6 +280,15 @@ await useProxy({
     })
   },
 })
+
+// Proxy with timeout configuration
+await useProxy({
+  injector,
+  sourceBaseUrl: '/api',
+  targetBaseUrl: 'https://slow-api.example.com',
+  sourcePort: 3000,
+  timeout: 5000, // 5 second timeout (default is 30000ms)
+})
 ```
 
 **How Proxying Works:**
@@ -291,7 +300,34 @@ await useProxy({
 
 The proxy server acts as an intermediary, forwarding requests and responses while allowing header and cookie transformation.
 
-Notes and tips:
+**Error Handling and Monitoring:**
+
+The proxy emits events when requests fail, allowing you to monitor and log errors:
+
+```ts
+import { ProxyManager } from '@furystack/rest-service'
+
+// Set up error monitoring
+const proxyManager = injector.getInstance(ProxyManager)
+proxyManager.subscribe('onProxyFailed', ({ from, to, error }) => {
+  console.error(`Proxy failed: ${from} -> ${to}`, error)
+  // Send to your logging service
+})
+```
+
+When the target server is unreachable or returns an error, the proxy returns `502 Bad Gateway` to the client. Errors are also emitted via the `onProxyFailed` event for monitoring.
+
+**Configuration Options:**
+
+- `timeout` (optional, default: 30000ms): Maximum time in milliseconds to wait for the target server to respond. If exceeded, the request is aborted and a 502 error is returned.
+- `sourceBaseUrl`: The base URL path to match for proxying (e.g., `/api`, `/old`). Can be specified with or without a trailing slash.
+- `targetBaseUrl`: The target server URL (must be a valid HTTP/HTTPS URL).
+- `pathRewrite`: Optional function to transform the path before forwarding.
+- `headers`: Optional function to transform request headers. **Note**: This receives headers _after_ filtering hop-by-hop headers (Connection, Keep-Alive, Transfer-Encoding, Upgrade, etc.) for security and protocol compliance.
+- `cookies`: Optional function to transform request cookies.
+- `responseCookies`: Optional function to transform response Set-Cookie headers.
+
+**Notes and Tips:**
 
 - `pathRewrite` receives the substring of the original request URL after `sourceBaseUrl`, including the leading slash and any query string (e.g., for `GET /old/path?q=1` and `sourceBaseUrl='/old'` it gets `'/path?q=1'`). If you need to preserve or remove query strings, handle it inside your function.
 - The proxy automatically adds `X-Forwarded-For`, `X-Forwarded-Host`, and `X-Forwarded-Proto`. You can override or extend these via the `headers(originalHeaders)` transformer if needed.
@@ -331,6 +367,34 @@ pathRewrite: (path) => {
     return path.replace('/admin/', '/dashboard/')
   }
   return path
+}
+
+// Manipulating query strings
+pathRewrite: (path) => {
+  const [pathname, query] = path.split('?')
+  const newPath = pathname.replace('/v1/', '/v2/')
+  // Preserve or modify query string
+  if (query) {
+    return `${newPath}?${query}&version=2`
+  }
+  return newPath
+}
+```
+
+**Header Transformation Notes:**
+
+The `headers` transformation function receives headers **after** filtering hop-by-hop headers. These headers are automatically excluded for security and protocol compliance:
+
+```ts
+headers: (filteredHeaders) => {
+  // filteredHeaders will NOT contain:
+  // - connection, keep-alive, transfer-encoding, upgrade, etc.
+
+  return {
+    ...filteredHeaders,
+    'X-API-Key': 'your-api-key',
+    Authorization: 'Bearer token',
+  }
 }
 ```
 
