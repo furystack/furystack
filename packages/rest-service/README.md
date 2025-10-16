@@ -203,6 +203,104 @@ myInjector.useCommonAuth({{
   }).useRestService<MyApi>({...api options})
 ```
 
+### Static File Serving
+
+You can serve static files using the `useStaticFiles` helper:
+
+```ts
+import { useStaticFiles } from '@furystack/rest-service'
+
+await useStaticFiles({
+  injector,
+  baseUrl: '/static',
+  path: './public',
+  port: 3000,
+  fallback: 'index.html', // Optional fallback file
+  headers: {
+    'Cache-Control': 'public, max-age=3600',
+  },
+})
+```
+
+### HTTP Proxying
+
+You can set up HTTP proxying with header and cookie transformation using the `useProxy` helper. The proxy functionality forwards requests to target servers and returns their responses:
+
+```ts
+import { useProxy } from '@furystack/rest-service'
+
+// Basic proxy (forwards requests to target server)
+await useProxy({
+  injector,
+  sourceBaseUrl: '/old',
+  targetBaseUrl: 'https://example.com',
+  pathRewrite: (path) => path.replace('/path', '/new'),
+  sourcePort: 3000,
+})
+
+// Proxy with header transformation
+await useProxy({
+  injector,
+  sourceBaseUrl: '/api/v1',
+  targetBaseUrl: 'https://api.example.com',
+  pathRewrite: (path) => path.replace('/legacy', '/v2'),
+  sourcePort: 3000,
+  headers: (originalHeaders) => ({
+    'X-API-Version': 'v2',
+    Authorization: 'Bearer new-token',
+    'X-Forwarded-For': originalHeaders['x-forwarded-for'] || 'unknown',
+  }),
+})
+
+// Proxy with cookie transformation
+await useProxy({
+  injector,
+  sourceBaseUrl: '/auth',
+  targetBaseUrl: 'https://auth.example.com',
+  pathRewrite: (path) => path.replace('/login', '/signin'),
+  sourcePort: 3000,
+  cookies: (originalCookies) => [
+    ...originalCookies.filter((c) => !c.startsWith('old-session=')),
+    'new-session=updated-session-id',
+    'auth-provider=oauth2',
+  ],
+})
+```
+
+**How Proxying Works:**
+
+1. **Client makes request** to source URL (e.g., `GET /old/path`)
+2. **Proxy server forwards request** to target URL (e.g., `https://example.com/new/path`)
+3. **Target server responds** with content
+4. **Proxy server returns response** to client
+
+The proxy server acts as an intermediary, forwarding requests and responses while allowing header and cookie transformation.
+
+**Path Rewriting Examples:**
+
+```ts
+// Simple path replacement
+pathRewrite: (path) => path.replace('/old-path', '/new-path')
+
+// Complex path transformation
+pathRewrite: (path) => {
+  // Remove version prefix and add new one
+  if (path.startsWith('/v1/')) {
+    return path.replace('/v1/', '/v2/')
+  }
+  // Add prefix to all other paths
+  return `/api${path}`
+}
+
+// Conditional rewriting based on path
+pathRewrite: (path) => {
+  if (path.includes('/admin/')) {
+    return path.replace('/admin/', '/dashboard/')
+  }
+  return path
+}
+```
+
 ### Built-in Actions
 
 The package contains the following built-in actions:
