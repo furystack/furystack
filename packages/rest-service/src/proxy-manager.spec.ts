@@ -953,7 +953,12 @@ describe('ProxyManager', () => {
         targetWss.on('connection', (ws) => {
           ws.on('message', (data: RawData) => {
             // Echo back the message with a prefix
-            ws.send(`echo: ${String(data)}`)
+            const message = Buffer.isBuffer(data)
+              ? data.toString('utf8')
+              : Array.isArray(data)
+                ? Buffer.concat(data).toString('utf8')
+                : Buffer.from(data).toString('utf8')
+            ws.send(`echo: ${message}`)
           })
         })
 
@@ -979,7 +984,12 @@ describe('ProxyManager', () => {
             })
 
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('echo: hello')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('echo: hello')
               clientWs.close()
               resolve()
             })
@@ -1009,7 +1019,12 @@ describe('ProxyManager', () => {
           ws.send('server-message-2')
 
           ws.on('message', (data: RawData) => {
-            ws.send(`received: ${String(data)}`)
+            const message = Buffer.isBuffer(data)
+              ? data.toString('utf8')
+              : Array.isArray(data)
+                ? Buffer.concat(data).toString('utf8')
+                : Buffer.from(data).toString('utf8')
+            ws.send(`received: ${message}`)
           })
         })
 
@@ -1036,7 +1051,12 @@ describe('ProxyManager', () => {
             })
 
             clientWs.on('message', (data: RawData) => {
-              receivedMessages.push(String(data))
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              receivedMessages.push(message)
 
               if (receivedMessages.length >= 4) {
                 expect(receivedMessages).toContain('server-message-1')
@@ -1139,7 +1159,12 @@ describe('ProxyManager', () => {
             })
 
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('connected')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('connected')
               expect(receivedProtocol).toContain('v1.chat')
               clientWs.close()
               resolve()
@@ -1188,7 +1213,12 @@ describe('ProxyManager', () => {
 
           await new Promise<void>((resolve, reject) => {
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('connected')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('connected')
               expect(receivedPath).toBe('/api/chat')
               clientWs.close()
               resolve()
@@ -1291,7 +1321,12 @@ describe('ProxyManager', () => {
             let messageReceived = false
 
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('goodbye')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('goodbye')
               messageReceived = true
             })
 
@@ -1388,7 +1423,11 @@ describe('ProxyManager', () => {
             })
 
             clientWs.on('message', (data: RawData) => {
-              const dataStr = String(data)
+              const dataStr = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
               expect(dataStr.length).toBe(largeMessage.length)
               expect(dataStr).toBe(largeMessage)
               clientWs.close()
@@ -1496,7 +1535,12 @@ describe('ProxyManager', () => {
 
           await new Promise<void>((resolve, reject) => {
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('connected')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('connected')
               expect(receivedHeaders['x-custom-header']).toBe('custom-value')
               expect(receivedHeaders['x-auth-token']).toBe('bearer-token')
               clientWs.close()
@@ -1658,7 +1702,12 @@ describe('ProxyManager', () => {
 
           await new Promise<void>((resolve, reject) => {
             clientWs.on('message', (data: RawData) => {
-              expect(String(data)).toBe('connected')
+              const message = Buffer.isBuffer(data)
+                ? data.toString('utf8')
+                : Array.isArray(data)
+                  ? Buffer.concat(data).toString('utf8')
+                  : Buffer.from(data).toString('utf8')
+              expect(message).toBe('connected')
               expect(receivedHeaders['x-number-header']).toBe('42')
               expect(receivedHeaders['x-array-header']).toBe('val1, val2')
               expect(receivedHeaders['x-string-header']).toBe('string-value')

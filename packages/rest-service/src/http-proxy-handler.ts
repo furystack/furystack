@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { Readable } from 'stream'
 import { HeaderProcessor } from './header-processor.js'
 import { PathProcessor } from './path-processor.js'
@@ -7,7 +7,7 @@ export interface HttpProxyOptions {
   sourceBaseUrl: string
   targetBaseUrl: string
   pathRewrite?: (sourcePath: string) => string
-  headers?: (originalHeaders: import('http').OutgoingHttpHeaders) => import('http').OutgoingHttpHeaders
+  headers?: (originalHeaders: OutgoingHttpHeaders) => OutgoingHttpHeaders
   cookies?: (originalCookies: string[]) => string[]
   responseCookies?: (responseCookies: string[]) => string[]
   timeout?: number

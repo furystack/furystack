@@ -42,10 +42,10 @@ export class WebSocketProxyHandler {
 
     // Add optional WebSocket headers
     if (req.headers['sec-websocket-protocol']) {
-      upgradeHeaders['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol'] as string
+      upgradeHeaders['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol']
     }
     if (req.headers['sec-websocket-extensions']) {
-      upgradeHeaders['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions'] as string
+      upgradeHeaders['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions']
     }
 
     return upgradeHeaders
