@@ -31,7 +31,7 @@ const HOP_BY_HOP_HEADERS = new Set([
 @Injectable({ lifetime: 'singleton' })
 export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: string; error: unknown } }> {
   @Injected(ServerManager)
-  private declare readonly serverManager: ServerManager
+  declare private readonly serverManager: ServerManager
 
   public shouldExec =
     (sourceBaseUrl: string) =>
