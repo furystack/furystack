@@ -4,7 +4,6 @@ import { Injectable, Injected } from '@furystack/inject'
 import { HttpUserContext, ServerManager } from '@furystack/rest-service'
 import { using } from '@furystack/utils'
 import { IncomingMessage } from 'http'
-import type { Socket } from 'net'
 import { URL } from 'url'
 import type WebSocket from 'ws'
 import type { Data } from 'ws'
@@ -52,21 +51,31 @@ export class WebSocketApi implements AsyncDisposable {
 
         websocket.on('close', () => {
           this.clients.delete(websocket)
+          connectionInjector[Symbol.asyncDispose]().catch((err) => {
+            console.error('Error disposing connection injector:', err)
+          })
         })
       })
 
-      await this.serverManager
-        .getOrCreate({ port: this.settings.port, hostName: this.settings.host })
-        .then((server) => {
-          server.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-            const { pathname } = new URL(request.url as string, `http://${request.headers.host}`)
-            if (pathname === this.settings.path) {
-              this.socket.handleUpgrade(request, socket, head, (websocket) => {
-                this.socket.emit('connection', websocket, request)
-              })
-            }
+      const server = await this.serverManager.getOrCreate({ port: this.settings.port, hostName: this.settings.host })
+
+      // Register as a ServerApi
+      server.apis.push({
+        shouldExec: (options) => {
+          const { pathname } = new URL(options.req.url as string, `http://${options.req.headers.host}`)
+          return pathname === this.settings.path
+        },
+        onRequest: async () => {
+          // No regular HTTP requests for WebSocket API
+        },
+        onUpgrade: async ({ req, socket, head }) => {
+          this.socket.handleUpgrade(req, socket, head, (websocket) => {
+            this.socket.emit('connection', websocket, req)
           })
-        })
+        },
+      })
+
+      this.isInitialized = true
     } else {
       throw Error('WebSocket API is already initialized')
     }
@@ -75,6 +84,9 @@ export class WebSocketApi implements AsyncDisposable {
     this.socket.clients.forEach((client) => client.close())
     this.socket.clients.forEach((client) => client.terminate())
     await new Promise<void>((resolve, reject) => this.socket.close((err) => (err ? reject(err) : resolve())))
+    // Dispose all child injectors
+    await Promise.allSettled([...this.clients.values()].map((client) => client.injector[Symbol.asyncDispose]()))
+    this.clients.clear()
   }
 
   public async broadcast(

@@ -1,11 +1,12 @@
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
 import { ApiManager } from './api-manager.js'
+import { useHttpAuthentication, useProxy, useRestService, useStaticFiles } from './helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import { useHttpAuthentication, useRestService, useStaticFiles } from './helpers.js'
+import { ProxyManager } from './proxy-manager.js'
 import { StaticServerManager } from './static-server-manager.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
 
 describe('Injector extensions', () => {
   describe('useHttpAuthentication', () => {
@@ -28,13 +29,30 @@ describe('Injector extensions', () => {
     })
   })
 
-  describe('useRestService()', () => {
-    it('Should set up a REST service', async () => {
+  describe('useStaticFiles()', () => {
+    it('Should set up a static file server', async () => {
       await usingAsync(new Injector(), async (i) => {
         const port = getPort()
 
         await useStaticFiles({ injector: i, baseUrl: '/', path: '.', port })
         expect(i.cachedSingletons.get(StaticServerManager)).toBeDefined()
+      })
+    })
+  })
+
+  describe('useProxy()', () => {
+    it('Should set up a proxy server', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const sourcePort = getPort()
+        const targetPort = getPort()
+
+        await useProxy({
+          injector: i,
+          sourceBaseUrl: '/api',
+          targetBaseUrl: `http://localhost:${targetPort}`,
+          sourcePort,
+        })
+        expect(i.cachedSingletons.get(ProxyManager)).toBeDefined()
       })
     })
   })

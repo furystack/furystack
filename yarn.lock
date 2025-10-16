@@ -785,12 +785,14 @@ __metadata:
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^24.7.2"
+    "@types/ws": "npm:^8.5.13"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^8.3.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^3.2.4"
+    ws: "npm:^8.18.0"
   languageName: unknown
   linkType: soft
 
@@ -1654,7 +1656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^8.18.1":
+"@types/ws@npm:^8.18.1, @types/ws@npm:^8.5.13":
   version: 8.18.1
   resolution: "@types/ws@npm:8.18.1"
   dependencies:
@@ -6106,7 +6108,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.18.2, ws@npm:^8.18.3":
+"ws@npm:^8.18.0, ws@npm:^8.18.2, ws@npm:^8.18.3":
   version: 8.18.3
   resolution: "ws@npm:8.18.3"
   peerDependencies:

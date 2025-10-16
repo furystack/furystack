@@ -4,6 +4,7 @@ import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
 import { Lock } from 'semaphore-async-await'
+import type { Duplex } from 'stream'
 
 export interface ServerOptions {
   hostName?: string
@@ -15,9 +16,16 @@ export interface OnRequest {
   res: ServerResponse
 }
 
+export interface OnUpgrade {
+  req: IncomingMessage
+  socket: Duplex
+  head: Buffer
+}
+
 export interface ServerApi {
   shouldExec: (options: OnRequest) => boolean
   onRequest: (options: OnRequest) => Promise<void>
+  onUpgrade?: (options: OnUpgrade) => Promise<void>
 }
 
 export interface ServerRecord {
@@ -77,6 +85,17 @@ export class ServerManager
                 })
               } else {
                 res.destroy()
+              }
+            })
+            server.on('upgrade', (req, socket, head) => {
+              const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
+              if (apiMatch?.onUpgrade) {
+                apiMatch.onUpgrade({ req, socket, head }).catch((error) => {
+                  this.emit('onRequestFailed', [error, req, {} as ServerResponse])
+                  socket.destroy()
+                })
+              } else {
+                socket.destroy()
               }
             })
             server.on('connection', this.onConnection)
