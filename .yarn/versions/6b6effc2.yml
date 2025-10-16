@@ -1,5 +1,5 @@
 releases:
   "@furystack/auth-google": patch
-  "@furystack/rest-service": patch
-  "@furystack/websocket-api": patch
+  "@furystack/rest-service": minor
+  "@furystack/websocket-api": minor
   furystack: patch
