@@ -291,6 +291,24 @@ await useProxy({
 
 The proxy server acts as an intermediary, forwarding requests and responses while allowing header and cookie transformation.
 
+Notes and tips:
+
+- `pathRewrite` receives the substring of the original request URL after `sourceBaseUrl`, including the leading slash and any query string (e.g., for `GET /old/path?q=1` and `sourceBaseUrl='/old'` it gets `'/path?q=1'`). If you need to preserve or remove query strings, handle it inside your function.
+- The proxy automatically adds `X-Forwarded-For`, `X-Forwarded-Host`, and `X-Forwarded-Proto`. You can override or extend these via the `headers(originalHeaders)` transformer if needed.
+- WebSocket and other upgrade protocols are not supported by this helper.
+- Multiple `Set-Cookie` headers from the target are preserved and can be transformed with `responseCookies`. Depending on your HTTP client, retrieving multiple `Set-Cookie` values may require client-specific APIs.
+- You can bind the proxy to a specific host via `sourceHostName`:
+
+```ts
+await useProxy({
+  injector,
+  sourceHostName: '127.0.0.1',
+  sourceBaseUrl: '/internal',
+  targetBaseUrl: 'https://internal.example.com',
+  sourcePort: 3001,
+})
+```
+
 **Path Rewriting Examples:**
 
 ```ts

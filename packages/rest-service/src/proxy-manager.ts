@@ -34,7 +34,10 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
   public shouldExec =
     (sourceBaseUrl: string) =>
     ({ req }: { req: Pick<IncomingMessage, 'url' | 'method'> }) =>
-      req.url?.startsWith(sourceBaseUrl) ?? false
+      req.url
+        ? req.url === sourceBaseUrl ||
+          req.url.startsWith(sourceBaseUrl[sourceBaseUrl.length - 1] === '/' ? sourceBaseUrl : `${sourceBaseUrl}/`)
+        : false
 
   private filterHeaders(headers: OutgoingHttpHeaders): OutgoingHttpHeaders {
     const filtered: OutgoingHttpHeaders = {}
@@ -93,50 +96,82 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
         const originalCookies = req.headers.cookie?.split(';').map((c) => c.trim()) ?? []
         const finalCookies = cookies ? cookies(originalCookies) : originalCookies
 
-        // Build proxy headers, excluding hop-by-hop headers
-        const proxyHeaders: Record<string, string> = {
-          ...Object.fromEntries(
-            Object.entries(finalHeaders).filter(
-              ([key, value]) => typeof value === 'string' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase()),
-            ),
+        // Build proxy headers, excluding hop-by-hop headers and removing any existing cookie header
+        const headersWithoutCookie = Object.fromEntries(
+          Object.entries(finalHeaders).filter(
+            ([key, value]) =>
+              typeof value === 'string' && key.toLowerCase() !== 'cookie' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase()),
           ),
+        ) as Record<string, string>
+
+        // X-Forwarded-* headers
+        const forwardedFor = [
+          (req.headers['x-forwarded-for'] as string | undefined)
+            ?.split(',')
+            .map((s) => s.trim())
+            .filter(Boolean) ?? [],
+          [req.socket.remoteAddress ?? ''],
+        ]
+          .flat()
+          .filter(Boolean)
+          .join(', ')
+
+        const proxyHeaders: Record<string, string> = {
+          ...headersWithoutCookie,
           Host: new URL(targetUrl).host,
-          'User-Agent': req.headers['user-agent'] || 'FuryStack-Proxy/1.0',
+          'User-Agent': (req.headers['user-agent'] as string) || 'FuryStack-Proxy/1.0',
+          'X-Forwarded-For': forwardedFor,
+          'X-Forwarded-Host': (req.headers['host'] as string) || '',
+          'X-Forwarded-Proto':
+            (req.headers['x-forwarded-proto'] as string) || (req.socket as any).encrypted ? 'https' : 'http',
         }
 
         if (finalCookies.length > 0) {
           proxyHeaders.Cookie = finalCookies.join('; ')
         }
 
-        // Read request body for non-GET/HEAD requests (preserve as Uint8Array for binary content)
-        let requestBody: Uint8Array | undefined
-        if (req.method !== 'GET' && req.method !== 'HEAD') {
-          const chunks: Buffer[] = []
-          for await (const chunk of req) {
-            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array))
-          }
-          requestBody = Buffer.concat(chunks)
+        // Prepare abort controller to cancel upstream when client disconnects
+        const abortController = new AbortController()
+        const abortUpstream = () => {
+          try {
+            abortController.abort()
+          } catch {}
         }
+        res.once('close', abortUpstream)
+        req.once('aborted', abortUpstream)
 
-        // Make the proxy request
+        // Make the proxy request, stream request body when applicable
         const proxyResponse = await fetch(targetUrl, {
           method: req.method,
           headers: proxyHeaders,
-          body: requestBody as BodyInit | null | undefined,
+          body: req.method !== 'GET' && req.method !== 'HEAD' ? (req as unknown as ReadableStream) : undefined,
+          signal: abortController.signal,
         })
 
         // Copy and filter response headers
         const setCookieHeaders: string[] = []
-        proxyResponse.headers.forEach((value, key) => {
-          const lowerKey = key.toLowerCase()
-          if (!HOP_BY_HOP_HEADERS.has(lowerKey)) {
-            if (lowerKey === 'set-cookie') {
-              setCookieHeaders.push(value)
-            } else {
+        // Prefer undici's getSetCookie if available to correctly read multiple cookies
+        const anyHeaders = proxyResponse.headers as unknown as { getSetCookie?: () => string[] }
+        const fromGetter = anyHeaders.getSetCookie?.()
+        if (fromGetter && Array.isArray(fromGetter) && fromGetter.length) {
+          setCookieHeaders.push(...fromGetter)
+          proxyResponse.headers.forEach((value, key) => {
+            if (key.toLowerCase() !== 'set-cookie' && !HOP_BY_HOP_HEADERS.has(key.toLowerCase())) {
               res.setHeader(key, value)
             }
-          }
-        })
+          })
+        } else {
+          proxyResponse.headers.forEach((value, key) => {
+            const lowerKey = key.toLowerCase()
+            if (!HOP_BY_HOP_HEADERS.has(lowerKey)) {
+              if (lowerKey === 'set-cookie') {
+                setCookieHeaders.push(value)
+              } else {
+                res.setHeader(key, value)
+              }
+            }
+          })
+        }
 
         // Handle Set-Cookie header transformation
         if (setCookieHeaders.length > 0) {
@@ -155,13 +190,14 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
               const { done, value } = await reader.read()
               if (done) break
               if (!res.write(value)) {
-                // Handle backpressure
                 await new Promise((resolve) => res.once('drain', resolve))
               }
             }
             res.end()
           } catch (error) {
-            await reader.cancel()
+            try {
+              await reader.cancel()
+            } catch {}
             if (!res.destroyed) {
               res.destroy()
             }

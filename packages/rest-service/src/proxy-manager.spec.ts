@@ -475,5 +475,140 @@ describe('ProxyManager', () => {
         }
       })
     })
+
+    it('Should preserve multiple Set-Cookie headers from target', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        const targetServer = createServer((_req, res) => {
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Set-Cookie': ['cookieA=a; Path=/; HttpOnly', 'cookieB=b; Path=/', 'cookieC=c; Path=/'],
+          })
+          res.end(JSON.stringify({ ok: true }))
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+          })
+
+          const result = await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
+          expect(result.status).toBe(200)
+
+          const anyHeaders = result.headers as unknown as { getSetCookie?: () => string[] }
+          const cookies = anyHeaders.getSetCookie?.()
+          if (cookies) {
+            expect(cookies.length).toBeGreaterThanOrEqual(3)
+            expect(cookies.join('\n')).toContain('cookieA=a')
+            expect(cookies.join('\n')).toContain('cookieB=b')
+            expect(cookies.join('\n')).toContain('cookieC=c')
+          } else {
+            // Fallback: combined header still should contain at least one cookie
+            const setCookieHeader = result.headers.get('set-cookie')
+            expect(setCookieHeader).toBeTruthy()
+            expect(setCookieHeader as string).toContain('cookieA=a')
+          }
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should add X-Forwarded headers to target request', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let received: Record<string, string | string[] | undefined> = {}
+        const targetServer = createServer((req, res) => {
+          received = { ...req.headers }
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ ok: true }))
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+          })
+
+          await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
+
+          expect(received['x-forwarded-for']).toBeTruthy()
+          expect(received['x-forwarded-host']).toBeTruthy()
+          expect(received['x-forwarded-proto']).toBeTruthy()
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should abort upstream when client disconnects', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let chunksWritten = 0
+        let closedEarly = false
+        const totalChunks = 100
+        const targetServer = createServer((_req, res) => {
+          res.writeHead(200, { 'Content-Type': 'text/plain' })
+          const interval = setInterval(() => {
+            chunksWritten++
+            res.write('chunk\n')
+            if (chunksWritten >= totalChunks) {
+              clearInterval(interval)
+              res.end('done')
+            }
+          }, 5)
+          res.on('close', () => {
+            closedEarly = chunksWritten < totalChunks
+            clearInterval(interval)
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/api',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+          })
+
+          const controller = new AbortController()
+          const fetchPromise = fetch(`http://127.0.0.1:${proxyPort}/api/stream`, { signal: controller.signal })
+          // Abort shortly after starting the request
+          setTimeout(() => controller.abort(), 30)
+
+          await expect(fetchPromise).rejects.toBeDefined()
+
+          // Give the server a moment to receive the abort
+          await new Promise((r) => setTimeout(r, 50))
+
+          expect(closedEarly).toBe(true)
+        } finally {
+          targetServer.close()
+        }
+      })
+    })
   })
 })
