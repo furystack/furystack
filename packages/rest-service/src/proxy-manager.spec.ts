@@ -2,6 +2,7 @@ import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { mkdirSync, writeFileSync } from 'fs'
+import type { OutgoingHttpHeaders } from 'http'
 import { createServer as createHttpServer } from 'http'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -817,6 +818,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         let receivedHeaders: Record<string, string | string[] | undefined> = {}
+        let transformedHeaders: OutgoingHttpHeaders | undefined
 
         const targetServer = createHttpServer((req, res) => {
           receivedHeaders = { ...req.headers }
@@ -833,16 +835,27 @@ describe('ProxyManager', () => {
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
-            headers: () => ({
-              'X-Number-Header': 12345 as unknown as string,
-              'X-String-Header': 'string-value',
-            }),
+            headers: (original) => {
+              transformedHeaders = {
+                ...original,
+                'X-Custom-Number': 12345 as unknown as string,
+                'X-Custom-String': 'string-value',
+              }
+              return transformedHeaders
+            },
           })
 
           await fetch(`http://127.0.0.1:${proxyPort}/api/test`)
 
-          expect(receivedHeaders['x-number-header']).toBe('12345')
-          expect(receivedHeaders['x-string-header']).toBe('string-value')
+          // Verify headers transformer was called and returns correct types
+          expect(transformedHeaders).toBeDefined()
+          expect(transformedHeaders?.['X-Custom-Number']).toBe(12345)
+          expect(transformedHeaders?.['X-Custom-String']).toBe('string-value')
+          
+          // Verify string header was forwarded
+          expect(receivedHeaders['x-custom-string']).toBe('string-value')
+          // Number headers get converted to strings by the proxy logic
+          expect(receivedHeaders['x-custom-number']).toBe('12345')
         } finally {
           targetServer.close()
         }
@@ -1504,12 +1517,6 @@ describe('ProxyManager', () => {
         const proxyManager = injector.getInstance(ProxyManager)
         const targetPort = getPort()
         const proxyPort = getPort()
-
-        let failedEvent: { from: string; to: string; error: unknown } | undefined
-
-        proxyManager.subscribe('onWebSocketProxyFailed', (event) => {
-          failedEvent = event
-        })
 
         // Create a server that delays WebSocket upgrade longer than timeout
         const targetServer = createHttpServer()
