@@ -9,26 +9,27 @@ You can authorize, manipulate, and observe CRUD operations.
 You can set up a repository as follows:
 
 ```ts
+import { Injector } from '@furystack/inject'
+import { InMemoryStore, addStore } from '@furystack/core'
+import { getRepository, getDataSetFor } from '@furystack/repository'
+
 class MyModel {
   declare id: number
   declare value: string
 }
 
 const myInjector = new Injector()
-myInjector
-  .setupStores((stores) => stores.addStore(new InMemoryStore({ model: MyModel, primaryKey: 'id' })))
-  .setupRepository((repo) =>
-    repo.createDataSet(MyModel, {
-      onEntityAdded: ({ injector, entity }) => {
-        injector.logger.verbose({ message: `An entity was added with value '${entity.value}'` })
-      },
-      authorizeUpdate: async () => ({
-        isAllowed: false,
-        message: 'This is a read-only dataset. No update is allowed. :(',
-      }),
-      /** custom repository options */
-    }),
-  )
+addStore(myInjector, new InMemoryStore({ model: MyModel, primaryKey: 'id' }))
+getRepository(myInjector).createDataSet(MyModel, 'id', {
+  onEntityAdded: ({ injector, entity }) => {
+    injector.logger.verbose({ message: `An entity was added with value '${entity.value}'` })
+  },
+  authorizeUpdate: async () => ({
+    isAllowed: false,
+    message: 'This is a read-only dataset. No update is allowed. :(',
+  }),
+  /** custom repository options */
+})
 ```
 
 In the example above, we've created a physical InMemory store for the model `MyModel`, and we've configured a repository with a DataSet.
@@ -40,7 +41,7 @@ A DataSet is similar to a physical store, but it can have custom event callbacks
 You can retrieve the dataset as follows:
 
 ```ts
-const dataSet = myInjector.getDataSetFor(MyModel)
+const dataSet = getDataSetFor(myInjector, MyModel, 'id')
 dataSet.add(myInjector, { id: 1, value: 'foo' }) // <-- this will log to a logger
 dataSet.update(myInjector, 1, { id: 1, value: 'bar' }) // <--- this one will be rejected
 ```
@@ -51,7 +52,7 @@ Events are great for logging or monitoring DataSet changes or distributing chang
 
 ### Authorizing operations
 
-**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These `areauthorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authroizeRemoveEntity` (also needs reloading), `authorizeGet`,`authorizeGetEntity` (also needs reloading),
+**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These are `authorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authorizeRemoveEntity` (also needs reloading), `authorizeGet`, `authorizeGetEntity` (also needs reloading),
 
 ### Modifiers and additional filters
 

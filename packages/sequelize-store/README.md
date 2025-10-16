@@ -5,17 +5,28 @@ Sequelize physical store implementation for FuryStack.
 ## Initialization
 
 ```ts
-import '@furystack/sequelize-store'
+import { Injector } from '@furystack/inject'
+import { StoreManager, type PhysicalStore } from '@furystack/core'
+import { useSequelize } from '@furystack/sequelize-store'
+import { Model, type Options } from 'sequelize'
 
-export class TestEntry extends Model<...,...> {
-  public declare _id: string
-  public declare value: string
+export class TestEntry extends Model {
+  declare public _id: string
+  declare public value: string
 }
 
-myInjector
-  .setupStores(sm => {
-    sm.useSequelize(TestEntry, '...other Sequelize-related options...')
-  })
+const myInjector = new Injector()
+useSequelize({
+  injector: myInjector,
+  model: TestEntry,
+  sequelizeModel: TestEntry, // Your Sequelize Model class
+  primaryKey: '_id',
+  options: {
+    // Sequelize connection options
+    dialect: 'sqlite',
+    storage: ':memory:',
+  } as Options,
+})
 
-const myStore: IPhysicalStore<TestEntry> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
+const myStore: PhysicalStore<TestEntry, '_id'> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry, '_id')
 ```

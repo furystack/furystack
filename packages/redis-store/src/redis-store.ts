@@ -4,7 +4,7 @@ import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
 
 /**
- * TypeORM Store implementation for FuryStack
+ * Redis Store implementation for FuryStack
  */
 export class RedisStore<
     T,

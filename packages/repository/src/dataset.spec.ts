@@ -495,11 +495,11 @@ describe('DataSet', () => {
       })
     })
 
-    it('should remove the entity if authroizeRemoveEntity returns valid result', async () => {
+    it('should remove the entity if authorizeRemoveEntity returns valid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authroizeRemoveEntity = vi.fn(async () => ({ isAllowed: true, message: '' }))
+        const authorizeRemoveEntity = vi.fn(async () => ({ isAllowed: true, message: '' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
-        getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
 
         const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
@@ -509,11 +509,11 @@ describe('DataSet', () => {
       })
     })
 
-    it('should throw if authroizeRemoveEntity returns invalid result', async () => {
+    it('should throw if authorizeRemoveEntity returns invalid result', async () => {
       await usingAsync(new Injector(), async (i) => {
-        const authroizeRemoveEntity = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
+        const authorizeRemoveEntity = vi.fn(async () => ({ isAllowed: false, message: ':(' }))
         addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
-        getRepository(i).createDataSet(TestClass, 'id', { authroizeRemoveEntity })
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
 
         const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })

@@ -30,13 +30,13 @@ export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TP
    */
   getSequelizeClient: () => Sequelize
   /**
-   * Optional calback that will initialize the Model for the Sequelize instance
+   * Optional callback that will initialize the Model for the Sequelize instance
    */
   initModel?: (sequelize: Sequelize) => Promise<void>
 }
 
 /**
- * TypeORM Store implementation for FuryStack
+ * Sequelize Store implementation for FuryStack
  */
 export class SequelizeStore<
     T extends object,

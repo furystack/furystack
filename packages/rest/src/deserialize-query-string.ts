@@ -1,5 +1,5 @@
 /**
- *
+ * Decodes a URL-safe base64 encoded JSON string back to its original value
  * Decoding steps: See the encoding steps in reverse order
  * @param value The value to decode
  * @returns The decoded value

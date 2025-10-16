@@ -153,10 +153,10 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
         throw new AuthorizationError(result.message)
       }
     }
-    if (this.settings.authroizeRemoveEntity) {
+    if (this.settings.authorizeRemoveEntity) {
       const entity = await this.settings.physicalStore.get(key)
       if (entity) {
-        const removeResult = await this.settings.authroizeRemoveEntity({ injector, entity })
+        const removeResult = await this.settings.authorizeRemoveEntity({ injector, entity })
         if (!removeResult.isAllowed) {
           throw new AuthorizationError(removeResult.message)
         }

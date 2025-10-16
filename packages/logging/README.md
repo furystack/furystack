@@ -7,21 +7,25 @@ Logging package for FuryStack.
 You can start using the logging service with an injector as follows:
 
 ```ts
-import { ConsoleLogger } from '@furystack/logging'
+import { Injector } from '@furystack/inject'
+import { ConsoleLogger, useLogging } from '@furystack/logging'
 
-const myInjector = new Injector().useLogging(ConsoleLogger, Logger1, Logger2 /* ...your Logger implementations */)
+const myInjector = new Injector()
+useLogging(myInjector, ConsoleLogger, Logger1, Logger2 /* ...your Logger implementations */)
 ```
 
 You can retrieve the Logger instance with:
 
 ```ts
-const myLogger = myInjector.getLogger()
+import { getLogger } from '@furystack/logging'
+
+const myLogger = getLogger(myInjector)
 ```
 
 Or with a specific scope:
 
 ```ts
-myInjector.getLogger().withScope('CustomScope')
+getLogger(myInjector).withScope('CustomScope')
 ```
 
 ## Logging Events

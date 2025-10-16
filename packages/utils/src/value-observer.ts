@@ -35,7 +35,7 @@ export class ValueObserver<T> implements Disposable {
   }
 
   /**
-   * @constructs ValueObserver<T> the ValueObserver instance
+   * Creates a ValueObserver instance
    * @param observable The related Observable object
    * @param callback The callback that will be fired on change
    * @param options Additional options

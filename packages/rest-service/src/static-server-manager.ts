@@ -1,9 +1,10 @@
 import { Injectable, Injected } from '@furystack/inject'
+import { PathHelper } from '@furystack/utils'
 import { createReadStream } from 'fs'
 import { access, stat } from 'fs/promises'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
-import { getMimeForFile } from './mime-types.js'
 import { join, normalize, sep } from 'path'
+import { getMimeForFile } from './mime-types.js'
 import { ServerManager } from './server-manager.js'
 
 export interface StaticServerOptions {
@@ -47,11 +48,7 @@ export class StaticServerManager {
   public shouldExec =
     (baseUrl: string) =>
     ({ req }: { req: Pick<IncomingMessage, 'url' | 'method'> }) =>
-      req.url &&
-      req.method?.toUpperCase() === 'GET' &&
-      (req.url === baseUrl || req.url.startsWith(baseUrl[baseUrl.length - 1] === '/' ? baseUrl : `${baseUrl}/`))
-        ? true
-        : false
+      req.url && req.method?.toUpperCase() === 'GET' && PathHelper.matchesBaseUrl(req.url, baseUrl) ? true : false
 
   private onRequest = ({
     path,
@@ -65,7 +62,8 @@ export class StaticServerManager {
     headers?: OutgoingHttpHeaders
   }) => {
     return async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
-      const filePath = (req.url as string).substring(baseUrl.length - 1).replaceAll('/', sep)
+      const extractedPath = PathHelper.extractPath(req.url as string, baseUrl)
+      const filePath = (extractedPath || '/').replaceAll('/', sep)
       const fullPath = normalize(join(path, filePath))
 
       try {

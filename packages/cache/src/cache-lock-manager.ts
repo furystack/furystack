@@ -16,7 +16,7 @@ export class CacheLockManager implements Disposable {
   }
 
   /**
-   *
+   * Acquires a lock for the given index
    * @param index The index of the lock
    * @returns A promise that resolves to true if the lock was acquired, false if it was already acquired
    */

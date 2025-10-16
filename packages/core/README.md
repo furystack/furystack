@@ -23,7 +23,7 @@ The generic way to implement authentication and authorization logic is with an I
 Global Disposables is a list you can fill with disposables that will be disposed on app exit – this helps with graceful app shutdowns.
 
 ```ts
-import { globalDisposables } from '@furystack/core/dist/create-physical-store-tests'
+import { globalDisposables } from '@furystack/core/create-physical-store-tests'
 
 globalDisposables.add(myRootInjector)
 ```

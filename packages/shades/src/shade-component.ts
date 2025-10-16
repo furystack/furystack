@@ -50,7 +50,7 @@ export const attachDataAttributes = <TProps extends object>(el: HTMLElement, pro
 }
 
 /**
- *
+ * Attaches properties to an HTML element
  * @param el The Target HTML Element
  * @param props The Props to attach
  */

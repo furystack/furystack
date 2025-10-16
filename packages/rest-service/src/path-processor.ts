@@ -1,3 +1,5 @@
+import { PathHelper } from '@furystack/utils'
+
 /**
  * Handles URL validation, path extraction, and path rewriting for proxy requests
  */
@@ -28,7 +30,7 @@ export class PathProcessor {
    * Extracts the path portion after the source base URL
    */
   public extractSourcePath(requestUrl: string, sourceBaseUrl: string): string {
-    return requestUrl.substring(sourceBaseUrl.length)
+    return PathHelper.extractPath(requestUrl, sourceBaseUrl)
   }
 
   /**
@@ -42,7 +44,7 @@ export class PathProcessor {
    * Builds the complete target URL from base URL and processed path
    */
   public buildTargetUrl(targetBaseUrl: string, targetPath: string): string {
-    return `${targetBaseUrl}${targetPath}`
+    return PathHelper.joinUrl(targetBaseUrl, targetPath)
   }
 
   /**

@@ -20,7 +20,7 @@ You can then use the service to translate strings:
 ```ts
 import { I18NService } from '@furystack/i18n'
 
-const service = injector.get(I18NService)
+const service = injector.getInstance(I18NService)
 
 console.log(service.translate('hello')) // Outputs: 'Hello'
 ```
