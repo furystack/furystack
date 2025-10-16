@@ -851,7 +851,7 @@ describe('ProxyManager', () => {
           expect(transformedHeaders).toBeDefined()
           expect(transformedHeaders?.['X-Custom-Number']).toBe(12345)
           expect(transformedHeaders?.['X-Custom-String']).toBe('string-value')
-          
+
           // Verify string header was forwarded
           expect(receivedHeaders['x-custom-string']).toBe('string-value')
           // Number headers get converted to strings by the proxy logic
