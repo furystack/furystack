@@ -103,13 +103,7 @@ export type OnRequestOptions = OnRequest & {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class ApiManager implements Disposable {
-  private readonly apis = new Map<string, NewCompiledApi>()
-
-  public [Symbol.dispose]() {
-    this.apis.clear()
-  }
-
+export class ApiManager {
   private getSuportedMethods(api: RestApiImplementation<RestApi>): Method[] {
     return Object.keys(api) as Method[]
   }
