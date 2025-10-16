@@ -7,7 +7,7 @@ const portGenerator = function* () {
 }
 
 /**
- *
+ * Generates a random port number for testing purposes
  * @returns the next port number starting from 14000 to 16000
  */
 export const getPort = () => portGenerator().next().value

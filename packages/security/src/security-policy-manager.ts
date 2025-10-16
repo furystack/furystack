@@ -6,7 +6,7 @@ import { SecurityPolicy } from './security-policy.js'
 export class SecurityPolicyManager {
   /**
    * @param password The Plain password string
-   * @returns if the password matches the complexity rules
+   * @returns whether the password matches the complexity rules
    */
   public async matchPasswordComplexityRules(password: string) {
     const result = await Promise.all(this.policy.passwordComplexityRules.map((rule) => rule.check(password)))

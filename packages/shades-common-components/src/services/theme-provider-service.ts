@@ -84,7 +84,7 @@ export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<T
   }
 
   /**
-   *
+   * Parses a color string and returns RGB values
    * @param color The color string
    * @returns The parsed R,G,B, A values
    */

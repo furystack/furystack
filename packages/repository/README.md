@@ -52,7 +52,7 @@ Events are great for logging or monitoring DataSet changes or distributing chang
 
 ### Authorizing operations
 
-**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These `areauthorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authroizeRemoveEntity` (also needs reloading), `authorizeGet`,`authorizeGetEntity` (also needs reloading),
+**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These are `authorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authorizeRemoveEntity` (also needs reloading), `authorizeGet`, `authorizeGetEntity` (also needs reloading),
 
 ### Modifiers and additional filters
 

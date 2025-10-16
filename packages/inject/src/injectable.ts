@@ -28,9 +28,9 @@ export const InjectableOptionsSymbol = Symbol('InjectableOptions')
 type WithInjectableOptions<T> = T & { [InjectableOptionsSymbol]: InjectableOptions }
 
 /**
- * Checks if the constructor is decorated with Injectable() with verifying if it has Injectable options
+ * Checks if the constructor is decorated with Injectable() by verifying if it has Injectable options
  * @param ctor The constructor to check
- * @returns if the constructor has the InjectableOptionsSymbol
+ * @returns whether the constructor has the InjectableOptionsSymbol
  */
 export const hasInjectableOptions = <T extends Constructable<any>>(ctor: T): ctor is WithInjectableOptions<T> => {
   return (

@@ -20,7 +20,7 @@ export type ObservableValueOptions<T> = {
    * Defines a custom compare function to determine if the value should be updated and the observers should be notified
    * @param lastValue the last value
    * @param nextValue the next value
-   * @returns if the value should be updated and the observers should be notified
+   * @returns whether the value should be updated and the observers should be notified
    */
   compare: (lastValue: T, nextValue: T) => boolean
 }
@@ -84,7 +84,7 @@ export class ObservableValue<T> implements Disposable {
   /**
    * The observer will unsubscribe from the Observable
    * @param observer The ValueObserver instance
-   * @returns if unsubscribing was successfull
+   * @returns whether unsubscribing was successful
    */
   public unsubscribe(observer: ValueObserver<T>) {
     return this.observers.delete(observer)

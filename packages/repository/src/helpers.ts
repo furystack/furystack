@@ -1,5 +1,4 @@
-import type { Constructable } from '@furystack/inject'
-import type { Injector } from '@furystack/inject'
+import type { Constructable, Injector } from '@furystack/inject'
 import { Repository } from './repository.js'
 
 /**
@@ -10,7 +9,7 @@ import { Repository } from './repository.js'
 export const getRepository = (injector: Injector) => injector.getInstance(Repository)
 
 /**
- *
+ * Gets a DataSet for a specific model from the repository
  * @param injector The Injector instance
  * @param model The Model
  * @param primaryKey The Primary Key field

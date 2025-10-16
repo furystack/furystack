@@ -45,8 +45,7 @@ export class PasswordAuthenticator {
   }
 
   /**
-   *
-   *Sets the password for the specific user
+   * Sets the password for the specific user
    * @param userName The user to set the password for
    * @param lastPassword The last user password
    * @param plainPassword The password as a plain string
