@@ -994,7 +994,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1068,7 +1071,10 @@ describe('ProxyManager', () => {
               }
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1107,12 +1113,14 @@ describe('ProxyManager', () => {
             clientWs.on('error', (error) => {
               // Should fail because WebSocket is not enabled
               expect(error).toBeDefined()
+              clientWs.close()
               resolve()
             })
 
             clientWs.on('open', () => {
               // Should not open successfully
               clientWs.close()
+              resolve()
             })
           })
         } finally {
@@ -1170,7 +1178,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1224,7 +1235,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1278,7 +1292,10 @@ describe('ProxyManager', () => {
               }, 100)
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1335,7 +1352,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1434,7 +1454,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1489,7 +1512,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1547,7 +1573,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()
@@ -1716,7 +1745,10 @@ describe('ProxyManager', () => {
               resolve()
             })
 
-            clientWs.on('error', reject)
+            clientWs.on('error', (err) => {
+              clientWs.close()
+              reject(err)
+            })
           })
         } finally {
           targetWss.close()

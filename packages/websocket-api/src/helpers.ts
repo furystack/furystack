@@ -1,12 +1,12 @@
 import type { Injector } from '@furystack/inject'
-import { WebSocketApi } from './websocket-api.js'
 import { WebSocketApiSettings } from './websocket-api-settings.js'
+import { WebSocketApi } from './websocket-api.js'
 
 /**
  * Registers a WebSocket API on a current injector instance.
  * Usage example:
  * ````ts
- * injector.useWebsockets({
+ * await injector.useWebsockets({
  * path: "/sockets",
  * actions: [...my custom actions]
  * })
@@ -14,9 +14,10 @@ import { WebSocketApiSettings } from './websocket-api-settings.js'
  * @param injector The injector instance
  * @param settings The Settings object for the WebSocket API
  */
-export const useWebsockets = (injector: Injector, settings?: Partial<WebSocketApiSettings>) => {
+export const useWebsockets = async (injector: Injector, settings?: Partial<WebSocketApiSettings>) => {
   const s = new WebSocketApiSettings()
   Object.assign(s, settings)
   injector.setExplicitInstance(s, WebSocketApiSettings)
-  injector.getInstance(WebSocketApi)
+  const api = injector.getInstance(WebSocketApi)
+  await api.init()
 }

@@ -19,6 +19,7 @@ describe('WebSocket Integration tests', () => {
   let i!: Injector
   let client: WebSocket
   let port: number
+  const createdClients: WebSocket[] = []
 
   beforeEach(async () => {
     i = new Injector()
@@ -34,13 +35,14 @@ describe('WebSocket Integration tests', () => {
       new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
     )
     useHttpAuthentication(i, {})
-    useWebsockets(i, { actions: [WhoAmI], path, port, host })
+    await useWebsockets(i, { actions: [WhoAmI], path, port, host })
 
     await new Promise<void>((resolve, reject) => {
       i.getInstance(ServerManager)
         .getOrCreate({ port })
         .then(() => {
           client = new WebSocket(`ws://${host}:${port}/ws`)
+          createdClients.push(client)
           client
             .on('open', () => {
               resolve()
@@ -52,6 +54,13 @@ describe('WebSocket Integration tests', () => {
   })
 
   afterEach(async () => {
+    // Close all WebSocket clients before disposing the injector
+    createdClients.forEach((ws) => {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close()
+      }
+    })
+    createdClients.length = 0
     await i[Symbol.asyncDispose]()
   })
   const getWhoAmIResult = async (subjectClient: WebSocket) => {
@@ -89,6 +98,7 @@ describe('WebSocket Integration tests', () => {
       const cl = new WebSocket(`ws://${host}:${port}/ws`, {
         headers: { cookie },
       })
+      createdClients.push(cl)
       cl.once('open', () => {
         done(cl)
       }).once('error', reject)
