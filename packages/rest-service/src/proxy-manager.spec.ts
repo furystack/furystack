@@ -842,7 +842,7 @@ describe('ProxyManager', () => {
           // The target server returns 200, demonstrating robust URL handling
           expect(result.status).toBe(200)
           const body = await result.json()
-          expect(body.message).toBe('ok')
+          expect(body).toStrictEqual({ message: 'ok' })
 
           // No error event should be emitted since the request succeeded
           expect(failedEvent).toBeUndefined()
