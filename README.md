@@ -26,6 +26,14 @@ A repository is a collection of DataSets. A DataSet is like an extended version 
 
 If you want to communicate with the world, this package will be your friend. You can define your API as a TypeScript interface and implement it on the backend with [@furystack/rest-service](https://www.npmjs.com/package/@furystack/rest-service). Consuming these APIs is also easy with the [@furystack/rest-client-fetch](https://www.npmjs.com/package/@furystack/rest-client-fetch) package in the browser.
 
+### @furystack/rest-service [![npm](https://img.shields.io/npm/v/@furystack/rest-service.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-service)
+
+REST service implementation package for building type-safe HTTP APIs. Provides endpoint generators for CRUD operations, built-in authentication, static file serving, HTTP proxying, and WebSocket support.
+
+### @furystack/rest-client-fetch [![npm](https://img.shields.io/npm/v/@furystack/rest-client-fetch.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-client-fetch)
+
+REST client package with native Fetch implementation for consuming type-safe REST APIs in the browser.
+
 ## Optional Goodies
 
 ### @furystack/auth-google [![npm](https://img.shields.io/npm/v/@furystack/auth-google.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-google)
@@ -35,6 +43,20 @@ You can log in with a Google ID Token to a FuryStack backend with this simple pa
 ## Shades [![npm](https://img.shields.io/npm/v/@furystack/shades.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades)
 
 @furystack/shades is a UI library that helps you create web UIs easily. The syntax is JSX and it also works with FuryStack tools like Logger or Inject. It uses unidirectional data binding.
+
+### Shades Component Libraries
+
+#### @furystack/shades-common-components [![npm](https://img.shields.io/npm/v/@furystack/shades-common-components.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-common-components)
+
+A collection of common and reusable UI components for Shades including DataGrid, Command Palette, Modal, AppBar, Button, Input, Tabs, and more.
+
+#### @furystack/shades-lottie [![npm](https://img.shields.io/npm/v/@furystack/shades-lottie.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-lottie)
+
+Lottie animation player wrapper for FuryStack Shades.
+
+#### @furystack/shades-nipple [![npm](https://img.shields.io/npm/v/@furystack/shades-nipple.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-nipple)
+
+NippleJS joystick wrapper component for FuryStack Shades.
 
 ## Utility Packages
 
