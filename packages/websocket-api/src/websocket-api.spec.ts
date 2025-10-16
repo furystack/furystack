@@ -77,8 +77,13 @@ describe('WebSocketApi', () => {
         }
         public static canExecute(incomingData: { data: Data }) {
           try {
-            const parsed = JSON.parse((incomingData.data as Buffer).toString())
-            return parsed && parsed.value === 'test-message-unique'
+            const parsed = JSON.parse((incomingData.data as Buffer).toString()) as unknown
+            return (
+              typeof parsed === 'object' &&
+              parsed !== null &&
+              'value' in parsed &&
+              parsed.value === 'test-message-unique'
+            )
           } catch {
             return false
           }

@@ -9,7 +9,7 @@ describe('WebSocket Helpers', () => {
   it('Should register the settings', async () => {
     await usingAsync(new Injector(), async (i) => {
       const port = getPort()
-      useWebsockets(i, { port })
+      await useWebsockets(i, { port })
       const settings = i.getInstance(WebSocketApiSettings)
       expect(settings.port).toBe(port)
       expect(settings.path).toBe('/socket')
