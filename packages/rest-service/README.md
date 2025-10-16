@@ -252,7 +252,7 @@ await useProxy({
   }),
 })
 
-// Proxy with cookie transformation
+// Proxy with request cookie transformation
 await useProxy({
   injector,
   sourceBaseUrl: '/auth',
@@ -264,6 +264,21 @@ await useProxy({
     'new-session=updated-session-id',
     'auth-provider=oauth2',
   ],
+})
+
+// Proxy with response cookie transformation
+await useProxy({
+  injector,
+  sourceBaseUrl: '/api',
+  targetBaseUrl: 'https://api.example.com',
+  sourcePort: 3000,
+  responseCookies: (setCookies) => {
+    // Transform Set-Cookie headers from the target server
+    return setCookies.map((cookie) => {
+      // Change domain from target to your domain
+      return cookie.replace('domain=api.example.com', 'domain=myapp.com')
+    })
+  },
 })
 ```
 

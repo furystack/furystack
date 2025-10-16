@@ -50,8 +50,9 @@ export const useStaticFiles = (options: { injector: Injector } & StaticServerOpt
  * @param options.pathRewrite Optional function to rewrite the source path to target path
  * @param options.sourceHostName The hostname for the source server (optional)
  * @param options.sourcePort The port for the source server
- * @param options.headers Optional function to transform headers
- * @param options.cookies Optional function to transform cookies
+ * @param options.headers Optional function to transform request headers
+ * @param options.cookies Optional function to transform request cookies
+ * @param options.responseCookies Optional function to transform response Set-Cookie headers
  * @returns a promise that resolves when the proxy is set up
  */
 export const useProxy = (options: { injector: Injector } & ProxyOptions) => {
