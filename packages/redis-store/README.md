@@ -5,11 +5,10 @@ Redis physical store implementation for FuryStack. `filter()` and `count()` are 
 Usage example:
 
 ```ts
-import { join } from 'path'
 import { Injector } from '@furystack/inject'
-import '@furystack/redis-store'
+import { StoreManager } from '@furystack/core'
+import { useRedis } from '@furystack/redis-store'
 import { createClient } from 'redis'
-import { IPhysicalStore, StoreManager } from '@furystack/core'
 
 class MyModel {
   declare id: number
@@ -17,7 +16,12 @@ class MyModel {
 }
 
 const myInjector = new Injector()
-myInjector.useLogging().setupStores((stores) => stores.useRedis(MyModel, 'id', createClient()))
+useRedis({
+  injector: myInjector,
+  model: MyModel,
+  primaryKey: 'id',
+  client: createClient(),
+})
 
-const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel)
+const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
 ```

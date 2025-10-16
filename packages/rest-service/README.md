@@ -12,14 +12,20 @@ Usage example – authenticated GET, GET collection, and POST APIs for a custom 
 
 ```ts
 import { MyApi, MyEntity } from 'my-common-package'
+import { Injector } from '@furystack/inject'
 import {
   createGetCollectionEndpoint,
   createGetEntityEndpoint,
   Authenticate,
   createPostEndpoint,
+  useHttpAuthentication,
+  useRestService,
 } from '@furystack/rest-service'
 
-myInjector.useHttpAuthentication().useRestService<MyApi>({
+const myInjector = new Injector()
+useHttpAuthentication(myInjector)
+await useRestService<MyApi>({
+  injector: myInjector,
   port: 8080, // The port to listen on
   root: '/api', // Routes will be joined on this root path
   cors: {
@@ -95,11 +101,12 @@ export interface MyApiWithCustomEndpoint extends RestApi {
 
 /** In the Backend code */
 
-import { JsonResult } from '@furystack/rest-service'
+import { JsonResult, useRestService } from '@furystack/rest-service'
 
 const i = new Injector()
 
-i.useRestService<MyApiWithCustomEndpoint>({
+await useRestService<MyApiWithCustomEndpoint>({
+  injector: i,
   port: 8080,
   root: '/mockApi',
   api: {
@@ -190,17 +197,21 @@ In that way, you will get full validation for _all_ defined endpoint data (heade
 
 ### Authentication and HttpUserContext
 
-You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `.useCommonAuth()` injector extension:
+You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `useHttpAuthentication()` helper:
 
 ```ts
-myInjector.useCommonAuth({{
-    cookieName: 'sessionId', // The session ID will be stored in this cookie
-    enableBasicAuth: true, // Enables / disables standard Basic Authentication
-    model: ApplicationUserModel, // The custom User model. Should implement `User`
-    hashMethod: (plainText) => myHashMethod(plainText), // Method for password hashing
-    getSessionStore: (storeManager) => storeManager.getStoreFor(MySessionModel, 'id'), // Callback to retrieve the Session Store
-    getUserStore: (storeManager) => storeManager.getStoreFor(ApplicationUserModel, 'id') // Callback to retrieve the User Store
-  }).useRestService<MyApi>({...api options})
+import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
+import { Injector } from '@furystack/inject'
+
+const myInjector = new Injector()
+useHttpAuthentication(myInjector, {
+  cookieName: 'sessionId', // The session ID will be stored in this cookie
+  enableBasicAuth: true, // Enables / disables standard Basic Authentication
+  model: ApplicationUserModel, // The custom User model. Should implement `User`
+  getUserStore: (storeManager) => storeManager.getStoreFor(ApplicationUserModel, 'username'), // Callback to retrieve the User Store
+  getSessionStore: (storeManager) => storeManager.getStoreFor(MySessionModel, 'sessionId'), // Callback to retrieve the Session Store
+})
+await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 ```
 
 ### Static File Serving

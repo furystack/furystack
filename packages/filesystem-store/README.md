@@ -5,10 +5,9 @@ Filesystem store implementation for FuryStack. Recommended for lightweight usage
 Usage example:
 
 ```ts
-import { join } from 'path'
 import { Injector } from '@furystack/inject'
-import '@furystack/filesystem-store'
-import { PhysicalStore, StoreManager } from '@furystack/core'
+import { StoreManager } from '@furystack/core'
+import { useFileSystemStore } from '@furystack/filesystem-store'
 
 class MyModel {
   declare id: number
@@ -16,8 +15,13 @@ class MyModel {
 }
 
 const myInjector = new Injector()
-myInjector.setupStores((stores) => stores.useFileSystem({ model: MyModel, primaryKey: 'id', fileName: 'example.json' }))
+useFileSystemStore({
+  injector: myInjector,
+  model: MyModel,
+  primaryKey: 'id',
+  fileName: 'example.json',
+})
 
-const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel)
+const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
 await myStore.add({ id: 1, value: 'foo' })
 ```

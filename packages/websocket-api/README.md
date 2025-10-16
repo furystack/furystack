@@ -7,7 +7,11 @@ WebSocket implementation for FuryStack.
 You can initialize the WebSocket package as follows:
 
 ```ts
-const myInjector = new Injector().useWebsockets({
+import { Injector } from '@furystack/inject'
+import { useWebsockets } from '@furystack/websocket-api'
+
+const myInjector = new Injector()
+await useWebsockets(myInjector, {
   path: '/api/sockets',
   actions: [WhoAmI],
 })
@@ -18,30 +22,33 @@ const myInjector = new Injector().useWebsockets({
 You can implement a WebSocket action as follows:
 
 ```ts
-import { User } from '@furystack/core'
-import { HttpUserContext } from '@furystack/http-api'
-import { Injectable } from '@furystack/inject'
-import { Data } from 'ws'
-import * as ws from 'ws'
-import { IWebSocketAction } from '../models/IWebSocketAction'
+import { Injectable, Injected } from '@furystack/inject'
+import { HttpUserContext } from '@furystack/rest-service'
+import type { IncomingMessage } from 'http'
+import type { Data, WebSocket } from 'ws'
+import type { WebSocketAction } from '@furystack/websocket-api'
 
 @Injectable({ lifetime: 'transient' })
 export class WhoAmI implements WebSocketAction {
   public [Symbol.dispose]() {
     /** */
   }
-  public static canExecute(data: Data): boolean {
-    return data.toString() === 'whoami' || data.toString() === 'whoami /claims'
+
+  public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {
+    const stringifiedValue: string = options.data.toString()
+    return stringifiedValue === 'whoami' || stringifiedValue === 'whoami /claims'
   }
 
-  public async execute() {
-    const currentUser = await this.httpUserContext.getCurrentUser()
-    this.websocket.send(JSON.stringify(currentUser))
+  public async execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }) {
+    try {
+      const currentUser = await this.httpUserContext.getCurrentUser(options.request)
+      options.socket.send(JSON.stringify({ currentUser }))
+    } catch (error) {
+      options.socket.send(JSON.stringify({ currentUser: null }))
+    }
   }
 
-  constructor(
-    private httpUserContext: HttpUserContext<User>,
-    private websocket: ws,
-  ) {}
+  @Injected(HttpUserContext)
+  declare private readonly httpUserContext: HttpUserContext
 }
 ```
