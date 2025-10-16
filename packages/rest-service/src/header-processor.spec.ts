@@ -343,5 +343,172 @@ describe('HeaderProcessor', () => {
       expect(processor.isHopByHopHeader('authorization')).toBe(false)
       expect(processor.isHopByHopHeader('x-custom-header')).toBe(false)
     })
+
+    it('should identify all standard hop-by-hop headers', () => {
+      expect(processor.isHopByHopHeader('proxy-authenticate')).toBe(true)
+      expect(processor.isHopByHopHeader('proxy-authorization')).toBe(true)
+      expect(processor.isHopByHopHeader('te')).toBe(true)
+      expect(processor.isHopByHopHeader('trailer')).toBe(true)
+    })
+  })
+
+  describe('Edge cases and complex scenarios', () => {
+    it('should handle empty cookie strings correctly', () => {
+      const req = {
+        headers: {
+          cookie: '',
+        },
+      } as IncomingMessage
+
+      const cookies = processor.processCookies(req)
+      expect(cookies).toEqual([''])
+    })
+
+    it('should handle multiple semicolons in cookie string', () => {
+      const req = {
+        headers: {
+          cookie: 'cookie1=value1;;cookie2=value2',
+        },
+      } as IncomingMessage
+
+      const cookies = processor.processCookies(req)
+      expect(cookies).toEqual(['cookie1=value1', '', 'cookie2=value2'])
+    })
+
+    it('should handle cookies with special characters', () => {
+      const req = {
+        headers: {
+          cookie: 'session=abc%3D123; token=Bearer%20xyz',
+        },
+      } as IncomingMessage
+
+      const cookies = processor.processCookies(req)
+      expect(cookies).toEqual(['session=abc%3D123', 'token=Bearer%20xyz'])
+    })
+
+    it('should handle missing remote address gracefully', () => {
+      const req = {
+        headers: {
+          host: 'source.com',
+        },
+        socket: {},
+      } as unknown as IncomingMessage
+
+      const headers = processor.buildForwardedHeaders(req, 'target.com')
+      expect(headers['X-Forwarded-For']).toBe('')
+    })
+
+    it('should handle very long X-Forwarded-For chains', () => {
+      const longChain = Array.from({ length: 20 }, (_, i) => `10.0.0.${i + 1}`).join(', ')
+      const req = {
+        headers: {
+          'x-forwarded-for': longChain,
+          host: 'source.com',
+        },
+        socket: {
+          remoteAddress: '192.168.1.100',
+        },
+      } as unknown as IncomingMessage
+
+      const headers = processor.buildForwardedHeaders(req, 'target.com')
+      expect(headers['X-Forwarded-For']).toContain(longChain)
+      expect(headers['X-Forwarded-For']).toContain('192.168.1.100')
+    })
+
+    it('should handle mixed case header names', () => {
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-Custom-Header': 'value',
+        CONNECTION: 'keep-alive',
+      }
+
+      const filtered = processor.filterHeaders(headers)
+      expect(filtered['Content-Type']).toBe('application/json')
+      expect(filtered['X-Custom-Header']).toBe('value')
+      expect(filtered.CONNECTION).toBeUndefined()
+    })
+
+    it('should handle empty array headers', () => {
+      const headers = {
+        'X-Empty-Array': [],
+      }
+
+      const record = processor.convertHeadersToRecord(headers)
+      expect(record['X-Empty-Array']).toBe('')
+    })
+
+    it('should preserve header order when processing', () => {
+      const req = {
+        headers: {
+          'first-header': 'first',
+          'second-header': 'second',
+          'third-header': 'third',
+        },
+        socket: {
+          remoteAddress: '192.168.1.100',
+        },
+      } as unknown as IncomingMessage
+
+      const result = processor.processRequestHeaders(req, 'target.com')
+      expect(result.proxyHeaders['first-header']).toBe('first')
+      expect(result.proxyHeaders['second-header']).toBe('second')
+      expect(result.proxyHeaders['third-header']).toBe('third')
+    })
+
+    it('should handle X-Forwarded-For with whitespace variations', () => {
+      const req = {
+        headers: {
+          'x-forwarded-for': '10.0.0.1 , 10.0.0.2,  10.0.0.3',
+          host: 'source.com',
+        },
+        socket: {
+          remoteAddress: '192.168.1.100',
+        },
+      } as unknown as IncomingMessage
+
+      const headers = processor.buildForwardedHeaders(req, 'target.com')
+      expect(headers['X-Forwarded-For']).toBe('10.0.0.1, 10.0.0.2, 10.0.0.3, 192.168.1.100')
+    })
+
+    it('should handle cookie transformer returning empty array', () => {
+      const req = {
+        headers: {
+          cookie: 'session=abc123',
+        },
+        socket: {
+          remoteAddress: '192.168.1.100',
+        },
+      } as unknown as IncomingMessage
+
+      const result = processor.processRequestHeaders(req, 'target.com', {
+        cookies: () => [],
+      })
+
+      expect(result.proxyHeaders.Cookie).toBeUndefined()
+      expect(result.finalCookies).toEqual([])
+    })
+
+    it('should handle header transformer removing all headers', () => {
+      const req = {
+        headers: {
+          'content-type': 'application/json',
+          authorization: 'Bearer token',
+        },
+        socket: {
+          remoteAddress: '192.168.1.100',
+        },
+      } as unknown as IncomingMessage
+
+      const result = processor.processRequestHeaders(req, 'target.com', {
+        headers: () => ({}),
+      })
+
+      // Should still have forwarded headers
+      expect(result.proxyHeaders.Host).toBe('target.com')
+      expect(result.proxyHeaders['X-Forwarded-For']).toBeTruthy()
+      // But not the original headers
+      expect(result.proxyHeaders['content-type']).toBeUndefined()
+      expect(result.proxyHeaders.authorization).toBeUndefined()
+    })
   })
 })

@@ -176,4 +176,138 @@ describe('PathProcessor', () => {
       expect(() => processor.processUrl('/api/test', '/api', 'http://target.com')).not.toThrow()
     })
   })
+
+  describe('Edge cases and complex scenarios', () => {
+    it('should handle very long URLs', () => {
+      const longPath = `/api${'/segment'.repeat(100)}`
+      const url = processor.processUrl(longPath, '/api', 'http://target.com')
+      expect(url).toContain('target.com')
+      expect(url).toContain('/segment')
+    })
+
+    it('should handle URLs with special characters in path', () => {
+      const url = processor.processUrl('/api/path%20with%20spaces', '/api', 'http://target.com')
+      expect(url).toBe('http://target.com/path%20with%20spaces')
+    })
+
+    it('should handle URLs with encoded special characters', () => {
+      const url = processor.processUrl('/api/user%2Fname', '/api', 'http://target.com')
+      expect(url).toBe('http://target.com/user%2Fname')
+    })
+
+    it('should handle URLs with hash fragments', () => {
+      const url = processor.processUrl('/api/resource#section', '/api', 'http://target.com')
+      expect(url).toBe('http://target.com/resource#section')
+    })
+
+    it('should handle multiple query parameters', () => {
+      const url = processor.processUrl('/api/search?q=test&sort=date&order=desc&page=1', '/api', 'http://target.com')
+      expect(url).toBe('http://target.com/search?q=test&sort=date&order=desc&page=1')
+    })
+
+    it('should handle empty query parameter values', () => {
+      const url = processor.processUrl('/api/test?empty=&another=value', '/api', 'http://target.com')
+      expect(url).toBe('http://target.com/test?empty=&another=value')
+    })
+
+    it('should handle source base URL ending with slash and path starting with slash', () => {
+      const path = processor.extractSourcePath('/api//users', '/api/')
+      expect(path).toBe('/users')
+    })
+
+    it('should handle double slashes in paths', () => {
+      const url = processor.buildTargetUrl('http://target.com', '//path//to//resource')
+      expect(url).toBe('http://target.com//path//to//resource')
+    })
+
+    it('should handle target URLs with ports', () => {
+      const url = processor.processUrl('/api/test', '/api', 'http://target.com:8080')
+      expect(url).toBe('http://target.com:8080/test')
+    })
+
+    it('should handle target URLs with paths', () => {
+      const url = processor.processUrl('/api/test', '/api', 'http://target.com/base')
+      expect(url).toBe('http://target.com/base/test')
+    })
+
+    it('should validate URL with only protocol', () => {
+      expect(() => processor.validateUrl('http://')).toThrow('Invalid URL')
+    })
+
+    it('should handle path rewrite that adds query parameters', () => {
+      const rewrite = (path: string) => `${path}?added=param`
+      const url = processor.processUrl('/api/test?existing=value', '/api', 'http://target.com', rewrite)
+      expect(url).toBe('http://target.com/test?existing=value?added=param')
+    })
+
+    it('should handle path rewrite that removes path completely', () => {
+      const rewrite = () => ''
+      const url = processor.processUrl('/api/test', '/api', 'http://target.com', rewrite)
+      expect(url).toBe('http://target.com')
+    })
+
+    it('should handle path rewrite that adds leading slash', () => {
+      const rewrite = (path: string) => `/${path}`
+      const url = processor.processUrl('/api/test', '/api', 'http://target.com', rewrite)
+      expect(url).toBe('http://target.com//test')
+    })
+
+    it('should validate HTTPS URLs with authentication', () => {
+      const url = processor.validateUrl('https://user:pass@example.com/path')
+      expect(url.protocol).toBe('https:')
+      expect(url.username).toBe('user')
+      expect(url.password).toBe('pass')
+    })
+
+    it('should handle URLs with international domain names', () => {
+      const url = processor.validateUrl('http://例え.jp/path')
+      expect(url.hostname).toBeTruthy()
+    })
+
+    it('should handle target URLs with trailing slash and path without leading slash', () => {
+      const url = processor.buildTargetUrl('http://target.com/', 'path')
+      expect(url).toBe('http://target.com/path')
+    })
+
+    it('should extract path with multiple slashes in source base URL', () => {
+      const path = processor.extractSourcePath('/api//users', '/api')
+      expect(path).toBe('//users')
+    })
+
+    it('should handle complex path rewrite with regex', () => {
+      const rewrite = (path: string) => path.replace(/\/v\d+\//, '/')
+      const url = processor.processUrl('/api/v2/users', '/api', 'http://target.com', rewrite)
+      expect(url).toBe('http://target.com/users')
+    })
+
+    it('should validate data URLs are rejected', () => {
+      expect(() => processor.validateHttpProtocol(new URL('data:text/plain,hello'))).toThrow(
+        'Invalid targetBaseUrl protocol',
+      )
+    })
+
+    it('should validate mailto URLs are rejected', () => {
+      expect(() => processor.validateHttpProtocol(new URL('mailto:test@example.com'))).toThrow(
+        'Invalid targetBaseUrl protocol',
+      )
+    })
+
+    it('should handle IPv4 addresses in URLs', () => {
+      const url = processor.validateUrl('http://192.168.1.1:8080/path')
+      expect(url.hostname).toBe('192.168.1.1')
+      expect(url.port).toBe('8080')
+    })
+
+    it('should handle IPv6 addresses in URLs', () => {
+      const url = processor.validateUrl('http://[::1]:8080/path')
+      expect(url.hostname).toBe('[::1]')
+      expect(url.port).toBe('8080')
+    })
+
+    it('should handle localhost in URLs', () => {
+      const url = processor.validateUrl('http://localhost:3000/api')
+      expect(url.hostname).toBe('localhost')
+      expect(url.port).toBe('3000')
+    })
+  })
 })
