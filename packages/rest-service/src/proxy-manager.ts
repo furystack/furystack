@@ -38,7 +38,7 @@ export class ProxyManager extends EventHub<{
   onWebSocketProxyFailed: { from: string; to: string; error: unknown }
 }> {
   @Injected(ServerManager)
-  private declare readonly serverManager: ServerManager
+  declare private readonly serverManager: ServerManager
 
   public shouldExec =
     (sourceBaseUrl: string) =>
