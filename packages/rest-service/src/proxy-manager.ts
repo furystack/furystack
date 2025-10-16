@@ -1,5 +1,5 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { EventHub } from '@furystack/utils'
+import { EventHub, PathHelper } from '@furystack/utils'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import type { Duplex } from 'stream'
 import { HttpProxyHandler } from './http-proxy-handler.js'
@@ -39,10 +39,7 @@ export class ProxyManager extends EventHub<{
   public shouldExec =
     (sourceBaseUrl: string) =>
     ({ req }: { req: Pick<IncomingMessage, 'url' | 'method'> }) =>
-      req.url
-        ? req.url === sourceBaseUrl ||
-          req.url.startsWith(sourceBaseUrl[sourceBaseUrl.length - 1] === '/' ? sourceBaseUrl : `${sourceBaseUrl}/`)
-        : false
+      req.url ? PathHelper.matchesBaseUrl(req.url, sourceBaseUrl) : false
 
   /**
    * Creates an HTTP request handler for the proxy
