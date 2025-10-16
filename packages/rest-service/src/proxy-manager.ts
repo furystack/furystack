@@ -359,16 +359,16 @@ export class ProxyManager extends EventHub<{
           clearTimeout(timeoutId)
 
           // Write the upgrade response to the client socket
-          const headers = [`HTTP/1.1 ${proxyRes.statusCode} ${proxyRes.statusMessage}`]
+          const responseHeaders = [`HTTP/1.1 ${proxyRes.statusCode} ${proxyRes.statusMessage}`]
           for (const [key, value] of Object.entries(proxyRes.headers)) {
             if (Array.isArray(value)) {
-              value.forEach((v) => headers.push(`${key}: ${v}`))
+              value.forEach((v) => responseHeaders.push(`${key}: ${v}`))
             } else {
-              headers.push(`${key}: ${value}`)
+              responseHeaders.push(`${key}: ${value}`)
             }
           }
-          headers.push('', '')
-          socket.write(headers.join('\r\n'))
+          responseHeaders.push('', '')
+          socket.write(responseHeaders.join('\r\n'))
 
           // Write the initial data
           if (proxyHead.length > 0) {
