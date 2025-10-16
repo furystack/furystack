@@ -327,11 +327,42 @@ When the target server is unreachable or returns an error, the proxy returns `50
 - `cookies`: Optional function to transform request cookies.
 - `responseCookies`: Optional function to transform response Set-Cookie headers.
 
+**WebSocket Support:**
+
+WebSocket proxying can be enabled by setting `enableWebsockets: true`:
+
+```ts
+await useProxy({
+  injector,
+  sourceBaseUrl: '/ws',
+  targetBaseUrl: 'https://ws.example.com',
+  sourcePort: 3000,
+  enableWebsockets: true,
+})
+```
+
+When enabled, the proxy will forward WebSocket upgrade requests to the target server, enabling bidirectional real-time communication. WebSocket connections support:
+
+- Bidirectional message streaming (both text and binary)
+- Path rewriting (applied to WebSocket upgrade requests)
+- Header transformations (applied to upgrade requests)
+- Timeout configuration (applies to upgrade handshake)
+- Error monitoring via `onWebSocketProxyFailed` events
+
+Monitor WebSocket proxy errors:
+
+```ts
+const proxyManager = injector.getInstance(ProxyManager)
+proxyManager.subscribe('onWebSocketProxyFailed', ({ from, to, error }) => {
+  console.error(`WebSocket proxy failed: ${from} -> ${to}`, error)
+})
+```
+
 **Notes and Tips:**
 
 - `pathRewrite` receives the substring of the original request URL after `sourceBaseUrl`, including the leading slash and any query string (e.g., for `GET /old/path?q=1` and `sourceBaseUrl='/old'` it gets `'/path?q=1'`). If you need to preserve or remove query strings, handle it inside your function.
 - The proxy automatically adds `X-Forwarded-For`, `X-Forwarded-Host`, and `X-Forwarded-Proto`. You can override or extend these via the `headers(originalHeaders)` transformer if needed.
-- WebSocket and other upgrade protocols are not supported by this helper.
+- WebSocket proxying is opt-in via `enableWebsockets: true`. When enabled, both HTTP and WebSocket requests can be proxied through the same endpoint.
 - Multiple `Set-Cookie` headers from the target are preserved and can be transformed with `responseCookies`. Depending on your HTTP client, retrieving multiple `Set-Cookie` values may require client-specific APIs.
 - You can bind the proxy to a specific host via `sourceHostName`:
 

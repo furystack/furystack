@@ -48,6 +48,9 @@ export const useStaticFiles = (options: { injector: Injector } & StaticServerOpt
  * transformation of headers, cookies, and paths. It returns 502 Bad Gateway on errors
  * and emits 'onProxyFailed' events for monitoring.
  *
+ * WebSocket connections can also be proxied by setting `enableWebsockets: true`, allowing
+ * bidirectional real-time communication through the proxy.
+ *
  * @param options The settings for the proxy server
  * @param options.injector The Injector instance
  * @param options.sourceBaseUrl The base URL path to match for proxying (e.g., '/api', '/old').
@@ -63,14 +66,18 @@ export const useStaticFiles = (options: { injector: Injector } & StaticServerOpt
  *                        **Note**: Receives headers AFTER filtering hop-by-hop headers
  *                        (Connection, Keep-Alive, Transfer-Encoding, Upgrade, etc.) for security
  *                        and protocol compliance. The proxy automatically adds X-Forwarded-* headers.
+ *                        This transformation applies to both HTTP and WebSocket requests.
  * @param options.cookies Optional function to transform request cookies (array of cookie strings)
  * @param options.responseCookies Optional function to transform response Set-Cookie headers
  * @param options.timeout Optional timeout in milliseconds for proxy requests (default: 30000).
  *                        If exceeded, the request is aborted and 502 is returned.
+ *                        Applies to both HTTP and WebSocket upgrade requests.
+ * @param options.enableWebsockets Optional flag to enable WebSocket proxying (default: false).
+ *                                 When enabled, WebSocket upgrade requests will be forwarded to the target.
  * @returns a promise that resolves when the proxy is set up
  * @example
  * ```ts
- * // Basic proxy with timeout
+ * // Basic HTTP proxy with timeout
  * await useProxy({
  *   injector,
  *   sourceBaseUrl: '/api',
@@ -79,10 +86,22 @@ export const useStaticFiles = (options: { injector: Injector } & StaticServerOpt
  *   timeout: 5000,
  * })
  *
- * // Proxy with error monitoring
+ * // Proxy with WebSocket support
+ * await useProxy({
+ *   injector,
+ *   sourceBaseUrl: '/ws',
+ *   targetBaseUrl: 'https://ws.example.com',
+ *   sourcePort: 3000,
+ *   enableWebsockets: true,
+ * })
+ *
+ * // Proxy with error monitoring (HTTP and WebSocket)
  * const proxyManager = injector.getInstance(ProxyManager)
  * proxyManager.subscribe('onProxyFailed', ({ from, to, error }) => {
- *   console.error(`Proxy failed: ${from} -> ${to}`, error)
+ *   console.error(`HTTP Proxy failed: ${from} -> ${to}`, error)
+ * })
+ * proxyManager.subscribe('onWebSocketProxyFailed', ({ from, to, error }) => {
+ *   console.error(`WebSocket Proxy failed: ${from} -> ${to}`, error)
  * })
  * ```
  */

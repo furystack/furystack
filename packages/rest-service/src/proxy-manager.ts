@@ -1,6 +1,9 @@
 import { Injectable, Injected } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
+import { request as httpRequest } from 'http'
+import { request as httpsRequest } from 'https'
+import type { Duplex } from 'stream'
 import { Readable } from 'stream'
 import { ServerManager } from './server-manager.js'
 
@@ -14,6 +17,7 @@ export interface ProxyOptions {
   cookies?: (originalCookies: string[]) => string[]
   responseCookies?: (responseCookies: string[]) => string[]
   timeout?: number
+  enableWebsockets?: boolean
 }
 
 // Headers that should not be forwarded to the target server
@@ -29,9 +33,12 @@ const HOP_BY_HOP_HEADERS = new Set([
 ])
 
 @Injectable({ lifetime: 'singleton' })
-export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: string; error: unknown } }> {
+export class ProxyManager extends EventHub<{
+  onProxyFailed: { from: string; to: string; error: unknown }
+  onWebSocketProxyFailed: { from: string; to: string; error: unknown }
+}> {
   @Injected(ServerManager)
-  declare private readonly serverManager: ServerManager
+  private declare readonly serverManager: ServerManager
 
   public shouldExec =
     (sourceBaseUrl: string) =>
@@ -260,6 +267,168 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
     }
   }
 
+  private onUpgrade = ({
+    sourceBaseUrl,
+    targetBaseUrl,
+    pathRewrite,
+    headers,
+    timeout,
+  }: {
+    sourceBaseUrl: string
+    targetBaseUrl: string
+    pathRewrite?: (sourcePath: string) => string
+    headers?: (originalHeaders: OutgoingHttpHeaders) => OutgoingHttpHeaders
+    timeout?: number
+  }) => {
+    return async ({ req, socket, head }: { req: IncomingMessage; socket: Duplex; head: Buffer }) => {
+      try {
+        // Extract the path part after the source base URL, including query string
+        const sourceUrl = req.url as string
+        const sourceUrlPath = sourceUrl.substring(sourceBaseUrl.length)
+
+        // Apply path rewrite if provided, otherwise use the source path as-is
+        const targetPath = pathRewrite ? pathRewrite(sourceUrlPath) : sourceUrlPath
+
+        // Build the target URL
+        const targetUrl = `${targetBaseUrl}${targetPath}`
+
+        // Validate target URL
+        let parsedTargetUrl: URL
+        try {
+          parsedTargetUrl = new URL(targetUrl)
+        } catch {
+          throw new Error(`Invalid target URL: ${targetUrl}`)
+        }
+
+        // Process headers - filter hop-by-hop headers
+        const originalHeaders: OutgoingHttpHeaders = {}
+        for (const [key, value] of Object.entries(req.headers)) {
+          originalHeaders[key] = Array.isArray(value) ? value.join(', ') : value
+        }
+
+        const filteredHeaders = this.filterHeaders(originalHeaders)
+        const finalHeaders = headers ? headers(filteredHeaders) : filteredHeaders
+
+        // Build WebSocket upgrade headers
+        const upgradeHeaders: Record<string, string> = {}
+        for (const [key, value] of Object.entries(finalHeaders)) {
+          const lowerKey = key.toLowerCase()
+          if (!HOP_BY_HOP_HEADERS.has(lowerKey)) {
+            if (typeof value === 'string') {
+              upgradeHeaders[key] = value
+            } else if (typeof value === 'number') {
+              upgradeHeaders[key] = value.toString()
+            } else if (Array.isArray(value)) {
+              upgradeHeaders[key] = value.join(', ')
+            }
+          }
+        }
+
+        // Add required WebSocket upgrade headers
+        upgradeHeaders.Host = parsedTargetUrl.host
+        upgradeHeaders.Connection = 'Upgrade'
+        upgradeHeaders.Upgrade = 'websocket'
+        upgradeHeaders['Sec-WebSocket-Version'] = req.headers['sec-websocket-version'] as string
+        upgradeHeaders['Sec-WebSocket-Key'] = req.headers['sec-websocket-key'] as string
+
+        // Add optional WebSocket headers
+        if (req.headers['sec-websocket-protocol']) {
+          upgradeHeaders['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol']
+        }
+        if (req.headers['sec-websocket-extensions']) {
+          upgradeHeaders['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions']
+        }
+
+        // Set up timeout
+        const timeoutMs = timeout ?? 30000
+        const timeoutId = setTimeout(() => {
+          socket.destroy()
+        }, timeoutMs)
+
+        // Create upgrade request to target server
+        const requestFn = parsedTargetUrl.protocol === 'https:' ? httpsRequest : httpRequest
+        const proxyReq = requestFn({
+          host: parsedTargetUrl.hostname,
+          port: parsedTargetUrl.port || (parsedTargetUrl.protocol === 'https:' ? 443 : 80),
+          path: parsedTargetUrl.pathname + parsedTargetUrl.search,
+          method: 'GET',
+          headers: upgradeHeaders,
+        })
+
+        proxyReq.on('upgrade', (proxyRes, proxySocket, proxyHead) => {
+          clearTimeout(timeoutId)
+
+          // Write the upgrade response to the client socket
+          const headers = [`HTTP/1.1 ${proxyRes.statusCode} ${proxyRes.statusMessage}`]
+          for (const [key, value] of Object.entries(proxyRes.headers)) {
+            if (Array.isArray(value)) {
+              value.forEach((v) => headers.push(`${key}: ${v}`))
+            } else {
+              headers.push(`${key}: ${value}`)
+            }
+          }
+          headers.push('', '')
+          socket.write(headers.join('\r\n'))
+
+          // Write the initial data
+          if (proxyHead.length > 0) {
+            socket.write(proxyHead)
+          }
+          if (head.length > 0) {
+            proxySocket.write(head)
+          }
+
+          // Bidirectional pipe
+          proxySocket.pipe(socket)
+          socket.pipe(proxySocket)
+
+          // Handle errors and cleanup
+          const cleanup = () => {
+            proxySocket.destroy()
+            socket.destroy()
+          }
+
+          proxySocket.on('error', (error) => {
+            this.emit('onWebSocketProxyFailed', { from: sourceBaseUrl, to: targetBaseUrl, error })
+            cleanup()
+          })
+
+          socket.on('error', (error) => {
+            this.emit('onWebSocketProxyFailed', { from: sourceBaseUrl, to: targetBaseUrl, error })
+            cleanup()
+          })
+
+          proxySocket.on('close', () => {
+            socket.destroy()
+          })
+
+          socket.on('close', () => {
+            proxySocket.destroy()
+          })
+        })
+
+        proxyReq.on('error', (error) => {
+          clearTimeout(timeoutId)
+          this.emit('onWebSocketProxyFailed', { from: sourceBaseUrl, to: targetBaseUrl, error })
+          socket.destroy()
+        })
+
+        proxyReq.on('timeout', () => {
+          clearTimeout(timeoutId)
+          const timeoutError = new Error('WebSocket upgrade timeout')
+          this.emit('onWebSocketProxyFailed', { from: sourceBaseUrl, to: targetBaseUrl, error: timeoutError })
+          proxyReq.destroy()
+          socket.destroy()
+        })
+
+        proxyReq.end()
+      } catch (error) {
+        this.emit('onWebSocketProxyFailed', { from: sourceBaseUrl, to: targetBaseUrl, error })
+        socket.destroy()
+      }
+    }
+  }
+
   public async addProxy(options: ProxyOptions) {
     // Validate targetBaseUrl format - only check if it can be parsed as URL
     let url: URL
@@ -278,7 +447,7 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
 
     const server = await this.serverManager.getOrCreate({ hostName: options.sourceHostName, port: options.sourcePort })
 
-    server.apis.push({
+    const api = {
       shouldExec: this.shouldExec(options.sourceBaseUrl),
       onRequest: this.onRequest({
         sourceBaseUrl: options.sourceBaseUrl,
@@ -289,6 +458,19 @@ export class ProxyManager extends EventHub<{ onProxyFailed: { from: string; to: 
         responseCookies: options.responseCookies,
         timeout: options.timeout,
       }),
-    })
+      ...(options.enableWebsockets
+        ? {
+            onUpgrade: this.onUpgrade({
+              sourceBaseUrl: options.sourceBaseUrl,
+              targetBaseUrl: options.targetBaseUrl,
+              pathRewrite: options.pathRewrite,
+              headers: options.headers,
+              timeout: options.timeout,
+            }),
+          }
+        : {}),
+    }
+
+    server.apis.push(api)
   }
 }

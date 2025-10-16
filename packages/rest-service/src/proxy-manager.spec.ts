@@ -2,10 +2,12 @@ import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { mkdirSync, writeFileSync } from 'fs'
-import { createServer } from 'http'
+import { createServer as createHttpServer } from 'http'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { beforeAll, describe, expect, it } from 'vitest'
+import type { RawData } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
 import { ProxyManager } from './proxy-manager.js'
 import { StaticServerManager } from './static-server-manager.js'
 
@@ -74,7 +76,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         // Create a simple echo server that returns query parameters
-        const targetServer = createServer((req, res) => {
+        const targetServer = createHttpServer((req, res) => {
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ url: req.url, query: req.url?.split('?')[1] || '' }))
         })
@@ -204,7 +206,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         // Create an echo server that returns the request body
-        const targetServer = createServer((req, res) => {
+        const targetServer = createHttpServer((req, res) => {
           const chunks: Buffer[] = []
           req.on('data', (chunk) => {
             chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array))
@@ -251,7 +253,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         // Create a server that sets cookies
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           res.writeHead(200, {
             'Content-Type': 'application/json',
             'Set-Cookie': ['sessionId=abc123; HttpOnly', 'theme=dark; Path=/'],
@@ -436,7 +438,7 @@ describe('ProxyManager', () => {
         let receivedHeaders: Record<string, string | string[] | undefined> = {}
 
         // Create a server that captures headers
-        const targetServer = createServer((req, res) => {
+        const targetServer = createHttpServer((req, res) => {
           receivedHeaders = { ...req.headers }
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ message: 'ok' }))
@@ -482,7 +484,7 @@ describe('ProxyManager', () => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           res.writeHead(200, {
             'Content-Type': 'application/json',
             'Set-Cookie': ['cookieA=a; Path=/; HttpOnly', 'cookieB=b; Path=/', 'cookieC=c; Path=/'],
@@ -530,7 +532,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         let received: Record<string, string | string[] | undefined> = {}
-        const targetServer = createServer((req, res) => {
+        const targetServer = createHttpServer((req, res) => {
           received = { ...req.headers }
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ ok: true }))
@@ -567,7 +569,7 @@ describe('ProxyManager', () => {
         let chunksWritten = 0
         let closedEarly = false
         const totalChunks = 100
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           res.writeHead(200, { 'Content-Type': 'text/plain' })
           const interval = setInterval(() => {
             chunksWritten++
@@ -634,7 +636,7 @@ describe('ProxyManager', () => {
         })
 
         // Create a server that delays response longer than timeout
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           // Delay for 2 seconds (longer than our 100ms timeout)
           setTimeout(() => {
             res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -677,7 +679,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         // Create a fast-responding server
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ message: 'fast response' }))
         })
@@ -713,7 +715,7 @@ describe('ProxyManager', () => {
         const proxyPort = getPort()
 
         // Create a server with moderate delay (500ms)
-        const targetServer = createServer((_req, res) => {
+        const targetServer = createHttpServer((_req, res) => {
           setTimeout(() => {
             res.writeHead(200, { 'Content-Type': 'application/json' })
             res.end(JSON.stringify({ message: 'response after delay' }))
@@ -740,6 +742,580 @@ describe('ProxyManager', () => {
           const data = (await result.json()) as { message: string }
           expect(data.message).toBe('response after delay')
         } finally {
+          targetServer.close()
+        }
+      })
+    })
+  })
+
+  describe('WebSocket proxy functionality', () => {
+    it('Should proxy WebSocket connections when enabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          ws.on('message', (data: RawData) => {
+            // Echo back the message with a prefix
+            ws.send(`echo: ${String(data)}`)
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          // Set up proxy with WebSocket support
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          // Connect WebSocket client through proxy
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              clientWs.send('hello')
+            })
+
+            clientWs.on('message', (data: RawData) => {
+              expect(String(data)).toBe('echo: hello')
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle bidirectional WebSocket communication', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          // Send messages to client
+          ws.send('server-message-1')
+          ws.send('server-message-2')
+
+          ws.on('message', (data: RawData) => {
+            ws.send(`received: ${String(data)}`)
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          const receivedMessages: string[] = []
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              clientWs.send('client-message-1')
+              clientWs.send('client-message-2')
+            })
+
+            clientWs.on('message', (data: RawData) => {
+              receivedMessages.push(String(data))
+
+              if (receivedMessages.length >= 4) {
+                expect(receivedMessages).toContain('server-message-1')
+                expect(receivedMessages).toContain('server-message-2')
+                expect(receivedMessages).toContain('received: client-message-1')
+                expect(receivedMessages).toContain('received: client-message-2')
+                clientWs.close()
+                resolve()
+              }
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should not proxy WebSocket when disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          // Set up proxy WITHOUT WebSocket support
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: false,
+          })
+
+          // Try to connect WebSocket client through proxy
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          await new Promise<void>((resolve) => {
+            clientWs.on('error', (error) => {
+              // Should fail because WebSocket is not enabled
+              expect(error).toBeDefined()
+              resolve()
+            })
+
+            clientWs.on('open', () => {
+              // Should not open successfully
+              clientWs.close()
+            })
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should preserve WebSocket subprotocols', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let receivedProtocol: string | undefined
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws, req) => {
+          receivedProtocol = req.headers['sec-websocket-protocol'] as string
+          ws.send('connected')
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`, ['v1.chat', 'v2.chat'])
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              // Wait for server message
+            })
+
+            clientWs.on('message', (data: RawData) => {
+              expect(String(data)).toBe('connected')
+              expect(receivedProtocol).toContain('v1.chat')
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle WebSocket path rewriting', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let receivedPath: string | undefined
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws, req) => {
+          receivedPath = req.url
+          ws.send('connected')
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/old/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+            pathRewrite: (path) => path.replace('/chat', '/api/chat'),
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/old/ws/chat`)
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('message', (data: RawData) => {
+              expect(String(data)).toBe('connected')
+              expect(receivedPath).toBe('/api/chat')
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle WebSocket connection closure from client', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let serverClosed = false
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          ws.on('close', () => {
+            serverClosed = true
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              clientWs.close()
+            })
+
+            clientWs.on('close', () => {
+              // Give server time to process close event
+              setTimeout(() => {
+                expect(serverClosed).toBe(true)
+                resolve()
+              }, 100)
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle WebSocket connection closure from server', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          // Close connection immediately after opening
+          ws.send('goodbye')
+          setTimeout(() => ws.close(), 50)
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          await new Promise<void>((resolve, reject) => {
+            let messageReceived = false
+
+            clientWs.on('message', (data: RawData) => {
+              expect(String(data)).toBe('goodbye')
+              messageReceived = true
+            })
+
+            clientWs.on('close', () => {
+              expect(messageReceived).toBe(true)
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should emit onWebSocketProxyFailed event on error', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const proxyPort = getPort()
+        const unavailablePort = getPort()
+
+        let failedEvent: { from: string; to: string; error: unknown } | undefined
+
+        proxyManager.subscribe('onWebSocketProxyFailed', (event) => {
+          failedEvent = event
+        })
+
+        await proxyManager.addProxy({
+          sourceBaseUrl: '/ws',
+          targetBaseUrl: `http://localhost:${unavailablePort}`,
+          sourcePort: proxyPort,
+          enableWebsockets: true,
+        })
+
+        const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+        await new Promise<void>((resolve) => {
+          clientWs.on('error', () => {
+            // Expected error
+          })
+
+          clientWs.on('close', () => {
+            // Give time for event to be emitted
+            setTimeout(() => {
+              expect(failedEvent).toBeDefined()
+              expect(failedEvent?.from).toBe('/ws')
+              expect(failedEvent?.to).toContain(`http://localhost:${unavailablePort}`)
+              resolve()
+            }, 100)
+          })
+        })
+      })
+    })
+
+    it('Should handle large WebSocket messages', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          ws.on('message', (data: RawData) => {
+            // Echo back the large message
+            ws.send(data)
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          // Create a large message (1MB)
+          const largeMessage = 'x'.repeat(1024 * 1024)
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              clientWs.send(largeMessage)
+            })
+
+            clientWs.on('message', (data: RawData) => {
+              const dataStr = String(data)
+              expect(dataStr.length).toBe(largeMessage.length)
+              expect(dataStr).toBe(largeMessage)
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should handle binary WebSocket messages', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws) => {
+          ws.on('message', (data: RawData) => {
+            // Echo back the binary data
+            ws.send(data)
+          })
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          // Create binary data
+          const binaryData = Buffer.from([0x01, 0x02, 0x03, 0x04, 0x05, 0xff, 0xfe, 0xfd])
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('open', () => {
+              clientWs.send(binaryData)
+            })
+
+            clientWs.on('message', (data) => {
+              expect(Buffer.isBuffer(data)).toBe(true)
+              expect(Buffer.compare(data as Buffer, binaryData)).toBe(0)
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
+          targetServer.close()
+        }
+      })
+    })
+
+    it('Should apply header transformations to WebSocket upgrade', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const proxyManager = injector.getInstance(ProxyManager)
+        const targetPort = getPort()
+        const proxyPort = getPort()
+
+        let receivedHeaders: Record<string, string | string[] | undefined> = {}
+
+        // Create target WebSocket server
+        const targetServer = createHttpServer()
+        const targetWss = new WebSocketServer({ server: targetServer })
+
+        targetWss.on('connection', (ws, req) => {
+          receivedHeaders = { ...req.headers }
+          ws.send('connected')
+        })
+
+        await new Promise<void>((resolve) => {
+          targetServer.listen(targetPort, () => resolve())
+        })
+
+        try {
+          await proxyManager.addProxy({
+            sourceBaseUrl: '/ws',
+            targetBaseUrl: `http://localhost:${targetPort}`,
+            sourcePort: proxyPort,
+            enableWebsockets: true,
+            headers: () => ({
+              'X-Custom-Header': 'custom-value',
+              'X-Auth-Token': 'bearer-token',
+            }),
+          })
+
+          const clientWs = new WebSocket(`ws://127.0.0.1:${proxyPort}/ws`)
+
+          await new Promise<void>((resolve, reject) => {
+            clientWs.on('message', (data: RawData) => {
+              expect(String(data)).toBe('connected')
+              expect(receivedHeaders['x-custom-header']).toBe('custom-value')
+              expect(receivedHeaders['x-auth-token']).toBe('bearer-token')
+              clientWs.close()
+              resolve()
+            })
+
+            clientWs.on('error', reject)
+          })
+        } finally {
+          targetWss.close()
           targetServer.close()
         }
       })
