@@ -124,10 +124,15 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            padding: '0 1em',
-            borderRadius: '5px',
+            padding: '0 1.25em',
+            borderRadius: '12px',
             position: 'relative',
-            background: 'rgba(128,128,128,0.1)',
+            background: 'rgba(128,128,128,0.08)',
+            border: `1px solid ${manager.isOpened.getValue() ? 'rgba(128,128,128,0.3)' : 'rgba(128,128,128,0.15)'}`,
+            boxShadow: manager.isOpened.getValue()
+              ? '0 4px 12px rgba(0,0,0,0.15), 0 0 0 3px rgba(128,128,128,0.05)'
+              : '0 2px 4px rgba(0,0,0,0.05)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             ...props.style,
           }}
         >
@@ -135,9 +140,18 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
             className="term-icon"
             style={{
               cursor: 'pointer',
-              color: '#aaa',
-              fontWeight: 'bolder',
-              textShadow: '0 0 1px #aaa',
+              color: theme.text.secondary,
+              fontWeight: '600',
+              fontSize: '0.95em',
+              transition: 'color 0.2s ease',
+              padding: '0.5em 0.75em 0.5em 0',
+              userSelect: 'none',
+            }}
+            onmouseenter={(ev) => {
+              ;(ev.target as HTMLElement).style.color = theme.text.primary
+            }}
+            onmouseleave={(ev) => {
+              ;(ev.target as HTMLElement).style.color = theme.text.secondary
             }}
             onclick={() => manager.isOpened.setValue(true)}
           >
@@ -162,14 +176,26 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
             <div
               className="close-suggestions"
               onclick={() => manager.isOpened.setValue(false)}
+              onmouseenter={(ev) => {
+                ;(ev.target as HTMLElement).style.background = 'rgba(255,255,255,0.15)'
+                ;(ev.target as HTMLElement).style.transform = 'scale(1.1)'
+              }}
+              onmouseleave={(ev) => {
+                ;(ev.target as HTMLElement).style.background = 'transparent'
+                ;(ev.target as HTMLElement).style.transform = 'scale(1)'
+              }}
               style={{
-                width: '20px',
-                height: '20px',
+                width: '24px',
+                height: '24px',
                 opacity: manager.isOpened.getValue() ? '1' : '0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
+                borderRadius: '6px',
+                transition: 'all 0.2s ease',
+                fontSize: '14px',
+                color: theme.text.secondary,
               }}
             >
               ✖

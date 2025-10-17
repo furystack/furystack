@@ -14,11 +14,13 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
       onChange: (idx) => {
         ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).map((s, i) => {
           if (i === idx) {
-            s.style.background = theme.background.paper
-            s.style.fontWeight = 'bolder'
+            s.style.background = 'rgba(128,128,128,0.2)'
+            s.style.fontWeight = '500'
+            s.style.borderLeft = `3px solid ${theme.text.primary}`
           } else {
-            s.style.background = theme.background.default
-            s.style.fontWeight = 'normal'
+            s.style.background = 'transparent'
+            s.style.fontWeight = '400'
+            s.style.borderLeft = '3px solid transparent'
           }
         })
       },
@@ -63,15 +65,18 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
           borderTop: 'none',
           position: 'absolute',
           opacity: manager.isOpened.getValue() ? '1' : '0',
-          borderRadius: '0px 0px 5px 5px',
+          borderRadius: '0px 0px 12px 12px',
           marginLeft: '14px',
+          marginTop: '4px',
           overflow: 'hidden',
           overflowY: 'auto',
           maxHeight: `${window.innerHeight * 0.8}px`,
           zIndex: '1',
           left: 'auto',
           backgroundColor: theme.background.paper,
-          boxShadow: '3px 3px 5px rgba(0,0,0,0.3)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(128,128,128,0.2)',
           width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),
         }}
@@ -84,11 +89,25 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
                 manager.selectSuggestion(injector, i)
               }
             }}
+            onmouseenter={(ev) => {
+              if (i !== selectedIndex) {
+                ;(ev.target as HTMLElement).style.background = 'rgba(128,128,128,0.1)'
+              }
+            }}
+            onmouseleave={(ev) => {
+              if (i !== selectedIndex) {
+                ;(ev.target as HTMLElement).style.background = 'transparent'
+              }
+            }}
             style={{
-              padding: '1em',
-              cursor: 'default',
-              background: i === selectedIndex ? theme.background.paper : theme.background.default,
-              fontWeight: i === selectedIndex ? 'bolder' : 'normal',
+              padding: '0.875em 1.25em',
+              cursor: 'pointer',
+              background: i === selectedIndex ? 'rgba(128,128,128,0.2)' : 'transparent',
+              fontWeight: i === selectedIndex ? '500' : '400',
+              borderLeft: i === selectedIndex ? `3px solid ${theme.text.primary}` : '3px solid transparent',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              fontSize: '0.95em',
+              letterSpacing: '0.01em',
             }}
           >
             {s.element}
