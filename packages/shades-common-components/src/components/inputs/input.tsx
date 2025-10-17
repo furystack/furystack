@@ -85,47 +85,63 @@ const getLabelStyle = ({
   state: TextInputState
   validationResult?: InputValidationResult
 }): Partial<CSSStyleDeclaration> => {
+  const isError = state.validity?.valid === false || validationResult?.isValid === false
+  const isOutlined = props.variant === 'outlined'
+  const isContained = props.variant === 'contained'
+
   return {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    fontSize: '10px',
+    fontSize: '11px',
+    fontWeight: '500',
+    letterSpacing: '0.01em',
     color: props.disabled
       ? themeProvider.theme.text.disabled
-      : state.validity?.valid === false || validationResult?.isValid === false
+      : isError
         ? themeProvider.theme.palette.error.main
         : state.focused
-          ? themeProvider.theme.text.primary
+          ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
           : themeProvider.theme.text.secondary,
-    marginBottom: '1em',
-    padding: '1em',
-    borderRadius: '5px',
-    background:
-      props.variant === 'contained'
-        ? themeProvider
-            .getRgbFromColorString(
-              state.validity?.valid === false || validationResult?.isValid === false
-                ? themeProvider.theme.palette.error.main
-                : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
-            )
-            .update('a', state.focused ? 0.1 : 0.2)
-            .toString()
-        : 'transparent',
-    boxShadow:
-      props.variant === 'outlined' || props.variant === 'contained'
-        ? `0 0 0 1px ${
-            state.validity?.valid === false || validationResult?.isValid === false
+    marginBottom: '1.25em',
+    padding: '12px 14px',
+    borderRadius: '8px',
+    background: isContained
+      ? themeProvider
+          .getRgbFromColorString(
+            isError
+              ? themeProvider.theme.palette.error.main
+              : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
+          )
+          .update('a', state.focused ? 0.12 : 0.08)
+          .toString()
+      : 'transparent',
+    border:
+      isOutlined || isContained
+        ? `2px solid ${
+            isError
               ? themeProvider.theme.palette.error.main
               : state.focused
                 ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
-                : themeProvider.theme.text.primary
+                : themeProvider.getRgbFromColorString(themeProvider.theme.text.secondary).update('a', 0.3).toString()
           }`
+        : `2px solid transparent`,
+    boxShadow:
+      state.focused && !props.disabled
+        ? `0 0 0 3px ${themeProvider
+            .getRgbFromColorString(
+              isError
+                ? themeProvider.theme.palette.error.main
+                : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
+            )
+            .update('a', 0.15)
+            .toString()}`
         : 'none',
     filter: props.disabled ? 'grayscale(100%)' : 'none',
     opacity: props.disabled ? '0.5' : '1',
-    transition:
-      'color 0.2s ease-in-out, filter 0.2s ease-in-out, opacity 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    cursor: props.disabled ? 'not-allowed' : 'text',
     ...props.labelProps?.style,
   }
 }
@@ -212,12 +228,41 @@ export const Input = Shade<TextInputProps>({
         props.getHelperText?.({ state: newState, validationResult }) ||
         getDefaultMessagesForValidityState(newState.validity) ||
         ''
-      helper?.replaceChildren(helperNode)
+      if (helper) {
+        helper.replaceChildren(helperNode)
+        attachStyles(helper, {
+          style: {
+            fontSize: '11px',
+            marginTop: '6px',
+            opacity: '0.85',
+            lineHeight: '1.4',
+          },
+        })
+      }
 
       const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
-      startIcon?.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
+      if (startIcon) {
+        startIcon.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
+        attachStyles(startIcon, {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '16px',
+          },
+        })
+      }
+
       const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
-      endIcon?.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
+      if (endIcon) {
+        endIcon.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
+        attachStyles(endIcon, {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '16px',
+          },
+        })
+      }
 
       if (injector.cachedSingletons.has(FormService)) {
         const formService = injector.getInstance(FormService)
@@ -245,9 +290,14 @@ export const Input = Shade<TextInputProps>({
             display: 'flex',
             alignItems: 'center',
             width: '100%',
+            gap: '8px',
           }}
         >
-          {props.getStartIcon ? <span className="startIcon">{props.getStartIcon?.({ state })}</span> : null}
+          {props.getStartIcon ? (
+            <span className="startIcon" style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
+              {props.getStartIcon?.({ state })}
+            </span>
+          ) : null}
           <input
             oninvalid={(ev) => {
               ev.preventDefault()
@@ -275,20 +325,36 @@ export const Input = Shade<TextInputProps>({
               border: 'none',
               backgroundColor: 'transparent',
               outline: 'none',
-              fontSize: '12px',
+              fontSize: '13px',
+              fontWeight: '400',
               width: '100%',
               textOverflow: 'ellipsis',
               padding: '0',
-              marginTop: '0.6em',
-              marginBottom: '0.4em',
+              marginTop: '8px',
+              marginBottom: '2px',
               flexGrow: '1',
+              lineHeight: '1.5',
               ...props.style,
             }}
             value={state.value}
           />
-          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
+          {props.getEndIcon ? (
+            <span className="endIcon" style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
+              {props.getEndIcon({ state })}
+            </span>
+          ) : null}
         </div>
-        <span className="helperText">{props.getHelperText?.({ state })}</span>
+        <span
+          className="helperText"
+          style={{
+            fontSize: '11px',
+            marginTop: '6px',
+            opacity: '0.85',
+            lineHeight: '1.4',
+          }}
+        >
+          {props.getHelperText?.({ state })}
+        </span>
       </label>
     )
   },
