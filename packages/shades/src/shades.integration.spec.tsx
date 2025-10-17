@@ -267,7 +267,7 @@ describe('Shades integration tests', () => {
     })
   })
 
-  it.only('Should update the stored state', async () => {
+  it('Should update the stored state', async () => {
     const mockedStorage = new Map<string, string>()
 
     const store: typeof localStorage = {
