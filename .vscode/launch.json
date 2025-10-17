@@ -27,7 +27,7 @@
       ],
       "runtimeExecutable": "yarn",
       "program": "vitest",
-      "args": ["${relativeFile}", "--coverage=false", "--run"],
+      "args": ["${relativeFile}", "--coverage=false", "--run", "--test-timeout=0", "--no-file-parallelism"],
       // "smartStep": true,
       "console": "integratedTerminal"
     },
