@@ -29,7 +29,7 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
     render: ({ props, injector }) => {
       const { theme } = injector.getInstance(ThemeProviderService)
       const headerStyle: Partial<CSSStyleDeclaration> = {
-        padding: '0 0.51em',
+        padding: '1em 1.2em',
         backgroundColor: theme.background.paper,
         color: theme.text.secondary,
         borderRadius: '2px',
@@ -37,8 +37,24 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
         position: 'sticky',
         cursor: 'pointer',
         fontVariant: 'all-petite-caps',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        letterSpacing: '0.05em',
+        textAlign: 'left',
+        borderBottom: `2px solid ${theme.background.default}`,
+        borderRight: `1px solid rgba(128, 128, 128, 0.2)`,
         ...props.styles?.header,
       }
+
+      const cellStyle: Partial<CSSStyleDeclaration> = {
+        padding: '0.75em 1.2em',
+        borderBottom: `1px solid rgba(128, 128, 128, 0.15)`,
+        transition: 'background-color 0.2s ease',
+        fontSize: '0.875rem',
+        lineHeight: '1.5',
+        ...props.styles?.cell,
+      }
+
       return (
         <div
           className="shade-grid-wrapper"
@@ -49,7 +65,7 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
             overflow: 'auto',
           }}
         >
-          <table style={{ width: '100%', position: 'relative' }}>
+          <table style={{ width: '100%', position: 'relative', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 {props.columns.map((column) => {
@@ -65,9 +81,21 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
             </thead>
             <tbody>
               {props.entries.map((entry) => (
-                <tr>
+                <tr
+                  style={{
+                    transition: 'background-color 0.2s ease',
+                  }}
+                  onmouseenter={(e) => {
+                    const target = e.currentTarget as HTMLElement
+                    target.style.backgroundColor = `rgba(128, 128, 128, 0.08)`
+                  }}
+                  onmouseleave={(e) => {
+                    const target = e.currentTarget as HTMLElement
+                    target.style.backgroundColor = 'transparent'
+                  }}
+                >
                   {props.columns.map((column) => (
-                    <td style={props.styles?.cell}>
+                    <td style={cellStyle}>
                       {props.rowComponents?.[column]?.(entry, column) ||
                         props.rowComponents?.default?.(entry, column) ||
                         null}

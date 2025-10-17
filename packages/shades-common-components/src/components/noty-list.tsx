@@ -42,12 +42,14 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   style: {
     margin: '8px',
     overflow: 'hidden',
-    borderRadius: '6px',
-    boxShadow: '1px 3px 6px rgba(0,0,0,0.3)',
-    width: '300px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
+    width: '340px',
     display: 'flex',
     flexDirection: 'column',
     height: '0px',
+    border: '1px solid rgba(0, 0, 0, 0.1)',
+    backdropFilter: 'blur(10px)',
   },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
@@ -87,10 +89,10 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '0px 6px 0px 16px',
+            padding: '12px 12px 12px 20px',
             backgroundColor: colors.dark,
             color: headerTextColor,
-            fontSize: '1.3em',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
           }}
         >
           <h5
@@ -99,15 +101,30 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               margin: '0',
-              fontSize: '.7em',
+              fontSize: '0.95em',
+              fontWeight: '600',
+              letterSpacing: '0.01em',
             }}
             title={props.model.title}
           >
             {props.model.title}
           </h5>
           <Button
-            style={{ margin: '4px 0', padding: '0 4px', fontSize: '12px' }}
+            style={{
+              margin: '0',
+              padding: '4px 8px',
+              fontSize: '16px',
+              minWidth: '28px',
+              opacity: '0.8',
+              transition: 'opacity 0.2s ease',
+            }}
             className="dismissNoty"
+            onmouseenter={(e: MouseEvent) => {
+              ;(e.currentTarget as HTMLElement).style.opacity = '1'
+            }}
+            onmouseleave={(e: MouseEvent) => {
+              ;(e.currentTarget as HTMLElement).style.opacity = '0.8'
+            }}
             onclick={removeSelf}
             title="Close Notification"
             variant="contained"
@@ -116,7 +133,16 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             ✖
           </Button>
         </div>
-        <div style={{ padding: '16px 16px' }}>{props.model.body}</div>
+        <div
+          style={{
+            padding: '16px 20px 18px 20px',
+            fontSize: '0.9em',
+            lineHeight: '1.5',
+            fontWeight: '400',
+          }}
+        >
+          {props.model.body}
+        </div>
       </>
     )
   },

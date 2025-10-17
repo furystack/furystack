@@ -26,14 +26,18 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
     return (
       <input
         autofocus
+        placeholder="Type to search..."
         style={{
           color: theme.text.primary,
           outline: 'none',
-          padding: '1em',
+          padding: '0.875em 0.5em',
           background: 'transparent',
           border: 'none',
           display: 'inline-flex',
-          width: 'calc(100% - 2em)',
+          width: 'calc(100% - 1em)',
+          fontSize: '0.95em',
+          fontWeight: '400',
+          letterSpacing: '0.01em',
         }}
       />
     )
