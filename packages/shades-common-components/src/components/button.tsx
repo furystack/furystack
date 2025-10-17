@@ -80,11 +80,10 @@ export const Button = Shade<ButtonProps>({
           element,
           [
             {
-              filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))brightness(1)',
               transform: 'scale(1)',
             },
           ],
-          { duration: 350, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+          { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
         )
       }
     }
@@ -139,64 +138,78 @@ export const Button = Shade<ButtonProps>({
       ...props,
       onmousedown(this: HTMLElement, ev: MouseEvent) {
         mouseDownHandler?.call(this, ev)
-        void tryAnimate(
-          [
-            {
-              filter: 'drop-shadow(-1px -1px 3px black)brightness(0.5)',
-              transform: 'scale(0.98)',
-            },
-          ],
-          { duration: 150, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
-        )
+        if (!props.disabled) {
+          void tryAnimate(
+            [
+              {
+                transform: 'scale(0.96)',
+              },
+            ],
+            { duration: 100, fill: 'forwards', easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)' },
+          )
+        }
       },
       onmouseup(this: HTMLElement, ev: MouseEvent) {
         mouseUpHandler?.call(this, ev)
       },
       onmouseenter: () => {
-        void tryAnimate(
-          [
-            {
-              background,
-              boxShadow,
-              color: getTextColorInner(),
-            },
-            {
-              background: hoveredBackground,
-              boxShadow: hoveredBoxShadow,
-              color: getHoveredTextColorInner(),
-            },
-          ],
-          { duration: 500, fill: 'forwards', easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)' },
-        )
+        if (!props.disabled) {
+          void tryAnimate(
+            [
+              {
+                background,
+                boxShadow,
+                color: getTextColorInner(),
+              },
+              {
+                background: hoveredBackground,
+                boxShadow: hoveredBoxShadow,
+                color: getHoveredTextColorInner(),
+              },
+            ],
+            { duration: 200, fill: 'forwards', easing: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+          )
+        }
       },
-      onmouseout: () => {
-        void tryAnimate(
-          [
-            { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
-            { background, boxShadow, color: getTextColorInner() },
-          ],
-          {
-            duration: 500,
-            fill: 'forwards',
-            easing: 'cubic-bezier(0.215, 0.610, 0.355, 1.000)',
-          },
-        )
+      onmouseleave: () => {
+        if (!props.disabled) {
+          void tryAnimate(
+            [
+              { background: hoveredBackground, boxShadow: hoveredBoxShadow, color: getHoveredTextColorInner() },
+              { background, boxShadow, color: getTextColorInner() },
+            ],
+            {
+              duration: 200,
+              fill: 'forwards',
+              easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            },
+          )
+        }
       },
       ...props,
       style: {
         display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: props.disabled ? 'not-allowed' : 'pointer',
         background,
         boxShadow,
         margin: '8px',
-        padding: '6px 16px',
+        padding: '8px 20px',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '6px',
         textTransform: 'uppercase',
         color: getTextColorInner(),
-        filter: 'drop-shadow(1px 1px 10px rgba(0,0,0,.5))',
+        fontSize: '14px',
+        fontWeight: '500',
+        letterSpacing: '0.5px',
+        lineHeight: '1.75',
+        minWidth: '64px',
         backdropFilter: props.variant === 'outlined' ? 'blur(35px)' : undefined,
         userSelect: 'none',
+        opacity: props.disabled ? '0.6' : '1',
+        transition: 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        WebkitTapHighlightColor: 'transparent',
         ...props.style,
       },
     })
