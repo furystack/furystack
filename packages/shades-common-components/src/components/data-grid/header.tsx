@@ -222,14 +222,14 @@ export const DataGridHeader: <T, Column extends string>(
             height: '48px',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '8px',
+            gap: '12px',
             overflow: 'hide',
           }}
         >
-          <div style={{ paddingLeft: '0.5em' }}>{props.field}</div>
+          <div style={{ paddingLeft: '0', fontWeight: '600' }}>{props.field}</div>
           <div
             className="header-controls"
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingRight: '0.5em' }}
+            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingRight: '0', gap: '4px' }}
           >
             <SearchButton
               onclick={() => {

@@ -1,6 +1,5 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, Shade } from '@furystack/shades'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import type { DataRowCells } from './data-grid.js'
 
@@ -23,19 +22,27 @@ export const DataGridRow: <T, Column extends string>(
 ) => JSX.Element<any> = Shade({
   shadowDomName: 'shades-data-grid-row',
 
-  render: ({ props, element, useObservable, injector }) => {
+  render: ({ props, element, useObservable }) => {
     const { entry, rowComponents, columns, service } = props
-
-    const { theme } = injector.getInstance(ThemeProviderService)
 
     const attachSelectedStyles = (selection: any[]) => {
       if (selection.includes(entry)) {
         element.classList.add('selected')
-        attachStyles(element, { style: props.selectedRowStyle || { backgroundColor: theme.background.default } })
+        attachStyles(element, {
+          style: props.selectedRowStyle || {
+            backgroundColor: 'rgba(128, 128, 128, 0.15)',
+            borderLeft: `3px solid var(--shades-theme-palette-primary-main)`,
+          },
+        })
         element.setAttribute('aria-selected', 'true')
       } else {
         element.classList.remove('selected')
-        attachStyles(element, { style: props.unselectedRowStyle || { backgroundColor: 'transparent' } })
+        attachStyles(element, {
+          style: props.unselectedRowStyle || {
+            backgroundColor: 'transparent',
+            borderLeft: '3px solid transparent',
+          },
+        })
         element.setAttribute('aria-selected', 'false')
       }
     }
@@ -44,9 +51,10 @@ export const DataGridRow: <T, Column extends string>(
       if (newEntry === props.entry) {
         attachStyles(element, {
           style: props.focusedRowStyle || {
-            boxShadow: `0 0 50px 1px rgba(255,255,255,0.2) inset, 0 0 35px 1px var(--shades-theme-palette-primary-main) inset, 2px 0px 5px 0px rgba(0,0,0,0.3)`,
-            transition: 'box-shadow 0.1s ease-in-out',
-            fontWeight: 'bolder',
+            boxShadow: `0 0 0 2px var(--shades-theme-palette-primary-main) inset, 0 2px 8px 0px rgba(0,0,0,0.15)`,
+            transition: 'box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out',
+            fontWeight: '500',
+            transform: 'scale(1.002)',
           },
         })
 
@@ -75,6 +83,7 @@ export const DataGridRow: <T, Column extends string>(
           style: props.unfocusedRowStyle || {
             boxShadow: 'none',
             fontWeight: 'inherit',
+            transform: 'scale(1)',
           },
         })
       }
@@ -93,6 +102,8 @@ export const DataGridRow: <T, Column extends string>(
     element.style.display = 'table-row'
     element.style.cursor = 'default'
     element.style.userSelect = 'none'
+    element.style.transition = 'background-color 0.15s ease'
+
     if (selection?.includes(entry)) {
       element.setAttribute('aria-selected', 'true')
       element.classList.add('selected')
@@ -103,11 +114,29 @@ export const DataGridRow: <T, Column extends string>(
     }
     element.setAttribute('aria-selected', selection?.includes(entry).toString() || 'false')
 
+    // Add hover effect
+    element.onmouseenter = () => {
+      if (!selection?.includes(entry)) {
+        element.style.backgroundColor = 'rgba(128, 128, 128, 0.08)'
+      }
+    }
+    element.onmouseleave = () => {
+      if (!selection?.includes(entry)) {
+        element.style.backgroundColor = 'transparent'
+      }
+    }
+
     return (
       <>
         {columns.map((column) => (
           <td
-            style={{ padding: '0.5em' }}
+            style={{
+              padding: '0.75em 1.2em',
+              borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
+              verticalAlign: 'middle',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+            }}
             onclick={(ev) => props.onRowClick?.(entry, ev)}
             ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
           >
