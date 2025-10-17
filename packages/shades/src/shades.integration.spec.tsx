@@ -1,7 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { sleepAsync, usingAsync } from '@furystack/utils'
-
 import { serializeToQueryString } from '@furystack/rest'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
@@ -269,13 +268,34 @@ describe('Shades integration tests', () => {
   })
 
   it('Should update the stored state', async () => {
+    const mockedStorage = new Map<string, string>()
+
+    const store: typeof localStorage = {
+      getItem: (key) => {
+        return mockedStorage.get(key) || null
+      },
+      setItem: (key, value) => {
+        mockedStorage.set(key, value)
+      },
+      length: 0,
+      clear: () => {
+        mockedStorage.clear()
+      },
+      key: (index) => {
+        return Array.from(mockedStorage.keys())[index] || null
+      },
+      removeItem: (key) => {
+        mockedStorage.delete(key)
+      },
+    }
+
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
         shadowDomName: 'example-component-3-stored-state',
         render: ({ useStoredState }) => {
-          const [count, setCount] = useStoredState('count', 0)
+          const [count, setCount] = useStoredState('count', 0, store)
           return (
             <div>
               Count is {count}
@@ -299,21 +319,23 @@ describe('Shades integration tests', () => {
       const minus = () => document.getElementById('minus')?.click()
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
+      await sleepAsync(100)
+
       expectCount(0)
 
       await sleepAsync(100)
       plus()
       expectCount(1)
-      expect(localStorage.getItem('count')).toBe('1')
+      expect(store.getItem('count')).toBe('1')
 
       plus()
       expectCount(2)
-      expect(localStorage.getItem('count')).toBe('2')
+      expect(store.getItem('count')).toBe('2')
 
       minus()
       minus()
       expectCount(0)
-      expect(localStorage.getItem('count')).toBe('0')
+      expect(store.getItem('count')).toBe('0')
     })
   })
 

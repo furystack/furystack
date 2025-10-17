@@ -18,10 +18,10 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T) => T
 
   /**
-   *
+   * Creates a state object from an existing observable value
    * @param key The key for caching the observable value
    * @param observable The observable value to observe
-   * @param callback Optional callback for reacting to changes. If no callback provided, the component will re-render on change
+   * @param options Optional options for the observer including onChange callback
    * @returns tuple with the current value and a setter function
    */
   useObservable: <T>(

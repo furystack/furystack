@@ -103,13 +103,7 @@ export type OnRequestOptions = OnRequest & {
 }
 
 @Injectable({ lifetime: 'singleton' })
-export class ApiManager implements Disposable {
-  private readonly apis = new Map<string, NewCompiledApi>()
-
-  public [Symbol.dispose]() {
-    this.apis.clear()
-  }
-
+export class ApiManager {
   private getSuportedMethods(api: RestApiImplementation<RestApi>): Method[] {
     return Object.keys(api) as Method[]
   }
@@ -193,7 +187,7 @@ export class ApiManager implements Disposable {
     return options.method &&
       options.url &&
       (options.supportedMethods.includes(options.method) || options.method === 'OPTIONS') &&
-      PathHelper.normalize(options.url).startsWith(options.rootApiPath)
+      PathHelper.matchesBaseUrl(options.url, options.rootApiPath)
       ? true
       : false
   }
@@ -266,13 +260,9 @@ export class ApiManager implements Disposable {
   }
 
   private async onMessage(options: OnRequestOptions) {
-    const fullUrl = new URL(
-      PathHelper.joinPaths(
-        'http://',
-        `${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`,
-        options.req.url as string,
-      ),
-    )
+    const protocol = 'http://'
+    const host = `${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`
+    const fullUrl = new URL(PathHelper.joinUrl(`${protocol}${host}`, options.req.url as string))
 
     if (options.cors) {
       addCorsHeaders(options.cors, options.req, options.res)

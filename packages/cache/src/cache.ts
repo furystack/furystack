@@ -47,9 +47,8 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   private readonly stateManager: CacheStateManager<TData, TArgs>
 
   /**
-   *
    * @param args The arguments for getting the entity
-   * @returns if the entity is in the cache
+   * @returns whether the entity is in the cache
    */
   public has(...args: TArgs) {
     return this.stateManager.has(this.getIndex(...args))
@@ -149,7 +148,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   /**
    * Removes an entity from the cache
    * @param args The arguments for getting the entity
-   * @returns a boolean that indicates if the entity was been present in the cache and was removed
+   * @returns a boolean that indicates whether the entity was present in the cache and was removed
    */
   public remove(...args: TArgs) {
     const index = this.getIndex(...args)

@@ -19,8 +19,8 @@ export const isAuthenticated = async (injector: Injector) => injector.getInstanc
 
 /**
  * @param injector The Injector instance
- * @param {...any} roles A list of roles
- *  @returns if the current authorization status from the identity context
+ * @param roles A list of roles
+ * @returns whether the user is authorized with the specified roles from the identity context
  */
 export const isAuthorized = async (injector: Injector, ...roles: string[]) =>
   injector.getInstance(IdentityContext).isAuthorized(...roles)

@@ -5,16 +5,24 @@ MongoDB physical store implementation for FuryStack.
 ## Initialization
 
 ```ts
-import '@furystack/mongodb-store'
+import { Injector } from '@furystack/inject'
+import { StoreManager } from '@furystack/core'
+import { useMongoDb } from '@furystack/mongodb-store'
 
 export class TestEntry {
   declare _id: string
   declare value: string
 }
 
-myInjector.setupStores((sm) => {
-  sm.useMongoDb(TestEntry, 'mongodb://localhost:27017', 'test', 'TestEntries')
+const myInjector = new Injector()
+useMongoDb({
+  injector: myInjector,
+  model: TestEntry,
+  primaryKey: '_id',
+  url: 'mongodb://localhost:27017',
+  db: 'test',
+  collection: 'TestEntries',
 })
 
-const myMongoStore = myInjector.getInstance(StoreManager).getStoreFor(TestEntry)
+const myMongoStore = myInjector.getInstance(StoreManager).getStoreFor(TestEntry, '_id')
 ```

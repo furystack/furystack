@@ -75,7 +75,7 @@ export class LocationService implements Disposable {
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
   /**
-   *
+   * Gets or creates an observable for a search parameter
    * @param key The search param key (e.g. ?search=1 -> search)
    * @param defaultValue The default value if not provided
    * @returns An observable with the current value (or default value) of the search param

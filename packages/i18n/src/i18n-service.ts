@@ -51,7 +51,7 @@ export class I18NService<Keys extends string> extends EventHub<{ languageChange:
   }
 
   /**
-   *
+   * Translates a key to the corresponding value in the specified language
    * @param key The translation key
    * @param languageCode An optional language code, will fall back to the current language code if not provided
    * @returns The translation for the given key in the given language. If the language is not found or does not contain the key, the translation from the default language will be returned.

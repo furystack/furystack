@@ -1,5 +1,6 @@
 import type { RestApi } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
+import { PathHelper } from '@furystack/utils'
 import { compile } from 'path-to-regexp'
 import { ResponseError } from './response-error.js'
 export type BodyParameter<T> = T extends { result: unknown; body: infer U } ? { body: U } : unknown
@@ -83,7 +84,7 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
           : `?${serializeToQueryString(query)}`
         : '')
 
-    const response = await fetchMethod(clientOptions.endpointUrl + urlToSend, {
+    const response = await fetchMethod(PathHelper.joinUrl(clientOptions.endpointUrl, urlToSend), {
       ...clientOptions.requestInit,
       method: options.method.toString(),
       body: body ? JSON.stringify(body) : undefined,

@@ -52,7 +52,7 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
 
 /**
  * Factory method for creating Shade components
- * @param o for component creation
+ * @param o The options object for component creation
  * @returns the JSX element
  */
 export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
@@ -216,7 +216,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         /**
-         * Finialize the component initialization after it gets the Props. Called by the framework internally
+         * Finalize the component initialization after it gets the Props. Called by the framework internally
          */
         public callConstructed() {
           this.updateComponent()

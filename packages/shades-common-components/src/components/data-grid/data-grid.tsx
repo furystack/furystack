@@ -1,14 +1,14 @@
+import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
+import type { ObservableValue } from '@furystack/utils'
+import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
+import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { GridProps } from '../grid.js'
-import { DataGridHeader } from './header.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
-import { ClickAwayService } from '../../services/click-away-service.js'
-import type { FindOptions } from '@furystack/core'
-import type { ObservableValue } from '@furystack/utils'
+import { DataGridHeader } from './header.js'
 
 export type DataHeaderCells<Column extends string> = {
   [TKey in Column | 'default']?: (name: Column) => JSX.Element
@@ -101,14 +101,21 @@ export const DataGrid: <T, Column extends string>(
       backdropFilter: 'blur(12px) saturate(180%)',
       background: 'rgba(128,128,128,0.3)',
       color: theme.text.secondary,
-      height: '38px',
+      height: '48px',
+      padding: '0 1.2em',
       alignItems: 'center',
       borderRadius: '2px',
       top: '2px',
       position: 'sticky',
       fontVariant: 'all-petite-caps',
+      fontSize: '0.875rem',
+      fontWeight: '600',
+      letterSpacing: '0.05em',
+      textAlign: 'left',
       zIndex: '1',
       boxShadow: 'rgba(0, 0, 0, 0.2) 1px 1px 1px 2px',
+      borderBottom: `2px solid rgba(128, 128, 128, 0.2)`,
+      borderRight: `1px solid rgba(128, 128, 128, 0.2)`,
       ...props.styles?.header,
     }
 
@@ -127,7 +134,9 @@ export const DataGrid: <T, Column extends string>(
         }}
         ariaMultiSelectable="true"
       >
-        <table style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative' }}>
+        <table
+          style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative', borderCollapse: 'collapse' }}
+        >
           <thead>
             <tr>
               {props.columns.map((column) => {

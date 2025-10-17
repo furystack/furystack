@@ -1,4 +1,4 @@
-import type { PhysicalStore, FindOptions, WithOptionalId } from '@furystack/core'
+import type { FindOptions, PhysicalStore, WithOptionalId } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 
 /**
@@ -8,14 +8,14 @@ export type AuthorizationResult = SuccessfullyValidationResult | FailedValidatio
 
 export interface SuccessfullyValidationResult {
   /**
-   * Indicates if the validation was succesful
+   * Indicates if the validation was successful
    */
   isAllowed: true
 }
 
 export interface FailedValidationResult {
   /**
-   * Indicates if the validation was succesful
+   * Indicates if the validation was successful
    */
 
   isAllowed: false
@@ -71,15 +71,15 @@ export interface DataSetSettings<T, TPrimaryKey extends keyof T, TWritableData =
   /**
    * Authorizes entity removal per loaded entity
    */
-  authroizeRemoveEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
+  authorizeRemoveEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
 
   /**
-   * Authorizes entity retrival w/o entity loading
+   * Authorizes entity retrieval without entity loading
    */
   authorizeGet?: (options: { injector: Injector }) => Promise<AuthorizationResult>
 
   /**
-   * Authorizes entity retrival
+   * Authorizes entity retrieval
    */
   authorizeGetEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
 

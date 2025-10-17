@@ -4,7 +4,10 @@ declare global {
    */
   export interface Array<T> {
     /**
-     * Returns a promise with a new array of elements that meets the specified async callback
+     * Sorts the array by a specified field and direction
+     * @param field The field to sort by
+     * @param direction The sort direction, either 'asc' or 'desc' (default: 'asc')
+     * @returns A new sorted array
      */
     sortBy: (field: keyof T, direction?: 'asc' | 'desc') => T[]
   }

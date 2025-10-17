@@ -1,11 +1,11 @@
-import type { IncomingMessage } from 'http'
 import type { User } from '@furystack/core'
 import { StoreManager } from '@furystack/core'
 import { Injectable, Injected } from '@furystack/inject'
-import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import type { DefaultSession } from './models/default-session.js'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 import { randomBytes } from 'crypto'
+import type { IncomingMessage } from 'http'
+import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import type { DefaultSession } from './models/default-session.js'
 
 /**
  * Injectable UserContext for FuryStack HTTP Api
@@ -38,7 +38,7 @@ export class HttpUserContext {
 
   /**
    * @param request The request to be authenticated
-   * @returns if the current user is authenticated
+   * @returns whether the current user is authenticated
    */
   public async isAuthenticated(request: IncomingMessage) {
     try {
@@ -50,10 +50,10 @@ export class HttpUserContext {
   }
 
   /**
-   * Returns if the current user can be authorized with ALL of the specified roles
+   * Returns whether the current user can be authorized with ALL of the specified roles
    * @param request The request to be authenticated
    * @param roles The list of roles to authorize
-   * @returns a boolean value that indicates if the user is authenticated
+   * @returns a boolean value that indicates whether the user is authorized
    */
   public async isAuthorized(request: IncomingMessage, ...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser(request)

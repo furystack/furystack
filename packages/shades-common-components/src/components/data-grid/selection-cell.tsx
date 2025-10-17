@@ -18,6 +18,12 @@ export const SelectionCell = Shade<{ entry: any; service: CollectionService<any>
         }}
         type="checkbox"
         checked={isSelected}
+        style={{
+          cursor: 'pointer',
+          width: '18px',
+          height: '18px',
+          accentColor: 'var(--shades-theme-palette-primary-main)',
+        }}
       />
     )
   },

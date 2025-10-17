@@ -3,7 +3,7 @@ import type { Constructable, Injector } from '@furystack/inject'
 import { FileSystemStore } from './filesystem-store.js'
 
 /**
- *
+ * Creates and registers a FileSystemStore with the StoreManager
  * @param options The Options for store creation
  * @param options.injector The injector to use for creating the store
  * @param options.model The model to use for the store
