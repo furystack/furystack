@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "typescript": "^5.9.3",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.14"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
