@@ -7,10 +7,10 @@ import type { createClient } from 'redis'
  * Redis Store implementation for FuryStack
  */
 export class RedisStore<
-    T,
-    TPrimaryKey extends keyof T,
-    TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
-  >
+  T,
+  TPrimaryKey extends keyof T,
+  TWriteableData extends { [K in TPrimaryKey]: string } = T & { [K in TPrimaryKey]: string },
+>
   extends EventHub<{
     onEntityAdded: { entity: T }
     onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
