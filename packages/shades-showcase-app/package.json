@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-showcase-app",
-  "version": "7.0.30",
+  "version": "7.0.31",
   "description": "",
   "private": true,
   "type": "module",
@@ -15,10 +15,10 @@
   "devDependencies": {
     "@codecov/vite-plugin": "^1.9.1",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.2",
-    "vitest": "^4.0.10"
+    "vite": "^7.3.0",
+    "vitest": "^4.0.15"
   },
   "dependencies": {
     "@furystack/core": "workspace:^",
@@ -33,6 +33,6 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
-    "monaco-editor": "^0.54.0"
+    "monaco-editor": "^0.55.1"
   }
 }

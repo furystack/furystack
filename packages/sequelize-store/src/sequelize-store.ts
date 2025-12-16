@@ -39,11 +39,11 @@ export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TP
  * Sequelize Store implementation for FuryStack
  */
 export class SequelizeStore<
-    T extends object,
-    M extends Model<T>,
-    TPrimaryKey extends keyof T,
-    TWriteableData = WithOptionalId<T, TPrimaryKey>,
-  >
+  T extends object,
+  M extends Model<T>,
+  TPrimaryKey extends keyof T,
+  TWriteableData = WithOptionalId<T, TPrimaryKey>,
+>
   extends EventHub<{
     onEntityAdded: { entity: T }
     onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }

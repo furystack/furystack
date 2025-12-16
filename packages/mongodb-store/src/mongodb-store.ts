@@ -21,10 +21,10 @@ const hasObjectId = <T extends { _id?: unknown }>(value: T): value is T & { _id:
  * MongoDB Store implementation for FuryStack
  */
 export class MongodbStore<
-    T extends object,
-    TPrimaryKey extends keyof T,
-    TWriteableData = WithOptionalId<T, TPrimaryKey>,
-  >
+  T extends object,
+  TPrimaryKey extends keyof T,
+  TWriteableData = WithOptionalId<T, TPrimaryKey>,
+>
   extends EventHub<{
     onEntityAdded: { entity: T }
     onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
