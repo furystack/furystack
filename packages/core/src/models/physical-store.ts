@@ -88,12 +88,15 @@ export const selectFields = <T extends object, TField extends Array<keyof T>>(en
 /**
  * Interface that defines a physical store implementation
  */
-export interface PhysicalStore<T, TPrimaryKey extends keyof T, TWriteableData = WithOptionalId<T, TPrimaryKey>>
-  extends EventHub<{
-    onEntityAdded: { entity: T }
-    onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
-    onEntityRemoved: { key: T[TPrimaryKey] }
-  }> {
+export interface PhysicalStore<
+  T,
+  TPrimaryKey extends keyof T,
+  TWriteableData = WithOptionalId<T, TPrimaryKey>,
+> extends EventHub<{
+  onEntityAdded: { entity: T }
+  onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
+  onEntityRemoved: { key: T[TPrimaryKey] }
+}> {
   /**
    * The Primary key field name
    */
