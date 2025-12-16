@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-google",
-  "version": "9.0.30",
+  "version": "9.0.31",
   "description": "Google Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {
