@@ -40,9 +40,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.15"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
