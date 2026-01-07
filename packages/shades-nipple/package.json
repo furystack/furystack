@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-nipple",
-  "version": "7.0.31",
+  "version": "7.0.32",
   "description": "A Nipple component wrapper for FuryStack Shades",
   "type": "module",
   "scripts": {
