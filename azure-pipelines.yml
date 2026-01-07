@@ -20,6 +20,8 @@ jobs:
           node_version: 22.x
         node_24_x:
           node_version: 24.x
+        node_25_x:
+          node_version: 25.x
 
     displayName: Build and test
     steps:
@@ -76,6 +78,8 @@ jobs:
           node_version: 22.x
         node_24_x:
           node_version: 24.x
+        node_25_x:
+          node_version: 25.x
     displayName: Showcase app UI tests
     steps:
       - task: NodeTool@0

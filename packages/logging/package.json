@@ -1,6 +1,6 @@
 {
   "name": "@furystack/logging",
-  "version": "8.0.24",
+  "version": "8.0.25",
   "description": "Logging API for FuryStack package",
   "type": "module",
   "scripts": {
@@ -35,7 +35,7 @@
   "devDependencies": {
     "@furystack/utils": "workspace:^",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
