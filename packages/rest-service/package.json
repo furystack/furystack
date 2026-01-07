@@ -50,11 +50,11 @@
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^25.0.2",
+    "@types/node": "^25.0.3",
     "@types/ws": "^8.18.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15",
-    "ws": "^8.18.3"
+    "vitest": "^4.0.16",
+    "ws": "^8.19.0"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }

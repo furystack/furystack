@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
