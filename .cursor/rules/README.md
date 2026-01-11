@@ -12,12 +12,12 @@ Each rule file contains frontmatter metadata that tells Cursor **when** and **wh
 
 ## Rule Applicability Matrix
 
-| Rule File | Auto-Apply | File Patterns | Description |
-| --- | --- | --- | --- |
-| [CODE_STYLE.mdc](./CODE_STYLE.mdc) | ✅ Always | `**/*.ts`, `**/*.tsx` | Naming, formatting, organization |
-| [TYPESCRIPT_GUIDELINES.mdc](./TYPESCRIPT_GUIDELINES.mdc) | ✅ Always | `**/*.ts`, `**/*.tsx` | Type safety, NO `any`, generics |
-| [TESTING_GUIDELINES.mdc](./TESTING_GUIDELINES.mdc) | 🎯 Auto | `**/*.spec.ts`, `**/*.spec.tsx` | Public API testing, integration tests |
-| [LIBRARY_DEVELOPMENT.mdc](./LIBRARY_DEVELOPMENT.mdc) | 🎯 Auto | `**/*.ts`, `**/packages/**` | DI patterns, Observable, disposables |
+| Rule File                                                | Auto-Apply | File Patterns                   | Description                           |
+| -------------------------------------------------------- | ---------- | ------------------------------- | ------------------------------------- |
+| [CODE_STYLE.mdc](./CODE_STYLE.mdc)                       | ✅ Always  | `**/*.ts`, `**/*.tsx`           | Naming, formatting, organization      |
+| [TYPESCRIPT_GUIDELINES.mdc](./TYPESCRIPT_GUIDELINES.mdc) | ✅ Always  | `**/*.ts`, `**/*.tsx`           | Type safety, NO `any`, generics       |
+| [TESTING_GUIDELINES.mdc](./TESTING_GUIDELINES.mdc)       | 🎯 Auto    | `**/*.spec.ts`, `**/*.spec.tsx` | Public API testing, integration tests |
+| [LIBRARY_DEVELOPMENT.mdc](./LIBRARY_DEVELOPMENT.mdc)     | 🎯 Auto    | `**/*.ts`, `**/packages/**`     | DI patterns, Observable, disposables  |
 
 **Legend:**
 
@@ -56,7 +56,7 @@ Each rule file contains frontmatter metadata that tells Cursor **when** and **wh
 @Injectable({ lifetime: 'singleton' })
 export class MyService {
   @Injected(Dependency)
-  private declare dependency: Dependency;
+  declare private dependency: Dependency
 
   public [Symbol.dispose](): void {
     // Cleanup
