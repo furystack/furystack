@@ -1,12 +1,3 @@
----
-name: Testing Guidelines
-description: Public API testing, integration tests, and Vitest patterns for library development
-globs:
-  - '**/*.spec.ts'
-  - '**/*.spec.tsx'
-alwaysApply: false
----
-
 # Testing Guidelines
 
 ## Public API Testing

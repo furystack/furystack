@@ -1,13 +1,3 @@
----
-name: Library Development
-description: FuryStack-specific library patterns, dependency injection, Observable, and disposable resources
-globs:
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/packages/**'
-alwaysApply: false
----
-
 # Library Development Guidelines
 
 ## Package Structure
