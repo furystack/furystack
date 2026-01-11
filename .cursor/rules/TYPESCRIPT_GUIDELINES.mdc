@@ -1,0 +1,188 @@
+---
+name: TypeScript Guidelines
+description: Type safety, strict typing, NEVER use any, generics, and type guards
+globs:
+  - '**/*.ts'
+  - '**/*.tsx'
+alwaysApply: true
+---
+
+# TypeScript Guidelines
+
+## Type Safety for Libraries
+
+### Public API Type Safety
+
+- **All exported functions must have explicit types**
+- **All public properties must be typed**
+- **Generic types must have proper constraints**
+- **NEVER export `any` types**
+
+```typescript
+// ✅ Good - explicit public API types
+export function createInjector(options?: InjectorOptions): Injector {
+  return new Injector(options);
+}
+
+export class ObservableValue<T> {
+  constructor(private value: T) {}
+
+  public getValue(): T {
+    return this.value;
+  }
+
+  public setValue(value: T): void {
+    this.value = value;
+  }
+}
+
+// ❌ Avoid - implicit return types
+export function createInjector(options) {
+  return new Injector(options);
+}
+```
+
+## Type Definitions
+
+### Prefer `type` over `interface`
+
+```typescript
+// ✅ Good
+type InjectorOptions = {
+  parent?: Injector;
+  level?: number;
+};
+
+export type RequestAction<T> = (options: RequestOptions<T>) => Promise<JsonResult>;
+
+// ❌ Avoid
+interface InjectorOptions {
+  parent?: Injector;
+}
+```
+
+### Generic Type Patterns
+
+- Use descriptive generic parameter names
+- Provide proper constraints
+- Document generic parameters
+
+```typescript
+// ✅ Good - descriptive generics with constraints
+export class Cache<TArgs extends unknown[], TResult> {
+  constructor(private options: CacheOptions<TArgs, TResult>) {}
+
+  public async get(...args: TArgs): Promise<TResult> {
+    return await this.options.load(...args);
+  }
+}
+
+// ❌ Avoid - unclear generic names
+export class Cache<A, R> {
+  // What are A and R?
+}
+```
+
+## Strict Type Checking
+
+### NEVER use `any`
+
+There are no acceptable uses of `any` in library code:
+
+```typescript
+// ✅ Good - use unknown for truly unknown types
+export function processData(data: unknown): string {
+  if (typeof data === 'string') {
+    return data;
+  }
+  return JSON.stringify(data);
+}
+
+// ✅ Good - use generics for flexible types
+export function identity<T>(value: T): T {
+  return value;
+}
+
+// ❌ FORBIDDEN - using any
+export function processData(data: any): string {
+  return data.toString();
+}
+```
+
+### Type Guards
+
+Provide type guards for runtime type checking:
+
+```typescript
+// ✅ Good - type guard for library users
+export function isInjectable(value: unknown): value is { new (...args: unknown[]): unknown } {
+  return typeof value === 'function' && 'prototype' in value;
+}
+
+export function isObservableValue<T>(value: unknown): value is ObservableValue<T> {
+  return value instanceof ObservableValue;
+}
+```
+
+## Utility Types
+
+### Export Useful Utility Types
+
+```typescript
+// ✅ Good - export utility types for library users
+export type Constructor<T = unknown> = new (...args: unknown[]) => T;
+
+export type Disposable = {
+  [Symbol.dispose]: () => void;
+};
+
+export type AsyncDisposable = {
+  [Symbol.asyncDispose]: () => Promise<void>;
+};
+
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+```
+
+## Type Inference
+
+### Let TypeScript Infer When Possible
+
+```typescript
+// ✅ Good - infer return types for simple functions
+export const createLogger = (name: string) => {
+  return new Logger(name);
+};
+
+// ✅ Good - explicit for public API contracts
+export function getInstance<T>(constructor: Constructor<T>): T {
+  // Explicit generic ensures type safety
+}
+```
+
+## Summary
+
+**Key Principles:**
+
+1. **NEVER use `any`** - Especially in public APIs
+2. **Explicit types for exports** - Document the contract
+3. **Prefer `type` over `interface`**
+4. **Generic constraints** - Make generics meaningful
+5. **Type guards** - Provide runtime type checking
+6. **Utility types** - Export useful type helpers
+7. **Strict mode** - Always enabled
+8. **Type inference** - Let TypeScript infer internally, be explicit for exports
+
+**Library Type Safety Checklist:**
+
+- [ ] No `any` types in public API
+- [ ] All exported functions have explicit types
+- [ ] Generic types have proper constraints
+- [ ] Type guards provided for runtime checks
+- [ ] Utility types exported for library users
+- [ ] JSDoc on all public APIs
+- [ ] Strict mode enabled
+
+**Tools:**
+
+- Type checking: `yarn build` (runs `tsc -b packages`)
+- Strict mode: Enabled in `tsconfig.json`
