@@ -50,18 +50,18 @@ Use `@Injectable` decorator for classes that should be managed by DI:
 
 ```typescript
 // ✅ Good - injectable service
-import { Injectable } from '@furystack/inject';
+import { Injectable } from '@furystack/inject'
 
 @Injectable({ lifetime: 'singleton' })
 export class LoggerService {
-  private logs: string[] = [];
+  private logs: string[] = []
 
   public log(message: string): void {
-    this.logs.push(message);
+    this.logs.push(message)
   }
 
   public getLogs(): readonly string[] {
-    return this.logs;
+    return this.logs
   }
 }
 ```
@@ -93,19 +93,19 @@ Use `@Injected` to inject dependencies:
 
 ```typescript
 // ✅ Good - injected dependencies
-import { Injectable, Injected } from '@furystack/inject';
+import { Injectable, Injected } from '@furystack/inject'
 
 @Injectable({ lifetime: 'singleton' })
 export class UserService {
   @Injected(LoggerService)
-  private declare logger: LoggerService;
+  declare private logger: LoggerService
 
   @Injected(ApiClient)
-  private declare apiClient: ApiClient;
+  declare private apiClient: ApiClient
 
   public async getUser(id: string): Promise<User> {
-    this.logger.log(`Getting user: ${id}`);
-    return await this.apiClient.fetchUser(id);
+    this.logger.log(`Getting user: ${id}`)
+    return await this.apiClient.fetchUser(id)
   }
 }
 ```
@@ -118,17 +118,17 @@ Create reactive values with `ObservableValue`:
 
 ```typescript
 // ✅ Good - observable value
-import { ObservableValue } from '@furystack/utils';
+import { ObservableValue } from '@furystack/utils'
 
 export class DataStore {
-  public data = new ObservableValue<Data | null>(null);
+  public data = new ObservableValue<Data | null>(null)
 
   public updateData(newData: Data): void {
-    this.data.setValue(newData);
+    this.data.setValue(newData)
   }
 
   public subscribe(callback: (data: Data | null) => void): { dispose: () => void } {
-    return this.data.subscribe(callback);
+    return this.data.subscribe(callback)
   }
 }
 ```
@@ -144,7 +144,7 @@ export class SessionService {
   /**
    * Observable of the current user
    */
-  public currentUser = new ObservableValue<User | null>(null);
+  public currentUser = new ObservableValue<User | null>(null)
 
   /**
    * Subscribe to user changes
@@ -152,7 +152,7 @@ export class SessionService {
    * @returns Disposable subscription
    */
   public onUserChange(callback: (user: User | null) => void): { dispose: () => void } {
-    return this.currentUser.subscribe(callback);
+    return this.currentUser.subscribe(callback)
   }
 }
 ```
@@ -166,30 +166,30 @@ All classes that hold resources should implement disposal:
 ```typescript
 // ✅ Good - proper disposal
 export class WebSocketConnection {
-  private socket: WebSocket;
-  private subscriptions = new Set<() => void>();
+  private socket: WebSocket
+  private subscriptions = new Set<() => void>()
 
   constructor(url: string) {
-    this.socket = new WebSocket(url);
+    this.socket = new WebSocket(url)
   }
 
   public subscribe(callback: (data: unknown) => void): { dispose: () => void } {
-    const handler = (event: MessageEvent) => callback(event.data);
-    this.socket.addEventListener('message', handler);
+    const handler = (event: MessageEvent) => callback(event.data)
+    this.socket.addEventListener('message', handler)
 
     const dispose = () => {
-      this.socket.removeEventListener('message', handler);
-      this.subscriptions.delete(dispose);
-    };
+      this.socket.removeEventListener('message', handler)
+      this.subscriptions.delete(dispose)
+    }
 
-    this.subscriptions.add(dispose);
-    return { dispose };
+    this.subscriptions.add(dispose)
+    return { dispose }
   }
 
   public [Symbol.dispose](): void {
-    this.subscriptions.forEach(dispose => dispose());
-    this.subscriptions.clear();
-    this.socket.close();
+    this.subscriptions.forEach((dispose) => dispose())
+    this.subscriptions.clear()
+    this.socket.close()
   }
 }
 ```
@@ -198,7 +198,7 @@ export class WebSocketConnection {
 
 Document disposal patterns for library users:
 
-```typescript
+````typescript
 // ✅ Good - disposal documentation
 /**
  * Creates a scoped resource that will be automatically disposed
@@ -212,9 +212,9 @@ export function createResource(): Disposable {
   return {
     use: () => console.log('Using resource'),
     [Symbol.dispose]: () => console.log('Disposing resource'),
-  };
+  }
 }
-```
+````
 
 ## Cache Implementation
 
@@ -225,7 +225,7 @@ Implement cache with proper generics:
 ```typescript
 // ✅ Good - cache implementation
 export class Cache<TArgs extends unknown[], TResult> {
-  private cache = new Map<string, CachedValue<TResult>>();
+  private cache = new Map<string, CachedValue<TResult>>()
 
   constructor(private options: CacheOptions<TArgs, TResult>) {}
 
@@ -235,16 +235,16 @@ export class Cache<TArgs extends unknown[], TResult> {
    * @returns Cached or loaded value
    */
   public async get(...args: TArgs): Promise<TResult> {
-    const key = this.getCacheKey(args);
-    const cached = this.cache.get(key);
+    const key = this.getCacheKey(args)
+    const cached = this.cache.get(key)
 
     if (cached && !this.isExpired(cached)) {
-      return cached.value;
+      return cached.value
     }
 
-    const value = await this.options.load(...args);
-    this.cache.set(key, { value, updatedAt: new Date() });
-    return value;
+    const value = await this.options.load(...args)
+    this.cache.set(key, { value, updatedAt: new Date() })
+    return value
   }
 
   /**
@@ -257,11 +257,11 @@ export class Cache<TArgs extends unknown[], TResult> {
   }
 
   private getCacheKey(args: TArgs): string {
-    return JSON.stringify(args);
+    return JSON.stringify(args)
   }
 
   private isExpired(cached: CachedValue<TResult>): boolean {
-    return Date.now() - cached.updatedAt.getTime() > this.options.maxAge;
+    return Date.now() - cached.updatedAt.getTime() > this.options.maxAge
   }
 }
 ```
@@ -274,19 +274,19 @@ Define request actions with proper typing:
 
 ```typescript
 // ✅ Good - typed request action
-import type { RequestAction } from '@furystack/rest-service';
+import type { RequestAction } from '@furystack/rest-service'
 
 export type GetUserAction = RequestAction<{
-  method: 'GET';
-  url: { id: string };
-  result: User;
-}>;
+  method: 'GET'
+  url: { id: string }
+  result: User
+}>
 
 export const getUserAction: GetUserAction = async ({ getUrlParams }) => {
-  const { id } = await getUrlParams();
-  const user = await fetchUser(id);
-  return JsonResult(user);
-};
+  const { id } = await getUrlParams()
+  const user = await fetchUser(id)
+  return JsonResult(user)
+}
 ```
 
 ### RequestError
@@ -299,23 +299,23 @@ export class RequestError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public details?: unknown
+    public details?: unknown,
   ) {
-    super(message);
-    this.name = 'RequestError';
+    super(message)
+    this.name = 'RequestError'
   }
 }
 
 // Usage in actions
 export const createUserAction: RequestAction<CreateUserType> = async ({ getBody }) => {
-  const body = await getBody();
+  const body = await getBody()
 
   if (!body.email) {
-    throw new RequestError('Email is required', 400);
+    throw new RequestError('Email is required', 400)
   }
 
   // Action logic
-};
+}
 ```
 
 ## Breaking Changes
@@ -355,8 +355,8 @@ Deprecate before removing:
  * @deprecated Use `newFunction` instead. Will be removed in v8.0.0
  */
 export function oldFunction(): void {
-  console.warn('oldFunction is deprecated. Use newFunction instead.');
-  return newFunction();
+  console.warn('oldFunction is deprecated. Use newFunction instead.')
+  return newFunction()
 }
 
 export function newFunction(): void {
@@ -370,7 +370,7 @@ export function newFunction(): void {
 
 All public APIs must have comprehensive JSDoc:
 
-```typescript
+````typescript
 /**
  * Creates a new Injector for dependency injection
  *
@@ -401,7 +401,7 @@ export class Injector {
     // Implementation
   }
 }
-```
+````
 
 ## Export Patterns
 
@@ -412,15 +412,15 @@ Organize exports clearly:
 ```typescript
 // ✅ Good - packages/core/src/index.ts
 // Main exports
-export { Injectable, Injected } from './decorators.js';
-export { Injector } from './injector.js';
+export { Injectable, Injected } from './decorators.js'
+export { Injector } from './injector.js'
 
 // Type exports
-export type { InjectorOptions, InjectableOptions } from './types.js';
-export type { Constructor, Disposable } from './common-types.js';
+export type { InjectorOptions, InjectableOptions } from './types.js'
+export type { Constructor, Disposable } from './common-types.js'
 
 // Re-exports from other packages (if needed)
-export { ObservableValue } from '@furystack/utils';
+export { ObservableValue } from '@furystack/utils'
 ```
 
 ### Avoid Side Effects
@@ -436,7 +436,7 @@ export class Logger {
 }
 
 // ❌ Avoid - side effects on import
-console.log('Logger module loaded'); // Side effect!
+console.log('Logger module loaded') // Side effect!
 export class Logger {}
 ```
 

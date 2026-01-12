@@ -13,24 +13,24 @@ describe('Injectable', () => {
     @Injectable({ lifetime: 'singleton' })
     class MyService {}
 
-    const injector = new Injector();
-    const instance1 = injector.getInstance(MyService);
-    const instance2 = injector.getInstance(MyService);
+    const injector = new Injector()
+    const instance1 = injector.getInstance(MyService)
+    const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).toBe(instance2); // Same instance
-  });
+    expect(instance1).toBe(instance2) // Same instance
+  })
 
   it('should create injectable class with transient lifetime', () => {
     @Injectable({ lifetime: 'transient' })
     class MyService {}
 
-    const injector = new Injector();
-    const instance1 = injector.getInstance(MyService);
-    const instance2 = injector.getInstance(MyService);
+    const injector = new Injector()
+    const instance1 = injector.getInstance(MyService)
+    const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).not.toBe(instance2); // Different instances
-  });
-});
+    expect(instance1).not.toBe(instance2) // Different instances
+  })
+})
 ```
 
 ### Test Edge Cases
@@ -41,26 +41,26 @@ Test boundary conditions and error scenarios:
 // ✅ Good - testing edge cases
 describe('ObservableValue', () => {
   it('should handle null values', () => {
-    const obs = new ObservableValue<string | null>(null);
-    expect(obs.getValue()).toBeNull();
-  });
+    const obs = new ObservableValue<string | null>(null)
+    expect(obs.getValue()).toBeNull()
+  })
 
   it('should handle undefined values', () => {
-    const obs = new ObservableValue<string | undefined>(undefined);
-    expect(obs.getValue()).toBeUndefined();
-  });
+    const obs = new ObservableValue<string | undefined>(undefined)
+    expect(obs.getValue()).toBeUndefined()
+  })
 
   it('should notify subscribers on value change', () => {
-    const obs = new ObservableValue(0);
-    const values: number[] = [];
+    const obs = new ObservableValue(0)
+    const values: number[] = []
 
-    obs.subscribe((value) => values.push(value));
-    obs.setValue(1);
-    obs.setValue(2);
+    obs.subscribe((value) => values.push(value))
+    obs.setValue(1)
+    obs.setValue(2)
 
-    expect(values).toEqual([0, 1, 2]);
-  });
-});
+    expect(values).toEqual([0, 1, 2])
+  })
+})
 ```
 
 ## Integration Tests
@@ -75,25 +75,25 @@ describe('DI Integration', () => {
   it('should inject dependencies across packages', () => {
     @Injectable({ lifetime: 'singleton' })
     class ServiceA {
-      public name = 'ServiceA';
+      public name = 'ServiceA'
     }
 
     @Injectable({ lifetime: 'singleton' })
     class ServiceB {
       @Injected(ServiceA)
-      public declare serviceA: ServiceA;
+      declare public serviceA: ServiceA
 
       public getName(): string {
-        return this.serviceA.name;
+        return this.serviceA.name
       }
     }
 
-    const injector = new Injector();
-    const serviceB = injector.getInstance(ServiceB);
+    const injector = new Injector()
+    const serviceB = injector.getInstance(ServiceB)
 
-    expect(serviceB.getName()).toBe('ServiceA');
-  });
-});
+    expect(serviceB.getName()).toBe('ServiceA')
+  })
+})
 ```
 
 ### Test Type Safety
@@ -104,20 +104,20 @@ Test that type constraints work as expected:
 // ✅ Good - type safety tests
 describe('Cache types', () => {
   it('should enforce load function type', () => {
-    type User = { id: string; name: string };
+    type User = { id: string; name: string }
 
     const cache = new Cache<[string], User>({
       capacity: 10,
       load: async (id: string): Promise<User> => {
-        return { id, name: 'Test' };
+        return { id, name: 'Test' }
       },
-    });
+    })
 
     // TypeScript ensures type safety
-    const user: User = await cache.get('123');
-    expect(user.id).toBe('123');
-  });
-});
+    const user: User = await cache.get('123')
+    expect(user.id).toBe('123')
+  })
+})
 ```
 
 ## Vitest Patterns
@@ -131,17 +131,17 @@ describe('PackageName', () => {
     describe('methodName', () => {
       it('should behave correctly when condition', () => {
         // Arrange
-        const instance = new ClassName();
+        const instance = new ClassName()
 
         // Act
-        const result = instance.methodName();
+        const result = instance.methodName()
 
         // Assert
-        expect(result).toBe(expected);
-      });
-    });
-  });
-});
+        expect(result).toBe(expected)
+      })
+    })
+  })
+})
 ```
 
 ### Minimal Mocking
@@ -154,13 +154,13 @@ describe('Injector', () => {
   it('should create instances of registered classes', () => {
     class MyClass {}
 
-    const injector = new Injector();
-    injector.setExplicitInstance(MyClass, new MyClass());
+    const injector = new Injector()
+    injector.setExplicitInstance(MyClass, new MyClass())
 
-    const instance = injector.getInstance(MyClass);
-    expect(instance).toBeInstanceOf(MyClass);
-  });
-});
+    const instance = injector.getInstance(MyClass)
+    expect(instance).toBeInstanceOf(MyClass)
+  })
+})
 ```
 
 ## Test Coverage
