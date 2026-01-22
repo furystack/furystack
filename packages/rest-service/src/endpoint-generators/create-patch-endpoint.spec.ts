@@ -1,12 +1,12 @@
-import { usingAsync } from '@furystack/utils'
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getDataSetFor } from '@furystack/repository'
 import type { PatchEndpoint } from '@furystack/rest'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
+import { useRestService } from '../helpers.js'
 import { createPatchEndpoint } from './create-patch-endpoint.js'
 import { MockClass, setupContext } from './utils.js'
-import { getDataSetFor } from '@furystack/repository'
-import { useRestService } from '../helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
 
 describe('createPatchEndpoint', () => {
   it('Should update the entity and report the success', async () => {
@@ -33,7 +33,7 @@ describe('createPatchEndpoint', () => {
         body: JSON.stringify({ value: 'updated' }),
       })
       expect(response.status).toBe(200)
-      const body = await response.json()
+      const body = (await response.json()) as { value: string }
       expect(body).toEqual({})
       const updated = await getDataSetFor(i, MockClass, 'id').get(i, 'mock')
       expect(updated?.value).toBe('updated')

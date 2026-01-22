@@ -9,7 +9,7 @@ export const readPostBodyRaw = async (incomingMessage: IncomingMessage) => {
   let body = ''
   await new Promise<void>((resolve, reject) => {
     incomingMessage.on('readable', () => {
-      const data = incomingMessage.read()
+      const data = incomingMessage.read() as string
       if (data) {
         body += data
       }

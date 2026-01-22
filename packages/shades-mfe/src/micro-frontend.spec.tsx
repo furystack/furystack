@@ -151,7 +151,7 @@ describe('<MicroFrontend /> component', () => {
     )
     document.querySelector('button')!.click()
     await sleepAsync(10)
-    expect(destroy).toHaveBeenCalledWith({ api: { value }, injector: expect.any(Injector) })
+    expect(destroy).toHaveBeenCalledWith({ api: { value }, injector: expect.any(Injector) as Injector })
     expect(document.body.innerHTML).toBe(
       `<div id="root"><mfe-test-example-w-destroy-host><button>Remove MFE</button></mfe-test-example-w-destroy-host></div>`,
     )

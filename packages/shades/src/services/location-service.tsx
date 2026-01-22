@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, type Injector } from '@furystack/inject'
 import {
   deserializeQueryString as defaultDeserializeQueryString,
@@ -60,7 +59,7 @@ export class LocationService implements Disposable {
    */
   public onLocationSearchChanged = new ObservableValue<string>(location.search)
 
-  public onDeserializedLocationSearchChanged: ObservableValue<any>
+  public onDeserializedLocationSearchChanged: ObservableValue<Record<string, unknown>>
 
   public locationDeserializerObserver = this.onLocationSearchChanged.subscribe((search) => {
     this.onDeserializedLocationSearchChanged.setValue(this.deserializeQueryString(search))

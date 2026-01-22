@@ -25,7 +25,9 @@ export type FilterType<T> = {
     | { [ACO in (typeof ArrayComparisonOperators)[number]]?: Array<T[K]> }
 } & { [LO in (typeof LogicalOperators)[number]]?: Array<FilterType<T>> }
 
-export const isLogicalOperator = (propertyString: string): propertyString is (typeof LogicalOperators)[number] =>
+export const isLogicalOperator = (
+  propertyString: string | number | symbol,
+): propertyString is (typeof LogicalOperators)[number] =>
   LogicalOperators.includes(propertyString as (typeof LogicalOperators)[number])
 
 export const isOperator = (propertyString: string): propertyString is (typeof allOperators)[number] =>

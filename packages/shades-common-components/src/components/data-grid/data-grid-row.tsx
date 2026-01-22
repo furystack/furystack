@@ -5,7 +5,7 @@ import type { DataRowCells } from './data-grid.js'
 
 export interface DataGridRowProps<T, Column extends string> {
   entry: T
-  columns: Array<keyof T>
+  columns: Column[]
   service: CollectionService<T>
   rowComponents?: DataRowCells<T, Column>
   onRowClick?: (row: T, event: MouseEvent) => void
@@ -141,7 +141,13 @@ export const DataGridRow: <T, Column extends string>(
             ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
           >
             {rowComponents?.[column]?.(entry, { selection, focus }) ||
-              rowComponents?.default?.(entry, { selection, focus }) || <span>{entry[column]}</span>}
+              rowComponents?.default?.(entry, { selection, focus }) || (
+                <span>
+                  {typeof entry === 'object' && entry && column in entry
+                    ? (entry as Record<typeof column, unknown>)[column]
+                    : null}
+                </span>
+              )}
           </td>
         ))}
       </>

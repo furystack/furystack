@@ -6,10 +6,10 @@ import { ThemeProviderService } from '../../services/theme-provider-service.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
-export const DataGridFooter = Shade<{
-  service: CollectionService<any>
-  findOptions: ObservableValue<FindOptions<any, any[]>>
-}>({
+export const DataGridFooter: <T>(props: {
+  service: CollectionService<T>
+  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+}) => JSX.Element = Shade({
   shadowDomName: 'shade-data-grid-footer',
   render: ({ props, injector, useObservable }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
@@ -26,6 +26,10 @@ export const DataGridFooter = Shade<{
     const skip = currentOptions.skip || 0
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
+
+    const pages = new Array(Math.ceil(currentData.count / (currentOptions.top || Infinity)))
+      .fill(0)
+      .map((_, index) => index)
 
     return (
       <div
@@ -51,7 +55,7 @@ export const DataGridFooter = Shade<{
                 setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
               }}
             >
-              {[...new Array(Math.ceil(currentData.count / (currentOptions.top || Infinity)))].map((_val, index) => (
+              {pages.map((index) => (
                 <option value={index.toString()} selected={currentPage === index}>
                   {(index + 1).toString()}
                 </option>

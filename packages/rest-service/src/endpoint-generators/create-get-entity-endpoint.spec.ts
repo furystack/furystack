@@ -1,13 +1,13 @@
-import { usingAsync } from '@furystack/utils'
+import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getDataSetFor } from '@furystack/repository'
 import type { GetEntityEndpoint } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
-import { MockClass, setupContext } from './utils.js'
-import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
-import { getDataSetFor } from '@furystack/repository'
+import { usingAsync } from '@furystack/utils'
+import { describe, expect, it } from 'vitest'
 import { useRestService } from '../helpers.js'
-import { describe, it, expect } from 'vitest'
-import { getPort } from '@furystack/core/port-generator'
+import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
+import { MockClass, setupContext } from './utils.js'
 
 describe('createGetEntityEndpoint', () => {
   it('Should return the entity', async () => {
@@ -29,7 +29,7 @@ describe('createGetEntityEndpoint', () => {
 
       const response = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(response.status).toBe(200)
-      const body = await response.json()
+      const body = (await response.json()) as MockClass
       expect(body).toEqual(mockEntity)
     })
   })
@@ -55,7 +55,7 @@ describe('createGetEntityEndpoint', () => {
         method: 'GET',
       })
       expect(response.status).toBe(200)
-      const body = await response.json()
+      const body = (await response.json()) as { id: string }
       expect(body).toEqual({ id: mockEntity.id })
     })
   })
@@ -76,7 +76,7 @@ describe('createGetEntityEndpoint', () => {
       })
       const result = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(result.status).toBe(404)
-      const body = await result.json()
+      const body = (await result.json()) as { message: string }
       expect(body).toEqual({ message: 'Entity not found' })
     })
   })

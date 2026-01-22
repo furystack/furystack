@@ -1,8 +1,8 @@
-import { Socket } from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
-import './server-response-extensions'
+import { Socket } from 'net'
+import { describe, expect, it, vi } from 'vitest'
 import { BypassResult, JsonResult, PlainTextResult } from './request-action-implementation.js'
-import { describe, it, expect, vi } from 'vitest'
+import './server-response-extensions'
 
 describe('ServerResponse extensions', () => {
   describe('sendActionResult', () => {
@@ -16,9 +16,9 @@ describe('ServerResponse extensions', () => {
       const jsonValue = { value: Math.random() }
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
-      msg.writeHead = vi.fn() as any
+      msg.writeHead = vi.fn()
       await new Promise<void>((done) => {
-        msg.end = ((chunk: any) => {
+        msg.end = ((chunk: unknown) => {
           expect(chunk).toBe(JSON.stringify(jsonValue))
           expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'application/json' })
           done()
@@ -33,7 +33,7 @@ describe('ServerResponse extensions', () => {
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
       await new Promise<void>((done) => {
-        msg.writeHead = vi.fn() as any
+        msg.writeHead = vi.fn()
         msg.end = ((chunk: any) => {
           expect(chunk).toBe(textValue)
           expect(msg.writeHead).toBeCalledWith(200, { 'Content-Type': 'plain/text' })
@@ -47,8 +47,8 @@ describe('ServerResponse extensions', () => {
     it('Should skip sending on BypassResult', () => {
       const socket = new Socket()
       const msg = new ServerResponse(new IncomingMessage(socket))
-      msg.writeHead = vi.fn() as any
-      msg.end = vi.fn() as any
+      msg.writeHead = vi.fn()
+      msg.end = vi.fn()
 
       msg.sendActionResult(BypassResult())
       expect(msg.writeHead).not.toBeCalled()

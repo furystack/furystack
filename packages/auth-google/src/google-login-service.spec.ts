@@ -50,11 +50,11 @@ describe('Google Login Service', () => {
           getGoogleUser({
             email_verified: false,
           }) as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
+        i.getInstance(GoogleLoginSettings).get = ((_options: unknown, done: (...args: unknown[]) => unknown) => {
           done({
             statusCode: 404,
           })
-        }) as any
+        }) as GoogleLoginSettings['get']
         await expect(loginService.login('')).rejects.toThrow()
       })
     })
@@ -67,6 +67,7 @@ describe('Google Login Service', () => {
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() => getGoogleUser() as T
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,

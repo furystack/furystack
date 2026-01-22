@@ -84,8 +84,8 @@ describe('@furystack/rest-service inregration tests', () => {
       })
       expect(result.ok).toBe(false)
       expect(result.status).toBe(404)
-      const responseText = await result.json()
-      expect(responseText).toEqual({ error: 'Content not found' })
+      const response = (await result.json()) as { error: string }
+      expect(response).toEqual({ error: 'Content not found' })
     })
   })
 
@@ -94,8 +94,8 @@ describe('@furystack/rest-service inregration tests', () => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
-      const responseText = await result.json()
-      expect(responseText).toEqual({ error: 'unauthorized' })
+      const response = (await result.json()) as { error: string }
+      expect(response).toEqual({ error: 'unauthorized' })
     })
   })
 
@@ -104,8 +104,8 @@ describe('@furystack/rest-service inregration tests', () => {
       const result = await fetch(PathHelper.joinPaths(apiUrl, 'currentUser'))
       expect(result.ok).toBe(false)
       expect(result.status).toBe(401)
-      const responseText = await result.json()
-      expect(responseText).toEqual({ error: 'unauthorized' })
+      const response = (await result.json()) as { error: string }
+      expect(response).toEqual({ error: 'unauthorized' })
     })
   })
 
@@ -113,7 +113,7 @@ describe('@furystack/rest-service inregration tests', () => {
     await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'isAuthenticated'))
       expect(response.status).toBe(200)
-      const result = await response.json()
+      const result = (await response.json()) as { isAuthenticated: boolean }
       expect(result).toEqual({ isAuthenticated: false })
     })
   })
@@ -123,7 +123,7 @@ describe('@furystack/rest-service inregration tests', () => {
       console.log('apiUrl', apiUrl)
       const response = await fetch(PathHelper.joinPaths(apiUrl, `testQuery?param1=${serializeValue('foo')}`))
       expect(response.status).toBe(200)
-      const result = await response.json()
+      const result = (await response.json()) as { param1Value: string }
       expect(result).toEqual({ param1Value: 'foo' })
     })
   })
@@ -132,7 +132,7 @@ describe('@furystack/rest-service inregration tests', () => {
     await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
       const response = await fetch(PathHelper.joinPaths(apiUrl, 'testUrlParams/bar'))
       expect(response.status).toBe(200)
-      const result = await response.json()
+      const result = (await response.json()) as { urlParamValue: string }
       expect(result).toEqual({ urlParamValue: 'bar' })
     })
   })
@@ -144,7 +144,7 @@ describe('@furystack/rest-service inregration tests', () => {
         body: JSON.stringify({ value: 'baz' }),
       })
       expect(response.status).toBe(200)
-      const result = await response.json()
+      const result = (await response.json()) as { bodyValue: string; body2Value: string }
       expect(result).toEqual({ bodyValue: 'baz', body2Value: 'baz' })
     })
   })
