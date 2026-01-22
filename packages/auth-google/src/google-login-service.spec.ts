@@ -67,7 +67,6 @@ describe('Google Login Service', () => {
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() => getGoogleUser() as T
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
           done({
             statusCode: 200,
