@@ -45,27 +45,27 @@ export interface MyApi extends RestApi {
   GET: {
     // Simple endpoint returning a list
     '/users': { result: User[] }
-    
+
     // Endpoint with URL parameters
     '/users/:id': {
       result: User
       url: { id: string }
     }
-    
+
     // Endpoint with query parameters
     '/users/search': {
       result: User[]
       query: { name?: string; email?: string }
     }
   }
-  
+
   POST: {
     // Endpoint with request body
     '/users': {
       result: User
       body: CreateUserDto
     }
-    
+
     // Endpoint with custom headers
     '/users/import': {
       result: { imported: number }
@@ -73,7 +73,7 @@ export interface MyApi extends RestApi {
       headers: { 'X-Import-Mode': 'merge' | 'replace' }
     }
   }
-  
+
   PATCH: {
     '/users/:id': {
       result: User
@@ -81,7 +81,7 @@ export interface MyApi extends RestApi {
       body: Partial<CreateUserDto>
     }
   }
-  
+
   DELETE: {
     '/users/:id': {
       result: { success: boolean }
@@ -95,13 +95,13 @@ export interface MyApi extends RestApi {
 
 Each endpoint can define:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `result` | any | The response body type (required) |
-| `url` | object | URL path parameters (e.g., `:id`) |
-| `query` | object | Query string parameters |
-| `body` | any | Request body type |
-| `headers` | object | Required headers |
+| Property  | Type   | Description                       |
+| --------- | ------ | --------------------------------- |
+| `result`  | any    | The response body type (required) |
+| `url`     | object | URL path parameters (e.g., `:id`) |
+| `query`   | object | Query string parameters           |
+| `body`    | any    | Request body type                 |
+| `headers` | object | Required headers                  |
 
 ## HTTP Methods
 

@@ -8,11 +8,7 @@ Password management, authentication, and authorization utilities for FuryStack.
 
 ```ts
 import { Injector } from '@furystack/inject'
-import {
-  usePasswordPolicy,
-  createMinLengthComplexityRule,
-  createMaxLengthComplexityRule,
-} from '@furystack/security'
+import { usePasswordPolicy, createMinLengthComplexityRule, createMaxLengthComplexityRule } from '@furystack/security'
 
 const injector = new Injector()
 usePasswordPolicy(injector, {

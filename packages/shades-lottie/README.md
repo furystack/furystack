@@ -43,18 +43,18 @@ const MyComponent = Shade({
 
 The `lottie-player` element accepts the following props:
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `src` | `string` | URL to the Lottie JSON animation file (required) |
-| `autoplay` | `boolean` | Start playing automatically |
-| `loop` | `boolean` | Loop the animation |
-| `controls` | `boolean` | Show playback controls |
-| `speed` | `number` | Playback speed (1 = normal) |
-| `direction` | `number` | Playback direction (1 = forward, -1 = reverse) |
-| `mode` | `string` | Play mode |
-| `hover` | `boolean` | Play on hover |
-| `count` | `number` | Number of times to play |
-| `background` | `string` | Background color |
-| `renderer` | `'svg' \| 'canvas'` | Rendering mode |
-| `style` | `CSSStyleDeclaration` | Inline styles |
-| `onclick` | `(e: MouseEvent) => void` | Click handler |
+| Prop         | Type                      | Description                                      |
+| ------------ | ------------------------- | ------------------------------------------------ |
+| `src`        | `string`                  | URL to the Lottie JSON animation file (required) |
+| `autoplay`   | `boolean`                 | Start playing automatically                      |
+| `loop`       | `boolean`                 | Loop the animation                               |
+| `controls`   | `boolean`                 | Show playback controls                           |
+| `speed`      | `number`                  | Playback speed (1 = normal)                      |
+| `direction`  | `number`                  | Playback direction (1 = forward, -1 = reverse)   |
+| `mode`       | `string`                  | Play mode                                        |
+| `hover`      | `boolean`                 | Play on hover                                    |
+| `count`      | `number`                  | Number of times to play                          |
+| `background` | `string`                  | Background color                                 |
+| `renderer`   | `'svg' \| 'canvas'`       | Rendering mode                                   |
+| `style`      | `CSSStyleDeclaration`     | Inline styles                                    |
+| `onclick`    | `(e: MouseEvent) => void` | Click handler                                    |

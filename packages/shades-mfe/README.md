@@ -95,12 +95,12 @@ Component for loading and displaying micro-frontends.
 
 **Props:**
 
-| Prop | Type | Description |
-| ---- | ---- | ----------- |
-| `api` | `TApi` | The API object passed to the micro-frontend |
-| `loaderCallback` | `() => Promise<CreateMicroFrontendService<TApi>>` | Async function to load the MFE module |
-| `loader` | `JSX.Element` (optional) | Element to display while loading |
-| `error` | `(error: unknown, retry: () => Promise<void>) => JSX.Element` (optional) | Error handler with retry capability |
+| Prop             | Type                                                                     | Description                                 |
+| ---------------- | ------------------------------------------------------------------------ | ------------------------------------------- |
+| `api`            | `TApi`                                                                   | The API object passed to the micro-frontend |
+| `loaderCallback` | `() => Promise<CreateMicroFrontendService<TApi>>`                        | Async function to load the MFE module       |
+| `loader`         | `JSX.Element` (optional)                                                 | Element to display while loading            |
+| `error`          | `(error: unknown, retry: () => Promise<void>) => JSX.Element` (optional) | Error handler with retry capability         |
 
 ### `createShadesMicroFrontend<TApi>(Component)`
 
@@ -112,7 +112,7 @@ Creates a micro-frontend service with custom create/destroy callbacks.
 
 **Options:**
 
-| Option | Type | Description |
-| ------ | ---- | ----------- |
-| `onCreate` | `CreateMfeCallback<TApi>` | Called when the MFE is mounted |
+| Option      | Type                                  | Description                      |
+| ----------- | ------------------------------------- | -------------------------------- |
+| `onCreate`  | `CreateMfeCallback<TApi>`             | Called when the MFE is mounted   |
 | `onDestroy` | `DestroyMfeCallback<TApi>` (optional) | Called when the MFE is unmounted |

@@ -129,8 +129,7 @@ A top navigation bar component.
 
 ```tsx
 import { AppBar, AppBarLink } from '@furystack/shades-common-components'
-
-<AppBar>
+;<AppBar>
   <h1>My App</h1>
   <AppBarLink href="/">Home</AppBarLink>
   <AppBarLink href="/about">About</AppBarLink>
@@ -143,8 +142,7 @@ A tabbed interface component.
 
 ```tsx
 import { Tabs } from '@furystack/shades-common-components'
-
-<Tabs
+;<Tabs
   tabs={[
     { header: <span>Tab 1</span>, component: <div>Content 1</div> },
     { header: <span>Tab 2</span>, component: <div>Content 2</div> },
@@ -158,8 +156,7 @@ A loading spinner component.
 
 ```tsx
 import { Loader } from '@furystack/shades-common-components'
-
-<Loader />
+;<Loader />
 ```
 
 ### Paper
@@ -168,8 +165,7 @@ A container component with elevation.
 
 ```tsx
 import { Paper } from '@furystack/shades-common-components'
-
-<Paper>
+;<Paper>
   <p>Content with elevated background</p>
 </Paper>
 ```
@@ -180,8 +176,7 @@ An avatar component for displaying user images or initials.
 
 ```tsx
 import { Avatar } from '@furystack/shades-common-components'
-
-<Avatar userName="John Doe" />
+;<Avatar userName="John Doe" />
 ```
 
 ### FAB (Floating Action Button)
@@ -190,8 +185,7 @@ A floating action button component.
 
 ```tsx
 import { Fab } from '@furystack/shades-common-components'
-
-<Fab onclick={() => console.log('FAB clicked')}>+</Fab>
+;<Fab onclick={() => console.log('FAB clicked')}>+</Fab>
 ```
 
 ## Services
@@ -205,7 +199,9 @@ import { CollectionService } from '@furystack/shades-common-components'
 
 const service = new CollectionService<MyModel>({
   loader: async (options) => {
-    const response = await fetch('/api/items', { /* ... */ })
+    const response = await fetch('/api/items', {
+      /* ... */
+    })
     return response.json()
   },
 })

@@ -58,7 +58,7 @@ type GoogleLoginAction = RequestAction<{
 const googleLoginEndpoint: GoogleLoginAction = async ({ getBody, injector }) => {
   const { token } = await getBody()
   const googleService = injector.getInstance(GoogleLoginService)
-  
+
   try {
     const user = await googleService.login(token)
     return JsonResult({ success: true, user }, 200)
@@ -110,14 +110,14 @@ The `GoogleApiPayload` interface represents the data returned from Google:
 
 ```ts
 interface GoogleApiPayload {
-  iss: string           // Issuer
-  sub: number           // Unique Google identifier
-  email: string         // Email address
+  iss: string // Issuer
+  sub: number // Unique Google identifier
+  email: string // Email address
   email_verified: boolean
-  name: string          // Full name
-  picture: string       // Profile picture URL
-  given_name: string    // First name
-  family_name: string   // Last name
-  locale: string        // User's locale
+  name: string // Full name
+  picture: string // Profile picture URL
+  given_name: string // First name
+  family_name: string // Last name
+  locale: string // User's locale
 }
 ```

@@ -115,6 +115,51 @@ hub.subscribe('userLoggedIn', (event) => {
 hub.emit('userLoggedIn', { userId: '123' })
 ```
 
+## sortBy
+
+Array prototype extension for convenient sorting by field name:
+
+```ts
+import '@furystack/utils' // Adds sortBy to Array prototype
+
+const users = [
+  { name: 'Charlie', age: 30 },
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 35 },
+]
+
+// Sort by name ascending (default)
+const byName = users.sortBy('name')
+// [{ name: 'Alice', ... }, { name: 'Bob', ... }, { name: 'Charlie', ... }]
+
+// Sort by age descending
+const byAgeDesc = users.sortBy('age', 'desc')
+// [{ name: 'Bob', age: 35 }, { name: 'Charlie', age: 30 }, { name: 'Alice', age: 25 }]
+```
+
+You can also use the `compareBy` function directly for custom sorting:
+
+```ts
+import { compareBy } from '@furystack/utils'
+
+const users = [{ name: 'Charlie' }, { name: 'Alice' }]
+users.sort((a, b) => compareBy(a, b, 'name', 'asc'))
+```
+
+## tuple
+
+Helper function for creating typed tuples from string literals:
+
+```ts
+import { tuple } from '@furystack/utils'
+
+// Creates a tuple type ['admin', 'user', 'guest'] instead of string[]
+const roles = tuple('admin', 'user', 'guest')
+
+// TypeScript knows the exact values
+type Role = (typeof roles)[number] // 'admin' | 'user' | 'guest'
+```
+
 ## Type Guards
 
 Check if a value is disposable:
@@ -128,5 +173,28 @@ if (isDisposable(value)) {
 
 if (isAsyncDisposable(value)) {
   await value[Symbol.asyncDispose]()
+}
+```
+
+## DeepPartial
+
+A utility type for deep partial objects:
+
+```ts
+import type { DeepPartial } from '@furystack/utils'
+
+type Config = {
+  server: {
+    host: string
+    port: number
+  }
+  database: {
+    url: string
+  }
+}
+
+// All nested properties are optional
+const partialConfig: DeepPartial<Config> = {
+  server: { port: 8080 }, // host is optional
 }
 ```

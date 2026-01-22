@@ -113,12 +113,12 @@ const api = createClient<MyApi>({
 
 ## Client Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `endpointUrl` | `string` | Base URL for the API |
-| `fetch` | `typeof fetch` | Custom fetch implementation (optional) |
-| `requestInit` | `RequestInit` | Default request options (headers, credentials, etc.) |
-| `serializeQueryParams` | `(param: any) => string` | Custom query string serializer |
+| Option                 | Type                     | Description                                          |
+| ---------------------- | ------------------------ | ---------------------------------------------------- |
+| `endpointUrl`          | `string`                 | Base URL for the API                                 |
+| `fetch`                | `typeof fetch`           | Custom fetch implementation (optional)               |
+| `requestInit`          | `RequestInit`            | Default request options (headers, credentials, etc.) |
+| `serializeQueryParams` | `(param: any) => string` | Custom query string serializer                       |
 
 ## Type Safety
 
@@ -138,6 +138,7 @@ interface MyApi extends RestApi {
 ```
 
 The client will enforce correct types for:
+
 - Method (`GET`, `POST`, etc.)
 - Action (the URL path)
 - URL parameters

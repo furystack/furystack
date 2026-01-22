@@ -7,6 +7,7 @@ Review all changes on the current branch compared to the base branch.
 **IMPORTANT:** Do not assume `master` is the base branch. This repository uses `develop` as the integration branch.
 
 1. **Use `develop` as the default base branch** for comparisons:
+
    ```bash
    git diff origin/develop...HEAD
    ```
