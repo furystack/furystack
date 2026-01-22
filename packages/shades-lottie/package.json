@@ -30,7 +30,7 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
