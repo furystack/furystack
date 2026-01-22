@@ -10,3 +10,8 @@ declined:
   - "@furystack/repository"
   - "@furystack/rest"
   - "@furystack/rest-service"
+  - "@furystack/security"
+  - "@furystack/sequelize-store"
+  - "@furystack/shades-common-components"
+  - "@furystack/shades-showcase-app"
+  - "@furystack/websocket-api"
