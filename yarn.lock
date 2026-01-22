@@ -350,16 +350,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@es-joy/jsdoccomment@npm:~0.78.0":
-  version: 0.78.0
-  resolution: "@es-joy/jsdoccomment@npm:0.78.0"
+"@es-joy/jsdoccomment@npm:~0.82.0":
+  version: 0.82.0
+  resolution: "@es-joy/jsdoccomment@npm:0.82.0"
   dependencies:
     "@types/estree": "npm:^1.0.8"
-    "@typescript-eslint/types": "npm:^8.46.4"
-    comment-parser: "npm:1.4.1"
-    esquery: "npm:^1.6.0"
-    jsdoc-type-pratt-parser: "npm:~7.0.0"
-  checksum: 10c0/be18b8149303e8e7c9414b0b0453a0fa959c1c8db6f721b75178336e01b65a9f251db98ecfedfb1b3cfa5e717f3e2abdb06a0f8dbe45d3330a62262c5331c327
+    "@typescript-eslint/types": "npm:^8.53.1"
+    comment-parser: "npm:1.4.4"
+    esquery: "npm:^1.7.0"
+    jsdoc-type-pratt-parser: "npm:~7.1.0"
+  checksum: 10c0/fd5af147818cba8f89e137d24c1740f634f7bb3e7ca8a72ee4e0954b18f94fe78fcaa980bad2dbeb8dfcd22f7745415124b9a918bf6e7707576492f6b16a8ea2
   languageName: node
   linkType: hard
 
@@ -668,9 +668,9 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -682,7 +682,7 @@ __metadata:
     "@furystack/utils": "workspace:^"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -692,9 +692,9 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -705,10 +705,10 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -718,9 +718,9 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -730,7 +730,7 @@ __metadata:
   dependencies:
     "@furystack/utils": "workspace:^"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -741,7 +741,7 @@ __metadata:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -752,11 +752,11 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     mongodb: "npm:7.0.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -767,10 +767,10 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     redis: "npm:^5.10.0"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -782,7 +782,7 @@ __metadata:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -793,7 +793,7 @@ __metadata:
     "@furystack/rest": "workspace:^"
     path-to-regexp: "npm:^8.3.0"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -808,14 +808,14 @@ __metadata:
     "@furystack/rest-client-fetch": "workspace:^"
     "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     "@types/ws": "npm:^8.18.1"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^8.3.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
     ws: "npm:^8.19.0"
   languageName: unknown
   linkType: soft
@@ -826,9 +826,9 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -839,9 +839,9 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -852,12 +852,12 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     semaphore-async-await: "npm:^1.5.1"
     sequelize: "npm:^6.37.7"
     sqlite3: "npm:5.1.7"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -872,7 +872,7 @@ __metadata:
     path-to-regexp: "npm:^8.3.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -883,9 +883,9 @@ __metadata:
     "@furystack/i18n": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/shades": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -896,7 +896,7 @@ __metadata:
     "@furystack/shades": "workspace:^"
     "@lottiefiles/lottie-player": "npm:^2.0.12"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -906,9 +906,9 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/shades": "workspace:^"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -920,7 +920,7 @@ __metadata:
     "@furystack/shades": "workspace:^"
     nipplejs: "npm:^0.10.2"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -946,7 +946,7 @@ __metadata:
     monaco-editor: "npm:^0.55.1"
     typescript: "npm:^5.9.3"
     vite: "npm:^7.3.1"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -958,12 +958,12 @@ __metadata:
     "@furystack/rest": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/jsdom": "npm:^27.0.0"
-    "@types/node": "npm:^25.0.3"
+    "@types/node": "npm:^25.0.10"
     jsdom: "npm:^27.4.0"
     path-to-regexp: "npm:^8.3.0"
     semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -972,7 +972,7 @@ __metadata:
   resolution: "@furystack/utils@workspace:packages/utils"
   dependencies:
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -986,7 +986,7 @@ __metadata:
     "@furystack/utils": "workspace:^"
     "@types/ws": "npm:^8.18.1"
     typescript: "npm:^5.9.3"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
     ws: "npm:^8.19.0"
   languageName: unknown
   linkType: soft
@@ -1629,7 +1629,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^25.0.3":
+"@types/node@npm:*, @types/node@npm:^25.0.10":
   version: 25.0.10
   resolution: "@types/node@npm:25.0.10"
   dependencies:
@@ -1775,7 +1775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/types@npm:8.53.1, @typescript-eslint/types@npm:^8.46.4, @typescript-eslint/types@npm:^8.53.1":
+"@typescript-eslint/types@npm:8.53.1, @typescript-eslint/types@npm:^8.53.1":
   version: 8.53.1
   resolution: "@typescript-eslint/types@npm:8.53.1"
   checksum: 10c0/fa49f5f60de6851de45a9aff0a3ba3c4d00a0991100414e8af1a5d6f32764a48b6b7c0f65748a651f0da0e57df0745cdb8f11c590fa0fb22dd0e54e4c6b5c878
@@ -1826,7 +1826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-istanbul@npm:^4.0.16":
+"@vitest/coverage-istanbul@npm:^4.0.17":
   version: 4.0.17
   resolution: "@vitest/coverage-istanbul@npm:4.0.17"
   dependencies:
@@ -2403,10 +2403,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"comment-parser@npm:1.4.1":
-  version: 1.4.1
-  resolution: "comment-parser@npm:1.4.1"
-  checksum: 10c0/d6c4be3f5be058f98b24f2d557f745d8fe1cc9eb75bebbdccabd404a0e1ed41563171b16285f593011f8b6a5ec81f564fb1f2121418ac5cbf0f49255bf0840dd
+"comment-parser@npm:1.4.4":
+  version: 1.4.4
+  resolution: "comment-parser@npm:1.4.4"
+  checksum: 10c0/85eaa6b8cd05206b6dcde9c779879ab5d36b7640ec5ed9f0709f1529a2d84638603860ea0a78df3fab9443db8c31f6f881e37d2264edadb653ebd9736a5f9ad8
   languageName: node
   linkType: hard
 
@@ -2758,17 +2758,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^61.5.0":
-  version: 61.7.1
-  resolution: "eslint-plugin-jsdoc@npm:61.7.1"
+"eslint-plugin-jsdoc@npm:^62.3.0":
+  version: 62.3.0
+  resolution: "eslint-plugin-jsdoc@npm:62.3.0"
   dependencies:
-    "@es-joy/jsdoccomment": "npm:~0.78.0"
+    "@es-joy/jsdoccomment": "npm:~0.82.0"
     "@es-joy/resolve.exports": "npm:1.2.0"
     are-docs-informative: "npm:^0.0.2"
-    comment-parser: "npm:1.4.1"
+    comment-parser: "npm:1.4.4"
     debug: "npm:^4.4.3"
     escape-string-regexp: "npm:^4.0.0"
-    espree: "npm:^11.0.0"
+    espree: "npm:^11.1.0"
     esquery: "npm:^1.7.0"
     html-entities: "npm:^2.6.0"
     object-deep-merge: "npm:^2.0.0"
@@ -2778,11 +2778,11 @@ __metadata:
     to-valid-identifier: "npm:^1.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/d0904b923f68a4e9e6da156316a4e2a972445bf79118bde9618ad80b4ef5927fc2c9dd597b22b776742ef548d65914e75fca190ab3be942385f268a3b83c1087
+  checksum: 10c0/bc2013de9f4e38b3d681b7714c29d4b2565c8f9017955aeb83afd1683837d3e416a635d2ed4f151f5aa1749cbae171b83816f887fb63da6a10a94bd8dc1ce630
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^2.4.0":
+"eslint-plugin-playwright@npm:^2.5.0":
   version: 2.5.0
   resolution: "eslint-plugin-playwright@npm:2.5.0"
   dependencies:
@@ -2884,7 +2884,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"espree@npm:^11.0.0":
+"espree@npm:^11.1.0":
   version: 11.1.0
   resolution: "espree@npm:11.1.0"
   dependencies:
@@ -2895,7 +2895,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esquery@npm:^1.5.0, esquery@npm:^1.6.0, esquery@npm:^1.7.0":
+"esquery@npm:^1.5.0, esquery@npm:^1.7.0":
   version: 1.7.0
   resolution: "esquery@npm:1.7.0"
   dependencies:
@@ -3142,22 +3142,22 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^9.39.2"
     "@types/jsdom": "npm:^27.0.0"
-    "@vitest/coverage-istanbul": "npm:^4.0.16"
+    "@vitest/coverage-istanbul": "npm:^4.0.17"
     ajv: "npm:^8.17.1"
     eslint: "npm:^9.39.2"
     eslint-config-prettier: "npm:^10.1.8"
-    eslint-plugin-jsdoc: "npm:^61.5.0"
-    eslint-plugin-playwright: "npm:^2.4.0"
+    eslint-plugin-jsdoc: "npm:^62.3.0"
+    eslint-plugin-playwright: "npm:^2.5.0"
     husky: "npm:^9.1.7"
     jsdom: "npm:^27.4.0"
     lint-staged: "npm:^16.2.7"
-    prettier: "npm:^3.7.4"
+    prettier: "npm:^3.8.1"
     rimraf: "npm:^6.1.2"
     ts-json-schema-generator: "npm:^2.4.0"
     typescript: "npm:^5.9.3"
-    typescript-eslint: "npm:^8.52.0"
+    typescript-eslint: "npm:^8.53.1"
     vite: "npm:^7.3.1"
-    vitest: "npm:^4.0.16"
+    vitest: "npm:^4.0.17"
   languageName: unknown
   linkType: soft
 
@@ -3606,10 +3606,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdoc-type-pratt-parser@npm:~7.0.0":
-  version: 7.0.0
-  resolution: "jsdoc-type-pratt-parser@npm:7.0.0"
-  checksum: 10c0/3ede53c80dddf940a51dcdc79e3923537650f6fb6e9001fc76023c2d5cb0195cc8b24b7eebf9b3f20a7bc00d5e6b7f70318f0b8cb5972f6aff884152e6698014
+"jsdoc-type-pratt-parser@npm:~7.1.0":
+  version: 7.1.0
+  resolution: "jsdoc-type-pratt-parser@npm:7.1.0"
+  checksum: 10c0/440c40b465c0bc2611aa1187cc47778ec3caf47512184ba1d3491efa16fffdc180bb41ec43136b7faac9fe41c1fdd2ab17aa2422df7c656c006897ebfd9d448f
   languageName: node
   linkType: hard
 
@@ -4644,7 +4644,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.7.4":
+"prettier@npm:^3.8.1":
   version: 3.8.1
   resolution: "prettier@npm:3.8.1"
   bin:
@@ -5533,7 +5533,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.52.0":
+"typescript-eslint@npm:^8.53.1":
   version: 8.53.1
   resolution: "typescript-eslint@npm:8.53.1"
   dependencies:
@@ -5738,7 +5738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^4.0.16":
+"vitest@npm:^4.0.17":
   version: 4.0.17
   resolution: "vitest@npm:4.0.17"
   dependencies:

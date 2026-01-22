@@ -43,9 +43,9 @@
   },
   "devDependencies": {
     "@furystack/utils": "workspace:^",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.0.10",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.17"
   },
   "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
 }
