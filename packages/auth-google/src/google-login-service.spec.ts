@@ -67,11 +67,11 @@ describe('Google Login Service', () => {
         })
         const loginService = i.getInstance(GoogleLoginService)
         loginService.readPostBody = async <T>() => getGoogleUser() as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
+        i.getInstance(GoogleLoginSettings).get = ((_options: unknown, done: (...args: unknown[]) => unknown) => {
           done({
             statusCode: 200,
           })
-        }) as any
+        }) as typeof get
         await expect(loginService.login('')).rejects.toThrow()
       })
     })

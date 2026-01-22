@@ -1,10 +1,10 @@
-import { type ApiEndpointDefinition, type SwaggerDocument } from '@furystack/rest'
+import { type ApiEndpointSchema, type SwaggerDocument } from '@furystack/rest'
 import type { RestApiImplementation } from '../api-manager.js'
 import { getSchemaFromApi } from '../get-schema-from-api.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 import { generateSwaggerJsonFromApiSchema } from '../swagger/generate-swagger-json.js'
 
-export type GetSchemaResult = Record<string, ApiEndpointDefinition>
+export type GetSchemaResult = ApiEndpointSchema['endpoints']
 
 /**
  * Generates a RequestAction that retrieves the Swagger JSON schema from a FuryStack API implementation.

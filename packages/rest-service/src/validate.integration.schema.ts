@@ -29,22 +29,28 @@ export interface ValidateBody {
   result: { foo: string; bar: number; baz: boolean }
 }
 
+export type PostMockEndpoint = PostEndpoint<Mock, 'id', Mock>
+export type PatchMockEndpoint = PatchEndpoint<Mock, 'id', Mock>
+export type DeleteMockEndpoint = DeleteEndpoint<Mock, 'id'>
+export type GetMockCollectionEndpoint = GetCollectionEndpoint<Mock>
+export type GetMockEntityEndpoint = GetEntityEndpoint<Mock, 'id'>
+
 export interface ValidationApi extends RestApi {
   GET: {
     '/validate-query': ValidateQuery
     '/validate-url/:id': ValidateUrl
     '/validate-headers': ValidateHeaders
-    '/mock': GetCollectionEndpoint<Mock>
-    '/mock/:id': GetEntityEndpoint<Mock, 'id'>
+    '/mock': GetMockCollectionEndpoint
+    '/mock/:id': GetMockEntityEndpoint
   }
   POST: {
     '/validate-body': ValidateBody
-    '/mock': PostEndpoint<Mock, 'id'>
+    '/mock': PostMockEndpoint
   }
   PATCH: {
-    '/mock/:id': PatchEndpoint<Mock, 'id'>
+    '/mock/:id': PatchMockEndpoint
   }
   DELETE: {
-    '/mock/:id': DeleteEndpoint<Mock, 'id'>
+    '/mock/:id': DeleteMockEndpoint
   }
 }

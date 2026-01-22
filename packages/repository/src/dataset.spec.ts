@@ -128,12 +128,12 @@ describe('DataSet', () => {
 
       it('should modify an entity on add, if modifyOnAdd is provided', async () => {
         await usingAsync(new Injector(), async (i) => {
-          const modifyOnAdd = vi.fn(
+          const modifyOnAdd = vi.fn<NonNullable<DataSetSettings<TestClass, 'id'>['modifyOnAdd']>>(
             async (options: { injector: Injector; entity: WithOptionalId<TestClass, 'id'> }) => ({
               ...options.entity,
               value: options.entity.value.toUpperCase(),
             }),
-          ) as any
+          )
 
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
           getRepository(i).createDataSet(TestClass, 'id', { modifyOnAdd })
@@ -252,7 +252,7 @@ describe('DataSet', () => {
         await usingAsync(new Injector(), async (i) => {
           const modifyOnUpdate: DataSetSettings<TestClass, 'id'>['modifyOnUpdate'] = vi.fn(async (options) => ({
             ...options.entity,
-            value: options.entity.value?.toUpperCase(),
+            value: options.entity.value?.toUpperCase() as string,
           }))
 
           addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
