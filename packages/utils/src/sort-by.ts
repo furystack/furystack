@@ -25,7 +25,6 @@ export const compareBy = <T, K extends keyof T>(entity1: T, entity2: T, field: K
   return 0
 }
 
-Array.prototype.sortBy = function (key, direction = 'asc') {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+Array.prototype.sortBy = function <T, K extends keyof T>(key: K, direction: 'asc' | 'desc' = 'asc'): T[] {
   return this.sort((a, b) => compareBy(a, b, key, direction))
 }
