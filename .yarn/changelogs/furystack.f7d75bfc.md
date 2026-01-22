@@ -1,4 +1,5 @@
 <!-- version-type: patch -->
+
 # furystack
 
 <!--
@@ -31,18 +32,23 @@ Added TypeScript automation scripts for Git Flow workflows:
 The scripts provide user-friendly error messages and prerequisite checks for git and git-flow CLI availability.
 
 ## 🐛 Bug Fixes
+
 <!-- PLACEHOLDER: Describe the nasty little bugs that has been eradicated (fix:) -->
 
 ## 📚 Documentation
+
 <!-- PLACEHOLDER: Describe documentation changes (docs:) -->
 
 ## ⚡ Performance
+
 <!-- PLACEHOLDER: Describe performance improvements (perf:) -->
 
 ## ♻️ Refactoring
+
 <!-- PLACEHOLDER: Describe code refactoring (refactor:) -->
 
 ## 🧪 Tests
+
 <!-- PLACEHOLDER: Describe test changes (test:) -->
 
 ## 📦 Build
@@ -50,10 +56,13 @@ The scripts provide user-friendly error messages and prerequisite checks for git
 - Bumped minimum Node.js version requirement from 20.0.0 to 22.18.0 to enable native TypeScript execution for automation scripts
 
 ## 👷 CI
+
 <!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
 
 ## ⬆️ Dependencies
+
 <!-- PLACEHOLDER: Describe dependency updates (deps:) -->
 
 ## 🔧 Chores
+
 <!-- PLACEHOLDER: Describe other changes (chore:) -->
