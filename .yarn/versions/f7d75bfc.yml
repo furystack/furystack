@@ -1,0 +1,17 @@
+releases:
+  "@furystack/core": patch
+  furystack: patch
+
+declined:
+  - "@furystack/auth-google"
+  - "@furystack/filesystem-store"
+  - "@furystack/mongodb-store"
+  - "@furystack/redis-store"
+  - "@furystack/repository"
+  - "@furystack/rest"
+  - "@furystack/rest-service"
+  - "@furystack/security"
+  - "@furystack/sequelize-store"
+  - "@furystack/shades-common-components"
+  - "@furystack/shades-showcase-app"
+  - "@furystack/websocket-api"

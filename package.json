@@ -28,6 +28,7 @@
     "vitest": "^4.0.17"
   },
   "scripts": {
+    "postinstall": "node scripts/gitflow-init.ts --silent",
     "start": "yarn workspace @furystack/shades-showcase-app start",
     "bumpVersions": "yarn version check --interactive",
     "applyReleaseChanges": "yarn version apply --all && yarn changelog apply && yarn prettier",
@@ -40,7 +41,11 @@
     "clean": "yarn rimraf ./packages/**/(types|esm|tsconfig.tsbuildinfo)",
     "test": "yarn run vitest",
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
-    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
+    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build",
+    "gitflow:init": "node scripts/gitflow-init.ts",
+    "release": "node scripts/release.ts",
+    "release:start": "node scripts/release-start.ts",
+    "release:finish": "node scripts/release-finish.ts"
   },
   "husky": {
     "hooks": {
@@ -56,7 +61,7 @@
   },
   "name": "furystack",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.18.0"
   },
   "packageManager": "yarn@4.12.0"
 }

@@ -6,8 +6,10 @@ const portGenerator = function* () {
   }
 }
 
+const generator = portGenerator()
+
 /**
- * Generates a random port number for testing purposes
- * @returns the next port number starting from 14000 to 16000
+ * Generates a unique port number for testing purposes
+ * @returns the next sequential port number starting from a random base between 14000 and 16000
  */
-export const getPort = () => portGenerator().next().value
+export const getPort = (): number => generator.next().value
