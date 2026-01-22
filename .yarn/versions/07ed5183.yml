@@ -11,7 +11,7 @@ releases:
   "@furystack/repository": patch
   "@furystack/rest": patch
   "@furystack/rest-client-fetch": patch
-  "@furystack/rest-service": minor
+  "@furystack/rest-service": major
   "@furystack/security": patch
   "@furystack/sequelize-store": patch
   "@furystack/shades": patch

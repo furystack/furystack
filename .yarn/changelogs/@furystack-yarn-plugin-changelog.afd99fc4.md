@@ -1,11 +1,14 @@
 <!-- version-type: major -->
 # @furystack/yarn-plugin-changelog
 
-## ✨ Features
+## 💥 Breaking Changes
 
 ### Initial release - Yarn plugin for automated changelog management
 
 This new package provides a Yarn plugin that automates changelog generation and management in monorepos. It introduces three commands:
+
+## ✨ Features
+
 
 - **`yarn changelog create`** - Generates changelog drafts from `.yarn/versions/*.yml` version manifests. Supports `--dependabot` flag for auto-filling dependency update entries and `--force` to regenerate mismatched changelogs.
 
