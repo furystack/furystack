@@ -64,17 +64,19 @@ jobs:
             git commit -m "chore: release v${{ steps.version.outputs.version }}"
           fi
 
-      - name: Create release tag
-        run: git tag "${{ steps.version.outputs.version }}"
-
-      - name: Push develop branch with tag
-        run: git push origin develop --tags
+      - name: Push develop branch
+        run: git push origin develop
 
       - name: Merge to master
         run: |
           git checkout master
           git merge develop --no-edit
           git push origin master
+
+      - name: Create and push release tag
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
 
       - name: Publish to NPM
         run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish

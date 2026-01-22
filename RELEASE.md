@@ -43,10 +43,9 @@ The workflow will automatically:
 - Run lint and tests
 - Apply version changes (`yarn applyReleaseChanges`)
 - Commit all changes (including new CHANGELOG.md files)
-- Create a version tag
-- Push to develop with tags
+- Push to develop
 - Merge develop into master
-- Push master
+- Create and push release tag (with `v` prefix)
 - Publish all packages to NPM
 
 ## Required Permissions
@@ -75,7 +74,7 @@ This project uses [NPM Trusted Publishing](https://docs.npmjs.com/trusted-publis
 
 - The workflow has `id-token: write` permission
 - NPM authenticates the publish request via OIDC
-- Provenance attestations are generated automatically
+- No `NPM_TOKEN` secret is required
 
 #### Verifying Trusted Publisher Configuration
 
@@ -122,3 +121,60 @@ If the workflow reports "No changes to commit", this means `yarn applyReleaseCha
 
 - No version bumps were prepared (`yarn bumpVersions` wasn't run)
 - Changes were already applied in a previous run
+
+## Rollback Procedures
+
+### If NPM publish fails after tag creation
+
+The tag and commits are already pushed, but packages weren't published:
+
+1. Fix the issue (e.g., NPM trusted publisher config)
+2. Manually publish: `yarn workspaces foreach --all --no-private npm publish --tolerate-republish`
+
+### If you need to undo a release
+
+1. **Delete the tag locally and remotely:**
+
+   ```bash
+   git tag -d vX.Y.Z
+   git push origin :refs/tags/vX.Y.Z
+   ```
+
+2. **Revert commits if needed:**
+
+   ```bash
+   git revert <commit-hash>
+   git push origin develop master
+   ```
+
+3. **NPM packages cannot be unpublished** after 72 hours. If needed within 72 hours:
+
+   ```bash
+   npm unpublish @furystack/package-name@X.Y.Z
+   ```
+
+### If merge to master fails
+
+The develop branch is already pushed, but the tag has not been created yet. To recover:
+
+1. Resolve conflicts locally:
+
+   ```bash
+   git checkout master
+   git merge develop
+   # Resolve conflicts
+   git push origin master
+   ```
+
+2. Manually create and push the tag:
+
+   ```bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
+
+3. Manually publish packages:
+
+   ```bash
+   yarn workspaces foreach --all --no-private npm publish --tolerate-republish
+   ```
