@@ -1,10 +1,32 @@
 {
   "name": "@furystack/yarn-plugin-changelog",
   "version": "1.0.0",
-  "private": true,
   "description": "Yarn plugin for managing changelogs from version manifests",
-  "license": "MIT",
-  "main": "./src/index.ts",
+  "license": "GPL-2.0",
+  "main": "./bundles/@yarnpkg/plugin-changelog.js",
+  "files": [
+    "bundles"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "yarn",
+    "yarn-plugin",
+    "changelog",
+    "version-management",
+    "monorepo",
+    "furystack"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack/tree/main/packages/yarn-plugin-changelog",
   "scripts": {
     "build": "yarn build:types && yarn build:plugin",
     "build:types": "tsc -b",
@@ -19,6 +41,7 @@
   "devDependencies": {
     "@types/node": "^25.0.10",
     "@yarnpkg/builder": "^4.2.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
   }
 }
