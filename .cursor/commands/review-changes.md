@@ -1,6 +1,21 @@
 # review-changes
 
-Review all changes on the current branch compared to the upstream branch.
+Review all changes on the current branch compared to the base branch.
+
+## Determining the Base Branch
+
+**IMPORTANT:** Do not assume `master` is the base branch. This repository uses `develop` as the integration branch.
+
+1. **Use `develop` as the default base branch** for comparisons:
+   ```bash
+   git diff origin/develop...HEAD
+   ```
+
+2. **Verify by checking GitHub workflows** if unsure - look at `.github/workflows/*.yml` for `pull_request.branches` targets
+
+3. **Use the correct git diff syntax:**
+   - `origin/develop...HEAD` - shows changes in current branch since it diverged from develop
+   - Run `git log --oneline origin/develop..HEAD` to see commits being reviewed
 
 ## Analysis Required
 
