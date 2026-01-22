@@ -25,8 +25,8 @@ export interface RouterProps {
 }
 
 export interface RouterState {
-  activeRoute?: Route<any> | null
-  activeRouteParams?: any
+  activeRoute?: Route<unknown> | null
+  activeRouteParams?: unknown
   jsx: JSX.Element
 }
 export const Router = Shade<RouterProps>({

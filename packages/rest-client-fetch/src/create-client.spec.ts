@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { describe, expect, it, vi } from 'vitest'
 import { createClient } from './create-client.js'
 
 const endpointUrl = 'http://localhost'
 
-// @ts-expect-error
-globalThis.fetch = globalThis.fecth || (() => null)
+type fetchType = typeof fetch
+
+globalThis.fetch = (globalThis as { fetch: fetchType }).fetch || ((() => null) as unknown as fetchType)
 
 describe('@furystack/rest-client-fetch', () => {
   it('Should return a method', () => {
-    // @ts-expect-error
-    const result = createClient({ endpointUrl, fetch: () => undefined })
+    const result = createClient({ endpointUrl, fetch })
     expect(typeof result).toBe('function')
   })
 
@@ -21,10 +20,10 @@ describe('@furystack/rest-client-fetch', () => {
 
   it('Should throw if request is not OK', async () => {
     const json = vi.fn(async () => ({ value: 1 }))
-    const fetch: any = vi.fn(async () => ({
+    const fetch = vi.fn((async () => ({
       json,
       ok: false,
-    }))
+    })) as unknown as fetchType)
 
     const client = createClient<{ GET: { '/test': { result: { foo: number } } } }>({
       endpointUrl,
@@ -48,7 +47,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     const result = await client({
@@ -73,7 +72,7 @@ describe('@furystack/rest-client-fetch', () => {
       GET: { '/test': { result: { value: number }; query: { value: string } } }
     }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     const result = await client({
@@ -102,7 +101,7 @@ describe('@furystack/rest-client-fetch', () => {
       GET: { '/test/:urlValue': { result: { value: number }; url: { urlValue: string } } }
     }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     const result = await client({
@@ -129,7 +128,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     const client = createClient<{ POST: { '/test': { result: object; body: { foo: number } } } }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     await client({
@@ -154,7 +153,7 @@ describe('@furystack/rest-client-fetch', () => {
 
     const client = createClient<{ POST: { '/test': { result: object; headers: { token: string } } } }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     await client({
@@ -188,7 +187,7 @@ describe('@furystack/rest-client-fetch', () => {
       POST: { '/test': { result: string; headers: { token: string } } }
     }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     const result = await client({
@@ -225,7 +224,7 @@ describe('@furystack/rest-client-fetch', () => {
       POST: { '/test': { result: string; headers: { token: string } } }
     }>({
       endpointUrl,
-      fetch,
+      fetch: fetch as unknown as fetchType,
     })
 
     const result = await client({

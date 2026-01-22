@@ -1,12 +1,31 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
 import { SchemaValidator } from './schema-validator/schema-validator.js'
 
+/**
+ * Represents a JSON Schema definition structure
+ */
+type JsonSchemaDefinition = {
+  required?: string[]
+  additionalProperties?: boolean
+  properties?: {
+    headers?: {
+      additionalProperties?: boolean
+      [key: string]: unknown
+    }
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
+/**
+ * Represents a JSON Schema with definitions
+ */
+type JsonSchemaWithDefinitions = {
+  definitions: Record<string, JsonSchemaDefinition>
+}
+
 export const Validate =
-  <TSchema extends { definitions: { [K: string]: any } }>(validationOptions: {
+  <TSchema extends JsonSchemaWithDefinitions>(validationOptions: {
     /**
      * The Schema object
      */
@@ -16,12 +35,17 @@ export const Validate =
      */
     schemaName: keyof TSchema['definitions']
   }) =>
-  <T extends { result: any }>(action: RequestAction<T>): RequestAction<T> => {
+  <T extends { result: unknown }>(
+    action: RequestAction<T>,
+  ): RequestAction<T> & {
+    schema: TSchema
+    schemaName: keyof TSchema['definitions']
+  } => {
     const schema = { ...validationOptions.schema }
 
     Object.values(schema.definitions).forEach((definition) => {
-      if (definition.required && definition.required.includes('result')) {
-        definition.required = definition.required.filter((value: any) => value !== 'result')
+      if (definition.required?.includes('result')) {
+        definition.required = definition.required.filter((value) => value !== 'result')
       }
       definition.additionalProperties = true
       if (definition.properties?.headers) {
@@ -31,40 +55,45 @@ export const Validate =
 
     const validator = new SchemaValidator(schema, { coerceTypes: true, strict: false })
 
-    const wrapped = async (args: RequestActionOptions<T>): Promise<ActionResult<T>> => {
-      const anyArgs = args as any
-      let body!: any
-      const { headers } = anyArgs
-      const query = anyArgs.getQuery?.()
-      const url = anyArgs.getUrlParams?.()
+    const wrapped = async (args: RequestActionOptions<T>): Promise<ActionResult<T['result']>> => {
+      const headers = 'headers' in args ? (args.headers as Record<string, string>) : undefined
+      const query = 'getQuery' in args ? (args as { getQuery: () => unknown }).getQuery() : undefined
+      const url = 'getUrlParams' in args ? (args as { getUrlParams: () => unknown }).getUrlParams() : undefined
+
+      let body: unknown
       try {
-        body = await anyArgs.getBody?.()
-      } catch (error) {
-        // ignore
+        if ('getBody' in args) {
+          body = await (args as { getBody: () => Promise<unknown> }).getBody()
+        }
+      } catch {
+        // Body parsing may fail for requests without body
       }
+
       validator.isValid(
         {
-          ...(query ? { query } : {}),
-          ...(body ? { body } : {}),
-          ...(url ? { url } : {}),
-          ...(headers ? { headers } : {}),
+          ...(query !== undefined ? { query } : {}),
+          ...(body !== undefined ? { body } : {}),
+          ...(url !== undefined ? { url } : {}),
+          ...(headers !== undefined ? { headers } : {}),
         },
         { schemaName: validationOptions.schemaName },
       )
-      // @ts-expect-error
-      return await action({
+
+      const validatedArgs = {
         request: args.request,
         response: args.response,
         injector: args.injector,
-        headers,
-        getQuery: () => query,
-        getUrlParams: () => url,
-        getBody: () => Promise.resolve(body),
-      })
+        ...(headers !== undefined && { headers }),
+        ...(query !== undefined && { getQuery: () => query }),
+        ...(url !== undefined && { getUrlParams: () => url }),
+        ...(body !== undefined && { getBody: () => Promise.resolve(body) }),
+      } as RequestActionOptions<T>
+
+      return await action(validatedArgs)
     }
 
-    wrapped.schema = schema
-    wrapped.schemaName = validationOptions.schemaName
-
-    return wrapped
+    return Object.assign(wrapped, {
+      schema,
+      schemaName: validationOptions.schemaName,
+    })
   }

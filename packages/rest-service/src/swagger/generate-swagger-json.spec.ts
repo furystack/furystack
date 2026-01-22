@@ -1,16 +1,17 @@
-import type { ApiEndpointDefinition, ParameterObject, ReferenceObject, ResponseObject } from '@furystack/rest'
+import type { ApiEndpointSchema, ParameterObject, ReferenceObject, ResponseObject } from '@furystack/rest'
 import { describe, expect, it } from 'vitest'
 import { generateSwaggerJsonFromApiSchema } from './generate-swagger-json.js'
 
 describe('generateSwaggerJsonFromApiSchema', () => {
   it('Should generate a basic Swagger document with correct OpenAPI structure', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/test': {
-        method: 'GET',
-        path: '/api/test',
-        isAuthenticated: false,
-        schemaName: 'Test',
-        schema: { type: 'object', properties: { id: { type: 'string' } } },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/test': {
+          path: '/api/test',
+          isAuthenticated: false,
+          schemaName: 'Test',
+          schema: { type: 'object', properties: { id: { type: 'string' } } },
+        },
       },
     }
 
@@ -30,20 +31,20 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should convert API endpoints to OpenAPI paths correctly', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/users': {
-        method: 'GET',
-        path: '/api/users',
-        isAuthenticated: true,
-        schemaName: 'UserCollection',
-        schema: { type: 'array', items: { type: 'object' } },
-      },
-      '/api/users/:id': {
-        method: 'GET',
-        path: '/api/users/:id',
-        isAuthenticated: true,
-        schemaName: 'User',
-        schema: { type: 'object', properties: { id: { type: 'string' } } },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/users': {
+          path: '/api/users',
+          isAuthenticated: true,
+          schemaName: 'UserCollection',
+          schema: { type: 'array', items: { type: 'object' } },
+        },
+        '/api/users/:id': {
+          path: '/api/users/:id',
+          isAuthenticated: true,
+          schemaName: 'User',
+          schema: { type: 'object', properties: { id: { type: 'string' } } },
+        },
       },
     }
 
@@ -63,13 +64,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should extract path parameters correctly', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/users/:userId/posts/:postId': {
-        method: 'GET',
-        path: '/api/users/:userId/posts/:postId',
-        isAuthenticated: false,
-        schemaName: 'Post',
-        schema: { type: 'object' },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/users/:userId/posts/:postId': {
+          path: '/api/users/:userId/posts/:postId',
+          isAuthenticated: false,
+          schemaName: 'Post',
+          schema: { type: 'object' },
+        },
       },
     }
 
@@ -87,48 +89,52 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should handle different HTTP methods correctly', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/resource-get': {
-        method: 'GET',
-        path: '/api/resource-get',
-        isAuthenticated: false,
-        schemaName: 'Resource',
-        schema: { type: 'object' },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/resource': {
+          path: '/api/resource',
+          isAuthenticated: false,
+          schemaName: 'Resource',
+          schema: { type: 'object' },
+        },
       },
-      '/api/resource-post': {
-        method: 'POST',
-        path: '/api/resource-post',
-        isAuthenticated: true,
-        schemaName: 'ResourceInput',
-        schema: { type: 'object' },
+      POST: {
+        '/api/resource': {
+          path: '/api/resource',
+          isAuthenticated: true,
+          schemaName: 'ResourceInput',
+          schema: { type: 'object' },
+        },
       },
-      '/api/resource-put/:id': {
-        method: 'PUT',
-        path: '/api/resource-put/:id',
-        isAuthenticated: true,
-        schemaName: 'ResourceUpdate',
-        schema: { type: 'object' },
+      PUT: {
+        '/api/resource/:id': {
+          path: '/api/resource/:id',
+          isAuthenticated: true,
+          schemaName: 'ResourceUpdate',
+          schema: { type: 'object' },
+        },
       },
-      '/api/resource-delete/:id': {
-        method: 'DELETE',
-        path: '/api/resource-delete/:id',
-        isAuthenticated: true,
-        schemaName: 'ResourceDelete',
-        schema: { type: 'object' },
+      DELETE: {
+        '/api/resource/:id': {
+          path: '/api/resource/:id',
+          isAuthenticated: true,
+          schemaName: 'ResourceDelete',
+          schema: { type: 'object' },
+        },
       },
     }
 
     const result = generateSwaggerJsonFromApiSchema({ api })
 
-    // Check multiple methods
-    expect(result.paths?.['/api/resource-get'].get).toBeDefined()
-    expect(result.paths?.['/api/resource-post'].post).toBeDefined()
-    expect(result.paths?.['/api/resource-put/{id}'].put).toBeDefined()
-    expect(result.paths?.['/api/resource-delete/{id}'].delete).toBeDefined()
+    // Check multiple methods on same path
+    expect(result.paths?.['/api/resource'].get).toBeDefined()
+    expect(result.paths?.['/api/resource'].post).toBeDefined()
+    expect(result.paths?.['/api/resource/{id}'].put).toBeDefined()
+    expect(result.paths?.['/api/resource/{id}'].delete).toBeDefined()
 
     // Verify security is applied correctly based on isAuthenticated
-    expect(result.paths?.['/api/resource-get'].get?.security).toEqual([])
-    expect(result.paths?.['/api/resource-post'].post?.security).toEqual([{ cookieAuth: [] }])
+    expect(result.paths?.['/api/resource'].get?.security).toEqual([])
+    expect(result.paths?.['/api/resource'].post?.security).toEqual([{ cookieAuth: [] }])
   })
 
   it('Should include schemas in components', () => {
@@ -141,13 +147,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
       },
     }
 
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/test': {
-        method: 'GET',
-        path: '/api/test',
-        isAuthenticated: false,
-        schemaName: 'TestModel',
-        schema: testSchema,
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/test': {
+          path: '/api/test',
+          isAuthenticated: false,
+          schemaName: 'TestModel',
+          schema: testSchema,
+        },
       },
     }
 
@@ -158,13 +165,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should handle responses with correct status codes and content types', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/test': {
-        method: 'GET',
-        path: '/api/test',
-        isAuthenticated: false,
-        schemaName: 'Test',
-        schema: { type: 'object' },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/test': {
+          path: '/api/test',
+          isAuthenticated: false,
+          schemaName: 'Test',
+          schema: { type: 'object' },
+        },
       },
     }
 
@@ -186,13 +194,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should use empty path object if it does not exist - for code coverage', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/test': {
-        method: 'GET',
-        path: '/api/test',
-        isAuthenticated: false,
-        schemaName: 'Test',
-        schema: { type: 'object' },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/test': {
+          path: '/api/test',
+          isAuthenticated: false,
+          schemaName: 'Test',
+          schema: { type: 'object' },
+        },
       },
     }
 
@@ -203,13 +212,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should handle endpoints without schemas', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/no-schema': {
-        method: 'GET',
-        path: '/api/no-schema',
-        isAuthenticated: false,
-        schemaName: 'EmptySchema',
-        schema: null as any,
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/no-schema': {
+          path: '/api/no-schema',
+          isAuthenticated: false,
+          schemaName: 'EmptySchema',
+          schema: null as unknown,
+        },
       },
     }
 
@@ -221,13 +231,14 @@ describe('generateSwaggerJsonFromApiSchema', () => {
   })
 
   it('Should use operationId based on method and path', () => {
-    const api: Record<string, ApiEndpointDefinition> = {
-      '/api/users/:id/profile': {
-        method: 'GET',
-        path: '/api/users/:id/profile',
-        isAuthenticated: false,
-        schemaName: 'UserProfile',
-        schema: { type: 'object' },
+    const api: ApiEndpointSchema['endpoints'] = {
+      GET: {
+        '/api/users/:id/profile': {
+          path: '/api/users/:id/profile',
+          isAuthenticated: false,
+          schemaName: 'UserProfile',
+          schema: { type: 'object' },
+        },
       },
     }
 

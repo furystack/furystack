@@ -253,7 +253,7 @@ describe('ProxyManager', () => {
           req.on('end', () => {
             const body = Buffer.concat(chunks).toString('utf8')
             res.writeHead(200, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ received: JSON.parse(body), method: req.method }))
+            res.end(JSON.stringify({ received: JSON.parse(body) as object, method: req.method }))
           })
         })
 
@@ -841,7 +841,7 @@ describe('ProxyManager', () => {
           // With PathHelper.joinUrl, the URL is now valid and routes to the target server
           // The target server returns 200, demonstrating robust URL handling
           expect(result.status).toBe(200)
-          const body = await result.json()
+          const body = (await result.json()) as { message: string }
           expect(body).toStrictEqual({ message: 'ok' })
 
           // No error event should be emitted since the request succeeded
@@ -1867,7 +1867,7 @@ describe('ProxyManager', () => {
           req.on('end', () => {
             const body = Buffer.concat(chunks).toString('utf8')
             res.writeHead(200, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ method: req.method, body: JSON.parse(body) }))
+            res.end(JSON.stringify({ method: req.method, body: JSON.parse(body) as object }))
           })
         })
 
@@ -1907,7 +1907,7 @@ describe('ProxyManager', () => {
           req.on('end', () => {
             const body = Buffer.concat(chunks).toString('utf8')
             res.writeHead(200, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ method: req.method, body: JSON.parse(body) }))
+            res.end(JSON.stringify({ method: req.method, body: JSON.parse(body) as object }))
           })
         })
 

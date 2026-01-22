@@ -9,7 +9,7 @@ import type {
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import { Lock } from 'semaphore-async-await'
-import type { Attributes, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
+import type { FindAttributeOptions, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
   /**
@@ -108,7 +108,7 @@ export class SequelizeStore<
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const model = await this.getModel()
 
-    const result = await model.update(data, { where: { [this.primaryKey]: id } as any })
+    const result = await model.update(data, { where: { [this.primaryKey]: id } as WhereOptions<T> })
     if (result[0] < 1) {
       throw Error('Entity not found')
     }
@@ -135,7 +135,7 @@ export class SequelizeStore<
 
     const result = await model.findAll({
       where: filter.filter as WhereOptions<T>,
-      attributes: filter.select as Attributes<any>,
+      attributes: filter.select as FindAttributeOptions,
       order,
       limit: filter.top,
       offset: filter.skip,
@@ -149,7 +149,7 @@ export class SequelizeStore<
   }
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     const model = await this.getModel()
-    await model.destroy({ where: { [this.primaryKey]: keys } as any })
+    await model.destroy({ where: { [this.primaryKey]: keys } as WhereOptions<T> })
     keys.forEach((key) => this.emit('onEntityRemoved', { key }))
   }
 }

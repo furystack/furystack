@@ -74,7 +74,12 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
       TUrlParams &
       THeaders,
   ): Promise<{ response: Response; result: TReturns }> => {
-    const { url, query, body, headers } = options as any
+    const { url, query, body, headers } = options as unknown as {
+      url: TUrlParams
+      query: TQuery
+      body: TBodyType
+      headers: THeaders
+    }
 
     const urlToSend =
       (url ? compileRoute(options.action as string, url) : (options.action as string)) +

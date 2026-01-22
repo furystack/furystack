@@ -22,7 +22,7 @@ export interface DataGridBodyProps<T, Column extends string> {
 export const DataGridBody: <T, Column extends string>(
   props: DataGridBodyProps<T, Column>,
   children: ChildrenList,
-) => JSX.Element<any> = Shade<DataGridBodyProps<any, string>>({
+) => JSX.Element<any> = Shade({
   shadowDomName: 'shade-data-grid-body',
   elementBase: HTMLTableSectionElement,
   elementBaseName: 'tbody',

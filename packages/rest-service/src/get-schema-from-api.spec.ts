@@ -28,12 +28,13 @@ describe('getSchemaFromApi', () => {
       description: 'Test API Description',
       version: '1.0.0',
       endpoints: {
-        '/example': {
-          isAuthenticated: false,
-          path: '/example',
-          method: 'GET',
-          schema: defaultSchema,
-          schemaName: 'default',
+        GET: {
+          '/example': {
+            isAuthenticated: false,
+            path: '/example',
+            schema: defaultSchema,
+            schemaName: 'default',
+          },
         },
       },
     })
@@ -60,12 +61,13 @@ describe('getSchemaFromApi', () => {
       description: 'Test API Description',
       version: '1.0.0',
       endpoints: {
-        '/validate-query': {
-          isAuthenticated: false,
-          path: '/validate-query',
-          method: 'GET',
-          schema: validationSchema,
-          schemaName: 'ValidateQuery',
+        GET: {
+          '/validate-query': {
+            isAuthenticated: false,
+            path: '/validate-query',
+            schema: validationSchema,
+            schemaName: 'ValidateQuery',
+          },
         },
       },
     })

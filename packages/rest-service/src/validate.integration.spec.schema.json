@@ -22,6 +22,9 @@
       "required": ["url", "result"],
       "type": "object"
     },
+    "DeleteMockEndpoint": {
+      "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E"
+    },
     "FilterType<Mock>": {
       "additionalProperties": false,
       "properties": {
@@ -273,6 +276,12 @@
       "required": ["query", "url", "result"],
       "type": "object"
     },
+    "GetMockCollectionEndpoint": {
+      "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E"
+    },
+    "GetMockEntityEndpoint": {
+      "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E"
+    },
     "Mock": {
       "additionalProperties": false,
       "properties": {
@@ -286,21 +295,12 @@
       "required": ["id", "value"],
       "type": "object"
     },
-    "PatchEndpoint<Mock,\"id\">": {
+    "PatchEndpoint<Mock,\"id\",Mock>": {
       "additionalProperties": false,
       "description": "Endpoint model for updating entities",
       "properties": {
         "body": {
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "value": {
-              "type": "string"
-            }
-          },
-          "type": "object"
+          "$ref": "#/definitions/Mock"
         },
         "result": {
           "type": "object"
@@ -319,12 +319,15 @@
       "required": ["body", "url", "result"],
       "type": "object"
     },
-    "PostEndpoint<Mock,\"id\">": {
+    "PatchMockEndpoint": {
+      "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%2CMock%3E"
+    },
+    "PostEndpoint<Mock,\"id\",Mock>": {
       "additionalProperties": false,
       "description": "Endpoint model for creating new entities",
       "properties": {
         "body": {
-          "$ref": "#/definitions/WithOptionalId%3CMock%2C%22id%22%3E"
+          "$ref": "#/definitions/Mock"
         },
         "result": {
           "$ref": "#/definitions/Mock"
@@ -332,6 +335,9 @@
       },
       "required": ["body", "result"],
       "type": "object"
+    },
+    "PostMockEndpoint": {
+      "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%2CMock%3E"
     },
     "RestApi": {
       "additionalProperties": false,
@@ -640,7 +646,7 @@
           "additionalProperties": false,
           "properties": {
             "/mock/:id": {
-              "$ref": "#/definitions/DeleteEndpoint%3CMock%2C%22id%22%3E"
+              "$ref": "#/definitions/DeleteMockEndpoint"
             }
           },
           "required": ["/mock/:id"],
@@ -650,10 +656,10 @@
           "additionalProperties": false,
           "properties": {
             "/mock": {
-              "$ref": "#/definitions/GetCollectionEndpoint%3CMock%3E"
+              "$ref": "#/definitions/GetMockCollectionEndpoint"
             },
             "/mock/:id": {
-              "$ref": "#/definitions/GetEntityEndpoint%3CMock%2C%22id%22%3E"
+              "$ref": "#/definitions/GetMockEntityEndpoint"
             },
             "/validate-headers": {
               "$ref": "#/definitions/ValidateHeaders"
@@ -702,7 +708,7 @@
           "additionalProperties": false,
           "properties": {
             "/mock/:id": {
-              "$ref": "#/definitions/PatchEndpoint%3CMock%2C%22id%22%3E"
+              "$ref": "#/definitions/PatchMockEndpoint"
             }
           },
           "required": ["/mock/:id"],
@@ -712,7 +718,7 @@
           "additionalProperties": false,
           "properties": {
             "/mock": {
-              "$ref": "#/definitions/PostEndpoint%3CMock%2C%22id%22%3E"
+              "$ref": "#/definitions/PostMockEndpoint"
             },
             "/validate-body": {
               "$ref": "#/definitions/ValidateBody"
@@ -753,19 +759,6 @@
         }
       },
       "required": ["GET", "POST", "PATCH", "DELETE"],
-      "type": "object"
-    },
-    "WithOptionalId<Mock,\"id\">": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      },
-      "required": ["value"],
       "type": "object"
     }
   }

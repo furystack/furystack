@@ -1,5 +1,11 @@
 import type { ChildrenList } from './models/children-list.js'
-import { hasStyle } from './shade-component.js'
+
+/**
+ * Props constraint for styled components - must have an optional style property
+ */
+type StyledProps = {
+  style?: Partial<CSSStyleDeclaration>
+}
 
 /**
  * Creates a shortcut for a specific custom Shade element with additional styles
@@ -7,23 +13,20 @@ import { hasStyle } from './shade-component.js'
  * @param styles The additional styles to add
  * @returns The updated element
  */
-export const styledShade = <T extends (props: any, children?: ChildrenList) => JSX.Element>(
-  element: T,
+export const styledShade = <TProps extends StyledProps>(
+  element: (props: TProps, children?: ChildrenList) => JSX.Element,
   styles: Partial<CSSStyleDeclaration>,
-) => {
-  return ((props: any, childrenList?: ChildrenList) => {
-    const mergedProps = hasStyle(props)
-      ? {
-          ...props,
-          style: {
-            ...props.style,
-            ...styles,
-          },
-        }
-      : {
-          ...props,
-          style: styles,
-        }
-    return element(mergedProps, childrenList)
-  }) as T
+): ((props: TProps, children?: ChildrenList) => JSX.Element) => {
+  return (props: TProps, childrenList?: ChildrenList): JSX.Element => {
+    return element(
+      {
+        ...props,
+        style: {
+          ...props.style,
+          ...styles,
+        },
+      } as TProps,
+      childrenList,
+    )
+  }
 }

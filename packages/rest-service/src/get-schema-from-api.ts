@@ -33,9 +33,8 @@ export const defaultSchema: Schema = {
 
 const defaultSchemaName = 'default'
 
-const getDefinitionFromAction = (method: Method, path: string, action: RequestAction<any>): ApiEndpointDefinition => {
+const getDefinitionFromAction = (path: string, action: RequestAction<{ result: unknown }>): ApiEndpointDefinition => {
   return {
-    method,
     path,
     schema: 'schema' in action && typeof action.schema === 'object' ? action.schema : defaultSchema,
     schemaName: 'schemaName' in action && typeof action.schemaName === 'string' ? action.schemaName : defaultSchemaName,
@@ -55,14 +54,20 @@ export const getSchemaFromApi = <T extends RestApiImplementation<RestApi>>({
   description?: string
   version?: string
 }): ApiEndpointSchema => {
-  const endpoints: Record<string, ApiEndpointDefinition> = {}
+  const endpoints: ApiEndpointSchema['endpoints'] = {}
 
   Object.entries(api).forEach(([method, endpointList]) => {
-    Object.entries(endpointList as Record<string, RequestAction<any>>).forEach(([url, requestAction]) => {
-      if (method && url && requestAction) {
-        endpoints[url] = getDefinitionFromAction(method as Method, url, requestAction)
-      }
-    })
+    const methodKey = method as Method
+    if (!endpoints[methodKey]) {
+      endpoints[methodKey] = {}
+    }
+    Object.entries(endpointList as Record<string, RequestAction<{ result: unknown }>>).forEach(
+      ([url, requestAction]) => {
+        if (method && url && requestAction) {
+          endpoints[methodKey]![url] = getDefinitionFromAction(url, requestAction)
+        }
+      },
+    )
   })
 
   return {

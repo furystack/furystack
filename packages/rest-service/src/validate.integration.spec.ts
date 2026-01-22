@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
@@ -6,6 +7,12 @@ import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
 import { describe, expect, it } from 'vitest'
+import { createDeleteEndpoint } from './endpoint-generators/create-delete-endpoint.js'
+import { createGetCollectionEndpoint } from './endpoint-generators/create-get-collection-endpoint.js'
+import { createGetEntityEndpoint } from './endpoint-generators/create-get-entity-endpoint.js'
+import { createPatchEndpoint } from './endpoint-generators/create-patch-endpoint.js'
+import { createPostEndpoint } from './endpoint-generators/create-post-endpoint.js'
+import { MockClass } from './endpoint-generators/utils.js'
 import { useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
 import { JsonResult } from './request-action-implementation.js'
@@ -46,8 +53,14 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
           schema,
           schemaName: 'ValidateHeaders',
         })(async ({ headers }) => JsonResult({ ...headers })),
-        '/mock': undefined as any, // ToDo: Generator and test
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock': Validate({
+          schema,
+          schemaName: 'GetMockCollectionEndpoint',
+        })(createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' })),
+        '/mock/:id': Validate({
+          schema,
+          schemaName: 'GetMockEntityEndpoint',
+        })(createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' })),
       },
       POST: {
         '/validate-body': Validate({
@@ -57,13 +70,22 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
           const body = await getBody()
           return JsonResult({ ...body })
         }),
-        '/mock': undefined as any, // ToDo: Generator and test
+        '/mock': Validate({
+          schema,
+          schemaName: 'PostMockEndpoint',
+        })(createPostEndpoint({ model: MockClass, primaryKey: 'id' })),
       },
       PATCH: {
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock/:id': Validate({
+          schema,
+          schemaName: 'PatchMockEndpoint',
+        })(createPatchEndpoint({ model: MockClass, primaryKey: 'id' })),
       },
       DELETE: {
-        '/mock/:id': undefined as any, // ToDo: Generator and test
+        '/mock/:id': Validate({
+          schema,
+          schemaName: 'DeleteMockEndpoint',
+        })(createDeleteEndpoint({ model: MockClass, primaryKey: 'id' })),
       },
     },
     port,
@@ -207,37 +229,63 @@ describe('Validation integration tests', () => {
         expect(result.result.description).toBe(description)
         expect(result.result.version).toBe(version)
 
-        expect(result.result.endpoints['/validate-query']).toBeDefined()
+        // GET endpoints
+        expect(result.result.endpoints.GET?.['/validate-query']).toBeDefined()
+        expect(result.result.endpoints.GET?.['/validate-query']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.GET?.['/validate-query']?.schemaName).toBe('ValidateQuery')
+        expect(result.result.endpoints.GET?.['/validate-query']?.path).toBe('/validate-query')
+        expect(result.result.endpoints.GET?.['/validate-query']?.isAuthenticated).toBe(false)
 
-        expect(result.result.endpoints['/validate-query'].schema).toStrictEqual(schema)
-        expect(result.result.endpoints['/validate-query'].schemaName).toBe('ValidateQuery')
-        expect(result.result.endpoints['/validate-query'].method).toBe('GET')
-        expect(result.result.endpoints['/validate-query'].path).toBe('/validate-query')
-        expect(result.result.endpoints['/validate-query'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints.GET?.['/validate-url/:id']).toBeDefined()
+        expect(result.result.endpoints.GET?.['/validate-url/:id']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.GET?.['/validate-url/:id']?.schemaName).toBe('ValidateUrl')
+        expect(result.result.endpoints.GET?.['/validate-url/:id']?.path).toBe('/validate-url/:id')
+        expect(result.result.endpoints.GET?.['/validate-url/:id']?.isAuthenticated).toBe(false)
 
-        expect(result.result.endpoints['/validate-url/:id']).toBeDefined()
-        expect(result.result.endpoints['/validate-url/:id'].schema).toStrictEqual(schema)
-        expect(result.result.endpoints['/validate-url/:id'].schemaName).toBe('ValidateUrl')
-        expect(result.result.endpoints['/validate-url/:id'].method).toBe('GET')
-        expect(result.result.endpoints['/validate-url/:id'].path).toBe('/validate-url/:id')
-        expect(result.result.endpoints['/validate-url/:id'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints.GET?.['/validate-headers']).toBeDefined()
+        expect(result.result.endpoints.GET?.['/validate-headers']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.GET?.['/validate-headers']?.schemaName).toBe('ValidateHeaders')
+        expect(result.result.endpoints.GET?.['/validate-headers']?.path).toBe('/validate-headers')
+        expect(result.result.endpoints.GET?.['/validate-headers']?.isAuthenticated).toBe(false)
 
-        expect(result.result.endpoints['/validate-headers']).toBeDefined()
-        expect(result.result.endpoints['/validate-headers'].schema).toStrictEqual(schema)
-        expect(result.result.endpoints['/validate-headers'].schemaName).toBe('ValidateHeaders')
-        expect(result.result.endpoints['/validate-headers'].method).toBe('GET')
-        expect(result.result.endpoints['/validate-headers'].path).toBe('/validate-headers')
-        expect(result.result.endpoints['/validate-headers'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints.GET?.['/mock']).toBeDefined()
+        expect(result.result.endpoints.GET?.['/mock']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.GET?.['/mock']?.schemaName).toBe('GetMockCollectionEndpoint')
+        expect(result.result.endpoints.GET?.['/mock']?.path).toBe('/mock')
+        expect(result.result.endpoints.GET?.['/mock']?.isAuthenticated).toBe(false)
 
-        expect(result.result.endpoints['/validate-body']).toBeDefined()
-        expect(result.result.endpoints['/validate-body'].schema).toStrictEqual(schema)
-        expect(result.result.endpoints['/validate-body'].schemaName).toBe('ValidateBody')
-        expect(result.result.endpoints['/validate-body'].method).toBe('POST')
-        expect(result.result.endpoints['/validate-body'].path).toBe('/validate-body')
-        expect(result.result.endpoints['/validate-body'].isAuthenticated).toBe(false)
+        expect(result.result.endpoints.GET?.['/mock/:id']).toBeDefined()
+        expect(result.result.endpoints.GET?.['/mock/:id']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.GET?.['/mock/:id']?.schemaName).toBe('GetMockEntityEndpoint')
+        expect(result.result.endpoints.GET?.['/mock/:id']?.path).toBe('/mock/:id')
+        expect(result.result.endpoints.GET?.['/mock/:id']?.isAuthenticated).toBe(false)
 
-        expect(result.result.endpoints['/mock']).toBeUndefined()
-        expect(result.result.endpoints['/mock/:id']).toBeUndefined()
+        // POST endpoints
+        expect(result.result.endpoints.POST?.['/validate-body']).toBeDefined()
+        expect(result.result.endpoints.POST?.['/validate-body']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.POST?.['/validate-body']?.schemaName).toBe('ValidateBody')
+        expect(result.result.endpoints.POST?.['/validate-body']?.path).toBe('/validate-body')
+        expect(result.result.endpoints.POST?.['/validate-body']?.isAuthenticated).toBe(false)
+
+        expect(result.result.endpoints.POST?.['/mock']).toBeDefined()
+        expect(result.result.endpoints.POST?.['/mock']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.POST?.['/mock']?.schemaName).toBe('PostMockEndpoint')
+        expect(result.result.endpoints.POST?.['/mock']?.path).toBe('/mock')
+        expect(result.result.endpoints.POST?.['/mock']?.isAuthenticated).toBe(false)
+
+        // PATCH endpoints
+        expect(result.result.endpoints.PATCH?.['/mock/:id']).toBeDefined()
+        expect(result.result.endpoints.PATCH?.['/mock/:id']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.PATCH?.['/mock/:id']?.schemaName).toBe('PatchMockEndpoint')
+        expect(result.result.endpoints.PATCH?.['/mock/:id']?.path).toBe('/mock/:id')
+        expect(result.result.endpoints.PATCH?.['/mock/:id']?.isAuthenticated).toBe(false)
+
+        // DELETE endpoints
+        expect(result.result.endpoints.DELETE?.['/mock/:id']).toBeDefined()
+        expect(result.result.endpoints.DELETE?.['/mock/:id']?.schema).toStrictEqual(schema)
+        expect(result.result.endpoints.DELETE?.['/mock/:id']?.schemaName).toBe('DeleteMockEndpoint')
+        expect(result.result.endpoints.DELETE?.['/mock/:id']?.path).toBe('/mock/:id')
+        expect(result.result.endpoints.DELETE?.['/mock/:id']?.isAuthenticated).toBe(false)
       })
     })
   })
