@@ -22,6 +22,8 @@ jobs:
         run: yarn prettier:check
       - name: Build
         run: yarn build
+      - name: Verify changelog plugin bundle is up-to-date
+        run: git diff --exit-code packages/yarn-plugin-changelog/bundles/
       - name: Lint
         run: yarn lint
       - name: Recreate JSON Schemas
