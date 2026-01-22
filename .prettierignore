@@ -1,2 +1,3 @@
 .yarn
 packages/**/bundle
+packages/**/bundles
