@@ -1,2 +1,12 @@
 releases:
+  "@furystack/core": patch
   furystack: patch
+
+declined:
+  - "@furystack/auth-google"
+  - "@furystack/filesystem-store"
+  - "@furystack/mongodb-store"
+  - "@furystack/redis-store"
+  - "@furystack/repository"
+  - "@furystack/rest"
+  - "@furystack/rest-service"
