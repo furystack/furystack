@@ -1,4 +1,5 @@
 <!-- version-type: major -->
+
 # @furystack/rest-service
 
 ## 💥 Breaking Changes
@@ -8,6 +9,7 @@
 The `ApiEndpointSchema` generic type now requires endpoints to be grouped by HTTP method.
 
 **Before:**
+
 ```json
 {
     "name": "My Endpoint",
@@ -20,6 +22,7 @@ The `ApiEndpointSchema` generic type now requires endpoints to be grouped by HTT
 ```
 
 **After:**
+
 ```json
 {
     "name": "My Endpoint",
@@ -37,4 +40,5 @@ The `ApiEndpointSchema` generic type now requires endpoints to be grouped by HTT
 ```
 
 ## ⬆️ Dependencies
+
 - Dependency updates
