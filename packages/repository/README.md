@@ -1,4 +1,4 @@
-# repository
+# @furystack/repository
 
 Repository implementation for FuryStack.
 With a repository, you can implement entity-level business logic in an easy and structured way.
@@ -12,6 +12,7 @@ You can set up a repository as follows:
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, addStore } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
+import { getLogger } from '@furystack/logging'
 
 class MyModel {
   declare id: number
@@ -22,13 +23,12 @@ const myInjector = new Injector()
 addStore(myInjector, new InMemoryStore({ model: MyModel, primaryKey: 'id' }))
 getRepository(myInjector).createDataSet(MyModel, 'id', {
   onEntityAdded: ({ injector, entity }) => {
-    injector.logger.verbose({ message: `An entity was added with value '${entity.value}'` })
+    getLogger(injector).verbose({ message: `An entity was added with value '${entity.value}'` })
   },
   authorizeUpdate: async () => ({
     isAllowed: false,
     message: 'This is a read-only dataset. No update is allowed. :(',
   }),
-  /** custom repository options */
 })
 ```
 

@@ -7,6 +7,8 @@ Dependency injection / inversion of control package for FuryStack.
 Injectors act as containers; they are responsible for creating and retrieving service instances based on the provided Injectable metadata. You can create an injector by simply instantiating the class:
 
 ```ts
+import { Injector } from '@furystack/inject'
+
 const myInjector = new Injector()
 ```
 
@@ -23,6 +25,8 @@ const childInjector = myInjector.createChild({ owner: 'myCustomContext' })
 You can create an injectable service from a plain class by decorating it with the `@Injectable()` decorator:
 
 ```ts
+import { Injectable } from '@furystack/inject'
+
 @Injectable({
   /** Injectable options */
 })
@@ -61,7 +65,7 @@ Injectables can only depend on services with _longer lifetime_, e.g. a **transie
 You can retrieve a service by calling
 
 ```ts
-const service = myInjector.getInstance(MySercive)
+const service = myInjector.getInstance(MyService)
 ```
 
 ### Explicit instance setup
@@ -78,7 +82,7 @@ myInjector.setExplicitInstance(new MyService('bar'))
 
 ### Extension methods
 
-A simple injector can easily extended from 3rd party packages with extension methods, just like the FuryStack packages. These extension methods usually provides a shortcut of an instance or sets up a preconfigured explicit instance of a service. You can build clean and nice fluent API-s in that way - you can check this [logger extension method](https://github.com/furystack/furystack/blob/develop/packages/logging/src/injector-extensions.ts) for the idea
+A simple injector can easily be extended from 3rd party packages with extension methods, just like the FuryStack packages. These extension methods usually provide a shortcut to an instance or set up a preconfigured explicit instance of a service. You can build clean and fluent APIs in this way - you can check the [logging helpers](https://github.com/furystack/furystack/blob/develop/packages/logging/src/helpers.ts) for an example
 
 ### A few things to care about
 

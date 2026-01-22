@@ -1,14 +1,20 @@
 # @furystack/security
 
-Password management, authentication, and authorization utilities for FuryStack
+Password management, authentication, and authorization utilities for FuryStack.
 
 ## Usage Examples
 
 ### Setup a password policy
 
 ```ts
-import { usePasswordPolicy } from '@furystack/security'
+import { Injector } from '@furystack/inject'
+import {
+  usePasswordPolicy,
+  createMinLengthComplexityRule,
+  createMaxLengthComplexityRule,
+} from '@furystack/security'
 
+const injector = new Injector()
 usePasswordPolicy(injector, {
   passwordComplexityRules: [createMinLengthComplexityRule(8), createMaxLengthComplexityRule(64)],
   passwordExpirationDays: 90,
@@ -19,6 +25,8 @@ usePasswordPolicy(injector, {
 ### Check if a user's password is valid
 
 ```ts
+import { PasswordAuthenticator } from '@furystack/security'
+
 const authenticator = injector.getInstance(PasswordAuthenticator)
 
 const userName = 'john_doe'
@@ -27,12 +35,10 @@ const plainPassword = 'SecureP@ssw0rd!'
 const checkResult = await authenticator.checkPasswordForUser(userName, plainPassword)
 
 if (checkResult.isValid) {
-  return 'Hooray! Password is valid.'
-}
-if (checkResult.reason === 'badUsernameOrPassword') {
-  return 'Invalid username or password.'
-}
-if (checkResult.reason === 'passwordExpired') {
-  return 'Password has expired. Please reset it.'
+  console.log('Hooray! Password is valid.')
+} else if (checkResult.reason === 'badUsernameOrPassword') {
+  console.log('Invalid username or password.')
+} else if (checkResult.reason === 'passwordExpired') {
+  console.log('Password has expired. Please reset it.')
 }
 ```

@@ -14,7 +14,16 @@ The generic way to implement authentication and authorization logic is with an I
 
 ### User
 
-...yo...
+The `User` model is a simple class that represents an application user with a `username` and a list of `roles`. You can extend this class to add custom properties for your application.
+
+```ts
+import { User } from '@furystack/core'
+
+class MyUser extends User {
+  declare email: string
+  declare createdAt: Date
+}
+```
 
 ## Other Utilities
 
@@ -23,7 +32,7 @@ The generic way to implement authentication and authorization logic is with an I
 Global Disposables is a list you can fill with disposables that will be disposed on app exit – this helps with graceful app shutdowns.
 
 ```ts
-import { globalDisposables } from '@furystack/core/create-physical-store-tests'
+import { globalDisposables } from '@furystack/core'
 
 globalDisposables.add(myRootInjector)
 ```
