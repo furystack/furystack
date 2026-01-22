@@ -14,7 +14,7 @@ export type RestApi = {
  */
 export type WithSchemaAction<T extends RestApi> = T & {
   GET: {
-    '/schema': { result: ApiEndpointSchema; headers: { accept: 'application/schema+json' } }
+    '/schema': { result: ApiEndpointSchema<T>; headers: { accept: 'application/schema+json' } }
     '/swagger.json': { result: SwaggerDocument }
   }
 }

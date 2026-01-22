@@ -1,4 +1,5 @@
 import type { Method } from './methods.js'
+import type { RestApi } from './rest-api.js'
 
 /**
  * The JSON schema type used for API endpoint definitions.
@@ -34,12 +35,30 @@ export type ApiEndpointDefinition = {
 /**
  * Represents the schema for an API, organized by HTTP method and then by path.
  * This structure allows multiple endpoints with the same path but different methods.
+ * @typeParam TApi - The REST API type this schema represents. When provided, the endpoint
+ *                   paths are preserved for better type safety and autocomplete.
+ * @example
+ * ```typescript
+ * type MyApi = {
+ *   GET: { '/users': { result: User[] }, '/users/:id': { result: User } }
+ *   POST: { '/users': { result: User, body: CreateUser } }
+ * }
+ * // ApiEndpointSchema<MyApi> will have:
+ * // endpoints: {
+ * //   GET?: { '/users': ApiEndpointDefinition, '/users/:id': ApiEndpointDefinition }
+ * //   POST?: { '/users': ApiEndpointDefinition }
+ * // }
+ * ```
  */
-export type ApiEndpointSchema = {
+export type ApiEndpointSchema<TApi extends RestApi = RestApi> = {
   name: string
   description: string
   version: string
   endpoints: {
-    [TMethod in Method]?: Record<string, ApiEndpointDefinition>
+    [TMethod in Method]?: TMethod extends keyof TApi
+      ? TApi[TMethod] extends Record<string, unknown>
+        ? { [TPath in keyof TApi[TMethod] & string]: ApiEndpointDefinition }
+        : Record<string, ApiEndpointDefinition>
+      : Record<string, ApiEndpointDefinition>
   }
 }
