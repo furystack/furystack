@@ -90,4 +90,4 @@ jobs:
           git push origin "v${{ steps.version.outputs.version }}"
 
       - name: Publish to NPM
-        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish
+        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish --access public --provenance
