@@ -79,6 +79,7 @@ packages/**/types
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+!.yarn/changelogs
 
 packages/shades-showcase-app/test-results
 packages/shades-showcase-app/dist

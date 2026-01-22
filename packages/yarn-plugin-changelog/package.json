@@ -1,0 +1,48 @@
+{
+  "name": "@furystack/yarn-plugin-changelog",
+  "version": "0.0.1",
+  "description": "Yarn plugin for managing changelogs from version manifests",
+  "license": "GPL-2.0",
+  "main": "./src/index.ts",
+  "files": [
+    "bundles"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "main": "./bundles/@yarnpkg/plugin-changelog.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "yarn",
+    "yarn-plugin",
+    "changelog",
+    "version-management",
+    "monorepo",
+    "furystack"
+  ],
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack/tree/main/packages/yarn-plugin-changelog",
+  "scripts": {
+    "build": "yarn build:types && yarn build:plugin",
+    "build:types": "tsc -b",
+    "build:plugin": "mv bundles/@yarnpkg/plugin-changelog.js bundles/@yarnpkg/plugin-changelog.js.bak 2>/dev/null; node ../../node_modules/@yarnpkg/builder/lib/cli.js build plugin && rm -f bundles/@yarnpkg/plugin-changelog.js.bak || (mv bundles/@yarnpkg/plugin-changelog.js.bak bundles/@yarnpkg/plugin-changelog.js 2>/dev/null; exit 1)"
+  },
+  "dependencies": {
+    "@yarnpkg/cli": "^4.12.0",
+    "@yarnpkg/core": "^4.5.0",
+    "@yarnpkg/fslib": "^3.1.4",
+    "clipanion": "^4.0.0-rc.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "@yarnpkg/builder": "^4.2.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
+  }
+}

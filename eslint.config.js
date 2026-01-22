@@ -19,6 +19,7 @@ export default tseslint.config(
       'packages/*/types/*',
       'packages/*/dist/*',
       'packages/shades-showcase-app/bundle/*',
+      'packages/yarn-plugin-changelog/bundles/*',
       '.yarn/*',
       'prettier.config.js',
       'eslint.config.js',

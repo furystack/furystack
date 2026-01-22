@@ -1,2 +1,5 @@
-.yarn
+
+.yarn/*
+!.yarn/changelogs
 packages/**/bundle
+packages/**/bundles
