@@ -12,6 +12,20 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 - Custom front-end library with type-safe JSX syntax and unidirectional data binding.
 - The same concepts and design principles are shared between the frontend and backend. DI, logging, disposables, etc. work in the same way—and from the same package.
 
+## Getting Started
+
+Install any FuryStack package using npm or yarn:
+
+```bash
+# Using npm
+npm install @furystack/core @furystack/inject
+
+# Using yarn
+yarn add @furystack/core @furystack/inject
+```
+
+Check out the [boilerplate repository](https://github.com/furystack/boilerplate) for a working example with both backend and frontend setup.
+
 ## Packages
 
 ### Core
@@ -73,3 +87,26 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 | Package                                                                      | Version                                                                                                                                                 | Description                                 |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | [@furystack/yarn-plugin-changelog](packages/yarn-plugin-changelog/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/yarn-plugin-changelog.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/yarn-plugin-changelog) | Changelog generation from version manifests |
+
+## Contributing
+
+Contributions are welcome! This is a monorepo managed with Yarn workspaces.
+
+```bash
+# Clone the repository
+git clone https://github.com/furystack/furystack.git
+cd furystack
+
+# Install dependencies
+yarn install
+
+# Build all packages
+yarn build
+
+# Run tests
+yarn test
+```
+
+## License
+
+This project is licensed under the GPL-2.0 License.

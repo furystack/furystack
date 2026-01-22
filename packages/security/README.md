@@ -2,6 +2,14 @@
 
 Password management, authentication, and authorization utilities for FuryStack.
 
+## Installation
+
+```bash
+npm install @furystack/security
+# or
+yarn add @furystack/security
+```
+
 ## Usage Examples
 
 ### Setup a password policy

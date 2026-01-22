@@ -2,6 +2,14 @@
 
 Core package for FuryStack with generic type and interface definitions and concepts.
 
+## Installation
+
+```bash
+npm install @furystack/core
+# or
+yarn add @furystack/core
+```
+
 ## Concepts
 
 ### Physical Store

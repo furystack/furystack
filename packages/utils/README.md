@@ -2,6 +2,14 @@
 
 General utilities for FuryStack.
 
+## Installation
+
+```bash
+npm install @furystack/utils
+# or
+yarn add @furystack/utils
+```
+
 ## Disposable
 
 You can implement disposable resources and use them with `using()` or `usingAsync()` syntax:

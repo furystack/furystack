@@ -1,6 +1,14 @@
-# rest-service
+# @furystack/rest-service
 
 REST service (implementation) package for `@furystack/rest`.
+
+## Installation
+
+```bash
+npm install @furystack/rest-service
+# or
+yarn add @furystack/rest-service
+```
 
 ## Usage
 
@@ -117,7 +125,7 @@ await useRestService<MyApiWithCustomEndpoint>({
         getUrlParams,
         headers,
         injector,
-        // request, // This will be the plain IncomingMessage - you can use it for lower level funcionality, e.g. parsing form data
+        // request, // This will be the plain IncomingMessage - you can use it for lower level functionality, e.g. parsing form data
         // response, // This will be the plain ServerResponse - you can use it for lower level functionality, e.g. streaming binaries
       }) => {
         const body = await getBody() // Body type will be resolved

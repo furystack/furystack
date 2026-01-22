@@ -1,8 +1,16 @@
-# websocket-api
+# @furystack/websocket-api
 
 WebSocket implementation for FuryStack.
 
-### Usage Example
+## Installation
+
+```bash
+npm install @furystack/websocket-api
+# or
+yarn add @furystack/websocket-api
+```
+
+## Usage Example
 
 You can initialize the WebSocket package as follows:
 

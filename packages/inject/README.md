@@ -2,6 +2,14 @@
 
 Dependency injection / inversion of control package for FuryStack.
 
+## Installation
+
+```bash
+npm install @furystack/inject
+# or
+yarn add @furystack/inject
+```
+
 ## Injector
 
 Injectors act as containers; they are responsible for creating and retrieving service instances based on the provided Injectable metadata. You can create an injector by simply instantiating the class:
@@ -56,9 +64,9 @@ The lifetime can be
 
 - **transient** - A new instance will be created each time when you get an instance
 - **scoped** - A new instance will be created _if it doesn't exist on the current scope_. Can be useful for injectable services that can be used for contextual data.
-- **singleton** - A new instance will be created only if it doesn't exists on the _root_ injector. It will act as a singleton in other cases.
+- **singleton** - A new instance will be created only if it doesn't exist on the _root_ injector. It will act as a singleton in other cases.
 
-Injectables can only depend on services with _longer lifetime_, e.g. a **transient** can depend on a **singleton**, but inversing it will throw an error
+Injectables can only depend on services with _longer lifetime_, e.g. a **transient** can depend on a **singleton**, but inverting it will throw an error
 
 ### Retrieving your service from the injector
 
@@ -86,6 +94,7 @@ A simple injector can easily be extended from 3rd party packages with extension 
 
 ### A few things to care about
 
-**Circular imports:** If two of your services are importing each other, one of them will be ignored by CommonJs. Typescript won't complain at compile time, but if you get this:
-`Uncaught TypeError: SomeService is not a constructor` - you should start reviewing how your injectables depends on each other.
-**There is also a limitation by design:** A service can depend only a service with a higher or equal lifetime then it's lifetime. That means a _singleton_ can not depend on a _transient_ or scoped service - you should get an exception at runtime if you try it.
+**Circular imports:** If two of your services are importing each other, one of them will be ignored by CommonJS. TypeScript won't complain at compile time, but if you get this:
+`Uncaught TypeError: SomeService is not a constructor` - you should start reviewing how your injectables depend on each other.
+
+**There is also a limitation by design:** A service can depend only on a service with a higher or equal lifetime than its lifetime. That means a _singleton_ cannot depend on a _transient_ or scoped service - you should get an exception at runtime if you try it.

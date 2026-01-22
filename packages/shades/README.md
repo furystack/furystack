@@ -2,6 +2,14 @@
 
 Shades is a UI library for FuryStack that uses type-safe JSX components, unidirectional data binding, and the same DI/IoC, logging, and utility libraries as FuryStack backend services.
 
+## Installation
+
+```bash
+npm install @furystack/shades
+# or
+yarn add @furystack/shades
+```
+
 ## Usage
 
 You can check the [@furystack/boilerplate](https://github.com/furystack/boilerplate) repository for a working example.

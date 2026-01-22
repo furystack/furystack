@@ -2,6 +2,14 @@
 
 A simple caching utility for FuryStack, providing in-memory cache management to improve performance and reduce redundant computations in your applications.
 
+## Installation
+
+```bash
+npm install @furystack/cache
+# or
+yarn add @furystack/cache
+```
+
 ## Usage Examples
 
 ### Basic In-Memory Cache

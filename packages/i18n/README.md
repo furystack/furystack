@@ -1,6 +1,14 @@
-# i18n
+# @furystack/i18n
 
 General internationalization and translation management package for FuryStack.
+
+## Installation
+
+```bash
+npm install @furystack/i18n
+# or
+yarn add @furystack/i18n
+```
 
 ## Usage Example
 

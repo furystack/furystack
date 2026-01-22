@@ -2,6 +2,14 @@
 
 Micro-frontend support for FuryStack Shades. This package allows you to dynamically load and render independent micro-frontend modules within your Shades application.
 
+## Installation
+
+```bash
+npm install @furystack/shades-mfe
+# or
+yarn add @furystack/shades-mfe
+```
+
 ## Usage
 
 ### Creating a Shades Micro-Frontend

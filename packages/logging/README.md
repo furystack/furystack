@@ -2,6 +2,14 @@
 
 Logging package for FuryStack.
 
+## Installation
+
+```bash
+npm install @furystack/logging
+# or
+yarn add @furystack/logging
+```
+
 ## Initializing with @furystack/inject
 
 You can start using the logging service with an injector as follows:
