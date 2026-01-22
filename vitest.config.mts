@@ -21,6 +21,7 @@ export default defineConfig({
             'packages/repository/src/**/*.spec.ts',
             'packages/rest-client-fetch/src/**/*.spec.ts',
             'packages/i18n/src/**/*.spec.ts',
+            'packages/yarn-plugin-changelog/src/**/*.spec.ts',
           ],
           setupFiles: ['./vitest.setup.ts'],
         },
