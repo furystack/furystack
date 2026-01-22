@@ -1,6 +1,6 @@
 {
   "name": "@furystack/yarn-plugin-changelog",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Yarn plugin for managing changelogs from version manifests",
   "license": "GPL-2.0",
   "main": "./src/index.ts",
