@@ -11,13 +11,13 @@
     "build:plugin": "builder build plugin"
   },
   "dependencies": {
-    "@yarnpkg/cli": "^4.10.0",
-    "@yarnpkg/core": "^4.4.4",
-    "@yarnpkg/fslib": "^3.1.1",
+    "@yarnpkg/cli": "^4.12.0",
+    "@yarnpkg/core": "^4.5.0",
+    "@yarnpkg/fslib": "^3.1.4",
     "clipanion": "^4.0.0-rc.4"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.0.10",
     "@yarnpkg/builder": "^4.2.3",
     "typescript": "^5.9.3"
   }
