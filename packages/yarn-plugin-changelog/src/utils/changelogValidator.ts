@@ -1,5 +1,5 @@
-import { CHANGELOG_SECTIONS } from './changelogSections';
-import type { ChangelogAnalysis, DraftValidationResult, ParsedChangelog, ValidateChangelogOptions } from './types';
+import { CHANGELOG_SECTIONS } from './changelogSections'
+import type { ChangelogAnalysis, DraftValidationResult, ParsedChangelog, ValidateChangelogOptions } from './types'
 
 /**
  * Validate a parsed changelog
@@ -8,29 +8,29 @@ import type { ChangelogAnalysis, DraftValidationResult, ParsedChangelog, Validat
  * @returns Array of validation error messages (empty if valid)
  */
 export function validateChangelog(changelog: ParsedChangelog, options: ValidateChangelogOptions = {}): string[] {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   if (options.expectedVersionType && changelog.versionType !== options.expectedVersionType) {
     errors.push(
       `Version type mismatch: changelog has "${changelog.versionType}" but manifest expects "${options.expectedVersionType}". ` +
         `Run 'yarn changelog create --force' to regenerate.`,
-    );
+    )
   }
 
   if (
     changelog.versionType === 'major' &&
     !changelog.sections.some((s) => s.name === CHANGELOG_SECTIONS.BREAKING_CHANGES && !s.isEmpty)
   ) {
-    errors.push(`Major release requires filled "${CHANGELOG_SECTIONS.BREAKING_CHANGES}" section`);
+    errors.push(`Major release requires filled "${CHANGELOG_SECTIONS.BREAKING_CHANGES}" section`)
   }
 
-  const contentSections = changelog.sections.filter((s) => !s.isEmpty);
+  const contentSections = changelog.sections.filter((s) => !s.isEmpty)
 
   if (contentSections.length === 0) {
-    errors.push('At least one section must have content');
+    errors.push('At least one section must have content')
   }
 
-  return errors;
+  return errors
 }
 
 /**
@@ -40,19 +40,19 @@ export function validateChangelog(changelog: ParsedChangelog, options: ValidateC
  * @returns Validation result with errors if invalid
  */
 export function validateDraftForApply(packageName: string, filename: string): DraftValidationResult {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   if (!packageName) {
     errors.push(
       `${filename}: Missing package name heading. ` +
         `Expected a heading like "# @furystack/package-name" at the start of the file.`,
-    );
+    )
   }
 
   return {
     isValid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -69,13 +69,13 @@ export function analyzeChangelogForRegeneration(
   changelog: ParsedChangelog,
   expectedVersionType: string,
 ): ChangelogAnalysis {
-  const hasVersionMismatch = changelog.versionType !== expectedVersionType;
-  const validationErrors = validateChangelog(changelog, { expectedVersionType });
-  const contentErrors = validationErrors.filter((err) => !err.includes('Version type mismatch'));
+  const hasVersionMismatch = changelog.versionType !== expectedVersionType
+  const validationErrors = validateChangelog(changelog, { expectedVersionType })
+  const contentErrors = validationErrors.filter((err) => !err.includes('Version type mismatch'))
 
   return {
     shouldRegenerate: hasVersionMismatch || contentErrors.length > 0,
     hasVersionMismatch,
     contentErrors,
-  };
+  }
 }

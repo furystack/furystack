@@ -15,4 +15,4 @@ export const CHANGELOG_SECTIONS = {
   CI: '👷 CI',
   DEPENDENCIES: '⬆️ Dependencies',
   CHORES: '🔧 Chores',
-} as const;
+} as const

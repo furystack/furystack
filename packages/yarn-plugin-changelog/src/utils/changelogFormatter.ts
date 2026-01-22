@@ -1,4 +1,4 @@
-import type { ParsedChangelog } from './types';
+import type { ParsedChangelog } from './types'
 
 /**
  * Format changelog content for inclusion in CHANGELOG.md
@@ -8,14 +8,14 @@ import type { ParsedChangelog } from './types';
  * @returns Formatted changelog entry
  */
 export function formatChangelogEntry(changelog: ParsedChangelog, version: string, date: string): string {
-  let output = `## [${version}] - ${date}\n\n`;
+  let output = `## [${version}] - ${date}\n\n`
 
   for (const section of changelog.sections) {
     if (!section.isEmpty) {
-      output += `### ${section.name}\n`;
-      output += `${section.content.trim()}\n\n`;
+      output += `### ${section.name}\n`
+      output += `${section.content.trim()}\n\n`
     }
   }
 
-  return output;
+  return output
 }

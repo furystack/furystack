@@ -1,9 +1,9 @@
-import type { PortablePath } from '@yarnpkg/fslib';
+import type { PortablePath } from '@yarnpkg/fslib'
 
 /**
  * Version type as defined in Yarn version manifests
  */
-export type VersionType = 'patch' | 'minor' | 'major';
+export type VersionType = 'patch' | 'minor' | 'major'
 
 /**
  * Parsed release entry from a version manifest
@@ -12,12 +12,12 @@ export type ReleaseEntry = {
   /**
    * The name of the package
    */
-  packageName: string;
+  packageName: string
   /**
    * The type of version change
    */
-  versionType: VersionType;
-};
+  versionType: VersionType
+}
 
 /**
  * Parsed version manifest
@@ -26,22 +26,22 @@ export type VersionManifest = {
   /**
    * The ID of the manifest
    */
-  id: string;
+  id: string
   /**
    * The path to the manifest
    */
-  path: PortablePath;
+  path: PortablePath
   /**
    * The releases in the manifest
    */
-  releases: ReleaseEntry[];
-};
+  releases: ReleaseEntry[]
+}
 
 /**
  * Check if a string is a valid version type
  */
 function isVersionType(value: string): value is VersionType {
-  return value === 'patch' || value === 'minor' || value === 'major';
+  return value === 'patch' || value === 'minor' || value === 'major'
 }
 
 /**
@@ -51,32 +51,32 @@ function isVersionType(value: string): value is VersionType {
  * @returns Parsed version manifest
  */
 export function parseVersionManifest(content: string, manifestPath: PortablePath): VersionManifest {
-  const releases: ReleaseEntry[] = [];
-  const lines = content.split('\n');
+  const releases: ReleaseEntry[] = []
+  const lines = content.split('\n')
 
-  let inReleasesSection = false;
+  let inReleasesSection = false
 
   for (const line of lines) {
-    const trimmedLine = line.trim();
+    const trimmedLine = line.trim()
 
     if (trimmedLine === 'releases:') {
-      inReleasesSection = true;
-      continue;
+      inReleasesSection = true
+      continue
     }
 
     if (inReleasesSection && trimmedLine) {
       // Match lines like: '  "@furystack/core": patch'
-      const match = trimmedLine.match(/^["']?([^"':]+)["']?\s*:\s*(patch|minor|major)\s*$/);
+      const match = trimmedLine.match(/^["']?([^"':]+)["']?\s*:\s*(patch|minor|major)\s*$/)
 
       if (match) {
-        const packageName = match[1];
-        const versionType = match[2];
+        const packageName = match[1]
+        const versionType = match[2]
 
         if (isVersionType(versionType)) {
           releases.push({
             packageName,
             versionType,
-          });
+          })
         }
       }
     }
@@ -86,7 +86,7 @@ export function parseVersionManifest(content: string, manifestPath: PortablePath
     id: extractManifestId(manifestPath),
     path: manifestPath,
     releases,
-  };
+  }
 }
 
 /**
@@ -95,7 +95,7 @@ export function parseVersionManifest(content: string, manifestPath: PortablePath
  * @returns Sanitized name suitable for filenames (e.g., "@furystack-core")
  */
 export function sanitizePackageName(packageName: string): string {
-  return packageName.replace(/\//g, '-');
+  return packageName.replace(/\//g, '-')
 }
 
 /**
@@ -104,6 +104,6 @@ export function sanitizePackageName(packageName: string): string {
  * @returns The manifest ID (e.g., "e94f7891")
  */
 export function extractManifestId(manifestPath: PortablePath): string {
-  const filename = manifestPath.split('/').pop() ?? '';
-  return filename.replace('.yml', '');
+  const filename = manifestPath.split('/').pop() ?? ''
+  return filename.replace('.yml', '')
 }

@@ -1,10 +1,10 @@
-import { CHANGELOG_SECTIONS } from './changelogSections';
-import { sanitizePackageName, type VersionType } from './parseVersionManifest';
+import { CHANGELOG_SECTIONS } from './changelogSections'
+import { sanitizePackageName, type VersionType } from './parseVersionManifest'
 
 /**
  * Default changelog entry message for dependency updates
  */
-const DEFAULT_DEPENDENCY_MESSAGE = 'Updated dependencies';
+const DEFAULT_DEPENDENCY_MESSAGE = 'Updated dependencies'
 
 /**
  * Formatting guide shown at the top of changelog templates.
@@ -24,7 +24,7 @@ Use h3 (###) and below for detailed entries with paragraphs, code examples, and 
 
 TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
--->`;
+-->`
 
 /**
  * Placeholder messages for each changelog section
@@ -43,12 +43,12 @@ const SECTION_PLACEHOLDERS: Record<string, string> = {
   [CHANGELOG_SECTIONS.CI]: 'Describe CI configuration changes (ci:)',
   [CHANGELOG_SECTIONS.DEPENDENCIES]: 'Describe dependency updates (deps:)',
   [CHANGELOG_SECTIONS.CHORES]: 'Describe other changes (chore:)',
-} as const;
+} as const
 
 /**
  * Migration guide placeholder for major version breaking changes
  */
-const MIGRATION_PLACEHOLDER = '<!-- MIGRATION REQUIRED: Explain how to migrate from the previous version -->';
+const MIGRATION_PLACEHOLDER = '<!-- MIGRATION REQUIRED: Explain how to migrate from the previous version -->'
 
 /**
  * Sections included in major version templates
@@ -66,7 +66,7 @@ const MAJOR_VERSION_SECTIONS = [
   CHANGELOG_SECTIONS.CI,
   CHANGELOG_SECTIONS.DEPENDENCIES,
   CHANGELOG_SECTIONS.CHORES,
-] as const;
+] as const
 
 /**
  * Sections included in minor version templates
@@ -83,7 +83,7 @@ const MINOR_VERSION_SECTIONS = [
   CHANGELOG_SECTIONS.CI,
   CHANGELOG_SECTIONS.DEPENDENCIES,
   CHANGELOG_SECTIONS.CHORES,
-] as const;
+] as const
 
 /**
  * Sections included in patch version templates
@@ -99,7 +99,7 @@ const PATCH_VERSION_SECTIONS = [
   CHANGELOG_SECTIONS.CI,
   CHANGELOG_SECTIONS.DEPENDENCIES,
   CHANGELOG_SECTIONS.CHORES,
-] as const;
+] as const
 
 /**
  * Build a section string with placeholder comment
@@ -108,14 +108,14 @@ const PATCH_VERSION_SECTIONS = [
  * @returns Formatted section string
  */
 function buildSection(sectionName: string, includeMigrationPlaceholder = false): string {
-  const placeholder = SECTION_PLACEHOLDERS[sectionName];
-  let section = `## ${sectionName}\n<!-- PLACEHOLDER: ${placeholder} -->`;
+  const placeholder = SECTION_PLACEHOLDERS[sectionName]
+  let section = `## ${sectionName}\n<!-- PLACEHOLDER: ${placeholder} -->`
 
   if (includeMigrationPlaceholder) {
-    section += `\n${MIGRATION_PLACEHOLDER}`;
+    section += `\n${MIGRATION_PLACEHOLDER}`
   }
 
-  return section;
+  return section
 }
 
 /**
@@ -129,14 +129,14 @@ function buildSectionsForVersionType(versionType: VersionType): string {
       ? MAJOR_VERSION_SECTIONS
       : versionType === 'minor'
         ? MINOR_VERSION_SECTIONS
-        : PATCH_VERSION_SECTIONS;
+        : PATCH_VERSION_SECTIONS
 
   return sections
     .map((sectionName) => {
-      const includeMigration = sectionName === CHANGELOG_SECTIONS.BREAKING_CHANGES;
-      return buildSection(sectionName, includeMigration);
+      const includeMigration = sectionName === CHANGELOG_SECTIONS.BREAKING_CHANGES
+      return buildSection(sectionName, includeMigration)
     })
-    .join('\n\n');
+    .join('\n\n')
 }
 
 /**
@@ -147,7 +147,7 @@ function buildSectionsForVersionType(versionType: VersionType): string {
  * @returns The changelog draft template content
  */
 export function generateChangelogTemplate(packageName: string, versionType: VersionType): string {
-  const sectionsContent = buildSectionsForVersionType(versionType);
+  const sectionsContent = buildSectionsForVersionType(versionType)
 
   return `<!-- version-type: ${versionType} -->
 # ${packageName}
@@ -155,7 +155,7 @@ export function generateChangelogTemplate(packageName: string, versionType: Vers
 ${FORMATTING_GUIDE}
 
 ${sectionsContent}
-`;
+`
 }
 
 /**
@@ -165,8 +165,8 @@ ${sectionsContent}
  * @returns The changelog draft filename
  */
 export function generateChangelogFilename(packageName: string, manifestId: string): string {
-  const sanitizedName = sanitizePackageName(packageName);
-  return `${sanitizedName}.${manifestId}.md`;
+  const sanitizedName = sanitizePackageName(packageName)
+  return `${sanitizedName}.${manifestId}.md`
 }
 
 /**
@@ -181,7 +181,7 @@ export function generateDependabotChangelogTemplate(
   versionType: VersionType,
   message?: string,
 ): string {
-  const changeMessage = message || DEFAULT_DEPENDENCY_MESSAGE;
+  const changeMessage = message || DEFAULT_DEPENDENCY_MESSAGE
 
   if (versionType === 'major') {
     return `<!-- version-type: ${versionType} -->
@@ -192,7 +192,7 @@ export function generateDependabotChangelogTemplate(
 
 ## ${CHANGELOG_SECTIONS.DEPENDENCIES}
 - ${changeMessage}
-`;
+`
   }
 
   return `<!-- version-type: ${versionType} -->
@@ -200,5 +200,5 @@ export function generateDependabotChangelogTemplate(
 
 ## ${CHANGELOG_SECTIONS.DEPENDENCIES}
 - ${changeMessage}
-`;
+`
 }
