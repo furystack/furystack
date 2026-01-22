@@ -30,7 +30,7 @@
   "scripts": {
     "start": "yarn workspace @furystack/shades-showcase-app start",
     "bumpVersions": "yarn version check --interactive",
-    "applyVersionBumps": "yarn version apply --all && echo TODO: Upgrade changelogs",
+    "applyReleaseChanges": "yarn version apply --all && yarn changelog apply",
     "build:esm": "tsc -b packages",
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
     "build": "yarn build:esm",

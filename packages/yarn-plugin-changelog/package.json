@@ -1,0 +1,24 @@
+{
+  "name": "@furystack/yarn-plugin-changelog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yarn plugin for managing changelogs from version manifests",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "yarn build:types && yarn build:plugin",
+    "build:types": "tsc -b",
+    "build:plugin": "builder build plugin"
+  },
+  "dependencies": {
+    "@yarnpkg/cli": "^4.10.0",
+    "@yarnpkg/core": "^4.4.4",
+    "@yarnpkg/fslib": "^3.1.1",
+    "clipanion": "^4.0.0-rc.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@yarnpkg/builder": "^4.2.3",
+    "typescript": "^5.9.3"
+  }
+}
