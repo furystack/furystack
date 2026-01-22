@@ -1,0 +1,82 @@
+name: Release to NPM
+
+on:
+  workflow_dispatch:
+    # No inputs - when you trigger, it releases
+
+permissions:
+  contents: write # Push branches/tags
+  id-token: write # NPM Trusted Publishing (OIDC authentication)
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    # Only allow running from develop branch
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0 # Full history for merging
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        run: yarn test
+
+      - name: Apply release changes
+        run: yarn applyReleaseChanges
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes if any
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: release v${{ steps.version.outputs.version }}"
+          fi
+
+      - name: Push develop branch
+        run: git push origin develop
+
+      - name: Merge to master
+        run: |
+          git checkout master
+          git merge develop --no-edit
+          git push origin master
+
+      - name: Create and push release tag
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Publish to NPM
+        run: yarn workspaces foreach --all --no-private npm publish --tolerate-republish
