@@ -1,6 +1,14 @@
-# sequelize-store
+# @furystack/sequelize-store
 
 Sequelize physical store implementation for FuryStack.
+
+## Installation
+
+```bash
+npm install @furystack/sequelize-store
+# or
+yarn add @furystack/sequelize-store
+```
 
 ## Initialization
 

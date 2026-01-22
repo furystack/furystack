@@ -1,6 +1,14 @@
-# mongodb-store
+# @furystack/mongodb-store
 
 MongoDB physical store implementation for FuryStack.
+
+## Installation
+
+```bash
+npm install @furystack/mongodb-store
+# or
+yarn add @furystack/mongodb-store
+```
 
 ## Initialization
 

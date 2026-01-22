@@ -1,8 +1,16 @@
-# filesystem-store
+# @furystack/filesystem-store
 
 Filesystem store implementation for FuryStack. Recommended for lightweight usage, embedded operations, and experimenting/tryouts—not for production.
 
-Usage example:
+## Installation
+
+```bash
+npm install @furystack/filesystem-store
+# or
+yarn add @furystack/filesystem-store
+```
+
+## Usage Example
 
 ```ts
 import { Injector } from '@furystack/inject'

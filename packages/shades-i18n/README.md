@@ -1,6 +1,14 @@
-# shades-i18n
+# @furystack/shades-i18n
 
 Internationalization package for FuryStack Shades UI.
+
+## Installation
+
+```bash
+npm install @furystack/shades-i18n
+# or
+yarn add @furystack/shades-i18n
+```
 
 ## Usage Example
 
@@ -41,6 +49,6 @@ const TranslatedComponent = createI18nComponent({
 Usage:
 
 ```tsx
-<TranslatedComponent id="greeting" key="greeting" /> & nbsp
+<TranslatedComponent id="greeting" key="greeting" />
 <TranslatedComponent id="farewell" key="farewell" />
 ```

@@ -1,8 +1,16 @@
-# redis-store
+# @furystack/redis-store
 
 Redis physical store implementation for FuryStack. `filter()` and `count()` are not supported.
 
-Usage example:
+## Installation
+
+```bash
+npm install @furystack/redis-store
+# or
+yarn add @furystack/redis-store
+```
+
+## Usage Example
 
 ```ts
 import { Injector } from '@furystack/inject'

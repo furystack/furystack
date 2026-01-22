@@ -2,6 +2,14 @@
 
 Logging package for FuryStack.
 
+## Installation
+
+```bash
+npm install @furystack/logging
+# or
+yarn add @furystack/logging
+```
+
 ## Initializing with @furystack/inject
 
 You can start using the logging service with an injector as follows:
@@ -73,17 +81,18 @@ scopedLogger.verbose({ message: 'FooBarBaz' })
 You can implement your own logging logic in a similar way as this custom log collector:
 
 ```ts
-import { AbstractLogger, ILeveledLogEntry } from '@furystack/logging'
+import { Injectable } from '@furystack/inject'
+import { AbstractLogger, LeveledLogEntry } from '@furystack/logging'
 
 @Injectable({ lifetime: 'singleton' })
 export class MyCustomLogCollector extends AbstractLogger {
-  private readonly entries: Array<ILeveledLogEntry<any>> = []
+  private readonly entries: Array<LeveledLogEntry<unknown>> = []
 
   public getEntries() {
     return [...this.entries]
   }
 
-  public async addEntry<T>(entry: ILeveledLogEntry<T>): Promise<void> {
+  public async addEntry<T>(entry: LeveledLogEntry<T>): Promise<void> {
     this.entries.push(entry)
   }
 

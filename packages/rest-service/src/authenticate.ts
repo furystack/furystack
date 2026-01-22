@@ -4,6 +4,25 @@ import { HttpUserContext } from './http-user-context.js'
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
 import { JsonResult } from './request-action-implementation.js'
 
+/**
+ * Higher-order function that wraps a request action to require authentication.
+ * If the user is not authenticated, returns a 401 Unauthorized response.
+ * Includes a random delay on unauthorized requests to mitigate timing attacks.
+ *
+ * @returns A function that wraps the provided action with authentication check
+ * @example
+ * ```ts
+ * // Wrap an endpoint to require authentication
+ * const protectedEndpoint = Authenticate()(myEndpoint)
+ *
+ * // Or use directly in API definition
+ * api: {
+ *   GET: {
+ *     '/users': Authenticate()(getUsersEndpoint)
+ *   }
+ * }
+ * ```
+ */
 export const Authenticate =
   () =>
   <T extends { result: unknown }>(action: RequestAction<T>): RequestAction<T> => {

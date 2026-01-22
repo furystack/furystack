@@ -10,111 +10,103 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 - You can create a backend in minutes with authentication, data stores, custom actions, and 3rd-party packages. You don't have to waste time searching for packages for entry-level functionality.
 - You can implement and use your own custom actions, WebSocket calls, data stores, or loggers easily.
 - Custom front-end library with type-safe JSX syntax and unidirectional data binding.
-- The same concepts and design principles are shared between the frontend and backend. DI, logging, disposables, etc. work in the same way—and from the same package. 😉
+- The same concepts and design principles are shared between the frontend and backend. DI, logging, disposables, etc. work in the same way—and from the same package.
 
-## Layers of FuryStack
+## Getting Started
 
-### @furystack/core [![npm](https://img.shields.io/npm/v/@furystack/core.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/core)
+Install any FuryStack package using npm or yarn:
 
-The entry-level logic (like store managers or server managers), models (definitions of physical stores, users, roles), and some entry-level implementations (like InMemoryStore and FileStore for testing) are included here.
+```bash
+# Using npm
+npm install @furystack/core @furystack/inject
 
-### @furystack/repository [![npm](https://img.shields.io/npm/v/@furystack/repository.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/repository)
+# Using yarn
+yarn add @furystack/core @furystack/inject
+```
 
-A repository is a collection of DataSets. A DataSet is like an extended version of a physical store—you can use a context (like a UserContext) for authorization or entity manipulation from DI. You can also subscribe to events here.
+Check out the [boilerplate repository](https://github.com/furystack/boilerplate) for a working example with both backend and frontend setup.
 
-### @furystack/rest [![npm](https://img.shields.io/npm/v/@furystack/rest.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest)
+## Packages
 
-If you want to communicate with the world, this package will be your friend. You can define your API as a TypeScript interface and implement it on the backend with [@furystack/rest-service](https://www.npmjs.com/package/@furystack/rest-service). Consuming these APIs is also easy with the [@furystack/rest-client-fetch](https://www.npmjs.com/package/@furystack/rest-client-fetch) package in the browser.
+### Core
 
-### @furystack/rest-service [![npm](https://img.shields.io/npm/v/@furystack/rest-service.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-service)
+| Package                                          | Version                                                                                                                     | Description                                                               |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [@furystack/core](packages/core/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/core.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/core)       | Core framework with physical stores, store managers, and identity context |
+| [@furystack/inject](packages/inject/README.md)   | [![npm](https://img.shields.io/npm/v/@furystack/inject.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/inject)   | Dependency injection and IoC container                                    |
+| [@furystack/utils](packages/utils/README.md)     | [![npm](https://img.shields.io/npm/v/@furystack/utils.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/utils)     | Utilities: Disposables, ObservableValue, Retrier, Trace                   |
+| [@furystack/logging](packages/logging/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/logging.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/logging) | Logging with scopes, levels, and custom loggers                           |
+| [@furystack/cache](packages/cache/README.md)     | [![npm](https://img.shields.io/npm/v/@furystack/cache.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/cache)     | In-memory caching with expiration and capacity limits                     |
 
-REST service implementation package for building type-safe HTTP APIs. Provides endpoint generators for CRUD operations, built-in authentication, static file serving, HTTP proxying, and WebSocket support.
+### Data Storage
 
-### @furystack/rest-client-fetch [![npm](https://img.shields.io/npm/v/@furystack/rest-client-fetch.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-client-fetch)
+| Package                                                            | Version                                                                                                                                       | Description                                                          |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [@furystack/repository](packages/repository/README.md)             | [![npm](https://img.shields.io/npm/v/@furystack/repository.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/repository)             | Repository pattern with DataSets, authorization, and event callbacks |
+| [@furystack/filesystem-store](packages/filesystem-store/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/filesystem-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/filesystem-store) | File-based store for development and testing                         |
+| [@furystack/mongodb-store](packages/mongodb-store/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/mongodb-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/mongodb-store)       | MongoDB document store implementation                                |
+| [@furystack/redis-store](packages/redis-store/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/redis-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/redis-store)           | Redis key-value store implementation                                 |
+| [@furystack/sequelize-store](packages/sequelize-store/README.md)   | [![npm](https://img.shields.io/npm/v/@furystack/sequelize-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/sequelize-store)   | SQL databases via Sequelize ORM                                      |
 
-REST client package with native Fetch implementation for consuming type-safe REST APIs in the browser.
+### REST API
 
-## Optional Goodies
+| Package                                                              | Version                                                                                                                                         | Description                                                           |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [@furystack/rest](packages/rest/README.md)                           | [![npm](https://img.shields.io/npm/v/@furystack/rest.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest)                           | REST API type definitions and contracts                               |
+| [@furystack/rest-service](packages/rest-service/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/rest-service.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-service)           | Server implementation with authentication, static files, and proxying |
+| [@furystack/rest-client-fetch](packages/rest-client-fetch/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/rest-client-fetch.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/rest-client-fetch) | Browser client using native fetch                                     |
+| [@furystack/websocket-api](packages/websocket-api/README.md)         | [![npm](https://img.shields.io/npm/v/@furystack/websocket-api.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/websocket-api)         | WebSocket support for real-time communication                         |
 
-### @furystack/auth-google [![npm](https://img.shields.io/npm/v/@furystack/auth-google.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-google)
+### Security and Authentication
 
-You can log in with a Google ID Token to a FuryStack backend with this simple package.
+| Package                                                  | Version                                                                                                                             | Description                                     |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [@furystack/security](packages/security/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/security.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/security)       | Password management and authorization utilities |
+| [@furystack/auth-google](packages/auth-google/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/auth-google.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-google) | Google OAuth integration                        |
 
-## Shades [![npm](https://img.shields.io/npm/v/@furystack/shades.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades)
+### Internationalization
 
-@furystack/shades is a UI library that helps you create web UIs easily. The syntax is JSX and it also works with FuryStack tools like Logger or Inject. It uses unidirectional data binding.
+| Package                                                  | Version                                                                                                                             | Description                          |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| [@furystack/i18n](packages/i18n/README.md)               | [![npm](https://img.shields.io/npm/v/@furystack/i18n.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/i18n)               | Core i18n and translation management |
+| [@furystack/shades-i18n](packages/shades-i18n/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/shades-i18n.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-i18n) | I18n components for Shades UI        |
 
-### Shades Component Libraries
+### UI Framework (Shades)
 
-#### @furystack/shades-common-components [![npm](https://img.shields.io/npm/v/@furystack/shades-common-components.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-common-components)
+| Package                                                                            | Version                                                                                                                                                       | Description                                               |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [@furystack/shades](packages/shades/README.md)                                     | [![npm](https://img.shields.io/npm/v/@furystack/shades.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades)                                     | JSX-based UI library with unidirectional data binding     |
+| [@furystack/shades-common-components](packages/shades-common-components/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/shades-common-components.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-common-components) | Reusable components: DataGrid, Modal, Button, Input, etc. |
+| [@furystack/shades-mfe](packages/shades-mfe/README.md)                             | [![npm](https://img.shields.io/npm/v/@furystack/shades-mfe.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-mfe)                             | Micro-frontend support                                    |
+| [@furystack/shades-lottie](packages/shades-lottie/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/shades-lottie.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-lottie)                       | Lottie animation wrapper                                  |
+| [@furystack/shades-nipple](packages/shades-nipple/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/shades-nipple.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-nipple)                       | NippleJS joystick wrapper                                 |
+| [@furystack/shades-showcase-app](packages/shades-showcase-app/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/shades-showcase-app.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-showcase-app)           | Demo application                                          |
 
-A collection of common and reusable UI components for Shades including DataGrid, Command Palette, Modal, AppBar, Button, Input, Tabs, and more.
+### Tooling
 
-#### @furystack/shades-lottie [![npm](https://img.shields.io/npm/v/@furystack/shades-lottie.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-lottie)
+| Package                                                                      | Version                                                                                                                                                 | Description                                 |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [@furystack/yarn-plugin-changelog](packages/yarn-plugin-changelog/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/yarn-plugin-changelog.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/yarn-plugin-changelog) | Changelog generation from version manifests |
 
-Lottie animation player wrapper for FuryStack Shades.
+## Contributing
 
-#### @furystack/shades-nipple [![npm](https://img.shields.io/npm/v/@furystack/shades-nipple.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-nipple)
+Contributions are welcome! This is a monorepo managed with Yarn workspaces.
 
-NippleJS joystick wrapper component for FuryStack Shades.
+```bash
+# Clone the repository
+git clone https://github.com/furystack/furystack.git
+cd furystack
 
-## Utility Packages
+# Install dependencies
+yarn install
 
-### @furystack/utils [![npm](https://img.shields.io/npm/v/@furystack/utils.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/utils)
+# Build all packages
+yarn build
 
-A collection of useful tools like `Disposable`s with `using()` and `usingAsync()` helpers, `deepMerge`, `Tracer`, and an ultra-lightweight Observer/Observable implementation.
+# Run tests
+yarn test
+```
 
-### @furystack/logging [![npm](https://img.shields.io/npm/v/@furystack/logging.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/logging)
+## License
 
-A powerful logging library that allows you to create log entries with scopes, levels, and custom data, and process them with your own logic. You can collect telemetry or create a crash dump collector.
-
-### @furystack/inject [![npm](https://img.shields.io/npm/v/@furystack/inject.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/inject)
-
-Inject is a DI/IoC utility that allows you to handle your dependencies easily and is the heart and soul of the stack. In short—just mark your services as `Injectable()` and use `injector.getInstance(...)` to retrieve them.
-An injector can be extended with _extension methods_, so you can configure your whole app in one place in a type-safe way.
-
-## Other Packages
-
-### @furystack/cache
-
-Simple in-memory caching utility to improve performance and reduce redundant computations.
-
-### @furystack/filesystem-store
-
-Filesystem-based store implementation, ideal for lightweight or experimental use.
-
-### @furystack/i18n
-
-General internationalization and translation management for FuryStack applications.
-
-### @furystack/mongodb-store
-
-MongoDB physical store implementation for scalable, document-based storage.
-
-### @furystack/redis-store
-
-Redis physical store implementation for fast, in-memory data storage (note: some features like `filter()` and `count()` are not supported).
-
-### @furystack/security
-
-Password management, authentication, and authorization utilities.
-
-### @furystack/sequelize-store
-
-Sequelize-based store implementation for SQL databases.
-
-### @furystack/shades-i18n
-
-Internationalization support for the Shades UI library.
-
-### @furystack/shades-mfe
-
-Micro frontend management utilities for Shades.
-
-### @furystack/shades-showcase-app
-
-Minimal showcase application demonstrating FuryStack Shades features.
-
-### @furystack/websocket-api
-
-WebSocket implementation for real-time communication in FuryStack.
+This project is licensed under the GPL-2.0 License.

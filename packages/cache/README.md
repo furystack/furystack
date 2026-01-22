@@ -2,6 +2,14 @@
 
 A simple caching utility for FuryStack, providing in-memory cache management to improve performance and reduce redundant computations in your applications.
 
+## Installation
+
+```bash
+npm install @furystack/cache
+# or
+yarn add @furystack/cache
+```
+
 ## Usage Examples
 
 ### Basic In-Memory Cache
@@ -15,21 +23,19 @@ const result = await cache.get(1, 2) // 3 will be calculated and cached
 const cachedResult = await cache.get(1, 2) // Returns cached value: 3
 ```
 
-### Expiration
+### Stale and Cache Time
 
 ```ts
 import { Cache } from '@furystack/cache'
 const cache = new Cache({
   load: (a: number, b: number) => Promise.resolve(a + b),
-  expirationMs: 5000, // Cache expires after 5 seconds
+  staleTimeMs: 5000, // Mark as obsolete after 5 seconds
+  cacheTimeMs: 60000, // Remove from cache after 60 seconds
 })
 const result = await cache.get(1, 2) // 3 will be calculated and cached
-setTimeout(async () => {
-  const expiredResult = await cache.get(1, 2) // Cache expired, recalculates: 3
-}, 6000)
 ```
 
-### Limit capacity
+### Limit Capacity
 
 ```ts
 import { Cache } from '@furystack/cache'
@@ -62,13 +68,12 @@ cache.removeRange((entity, args) => {
 cache.flushAll() // Removes all cached items
 ```
 
-### Subscribe to changes
+### Subscribe to Changes
 
 ```ts
 import { Cache } from '@furystack/cache'
 const cache = new Cache({
   load: (a: number, b: number) => Promise.resolve(a + b),
-  expirationMs: 5000, // Cache expires after 5 seconds
 })
 
 const observable = cache.getObservable(1, 2)

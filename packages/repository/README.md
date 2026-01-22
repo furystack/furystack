@@ -1,8 +1,16 @@
-# repository
+# @furystack/repository
 
 Repository implementation for FuryStack.
 With a repository, you can implement entity-level business logic in an easy and structured way.
 You can authorize, manipulate, and observe CRUD operations.
+
+## Installation
+
+```bash
+npm install @furystack/repository
+# or
+yarn add @furystack/repository
+```
 
 ## Setting Up a Repository
 
@@ -12,6 +20,7 @@ You can set up a repository as follows:
 import { Injector } from '@furystack/inject'
 import { InMemoryStore, addStore } from '@furystack/core'
 import { getRepository, getDataSetFor } from '@furystack/repository'
+import { getLogger } from '@furystack/logging'
 
 class MyModel {
   declare id: number
@@ -22,13 +31,12 @@ const myInjector = new Injector()
 addStore(myInjector, new InMemoryStore({ model: MyModel, primaryKey: 'id' }))
 getRepository(myInjector).createDataSet(MyModel, 'id', {
   onEntityAdded: ({ injector, entity }) => {
-    injector.logger.verbose({ message: `An entity was added with value '${entity.value}'` })
+    getLogger(injector).verbose({ message: `An entity was added with value '${entity.value}'` })
   },
   authorizeUpdate: async () => ({
     isAllowed: false,
     message: 'This is a read-only dataset. No update is allowed. :(',
   }),
-  /** custom repository options */
 })
 ```
 
@@ -56,9 +64,9 @@ Events are great for logging or monitoring DataSet changes or distributing chang
 
 ### Modifiers and additional filters
 
-There are some callbacks that modifies an entity before persisting (like `modifyOnAdd` or `modifyOnUpdate`). For example, you can fill createdByUser or lastModifiedByUser fields with these.
-There is an additional property called `addFilter`, you can use that to add a pre-filter condition **before** a filter expression will be evaluated in the data store - ensuring e.g. that the user can _retrieve_ only suff from the physical store that she has enough permission.
+There are some callbacks that modify an entity before persisting (like `modifyOnAdd` or `modifyOnUpdate`). For example, you can fill createdByUser or lastModifiedByUser fields with these.
+There is an additional property called `addFilter`, you can use that to add a pre-filter condition **before** a filter expression will be evaluated in the data store - ensuring e.g. that the user can _retrieve_ only stuff from the physical store that they have permission for.
 
 ### Getting the Context
 
-All methods above has an _injector instance_ on the call parameter - you can use that injector to get service instances from the right caller context. It means that you can use e.g.: HttpUserContext to getting the current user.
+All methods above have an _injector instance_ on the call parameter - you can use that injector to get service instances from the right caller context. It means that you can use e.g. HttpUserContext to get the current user.
