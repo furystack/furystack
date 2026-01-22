@@ -1,9 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
 import { isLogicalOperator, isOperator, selectFields } from './models/physical-store.js'
+
+/**
+ * Helper type representing all possible field filter operations
+ */
+type FieldOperatorFilter = {
+  $eq?: unknown
+  $ne?: unknown
+  $in?: unknown[]
+  $nin?: unknown[]
+  $gt?: unknown
+  $gte?: unknown
+  $lt?: unknown
+  $lte?: unknown
+  $startsWith?: string
+  $endsWith?: string
+  $like?: string
+  $regex?: string
+}
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T>
   extends EventHub<{
@@ -53,9 +69,12 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
       return values
     }
     return values.filter((item) => {
-      for (const key in filter) {
+      const filterRecord = filter as Record<string, Array<FilterType<T>> | FieldOperatorFilter | undefined>
+      const itemRecord = item as Record<string, unknown>
+
+      for (const key in filterRecord) {
         if (isLogicalOperator(key)) {
-          const filterValue = filter[key] as Array<FilterType<T>>
+          const filterValue = filterRecord[key] as Array<FilterType<T>>
           switch (key) {
             case '$and':
               if (filterValue.some((v: FilterType<T>) => !this.filterInternal([item], v).length)) {
@@ -70,82 +89,85 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
             default:
               throw new Error(`The logical operation '${key}' is not a valid operation`)
           }
-        } else if (typeof (filter as any)[key] === 'object') {
-          for (const filterKey in (filter as any)[key]) {
-            if (isOperator(filterKey)) {
-              const itemValue = (item as any)[key]
-              const filterValue = (filter as any)[key][filterKey]
-              switch (filterKey) {
-                case '$eq':
-                  if (filterValue !== itemValue) {
-                    return false
-                  }
-                  break
-                case '$ne':
-                  if (filterValue === itemValue) {
-                    return false
-                  }
-                  break
-                case '$in':
-                  if (!filterValue.includes(itemValue)) {
-                    return false
-                  }
-                  break
-
-                case '$nin':
-                  if (filterValue.includes(itemValue)) {
-                    return false
-                  }
-                  break
-                case '$lt':
-                  if (itemValue < filterValue) {
-                    break
-                  }
-                  return false
-                case '$lte':
-                  if (itemValue <= filterValue) {
-                    break
-                  }
-                  return false
-                case '$gt':
-                  if (itemValue > filterValue) {
-                    break
-                  }
-                  return false
-                case '$gte':
-                  if (itemValue >= filterValue) {
-                    break
-                  }
-                  return false
-                case '$regex':
-                  if (!new RegExp(filterValue as string).test((itemValue as string).toString())) {
-                    return false
-                  }
-                  break
-                case '$startsWith':
-                  if (!itemValue.startsWith(filterValue)) {
-                    return false
-                  }
-                  break
-                case '$endsWith':
-                  if (!itemValue.endsWith(filterValue)) {
-                    return false
-                  }
-                  break
-                case '$like':
-                  if (!this.evaluateLike(itemValue as string, filterValue as string)) {
-                    return false
-                  }
-                  break
-                default:
-                  throw new Error(`The expression (${filterKey}) is not supported by '${this.constructor.name}'!`)
-              }
-            } else {
-              throw new Error(`The filter key '${filterKey}' is not a valid operation`)
-            }
-          }
         } else {
-          throw new Error(`The filter has to be an object, got ${typeof (filter as any)[key]} for field '${key}'`)
+          const fieldFilter = filterRecord[key] as FieldOperatorFilter | undefined
+          if (typeof fieldFilter === 'object' && fieldFilter !== null) {
+            for (const filterKey in fieldFilter) {
+              if (isOperator(filterKey)) {
+                const itemValue = itemRecord[key]
+                const filterValue = fieldFilter[filterKey as keyof FieldOperatorFilter]
+                switch (filterKey) {
+                  case '$eq':
+                    if (filterValue !== itemValue) {
+                      return false
+                    }
+                    break
+                  case '$ne':
+                    if (filterValue === itemValue) {
+                      return false
+                    }
+                    break
+                  case '$in':
+                    if (!(filterValue as unknown[]).includes(itemValue)) {
+                      return false
+                    }
+                    break
+
+                  case '$nin':
+                    if ((filterValue as unknown[]).includes(itemValue)) {
+                      return false
+                    }
+                    break
+                  case '$lt':
+                    if ((itemValue as number) < (filterValue as number)) {
+                      break
+                    }
+                    return false
+                  case '$lte':
+                    if ((itemValue as number) <= (filterValue as number)) {
+                      break
+                    }
+                    return false
+                  case '$gt':
+                    if ((itemValue as number) > (filterValue as number)) {
+                      break
+                    }
+                    return false
+                  case '$gte':
+                    if ((itemValue as number) >= (filterValue as number)) {
+                      break
+                    }
+                    return false
+                  case '$regex':
+                    if (!new RegExp(filterValue as string).test(String(itemValue))) {
+                      return false
+                    }
+                    break
+                  case '$startsWith':
+                    if (!(itemValue as string).startsWith(filterValue as string)) {
+                      return false
+                    }
+                    break
+                  case '$endsWith':
+                    if (!(itemValue as string).endsWith(filterValue as string)) {
+                      return false
+                    }
+                    break
+                  case '$like':
+                    if (!this.evaluateLike(itemValue as string, filterValue as string)) {
+                      return false
+                    }
+                    break
+                  default:
+                    throw new Error(`The expression (${filterKey}) is not supported by '${this.constructor.name}'!`)
+                }
+              } else {
+                throw new Error(`The filter key '${filterKey}' is not a valid operation`)
+              }
+            }
+          } else {
+            throw new Error(`The filter has to be an object, got ${typeof fieldFilter} for field '${key}'`)
+          }
         }
       }
       return true
@@ -156,9 +178,10 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
     let value: Array<PartialResult<T, TFields>> = this.filterInternal([...this.cache.values()], searchOptions.filter)
 
     if (searchOptions.order) {
+      const orderRecord = searchOptions.order as Record<string, 'ASC' | 'DESC'>
       for (const fieldName of Object.keys(searchOptions.order) as Array<keyof T>) {
         value = value.sort((a, b) => {
-          const order = (searchOptions.order as any)[fieldName] as 'ASC' | 'DESC'
+          const order = orderRecord[fieldName as string]
           if (a[fieldName] < b[fieldName]) return order === 'ASC' ? -1 : 1
           if (a[fieldName] > b[fieldName]) return order === 'ASC' ? 1 : -1
           return 0
