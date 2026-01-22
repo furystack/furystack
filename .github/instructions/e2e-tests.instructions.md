@@ -28,4 +28,3 @@ End-to-end (E2E) tests are implemented using [Playwright](https://playwright.dev
 
 - Playwright configuration and test files should be found in the same package.
 - For more details or custom Playwright commands, refer to the [Playwright documentation](https://playwright.dev/).
-

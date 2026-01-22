@@ -12,17 +12,20 @@ A showcase application demonstrating FuryStack Shades UI components and features
 ## Getting Started
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/furystack/furystack.git
    cd furystack
    ```
 
 2. Install dependencies:
+
    ```bash
    yarn install
    ```
 
 3. Start the development server:
+
    ```bash
    yarn workspace @furystack/shades-showcase-app start
    ```
