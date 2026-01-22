@@ -321,12 +321,8 @@ describe('CreateCommand', () => {
       const result = await command.execute()
 
       expect(result).toBe(0)
-      expect(context.stdout.write).toHaveBeenCalledWith(
-        expect.stringContaining('version mismatch'),
-      )
-      expect(context.stdout.write).toHaveBeenCalledWith(
-        expect.stringContaining('use --force to regenerate'),
-      )
+      expect(context.stdout.write).toHaveBeenCalledWith(expect.stringContaining('version mismatch'))
+      expect(context.stdout.write).toHaveBeenCalledWith(expect.stringContaining('use --force to regenerate'))
     })
 
     it('should show verbose output when processing manifests', async () => {
@@ -416,10 +412,7 @@ describe('CreateCommand', () => {
 
       await command.execute()
 
-      expect(xfs.mkdirPromise).toHaveBeenCalledWith(
-        expect.stringContaining('changelogs'),
-        { recursive: true },
-      )
+      expect(xfs.mkdirPromise).toHaveBeenCalledWith(expect.stringContaining('changelogs'), { recursive: true })
     })
   })
 })

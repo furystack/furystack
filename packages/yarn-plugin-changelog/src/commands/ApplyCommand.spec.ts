@@ -409,15 +409,9 @@ describe('ApplyCommand', () => {
       const result = await command.execute()
 
       expect(result).toBe(0)
-      expect(xfs.writeFilePromise).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringContaining('# Changelog'),
-      )
+      expect(xfs.writeFilePromise).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('# Changelog'))
       // Verify existing content is preserved
-      expect(xfs.writeFilePromise).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringContaining('Initial release'),
-      )
+      expect(xfs.writeFilePromise).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('Initial release'))
     })
 
     it('should create changelog file when none exists', async () => {
@@ -450,10 +444,7 @@ describe('ApplyCommand', () => {
       const result = await command.execute()
 
       expect(result).toBe(0)
-      expect(xfs.writeFilePromise).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringContaining('# Changelog'),
-      )
+      expect(xfs.writeFilePromise).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('# Changelog'))
     })
 
     it('should use default version when package.json has no version', async () => {
@@ -488,10 +479,7 @@ describe('ApplyCommand', () => {
 
       expect(result).toBe(0)
       // Should use 0.0.0 as default version
-      expect(xfs.writeFilePromise).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringContaining('0.0.0'),
-      )
+      expect(xfs.writeFilePromise).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('0.0.0'))
     })
 
     it('should handle applying to multiple packages', async () => {
@@ -538,9 +526,7 @@ describe('ApplyCommand', () => {
       expect(result).toBe(0)
       expect(xfs.writeFilePromise).toHaveBeenCalledTimes(2)
       expect(xfs.unlinkPromise).toHaveBeenCalledTimes(2)
-      expect(context.stdout.write).toHaveBeenCalledWith(
-        expect.stringContaining('2 package(s)'),
-      )
+      expect(context.stdout.write).toHaveBeenCalledWith(expect.stringContaining('2 package(s)'))
     })
 
     it('should add header if existing changelog does not have one', async () => {
@@ -577,10 +563,7 @@ describe('ApplyCommand', () => {
 
       expect(result).toBe(0)
       // Verify header is added
-      expect(xfs.writeFilePromise).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringMatching(/^# Changelog/),
-      )
+      expect(xfs.writeFilePromise).toHaveBeenCalledWith(expect.any(String), expect.stringMatching(/^# Changelog/))
     })
   })
 })
