@@ -23,7 +23,9 @@
   "keywords": [
     "FuryStack",
     "i18n",
-    "translations"
+    "translations",
+    "internationalization",
+    "localization"
   ],
   "publishConfig": {
     "access": "public"

@@ -24,7 +24,8 @@
     "FuryStack",
     "Shades",
     "MFE",
-    "Micro-Frontend"
+    "micro-frontend",
+    "module federation"
   ],
   "publishConfig": {
     "access": "public"

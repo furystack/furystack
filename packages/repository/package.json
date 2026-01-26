@@ -22,10 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Repository",
-    "Content",
-    "Business logic",
-    "Content authorization"
+    "repository",
+    "data access",
+    "business logic",
+    "authorization",
+    "CRUD"
   ],
   "publishConfig": {
     "access": "public"

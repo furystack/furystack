@@ -28,7 +28,11 @@
   },
   "keywords": [
     "FuryStack",
-    "framework"
+    "framework",
+    "store",
+    "identity",
+    "data store",
+    "in-memory"
   ],
   "publishConfig": {
     "access": "public"

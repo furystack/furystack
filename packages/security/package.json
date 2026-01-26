@@ -23,8 +23,12 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "security"
+    "FuryStack",
+    "security",
+    "authentication",
+    "authorization",
+    "password",
+    "hashing"
   ],
   "publishConfig": {
     "access": "public"

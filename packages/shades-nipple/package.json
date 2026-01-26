@@ -24,7 +24,9 @@
     "FuryStack",
     "Shades",
     "Nipple",
-    "Joystick"
+    "joystick",
+    "gamepad",
+    "touch"
   ],
   "publishConfig": {
     "access": "public"

@@ -22,9 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Authentication",
+    "authentication",
     "OAuth",
-    "Google"
+    "Google",
+    "SSO",
+    "login"
   ],
   "publishConfig": {
     "access": "public"

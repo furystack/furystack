@@ -25,7 +25,8 @@
     "HTTP",
     "REST",
     "API",
-    "Typed API"
+    "typed API",
+    "TypeScript"
   ],
   "publishConfig": {
     "access": "public"

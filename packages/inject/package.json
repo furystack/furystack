@@ -22,10 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Dependency injection",
-    "Inversion of control",
+    "dependency injection",
+    "inversion of control",
     "DI",
-    "IOC"
+    "IoC",
+    "injector"
   ],
   "publishConfig": {
     "access": "public"

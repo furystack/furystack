@@ -25,7 +25,9 @@
     "Shades",
     "UI",
     "JSX",
-    "WebApp"
+    "frontend",
+    "framework",
+    "components"
   ],
   "publishConfig": {
     "access": "public"

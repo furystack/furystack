@@ -22,8 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Storage",
-    "Sequelize"
+    "storage",
+    "Sequelize",
+    "SQL",
+    "ORM",
+    "database"
   ],
   "publishConfig": {
     "access": "public"

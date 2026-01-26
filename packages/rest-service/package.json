@@ -25,7 +25,9 @@
     "HTTP",
     "REST",
     "API",
-    "Actions"
+    "server",
+    "backend",
+    "Node.js"
   ],
   "publishConfig": {
     "access": "public"

@@ -22,7 +22,10 @@
   },
   "keywords": [
     "FuryStack",
-    "WebSocket"
+    "WebSocket",
+    "real-time",
+    "ws",
+    "API"
   ],
   "publishConfig": {
     "access": "public"

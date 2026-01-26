@@ -22,9 +22,10 @@
   },
   "keywords": [
     "FuryStack",
-    "Storage",
+    "storage",
     "Redis",
-    "Key/Value store"
+    "key-value",
+    "in-memory"
   ],
   "publishConfig": {
     "access": "public"

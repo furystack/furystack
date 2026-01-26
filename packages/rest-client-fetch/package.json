@@ -25,7 +25,9 @@
     "HTTP",
     "REST",
     "API",
-    "Client"
+    "client",
+    "fetch",
+    "browser"
   ],
   "publishConfig": {
     "access": "public"

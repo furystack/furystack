@@ -22,8 +22,10 @@
   },
   "keywords": [
     "FuryStack",
+    "Shades",
     "i18n",
-    "Shades"
+    "translations",
+    "internationalization"
   ],
   "publishConfig": {
     "access": "public"

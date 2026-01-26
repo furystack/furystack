@@ -22,10 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Storage",
+    "storage",
     "MongoDB",
     "NoSQL",
-    "Document store"
+    "document store",
+    "database"
   ],
   "publishConfig": {
     "access": "public"

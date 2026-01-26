@@ -22,10 +22,11 @@
   },
   "keywords": [
     "FuryStack",
-    "Storage",
-    "File system",
-    "Embedded",
-    "Lightweight"
+    "storage",
+    "file system",
+    "embedded",
+    "lightweight",
+    "JSON"
   ],
   "publishConfig": {
     "access": "public"

@@ -21,8 +21,12 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "API"
+    "FuryStack",
+    "utilities",
+    "observable",
+    "events",
+    "debounce",
+    "disposable"
   ],
   "publishConfig": {
     "access": "public"

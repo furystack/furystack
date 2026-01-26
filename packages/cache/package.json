@@ -22,8 +22,9 @@
   },
   "keywords": [
     "FuryStack",
-    "Cache",
-    "Caching"
+    "cache",
+    "caching",
+    "memoization"
   ],
   "publishConfig": {
     "access": "public"

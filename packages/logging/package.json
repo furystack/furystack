@@ -22,7 +22,9 @@
   },
   "keywords": [
     "FuryStack",
-    "Logging"
+    "logging",
+    "logger",
+    "console"
   ],
   "publishConfig": {
     "access": "public"
