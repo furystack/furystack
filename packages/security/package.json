@@ -4,18 +4,16 @@
   "description": "Security, password management and authorization related stuff for FuryStack",
   "type": "module",
   "scripts": {
-    "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
-    "build:es6": "tsc --outDir ./esm",
-    "build": "tsc -b"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
@@ -23,8 +21,12 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "security"
+    "FuryStack",
+    "security",
+    "authentication",
+    "authorization",
+    "password",
+    "hashing"
   ],
   "publishConfig": {
     "access": "public"
@@ -44,5 +46,9 @@
     "@types/node": "^25.0.10",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
-  }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

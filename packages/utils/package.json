@@ -1,19 +1,19 @@
 {
   "name": "@furystack/utils",
   "version": "8.1.8",
-  "description": "General utilities",
+  "description": "Utility functions and helpers for FuryStack including observables, events, and disposables",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
@@ -21,8 +21,12 @@
     "url": "https://github.com/furystack/furystack.git"
   },
   "keywords": [
-    "furystack",
-    "API"
+    "FuryStack",
+    "utilities",
+    "observable",
+    "events",
+    "debounce",
+    "disposable"
   ],
   "publishConfig": {
     "access": "public"
@@ -36,5 +40,9 @@
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
-  }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

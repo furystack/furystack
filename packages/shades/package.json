@@ -1,19 +1,19 @@
 {
   "name": "@furystack/shades",
   "version": "11.0.34",
-  "description": "Google Authentication Provider for FuryStack",
+  "description": "A lightweight UI framework for FuryStack with JSX support",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
@@ -25,12 +25,14 @@
     "Shades",
     "UI",
     "JSX",
-    "WebApp"
+    "frontend",
+    "framework",
+    "components"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/furystack/furystack/issues"
@@ -50,5 +52,8 @@
     "path-to-regexp": "^8.3.0",
     "semaphore-async-await": "^1.5.1"
   },
-  "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

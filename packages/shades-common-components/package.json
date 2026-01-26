@@ -1,35 +1,44 @@
 {
   "name": "@furystack/shades-common-components",
   "version": "10.0.34",
-  "description": "",
+  "description": "Common UI components for FuryStack Shades",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
   "keywords": [
     "FuryStack",
     "Shades",
+    "UI components",
     "Input",
     "Button",
-    "Data Grid",
+    "DataGrid",
     "AppBar",
     "Autocomplete"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
@@ -42,5 +51,8 @@
     "path-to-regexp": "^8.3.0",
     "semaphore-async-await": "^1.5.1"
   },
-  "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

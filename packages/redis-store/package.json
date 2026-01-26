@@ -4,16 +4,16 @@
   "description": "Redis Store implementation for FuryStack",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
@@ -22,14 +22,15 @@
   },
   "keywords": [
     "FuryStack",
-    "Storage",
+    "storage",
     "Redis",
-    "Key/Value store"
+    "key-value",
+    "in-memory"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/furystack/furystack/issues"
@@ -46,5 +47,8 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
   },
-  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

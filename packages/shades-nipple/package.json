@@ -4,29 +4,39 @@
   "description": "A Nipple component wrapper for FuryStack Shades",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
   "keywords": [
     "FuryStack",
     "Shades",
     "Nipple",
-    "Joystick"
+    "joystick",
+    "gamepad",
+    "touch"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "@furystack/inject": "workspace:^",
     "typescript": "^5.9.3",
@@ -36,5 +46,8 @@
     "@furystack/shades": "workspace:^",
     "nipplejs": "^0.10.2"
   },
-  "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

@@ -10,7 +10,7 @@
     "start": "yarn vite --port 8080",
     "e2e": "yarn playwright"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "@codecov/vite-plugin": "^1.9.1",
@@ -34,5 +34,8 @@
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
     "monaco-editor": "^0.55.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

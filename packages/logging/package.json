@@ -4,16 +4,16 @@
   "description": "Logging API for FuryStack package",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
@@ -22,12 +22,14 @@
   },
   "keywords": [
     "FuryStack",
-    "Logging"
+    "logging",
+    "logger",
+    "console"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/furystack/furystack/issues"
@@ -41,5 +43,8 @@
   "dependencies": {
     "@furystack/inject": "workspace:^"
   },
-  "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }
