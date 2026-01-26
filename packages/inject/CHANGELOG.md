@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.0.28] - 2026-01-26
+
+### 🔧 Chores
+
+- Standardized author format, improved keywords, removed obsolete `gitHead`, added `engines` (Node 22+) and `sideEffects: false`
+
 ## [12.0.27] - 2026-01-26
 
 ### 🐛 Bug Fixes

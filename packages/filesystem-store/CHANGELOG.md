@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.34] - 2026-01-26
+
+### 🔧 Chores
+
+- Standardized author format, improved keywords, removed obsolete `gitHead`, added `engines` (Node 22+) and `sideEffects: false`
+
 ## [7.0.33] - 2026-01-26
 
 ### ⬆️ Dependencies
