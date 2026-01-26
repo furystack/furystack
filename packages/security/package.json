@@ -4,9 +4,7 @@
   "description": "Security, password management and authorization related stuff for FuryStack",
   "type": "module",
   "scripts": {
-    "fix:prettier": "prettier \"{,!(dist|temp)/**/}*.{ts,tsx}\" --write",
-    "build:es6": "tsc --outDir ./esm",
-    "build": "tsc -b"
+    "build:es6": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
@@ -48,5 +46,9 @@
     "@types/node": "^25.0.10",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
-  }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

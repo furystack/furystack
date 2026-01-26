@@ -43,5 +43,8 @@
   "dependencies": {
     "@furystack/inject": "workspace:^"
   },
-  "gitHead": "f83552be5dc0d48b087781b583111a4c88188082"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

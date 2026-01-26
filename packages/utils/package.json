@@ -1,7 +1,7 @@
 {
   "name": "@furystack/utils",
   "version": "8.1.8",
-  "description": "General utilities",
+  "description": "Utility functions and helpers for FuryStack including observables, events, and disposables",
   "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
@@ -40,5 +40,9 @@
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
-  }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

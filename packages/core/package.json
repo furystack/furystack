@@ -52,5 +52,8 @@
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^"
   },
-  "gitHead": "1045d854bfd8c475b7035471d130d401417a2321"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

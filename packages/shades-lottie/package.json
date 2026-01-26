@@ -44,5 +44,8 @@
     "@furystack/shades": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12"
   },
-  "gitHead": "76e1d17a71b981984935c9a7a5791cf61ebf5213"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }

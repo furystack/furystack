@@ -50,5 +50,8 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
   },
-  "typings": "./types/index.d.ts"
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
 }
