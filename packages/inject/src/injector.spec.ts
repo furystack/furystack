@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { Injectable } from './injectable.js'
 import { Injected } from './injected.js'
 import { Injector } from './injector.js'
+import { getInjectorReference } from './with-injector-reference.js'
 
 describe('Injector', () => {
   it('Shold be constructed', () => {
@@ -113,6 +114,41 @@ describe('Injector', () => {
       class InstanceClass {}
       expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
       expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+    })
+
+    it('Should preserve parent injector reference when singleton is retrieved from child', () => {
+      const parent = new Injector()
+      const child = parent.createChild()
+
+      @Injectable({ lifetime: 'singleton' })
+      class SingletonClass {}
+
+      // Parent creates the singleton first
+      const instanceFromParent = parent.getInstance(SingletonClass)
+      expect(getInjectorReference(instanceFromParent)).toBe(parent)
+
+      // Child retrieves the same singleton - injector reference should still point to parent
+      const instanceFromChild = child.getInstance(SingletonClass)
+      expect(instanceFromChild).toBe(instanceFromParent)
+      expect(getInjectorReference(instanceFromChild)).toBe(parent)
+    })
+
+    it('Should set parent injector reference when singleton is first created via child', () => {
+      const parent = new Injector()
+      const child = parent.createChild()
+
+      @Injectable({ lifetime: 'singleton' })
+      class SingletonClass {}
+
+      // Child requests singleton first - it should be created on parent with parent's reference
+      const instanceFromChild = child.getInstance(SingletonClass)
+      expect(parent.cachedSingletons.get(SingletonClass)).toBe(instanceFromChild)
+      expect(getInjectorReference(instanceFromChild)).toBe(parent)
+
+      // Parent retrieves same singleton - reference should still be parent
+      const instanceFromParent = parent.getInstance(SingletonClass)
+      expect(instanceFromParent).toBe(instanceFromChild)
+      expect(getInjectorReference(instanceFromParent)).toBe(parent)
     })
 
     it('Singleton with transient dependencies should throw an error', async () => {

@@ -2,7 +2,7 @@ import { isAsyncDisposable, isDisposable } from '@furystack/utils'
 import { Injectable, getInjectableOptions, type InjectorLifetime } from './injectable.js'
 import { getDependencyList } from './injected.js'
 import type { Constructable } from './models/constructable.js'
-import { withInjectorReference } from './with-injector-reference.js'
+import { hasInjectorReference, withInjectorReference } from './with-injector-reference.js'
 
 const hasInitMethod = (obj: object): obj is { init: (injector: Injector) => void } => {
   return typeof (obj as { init?: (injector: Injector) => void }).init === 'function'
@@ -83,7 +83,11 @@ export class Injector implements AsyncDisposable {
   }
 
   public getInstance<T>(ctor: Constructable<T>): T {
-    return withInjectorReference(this.getInstanceInternal(ctor), this)
+    const instance = this.getInstanceInternal(ctor)
+    if (!hasInjectorReference(instance)) {
+      withInjectorReference(instance, this)
+    }
+    return instance
   }
 
   /**
@@ -153,12 +157,14 @@ export class Injector implements AsyncDisposable {
     }
 
     const newInstance = new ctor()
+    withInjectorReference(newInstance, this)
+
     if (lifetimesToCache.includes(lifetime)) {
       this.setExplicitInstance(newInstance)
     }
 
     if (hasInitMethod(newInstance)) {
-      withInjectorReference(newInstance, this).init(this)
+      newInstance.init(this)
     }
     return newInstance
   }
