@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.34] - 2026-01-26
+
+### 🔧 Chores
+
+- Fixed repository URL in package.json from `furystack/core` to `furystack/furystack`
+
 ## [10.0.33] - 2026-01-26
 
 ### ⬆️ Dependencies

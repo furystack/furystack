@@ -1,4 +1,0 @@
-releases:
-  "@furystack/mongodb-store": patch
-  "@furystack/sequelize-store": patch
-  furystack: patch

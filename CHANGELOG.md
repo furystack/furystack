@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.36] - 2026-01-26
+
+### 🔧 Chores
+
+- Fixed repository URLs in package metadata for `@furystack/mongodb-store` and `@furystack/sequelize-store`
+
 ## [7.0.35] - 2026-01-26
 
 ### ⬆️ Dependencies
