@@ -4,22 +4,24 @@
   "description": "Core FuryStack package",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     },
     "./create-physical-store-tests": {
+      "types": "./esm/create-physical-store-tests.d.ts",
       "import": "./esm/create-physical-store-tests.js"
     },
     "./port-generator": {
+      "types": "./esm/port-generator.d.ts",
       "import": "./esm/port-generator.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {

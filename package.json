@@ -42,11 +42,6 @@
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
     "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",

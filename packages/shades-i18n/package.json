@@ -4,16 +4,16 @@
   "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
-    "build:es6": "tsc --outDir ./esm"
+    "build": "tsc --outDir ./esm"
   },
   "exports": {
     ".": {
+      "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
     }
   },
   "files": [
     "esm",
-    "types",
     "src"
   ],
   "repository": {
