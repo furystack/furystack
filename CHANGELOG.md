@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.0.35] - 2026-01-26
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/inject` with fix for singleton injector reference being overwritten by child injectors
+- Updated `@furystack/rest-service` dependency with injector owner fix
+
 ## [7.0.34] - 2026-01-22
 
 ### ⬆️ Dependencies

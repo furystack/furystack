@@ -1,6 +1,6 @@
 {
   "name": "@furystack/i18n",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "Generic package for i18n",
   "type": "module",
   "scripts": {

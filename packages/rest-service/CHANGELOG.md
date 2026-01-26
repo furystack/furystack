@@ -1,5 +1,15 @@
 # Changelog
 
+## [11.0.1] - 2026-01-26
+
+### 🐛 Bug Fixes
+
+- Added `owner` parameter when creating child injectors for API request handling, improving debuggability and traceability of injector hierarchies
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/inject` with fix for singleton injector reference being overwritten by child injectors
+
 ## [11.0.0] - 2026-01-22
 
 ### 💥 Breaking Changes
