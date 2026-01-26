@@ -16,6 +16,10 @@
     "types",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
   "keywords": [
     "FuryStack",
     "Shades",
@@ -26,8 +30,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"

@@ -1,7 +1,7 @@
 {
   "name": "@furystack/shades-mfe",
   "version": "1.0.26",
-  "description": "I18n translation package and components for Shades",
+  "description": "Micro-Frontend support for FuryStack Shades",
   "type": "module",
   "scripts": {
     "build:es6": "tsc --outDir ./esm"
@@ -22,13 +22,14 @@
   },
   "keywords": [
     "FuryStack",
-    "i18n",
-    "Shades"
+    "Shades",
+    "MFE",
+    "Micro-Frontend"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/furystack/furystack/issues"

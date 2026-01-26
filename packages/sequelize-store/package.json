@@ -28,7 +28,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "gallay.lajos@gmail.com",
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/furystack/furystack/issues"
