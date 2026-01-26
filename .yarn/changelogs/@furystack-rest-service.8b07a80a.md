@@ -1,4 +1,5 @@
 <!-- version-type: patch -->
+
 # @furystack/rest-service
 
 <!--
@@ -18,6 +19,7 @@ appear before simple list items within each section.
 -->
 
 ## ✨ Features
+
 <!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
 
 ## 🐛 Bug Fixes
@@ -25,25 +27,33 @@ appear before simple list items within each section.
 - Added `owner` parameter when creating child injectors for API request handling, improving debuggability and traceability of injector hierarchies
 
 ## 📚 Documentation
+
 <!-- PLACEHOLDER: Describe documentation changes (docs:) -->
 
 ## ⚡ Performance
+
 <!-- PLACEHOLDER: Describe performance improvements (perf:) -->
 
 ## ♻️ Refactoring
+
 <!-- PLACEHOLDER: Describe code refactoring (refactor:) -->
 
 ## 🧪 Tests
+
 <!-- PLACEHOLDER: Describe test changes (test:) -->
 
 ## 📦 Build
+
 <!-- PLACEHOLDER: Describe build system changes (build:) -->
 
 ## 👷 CI
+
 <!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
 
 ## ⬆️ Dependencies
+
 <!-- PLACEHOLDER: Describe dependency updates (deps:) -->
 
 ## 🔧 Chores
+
 <!-- PLACEHOLDER: Describe other changes (chore:) -->
