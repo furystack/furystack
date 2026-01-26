@@ -222,7 +222,7 @@ export class ApiManager {
     action: RequestAction<{ body: object; result: object; query: object; url: object; headers: object }>
     params: unknown
   }) {
-    await usingAsync(injector.createChild(), async (i) => {
+    await usingAsync(injector.createChild({ owner: action }), async (i) => {
       const httpUserContext = i.getInstance(HttpUserContext)
       i.setExplicitInstance<IdentityContext>(
         {
