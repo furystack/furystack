@@ -1,4 +1,5 @@
 <!-- version-type: minor -->
+
 # @furystack/shades-showcase-app
 
 ## ♻️ Refactoring
