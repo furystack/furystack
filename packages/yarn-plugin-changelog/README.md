@@ -2,18 +2,127 @@
 
 A Yarn plugin for automated changelog generation and management in monorepos. It integrates with Yarn's version plugin to generate, validate, and apply changelog entries from version manifests.
 
-## Installation
+## Getting Started
 
-### As a Yarn Plugin (Recommended)
+### Step 1: Install the Package
+
+Add the plugin as a dev dependency:
 
 ```bash
-yarn plugin import https://raw.githubusercontent.com/furystack/furystack/main/packages/yarn-plugin-changelog/bundles/@yarnpkg/plugin-changelog.js
+yarn add -D @furystack/yarn-plugin-changelog
 ```
 
-### From NPM
+### Step 2: Configure `.yarnrc.yml`
 
-```bash
-yarn plugin import @furystack/yarn-plugin-changelog
+Add the plugin configuration to your `.yarnrc.yml`:
+
+```yaml
+changesetBaseRefs:
+  - develop
+  - origin/develop
+  - master
+  - origin/master
+  - main
+  - origin/main
+
+plugins:
+  - path: node_modules/@furystack/yarn-plugin-changelog/bundles/@yarnpkg/plugin-changelog.js
+```
+
+The `changesetBaseRefs` setting tells Yarn which branches to compare against when checking for version bumps.
+
+### Step 3: Update `.gitignore`
+
+Add these lines to your `.gitignore` to track version manifests and changelog drafts:
+
+```gitignore
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+!.yarn/changelogs
+```
+
+### Step 4: Add Scripts to `package.json`
+
+Add these recommended scripts to your root `package.json`:
+
+```json
+{
+  "scripts": {
+    "bumpVersions": "yarn version check --interactive",
+    "applyReleaseChanges": "yarn version apply --all && yarn changelog apply && yarn prettier --write ."
+  }
+}
+```
+
+### Step 5: CI/CD Setup (Optional)
+
+To enforce changelog entries in your CI pipeline, create these GitHub Actions workflows:
+
+**`.github/workflows/check-version-bump.yml`:**
+
+```yaml
+name: Version checks
+on:
+  push:
+    branches-ignore:
+      - 'release/**'
+      - 'master'
+      - 'develop'
+jobs:
+  check:
+    name: Check version bumps
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check version bumps
+        run: yarn version check
+        env:
+          CI: true
+```
+
+**`.github/workflows/check-changelog.yml`:**
+
+```yaml
+name: Changelog checks
+on:
+  push:
+    branches-ignore:
+      - 'release/**'
+      - 'master'
+      - 'develop'
+  pull_request:
+    branches:
+      - develop
+jobs:
+  check:
+    name: Check changelog completion
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check changelog entries
+        run: yarn changelog check
+        env:
+          CI: true
 ```
 
 ## Usage
