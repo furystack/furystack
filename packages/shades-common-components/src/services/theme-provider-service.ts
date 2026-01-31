@@ -2,48 +2,106 @@ import { Injectable } from '@furystack/inject'
 import { EventHub, type DeepPartial } from '@furystack/utils'
 import { cssVariableTheme, getCssVariable, useThemeCssVariables } from './css-variable-theme.js'
 
-export type Color = string // `#${string}` | `rgba(${number},${number},${number},${number})` |
+/**
+ * Represents a CSS color value.
+ * Can be a hex color, rgba, or CSS variable reference.
+ * @example '#3f51b5', 'rgba(255, 255, 255, 0.7)', 'var(--my-color)'
+ */
+export type Color = string
 
+/**
+ * Color variants for a palette color with their corresponding contrast text colors.
+ * Each variant (light, main, dark) has an associated contrast color that should be
+ * used for text or icons displayed on top of that variant's background.
+ */
 export type ColorVariants = {
-  main: Color
+  /** The lighter shade of the color */
   light: Color
+  /** Text/icon color that contrasts well with the light variant */
+  lightContrast: Color
+  /** The primary/default shade of the color */
+  main: Color
+  /** Text/icon color that contrasts well with the main variant */
+  mainContrast: Color
+  /** The darker shade of the color */
   dark: Color
+  /** Text/icon color that contrasts well with the dark variant */
+  darkContrast: Color
 }
 
+/**
+ * The color palette containing semantic colors for the application.
+ * Each color has light, main, and dark variants with corresponding contrast colors.
+ */
 export interface Palette {
+  /** Primary brand color, used for main actions and emphasis */
   primary: ColorVariants
+  /** Secondary brand color, used for less prominent actions */
   secondary: ColorVariants
+  /** Color indicating errors or destructive actions */
   error: ColorVariants
+  /** Color indicating warnings or caution */
   warning: ColorVariants
+  /** Color indicating success or positive outcomes */
   success: ColorVariants
+  /** Color for informational content */
   info: ColorVariants
 }
 
+/**
+ * Text color definitions for different emphasis levels.
+ */
 export interface Text {
+  /** High-emphasis text color for important content */
   primary: Color
+  /** Medium-emphasis text color for secondary content */
   secondary: Color
+  /** Low-emphasis text color for disabled or hint text */
   disabled: Color
 }
 
+/**
+ * Button-specific color definitions for various states.
+ */
 export interface ButtonColor {
+  /** Color when button is actively pressed */
   active: Color
+  /** Background color on hover */
   hover: Color
+  /** Background color when selected/checked */
   selected: Color
+  /** Text color when button is disabled */
   disabled: Color
+  /** Background color when button is disabled */
   disabledBackground: Color
 }
 
+/**
+ * Background color definitions for different surface levels.
+ */
 export interface Background {
+  /** Default page/app background color */
   default: Color
+  /** Elevated surface background (cards, dialogs, etc.) */
   paper: Color
 }
 
+/**
+ * Complete theme definition containing all color tokens for the application.
+ * Themes can be switched at runtime to support light/dark modes or custom branding.
+ */
 export interface Theme {
+  /** Unique identifier for the theme */
   name: string
+  /** Semantic color palette */
   palette: Palette
+  /** Text colors for different emphasis levels */
   text: Text
+  /** Button-specific colors */
   button: ButtonColor
+  /** Background colors */
   background: Background
+  /** Color for dividers and borders */
   divider: Color
 }
 
