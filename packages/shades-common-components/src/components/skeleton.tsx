@@ -10,7 +10,7 @@ export type SkeletonProps = {
 
 export const Skeleton = Shade<SkeletonProps>({
   shadowDomName: 'shade-skeleton',
-  style: {
+  css: {
     opacity: '0',
     display: 'inline-block',
     background: 'linear-gradient(-45deg, rgba(128,128,128,0.1), rgba(128,128,128,0.3), rgba(128,128,128,0.1))',

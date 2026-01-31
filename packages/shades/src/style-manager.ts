@@ -1,5 +1,5 @@
-import type { CSSObject } from './models/css-object.js'
 import { generateCSS } from './css-generator.js'
+import type { CSSObject } from './models/css-object.js'
 
 /**
  * Singleton that manages component CSS injection.

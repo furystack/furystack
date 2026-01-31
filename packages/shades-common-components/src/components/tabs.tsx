@@ -9,7 +9,7 @@ export interface Tab {
 
 const TabHeader = Shade<{ hash: string }>({
   shadowDomName: 'shade-tab-header',
-  style: {
+  css: {
     padding: '1em 2.5em',
     cursor: 'pointer',
     transition: 'box-shadow 1s linear',

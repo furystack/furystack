@@ -39,7 +39,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       )
     })
   },
-  style: {
+  css: {
     margin: '8px',
     overflow: 'hidden',
     borderRadius: '12px',
