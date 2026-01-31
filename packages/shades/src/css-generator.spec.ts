@@ -74,6 +74,18 @@ describe('css-generator', () => {
       const result = propertiesToCSSString(mixedObject as unknown as CSSProperties)
       expect(result).toBe('color: red')
     })
+
+    it('should filter out non-string values', () => {
+      // Type assertion to test edge case with non-string values
+      const mixedObject = {
+        color: 'red',
+        opacity: 0.5, // number - should be filtered
+        display: 'flex',
+        hidden: true, // boolean - should be filtered
+      }
+      const result = propertiesToCSSString(mixedObject as unknown as CSSProperties)
+      expect(result).toBe('color: red; display: flex')
+    })
   })
 
   describe('generateCSSRule', () => {
@@ -150,6 +162,22 @@ describe('css-generator', () => {
         '&:hover': { color: 'blue' },
       })
       expect(result).toBe('my-component:hover { color: blue; }')
+    })
+
+    it('should skip selector keys with non-object values', () => {
+      // Type assertion to test edge case with invalid selector values
+      const cssObject = {
+        color: 'red',
+        '&:hover': 'invalid', // string instead of object - should be skipped
+        '&:active': null, // null - should be skipped
+        '&:focus': { backgroundColor: 'blue' }, // valid - should be included
+      }
+      const result = generateCSS('my-component', cssObject as unknown as Parameters<typeof generateCSS>[1])
+      expect(result).toContain('my-component { color: red; }')
+      expect(result).toContain('my-component:focus { background-color: blue; }')
+      expect(result).not.toContain('invalid')
+      expect(result).not.toContain(':hover')
+      expect(result).not.toContain(':active')
     })
   })
 })

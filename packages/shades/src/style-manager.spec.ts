@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { Shade } from './shade.js'
 import { StyleManager } from './style-manager.js'
 
 describe('StyleManager', () => {
@@ -174,6 +175,55 @@ describe('StyleManager', () => {
       const styleElement = styleElements[0]
       expect(styleElement?.textContent).toContain('component-a')
       expect(styleElement?.textContent).toContain('component-b')
+    })
+  })
+
+  describe('Shade integration', () => {
+    it('should register CSS styles when Shade component is created with css property', () => {
+      Shade({
+        shadowDomName: 'shade-css-test-component',
+        css: {
+          color: 'red',
+          padding: '10px',
+          '&:hover': { color: 'blue' },
+        },
+        render: () => null,
+      })
+
+      expect(StyleManager.isRegistered('shade-css-test-component')).toBe(true)
+
+      const styleElement = document.querySelector('[data-shades-styles]')
+      expect(styleElement?.textContent).toContain('shade-css-test-component')
+      expect(styleElement?.textContent).toContain('color: red')
+      expect(styleElement?.textContent).toContain('shade-css-test-component:hover')
+    })
+
+    it('should register CSS with attribute selector for customized built-in elements', () => {
+      Shade({
+        shadowDomName: 'shade-css-test-button',
+        elementBase: HTMLButtonElement,
+        elementBaseName: 'button',
+        css: {
+          backgroundColor: 'blue',
+          '&:hover': { backgroundColor: 'darkblue' },
+        },
+        render: () => null,
+      })
+
+      expect(StyleManager.isRegistered('shade-css-test-button')).toBe(true)
+
+      const styleElement = document.querySelector('[data-shades-styles]')
+      expect(styleElement?.textContent).toContain('button[is="shade-css-test-button"]')
+      expect(styleElement?.textContent).toContain('button[is="shade-css-test-button"]:hover')
+    })
+
+    it('should not register styles when Shade component has no css property', () => {
+      Shade({
+        shadowDomName: 'shade-no-css-component',
+        render: () => null,
+      })
+
+      expect(StyleManager.isRegistered('shade-no-css-component')).toBe(false)
     })
   })
 })
