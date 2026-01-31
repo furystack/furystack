@@ -1,10 +1,11 @@
 import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import type { ChildrenList, PartialElement, RenderOptions } from './models/index.js'
+import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { attachProps, attachStyles } from './shade-component.js'
+import { StyleManager } from './style-manager.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
@@ -45,9 +46,26 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   elementBase?: Constructable<TElementBase>
 
   /**
-   * A default style that will be applied to the element. Can be overridden by external styles.
+   * A default style that will be applied to the element as inline styles.
+   * Can be overridden by external styles on instances.
    */
   style?: Partial<CSSStyleDeclaration>
+
+  /**
+   * CSS styles injected as a stylesheet during component registration.
+   * Supports pseudo-selectors (&:hover, &:active) and nested selectors (& .class).
+   * Use this for component-level styling that doesn't need per-instance overrides.
+   *
+   * @example
+   * ```typescript
+   * css: {
+   *   padding: '16px',
+   *   '&:hover': { backgroundColor: '#f0f0f0' },
+   *   '& .title': { fontWeight: 'bold' }
+   * }
+   * ```
+   */
+  css?: CSSObject
 }
 
 /**
@@ -63,6 +81,11 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 
   const existing = customElements.get(customElementName)
   if (!existing) {
+    // Register CSS styles if provided
+    if (o.css) {
+      StyleManager.registerComponentStyles(customElementName, o.css)
+    }
+
     const ElementBase = o.elementBase || HTMLElement
 
     customElements.define(

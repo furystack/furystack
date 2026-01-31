@@ -6,7 +6,7 @@ import { ThemeSwitch } from './components/theme-switch.js'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  style: {
+  css: {
     width: '100%',
     height: '100%',
     position: 'fixed',

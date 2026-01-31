@@ -5,7 +5,7 @@ import lottieExample from './lottie-example.json' with { type: 'json' }
 
 export const LottiePage = Shade({
   shadowDomName: 'lottie-page',
-  style: {
+  css: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

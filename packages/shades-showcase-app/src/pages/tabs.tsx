@@ -3,7 +3,7 @@ import { Paper, Tabs } from '@furystack/shades-common-components'
 
 export const TabsPage = Shade({
   shadowDomName: 'tabs-page',
-  style: {
+  css: {
     position: 'fixed',
     top: '32px',
     left: '0',

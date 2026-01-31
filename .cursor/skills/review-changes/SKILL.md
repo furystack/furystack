@@ -101,6 +101,22 @@ Check for:
 - Disposable resources (`Symbol.dispose`, `Symbol.asyncDispose`)
 - Package structure and organization
 
+**Shades Styling Patterns:**
+
+- Flag `useState()` used only for CSS-representable states (hover, focus, active)
+- Recommend using `css` property with pseudo-selectors instead:
+
+  ```typescript
+  // ❌ Anti-pattern to flag
+  const [isHovered, setIsHovered] = useState('hover', false)
+  <div onMouseEnter={() => setIsHovered(true)} style={{ opacity: isHovered ? 1 : 0.7 }} />
+
+  // ✅ Recommend instead
+  css: { opacity: '0.7', '&:hover': { opacity: '1' } }
+  ```
+
+- Static `style` props in Shade definitions should use `css` instead
+
 **Testing & Coverage:**
 
 - Delegate to `reviewer-tests` subagent to run unit tests and assess coverage

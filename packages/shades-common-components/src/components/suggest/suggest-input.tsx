@@ -4,7 +4,7 @@ import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   shadowDomName: 'shades-suggest-input',
-  style: {
+  css: {
     width: '100%',
     overflow: 'hidden',
   },

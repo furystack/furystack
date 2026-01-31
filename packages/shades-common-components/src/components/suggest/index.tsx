@@ -25,7 +25,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   SuggestProps<any>
 >({
   shadowDomName: 'shade-suggest',
-  style: {
+  css: {
     flexGrow: '1',
   },
   render: ({ props, injector, element, useDisposable }) => {

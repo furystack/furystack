@@ -413,6 +413,71 @@ export class Injector {
 }
 ```
 
+## Shades Component Styling
+
+### Use `css` Property for Component Styles
+
+When creating Shades components, prefer the `css` property over `style` for component-level styling:
+
+```typescript
+// ✅ Good - use css for component defaults and pseudo-selectors
+const Button = Shade({
+  shadowDomName: 'my-button',
+  css: {
+    padding: '12px 24px',
+    backgroundColor: 'blue',
+    cursor: 'pointer',
+    '&:hover': { backgroundColor: 'darkblue' },
+    '&:disabled': { opacity: '0.5', cursor: 'not-allowed' },
+  },
+  render: ({ props }) => <button>{props.children}</button>,
+})
+
+// ❌ Avoid - using useState for hover/active states
+const Button = Shade({
+  shadowDomName: 'my-button',
+  render: ({ useState }) => {
+    const [isHovered, setIsHovered] = useState('hover', false)
+    return (
+      <button
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ backgroundColor: isHovered ? 'darkblue' : 'blue' }}
+      >
+        Click me
+      </button>
+    )
+  },
+})
+```
+
+### When to Use `style` vs `css`
+
+| Use Case | `style` | `css` |
+|----------|---------|-------|
+| Hover/focus/active states | ❌ | ✅ |
+| Per-instance overrides | ✅ | ❌ |
+| Nested element styling | ❌ | ✅ |
+| Dynamic values from props | ✅ | ❌ |
+| Component defaults | ⚠️ | ✅ |
+
+### Anti-pattern: useState for CSS States
+
+**Do not** use `useState` to track CSS states like hover, focus, or active. Use `css` pseudo-selectors instead:
+
+```typescript
+// ❌ Bad - unnecessary state for CSS-representable behavior
+const [isHovered, setIsHovered] = useState('hover', false)
+const [isFocused, setIsFocused] = useState('focus', false)
+
+// ✅ Good - CSS handles these states natively
+css: {
+  '&:hover': { /* hover styles */ },
+  '&:focus': { /* focus styles */ },
+  '&:active': { /* active styles */ },
+}
+```
+
 ## Export Patterns
 
 ### Index Exports

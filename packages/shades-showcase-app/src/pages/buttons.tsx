@@ -3,7 +3,7 @@ import { Button } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
-  style: {
+  css: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

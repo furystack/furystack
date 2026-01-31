@@ -150,7 +150,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
 export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
-  style: {
+  css: {
     position: 'fixed',
     bottom: '1em',
     right: '1em',

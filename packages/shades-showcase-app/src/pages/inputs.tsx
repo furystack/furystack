@@ -3,7 +3,7 @@ import { Autocomplete, Input } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
-  style: {
+  css: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
