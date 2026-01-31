@@ -31,6 +31,7 @@ const TabHeader = Shade<{ hash: string }>({
         boxShadow: isActive ? `inset 0 -2px 0 ${theme.palette.primary.main}` : 'none',
       },
       href: `#${props.hash}`,
+      is: 'shade-tab-header',
     })
     return <>{children}</>
   },

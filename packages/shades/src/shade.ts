@@ -308,6 +308,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
     el.props = props || ({} as TProps & PartialElement<TElementBase>)
     el.shadeChildren = children
 
+    if (o.elementBaseName) {
+      el.setAttribute('is', customElementName)
+    }
+
     attachStyles(el, { style: o.style })
     attachProps(el, props)
 
