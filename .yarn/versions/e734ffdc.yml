@@ -1,6 +1,6 @@
 releases:
   "@furystack/shades": minor
-  "@furystack/shades-common-components": minor
+  "@furystack/shades-common-components": major
   "@furystack/shades-i18n": patch
   "@furystack/shades-lottie": patch
   "@furystack/shades-mfe": patch

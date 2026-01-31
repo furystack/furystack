@@ -1,6 +1,45 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/shades-common-components
+
+## 💥 Breaking Changes
+
+### Added Contrast Colors to ColorVariants
+
+The `ColorVariants` type now requires contrast color properties for accessible text on colored backgrounds. This affects any code that defines custom themes or palette colors.
+
+**New required properties:**
+
+- `lightContrast` - Text color for the `light` variant background
+- `mainContrast` - Text color for the `main` variant background
+- `darkContrast` - Text color for the `dark` variant background
+
+**Migration:**
+
+```typescript
+// Before
+const myPalette: Palette = {
+  primary: {
+    light: '#6573c3',
+    main: '#3f51b5',
+    dark: '#2c387e',
+  },
+  // ...
+}
+
+// After
+const myPalette: Palette = {
+  primary: {
+    light: '#6573c3',
+    lightContrast: '#ffffff',
+    main: '#3f51b5',
+    mainContrast: '#ffffff',
+    dark: '#2c387e',
+    darkContrast: '#ffffff',
+  },
+  // ...
+}
+```
 
 ## ♻️ Refactoring
 
