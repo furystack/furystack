@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
-import { setCssVariable, getCssVariable, cssVariableTheme } from './css-variable-theme.js'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { cssVariableTheme, getCssVariable, setCssVariable } from './css-variable-theme.js'
 
 describe('css-variable-theme', () => {
   describe('cssVariableTheme', () => {

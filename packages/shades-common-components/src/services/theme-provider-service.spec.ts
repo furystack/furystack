@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { RgbColor, ThemeProviderService } from './theme-provider-service.js'
 
 describe('theme-provider-service', () => {
