@@ -19,7 +19,7 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <div>
+      <>
         <CustomHeader style={{ color: 'white' }}>Home</CustomHeader>
         <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
@@ -75,7 +75,7 @@ export const HomePage = Shade({
           &nbsp;
           <CustomRouteLink href="/">RouteLink</CustomRouteLink>
         </div>
-      </div>
+      </>
     )
   },
 })
