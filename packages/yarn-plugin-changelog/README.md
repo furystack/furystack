@@ -4,17 +4,19 @@ A Yarn plugin for automated changelog generation and management in monorepos. It
 
 ## Getting Started
 
-### Step 1: Install the Package
+### Step 1: Install the Plugin
 
-Add the plugin as a dev dependency:
+Import the plugin directly from the repository:
 
 ```bash
-yarn add -D @furystack/yarn-plugin-changelog
+yarn plugin import https://raw.githubusercontent.com/furystack/furystack/refs/heads/develop/packages/yarn-plugin-changelog/bundles/%40yarnpkg/plugin-changelog.js
 ```
 
-### Step 2: Configure `.yarnrc.yml`
+This will automatically add the plugin to your `.yarnrc.yml` and download it to `.yarn/plugins/`.
 
-Add the plugin configuration to your `.yarnrc.yml`:
+### Step 2: Configure Base Refs
+
+Add the `changesetBaseRefs` setting to your `.yarnrc.yml` to specify which branches to compare against when checking for version bumps:
 
 ```yaml
 changesetBaseRefs:
@@ -24,12 +26,7 @@ changesetBaseRefs:
   - origin/master
   - main
   - origin/main
-
-plugins:
-  - path: node_modules/@furystack/yarn-plugin-changelog/bundles/@yarnpkg/plugin-changelog.js
 ```
-
-The `changesetBaseRefs` setting tells Yarn which branches to compare against when checking for version bumps.
 
 ### Step 3: Update `.gitignore`
 
