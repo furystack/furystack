@@ -83,7 +83,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   if (!existing) {
     // Register CSS styles if provided
     if (o.css) {
-      StyleManager.registerComponentStyles(customElementName, o.css)
+      StyleManager.registerComponentStyles(customElementName, o.css, o.elementBaseName)
     }
 
     const ElementBase = o.elementBase || HTMLElement

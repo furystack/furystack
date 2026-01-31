@@ -29,22 +29,33 @@ class StyleManagerClass {
    *
    * @param shadowDomName - The unique component identifier (used as CSS selector)
    * @param cssObject - The CSSObject containing styles and nested selectors
+   * @param elementBaseName - Optional base element name for customized built-in elements (e.g., 'a', 'button').
+   *                          When provided, generates selector like `a[is="component-name"]` instead of `component-name`
    * @returns True if styles were injected, false if already registered
    *
    * @example
    * ```typescript
+   * // Regular custom element
    * StyleManager.registerComponentStyles('my-button', {
    *   padding: '12px',
    *   '&:hover': { backgroundColor: 'blue' }
    * })
+   *
+   * // Customized built-in element (extends anchor)
+   * StyleManager.registerComponentStyles('my-link', {
+   *   color: 'blue',
+   *   '&:hover': { textDecoration: 'underline' }
+   * }, 'a')
+   * // Generates: a[is="my-link"] { color: blue; }
    * ```
    */
-  public registerComponentStyles(shadowDomName: string, cssObject: CSSObject): boolean {
+  public registerComponentStyles(shadowDomName: string, cssObject: CSSObject, elementBaseName?: string): boolean {
     if (this.registeredComponents.has(shadowDomName)) {
       return false
     }
 
-    const css = generateCSS(shadowDomName, cssObject)
+    const selector = elementBaseName ? `${elementBaseName}[is="${shadowDomName}"]` : shadowDomName
+    const css = generateCSS(selector, cssObject)
     if (css) {
       const styleElement = this.getStyleElement()
       styleElement.textContent += `\n/* ${shadowDomName} */\n${css}\n`

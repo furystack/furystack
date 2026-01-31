@@ -75,6 +75,39 @@ describe('StyleManager', () => {
       const styleElement = document.querySelector('[data-shades-styles]')
       expect(styleElement?.textContent).toContain('/* my-component */')
     })
+
+    it('should generate attribute selector for customized built-in elements', () => {
+      StyleManager.registerComponentStyles(
+        'my-link',
+        {
+          color: 'blue',
+          textDecoration: 'none',
+        },
+        'a',
+      )
+
+      const styleElement = document.querySelector('[data-shades-styles]')
+      expect(styleElement?.textContent).toContain('a[is="my-link"]')
+      expect(styleElement?.textContent).toContain('color: blue')
+      expect(styleElement?.textContent).toContain('text-decoration: none')
+    })
+
+    it('should handle pseudo-selectors for customized built-in elements', () => {
+      StyleManager.registerComponentStyles(
+        'my-button',
+        {
+          backgroundColor: 'gray',
+          '&:hover': { backgroundColor: 'darkgray' },
+          '&:active': { transform: 'scale(0.98)' },
+        },
+        'button',
+      )
+
+      const styleElement = document.querySelector('[data-shades-styles]')
+      expect(styleElement?.textContent).toContain('button[is="my-button"]')
+      expect(styleElement?.textContent).toContain('button[is="my-button"]:hover')
+      expect(styleElement?.textContent).toContain('button[is="my-button"]:active')
+    })
   })
 
   describe('isRegistered', () => {
