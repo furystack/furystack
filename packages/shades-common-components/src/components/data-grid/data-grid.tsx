@@ -3,6 +3,7 @@ import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { ClickAwayService } from '../../services/click-away-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
@@ -94,7 +95,7 @@ export const DataGrid: <T, Column extends string>(
     '& th': {
       backdropFilter: 'blur(12px) saturate(180%)',
       background: 'rgba(128,128,128,0.3)',
-      color: 'var(--shades-theme-text-secondary)',
+      color: cssVariableTheme.text.secondary,
       height: '48px',
       padding: '0 1.2em',
       alignItems: 'center',

@@ -1,5 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 
 export const SelectionCell = Shade<{ entry: any; service: CollectionService<any> }>({
   shadowDomName: 'shades-data-grid-selection-cell',
@@ -11,7 +12,7 @@ export const SelectionCell = Shade<{ entry: any; service: CollectionService<any>
       cursor: 'pointer',
       width: '18px',
       height: '18px',
-      accentColor: 'var(--shades-theme-palette-primary-main)',
+      accentColor: cssVariableTheme.palette.primary.main,
     },
   },
   render: ({ props, useObservable, element }) => {

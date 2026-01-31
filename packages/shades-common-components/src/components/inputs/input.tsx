@@ -1,6 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
@@ -75,78 +76,35 @@ export type TextInputState = {
 }
 
 /**
- * Computes and sets CSS custom properties on the label element based on current state
+ * Sets CSS custom properties for dynamic color values.
+ * State-based styling (focus, error, disabled) is handled by CSS selectors.
  */
-const setLabelCSSProperties = ({
-  label,
+const setInputColors = ({
+  element,
   themeProvider,
   props,
-  state,
-  validationResult,
 }: {
-  label: HTMLLabelElement
+  element: HTMLElement
   themeProvider: ThemeProviderService
   props: TextInputProps
-  state: TextInputState
-  validationResult?: InputValidationResult
 }): void => {
-  const isError = state.validity?.valid === false || validationResult?.isValid === false
-  const isOutlined = props.variant === 'outlined'
-  const isContained = props.variant === 'contained'
-
   const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
   const errorColor = themeProvider.theme.palette.error.main
-  const activeColor = isError ? errorColor : primaryColor
 
-  // Set CSS custom properties for dynamic theme values
-  label.style.setProperty('--input-color-disabled', themeProvider.theme.text.disabled)
-  label.style.setProperty('--input-color-error', errorColor)
-  label.style.setProperty('--input-color-focused', primaryColor)
-  label.style.setProperty('--input-color-default', themeProvider.theme.text.secondary)
+  // Set color variables
+  element.style.setProperty('--input-primary-color', primaryColor)
+  element.style.setProperty('--input-error-color', errorColor)
 
-  // Compute current color based on state
-  const currentColor = props.disabled
-    ? themeProvider.theme.text.disabled
-    : isError
-      ? errorColor
-      : state.focused
-        ? primaryColor
-        : themeProvider.theme.text.secondary
-  label.style.setProperty('--input-color', currentColor)
+  // Set background colors for contained variant (with alpha for normal and focused states)
+  const primaryBg = themeProvider.getRgbFromColorString(primaryColor).update('a', 0.08).toString()
+  const primaryBgFocus = themeProvider.getRgbFromColorString(primaryColor).update('a', 0.12).toString()
+  const errorBg = themeProvider.getRgbFromColorString(errorColor).update('a', 0.08).toString()
+  const errorBgFocus = themeProvider.getRgbFromColorString(errorColor).update('a', 0.12).toString()
 
-  // Background for contained variant
-  const bgAlpha = state.focused ? 0.12 : 0.08
-  const background = isContained
-    ? themeProvider.getRgbFromColorString(activeColor).update('a', bgAlpha).toString()
-    : 'transparent'
-  label.style.setProperty('--input-background', background)
-
-  // Border color
-  const inactiveBorderColor = themeProvider
-    .getRgbFromColorString(themeProvider.theme.text.secondary)
-    .update('a', 0.3)
-    .toString()
-  const borderColor =
-    isOutlined || isContained
-      ? isError
-        ? errorColor
-        : state.focused
-          ? primaryColor
-          : inactiveBorderColor
-      : 'transparent'
-  label.style.setProperty('--input-border-color', borderColor)
-
-  // Focus shadow
-  const focusShadow =
-    state.focused && !props.disabled
-      ? `0 0 0 3px ${themeProvider.getRgbFromColorString(activeColor).update('a', 0.15).toString()}`
-      : 'none'
-  label.style.setProperty('--input-focus-shadow', focusShadow)
-
-  // Apply any custom label styles from props
-  if (props.labelProps?.style) {
-    Object.assign(label.style, props.labelProps.style)
-  }
+  element.style.setProperty('--input-primary-bg', primaryBg)
+  element.style.setProperty('--input-primary-bg-focus', primaryBgFocus)
+  element.style.setProperty('--input-error-bg', errorBg)
+  element.style.setProperty('--input-error-bg-focus', errorBgFocus)
 }
 
 const getDefaultMessagesForValidityState = (state: ValidityState) => {
@@ -186,6 +144,8 @@ export const Input = Shade<TextInputProps>({
   css: {
     display: 'block',
     marginBottom: '1.25em',
+
+    // Base label styles
     '& label': {
       display: 'flex',
       flexDirection: 'column',
@@ -198,16 +158,70 @@ export const Input = Shade<TextInputProps>({
       borderRadius: '8px',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'text',
-      color: 'var(--input-color)',
-      background: 'var(--input-background)',
-      border: '2px solid var(--input-border-color)',
-      boxShadow: 'var(--input-focus-shadow)',
+      color: cssVariableTheme.text.secondary,
+      background: 'transparent',
+      border: '2px solid transparent',
+      boxShadow: 'none',
     },
+
+    // Outlined variant - default border
+    '&[data-variant="outlined"] label': {
+      borderColor: 'rgba(128, 128, 128, 0.3)',
+    },
+
+    // Contained variant - background
+    '&[data-variant="contained"] label': {
+      borderColor: 'rgba(128, 128, 128, 0.3)',
+      background: 'var(--input-primary-bg)',
+    },
+
+    // Focus state using :focus-within (color change for all variants)
+    '&:focus-within label': {
+      color: 'var(--input-primary-color)',
+    },
+
+    // Focus state for outlined/contained variants - add border and shadow
+    '&[data-variant="outlined"]:focus-within label, &[data-variant="contained"]:focus-within label': {
+      borderColor: 'var(--input-primary-color)',
+      boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+    },
+    '&[data-variant="contained"]:focus-within label': {
+      background: 'var(--input-primary-bg-focus)',
+    },
+
+    // Invalid/error state
+    '&[data-invalid] label': {
+      color: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="outlined"] label, &[data-invalid][data-variant="contained"] label': {
+      borderColor: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="contained"] label': {
+      background: 'var(--input-error-bg)',
+    },
+    '&[data-invalid]:focus-within label': {
+      color: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="outlined"]:focus-within label, &[data-invalid][data-variant="contained"]:focus-within label':
+      {
+        borderColor: 'var(--input-error-color)',
+        boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+      },
+    '&[data-invalid][data-variant="contained"]:focus-within label': {
+      background: 'var(--input-error-bg-focus)',
+    },
+
+    // Disabled state
     '&[data-disabled] label': {
+      color: cssVariableTheme.text.disabled,
       filter: 'grayscale(100%)',
       opacity: '0.5',
       cursor: 'not-allowed',
     },
+    '&[data-disabled]:focus-within label': {
+      boxShadow: 'none',
+    },
+
     '& .input-row': {
       display: 'flex',
       alignItems: 'center',
@@ -252,15 +266,22 @@ export const Input = Shade<TextInputProps>({
   render: ({ props, injector, useObservable, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    // Set data-disabled attribute for CSS styling
+    // Set data attributes for CSS styling
+    if (props.variant) {
+      element.setAttribute('data-variant', props.variant)
+    } else {
+      element.removeAttribute('data-variant')
+    }
     if (props.disabled) {
       element.setAttribute('data-disabled', '')
     } else {
       element.removeAttribute('data-disabled')
     }
 
+    // Set dynamic color CSS variables (only needs to happen once per render)
+    setInputColors({ element, themeProvider, props })
+
     const updateState = (newState: TextInputState) => {
-      const label = element.querySelector('label') as HTMLLabelElement
       const input = element.querySelector('input') as HTMLInputElement
 
       newState.value = input?.value || newState.value
@@ -282,14 +303,12 @@ export const Input = Shade<TextInputProps>({
 
       const validationResult = props.getValidationResult?.({ state: newState })
 
+      // Set data-invalid attribute for CSS styling
       if (validationResult?.isValid === false || newState.validity?.valid === false) {
-        element.setAttribute('data-validation-failed', 'true')
+        element.setAttribute('data-invalid', '')
       } else {
-        element.removeAttribute('data-validation-failed')
+        element.removeAttribute('data-invalid')
       }
-
-      // Set CSS custom properties for dynamic theme values
-      setLabelCSSProperties({ label, themeProvider, props, state: newState, validationResult })
 
       const helper = element.querySelector<HTMLSpanElement>('span.helperText')
       const helperNode =
@@ -327,15 +346,6 @@ export const Input = Shade<TextInputProps>({
       }),
       { onChange: updateState },
     )
-
-    // Initialize CSS custom properties on the label after render
-    const initLabel = () => {
-      const label = element.querySelector('label') as HTMLLabelElement
-      if (label) {
-        setLabelCSSProperties({ label, themeProvider, props, state })
-      }
-    }
-    requestAnimationFrame(initLabel)
 
     return (
       <label {...props.labelProps}>

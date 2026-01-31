@@ -1,6 +1,7 @@
 import type { RouteLinkProps } from '@furystack/shades'
 import { createComponent, LocationService, RouteLink, Shade } from '@furystack/shades'
 import { match, type MatchOptions } from 'path-to-regexp'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export const AppBarLink = Shade<RouteLinkProps & { routingOptions?: MatchOptions }>({
   shadowDomName: 'shade-app-bar-link',
@@ -12,11 +13,11 @@ export const AppBarLink = Shade<RouteLinkProps & { routingOptions?: MatchOptions
     padding: '0 8px',
     transition: 'color .2s ease-in-out, transform .2s ease-in-out',
     cursor: 'pointer',
-    color: 'var(--shades-theme-text-secondary)',
+    color: cssVariableTheme.text.secondary,
     opacity: '0.8',
     transform: 'scale(0.9)',
     '&.active': {
-      color: 'var(--shades-theme-text-primary)',
+      color: cssVariableTheme.text.primary,
       opacity: '1',
       transform: 'scale(1)',
     },

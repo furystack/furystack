@@ -1,6 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { DataRowCells } from './data-grid.js'
 
 export interface DataGridRowProps<T, Column extends string> {
@@ -32,10 +33,10 @@ export const DataGridRow: <T, Column extends string>(
     },
     '&.selected': {
       backgroundColor: 'rgba(128, 128, 128, 0.15)',
-      borderLeft: '3px solid var(--shades-theme-palette-primary-main)',
+      borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
     '&.focused': {
-      boxShadow: '0 0 0 2px var(--shades-theme-palette-primary-main) inset, 0 2px 8px 0px rgba(0,0,0,0.15)',
+      boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset, 0 2px 8px 0px rgba(0,0,0,0.15)`,
       fontWeight: '500',
       transform: 'scale(1.002)',
     },

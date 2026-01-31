@@ -2,6 +2,7 @@ import type { FindOptions } from '@furystack/core'
 import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import type { CollectionService } from '../../services/collection-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
@@ -14,7 +15,7 @@ export const DataGridFooter: <T>(props: {
     display: 'block',
     '& .pager': {
       backdropFilter: 'blur(10px)',
-      color: 'var(--shades-theme-text-secondary)',
+      color: cssVariableTheme.text.secondary,
       position: 'sticky',
       bottom: '0',
       display: 'flex',

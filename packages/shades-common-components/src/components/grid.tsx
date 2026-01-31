@@ -1,5 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 // ToDo: https://stackoverflow.com/questions/51459971/type-of-generic-stateless-component-react-or-extending-generic-function-interfa
 
@@ -37,8 +38,8 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
       },
       '& th': {
         padding: '1em 1.2em',
-        backgroundColor: 'var(--shades-theme-background-paper)',
-        color: 'var(--shades-theme-text-secondary)',
+        backgroundColor: cssVariableTheme.background.paper,
+        color: cssVariableTheme.text.secondary,
         borderRadius: '2px',
         top: '0',
         position: 'sticky',
@@ -48,7 +49,7 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
         fontWeight: '600',
         letterSpacing: '0.05em',
         textAlign: 'left',
-        borderBottom: '2px solid var(--shades-theme-background-default)',
+        borderBottom: `2px solid ${cssVariableTheme.background.default}`,
         borderRight: '1px solid rgba(128, 128, 128, 0.2)',
       },
       '& td': {
