@@ -23,6 +23,9 @@ export const OrderButton = Shade<{
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
   shadowDomName: 'data-grid-order-button',
+  css: {
+    display: 'inline-block',
+  },
   render: ({ props, useObservable }) => {
     const [findOptions, onFindOptionsChange] = useObservable('findOptions', props.findOptions, {})
 
@@ -31,11 +34,7 @@ export const OrderButton = Shade<{
     return (
       <Button
         title="Change order"
-        style={{
-          padding: '4px',
-          margin: '0',
-          cursor: 'pointer',
-        }}
+        variant="outlined"
         color={currentOrder === props.field ? 'info' : undefined}
         onclick={(ev) => {
           ev.stopPropagation()
@@ -64,6 +63,9 @@ const SearchButton = Shade<{
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
   shadowDomName: 'data-grid-search-button',
+  css: {
+    display: 'inline-block',
+  },
   render: ({ props, useObservable }) => {
     const [findOptions] = useObservable('currentValue', props.findOptions, {
       filter: (newValue) => {
@@ -75,16 +77,7 @@ const SearchButton = Shade<{
       (findOptions.filter?.[props.fieldName] as FilterType<{ [K in typeof props.fieldName]: string }>)?.$regex || ''
 
     return (
-      <Button
-        type="button"
-        title="Filter"
-        style={{
-          padding: '4px',
-          margin: '0',
-          cursor: 'pointer',
-        }}
-        onclick={props.onclick}
-      >
+      <Button type="button" title="Filter" variant="outlined" onclick={props.onclick}>
         {filterValue ? '🔍' : '🔎'}
       </Button>
     )
@@ -98,6 +91,24 @@ const SearchForm = Shade<{
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
   shadowDomName: 'data-grid-search-form',
+  css: {
+    display: 'block',
+    '& .search-form': {
+      display: 'flex',
+      width: '100%',
+      overflow: 'hidden',
+      height: '0px',
+      justifyContent: 'space-around',
+      opacity: '0',
+    },
+    '& .search-form-actions': {
+      display: 'flex',
+      width: '64px',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+    },
+  },
   render: ({ props, useObservable }) => {
     type SearchSubmitType = { searchValue: string }
 
@@ -114,14 +125,6 @@ const SearchForm = Shade<{
     return (
       <Form<SearchSubmitType>
         className="search-form"
-        style={{
-          display: 'flex',
-          width: '100%',
-          overflow: 'hide',
-          height: '0px',
-          justifyContent: 'space-around',
-          opacity: '0',
-        }}
         validate={(data): data is SearchSubmitType =>
           typeof (data as SearchSubmitType).searchValue?.length === 'number'
         }
@@ -130,7 +133,6 @@ const SearchForm = Shade<{
         }}
       >
         <Input
-          style={{ padding: '0px', paddingBottom: '0', margin: '0' }}
           placeholder={props.fieldName}
           autofocus
           labelTitle={`${props.fieldName}`}
@@ -140,10 +142,10 @@ const SearchForm = Shade<{
             style: { padding: '0px 2em' },
           }}
         />
-        <div style={{ display: 'flex', width: '64px', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div className="search-form-actions">
           <Button
             type="reset"
-            style={{ padding: '4px', margin: '0' }}
+            variant="outlined"
             onclick={(ev) => {
               ev.preventDefault()
               ev.stopPropagation()
@@ -152,7 +154,7 @@ const SearchForm = Shade<{
           >
             ❌
           </Button>
-          <Button style={{ padding: '4px', margin: '0' }} type="submit">
+          <Button variant="outlined" type="submit">
             🔎
           </Button>
         </div>
@@ -167,6 +169,27 @@ export const DataGridHeader: <T, Column extends string>(
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>,
 ) => JSX.Element<any> = Shade({
   shadowDomName: 'data-grid-header',
+  css: {
+    display: 'block',
+    '& .header-content': {
+      display: 'flex',
+      width: '100%',
+      height: '48px',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: '12px',
+      overflow: 'hidden',
+    },
+    '& .header-field-name': {
+      fontWeight: '600',
+    },
+    '& .header-controls': {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: '4px',
+    },
+  },
   render: ({ props, element, useObservable }) => {
     const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), {
       onChange: (newValue) => {
@@ -214,23 +237,9 @@ export const DataGridHeader: <T, Column extends string>(
           fieldName={props.field}
           findOptions={props.findOptions}
         />
-        <div
-          className="header-content"
-          style={{
-            display: 'flex',
-            width: '100%',
-            height: '48px',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '12px',
-            overflow: 'hide',
-          }}
-        >
-          <div style={{ paddingLeft: '0', fontWeight: '600' }}>{props.field}</div>
-          <div
-            className="header-controls"
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingRight: '0', gap: '4px' }}
-          >
+        <div className="header-content">
+          <div className="header-field-name">{props.field}</div>
+          <div className="header-controls">
             <SearchButton
               onclick={() => {
                 setIsSearchOpened(true)

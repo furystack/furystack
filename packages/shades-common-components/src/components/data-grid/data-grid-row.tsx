@@ -39,6 +39,13 @@ export const DataGridRow: <T, Column extends string>(
       fontWeight: '500',
       transform: 'scale(1.002)',
     },
+    '& td': {
+      padding: '0.75em 1.2em',
+      borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
+      verticalAlign: 'middle',
+      fontSize: '0.875rem',
+      lineHeight: '1.5',
+    },
   },
   render: ({ props, element, useObservable }) => {
     const { entry, rowComponents, columns, service } = props
@@ -99,17 +106,7 @@ export const DataGridRow: <T, Column extends string>(
     return (
       <>
         {columns.map((column) => (
-          <td
-            style={{
-              padding: '0.75em 1.2em',
-              borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
-              verticalAlign: 'middle',
-              fontSize: '0.875rem',
-              lineHeight: '1.5',
-            }}
-            onclick={(ev) => props.onRowClick?.(entry, ev)}
-            ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
-          >
+          <td onclick={(ev) => props.onRowClick?.(entry, ev)} ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}>
             {rowComponents?.[column]?.(entry, { selection, focus }) ||
               rowComponents?.default?.(entry, { selection, focus }) || (
                 <span>
