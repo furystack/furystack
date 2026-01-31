@@ -87,9 +87,11 @@ const assignValue = <T extends object>(
 ) => {
   const keys = Object.keys(target) as Array<keyof T>
   keys.forEach((key) => {
+    if (source[key] === undefined) {
+      return
+    }
     if (typeof source[key] === 'object' && typeof target[key] === 'object') {
       assignValue(target[key] as object, source[key] as object, root)
-      return
     } else {
       assignFn(target[key] as string, source[key] as string, root)
     }
