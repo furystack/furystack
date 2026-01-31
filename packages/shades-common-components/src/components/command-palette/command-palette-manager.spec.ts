@@ -281,15 +281,32 @@ describe('CommandPaletteManager', () => {
     })
 
     it('Should set isLoading to false even when error occurs', async () => {
-      const provider = vi.fn().mockRejectedValue(new Error('Network error'))
+      const provider = vi.fn().mockImplementation(async () => {
+        throw new Error('Network error')
+      })
       const injector = new Injector()
 
-      await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      // Suppress expected unhandled rejection from debounced async error
+      const errorHandler = (reason: unknown) => {
+        if ((reason as Error)?.message === 'Network error') {
+          return
+        }
+        throw reason
+      }
+      process.on('unhandledRejection', errorHandler)
 
-        expect(manager.isLoading.getValue()).toBe(false)
-      })
+      try {
+        await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
+          manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
+          // Wait for promise rejection to be handled
+          await vi.advanceTimersByTimeAsync(0)
+
+          expect(manager.isLoading.getValue()).toBe(false)
+        })
+      } finally {
+        process.removeListener('unhandledRejection', errorHandler)
+      }
     })
   })
 
@@ -367,15 +384,32 @@ describe('CommandPaletteManager', () => {
 
     it('Should handle provider errors gracefully', async () => {
       const provider1 = createCommandProvider([createMockSuggestion('cmd1', 1)])
-      const provider2 = vi.fn().mockRejectedValue(new Error('Provider failed'))
+      const provider2 = vi.fn().mockImplementation(async () => {
+        throw new Error('Provider failed')
+      })
       const injector = new Injector()
 
-      await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      // Suppress expected unhandled rejection from debounced async error
+      const errorHandler = (reason: unknown) => {
+        if ((reason as Error)?.message === 'Provider failed') {
+          return
+        }
+        throw reason
+      }
+      process.on('unhandledRejection', errorHandler)
 
-        expect(manager.isLoading.getValue()).toBe(false)
-      })
+      try {
+        await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
+          manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
+          // Wait for promise rejection to be handled
+          await vi.advanceTimersByTimeAsync(0)
+
+          expect(manager.isLoading.getValue()).toBe(false)
+        })
+      } finally {
+        process.removeListener('unhandledRejection', errorHandler)
+      }
     })
   })
 
