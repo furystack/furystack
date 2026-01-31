@@ -9,14 +9,13 @@ export const RouteLink = Shade<RouteLinkProps>({
   shadowDomName: 'route-link',
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
+  css: {
+    color: 'inherit',
+    textDecoration: 'inherit',
+  },
   render: ({ children, props, injector, element }) => {
     attachProps(element, {
       ...props,
-      style: {
-        color: 'inherit',
-        textDecoration: 'inherit',
-        ...props.style,
-      },
       onclick: (ev: MouseEvent) => {
         ev.preventDefault()
         history.pushState('', props.title || '', props.href)

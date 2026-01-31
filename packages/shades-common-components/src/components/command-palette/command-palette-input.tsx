@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
 
@@ -27,32 +27,29 @@ const updateComponent = async (element: HTMLElement, isOpened: boolean) => {
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
   shadowDomName: 'shades-command-palette-input',
-  render: ({ element, props, injector, useObservable }) => {
-    const { theme } = injector.getInstance(ThemeProviderService)
+  css: {
+    overflow: 'hidden',
+    '& input': {
+      color: cssVariableTheme.text.primary,
+      outline: 'none',
+      padding: '0.875em 0.5em',
+      background: 'transparent',
+      border: 'none',
+      display: 'inline-flex',
+      width: 'calc(100% - 1em)',
+      fontSize: '0.95em',
+      fontWeight: '400',
+      letterSpacing: '0.01em',
+    },
+  },
+  render: ({ element, props, useObservable }) => {
     const { manager } = props
 
     const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, {
       onChange: (newValue) => void updateComponent(element, newValue),
     })
     element.style.width = isCurrentlyOpened ? '100%' : '0%'
-    element.style.overflow = 'hidden'
-    return (
-      <input
-        autofocus
-        placeholder="Type to search commands..."
-        style={{
-          color: theme.text.primary,
-          outline: 'none',
-          padding: '0.875em 0.5em',
-          background: 'transparent',
-          border: 'none',
-          display: 'inline-flex',
-          width: 'calc(100% - 1em)',
-          fontSize: '0.95em',
-          fontWeight: '400',
-          letterSpacing: '0.01em',
-        }}
-      />
-    )
+
+    return <input autofocus placeholder="Type to search commands..." />
   },
 })
