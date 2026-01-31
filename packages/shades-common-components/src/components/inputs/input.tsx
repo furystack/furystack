@@ -78,6 +78,7 @@ export type TextInputState = {
 /**
  * Sets CSS custom properties for dynamic color values.
  * State-based styling (focus, error, disabled) is handled by CSS selectors.
+ * Background colors use CSS color-mix() for automatic theme adaptation.
  */
 const setInputColors = ({
   element,
@@ -88,23 +89,10 @@ const setInputColors = ({
   themeProvider: ThemeProviderService
   props: TextInputProps
 }): void => {
+  // Only set the color variables - backgrounds use CSS color-mix()
   const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
-  const errorColor = themeProvider.theme.palette.error.main
-
-  // Set color variables
   element.style.setProperty('--input-primary-color', primaryColor)
-  element.style.setProperty('--input-error-color', errorColor)
-
-  // Set background colors for contained variant (with alpha for normal and focused states)
-  const primaryBg = themeProvider.getRgbFromColorString(primaryColor).update('a', 0.08).toString()
-  const primaryBgFocus = themeProvider.getRgbFromColorString(primaryColor).update('a', 0.12).toString()
-  const errorBg = themeProvider.getRgbFromColorString(errorColor).update('a', 0.08).toString()
-  const errorBgFocus = themeProvider.getRgbFromColorString(errorColor).update('a', 0.12).toString()
-
-  element.style.setProperty('--input-primary-bg', primaryBg)
-  element.style.setProperty('--input-primary-bg-focus', primaryBgFocus)
-  element.style.setProperty('--input-error-bg', errorBg)
-  element.style.setProperty('--input-error-bg-focus', errorBgFocus)
+  element.style.setProperty('--input-error-color', themeProvider.theme.palette.error.main)
 }
 
 const getDefaultMessagesForValidityState = (state: ValidityState) => {
@@ -169,10 +157,10 @@ export const Input = Shade<TextInputProps>({
       borderColor: 'rgba(128, 128, 128, 0.3)',
     },
 
-    // Contained variant - background
+    // Contained variant - background using color-mix for theme-aware alpha
     '&[data-variant="contained"] label': {
       borderColor: 'rgba(128, 128, 128, 0.3)',
-      background: 'var(--input-primary-bg)',
+      background: 'color-mix(in srgb, var(--input-primary-color) 8%, transparent)',
     },
 
     // Focus state using :focus-within (color change for all variants)
@@ -186,7 +174,7 @@ export const Input = Shade<TextInputProps>({
       boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
     },
     '&[data-variant="contained"]:focus-within label': {
-      background: 'var(--input-primary-bg-focus)',
+      background: 'color-mix(in srgb, var(--input-primary-color) 12%, transparent)',
     },
 
     // Invalid/error state
@@ -197,7 +185,7 @@ export const Input = Shade<TextInputProps>({
       borderColor: 'var(--input-error-color)',
     },
     '&[data-invalid][data-variant="contained"] label': {
-      background: 'var(--input-error-bg)',
+      background: 'color-mix(in srgb, var(--input-error-color) 8%, transparent)',
     },
     '&[data-invalid]:focus-within label': {
       color: 'var(--input-error-color)',
@@ -208,7 +196,7 @@ export const Input = Shade<TextInputProps>({
         boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
       },
     '&[data-invalid][data-variant="contained"]:focus-within label': {
-      background: 'var(--input-error-bg-focus)',
+      background: 'color-mix(in srgb, var(--input-error-color) 12%, transparent)',
     },
 
     // Disabled state
