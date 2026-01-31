@@ -489,38 +489,42 @@ import { cssVariableTheme } from '@furystack/shades-common-components'
 const MyComponent = Shade({
   shadowDomName: 'my-component',
   css: {
-    color: cssVariableTheme.text.primary,           // Type-checked!
+    color: cssVariableTheme.text.primary, // Type-checked!
     backgroundColor: cssVariableTheme.background.paper,
     borderColor: cssVariableTheme.palette.primary.main,
     // For template literals when combining with other values:
     boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
   },
-  render: () => { /* ... */ },
+  render: () => {
+    /* ... */
+  },
 })
 
 // ❌ Avoid - raw strings with no type safety
 const BadComponent = Shade({
   shadowDomName: 'bad-component',
   css: {
-    color: 'var(--shades-theme-text-primary)',  // No autocomplete, typos not caught
+    color: 'var(--shades-theme-text-primary)', // No autocomplete, typos not caught
     backgroundColor: 'var(--shades-theme-background-paper)',
   },
-  render: () => { /* ... */ },
+  render: () => {
+    /* ... */
+  },
 })
 ```
 
 **Available theme properties:**
 
-| Path | Description |
-| ---- | ----------- |
-| `cssVariableTheme.text.primary` | Primary text color |
-| `cssVariableTheme.text.secondary` | Secondary text color |
-| `cssVariableTheme.text.disabled` | Disabled text color |
-| `cssVariableTheme.background.default` | Default background |
-| `cssVariableTheme.background.paper` | Paper/card background |
-| `cssVariableTheme.palette.primary.main` | Primary accent color |
-| `cssVariableTheme.palette.error.main` | Error color |
-| `cssVariableTheme.divider` | Divider color |
+| Path                                    | Description           |
+| --------------------------------------- | --------------------- |
+| `cssVariableTheme.text.primary`         | Primary text color    |
+| `cssVariableTheme.text.secondary`       | Secondary text color  |
+| `cssVariableTheme.text.disabled`        | Disabled text color   |
+| `cssVariableTheme.background.default`   | Default background    |
+| `cssVariableTheme.background.paper`     | Paper/card background |
+| `cssVariableTheme.palette.primary.main` | Primary accent color  |
+| `cssVariableTheme.palette.error.main`   | Error color           |
+| `cssVariableTheme.divider`              | Divider color         |
 
 The `cssVariableTheme` object is typed as `Theme` and contains all CSS variable strings, enabling full IDE autocomplete and compile-time type checking.
 
