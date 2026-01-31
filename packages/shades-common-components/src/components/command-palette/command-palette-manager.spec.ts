@@ -297,7 +297,7 @@ describe('CommandPaletteManager', () => {
 
       try {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
-          manager.getSuggestion({ injector, term: 'test' })
+          void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
           // Wait for promise rejection to be handled
           await vi.advanceTimersByTimeAsync(0)
@@ -400,7 +400,7 @@ describe('CommandPaletteManager', () => {
 
       try {
         await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
-          manager.getSuggestion({ injector, term: 'test' })
+          void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
           // Wait for promise rejection to be handled
           await vi.advanceTimersByTimeAsync(0)
