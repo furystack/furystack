@@ -113,7 +113,13 @@ describe('Form component', () => {
       injector,
       rootElement,
       jsxElement: (
-        <Form<FormData> onSubmit={() => {}} validate={(data): data is FormData => typeof data.name === 'string'}>
+        <Form<FormData>
+          onSubmit={() => {}}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.name === 'string'
+          }}
+        >
           <input name="name" type="text" />
           <button type="submit">Submit</button>
         </Form>
@@ -139,7 +145,13 @@ describe('Form component', () => {
       injector,
       rootElement,
       jsxElement: (
-        <Form<FormData> onSubmit={onSubmit} validate={(data): data is FormData => typeof data.name === 'string'}>
+        <Form<FormData>
+          onSubmit={onSubmit}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.name === 'string'
+          }}
+        >
           <input name="name" type="text" value="Test Name" />
           <button type="submit">Submit</button>
         </Form>
@@ -174,7 +186,8 @@ describe('Form component', () => {
         <Form<FormData>
           onSubmit={onSubmit}
           validate={(data): data is FormData => {
-            return typeof data.name === 'string' && typeof data.email === 'string' && data.email.includes('@')
+            const d = data as Record<string, unknown>
+            return typeof d.name === 'string' && typeof d.email === 'string' && d.email.includes('@')
           }}
         >
           <input name="name" type="text" />
@@ -214,7 +227,8 @@ describe('Form component', () => {
         <Form<FormData>
           onSubmit={() => {}}
           validate={(data): data is FormData => {
-            return data.email?.includes('@') ?? false
+            const d = data as Record<string, unknown>
+            return typeof d.email === 'string' && d.email.includes('@')
           }}
         >
           <input name="email" type="text" />
@@ -257,7 +271,10 @@ describe('Form component', () => {
         <Form<FormData>
           onSubmit={() => {}}
           onReset={onReset}
-          validate={(data): data is FormData => typeof data.name === 'string'}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.name === 'string'
+          }}
         >
           <input name="name" type="text" />
           <button type="submit">Submit</button>
@@ -302,7 +319,13 @@ describe('Form component', () => {
       injector,
       rootElement,
       jsxElement: (
-        <Form<FormData> onSubmit={() => {}} validate={(data): data is FormData => typeof data.username === 'string'}>
+        <Form<FormData>
+          onSubmit={() => {}}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.username === 'string'
+          }}
+        >
           <input name="username" type="text" />
         </Form>
       ),
@@ -335,7 +358,13 @@ describe('Form component', () => {
       injector,
       rootElement,
       jsxElement: (
-        <Form<FormData> onSubmit={() => {}} validate={(data): data is FormData => typeof data.title === 'string'}>
+        <Form<FormData>
+          onSubmit={() => {}}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.title === 'string'
+          }}
+        >
           <input name="title" type="text" />
         </Form>
       ),
@@ -428,7 +457,10 @@ describe('Form component', () => {
       jsxElement: (
         <Form<FormData>
           onSubmit={() => {}}
-          validate={(data): data is FormData => typeof data.required === 'string' && data.required.length > 0}
+          validate={(data): data is FormData => {
+            const d = data as Record<string, unknown>
+            return typeof d.required === 'string' && d.required.length > 0
+          }}
         >
           <input name="required" type="text" required />
           <button type="submit">Submit</button>
