@@ -114,7 +114,7 @@ packages/core/src/injectable.test.ts (use .spec.ts)
 // ✅ Good
 export class Injectable {}
 export class ObservableValue<T> {}
-export type RequestAction<T> = {};
+export type RequestAction<T> = {}
 export interface InjectorOptions {}
 
 // ❌ Avoid
@@ -126,17 +126,187 @@ export class IInjectableThing {} // Hungarian notation
 
 - **camelCase** for functions and variables
 - **UPPER_SNAKE_CASE** for constants
+- Verb-based names for functions
+- Descriptive and clear purpose
 
 ```typescript
 // ✅ Good
 export function getCurrentUser() {}
-export const isAuthenticated = true;
-export const MAX_RETRY_COUNT = 3;
+export function calculateTotal() {}
+export function validateEmail() {}
+export const isAuthenticated = true
+export const MAX_RETRY_COUNT = 3
 
 // ❌ Avoid
 export function GetCurrentUser() {}
-export const IsAuthenticated = true;
-export const maxRetryCount = 3; // Should be UPPER_SNAKE_CASE for constants
+export function user() {} // Not verb-based
+export const IsAuthenticated = true
+export const maxRetryCount = 3 // Should be UPPER_SNAKE_CASE for constants
+```
+
+#### Event Handlers
+
+- **Prefix with `handle`** for internal handlers
+- **Prefix with `on`** for prop callbacks
+
+```typescript
+// ✅ Good - Shades component with event handlers
+const MyComponent = Shade({
+  shadowDomName: 'my-component',
+  render: ({ props, injector }) => {
+    const handleButtonClick = () => {
+      // Internal logic
+      props.onSave?.();
+    };
+
+    const handleFormSubmit = (ev: Event) => {
+      ev.preventDefault();
+      // Submit logic
+    };
+
+    return (
+      <form onsubmit={handleFormSubmit}>
+        <button onclick={handleButtonClick}>Save</button>
+        <button onclick={props.onCancel}>Cancel</button>
+      </form>
+    );
+  },
+});
+```
+
+#### Boolean Variables
+
+- Prefix with `is`, `has`, `should`, or `can`
+
+```typescript
+// ✅ Good
+const isAuthenticated = true
+const hasPermission = false
+const shouldRender = true
+const canEdit = false
+const isLoading = true
+const hasError = false
+
+// ❌ Avoid
+const authenticated = true
+const permission = false
+const render = true
+const edit = false
+```
+
+### Shades Components
+
+#### Component Names
+
+- **PascalCase** for components
+- Descriptive and specific
+
+```typescript
+// ✅ Good
+export const UserProfile = Shade({
+  /* ... */
+})
+export const MediaLibrary = Shade({
+  /* ... */
+})
+export const NavigationSidebar = Shade({
+  /* ... */
+})
+
+// ❌ Avoid
+export const userProfile = Shade({
+  /* ... */
+})
+export const Component = Shade({
+  /* ... */
+}) // Too generic
+export const UP = Shade({
+  /* ... */
+}) // Unclear abbreviation
+```
+
+#### Component Props Types
+
+- **PascalCase** with `Props` suffix
+- Use `type` instead of `interface`
+
+```typescript
+// ✅ Good
+type UserProfileProps = {
+  userId: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+};
+
+export const UserProfile = Shade<UserProfileProps>({
+  shadowDomName: 'user-profile',
+  render: ({ props }) => {
+    // Component implementation
+  },
+});
+
+// ❌ Avoid
+interface UserProfileProps { }  // Use type instead
+type UserProfileProperties { }  // Wrong suffix
+type Props { }  // Not specific enough
+```
+
+### TypeScript Types
+
+- **PascalCase** for types and interfaces
+- **Prefer `type` over `interface`**
+- Descriptive names
+
+```typescript
+// ✅ Good
+type User = {
+  id: string
+  name: string
+  email: string
+}
+
+type UserWithProfile = User & {
+  avatar?: string
+  bio?: string
+}
+
+type RequestState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: string }
+
+// ❌ Avoid
+interface User {} // Use type instead (per project guidelines)
+type user = {} // Wrong case
+type UserType = {} // Redundant suffix
+type T = {} // Not descriptive
+```
+
+### Enums and Constants
+
+- **PascalCase** for enum names
+- **UPPER_SNAKE_CASE** for enum values
+- **UPPER_SNAKE_CASE** for constants
+
+```typescript
+// ✅ Good
+enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  GUEST = 'GUEST',
+}
+
+const MAX_RETRY_COUNT = 3
+const API_BASE_URL = 'https://api.example.com'
+const DEFAULT_PAGE_SIZE = 10
+
+// ❌ Avoid
+enum userRole {} // Wrong case
+enum UserRole {
+  admin = 'admin', // Wrong case for values
+}
+const maxRetryCount = 3 // Should be UPPER_SNAKE_CASE
 ```
 
 ## Package Structure
@@ -173,12 +343,12 @@ Each package should have a clear `index.ts`:
 
 ```typescript
 // ✅ Good - packages/core/src/index.ts
-export { Injectable, Injected } from './injectable.js';
-export { Injector } from './injector.js';
-export type { InjectorOptions } from './types.js';
+export { Injectable, Injected } from './injectable.js'
+export { Injector } from './injector.js'
+export type { InjectorOptions } from './types.js'
 
 // Re-export commonly used types
-export type { Constructor } from './types.js';
+export type { Constructor } from './types.js'
 ```
 
 ## Import Ordering
@@ -193,20 +363,20 @@ export type { Constructor } from './types.js';
 
 ```typescript
 // ✅ Good - organized imports
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'events'
 
-import type { Logger } from 'winston';
+import type { Logger } from 'winston'
 
-import { Injectable } from '@furystack/inject';
-import { ObservableValue } from '@furystack/utils';
+import { Injectable } from '@furystack/inject'
+import { ObservableValue } from '@furystack/utils'
 
-import { getUserData } from './user-data.js';
-import type { UserOptions } from './types.js';
+import { getUserData } from './user-data.js'
+import type { UserOptions } from './types.js'
 
 // ❌ Avoid - random ordering
-import { getUserData } from './user-data.js';
-import { EventEmitter } from 'events';
-import { Injectable } from '@furystack/inject';
+import { getUserData } from './user-data.js'
+import { EventEmitter } from 'events'
+import { Injectable } from '@furystack/inject'
 ```
 
 ### Import Grouping
@@ -215,13 +385,33 @@ Separate import groups with blank lines:
 
 ```typescript
 // ✅ Good - separated groups
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'events'
 
-import type { Logger } from 'winston';
+import type { Logger } from 'winston'
 
-import { Injectable } from '@furystack/inject';
+import { Injectable } from '@furystack/inject'
 
-import { getUserData } from './user-data.js';
+import { getUserData } from './user-data.js'
+```
+
+### Named Imports
+
+Use named imports and group them logically:
+
+```typescript
+// ✅ Good - grouped FuryStack imports
+import { Injectable, Injected } from '@furystack/inject'
+import { ObservableValue, usingAsync } from '@furystack/utils'
+
+// ✅ Good - alphabetically sorted when many imports
+import { Cache } from '@furystack/cache'
+import { getCurrentUser } from '@furystack/core'
+import { getLogger } from '@furystack/logging'
+import { JsonResult, RequestError } from '@furystack/rest-service'
+
+// ❌ Avoid - separate imports for same package
+import { Injectable } from '@furystack/inject'
+import { Injected } from '@furystack/inject'
 ```
 
 ## Code Organization
@@ -232,28 +422,28 @@ import { getUserData } from './user-data.js';
 // ✅ Good - organized class
 export class MyService {
   // 1. Static properties
-  private static instance: MyService;
+  private static instance: MyService
 
   // 2. Public properties
-  public data: string;
+  public data: string
 
   // 3. Private properties
-  private internalState: number;
+  private internalState: number
 
   // 4. Constructor
   constructor(options: MyServiceOptions) {
-    this.data = options.data;
-    this.internalState = 0;
+    this.data = options.data
+    this.internalState = 0
   }
 
   // 5. Public methods
   public getData(): string {
-    return this.data;
+    return this.data
   }
 
   // 6. Private methods
   private updateInternalState(value: number): void {
-    this.internalState = value;
+    this.internalState = value
   }
 
   // 7. Disposal
@@ -267,26 +457,123 @@ export class MyService {
 
 ```typescript
 // 1. Imports
-import { Injectable } from '@furystack/inject';
-import { ObservableValue } from '@furystack/utils';
+import { Injectable } from '@furystack/inject'
+import { ObservableValue } from '@furystack/utils'
 
 // 2. Types
 type ServiceOptions = {
-  config: string;
-};
+  config: string
+}
 
 // 3. Constants
-const DEFAULT_TIMEOUT = 5000;
+const DEFAULT_TIMEOUT = 5000
 
 // 4. Helper functions
 const formatData = (data: unknown): string => {
-  return JSON.stringify(data);
-};
+  return JSON.stringify(data)
+}
 
 // 5. Main exports
 @Injectable({ lifetime: 'singleton' })
 export class DataService {
   // Class implementation
+}
+```
+
+### Component File Structure
+
+Organize Shades components with this structure:
+
+```typescript
+// 1. Imports
+import { Shade } from '@furystack/shades';
+import { ObservableValue } from '@furystack/utils';
+
+// 2. Types
+type UserProfileProps = {
+  userId: string;
+  onEdit?: () => void;
+};
+
+// 3. Constants (if any)
+const MAX_BIO_LENGTH = 500;
+
+// 4. Helper functions (if any)
+const formatDate = (date: Date): string => {
+  // ...
+};
+
+// 5. Main component
+export const UserProfile = Shade<UserProfileProps>({
+  shadowDomName: 'user-profile',
+  render: ({ props, injector, useObservable, useDisposable }) => {
+    // Services
+    const userService = injector.getInstance(UserService);
+
+    // Observable subscriptions
+    const [user] = useObservable('user', userService.getUserById(props.userId));
+
+    // Local state
+    const isEditing = useDisposable('isEditing', () => new ObservableValue(false));
+
+    // Handlers
+    const handleEditClick = () => {
+      isEditing.setValue(true);
+      props.onEdit?.();
+    };
+
+    // Render
+    return (
+      <div data-testid="user-profile">
+        {/* Component content */}
+      </div>
+    );
+  },
+});
+```
+
+## JSX/TSX Code Style
+
+### JSX Formatting
+
+```tsx
+// ✅ Good - multi-line for readability
+<button
+  type="button"
+  onclick={handleClick}
+  style={{ padding: '8px 16px' }}
+>
+  Save Changes
+</button>
+
+// ✅ Good - single line for simple cases
+<button onclick={handleClick}>Save</button>
+
+// ❌ Avoid - hard to read
+<button type="button" onclick={handleClick} style={{ padding: '8px 16px' }}>Save Changes</button>
+```
+
+### Conditional Rendering
+
+```tsx
+// ✅ Good - logical AND for simple cases
+{
+  isLoading && <div>Loading...</div>
+}
+
+// ✅ Good - ternary for if-else
+{
+  isLoading ? <div>Loading...</div> : <div>Content</div>
+}
+
+// ✅ Good - early return for complex cases
+if (isLoading) return <div>Loading...</div>
+if (error) return <div>Error: {error}</div>
+return <div>Content</div>
+
+// ❌ Avoid - nested ternaries
+{
+  isLoading ? <div>Loading...</div> : error ? <div>Error</div> : <div>Content</div>
 }
 ```
 
@@ -322,9 +609,23 @@ export class ObservableValue<T> {
    * @returns The current value
    */
   public getValue(): T {
-    return this.initialValue;
+    return this.initialValue
   }
 }
+```
+
+### Inline Comments
+
+Use inline comments sparingly and only for complex logic:
+
+```typescript
+// ✅ Good - explaining complex logic
+// Calculate exponential backoff: 1s, 2s, 4s, 8s...
+const delay = Math.min(1000 * 2 ** attempt, 30000)
+
+// ❌ Avoid - stating the obvious
+// Set count to 0
+const count = 0
 ```
 
 ## Summary
@@ -333,7 +634,7 @@ export class ObservableValue<T> {
 
 1. **Follow project's Prettier and ESLint configs**
 2. **Use consistent naming:**
-   - PascalCase: Classes, types, interfaces
+   - PascalCase: Classes, types, interfaces, components
    - camelCase: Functions, variables
    - kebab-case: File names, package names
    - UPPER_SNAKE_CASE: Constants
@@ -342,6 +643,7 @@ export class ObservableValue<T> {
 5. **Document public APIs** with JSDoc
 6. **Structure code** consistently
 7. **Monorepo conventions** for package organization
+8. **Format JSX** for readability
 
 **Tools:**
 

@@ -21,24 +21,24 @@ alwaysApply: true
 ```typescript
 // ✅ Good - explicit public API types
 export function createInjector(options?: InjectorOptions): Injector {
-  return new Injector(options);
+  return new Injector(options)
 }
 
 export class ObservableValue<T> {
   constructor(private value: T) {}
 
   public getValue(): T {
-    return this.value;
+    return this.value
   }
 
   public setValue(value: T): void {
-    this.value = value;
+    this.value = value
   }
 }
 
 // ❌ Avoid - implicit return types
 export function createInjector(options) {
-  return new Injector(options);
+  return new Injector(options)
 }
 ```
 
@@ -49,15 +49,15 @@ export function createInjector(options) {
 ```typescript
 // ✅ Good
 type InjectorOptions = {
-  parent?: Injector;
-  level?: number;
-};
+  parent?: Injector
+  level?: number
+}
 
-export type RequestAction<T> = (options: RequestOptions<T>) => Promise<JsonResult>;
+export type RequestAction<T> = (options: RequestOptions<T>) => Promise<JsonResult>
 
 // ❌ Avoid
 interface InjectorOptions {
-  parent?: Injector;
+  parent?: Injector
 }
 ```
 
@@ -73,7 +73,7 @@ export class Cache<TArgs extends unknown[], TResult> {
   constructor(private options: CacheOptions<TArgs, TResult>) {}
 
   public async get(...args: TArgs): Promise<TResult> {
-    return await this.options.load(...args);
+    return await this.options.load(...args)
   }
 }
 
@@ -93,34 +93,211 @@ There are no acceptable uses of `any` in library code:
 // ✅ Good - use unknown for truly unknown types
 export function processData(data: unknown): string {
   if (typeof data === 'string') {
-    return data;
+    return data
   }
-  return JSON.stringify(data);
+  return JSON.stringify(data)
 }
 
 // ✅ Good - use generics for flexible types
 export function identity<T>(value: T): T {
-  return value;
+  return value
 }
 
 // ❌ FORBIDDEN - using any
 export function processData(data: any): string {
-  return data.toString();
+  return data.toString()
 }
 ```
 
-### Type Guards
+### Alternatives to `any`
 
-Provide type guards for runtime type checking:
+When you think you need `any`, use these instead:
+
+1. **`unknown`** - For truly unknown types that need runtime checking
+2. **Generics** - For flexible, type-safe functions
+3. **Union types** - For known possible types
+4. **Type guards** - For runtime type checking
+5. **Utility types** - For transforming existing types
+
+```typescript
+// ✅ Good - unknown with type guard
+const processValue = (value: unknown) => {
+  if (typeof value === 'string') {
+    return value.toUpperCase()
+  }
+  if (typeof value === 'number') {
+    return value * 2
+  }
+  throw new Error('Unsupported type')
+}
+
+// ✅ Good - generics
+const identity = <T>(value: T): T => {
+  return value
+}
+
+// ✅ Good - union types
+const processInput = (input: string | number | boolean) => {
+  if (typeof input === 'string') return input.toUpperCase()
+  if (typeof input === 'number') return input * 2
+  return !input
+}
+
+// ✅ Good - Record for object with unknown keys
+const processConfig = (config: Record<string, unknown>) => {
+  // Process configuration
+}
+```
+
+## Type Inference
+
+### Let TypeScript Infer When Appropriate
+
+- **Let TypeScript infer types when possible** - TypeScript's inference is powerful
+- Use explicit types strategically for:
+  - Public APIs where you want to enforce a contract
+  - Complex conditional logic (switch/case) where explicit types are clearer than casting
+  - When inference would be ambiguous or incorrect
+  - When it significantly improves error messages
+- Avoid unnecessary type annotations
+
+```typescript
+// ✅ Good - let TypeScript infer for internal code
+const users = ['Alice', 'Bob', 'Charlie']; // Inferred as string[]
+const count = users.length; // Inferred as number
+const hasUsers = users.length > 0; // Inferred as boolean
+
+// ✅ Good - infer return types for simple internal functions
+export const createLogger = (name: string) => {
+  return new Logger(name);
+};
+
+// ✅ Good - explicit for public API contracts
+export function getInstance<T>(constructor: Constructor<T>): T {
+  // Explicit generic ensures type safety
+}
+
+// ✅ Good - explicit for complex conditional logic
+export const getStatusDisplay = (status: Status): JSX.Element | null => {
+  switch (status) {
+    case 'active':
+      return <div>Active</div>;
+    case 'inactive':
+      return <div>Inactive</div>;
+    case 'pending':
+      return <div>Pending</div>;
+    default:
+      return null;
+  }
+};
+
+// ❌ Avoid - unnecessary annotations
+const count: number = 5;
+const name: string = 'John';
+const isActive: boolean = true;
+```
+
+## Type Guards
+
+### Provide Type Guards for Runtime Type Checking
 
 ```typescript
 // ✅ Good - type guard for library users
 export function isInjectable(value: unknown): value is { new (...args: unknown[]): unknown } {
-  return typeof value === 'function' && 'prototype' in value;
+  return typeof value === 'function' && 'prototype' in value
 }
 
 export function isObservableValue<T>(value: unknown): value is ObservableValue<T> {
-  return value instanceof ObservableValue;
+  return value instanceof ObservableValue
+}
+
+// ✅ Good - type guards for common types
+const isUser = (value: unknown): value is User => {
+  return typeof value === 'object' && value !== null && 'id' in value && 'name' in value && 'email' in value
+}
+
+const isError = (value: unknown): value is Error => {
+  return value instanceof Error
+}
+
+const isString = (value: unknown): value is string => {
+  return typeof value === 'string'
+}
+
+const isNonNullable = <T>(value: T | null | undefined): value is T => {
+  return value !== null && value !== undefined
+}
+
+// Usage
+const processData = (data: unknown) => {
+  if (isUser(data)) {
+    // TypeScript knows data is User here
+    console.log(data.name)
+  }
+}
+
+// Filter with type guard
+const validUsers = users.filter(isNonNullable)
+```
+
+### Array Type Guards
+
+```typescript
+// ✅ Good - array type guards
+const isStringArray = (value: unknown): value is string[] => {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
+const isUserArray = (value: unknown): value is User[] => {
+  return Array.isArray(value) && value.every(isUser)
+}
+```
+
+## Union Types and Discriminated Unions
+
+- Use union types for multiple possible values
+- Use discriminated unions for complex state
+- Provide proper type guards
+
+```typescript
+// ✅ Good - discriminated union
+type CacheState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'loaded'; value: T }
+  | { status: 'error'; error: string }
+
+@Injectable({ lifetime: 'singleton' })
+export class DataService {
+  private dataState = new ObservableValue<CacheState<Data>>({ status: 'idle' })
+
+  public async loadData() {
+    this.dataState.setValue({ status: 'loading' })
+    try {
+      const data = await this.fetchData()
+      this.dataState.setValue({ status: 'loaded', value: data })
+    } catch (error) {
+      this.dataState.setValue({
+        status: 'error',
+        error: (error as Error).message,
+      })
+    }
+  }
+}
+
+// Usage with type narrowing
+const state = dataState.getValue()
+
+if (state.status === 'loaded') {
+  // TypeScript knows state.value is available
+  console.log(state.value)
+}
+
+// ❌ Avoid - no discriminator
+type CacheState<T> = {
+  loading: boolean
+  error?: string
+  data?: T
 }
 ```
 
@@ -130,33 +307,134 @@ export function isObservableValue<T>(value: unknown): value is ObservableValue<T
 
 ```typescript
 // ✅ Good - export utility types for library users
-export type Constructor<T = unknown> = new (...args: unknown[]) => T;
+export type Constructor<T = unknown> = new (...args: unknown[]) => T
 
 export type Disposable = {
-  [Symbol.dispose]: () => void;
-};
+  [Symbol.dispose]: () => void
+}
 
 export type AsyncDisposable = {
-  [Symbol.asyncDispose]: () => Promise<void>;
-};
+  [Symbol.asyncDispose]: () => Promise<void>
+}
 
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 ```
 
-## Type Inference
-
-### Let TypeScript Infer When Possible
+### Built-in Utility Types
 
 ```typescript
-// ✅ Good - infer return types for simple functions
-export const createLogger = (name: string) => {
-  return new Logger(name);
-};
-
-// ✅ Good - explicit for public API contracts
-export function getInstance<T>(constructor: Constructor<T>): T {
-  // Explicit generic ensures type safety
+// ✅ Good - using utility types
+type User = {
+  id: string
+  name: string
+  email: string
+  password: string
+  role: string
 }
+
+// Partial for optional fields
+type PartialUser = Partial<User>
+
+// Pick for specific fields
+type UserCredentials = Pick<User, 'email' | 'password'>
+
+// Omit for excluding fields
+type PublicUser = Omit<User, 'password'>
+
+// Record for object types
+type UserMap = Record<string, User>
+
+// Required for making all fields required
+type RequiredUser = Required<Partial<User>>
+
+// Readonly for immutable types
+type ImmutableUser = Readonly<User>
+```
+
+### Custom Utility Types
+
+```typescript
+// ✅ Good - custom utility types
+
+/**
+ * Makes all properties of T deeply partial
+ */
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
+}
+
+/**
+ * Extracts the return type of an async function
+ */
+type AsyncReturnType<T extends (...args: unknown[]) => Promise<unknown>> = T extends (
+  ...args: unknown[]
+) => Promise<infer R>
+  ? R
+  : never
+
+/**
+ * Makes specific properties required
+ */
+type RequireKeys<T, K extends keyof T> = T & Required<Pick<T, K>>
+
+// Usage
+type UserWithRequiredEmail = RequireKeys<Partial<User>, 'email'>
+```
+
+## Type Assertions
+
+### Use Type Assertions Sparingly
+
+- Prefer type guards over type assertions
+- Use `as const` for literal types
+
+```typescript
+// ✅ Good - as const for literal types
+const colors = ['red', 'green', 'blue'] as const
+type Color = (typeof colors)[number] // 'red' | 'green' | 'blue'
+
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+} as const
+
+// ✅ Good - type assertion when necessary
+const element = document.getElementById('my-element') as HTMLInputElement
+
+// ✅ Good - with null check
+const element = document.getElementById('my-element')
+if (element) {
+  const input = element as HTMLInputElement
+  input.value = 'test'
+}
+
+// ❌ Avoid - unnecessary assertion
+const value = 'hello' as string
+
+// ❌ Avoid - dangerous assertion
+const value = unknownValue as User // Prefer type guard
+```
+
+### Non-Null Assertion Operator
+
+- Avoid using `!` operator when possible
+- Prefer optional chaining and nullish coalescing
+- Use type guards for null checks
+
+```typescript
+// ✅ Good - optional chaining
+const userName = user?.name ?? 'Anonymous'
+
+// ✅ Good - type guard
+if (user) {
+  console.log(user.name)
+}
+
+// ⚠️ Use sparingly - non-null assertion
+const element = document.getElementById('my-element')!
+
+// ❌ Avoid - dangerous non-null assertion
+const user = maybeUser! // Can cause runtime error
 ```
 
 ## Summary
@@ -171,6 +449,8 @@ export function getInstance<T>(constructor: Constructor<T>): T {
 6. **Utility types** - Export useful type helpers
 7. **Strict mode** - Always enabled
 8. **Type inference** - Let TypeScript infer internally, be explicit for exports
+9. **Discriminated unions** - Use for complex state
+10. **Avoid dangerous assertions** - Prefer type guards
 
 **Library Type Safety Checklist:**
 
@@ -181,6 +461,8 @@ export function getInstance<T>(constructor: Constructor<T>): T {
 - [ ] Utility types exported for library users
 - [ ] JSDoc on all public APIs
 - [ ] Strict mode enabled
+- [ ] Discriminated unions for complex state
+- [ ] No dangerous type assertions
 
 **Tools:**
 
