@@ -45,6 +45,9 @@ jobs:
       - script: yarn build
         displayName: 'Build'
 
+      - script: yarn format:check
+        displayName: 'Format check'
+
       - script: yarn lint
         displayName: 'Lint'
 

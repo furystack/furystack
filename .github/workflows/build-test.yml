@@ -13,13 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn install
-      - name: Prettier check
-        run: yarn prettier:check
+      - name: Format check
+        run: yarn format:check
       - name: Build
         run: yarn build
       - name: Verify changelog plugin bundle is up-to-date
@@ -36,7 +36,7 @@ jobs:
         run: docker compose up -d
       - name: Test
         run: yarn test
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
