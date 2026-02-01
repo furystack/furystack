@@ -1,6 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
-import { Shade, attachStyles, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
@@ -74,76 +75,24 @@ export type TextInputState = {
   element: JSX.Element<TextInputProps>
 }
 
-const getLabelStyle = ({
+/**
+ * Sets CSS custom properties for dynamic color values.
+ * State-based styling (focus, error, disabled) is handled by CSS selectors.
+ * Background colors use CSS color-mix() for automatic theme adaptation.
+ */
+const setInputColors = ({
+  element,
   themeProvider,
   props,
-  state,
-  validationResult,
 }: {
+  element: HTMLElement
   themeProvider: ThemeProviderService
   props: TextInputProps
-  state: TextInputState
-  validationResult?: InputValidationResult
-}): Partial<CSSStyleDeclaration> => {
-  const isError = state.validity?.valid === false || validationResult?.isValid === false
-  const isOutlined = props.variant === 'outlined'
-  const isContained = props.variant === 'contained'
-
-  return {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    fontSize: '11px',
-    fontWeight: '500',
-    letterSpacing: '0.01em',
-    color: props.disabled
-      ? themeProvider.theme.text.disabled
-      : isError
-        ? themeProvider.theme.palette.error.main
-        : state.focused
-          ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
-          : themeProvider.theme.text.secondary,
-    marginBottom: '1.25em',
-    padding: '12px 14px',
-    borderRadius: '8px',
-    background: isContained
-      ? themeProvider
-          .getRgbFromColorString(
-            isError
-              ? themeProvider.theme.palette.error.main
-              : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
-          )
-          .update('a', state.focused ? 0.12 : 0.08)
-          .toString()
-      : 'transparent',
-    border:
-      isOutlined || isContained
-        ? `2px solid ${
-            isError
-              ? themeProvider.theme.palette.error.main
-              : state.focused
-                ? themeProvider.theme.palette[props.defaultColor || 'primary'].main
-                : themeProvider.getRgbFromColorString(themeProvider.theme.text.secondary).update('a', 0.3).toString()
-          }`
-        : `2px solid transparent`,
-    boxShadow:
-      state.focused && !props.disabled
-        ? `0 0 0 3px ${themeProvider
-            .getRgbFromColorString(
-              isError
-                ? themeProvider.theme.palette.error.main
-                : themeProvider.theme.palette[props.defaultColor || 'primary'].main,
-            )
-            .update('a', 0.15)
-            .toString()}`
-        : 'none',
-    filter: props.disabled ? 'grayscale(100%)' : 'none',
-    opacity: props.disabled ? '0.5' : '1',
-    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-    cursor: props.disabled ? 'not-allowed' : 'text',
-    ...props.labelProps?.style,
-  }
+}): void => {
+  // Only set the color variables - backgrounds use CSS color-mix()
+  const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
+  element.style.setProperty('--input-primary-color', primaryColor)
+  element.style.setProperty('--input-error-color', themeProvider.theme.palette.error.main)
 }
 
 const getDefaultMessagesForValidityState = (state: ValidityState) => {
@@ -180,6 +129,120 @@ const getDefaultMessagesForValidityState = (state: ValidityState) => {
 
 export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
+  css: {
+    display: 'block',
+    marginBottom: '1.25em',
+
+    // Base label styles
+    '& label': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      fontSize: '11px',
+      fontWeight: '500',
+      letterSpacing: '0.01em',
+      padding: '12px 14px',
+      borderRadius: '8px',
+      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      cursor: 'text',
+      color: cssVariableTheme.text.secondary,
+      background: 'transparent',
+      border: '2px solid transparent',
+      boxShadow: 'none',
+    },
+
+    // Outlined variant - default border
+    '&[data-variant="outlined"] label': {
+      borderColor: 'rgba(128, 128, 128, 0.3)',
+    },
+
+    // Contained variant - background using color-mix for theme-aware alpha
+    '&[data-variant="contained"] label': {
+      borderColor: 'rgba(128, 128, 128, 0.3)',
+      background: 'color-mix(in srgb, var(--input-primary-color) 8%, transparent)',
+    },
+
+    // Focus state using :focus-within (color change for all variants)
+    '&:focus-within label': {
+      color: 'var(--input-primary-color)',
+    },
+
+    // Focus state for outlined/contained variants - add border and shadow
+    '&[data-variant="outlined"]:focus-within label, &[data-variant="contained"]:focus-within label': {
+      borderColor: 'var(--input-primary-color)',
+      boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+    },
+    '&[data-variant="contained"]:focus-within label': {
+      background: 'color-mix(in srgb, var(--input-primary-color) 12%, transparent)',
+    },
+
+    // Invalid/error state
+    '&[data-invalid] label': {
+      color: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="outlined"] label, &[data-invalid][data-variant="contained"] label': {
+      borderColor: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="contained"] label': {
+      background: 'color-mix(in srgb, var(--input-error-color) 8%, transparent)',
+    },
+    '&[data-invalid]:focus-within label': {
+      color: 'var(--input-error-color)',
+    },
+    '&[data-invalid][data-variant="outlined"]:focus-within label, &[data-invalid][data-variant="contained"]:focus-within label':
+      {
+        borderColor: 'var(--input-error-color)',
+        boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+      },
+    '&[data-invalid][data-variant="contained"]:focus-within label': {
+      background: 'color-mix(in srgb, var(--input-error-color) 12%, transparent)',
+    },
+
+    // Disabled state
+    '&[data-disabled] label': {
+      color: cssVariableTheme.text.disabled,
+      filter: 'grayscale(100%)',
+      opacity: '0.5',
+      cursor: 'not-allowed',
+    },
+    '&[data-disabled]:focus-within label': {
+      boxShadow: 'none',
+    },
+
+    '& .input-row': {
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      gap: '8px',
+    },
+    '& input': {
+      color: 'inherit',
+      border: 'none',
+      backgroundColor: 'transparent',
+      outline: 'none',
+      fontSize: '13px',
+      fontWeight: '400',
+      width: '100%',
+      textOverflow: 'ellipsis',
+      padding: '0',
+      marginTop: '8px',
+      marginBottom: '2px',
+      flexGrow: '1',
+      lineHeight: '1.5',
+    },
+    '& .helperText': {
+      fontSize: '11px',
+      marginTop: '6px',
+      opacity: '0.85',
+      lineHeight: '1.4',
+    },
+    '& .startIcon, & .endIcon': {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '16px',
+    },
+  },
   constructed: ({ injector, element }) => {
     if (injector.cachedSingletons.has(FormService)) {
       const input = element.querySelector('input') as HTMLInputElement
@@ -191,8 +254,22 @@ export const Input = Shade<TextInputProps>({
   render: ({ props, injector, useObservable, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
 
+    // Set data attributes for CSS styling
+    if (props.variant) {
+      element.setAttribute('data-variant', props.variant)
+    } else {
+      element.removeAttribute('data-variant')
+    }
+    if (props.disabled) {
+      element.setAttribute('data-disabled', '')
+    } else {
+      element.removeAttribute('data-disabled')
+    }
+
+    // Set dynamic color CSS variables (only needs to happen once per render)
+    setInputColors({ element, themeProvider, props })
+
     const updateState = (newState: TextInputState) => {
-      const label = element.querySelector('label') as HTMLLabelElement
       const input = element.querySelector('input') as HTMLInputElement
 
       newState.value = input?.value || newState.value
@@ -214,13 +291,12 @@ export const Input = Shade<TextInputProps>({
 
       const validationResult = props.getValidationResult?.({ state: newState })
 
+      // Set data-invalid attribute for CSS styling
       if (validationResult?.isValid === false || newState.validity?.valid === false) {
-        element.setAttribute('data-validation-failed', 'true')
+        element.setAttribute('data-invalid', '')
       } else {
-        element.removeAttribute('data-validation-failed')
+        element.removeAttribute('data-invalid')
       }
-
-      attachStyles(label, { style: getLabelStyle({ themeProvider, props, state: newState, validationResult }) })
 
       const helper = element.querySelector<HTMLSpanElement>('span.helperText')
       const helperNode =
@@ -230,38 +306,16 @@ export const Input = Shade<TextInputProps>({
         ''
       if (helper) {
         helper.replaceChildren(helperNode)
-        attachStyles(helper, {
-          style: {
-            fontSize: '11px',
-            marginTop: '6px',
-            opacity: '0.85',
-            lineHeight: '1.4',
-          },
-        })
       }
 
       const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
       if (startIcon) {
         startIcon.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
-        attachStyles(startIcon, {
-          style: {
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: '16px',
-          },
-        })
       }
 
       const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
       if (endIcon) {
         endIcon.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
-        attachStyles(endIcon, {
-          style: {
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: '16px',
-          },
-        })
       }
 
       if (injector.cachedSingletons.has(FormService)) {
@@ -282,22 +336,11 @@ export const Input = Shade<TextInputProps>({
     )
 
     return (
-      <label {...props.labelProps} style={getLabelStyle({ props, state, themeProvider })}>
+      <label {...props.labelProps}>
         {props.labelTitle}
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            gap: '8px',
-          }}
-        >
-          {props.getStartIcon ? (
-            <span className="startIcon" style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
-              {props.getStartIcon?.({ state })}
-            </span>
-          ) : null}
+        <div className="input-row">
+          {props.getStartIcon ? <span className="startIcon">{props.getStartIcon?.({ state })}</span> : null}
           <input
             oninvalid={(ev) => {
               ev.preventDefault()
@@ -320,41 +363,12 @@ export const Input = Shade<TextInputProps>({
               setState({ ...state, focused: false, validity: el.validity })
             }}
             {...props}
-            style={{
-              color: 'inherit',
-              border: 'none',
-              backgroundColor: 'transparent',
-              outline: 'none',
-              fontSize: '13px',
-              fontWeight: '400',
-              width: '100%',
-              textOverflow: 'ellipsis',
-              padding: '0',
-              marginTop: '8px',
-              marginBottom: '2px',
-              flexGrow: '1',
-              lineHeight: '1.5',
-              ...props.style,
-            }}
+            style={props.style}
             value={state.value}
           />
-          {props.getEndIcon ? (
-            <span className="endIcon" style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
-              {props.getEndIcon({ state })}
-            </span>
-          ) : null}
+          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
         </div>
-        <span
-          className="helperText"
-          style={{
-            fontSize: '11px',
-            marginTop: '6px',
-            opacity: '0.85',
-            lineHeight: '1.4',
-          }}
-        >
-          {props.getHelperText?.({ state })}
-        </span>
+        <span className="helperText">{props.getHelperText?.({ state })}</span>
       </label>
     )
   },

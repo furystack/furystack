@@ -11,6 +11,16 @@ export type ModalProps = {
 
 export const Modal = Shade<ModalProps>({
   shadowDomName: 'shade-modal',
+  css: {
+    '& .shade-backdrop': {
+      width: '100%',
+      height: '100%',
+      display: 'block',
+      position: 'fixed',
+      top: '0',
+      left: '0',
+    },
+  },
   render: ({ props, children, useObservable, element }) => {
     const [isVisible] = useObservable('isVisible', props.isVisible)
 
@@ -25,15 +35,7 @@ export const Modal = Shade<ModalProps>({
           await props.hideAnimation?.(element)
           props.onClose?.()
         }}
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          ...props.backdropStyle,
-        }}
+        style={props.backdropStyle}
       >
         {children}
       </div>

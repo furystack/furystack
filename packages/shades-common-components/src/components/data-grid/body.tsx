@@ -26,7 +26,7 @@ export const DataGridBody: <T, Column extends string>(
   shadowDomName: 'shade-data-grid-body',
   elementBase: HTMLTableSectionElement,
   elementBaseName: 'tbody',
-  style: {
+  css: {
     display: 'table-row-group',
   },
   render: ({ props, useObservable }) => {

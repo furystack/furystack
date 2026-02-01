@@ -34,21 +34,22 @@ export interface WizardProps {
 
 export const Wizard = Shade<WizardProps>({
   shadowDomName: 'shades-wizard',
+  css: {
+    '& .wizard-container': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+    },
+  },
   render: ({ props, useState }) => {
     const [currentPage, setCurrentPage] = useState('currentPage', 0)
 
     const CurrentPage = props.steps[currentPage]
 
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-        }}
-      >
+      <div className="wizard-container">
         <Paper style={{ maxWidth: '100%', maxHeight: '100%' }} elevation={3} onclick={(ev) => ev.stopPropagation()}>
           <CurrentPage
             currentPage={currentPage}

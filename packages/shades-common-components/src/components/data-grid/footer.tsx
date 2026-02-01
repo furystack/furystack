@@ -2,7 +2,7 @@ import type { FindOptions } from '@furystack/core'
 import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import type { CollectionService } from '../../services/collection-service.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
@@ -11,9 +11,23 @@ export const DataGridFooter: <T>(props: {
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
 }) => JSX.Element = Shade({
   shadowDomName: 'shade-data-grid-footer',
-  render: ({ props, injector, useObservable }) => {
-    const { theme } = injector.getInstance(ThemeProviderService)
-
+  css: {
+    display: 'block',
+    '& .pager': {
+      backdropFilter: 'blur(10px)',
+      color: cssVariableTheme.text.secondary,
+      position: 'sticky',
+      bottom: '0',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      padding: '1em',
+      alignItems: 'center',
+    },
+    '& select': {
+      margin: '0 1em',
+    },
+  },
+  render: ({ props, useObservable }) => {
     const { service, findOptions } = props
     const [currentData] = useObservable('dataUpdater', service.data)
     const [currentOptions, setCurrentOptions] = useObservable('optionsUpdater', findOptions, {
@@ -32,24 +46,11 @@ export const DataGridFooter: <T>(props: {
       .map((_, index) => index)
 
     return (
-      <div
-        className="pager"
-        style={{
-          backdropFilter: 'blur(10px)',
-          color: theme.text.secondary,
-          position: 'sticky',
-          bottom: '0',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          padding: '1em',
-          alignItems: 'center',
-        }}
-      >
+      <div className="pager">
         {currentEntriesPerPage !== Infinity && (
           <div>
             Goto page
             <select
-              style={{ margin: '0 1em' }}
               onchange={(ev) => {
                 const value = parseInt((ev.target as HTMLInputElement).value, 10)
                 setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
@@ -66,7 +67,6 @@ export const DataGridFooter: <T>(props: {
         <div>
           Show
           <select
-            style={{ margin: '0 1em' }}
             onchange={(ev) => {
               const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
               setCurrentOptions({

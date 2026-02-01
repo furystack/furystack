@@ -1,6 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { attachStyles, createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { DataRowCells } from './data-grid.js'
 
 export interface DataGridRowProps<T, Column extends string> {
@@ -21,44 +22,55 @@ export const DataGridRow: <T, Column extends string>(
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
   shadowDomName: 'shades-data-grid-row',
-
+  css: {
+    display: 'table-row',
+    cursor: 'default',
+    userSelect: 'none',
+    transition: 'background-color 0.15s ease, box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out',
+    borderLeft: '3px solid transparent',
+    '&:not(.selected):hover': {
+      backgroundColor: 'rgba(128, 128, 128, 0.08)',
+    },
+    '&.selected': {
+      backgroundColor: 'rgba(128, 128, 128, 0.15)',
+      borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
+    },
+    '&.focused': {
+      boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset, 0 2px 8px 0px rgba(0,0,0,0.15)`,
+      fontWeight: '500',
+      transform: 'scale(1.002)',
+    },
+    '& td': {
+      padding: '0.75em 1.2em',
+      borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
+      verticalAlign: 'middle',
+      fontSize: '0.875rem',
+      lineHeight: '1.5',
+    },
+  },
   render: ({ props, element, useObservable }) => {
     const { entry, rowComponents, columns, service } = props
 
-    const attachSelectedStyles = (selection: any[]) => {
-      if (selection.includes(entry)) {
-        element.classList.add('selected')
-        attachStyles(element, {
-          style: props.selectedRowStyle || {
-            backgroundColor: 'rgba(128, 128, 128, 0.15)',
-            borderLeft: `3px solid var(--shades-theme-palette-primary-main)`,
-          },
-        })
-        element.setAttribute('aria-selected', 'true')
-      } else {
-        element.classList.remove('selected')
-        attachStyles(element, {
-          style: props.unselectedRowStyle || {
-            backgroundColor: 'transparent',
-            borderLeft: '3px solid transparent',
-          },
-        })
-        element.setAttribute('aria-selected', 'false')
+    const updateSelectionState = (selection: unknown[]) => {
+      const isSelected = selection.includes(entry)
+      element.classList.toggle('selected', isSelected)
+      element.setAttribute('aria-selected', isSelected.toString())
+
+      if (props.selectedRowStyle && isSelected) {
+        attachStyles(element, { style: props.selectedRowStyle })
+      } else if (props.unselectedRowStyle && !isSelected) {
+        attachStyles(element, { style: props.unselectedRowStyle })
       }
     }
 
-    const attachFocusedStyle = (newEntry?: any) => {
-      if (newEntry === props.entry) {
-        attachStyles(element, {
-          style: props.focusedRowStyle || {
-            boxShadow: `0 0 0 2px var(--shades-theme-palette-primary-main) inset, 0 2px 8px 0px rgba(0,0,0,0.15)`,
-            transition: 'box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out',
-            fontWeight: '500',
-            transform: 'scale(1.002)',
-          },
-        })
+    const updateFocusState = (focusedEntry?: unknown) => {
+      const isFocused = focusedEntry === entry
+      element.classList.toggle('focused', isFocused)
 
-        element.classList.add('focused')
+      if (isFocused) {
+        if (props.focusedRowStyle) {
+          attachStyles(element, { style: props.focusedRowStyle })
+        }
 
         const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
 
@@ -77,69 +89,25 @@ export const DataGridRow: <T, Column extends string>(
         if (desiredMaxTop > visibleMaxTop) {
           parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
         }
-      } else {
-        element.classList.remove('focused')
-        attachStyles(element, {
-          style: props.unfocusedRowStyle || {
-            boxShadow: 'none',
-            fontWeight: 'inherit',
-            transform: 'scale(1)',
-          },
-        })
+      } else if (props.unfocusedRowStyle) {
+        attachStyles(element, { style: props.unfocusedRowStyle })
       }
     }
 
     const [selection] = useObservable('isSelected', service.selection, {
-      onChange: attachSelectedStyles,
+      onChange: updateSelectionState,
     })
-    attachSelectedStyles(selection)
+    updateSelectionState(selection)
 
     const [focus] = useObservable('focus', service.focusedEntry, {
-      onChange: attachFocusedStyle,
+      onChange: updateFocusState,
     })
-    attachFocusedStyle(focus)
-
-    element.style.display = 'table-row'
-    element.style.cursor = 'default'
-    element.style.userSelect = 'none'
-    element.style.transition = 'background-color 0.15s ease'
-
-    if (selection?.includes(entry)) {
-      element.setAttribute('aria-selected', 'true')
-      element.classList.add('selected')
-    }
-
-    if (focus === entry) {
-      element.classList.add('focused')
-    }
-    element.setAttribute('aria-selected', selection?.includes(entry).toString() || 'false')
-
-    // Add hover effect
-    element.onmouseenter = () => {
-      if (!selection?.includes(entry)) {
-        element.style.backgroundColor = 'rgba(128, 128, 128, 0.08)'
-      }
-    }
-    element.onmouseleave = () => {
-      if (!selection?.includes(entry)) {
-        element.style.backgroundColor = 'transparent'
-      }
-    }
+    updateFocusState(focus)
 
     return (
       <>
         {columns.map((column) => (
-          <td
-            style={{
-              padding: '0.75em 1.2em',
-              borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
-              verticalAlign: 'middle',
-              fontSize: '0.875rem',
-              lineHeight: '1.5',
-            }}
-            onclick={(ev) => props.onRowClick?.(entry, ev)}
-            ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
-          >
+          <td onclick={(ev) => props.onRowClick?.(entry, ev)} ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}>
             {rowComponents?.[column]?.(entry, { selection, focus }) ||
               rowComponents?.default?.(entry, { selection, focus }) || (
                 <span>

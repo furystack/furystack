@@ -1,10 +1,10 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
-import { createComponent, Shade } from '@furystack/shades'
+import { attachStyles, createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
-import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
@@ -80,27 +80,22 @@ export const DataGrid: <T, Column extends string>(
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
   shadowDomName: 'shade-data-grid',
-  constructed: ({ props }) => {
-    const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
-    window.addEventListener('keydown', listener)
-    return () => window.removeEventListener('keydown', listener)
-  },
-  render: ({ props, injector, useDisposable, element }) => {
-    const tp = injector.getInstance(ThemeProviderService)
-    const { theme } = tp
-
-    useDisposable(
-      'clickAway',
-      () =>
-        new ClickAwayService(element, () => {
-          props.collectionService.hasFocus.setValue(false)
-        }),
-    )
-
-    const headerStyle: Partial<CSSStyleDeclaration> = {
+  css: {
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    overflow: 'auto',
+    zIndex: '1',
+    '& table': {
+      width: '100%',
+      maxHeight: 'calc(100% - 4em)',
+      position: 'relative',
+      borderCollapse: 'collapse',
+    },
+    '& th': {
       backdropFilter: 'blur(12px) saturate(180%)',
       background: 'rgba(128,128,128,0.3)',
-      color: theme.text.secondary,
+      color: cssVariableTheme.text.secondary,
       height: '48px',
       padding: '0 1.2em',
       alignItems: 'center',
@@ -114,34 +109,42 @@ export const DataGrid: <T, Column extends string>(
       textAlign: 'left',
       zIndex: '1',
       boxShadow: 'rgba(0, 0, 0, 0.2) 1px 1px 1px 2px',
-      borderBottom: `2px solid rgba(128, 128, 128, 0.2)`,
-      borderRight: `1px solid rgba(128, 128, 128, 0.2)`,
-      ...props.styles?.header,
+      borderBottom: '2px solid rgba(128, 128, 128, 0.2)',
+      borderRight: '1px solid rgba(128, 128, 128, 0.2)',
+    },
+  },
+  constructed: ({ props }) => {
+    const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
+    window.addEventListener('keydown', listener)
+    return () => window.removeEventListener('keydown', listener)
+  },
+  render: ({ props, useDisposable, element }) => {
+    useDisposable(
+      'clickAway',
+      () =>
+        new ClickAwayService(element, () => {
+          props.collectionService.hasFocus.setValue(false)
+        }),
+    )
+
+    if (props.styles?.wrapper) {
+      attachStyles(element, { style: props.styles.wrapper })
     }
 
     return (
       <div
         className="shade-grid-wrapper"
-        style={{
-          ...props.styles?.wrapper,
-          width: '100%',
-          height: '100%',
-          overflow: 'auto',
-          zIndex: '1',
-        }}
         onclick={() => {
           props.collectionService.hasFocus.setValue(true)
         }}
         ariaMultiSelectable="true"
       >
-        <table
-          style={{ width: '100%', maxHeight: 'calc(100% - 4em)', position: 'relative', borderCollapse: 'collapse' }}
-        >
+        <table>
           <thead>
             <tr>
               {props.columns.map((column) => {
                 return (
-                  <th style={headerStyle}>
+                  <th style={props.styles?.header}>
                     {props.headerComponents?.[column]?.(column) || props.headerComponents?.default?.(column) || (
                       <DataGridHeader<
                         ReturnType<typeof props.collectionService.data.getValue>['entries'][number],

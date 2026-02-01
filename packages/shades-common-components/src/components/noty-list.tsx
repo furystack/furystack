@@ -39,7 +39,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       )
     })
   },
-  style: {
+  css: {
     margin: '8px',
     overflow: 'hidden',
     borderRadius: '12px',
@@ -50,6 +50,39 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     height: '0px',
     border: '1px solid rgba(0, 0, 0, 0.1)',
     backdropFilter: 'blur(10px)',
+    '& .noty-header': {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '12px 12px 12px 20px',
+      borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+    },
+    '& .noty-title': {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      margin: '0',
+      fontSize: '0.95em',
+      fontWeight: '600',
+      letterSpacing: '0.01em',
+    },
+    '& .dismiss-button': {
+      margin: '0',
+      padding: '4px 8px',
+      fontSize: '16px',
+      minWidth: '28px',
+      opacity: '0.8',
+      transition: 'opacity 0.2s ease',
+    },
+    '& .dismiss-button:hover': {
+      opacity: '1',
+    },
+    '& .noty-body': {
+      padding: '16px 20px 18px 20px',
+      fontSize: '0.9em',
+      lineHeight: '1.5',
+      fontWeight: '400',
+    },
   },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
@@ -84,47 +117,12 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     return (
       <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '12px 12px 12px 20px',
-            backgroundColor: colors.dark,
-            color: headerTextColor,
-            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-          }}
-        >
-          <h5
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              margin: '0',
-              fontSize: '0.95em',
-              fontWeight: '600',
-              letterSpacing: '0.01em',
-            }}
-            title={props.model.title}
-          >
+        <div className="noty-header" style={{ backgroundColor: colors.dark, color: headerTextColor }}>
+          <h5 className="noty-title" title={props.model.title}>
             {props.model.title}
           </h5>
           <Button
-            style={{
-              margin: '0',
-              padding: '4px 8px',
-              fontSize: '16px',
-              minWidth: '28px',
-              opacity: '0.8',
-              transition: 'opacity 0.2s ease',
-            }}
-            className="dismissNoty"
-            onmouseenter={(e: MouseEvent) => {
-              ;(e.currentTarget as HTMLElement).style.opacity = '1'
-            }}
-            onmouseleave={(e: MouseEvent) => {
-              ;(e.currentTarget as HTMLElement).style.opacity = '0.8'
-            }}
+            className="dismiss-button"
             onclick={removeSelf}
             title="Close Notification"
             variant="contained"
@@ -133,16 +131,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             ✖
           </Button>
         </div>
-        <div
-          style={{
-            padding: '16px 20px 18px 20px',
-            fontSize: '0.9em',
-            lineHeight: '1.5',
-            fontWeight: '400',
-          }}
-        >
-          {props.model.body}
-        </div>
+        <div className="noty-body">{props.model.body}</div>
       </>
     )
   },
@@ -150,7 +139,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
 export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
-  style: {
+  css: {
     position: 'fixed',
     bottom: '1em',
     right: '1em',

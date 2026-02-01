@@ -24,6 +24,92 @@ A shade (component) can be constructed from the following properties:
 - `constructed: (options: RenderOptions)=>void` – Optional callback executed after component construction. It can return a cleanup method (e.g., free up resources, dispose value observers, etc.).
 - `onAttach: (options: RenderOptions)=>void` – Executed when the component is attached to the DOM.
 - `onDetach: (options: RenderOptions)=>void` – Executed when the component is detached from the DOM.
+- `style` – Optional inline styles applied to each component instance. Use for per-instance overrides.
+- `css` – Optional CSS styles injected as a stylesheet during component registration. Supports pseudo-selectors and nested selectors.
+
+### Styling
+
+Shades provides two complementary approaches to styling components:
+
+#### `style` Property (Inline Styles)
+
+The `style` property applies inline styles to each component instance. Use this for:
+
+- Per-instance style overrides
+- Dynamic styles that change based on props/state
+- Quick prototyping
+
+```typescript
+const MyComponent = Shade({
+  shadowDomName: 'my-component',
+  style: {
+    display: 'flex',
+    padding: '16px',
+  },
+  render: () => <div>Content</div>,
+})
+
+// Override styles on specific instances
+<MyComponent style={{ marginTop: '20px' }} />
+```
+
+#### `css` Property (Stylesheet Injection)
+
+The `css` property injects CSS rules into a stylesheet once per component type. Use this for:
+
+- Component-level default styles
+- Pseudo-selectors (`:hover`, `:active`, `:focus`, `:disabled`, etc.)
+- Nested selectors (child elements, class names)
+- Better performance (styles injected once, not per-instance)
+
+```typescript
+const Button = Shade({
+  shadowDomName: 'my-button',
+  css: {
+    padding: '12px 24px',
+    backgroundColor: 'blue',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+
+    '&:hover': {
+      backgroundColor: 'darkblue',
+    },
+
+    '&:active': {
+      transform: 'scale(0.98)',
+    },
+
+    '&:disabled': {
+      opacity: '0.5',
+      cursor: 'not-allowed',
+    },
+
+    '& .icon': {
+      marginRight: '8px',
+    },
+  },
+  render: ({ props }) => (
+    <button disabled={props.disabled}>
+      {props.icon && <span className="icon">{props.icon}</span>}
+      {props.children}
+    </button>
+  ),
+})
+```
+
+#### When to Use Which
+
+| Use Case                  | `style` | `css` |
+| ------------------------- | ------- | ----- |
+| Hover/focus/active states | ❌      | ✅    |
+| Per-instance overrides    | ✅      | ❌    |
+| Nested element styling    | ❌      | ✅    |
+| Dynamic values from props | ✅      | ❌    |
+| Component defaults        | ⚠️      | ✅    |
+
+Both properties can be used together. Inline `style` will override `css` due to CSS specificity rules.
 
 ### Render Options
 

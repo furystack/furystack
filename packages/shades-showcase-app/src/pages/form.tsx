@@ -28,7 +28,7 @@ const FormStatusMonitor = Shade({
 
 export const FormPage = Shade({
   shadowDomName: 'forms-page',
-  style: {
+  css: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

@@ -3,7 +3,7 @@ import { MonacoEditor } from '../components/monaco-editor.js'
 
 export const MonacoEditorPage = Shade({
   shadowDomName: 'monaco-editor-page',
-  style: { position: 'fixed', top: '64px', height: 'calc(100% - 96px)', width: 'calc(100% - 48px)' },
+  css: { position: 'fixed', top: '64px', height: 'calc(100% - 96px)', width: 'calc(100% - 48px)' },
   render: () => {
     return (
       <>

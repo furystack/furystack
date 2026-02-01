@@ -1,4 +1,5 @@
 export * from './children-list.js'
+export * from './css-object.js'
 export * from './partial-element.js'
 export * from './render-options.js'
 export * from './selection-state.js'
