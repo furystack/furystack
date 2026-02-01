@@ -1,4 +1,5 @@
 <!-- version-type: patch -->
+
 # furystack
 
 ## 📚 Documentation
