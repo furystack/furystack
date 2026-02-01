@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.2] - 2026-02-01
+
+### 📚 Documentation
+
+### Getting Started Guide
+
+Added a step-by-step installation and setup guide to the README covering:
+
+- Package installation with `yarn add -D @furystack/yarn-plugin-changelog`
+- `.yarnrc.yml` configuration with `changesetBaseRefs` and plugin path
+- `.gitignore` setup to track version manifests and changelog drafts
+- Recommended `package.json` scripts (`bumpVersions`, `applyReleaseChanges`)
+- CI/CD setup examples with GitHub Actions workflows for version bump and changelog validation
+
 ## [1.0.1] - 2026-01-26
 
 ### 🔧 Chores

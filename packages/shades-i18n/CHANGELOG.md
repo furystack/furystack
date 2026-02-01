@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.28] - 2026-02-01
+
+### ⬆️ Dependencies
+
+- Updated peer dependency `@furystack/shades` to include new CSS styling features
+
 ## [1.0.27] - 2026-01-26
 
 ### 🔧 Chores

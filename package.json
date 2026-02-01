@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "7.0.37",
+  "version": "7.0.38",
   "workspaces": {
     "packages": [
       "packages/*"

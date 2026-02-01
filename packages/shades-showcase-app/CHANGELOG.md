@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.0] - 2026-02-01
+
+### ♻️ Refactoring
+
+- Updated page components to use refactored `@furystack/shades-common-components` with new `css` property styling
+- Simplified `PageLoader` component styling
+
 ## [7.0.35] - 2026-01-26
 
 ### 🔧 Chores
