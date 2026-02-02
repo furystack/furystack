@@ -4,8 +4,11 @@ import { sleepAsync } from '@furystack/utils'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
 
-export const App = Shade({
-  shadowDomName: 'shades-app',
+/**
+ * Main application layout with AppBar and navigation
+ */
+const MainApp = Shade({
+  shadowDomName: 'shades-main-app',
   render: () => {
     return (
       <PageLayout
@@ -39,6 +42,7 @@ export const App = Shade({
                 <AppBarLink href="/i18n">I18N</AppBarLink>
                 <AppBarLink href="/mfe">MFE</AppBarLink>
                 <AppBarLink href="/misc">Misc</AppBarLink>
+                <AppBarLink href="/layout-tests">Layout Tests</AppBarLink>
               </div>
               <ThemeSwitch />
             </AppBar>
@@ -99,24 +103,6 @@ export const App = Shade({
                   component={async () => {
                     const { InputsPage } = await import('./pages/inputs.js')
                     return <InputsPage />
-                  }}
-                />
-              ),
-            },
-            {
-              url: '/form',
-              onVisit: async ({ element }) => {
-                await fadeIn(element, {})
-              },
-              onLeave: async ({ element }) => {
-                await fadeOut(element, {})
-              },
-              component: () => (
-                <LazyLoad
-                  loader={<PageLoader />}
-                  component={async () => {
-                    const { FormPage } = await import('./pages/form.js')
-                    return <FormPage />
                   }}
                 />
               ),
@@ -330,6 +316,119 @@ export const App = Shade({
           }
         />
       </PageLayout>
+    )
+  },
+})
+
+/**
+ * Root App component with top-level routing.
+ * Layout test pages render standalone (without the main app's PageLayout).
+ */
+export const App = Shade({
+  shadowDomName: 'shades-app',
+  render: () => {
+    return (
+      <Router
+        routes={[
+          {
+            url: '/layout-tests/appbar-only',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AppBarOnlyTest } = await import('./pages/layout-tests/index.js')
+                  return <AppBarOnlyTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/appbar-left-drawer',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AppBarLeftDrawerTest } = await import('./pages/layout-tests/index.js')
+                  return <AppBarLeftDrawerTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/appbar-right-drawer',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AppBarRightDrawerTest } = await import('./pages/layout-tests/index.js')
+                  return <AppBarRightDrawerTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/appbar-both-drawers',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AppBarBothDrawersTest } = await import('./pages/layout-tests/index.js')
+                  return <AppBarBothDrawersTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/collapsible-drawer',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CollapsibleDrawerTest } = await import('./pages/layout-tests/index.js')
+                  return <CollapsibleDrawerTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/auto-hide-appbar',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AutoHideAppBarTest } = await import('./pages/layout-tests/index.js')
+                  return <AutoHideAppBarTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests/responsive-layout',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ResponsiveLayoutTest } = await import('./pages/layout-tests/index.js')
+                  return <ResponsiveLayoutTest />
+                }}
+              />
+            ),
+          },
+          {
+            url: '/layout-tests',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { LayoutTestsIndex } = await import('./pages/layout-tests/index.js')
+                  return <LayoutTestsIndex />
+                }}
+              />
+            ),
+          },
+        ]}
+        notFound={<MainApp />}
+      />
     )
   },
 })
