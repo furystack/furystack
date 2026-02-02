@@ -1,26 +1,13 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { LayoutService } from '../../services/layout-service.js'
 import { PageLayout, type AppBarConfig, type DrawerConfig } from './index.js'
 
 describe('PageLayout component', () => {
-  let mockSetProperty: ReturnType<typeof vi.fn>
-
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>'
-    mockSetProperty = vi.fn()
-
-    // Mock document.documentElement.style.setProperty for LayoutService
-    Object.defineProperty(document, 'documentElement', {
-      value: {
-        style: {
-          setProperty: mockSetProperty,
-        },
-      },
-      configurable: true,
-    })
   })
 
   afterEach(() => {
@@ -52,12 +39,12 @@ describe('PageLayout component', () => {
 
     await sleepAsync(50)
 
-    const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
+    const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
 
     return {
       injector,
       pageLayout,
-      layoutService: injector.getInstance(LayoutService),
+      layoutService: pageLayout.injector.getInstance(LayoutService),
     }
   }
 
@@ -176,7 +163,7 @@ describe('PageLayout component', () => {
       expect(layoutService.appBarHeight.getValue()).toBe('48px')
     })
 
-    it('should add auto-hide class for auto-hide variant', async () => {
+    it('should add appbar-auto-hide class to host for auto-hide variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -196,12 +183,12 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const appBar = document.querySelector('.page-layout-appbar')
-        expect(appBar?.classList.contains('auto-hide')).toBe(true)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('appbar-auto-hide')).toBe(true)
       })
     })
 
-    it('should not add auto-hide class for permanent variant', async () => {
+    it('should not add appbar-auto-hide class to host for permanent variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -221,15 +208,14 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const appBar = document.querySelector('.page-layout-appbar')
-        expect(appBar?.classList.contains('auto-hide')).toBe(false)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('appbar-auto-hide')).toBe(false)
       })
     })
 
-    it('should add visible class to auto-hide AppBar when appBarVisible is true', async () => {
+    it('should add appbar-visible class to host when appBarVisible is true', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -247,11 +233,9 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        layoutService.appBarVisible.setValue(true)
-        await sleepAsync(50)
-
-        const appBar = document.querySelector('.page-layout-appbar')
-        expect(appBar?.classList.contains('visible')).toBe(true)
+        // Initially visible (appBarVisible defaults to true)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('appbar-visible')).toBe(true)
       })
     })
   })
@@ -370,7 +354,7 @@ describe('PageLayout component', () => {
       expect(layoutService.drawerState.getValue().left?.width).toBe('240px')
     })
 
-    it('should add closed class when drawer is closed', async () => {
+    it('should add drawer-left-closed class to host when drawer is closed', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -393,8 +377,8 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const drawer = document.querySelector('.page-layout-drawer-left')
-        expect(drawer?.classList.contains('closed')).toBe(true)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('drawer-left-closed')).toBe(true)
       })
     })
   })
@@ -548,10 +532,9 @@ describe('PageLayout component', () => {
       })
     })
 
-    it('should show backdrop when temporary drawer is open', async () => {
+    it('should add backdrop-visible class to host when temporary drawer is open', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -561,6 +544,7 @@ describe('PageLayout component', () => {
               drawer={{
                 left: {
                   variant: 'temporary',
+                  defaultOpen: true,
                   component: <div>Temporary Drawer</div>,
                 },
               }}
@@ -571,18 +555,14 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        layoutService.setDrawerOpen('left', true)
-        await sleepAsync(50)
-
-        const backdrop = document.querySelector('.page-layout-drawer-backdrop')
-        expect(backdrop?.classList.contains('visible')).toBe(true)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('backdrop-visible')).toBe(true)
       })
     })
 
     it('should close temporary drawer when backdrop is clicked', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -592,6 +572,7 @@ describe('PageLayout component', () => {
               drawer={{
                 left: {
                   variant: 'temporary',
+                  defaultOpen: true,
                   component: <div>Temporary Drawer</div>,
                 },
               }}
@@ -602,14 +583,14 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        layoutService.setDrawerOpen('left', true)
-        await sleepAsync(50)
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.classList.contains('drawer-left-closed')).toBe(false)
 
         const backdrop = document.querySelector('.page-layout-drawer-backdrop') as HTMLElement
         backdrop.click()
         await sleepAsync(50)
 
-        expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+        expect(pageLayout?.classList.contains('drawer-left-closed')).toBe(true)
       })
     })
   })
@@ -649,9 +630,10 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
         // AppBar height is 0 when not configured, so contentPaddingTop = calc(0px + 0px)
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-appbar-height', '0px')
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(0px + 0px)')
+        expect(pageLayout.style.getPropertyValue('--layout-appbar-height')).toBe('0px')
+        expect(pageLayout.style.getPropertyValue('--layout-content-padding-top')).toBe('calc(0px + 0px)')
       })
     })
 
@@ -676,9 +658,10 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
         // Content padding top CSS variable should be calculated from appBarHeight + topGap
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-appbar-height', '64px')
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(64px + 0px)')
+        expect(pageLayout.style.getPropertyValue('--layout-appbar-height')).toBe('64px')
+        expect(pageLayout.style.getPropertyValue('--layout-content-padding-top')).toBe('calc(64px + 0px)')
       })
     })
 
@@ -704,8 +687,9 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-top-gap', '16px')
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(48px + 16px)')
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
+        expect(pageLayout.style.getPropertyValue('--layout-top-gap')).toBe('16px')
+        expect(pageLayout.style.getPropertyValue('--layout-content-padding-top')).toBe('calc(48px + 16px)')
       })
     })
 
@@ -724,7 +708,8 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        expect(mockSetProperty).toHaveBeenCalledWith('--layout-side-gap', '24px')
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
+        expect(pageLayout.style.getPropertyValue('--layout-side-gap')).toBe('24px')
       })
     })
   })
@@ -739,7 +724,6 @@ describe('PageLayout component', () => {
     it('should respond to drawer state changes from LayoutService', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -760,23 +744,23 @@ describe('PageLayout component', () => {
 
         await sleepAsync(50)
 
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
+        const layoutService = pageLayout.injector.getInstance(LayoutService)
+
         // Initially open
-        let drawer = document.querySelector('.page-layout-drawer-left')
-        expect(drawer?.classList.contains('closed')).toBe(false)
+        expect(pageLayout.classList.contains('drawer-left-closed')).toBe(false)
 
         // Close via LayoutService
         layoutService.setDrawerOpen('left', false)
         await sleepAsync(50)
 
-        drawer = document.querySelector('.page-layout-drawer-left')
-        expect(drawer?.classList.contains('closed')).toBe(true)
+        expect(pageLayout.classList.contains('drawer-left-closed')).toBe(true)
       })
     })
 
     it('should respond to appBarVisible changes for auto-hide variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -795,16 +779,17 @@ describe('PageLayout component', () => {
 
         await sleepAsync(50)
 
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
+        const layoutService = pageLayout.injector.getInstance(LayoutService)
+
         // Initially visible
-        let appBar = document.querySelector('.page-layout-appbar')
-        expect(appBar?.classList.contains('visible')).toBe(true)
+        expect(pageLayout.classList.contains('appbar-visible')).toBe(true)
 
         // Hide via LayoutService
         layoutService.appBarVisible.setValue(false)
         await sleepAsync(50)
 
-        appBar = document.querySelector('.page-layout-appbar')
-        expect(appBar?.classList.contains('visible')).toBe(false)
+        expect(pageLayout.classList.contains('appbar-visible')).toBe(false)
       })
     })
   })
@@ -813,7 +798,6 @@ describe('PageLayout component', () => {
     it('should render complete layout with AppBar and both drawers', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const layoutService = injector.getInstance(LayoutService)
 
         initializeShadeRoot({
           injector,
@@ -849,6 +833,9 @@ describe('PageLayout component', () => {
         expect(document.body.innerHTML).toContain('page-layout-drawer-left')
         expect(document.body.innerHTML).toContain('page-layout-drawer-right')
         expect(document.body.innerHTML).toContain('page-layout-content')
+
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
+        const layoutService = pageLayout.injector.getInstance(LayoutService)
 
         expect(layoutService.appBarHeight.getValue()).toBe('64px')
         expect(layoutService.drawerState.getValue()).toEqual({

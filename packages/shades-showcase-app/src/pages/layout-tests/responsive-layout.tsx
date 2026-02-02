@@ -15,9 +15,10 @@ const ToggleDrawerButton = Shade({
 
 const DrawerState = Shade({
   shadowDomName: 'drawer-state',
-  render: ({ injector }) => {
+  render: ({ injector, useObservable }) => {
     const layoutService = injector.getInstance(LayoutService)
-    return <>Drawer State: {layoutService.drawerState.getValue().left?.open ? 'Open' : 'Closed'}</>
+    const [drawerState] = useObservable('drawerState', layoutService.drawerState)
+    return <>Drawer State: {drawerState.left?.open ? 'Open' : 'Closed'}</>
   },
 })
 

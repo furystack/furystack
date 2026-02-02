@@ -108,18 +108,18 @@ export const PageLayout = Shade<PageLayoutProps>({
       height: `var(${LAYOUT_CSS_VARIABLES.appBarHeight})`,
     },
 
-    // Auto-hide AppBar styles
-    '& .page-layout-appbar.auto-hide': {
+    // Auto-hide AppBar styles (controlled via host class)
+    '&.appbar-auto-hide .page-layout-appbar': {
       top: 'calc(-1 * var(--layout-appbar-height, 48px))',
     },
-    '& .page-layout-appbar.auto-hide:hover': {
+    '&.appbar-auto-hide .page-layout-appbar:hover': {
       top: '0',
     },
-    '& .page-layout-appbar.auto-hide.visible': {
+    '&.appbar-auto-hide.appbar-visible .page-layout-appbar': {
       top: '0',
     },
 
-    // Drawer containers - use CSS transitions instead of keyframes
+    // Drawer containers - use CSS transitions
     '& .page-layout-drawer': {
       position: 'fixed',
       top: 'var(--layout-appbar-height, 48px)',
@@ -135,19 +135,20 @@ export const PageLayout = Shade<PageLayoutProps>({
       borderRight: `1px solid ${cssVariableTheme.divider}`,
       transform: 'translateX(0)',
     },
-    '& .page-layout-drawer-left.closed': {
-      transform: 'translateX(-100%)',
-    },
     '& .page-layout-drawer-right': {
       right: '0',
       width: 'var(--layout-drawer-right-configured-width, 240px)',
       borderLeft: `1px solid ${cssVariableTheme.divider}`,
       transform: 'translateX(0)',
     },
-    '& .page-layout-drawer-right.closed': {
-      transform: 'translateX(100%)',
+
+    // Drawer closed states (controlled via host classes)
+    '&.drawer-left-closed .page-layout-drawer-left': {
+      transform: 'translateX(-100%)',
+      pointerEvents: 'none',
     },
-    '& .page-layout-drawer.closed': {
+    '&.drawer-right-closed .page-layout-drawer-right': {
+      transform: 'translateX(100%)',
       pointerEvents: 'none',
     },
 
@@ -164,7 +165,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       pointerEvents: 'none',
       transition: 'opacity 0.3s ease-in-out',
     },
-    '& .page-layout-drawer-backdrop.visible': {
+    '&.backdrop-visible .page-layout-drawer-backdrop': {
       opacity: '1',
       pointerEvents: 'auto',
     },
@@ -216,8 +217,13 @@ export const PageLayout = Shade<PageLayoutProps>({
     // Initialize drawers
     const initializeDrawer = (position: 'left' | 'right', config: DrawerConfig) => {
       const width = config.width ?? DEFAULT_DRAWER_WIDTH
+      // Permanent drawers are always open
+      // Collapsible drawers default to open unless defaultOpen is false
+      // Temporary drawers default to closed unless defaultOpen is true
       const isOpen =
-        config.variant === 'permanent' || (config.variant === 'collapsible' && (config.defaultOpen ?? true))
+        config.variant === 'permanent' ||
+        (config.variant === 'collapsible' && (config.defaultOpen ?? true)) ||
+        (config.variant === 'temporary' && config.defaultOpen === true)
       const currentState = layoutService.drawerState.getValue()[position]
 
       // Only initialize if not already set (preserve user interactions)
@@ -281,28 +287,48 @@ export const PageLayout = Shade<PageLayoutProps>({
       return { [Symbol.dispose]: () => {} }
     })
 
-    // Subscribe to drawer state
-    const [drawerState] = useObservable('drawerState', layoutService.drawerState)
+    // Helper to update host element classes for animations (no re-render needed)
+    const updateHostClasses = () => {
+      const state = layoutService.drawerState.getValue()
+      const isAppBarVisible = layoutService.appBarVisible.getValue()
 
-    // Subscribe to AppBar visibility (for auto-hide)
-    const [appBarVisible] = useObservable('appBarVisible', layoutService.appBarVisible)
+      // Drawer classes
+      element.classList.toggle('drawer-left-closed', !state.left?.open)
+      element.classList.toggle('drawer-right-closed', !state.right?.open)
 
-    // Handle temporary drawer backdrop click
-    const handleBackdropClick = (position: 'left' | 'right') => {
-      layoutService.setDrawerOpen(position, false)
+      // AppBar classes
+      if (props.appBar?.variant === 'auto-hide') {
+        element.classList.add('appbar-auto-hide')
+        element.classList.toggle('appbar-visible', isAppBarVisible)
+      }
+
+      // Backdrop visibility (for temporary drawers)
+      const isLeftTemporaryOpen = props.drawer?.left?.variant === 'temporary' && state.left?.open
+      const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && state.right?.open
+      element.classList.toggle('backdrop-visible', isLeftTemporaryOpen || isRightTemporaryOpen)
     }
 
-    // Check if any temporary drawer is open
-    const isLeftTemporaryOpen = props.drawer?.left?.variant === 'temporary' && drawerState.left?.open
-    const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && drawerState.right?.open
-    const showBackdrop = isLeftTemporaryOpen || isRightTemporaryOpen
+    // Subscribe to drawer state with custom onChange (no re-render, just update classes)
+    useObservable('drawerState', layoutService.drawerState, {
+      onChange: updateHostClasses,
+    })
 
-    // Build AppBar class list
-    const appBarClasses = ['page-layout-appbar']
-    if (props.appBar?.variant === 'auto-hide') {
-      appBarClasses.push('auto-hide')
-      if (appBarVisible) {
-        appBarClasses.push('visible')
+    // Subscribe to AppBar visibility with custom onChange (no re-render, just update classes)
+    useObservable('appBarVisible', layoutService.appBarVisible, {
+      onChange: updateHostClasses,
+    })
+
+    // Set initial host classes
+    updateHostClasses()
+
+    // Handle temporary drawer backdrop click
+    const handleBackdropClick = () => {
+      const state = layoutService.drawerState.getValue()
+      if (props.drawer?.left?.variant === 'temporary' && state.left?.open) {
+        layoutService.setDrawerOpen('left', false)
+      }
+      if (props.drawer?.right?.variant === 'temporary' && state.right?.open) {
+        layoutService.setDrawerOpen('right', false)
       }
     }
 
@@ -310,37 +336,24 @@ export const PageLayout = Shade<PageLayoutProps>({
       <>
         {/* AppBar */}
         {props.appBar && (
-          <div className={appBarClasses.join(' ')} data-testid="page-layout-appbar">
+          <div className="page-layout-appbar" data-testid="page-layout-appbar">
             {props.appBar.component}
           </div>
         )}
 
         {/* Backdrop for temporary drawers */}
-        <div
-          className={`page-layout-drawer-backdrop ${showBackdrop ? 'visible' : ''}`}
-          onclick={() => {
-            if (isLeftTemporaryOpen) handleBackdropClick('left')
-            if (isRightTemporaryOpen) handleBackdropClick('right')
-          }}
-          data-testid="page-layout-backdrop"
-        />
+        <div className="page-layout-drawer-backdrop" onclick={handleBackdropClick} data-testid="page-layout-backdrop" />
 
         {/* Left Drawer */}
         {props.drawer?.left && (
-          <div
-            className={`page-layout-drawer page-layout-drawer-left ${drawerState.left?.open ? 'open' : 'closed'}`}
-            data-testid="page-layout-drawer-left"
-          >
+          <div className="page-layout-drawer page-layout-drawer-left" data-testid="page-layout-drawer-left">
             {props.drawer.left.component}
           </div>
         )}
 
         {/* Right Drawer */}
         {props.drawer?.right && (
-          <div
-            className={`page-layout-drawer page-layout-drawer-right ${drawerState.right?.open ? 'open' : 'closed'}`}
-            data-testid="page-layout-drawer-right"
-          >
+          <div className="page-layout-drawer page-layout-drawer-right" data-testid="page-layout-drawer-right">
             {props.drawer.right.component}
           </div>
         )}
