@@ -3,12 +3,17 @@ import { MonacoEditor } from '../components/monaco-editor.js'
 
 export const MonacoEditorPage = Shade({
   shadowDomName: 'monaco-editor-page',
-  css: { position: 'fixed', top: '64px', height: 'calc(100% - 96px)', width: 'calc(100% - 48px)' },
+  css: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 100px)',
+  },
   render: () => {
     return (
       <>
-        <h1>Monaco Editor</h1>
+        <h1 style={{ margin: '0 0 16px 0' }}>Monaco Editor</h1>
         <MonacoEditor
+          style={{ flex: '1', minHeight: '0' }}
           options={{
             language: 'typescript',
             automaticLayout: true,

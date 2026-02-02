@@ -3,13 +3,7 @@ import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
   shadowDomName: 'nipple-page',
-  css: {
-    position: 'fixed',
-    top: '32px',
-    left: '0',
-    width: '100%',
-    height: '100%',
-  },
+  css: { position: 'relative', width: '100%', height: '100%' },
   render: ({ element }) => {
     return (
       <>

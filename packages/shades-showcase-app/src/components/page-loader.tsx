@@ -3,19 +3,9 @@ import { Skeleton } from '@furystack/shades-common-components'
 
 export const PageLoader = Shade({
   shadowDomName: 'shade-page-loader',
-  css: {
-    '& .loader-container': {
-      position: 'fixed',
-      top: '32px',
-      left: '0',
-      width: 'calc(100% - 64px)',
-      height: '100%',
-      padding: '32px',
-    },
-  },
   render: () => {
     return (
-      <div className="loader-container">
+      <>
         <h1>
           <Skeleton delay={0} />
         </h1>
@@ -24,7 +14,7 @@ export const PageLoader = Shade({
             <Skeleton delay={i * 10} />
           </p>
         ))}
-      </div>
+      </>
     )
   },
 })

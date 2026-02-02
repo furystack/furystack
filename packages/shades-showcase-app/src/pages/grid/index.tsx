@@ -10,7 +10,7 @@ export const GridPage = Shade({
     return (
       <div
         style={{
-          height: 'calc(100% - 96px)',
+          height: '100%',
         }}
       >
         <div

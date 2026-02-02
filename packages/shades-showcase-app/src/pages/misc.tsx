@@ -45,11 +45,6 @@ export const MiscPage = Shade({
     return (
       <div
         style={{
-          position: 'fixed',
-          top: '32px',
-          left: '0',
-          width: 'calc(100% - 64px)',
-          height: '100%',
           padding: '32px',
         }}
       >

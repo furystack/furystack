@@ -1,61 +1,53 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
-import { AppBar, AppBarLink, cssVariableTheme, fadeIn, fadeOut, Paper } from '@furystack/shades-common-components'
+import { AppBar, AppBarLink, fadeIn, fadeOut, PageLayout, Paper } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
 
 export const App = Shade({
   shadowDomName: 'shades-app',
-  css: {
-    width: '100%',
-    height: '100%',
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    padding: '0',
-    margin: '0',
-    background: cssVariableTheme.background.default,
-  },
   render: () => {
     return (
-      <>
-        <AppBar>
-          <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
-          <div
-            style={{
-              display: 'flex',
-              height: '32px',
-              paddingLeft: '16px',
-              gap: '4px',
-              overflow: 'hidden',
-              overflowX: 'auto',
-            }}
-          >
-            <AppBarLink href="/">Home</AppBarLink>
-            <AppBarLink href="/buttons">Buttons</AppBarLink>
-            <AppBarLink href="/inputs">Inputs</AppBarLink>
-            <AppBarLink href="/form">Form</AppBarLink>
-            <AppBarLink href="/grid">Grid</AppBarLink>
-            <AppBarLink href="/nipple">Nipple</AppBarLink>
-            <AppBarLink href="/lottie">Lottie</AppBarLink>
-            <AppBarLink href="/monaco">Monaco</AppBarLink>
-            <AppBarLink href="/wizard">Wizard</AppBarLink>
-            <AppBarLink href="/notys">Notys</AppBarLink>
-            <AppBarLink href="/tabs">Tabs</AppBarLink>
-            <AppBarLink href="/i18n">I18N</AppBarLink>
-            <AppBarLink href="/mfe">MFE</AppBarLink>
-            <AppBarLink href="/misc">Misc</AppBarLink>
-          </div>
-          <ThemeSwitch />
-        </AppBar>
+      <PageLayout
+        appBar={{
+          variant: 'permanent',
+          component: (
+            <AppBar>
+              <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
+              <div
+                style={{
+                  display: 'flex',
+                  height: '32px',
+                  paddingLeft: '16px',
+                  gap: '4px',
+                  overflow: 'hidden',
+                  overflowX: 'auto',
+                }}
+              >
+                <AppBarLink href="/">Home</AppBarLink>
+                <AppBarLink href="/buttons">Buttons</AppBarLink>
+                <AppBarLink href="/inputs">Inputs</AppBarLink>
+                <AppBarLink href="/form">Form</AppBarLink>
+                <AppBarLink href="/grid">Grid</AppBarLink>
+                <AppBarLink href="/nipple">Nipple</AppBarLink>
+                <AppBarLink href="/lottie">Lottie</AppBarLink>
+                <AppBarLink href="/monaco">Monaco</AppBarLink>
+                <AppBarLink href="/wizard">Wizard</AppBarLink>
+                <AppBarLink href="/notys">Notys</AppBarLink>
+                <AppBarLink href="/tabs">Tabs</AppBarLink>
+                <AppBarLink href="/i18n">I18N</AppBarLink>
+                <AppBarLink href="/mfe">MFE</AppBarLink>
+                <AppBarLink href="/misc">Misc</AppBarLink>
+              </div>
+              <ThemeSwitch />
+            </AppBar>
+          ),
+        }}
+      >
         <Paper
           elevation={3}
           style={{
-            paddingTop: '32px',
-            position: 'fixed',
-            overflow: 'auto',
-            height: 'calc(100% - 64px)',
-            width: 'calc(100% - 48px)',
+            padding: '8px 32px 32px 32px',
             textAlign: 'justify',
           }}
         >
@@ -344,7 +336,7 @@ export const App = Shade({
             }
           />
         </Paper>
-      </>
+      </PageLayout>
     )
   },
 })
