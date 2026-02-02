@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageLayout } from '@furystack/shades-common-components'
+import { LAYOUT_CSS_VARIABLES, PageLayout } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar only (no drawers)
@@ -16,7 +16,7 @@ export const AppBarOnlyTest = Shade({
             data-testid="test-appbar"
             style={{
               background: '#e91e63',
-              height: '48px',
+              height: '100%',
               width: '100%',
               display: 'flex',
               alignItems: 'center',
@@ -34,7 +34,7 @@ export const AppBarOnlyTest = Shade({
         data-testid="test-content"
         style={{
           background: '#ff9800',
-          height: '100%',
+          height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
           padding: '16px',
           color: 'white',
         }}

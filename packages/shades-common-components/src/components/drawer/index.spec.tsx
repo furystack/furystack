@@ -398,7 +398,7 @@ describe('Drawer component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // First render with width
-        layoutService.initDrawer('left', { open: true, width: '200px' })
+        layoutService.initDrawer('left', { open: true, width: '200px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -429,6 +429,7 @@ describe('Drawer component', () => {
       expect(layoutService.drawerState.getValue().right).toEqual({
         open: true,
         width: '200px',
+        variant: 'collapsible',
       })
     })
 
@@ -670,7 +671,7 @@ describe('Drawer component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Pre-initialize drawer as closed
-        layoutService.initDrawer('left', { open: false, width: '240px' })
+        layoutService.initDrawer('left', { open: false, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,

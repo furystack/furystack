@@ -135,6 +135,7 @@ export const Drawer = Shade<DrawerProps>({
       layoutService.initDrawer(position, {
         open: getInitialOpenState(),
         width,
+        variant,
       })
     } else if (currentState.width !== width) {
       // Update width if it changed

@@ -2,6 +2,14 @@ import { Injectable } from '@furystack/inject'
 import { ObservableValue, type ValueObserver } from '@furystack/utils'
 
 /**
+ * Drawer variant that determines how the drawer affects content layout.
+ * - 'permanent': Always visible and pushes content
+ * - 'collapsible': Pushes content when open, collapses when closed
+ * - 'temporary': Overlays content without pushing (like a modal drawer)
+ */
+export type DrawerVariant = 'permanent' | 'collapsible' | 'temporary'
+
+/**
  * Drawer configuration for a single side (left or right).
  */
 export type DrawerSideState = {
@@ -9,6 +17,8 @@ export type DrawerSideState = {
   open: boolean
   /** Width of the drawer (CSS value, e.g., '240px') */
   width: string
+  /** Variant that determines how the drawer affects content layout */
+  variant: DrawerVariant
 }
 
 /**
@@ -24,13 +34,43 @@ export type DrawerState = {
 /**
  * CSS variable names managed by LayoutService.
  * These variables are set on document.documentElement for global access.
+ *
+ * Use these to access layout dimensions in your components:
+ * ```typescript
+ * // In Shade css property
+ * css: {
+ *   height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+ *   marginLeft: `var(${LAYOUT_CSS_VARIABLES.contentMarginLeft})`,
+ * }
+ *
+ * // In inline styles
+ * style={{ height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})` }}
+ * ```
  */
-const CSS_VARIABLES = {
+export const LAYOUT_CSS_VARIABLES = {
+  /** Height of the AppBar (e.g., '48px') */
   appBarHeight: '--layout-appbar-height',
+  /** Top gap spacing between AppBar and content */
+  topGap: '--layout-top-gap',
+  /** Side gap spacing for content padding */
+  sideGap: '--layout-side-gap',
+  /** Total padding from top (appBarHeight + topGap) */
+  contentPaddingTop: '--layout-content-padding-top',
+  /** Available height for content (100% - contentPaddingTop) */
+  contentAvailableHeight: '--layout-content-available-height',
+  /** Current width of the left drawer (0 when closed for collapsible/temporary) */
   drawerLeftWidth: '--layout-drawer-left-width',
+  /** Current width of the right drawer (0 when closed for collapsible/temporary) */
   drawerRightWidth: '--layout-drawer-right-width',
+  /** Configured width of the left drawer (always set, even when closed) */
+  drawerLeftConfiguredWidth: '--layout-drawer-left-configured-width',
+  /** Configured width of the right drawer (always set, even when closed) */
+  drawerRightConfiguredWidth: '--layout-drawer-right-configured-width',
+  /** Top margin for content (deprecated, use contentPaddingTop instead) */
   contentMarginTop: '--layout-content-margin-top',
+  /** Left margin for content (considers drawer variant) */
   contentMarginLeft: '--layout-content-margin-left',
+  /** Right margin for content (considers drawer variant) */
   contentMarginRight: '--layout-content-margin-right',
 } as const
 
@@ -82,8 +122,22 @@ export class LayoutService implements Disposable {
    */
   public appBarHeight = new ObservableValue<string>('48px')
 
+  /**
+   * Top gap spacing between AppBar and content.
+   * CSS value (e.g., '0px', '16px').
+   */
+  public topGap = new ObservableValue<string>('0px')
+
+  /**
+   * Side gap spacing for content padding.
+   * CSS value (e.g., '0px', '16px').
+   */
+  public sideGap = new ObservableValue<string>('0px')
+
   private drawerStateSubscription: ValueObserver<DrawerState> | null = null
   private appBarHeightSubscription: ValueObserver<string> | null = null
+  private topGapSubscription: ValueObserver<string> | null = null
+  private sideGapSubscription: ValueObserver<string> | null = null
 
   constructor() {
     this.setupCssVariableSync()
@@ -120,6 +174,7 @@ export class LayoutService implements Disposable {
       ...currentState,
       [position]: {
         width: existingConfig?.width ?? '240px',
+        variant: existingConfig?.variant ?? 'collapsible',
         open,
       },
     })
@@ -140,6 +195,7 @@ export class LayoutService implements Disposable {
       ...currentState,
       [position]: {
         open: existingConfig?.open ?? false,
+        variant: existingConfig?.variant ?? 'collapsible',
         width,
       },
     })
@@ -162,8 +218,53 @@ export class LayoutService implements Disposable {
   }
 
   /**
+   * Sets the top gap spacing between AppBar and content.
+   *
+   * @param gap - CSS value for the gap (e.g., '0px', '16px')
+   */
+  public setTopGap(gap: string): void {
+    this.topGap.setValue(gap)
+  }
+
+  /**
+   * Sets the side gap spacing for content padding.
+   *
+   * @param gap - CSS value for the gap (e.g., '0px', '16px')
+   */
+  public setSideGap(gap: string): void {
+    this.sideGap.setValue(gap)
+  }
+
+  /**
+   * Calculates the content margin for a drawer based on its variant and open state.
+   *
+   * - 'temporary': always '0px' (overlay, doesn't push content)
+   * - 'permanent': always drawer width (always visible)
+   * - 'collapsible': drawer width when open, '0px' when closed
+   *
+   * @param drawerState - The drawer state (may be undefined)
+   * @returns The margin value to use
+   */
+  private getContentMarginForDrawer(drawerState: DrawerSideState | undefined): string {
+    if (!drawerState) return '0px'
+
+    switch (drawerState.variant) {
+      case 'temporary':
+        // Temporary drawers overlay content, never push
+        return '0px'
+      case 'permanent':
+        // Permanent drawers always push content
+        return drawerState.width
+      case 'collapsible':
+      default:
+        // Collapsible drawers push content only when open
+        return drawerState.open ? drawerState.width : '0px'
+    }
+  }
+
+  /**
    * Updates CSS custom properties based on current layout state.
-   * Called automatically when drawer state or AppBar height changes.
+   * Called automatically when drawer state, AppBar height, or gap values change.
    */
   private updateCssVariables(): void {
     if (typeof document === 'undefined') return
@@ -171,25 +272,48 @@ export class LayoutService implements Disposable {
     const root = document.documentElement
     const state = this.drawerState.getValue()
     const appBarHeight = this.appBarHeight.getValue()
+    const topGap = this.topGap.getValue()
+    const sideGap = this.sideGap.getValue()
 
-    // AppBar height
-    root.style.setProperty(CSS_VARIABLES.appBarHeight, appBarHeight)
-    root.style.setProperty(CSS_VARIABLES.contentMarginTop, appBarHeight)
+    // AppBar and gap values
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
 
-    // Left drawer width (0 when closed)
+    // Content padding top (appBarHeight + topGap)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, `calc(${appBarHeight} + ${topGap})`)
+
+    // Content available height (100% - contentPaddingTop)
+    root.style.setProperty(
+      LAYOUT_CSS_VARIABLES.contentAvailableHeight,
+      `calc(100% - var(${LAYOUT_CSS_VARIABLES.contentPaddingTop}))`,
+    )
+
+    // Legacy content margin top (deprecated, kept for backward compatibility)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
+
+    // Left drawer
+    const leftConfiguredWidth = state.left?.width ?? '0px'
     const leftWidth = state.left?.open ? state.left.width : '0px'
-    root.style.setProperty(CSS_VARIABLES.drawerLeftWidth, leftWidth)
-    root.style.setProperty(CSS_VARIABLES.contentMarginLeft, leftWidth)
+    const leftContentMargin = this.getContentMarginForDrawer(state.left)
 
-    // Right drawer width (0 when closed)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
+
+    // Right drawer
+    const rightConfiguredWidth = state.right?.width ?? '0px'
     const rightWidth = state.right?.open ? state.right.width : '0px'
-    root.style.setProperty(CSS_VARIABLES.drawerRightWidth, rightWidth)
-    root.style.setProperty(CSS_VARIABLES.contentMarginRight, rightWidth)
+    const rightContentMargin = this.getContentMarginForDrawer(state.right)
+
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
+    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
   }
 
   /**
    * Sets up subscriptions to automatically update CSS variables
-   * when drawer state or AppBar height changes.
+   * when drawer state, AppBar height, or gap values change.
    */
   private setupCssVariableSync(): void {
     this.drawerStateSubscription = this.drawerState.subscribe(() => {
@@ -197,6 +321,14 @@ export class LayoutService implements Disposable {
     })
 
     this.appBarHeightSubscription = this.appBarHeight.subscribe(() => {
+      this.updateCssVariables()
+    })
+
+    this.topGapSubscription = this.topGap.subscribe(() => {
+      this.updateCssVariables()
+    })
+
+    this.sideGapSubscription = this.sideGap.subscribe(() => {
       this.updateCssVariables()
     })
   }
@@ -213,9 +345,17 @@ export class LayoutService implements Disposable {
     this.appBarHeightSubscription?.[Symbol.dispose]()
     this.appBarHeightSubscription = null
 
+    this.topGapSubscription?.[Symbol.dispose]()
+    this.topGapSubscription = null
+
+    this.sideGapSubscription?.[Symbol.dispose]()
+    this.sideGapSubscription = null
+
     // Dispose observables
     this.drawerState[Symbol.dispose]()
     this.appBarVisible[Symbol.dispose]()
     this.appBarHeight[Symbol.dispose]()
+    this.topGap[Symbol.dispose]()
+    this.sideGap[Symbol.dispose]()
   }
 }

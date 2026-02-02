@@ -1,7 +1,7 @@
 import { ScreenService, Shade, createComponent, type ScreenSize } from '@furystack/shades'
 import type { ValueObserver } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import { LayoutService } from '../../services/layout-service.js'
+import { LAYOUT_CSS_VARIABLES, LayoutService } from '../../services/layout-service.js'
 
 /**
  * AppBar configuration for PageLayout.
@@ -102,6 +102,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       right: '0',
       zIndex: '1100',
       transition: 'top 0.3s ease-in-out',
+      height: `var(${LAYOUT_CSS_VARIABLES.appBarHeight})`,
     },
 
     // Auto-hide AppBar styles
@@ -115,7 +116,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       top: '0',
     },
 
-    // Drawer containers
+    // Drawer containers - use CSS transitions instead of keyframes
     '& .page-layout-drawer': {
       position: 'fixed',
       top: 'var(--layout-appbar-height, 48px)',
@@ -123,14 +124,25 @@ export const PageLayout = Shade<PageLayoutProps>({
       zIndex: '1000',
       overflow: 'hidden',
       background: cssVariableTheme.background.paper,
+      transition: 'transform 0.3s ease-in-out',
     },
     '& .page-layout-drawer-left': {
       left: '0',
+      width: 'var(--layout-drawer-left-configured-width, 240px)',
       borderRight: `1px solid ${cssVariableTheme.divider}`,
+      transform: 'translateX(0)',
+    },
+    '& .page-layout-drawer-left.closed': {
+      transform: 'translateX(-100%)',
     },
     '& .page-layout-drawer-right': {
       right: '0',
+      width: 'var(--layout-drawer-right-configured-width, 240px)',
       borderLeft: `1px solid ${cssVariableTheme.divider}`,
+      transform: 'translateX(0)',
+    },
+    '& .page-layout-drawer-right.closed': {
+      transform: 'translateX(100%)',
     },
     '& .page-layout-drawer.closed': {
       pointerEvents: 'none',
@@ -154,12 +166,18 @@ export const PageLayout = Shade<PageLayoutProps>({
       pointerEvents: 'auto',
     },
 
-    // Content area - starts at top with padding for AppBar, AppBar overlays content
+    // Content area - uses CSS variables for positioning
     '& .page-layout-content': {
       position: 'absolute',
       top: '0',
       bottom: '0',
       overflow: 'auto',
+      paddingTop: 'var(--layout-content-padding-top, 0px)',
+      paddingLeft: 'var(--layout-side-gap, 0px)',
+      paddingRight: 'var(--layout-side-gap, 0px)',
+      left: 'var(--layout-content-margin-left, 0px)',
+      right: 'var(--layout-content-margin-right, 0px)',
+      transition: 'left 0.3s ease-in-out, right 0.3s ease-in-out',
     },
   },
 
@@ -175,6 +193,10 @@ export const PageLayout = Shade<PageLayoutProps>({
       layoutService.appBarHeight.setValue('0px')
     }
 
+    // Initialize gaps
+    layoutService.setTopGap(props.topGap ?? '0px')
+    layoutService.setSideGap(props.sideGap ?? '0px')
+
     // Initialize drawers
     const initializeDrawer = (position: 'left' | 'right', config: DrawerConfig) => {
       const width = config.width ?? DEFAULT_DRAWER_WIDTH
@@ -184,10 +206,10 @@ export const PageLayout = Shade<PageLayoutProps>({
 
       // Only initialize if not already set (preserve user interactions)
       if (!currentState) {
-        layoutService.initDrawer(position, { open: isOpen, width })
-      } else if (currentState.width !== width) {
-        // Update width if it changed
-        layoutService.setDrawerWidth(position, width)
+        layoutService.initDrawer(position, { open: isOpen, width, variant: config.variant })
+      } else if (currentState.width !== width || currentState.variant !== config.variant) {
+        // Update if width or variant changed
+        layoutService.initDrawer(position, { ...currentState, width, variant: config.variant })
       }
     }
 
@@ -259,29 +281,6 @@ export const PageLayout = Shade<PageLayoutProps>({
     const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && drawerState.right?.open
     const showBackdrop = isLeftTemporaryOpen || isRightTemporaryOpen
 
-    // Get drawer width (animation is handled by CSS classes)
-    const getDrawerWidth = (config: DrawerConfig): string => {
-      return config.width ?? DEFAULT_DRAWER_WIDTH
-    }
-
-    // Calculate content margin based on drawer state
-    const getContentMargin = (position: 'left' | 'right'): string => {
-      const config = props.drawer?.[position]
-      if (!config) return '0px'
-
-      // Temporary drawers overlay content, don't push it
-      if (config.variant === 'temporary') return '0px'
-
-      const state = drawerState[position]
-      const width = config.width ?? DEFAULT_DRAWER_WIDTH
-
-      // Permanent drawers always push content
-      if (config.variant === 'permanent') return width
-
-      // Collapsible drawers push content only when open
-      return state?.open ? width : '0px'
-    }
-
     // Build AppBar class list
     const appBarClasses = ['page-layout-appbar']
     if (props.appBar?.variant === 'auto-hide') {
@@ -291,75 +290,11 @@ export const PageLayout = Shade<PageLayoutProps>({
       }
     }
 
-    // Get drawer widths for animation keyframes
-    const leftDrawerWidth = props.drawer?.left?.width ?? DEFAULT_DRAWER_WIDTH
-    const rightDrawerWidth = props.drawer?.right?.width ?? DEFAULT_DRAWER_WIDTH
-    const leftDrawerOpen = drawerState.left?.open ?? false
-    const rightDrawerOpen = drawerState.right?.open ?? false
-    const leftDrawerVariant = props.drawer?.left?.variant
-    const rightDrawerVariant = props.drawer?.right?.variant
-
-    // Calculate content margins for animation (temporary drawers don't affect content)
-    const shouldAnimateLeft = leftDrawerVariant === 'collapsible'
-    const shouldAnimateRight = rightDrawerVariant === 'collapsible'
-
-    const targetLeftMargin = getContentMargin('left')
-    const targetRightMargin = getContentMargin('right')
-    // Previous margin is the opposite state (for animation from → to)
-    const prevLeftMargin = shouldAnimateLeft ? (leftDrawerOpen ? '0px' : leftDrawerWidth) : targetLeftMargin
-    const prevRightMargin = shouldAnimateRight ? (rightDrawerOpen ? '0px' : rightDrawerWidth) : targetRightMargin
-
-    // Keyframe CSS for animations (Shades recreates elements on re-render, so transitions don't work)
-    const keyframeStyles = `
-      @keyframes slideInFromLeft {
-        from { transform: translateX(-100%); }
-        to { transform: translateX(0); }
-      }
-      @keyframes slideOutToLeft {
-        from { transform: translateX(0); }
-        to { transform: translateX(-100%); }
-      }
-      @keyframes slideInFromRight {
-        from { transform: translateX(100%); }
-        to { transform: translateX(0); }
-      }
-      @keyframes slideOutToRight {
-        from { transform: translateX(0); }
-        to { transform: translateX(100%); }
-      }
-      @keyframes contentExpandLeft {
-        from { left: ${prevLeftMargin}; }
-        to { left: ${targetLeftMargin}; }
-      }
-      @keyframes contentExpandRight {
-        from { right: ${prevRightMargin}; }
-        to { right: ${targetRightMargin}; }
-      }
-      .page-layout-drawer-left.open {
-        animation: slideInFromLeft 0.3s ease-in-out forwards;
-      }
-      .page-layout-drawer-left.closed {
-        animation: slideOutToLeft 0.3s ease-in-out forwards;
-      }
-      .page-layout-drawer-right.open {
-        animation: slideInFromRight 0.3s ease-in-out forwards;
-      }
-      .page-layout-drawer-right.closed {
-        animation: slideOutToRight 0.3s ease-in-out forwards;
-      }
-      .page-layout-content {
-        animation: contentExpandLeft 0.3s ease-in-out forwards, contentExpandRight 0.3s ease-in-out forwards;
-      }
-    `
-
     return (
       <>
-        {/* Keyframe animations for drawer */}
-        <style>{keyframeStyles}</style>
-
         {/* AppBar */}
         {props.appBar && (
-          <div className={appBarClasses.join(' ')} style={{ height: appBarHeight }} data-testid="page-layout-appbar">
+          <div className={appBarClasses.join(' ')} data-testid="page-layout-appbar">
             {props.appBar.component}
           </div>
         )}
@@ -378,7 +313,6 @@ export const PageLayout = Shade<PageLayoutProps>({
         {props.drawer?.left && (
           <div
             className={`page-layout-drawer page-layout-drawer-left ${drawerState.left?.open ? 'open' : 'closed'}`}
-            style={{ width: getDrawerWidth(props.drawer.left) }}
             data-testid="page-layout-drawer-left"
           >
             {props.drawer.left.component}
@@ -389,7 +323,6 @@ export const PageLayout = Shade<PageLayoutProps>({
         {props.drawer?.right && (
           <div
             className={`page-layout-drawer page-layout-drawer-right ${drawerState.right?.open ? 'open' : 'closed'}`}
-            style={{ width: getDrawerWidth(props.drawer.right) }}
             data-testid="page-layout-drawer-right"
           >
             {props.drawer.right.component}
@@ -397,21 +330,7 @@ export const PageLayout = Shade<PageLayoutProps>({
         )}
 
         {/* Main Content */}
-        <main
-          className="page-layout-content"
-          style={{
-            paddingTop: props.topGap
-              ? `calc(${props.appBar ? appBarHeight : '0px'} + ${props.topGap})`
-              : props.appBar
-                ? appBarHeight
-                : '0px',
-            paddingLeft: props.sideGap ?? '0px',
-            paddingRight: props.sideGap ?? '0px',
-            left: getContentMargin('left'),
-            right: getContentMargin('right'),
-          }}
-          data-testid="page-layout-content"
-        >
+        <main className="page-layout-content" data-testid="page-layout-content">
           {children}
         </main>
       </>

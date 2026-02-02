@@ -127,7 +127,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as open
-        layoutService.initDrawer('left', { open: true, width: '240px' })
+        layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -177,7 +177,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as open
-        layoutService.initDrawer('left', { open: true, width: '240px' })
+        layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -209,7 +209,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as open
-        layoutService.initDrawer('right', { open: true, width: '200px' })
+        layoutService.initDrawer('right', { open: true, width: '200px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -255,7 +255,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as closed
-        layoutService.initDrawer('left', { open: false, width: '240px' })
+        layoutService.initDrawer('left', { open: false, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -275,7 +275,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as open
-        layoutService.initDrawer('left', { open: true, width: '240px' })
+        layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,
@@ -295,7 +295,7 @@ describe('DrawerToggleButton component', () => {
         const layoutService = injector.getInstance(LayoutService)
 
         // Initialize drawer as open
-        layoutService.initDrawer('left', { open: true, width: '240px' })
+        layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
         initializeShadeRoot({
           injector,

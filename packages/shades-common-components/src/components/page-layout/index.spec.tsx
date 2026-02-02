@@ -460,6 +460,7 @@ describe('PageLayout component', () => {
       expect(layoutService.drawerState.getValue().right).toEqual({
         open: true,
         width: '200px',
+        variant: 'permanent',
       })
     })
   })
@@ -514,8 +515,8 @@ describe('PageLayout component', () => {
       })
 
       expect(layoutService.drawerState.getValue()).toEqual({
-        left: { open: true, width: '240px' },
-        right: { open: false, width: '200px' },
+        left: { open: true, width: '240px', variant: 'permanent' },
+        right: { open: false, width: '200px', variant: 'collapsible' },
       })
     })
   })
@@ -633,7 +634,7 @@ describe('PageLayout component', () => {
       })
     })
 
-    it('should have zero paddingTop when no AppBar is configured', async () => {
+    it('should set CSS variable for zero paddingTop when no AppBar is configured', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -648,12 +649,13 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content') as HTMLElement
-        expect(content?.style.paddingTop).toBe('0px')
+        // AppBar height is 0 when not configured, so contentPaddingTop = calc(0px + 0px)
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-appbar-height', '0px')
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(0px + 0px)')
       })
     })
 
-    it('should have paddingTop equal to AppBar height when AppBar is configured', async () => {
+    it('should set CSS variable for paddingTop equal to AppBar height when AppBar is configured', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -674,8 +676,55 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content') as HTMLElement
-        expect(content?.style.paddingTop).toBe('64px')
+        // Content padding top CSS variable should be calculated from appBarHeight + topGap
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-appbar-height', '64px')
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(64px + 0px)')
+      })
+    })
+
+    it('should set CSS variable for topGap when configured', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout
+              appBar={{
+                variant: 'permanent',
+                component: <div>AppBar</div>,
+                height: '48px',
+              }}
+              topGap="16px"
+            >
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await sleepAsync(50)
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-top-gap', '16px')
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(48px + 16px)')
+      })
+    })
+
+    it('should set CSS variable for sideGap when configured', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout sideGap="24px">
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await sleepAsync(50)
+        expect(mockSetProperty).toHaveBeenCalledWith('--layout-side-gap', '24px')
       })
     })
   })
@@ -803,8 +852,8 @@ describe('PageLayout component', () => {
 
         expect(layoutService.appBarHeight.getValue()).toBe('64px')
         expect(layoutService.drawerState.getValue()).toEqual({
-          left: { open: true, width: '240px' },
-          right: { open: true, width: '200px' },
+          left: { open: true, width: '240px', variant: 'collapsible' },
+          right: { open: true, width: '200px', variant: 'permanent' },
         })
       })
     })

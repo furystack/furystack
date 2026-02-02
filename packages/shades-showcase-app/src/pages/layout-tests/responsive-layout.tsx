@@ -1,5 +1,10 @@
 import { createComponent, ScreenService, Shade } from '@furystack/shades'
-import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
+import {
+  DrawerToggleButton,
+  LAYOUT_CSS_VARIABLES,
+  LayoutService,
+  PageLayout,
+} from '@furystack/shades-common-components'
 
 /**
  * Test page: Responsive layout with auto-collapsing drawer
@@ -24,7 +29,7 @@ export const ResponsiveLayoutTest = Shade({
               data-testid="test-appbar"
               style={{
                 background: '#607d8b',
-                height: '48px',
+                height: '100%',
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
@@ -67,7 +72,7 @@ export const ResponsiveLayoutTest = Shade({
           data-testid="test-content"
           style={{
             background: '#009688',
-            height: '100%',
+            height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
             padding: '16px',
             color: 'white',
           }}
