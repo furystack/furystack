@@ -13,7 +13,7 @@ test.describe('Theme Button Toggle', () => {
     // Click moon button and check for dark theme
     await moonButton.click()
     // Check the background color of the main app container
-    const appContainer = page.locator('shades-app')
+    const appContainer = page.locator('shade-page-layout')
     const darkBg = await appContainer.evaluate((el) => getComputedStyle(el).backgroundColor)
     expect(darkBg).toBe('rgb(48, 48, 48)')
 
