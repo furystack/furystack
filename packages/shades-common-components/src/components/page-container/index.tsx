@@ -58,9 +58,10 @@ export const PageContainer = Shade<PageContainerProps>({
     flexDirection: 'column',
     boxSizing: 'border-box',
     color: cssVariableTheme.text.primary,
+    position: 'relative',
   },
   render: ({ props, children, element }) => {
-    const { maxWidth = '100%', centered = false, padding = '24px', gap = '24px', fullHeight = true } = props
+    const { maxWidth = '100%', centered = false, padding = '24px', gap = '16px', fullHeight = true } = props
 
     // Apply styles directly to the element for proper behavior
     element.style.maxWidth = maxWidth

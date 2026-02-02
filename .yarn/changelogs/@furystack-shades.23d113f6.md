@@ -1,32 +1,18 @@
-<!-- version-type: minor -->
+<!-- version-type: patch -->
 
 # @furystack/shades
 
-## ✨ Features
+## 📝 Documentation
 
-### ScreenService Breakpoint Observables
+### ScreenService API Documentation
 
-Added reactive screen size breakpoint detection to `ScreenService` for building responsive UIs.
+Improved JSDoc documentation for `ScreenService` with usage examples for responsive UI development.
 
-**New API:**
+**Documented APIs:**
 
-```typescript
-const screenService = injector.getInstance(ScreenService)
-
-// Check if screen is at least medium size
-if (screenService.screenSize.atLeast.md.getValue()) {
-  // Show desktop layout
-}
-
-// Subscribe to breakpoint changes for responsive behavior
-screenService.screenSize.atLeast.md.subscribe((isAtLeastMd) => {
-  if (isAtLeastMd) {
-    console.log('Desktop or tablet view')
-  } else {
-    console.log('Mobile view')
-  }
-})
-```
+- `screenSize.atLeast[size]` - Observable breakpoint detection
+- `orientation` - Observable screen orientation tracking
+- `breakpoints` - Breakpoint threshold definitions
 
 **Breakpoint Thresholds:**
 
@@ -36,11 +22,11 @@ screenService.screenSize.atLeast.md.subscribe((isAtLeastMd) => {
 - `lg`: 1280px+ (desktops and up)
 - `xl`: 1920px+ (large desktops)
 
-**New Exports:**
+### useObservable Documentation
 
-- `ScreenSize` type - A screen size breakpoint identifier (`'xs' | 'sm' | 'md' | 'lg' | 'xl'`)
-- `ScreenSizes` constant - Array of all breakpoint names in order
+Enhanced `useObservable` JSDoc with examples for the `onChange` callback option.
 
 ## 🧪 Tests
 
 - Added integration tests for Shade resource management (`useObservable`, `useDisposable`)
+- Added tests for `ScreenService` breakpoints, observables, and disposal

@@ -1,5 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { Paper } from '../paper.js'
 
 /**
  * Props for the PageHeader component.
@@ -58,10 +59,13 @@ export const PageHeader = Shade<PageHeaderProps>({
   css: {
     display: 'block',
     marginBottom: '8px',
+    position: 'sticky',
+    top: '0',
+    zIndex: '1000',
 
     '& .page-header-container': {
       display: 'flex',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       justifyContent: 'space-between',
       gap: '16px',
     },
@@ -101,7 +105,7 @@ export const PageHeader = Shade<PageHeaderProps>({
     const { icon, title, description, actions } = props
 
     return (
-      <div className="page-header-container">
+      <Paper className="page-header-container">
         <div className="page-header-content">
           <h2 className="page-header-title" data-testid="page-header-title">
             {icon && <span className="page-header-icon">{icon}</span>}
@@ -118,7 +122,7 @@ export const PageHeader = Shade<PageHeaderProps>({
             {actions}
           </div>
         )}
-      </div>
+      </Paper>
     )
   },
 })
