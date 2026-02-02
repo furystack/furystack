@@ -33,11 +33,19 @@ describe('DataGridRow', () => {
     const injector = new Injector()
     const root = document.getElementById('root')!
 
+    // Create shade-data-grid element manually to simulate production structure
+    // shade-data-grid is the scrollable container in production
+    const shadeDataGrid = document.createElement('shade-data-grid')
+    shadeDataGrid.style.overflow = 'auto'
+    shadeDataGrid.style.height = '200px'
+    shadeDataGrid.style.display = 'block'
+    root.appendChild(shadeDataGrid)
+
     initializeShadeRoot({
       injector,
-      rootElement: root,
+      rootElement: shadeDataGrid,
       jsxElement: (
-        <div className="shade-grid-wrapper" style={{ overflow: 'auto', height: '200px' }}>
+        <div className="shade-grid-wrapper">
           <table>
             <thead>
               <tr>
@@ -69,6 +77,7 @@ describe('DataGridRow', () => {
       injector,
       getRow: () => root.querySelector('shades-data-grid-row'),
       getCells: () => root.querySelectorAll('td'),
+      getScrollContainer: () => shadeDataGrid,
     }
   }
 

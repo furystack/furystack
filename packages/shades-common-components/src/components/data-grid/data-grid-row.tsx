@@ -72,22 +72,36 @@ export const DataGridRow: <T, Column extends string>(
           attachStyles(element, { style: props.focusedRowStyle })
         }
 
+        const scrollContainer = element.closest('shade-data-grid') as HTMLElement
+        if (!scrollContainer) return
+
         const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
-
-        const parent = element.closest('.shade-grid-wrapper') as HTMLElement
-        const maxTop = element.offsetTop - headerHeight
-        const currentTop = parent.scrollTop
-        if (maxTop < currentTop) {
-          parent.scrollTo({ top: maxTop, behavior: 'smooth' })
-        }
-
         const footerHeight =
-          element.closest('shade-data-grid')?.querySelector('shade-data-grid-footer')?.getBoundingClientRect().height ||
-          42
-        const visibleMaxTop = parent.clientHeight - footerHeight
-        const desiredMaxTop = element.offsetTop + element.clientHeight
-        if (desiredMaxTop > visibleMaxTop) {
-          parent.scrollTo({ top: desiredMaxTop - visibleMaxTop, behavior: 'smooth' })
+          scrollContainer.querySelector('shade-data-grid-footer')?.getBoundingClientRect().height || 42
+
+        // Use getBoundingClientRect for accurate visual positions
+        const containerRect = scrollContainer.getBoundingClientRect()
+        const rowRect = element.getBoundingClientRect()
+
+        // Row position relative to container's visible area
+        const rowTopInContainer = rowRect.top - containerRect.top
+        const rowBottomInContainer = rowRect.bottom - containerRect.top
+
+        // Scroll up if row is above visible area (below the sticky header)
+        if (rowTopInContainer < headerHeight) {
+          const scrollAdjustment = rowTopInContainer - headerHeight
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollTop + scrollAdjustment,
+            behavior: 'smooth',
+          })
+        }
+        // Scroll down if row is below visible area (above the footer)
+        else if (rowBottomInContainer > scrollContainer.clientHeight - footerHeight) {
+          const scrollAdjustment = rowBottomInContainer - (scrollContainer.clientHeight - footerHeight)
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollTop + scrollAdjustment,
+            behavior: 'smooth',
+          })
         }
       } else if (props.unfocusedRowStyle) {
         attachStyles(element, { style: props.unfocusedRowStyle })

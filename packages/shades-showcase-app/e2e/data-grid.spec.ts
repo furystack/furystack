@@ -25,6 +25,35 @@ test.describe('Data Grid component', () => {
     await page.locator(`shades-data-grid-row:nth-child(${rowNumber})`).click({ modifiers })
   }
 
+  const expectRowIsInViewport = async (page: Page, rowNumber: number) => {
+    const row = page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
+
+    // Wait for smooth scroll animation to complete (up to 1 second)
+    // by waiting for the row to be in viewport
+    await expect(row).toBeInViewport({ timeout: 2000 })
+
+    // Additional verification: row should be visible below header and above footer
+    const grid = page.locator('shade-data-grid')
+    const header = page.locator('shade-data-grid th').first()
+    const footer = page.locator('shade-data-grid-footer')
+
+    const rowBox = await row.boundingBox()
+    const gridBox = await grid.boundingBox()
+    const headerBox = await header.boundingBox()
+    const footerBox = await footer.boundingBox()
+
+    expect(rowBox).not.toBeNull()
+    expect(gridBox).not.toBeNull()
+
+    // Row should be below the sticky header
+    const visibleTop = gridBox!.y + (headerBox?.height || 0)
+    // Row should be above the footer
+    const visibleBottom = gridBox!.y + gridBox!.height - (footerBox?.height || 0)
+
+    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 10) // Allow 10px tolerance for smooth scroll
+    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 10) // Allow 10px tolerance
+  }
+
   test.describe('Focus', () => {
     test('With mouse click', async ({ page }) => {
       await page.goto('/grid')
@@ -174,6 +203,78 @@ test.describe('Data Grid component', () => {
 
       await expectRowIsSelected(page, 1, 2, 3, 4)
       await expectRowHasFocus(page, 4)
+    })
+  })
+
+  test.describe('Keyboard Navigation Scrolling', () => {
+    test('ArrowDown should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
+      await page.goto('/grid')
+      await clickOnRow(page, 1)
+      await expectRowHasFocus(page, 1)
+
+      // Navigate down many rows to go beyond the visible area
+      for (let i = 1; i <= 30; i++) {
+        await page.keyboard.press('ArrowDown')
+      }
+
+      await expectRowHasFocus(page, 31)
+      await expectRowIsInViewport(page, 31)
+    })
+
+    test('ArrowUp should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
+      await page.goto('/grid')
+
+      // First navigate to a row far down the list
+      await clickOnRow(page, 50)
+      await expectRowHasFocus(page, 50)
+
+      // Navigate up many rows to go beyond the visible area
+      for (let i = 1; i <= 30; i++) {
+        await page.keyboard.press('ArrowUp')
+      }
+
+      await expectRowHasFocus(page, 20)
+      await expectRowIsInViewport(page, 20)
+    })
+
+    test('Home key should scroll to first row', async ({ page }) => {
+      await page.goto('/grid')
+
+      // Start from a row in the middle
+      await clickOnRow(page, 50)
+      await expectRowHasFocus(page, 50)
+
+      // Press Home to go to first row
+      await page.keyboard.press('Home')
+
+      await expectRowHasFocus(page, 1)
+      await expectRowIsInViewport(page, 1)
+    })
+
+    test('End key should scroll to last row', async ({ page }) => {
+      await page.goto('/grid')
+
+      // Start from the first row
+      await clickOnRow(page, 1)
+      await expectRowHasFocus(page, 1)
+
+      // Press End to go to last row
+      await page.keyboard.press('End')
+
+      await expectRowHasFocus(page, 100)
+      await expectRowIsInViewport(page, 100)
+    })
+
+    test('Multiple consecutive navigation should scroll to final row', async ({ page }) => {
+      await page.goto('/grid')
+      await clickOnRow(page, 1)
+
+      // Navigate down 30 rows and verify final row is visible
+      for (let i = 1; i <= 30; i++) {
+        await page.keyboard.press('ArrowDown')
+      }
+      await expectRowHasFocus(page, 31)
+      await expectRowIsInViewport(page, 31)
     })
   })
 })

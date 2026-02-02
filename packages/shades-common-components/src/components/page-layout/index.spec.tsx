@@ -633,7 +633,7 @@ describe('PageLayout component', () => {
       })
     })
 
-    it('should add no-appbar class when AppBar is not configured', async () => {
+    it('should have zero paddingTop when no AppBar is configured', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -648,12 +648,12 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content')
-        expect(content?.classList.contains('no-appbar')).toBe(true)
+        const content = document.querySelector('.page-layout-content') as HTMLElement
+        expect(content?.style.paddingTop).toBe('0px')
       })
     })
 
-    it('should not add no-appbar class when AppBar is configured', async () => {
+    it('should have paddingTop equal to AppBar height when AppBar is configured', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -665,6 +665,7 @@ describe('PageLayout component', () => {
               appBar={{
                 variant: 'permanent',
                 component: <div>AppBar</div>,
+                height: '64px',
               }}
             >
               <div>Content</div>
@@ -673,58 +674,8 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content')
-        expect(content?.classList.contains('no-appbar')).toBe(false)
-      })
-    })
-
-    it('should add auto-hide-appbar class when AppBar variant is auto-hide', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <PageLayout
-              appBar={{
-                variant: 'auto-hide',
-                component: <div>AppBar</div>,
-              }}
-            >
-              <div>Content</div>
-            </PageLayout>
-          ),
-        })
-
-        await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content')
-        expect(content?.classList.contains('auto-hide-appbar')).toBe(true)
-      })
-    })
-
-    it('should not add auto-hide-appbar class when AppBar variant is permanent', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <PageLayout
-              appBar={{
-                variant: 'permanent',
-                component: <div>AppBar</div>,
-              }}
-            >
-              <div>Content</div>
-            </PageLayout>
-          ),
-        })
-
-        await sleepAsync(50)
-        const content = document.querySelector('.page-layout-content')
-        expect(content?.classList.contains('auto-hide-appbar')).toBe(false)
+        const content = document.querySelector('.page-layout-content') as HTMLElement
+        expect(content?.style.paddingTop).toBe('64px')
       })
     })
   })
