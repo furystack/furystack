@@ -50,6 +50,12 @@ export const LayoutTestsIndex = Shade({
         description: 'Layout with a drawer that responds to screen size changes',
         color: '#607d8b',
       },
+      {
+        url: '/layout-tests/temporary-drawer',
+        title: 'Temporary Drawer',
+        description: 'Layout with temporary (overlay) drawers that appear over content with a backdrop',
+        color: '#009688',
+      },
     ]
 
     return (

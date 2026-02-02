@@ -228,6 +228,90 @@ test.describe('PageLayout E2E Tests', () => {
     })
   })
 
+  test.describe('Temporary Drawer', () => {
+    test('drawers are closed by default', async ({ page }) => {
+      await page.goto('/layout-tests/temporary-drawer')
+
+      // Content should be visible
+      await expect(page.getByTestId('test-appbar')).toBeVisible()
+      await expect(page.getByTestId('test-content')).toBeVisible()
+
+      // Drawers should be closed by default
+      await expectDrawerClosed(page, 'left')
+      await expectDrawerClosed(page, 'right')
+
+      // Visual regression test with drawers closed
+      await expect(page).toHaveScreenshot('layout-temporary-drawer-closed.png')
+    })
+
+    test('left drawer opens with backdrop when clicking open button', async ({ page }) => {
+      await page.goto('/layout-tests/temporary-drawer')
+
+      // Click open left drawer button
+      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+
+      // Drawer should open and backdrop should be visible
+      await expectDrawerOpen(page, 'left')
+      await expect(page.getByTestId('test-drawer-left')).toBeVisible()
+      await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
+
+      // Visual regression test with left drawer open
+      await expect(page).toHaveScreenshot('layout-temporary-drawer-left-open.png')
+    })
+
+    test('right drawer opens with backdrop when clicking open button', async ({ page }) => {
+      await page.goto('/layout-tests/temporary-drawer')
+
+      // Click open right drawer button
+      await page.getByRole('button', { name: 'Open Right Drawer' }).click()
+
+      // Drawer should open and backdrop should be visible
+      await expectDrawerOpen(page, 'right')
+      await expect(page.getByTestId('test-drawer-right')).toBeVisible()
+      await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
+
+      // Visual regression test with right drawer open
+      await expect(page).toHaveScreenshot('layout-temporary-drawer-right-open.png')
+    })
+
+    test('drawer closes when clicking backdrop', async ({ page }) => {
+      await page.goto('/layout-tests/temporary-drawer')
+
+      // Open left drawer
+      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+      await expectDrawerOpen(page, 'left')
+      await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
+
+      // Click the backdrop to close drawer
+      await page.getByTestId('page-layout-backdrop').click()
+
+      // Drawer should close and backdrop should be hidden
+      await expectDrawerClosed(page, 'left')
+      await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
+    })
+
+    test('backdrop closes all temporary drawers', async ({ page }) => {
+      await page.goto('/layout-tests/temporary-drawer')
+
+      // Open left drawer first
+      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+      await expectDrawerOpen(page, 'left')
+
+      // Click backdrop to close
+      await page.getByTestId('page-layout-backdrop').click()
+      await expectDrawerClosed(page, 'left')
+
+      // Open right drawer
+      await page.getByRole('button', { name: 'Open Right Drawer' }).click()
+      await expectDrawerOpen(page, 'right')
+
+      // Click backdrop to close
+      await page.getByTestId('page-layout-backdrop').click()
+      await expectDrawerClosed(page, 'right')
+      await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
+    })
+  })
+
   test.describe('Layout Tests Index', () => {
     test('index page shows all test links', async ({ page }) => {
       await page.goto('/layout-tests')
@@ -240,6 +324,7 @@ test.describe('PageLayout E2E Tests', () => {
       await expect(page.getByText('Collapsible Drawer', { exact: true })).toBeVisible()
       await expect(page.getByText('Auto-Hide AppBar', { exact: true })).toBeVisible()
       await expect(page.getByText('Responsive Layout', { exact: true })).toBeVisible()
+      await expect(page.getByText('Temporary Drawer', { exact: true })).toBeVisible()
 
       // Visual regression test for index page
       await expect(page).toHaveScreenshot('layout-tests-index.png')

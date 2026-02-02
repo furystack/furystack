@@ -415,6 +415,18 @@ export const App = Shade({
             ),
           },
           {
+            url: '/layout-tests/temporary-drawer',
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TemporaryDrawerTest } = await import('./pages/layout-tests/index.js')
+                  return <TemporaryDrawerTest />
+                }}
+              />
+            ),
+          },
+          {
             url: '/layout-tests',
             component: () => (
               <LazyLoad
