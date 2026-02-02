@@ -56,8 +56,6 @@ export const LAYOUT_CSS_VARIABLES = {
   sideGap: '--layout-side-gap',
   /** Total padding from top (appBarHeight + topGap) */
   contentPaddingTop: '--layout-content-padding-top',
-  /** Available height for content (100% - contentPaddingTop) */
-  contentAvailableHeight: '--layout-content-available-height',
   /** Current width of the left drawer (0 when closed for collapsible/temporary) */
   drawerLeftWidth: '--layout-drawer-left-width',
   /** Current width of the right drawer (0 when closed for collapsible/temporary) */
@@ -282,12 +280,6 @@ export class LayoutService implements Disposable {
 
     // Content padding top (appBarHeight + topGap)
     root.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, `calc(${appBarHeight} + ${topGap})`)
-
-    // Content available height (100% - contentPaddingTop)
-    root.style.setProperty(
-      LAYOUT_CSS_VARIABLES.contentAvailableHeight,
-      `calc(100% - var(${LAYOUT_CSS_VARIABLES.contentPaddingTop}))`,
-    )
 
     // Legacy content margin top (deprecated, kept for backward compatibility)
     root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)

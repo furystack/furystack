@@ -1,10 +1,17 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, DataGrid, LAYOUT_CSS_VARIABLES, Paper, SelectionCell } from '@furystack/shades-common-components'
+import { Button, DataGrid, Paper, SelectionCell } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
 
 export const GridPage = Shade({
   shadowDomName: 'shades-grid-page',
+  css: {
+    height: `100%`,
+    boxSizing: 'border-box',
+    display: 'block',
+    position: 'relative',
+    padding: '8px',
+  },
 
   render: ({ injector }) => {
     const gridPageService = injector.getInstance(GridPageService)
@@ -15,8 +22,10 @@ export const GridPage = Shade({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+          height: `100%`,
+          boxSizing: 'border-box',
           padding: '16px',
+          margin: '0',
         }}
       >
         <div

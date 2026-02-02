@@ -1,10 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import {
-  DrawerToggleButton,
-  LAYOUT_CSS_VARIABLES,
-  LayoutService,
-  PageLayout,
-} from '@furystack/shades-common-components'
+import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
 
 /**
  * Test page: Collapsible drawer with toggle button
@@ -50,6 +45,7 @@ export const CollapsibleDrawerTest = Shade({
                 style={{
                   background: '#00bcd4',
                   height: '100%',
+                  boxSizing: 'border-box',
                   padding: '16px',
                   color: 'white',
                 }}
@@ -66,7 +62,8 @@ export const CollapsibleDrawerTest = Shade({
           data-testid="test-content"
           style={{
             background: '#ffeb3b',
-            height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+            height: `100%`,
+            boxSizing: 'border-box',
             padding: '16px',
             color: '#333',
           }}

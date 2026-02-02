@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { LAYOUT_CSS_VARIABLES, PageLayout } from '@furystack/shades-common-components'
+import { PageLayout } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar with both left and right drawers
@@ -9,6 +9,8 @@ export const AppBarBothDrawersTest = Shade({
   shadowDomName: 'layout-test-both-drawers',
   render: () => (
     <PageLayout
+      topGap="16px"
+      sideGap="16px"
       appBar={{
         variant: 'permanent',
         component: (
@@ -39,6 +41,7 @@ export const AppBarBothDrawersTest = Shade({
               style={{
                 background: '#2196f3',
                 height: '100%',
+                boxSizing: 'border-box',
                 padding: '16px',
                 color: 'white',
               }}
@@ -57,6 +60,7 @@ export const AppBarBothDrawersTest = Shade({
               style={{
                 background: '#4caf50',
                 height: '100%',
+                boxSizing: 'border-box',
                 padding: '16px',
                 color: 'white',
               }}
@@ -72,7 +76,8 @@ export const AppBarBothDrawersTest = Shade({
         data-testid="test-content"
         style={{
           background: '#ff9800',
-          height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+          height: `100%`,
+          boxSizing: 'border-box',
           padding: '16px',
           color: 'white',
         }}

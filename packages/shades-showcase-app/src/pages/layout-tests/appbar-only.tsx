@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { LAYOUT_CSS_VARIABLES, PageLayout } from '@furystack/shades-common-components'
+import { PageLayout } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar only (no drawers)
@@ -34,8 +34,9 @@ export const AppBarOnlyTest = Shade({
         data-testid="test-content"
         style={{
           background: '#ff9800',
-          height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+          height: `100%`,
           padding: '16px',
+          boxSizing: 'border-box',
           color: 'white',
         }}
       >

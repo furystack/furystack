@@ -352,7 +352,6 @@ describe('LayoutService', () => {
       expect(LAYOUT_CSS_VARIABLES.topGap).toBe('--layout-top-gap')
       expect(LAYOUT_CSS_VARIABLES.sideGap).toBe('--layout-side-gap')
       expect(LAYOUT_CSS_VARIABLES.contentPaddingTop).toBe('--layout-content-padding-top')
-      expect(LAYOUT_CSS_VARIABLES.contentAvailableHeight).toBe('--layout-content-available-height')
       expect(LAYOUT_CSS_VARIABLES.drawerLeftWidth).toBe('--layout-drawer-left-width')
       expect(LAYOUT_CSS_VARIABLES.drawerRightWidth).toBe('--layout-drawer-right-width')
       expect(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth).toBe('--layout-drawer-left-configured-width')

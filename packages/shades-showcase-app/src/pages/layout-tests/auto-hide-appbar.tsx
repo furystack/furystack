@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { LAYOUT_CSS_VARIABLES, LayoutService, PageLayout } from '@furystack/shades-common-components'
+import { LayoutService, PageLayout } from '@furystack/shades-common-components'
 
 /**
  * Test page: Auto-hide AppBar behavior
@@ -37,7 +37,8 @@ export const AutoHideAppBarTest = Shade({
           data-testid="test-content"
           style={{
             background: '#8bc34a',
-            height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
+            height: `100%`,
+            boxSizing: 'border-box',
             padding: '16px',
             color: 'white',
           }}
