@@ -1,6 +1,26 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
 
+const ExpandCollapseButton = Shade({
+  shadowDomName: 'expand-collapse-button',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return (
+      <button
+        type="button"
+        onclick={() => layoutService.toggleDrawer('left')}
+        style={{
+          marginTop: '16px',
+          padding: '8px 16px',
+          cursor: 'pointer',
+        }}
+      >
+        Toggle Drawer Programmatically
+      </button>
+    )
+  },
+})
+
 /**
  * Test page: Collapsible drawer with toggle button
  * Used for E2E visual regression testing
@@ -8,8 +28,6 @@ import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades
 export const CollapsibleDrawerTest = Shade({
   shadowDomName: 'layout-test-collapsible',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
-
     return (
       <PageLayout
         appBar={{
@@ -71,17 +89,7 @@ export const CollapsibleDrawerTest = Shade({
           <h2>Content Area (Yellow)</h2>
           <p>This test page shows a layout with a collapsible drawer.</p>
           <p>Use the toggle button in the AppBar or the button below to toggle the drawer:</p>
-          <button
-            type="button"
-            onclick={() => layoutService.toggleDrawer('left')}
-            style={{
-              marginTop: '16px',
-              padding: '8px 16px',
-              cursor: 'pointer',
-            }}
-          >
-            Toggle Drawer Programmatically
-          </button>
+          <ExpandCollapseButton />
         </div>
       </PageLayout>
     )

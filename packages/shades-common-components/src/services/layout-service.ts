@@ -33,7 +33,7 @@ export type DrawerState = {
 
 /**
  * CSS variable names managed by LayoutService.
- * These variables are set on document.documentElement for global access.
+ * These variables are set on the PageLayout host element for scoped access.
  *
  * Use these to access layout dimensions in your components:
  * ```typescript
@@ -73,34 +73,29 @@ export const LAYOUT_CSS_VARIABLES = {
 } as const
 
 /**
- * Central service for managing layout state across the application.
+ * Scoped service for managing layout state within a PageLayout component.
+ *
+ * This service is created per PageLayout instance and sets CSS variables on the
+ * host element rather than document.documentElement, providing proper scoping.
  *
  * Manages:
  * - Drawer open/close state and widths
  * - AppBar visibility (for auto-hide mode)
- * - CSS custom properties for layout dimensions
+ * - CSS custom properties for layout dimensions (scoped to the PageLayout)
  *
  * **Note:** For responsive breakpoint detection, use `ScreenService` from `@furystack/shades`.
  * ScreenService provides `screenSize.atLeast[size]` observables for responsive behavior.
  *
  * @example
  * ```typescript
- * // Get layout service for drawer management
+ * // Get layout service from injector (must be inside PageLayout)
  * const layoutService = injector.getInstance(LayoutService);
  *
  * // Toggle left drawer
  * layoutService.toggleDrawer('left');
- *
- * // For responsive behavior, use ScreenService
- * const screenService = injector.getInstance(ScreenService);
- * screenService.screenSize.atLeast.md.subscribe((isAtLeastMd) => {
- *   if (!isAtLeastMd) {
- *     layoutService.setDrawerOpen('left', false);
- *   }
- * });
  * ```
  */
-@Injectable({ lifetime: 'singleton' })
+@Injectable({ lifetime: 'explicit' })
 export class LayoutService implements Disposable {
   /**
    * Observable state for all drawers.
@@ -137,7 +132,13 @@ export class LayoutService implements Disposable {
   private topGapSubscription: ValueObserver<string> | null = null
   private sideGapSubscription: ValueObserver<string> | null = null
 
-  constructor() {
+  /**
+   * Creates a new LayoutService instance scoped to the given element.
+   *
+   * @param targetElement - The element to set CSS variables on (typically the PageLayout host).
+   *                        If undefined (e.g., in SSR), CSS variables won't be set.
+   */
+  constructor(private targetElement?: HTMLElement) {
     this.setupCssVariableSync()
     this.updateCssVariables()
   }
@@ -265,42 +266,41 @@ export class LayoutService implements Disposable {
    * Called automatically when drawer state, AppBar height, or gap values change.
    */
   private updateCssVariables(): void {
-    if (typeof document === 'undefined') return
+    if (!this.targetElement) return
 
-    const root = document.documentElement
     const state = this.drawerState.getValue()
     const appBarHeight = this.appBarHeight.getValue()
     const topGap = this.topGap.getValue()
     const sideGap = this.sideGap.getValue()
 
     // AppBar and gap values
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
 
     // Content padding top (appBarHeight + topGap)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, `calc(${appBarHeight} + ${topGap})`)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, `calc(${appBarHeight} + ${topGap})`)
 
     // Legacy content margin top (deprecated, kept for backward compatibility)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
 
     // Left drawer
     const leftConfiguredWidth = state.left?.width ?? '0px'
     const leftWidth = state.left?.open ? state.left.width : '0px'
     const leftContentMargin = this.getContentMarginForDrawer(state.left)
 
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
 
     // Right drawer
     const rightConfiguredWidth = state.right?.width ?? '0px'
     const rightWidth = state.right?.open ? state.right.width : '0px'
     const rightContentMargin = this.getContentMarginForDrawer(state.right)
 
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
-    root.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
   }
 
   /**

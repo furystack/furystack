@@ -1,6 +1,30 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { LayoutService, PageLayout } from '@furystack/shades-common-components'
 
+const ShowHideAppBarButton = Shade({
+  shadowDomName: 'show-hide-appbar-button',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return (
+      <button type="button" onclick={() => layoutService.appBarVisible.setValue(true)}>
+        Show AppBar
+      </button>
+    )
+  },
+})
+
+const HideAppBarButton = Shade({
+  shadowDomName: 'hide-appbar-button',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return (
+      <button type="button" onclick={() => layoutService.appBarVisible.setValue(false)}>
+        Hide AppBar
+      </button>
+    )
+  },
+})
+
 /**
  * Test page: Auto-hide AppBar behavior
  * Used for E2E visual regression testing
@@ -8,8 +32,6 @@ import { LayoutService, PageLayout } from '@furystack/shades-common-components'
 export const AutoHideAppBarTest = Shade({
   shadowDomName: 'layout-test-auto-hide',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
-
     return (
       <PageLayout
         appBar={{
@@ -48,27 +70,8 @@ export const AutoHideAppBarTest = Shade({
           <p>The AppBar is hidden by default and appears when you hover over the top of the page.</p>
           <div style={{ marginTop: '24px' }}>
             <h3>Controls:</h3>
-            <button
-              type="button"
-              onclick={() => layoutService.appBarVisible.setValue(true)}
-              style={{
-                marginRight: '8px',
-                padding: '8px 16px',
-                cursor: 'pointer',
-              }}
-            >
-              Show AppBar
-            </button>
-            <button
-              type="button"
-              onclick={() => layoutService.appBarVisible.setValue(false)}
-              style={{
-                padding: '8px 16px',
-                cursor: 'pointer',
-              }}
-            >
-              Hide AppBar
-            </button>
+            <ShowHideAppBarButton />
+            <HideAppBarButton />
           </div>
         </div>
       </PageLayout>

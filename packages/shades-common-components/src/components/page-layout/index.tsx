@@ -61,6 +61,9 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  * - Configurable gaps between AppBar/drawers and content
  * - Responsive drawer collapse via `collapseOnBreakpoint`
  *
+ * The LayoutService is scoped to this component, so CSS variables are isolated
+ * and automatically cleaned up when navigating away.
+ *
  * @example
  * ```tsx
  * <PageLayout
@@ -181,8 +184,21 @@ export const PageLayout = Shade<PageLayoutProps>({
     },
   },
 
-  render: ({ props, children, injector, useObservable, useDisposable }) => {
-    const layoutService = injector.getInstance(LayoutService)
+  render: ({ props, children, injector, element, useObservable, useDisposable }) => {
+    // Create scoped LayoutService with the element as target for CSS variables
+    const layoutService = useDisposable('layoutService', () => new LayoutService(element))
+
+    // Create a child injector with the scoped LayoutService
+    // This allows child components (like DrawerToggleButton) to access it
+    const childInjector = useDisposable('childInjector', () => {
+      const child = injector.createChild()
+      child.setExplicitInstance(layoutService, LayoutService)
+      return child
+    })
+
+    // Set the child injector on the element so children can find it
+    element.injector = childInjector
+
     const screenService = injector.getInstance(ScreenService)
 
     // Initialize AppBar height

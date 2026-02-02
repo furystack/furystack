@@ -1,6 +1,26 @@
 import { createComponent, ScreenService, Shade } from '@furystack/shades'
 import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
 
+const ToggleDrawerButton = Shade({
+  shadowDomName: 'toggle-drawer-button',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return (
+      <button type="button" onclick={() => layoutService.toggleDrawer('left')}>
+        Toggle Drawer
+      </button>
+    )
+  },
+})
+
+const DrawerState = Shade({
+  shadowDomName: 'drawer-state',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return <>Drawer State: {layoutService.drawerState.getValue().left?.open ? 'Open' : 'Closed'}</>
+  },
+})
+
 /**
  * Test page: Responsive layout with auto-collapsing drawer
  * Used for E2E visual regression testing
@@ -8,12 +28,9 @@ import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades
 export const ResponsiveLayoutTest = Shade({
   shadowDomName: 'layout-test-responsive',
   render: ({ injector, useObservable }) => {
-    const layoutService = injector.getInstance(LayoutService)
     const screenService = injector.getInstance(ScreenService)
 
     const [isAtLeastMd] = useObservable('atLeastMd', screenService.screenSize.atLeast.md)
-    const [drawerState] = useObservable('drawerState', layoutService.drawerState)
-    const isDrawerOpen = drawerState.left?.open ?? false
 
     return (
       <PageLayout
@@ -82,7 +99,7 @@ export const ResponsiveLayoutTest = Shade({
                 Screen size: <strong>{isAtLeastMd ? 'Medium or larger (≥900px)' : 'Small (<900px)'}</strong>
               </li>
               <li>
-                Drawer state: <strong>{isDrawerOpen ? 'Open' : 'Closed'}</strong>
+                <DrawerState />
               </li>
             </ul>
           </div>
@@ -95,16 +112,7 @@ export const ResponsiveLayoutTest = Shade({
             </ul>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <button
-              type="button"
-              onclick={() => layoutService.toggleDrawer('left')}
-              style={{
-                padding: '8px 16px',
-                cursor: 'pointer',
-              }}
-            >
-              Toggle Drawer
-            </button>
+            <ToggleDrawerButton />
           </div>
         </div>
       </PageLayout>

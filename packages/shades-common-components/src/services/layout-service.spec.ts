@@ -4,18 +4,15 @@ import { LAYOUT_CSS_VARIABLES, LayoutService } from './layout-service.js'
 
 describe('LayoutService', () => {
   let mockSetProperty: ReturnType<typeof vi.fn>
+  let mockElement: { style: { setProperty: ReturnType<typeof vi.fn> } }
 
   beforeEach(() => {
     mockSetProperty = vi.fn()
-
-    // Mock document.documentElement.style.setProperty
-    vi.stubGlobal('document', {
-      documentElement: {
-        style: {
-          setProperty: mockSetProperty,
-        },
+    mockElement = {
+      style: {
+        setProperty: mockSetProperty,
       },
-    })
+    }
   })
 
   afterEach(() => {
@@ -24,7 +21,7 @@ describe('LayoutService', () => {
 
   describe('Constructor', () => {
     it('should initialize with default values', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         expect(service.drawerState.getValue()).toEqual({})
         expect(service.appBarVisible.getValue()).toBe(true)
         expect(service.appBarHeight.getValue()).toBe('48px')
@@ -33,16 +30,12 @@ describe('LayoutService', () => {
       })
     })
 
-    it('should update CSS variables on initialization', () => {
-      using(new LayoutService(), () => {
+    it('should update CSS variables on initialization when element is provided', () => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), () => {
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-appbar-height', '48px')
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-top-gap', '0px')
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-side-gap', '0px')
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-padding-top', 'calc(48px + 0px)')
-        expect(mockSetProperty).toHaveBeenCalledWith(
-          '--layout-content-available-height',
-          'calc(100% - var(--layout-content-padding-top))',
-        )
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-margin-top', '48px')
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-drawer-left-width', '0px')
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-drawer-right-width', '0px')
@@ -50,12 +43,22 @@ describe('LayoutService', () => {
         expect(mockSetProperty).toHaveBeenCalledWith('--layout-drawer-right-configured-width', '0px')
       })
     })
+
+    it('should not throw when element is undefined', () => {
+      expect(() => {
+        using(new LayoutService(undefined), (service) => {
+          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+          service.setTopGap('16px')
+          service.setSideGap('24px')
+        })
+      }).not.toThrow()
+    })
   })
 
   describe('Drawer State Management', () => {
     describe('toggleDrawer', () => {
       it('should toggle drawer from closed to open', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: false, width: '240px', variant: 'collapsible' })
 
           service.toggleDrawer('left')
@@ -65,7 +68,7 @@ describe('LayoutService', () => {
       })
 
       it('should toggle drawer from open to closed', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
           service.toggleDrawer('left')
@@ -75,7 +78,7 @@ describe('LayoutService', () => {
       })
 
       it('should do nothing if drawer is not initialized', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.toggleDrawer('left')
 
           expect(service.drawerState.getValue().left).toBeUndefined()
@@ -83,7 +86,7 @@ describe('LayoutService', () => {
       })
 
       it('should toggle right drawer independently', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
           service.initDrawer('right', { open: false, width: '200px', variant: 'temporary' })
 
@@ -97,7 +100,7 @@ describe('LayoutService', () => {
 
     describe('setDrawerOpen', () => {
       it('should set drawer open state', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setDrawerOpen('left', true)
 
           expect(service.drawerState.getValue().left?.open).toBe(true)
@@ -105,7 +108,7 @@ describe('LayoutService', () => {
       })
 
       it('should create drawer entry with default width if not exists', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setDrawerOpen('left', true)
 
           expect(service.drawerState.getValue().left?.width).toBe('240px')
@@ -113,7 +116,7 @@ describe('LayoutService', () => {
       })
 
       it('should create drawer entry with default variant if not exists', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setDrawerOpen('left', true)
 
           expect(service.drawerState.getValue().left?.variant).toBe('collapsible')
@@ -121,7 +124,7 @@ describe('LayoutService', () => {
       })
 
       it('should preserve existing width when setting open state', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: false, width: '300px', variant: 'collapsible' })
 
           service.setDrawerOpen('left', true)
@@ -131,7 +134,7 @@ describe('LayoutService', () => {
       })
 
       it('should preserve existing variant when setting open state', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: false, width: '240px', variant: 'temporary' })
 
           service.setDrawerOpen('left', true)
@@ -143,7 +146,7 @@ describe('LayoutService', () => {
 
     describe('setDrawerWidth', () => {
       it('should set drawer width', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
           service.setDrawerWidth('left', '300px')
@@ -153,7 +156,7 @@ describe('LayoutService', () => {
       })
 
       it('should create drawer entry with default closed state if not exists', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setDrawerWidth('left', '300px')
 
           expect(service.drawerState.getValue().left?.open).toBe(false)
@@ -161,7 +164,7 @@ describe('LayoutService', () => {
       })
 
       it('should create drawer entry with default variant if not exists', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setDrawerWidth('left', '300px')
 
           expect(service.drawerState.getValue().left?.variant).toBe('collapsible')
@@ -169,7 +172,7 @@ describe('LayoutService', () => {
       })
 
       it('should preserve open state when setting width', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
 
           service.setDrawerWidth('left', '300px')
@@ -179,7 +182,7 @@ describe('LayoutService', () => {
       })
 
       it('should preserve variant when setting width', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'permanent' })
 
           service.setDrawerWidth('left', '300px')
@@ -191,7 +194,7 @@ describe('LayoutService', () => {
 
     describe('initDrawer', () => {
       it('should initialize left drawer', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '250px', variant: 'collapsible' })
 
           expect(service.drawerState.getValue().left).toEqual({ open: true, width: '250px', variant: 'collapsible' })
@@ -199,7 +202,7 @@ describe('LayoutService', () => {
       })
 
       it('should initialize right drawer', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('right', { open: false, width: '200px', variant: 'temporary' })
 
           expect(service.drawerState.getValue().right).toEqual({ open: false, width: '200px', variant: 'temporary' })
@@ -207,7 +210,7 @@ describe('LayoutService', () => {
       })
 
       it('should initialize both drawers', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'permanent' })
           service.initDrawer('right', { open: true, width: '200px', variant: 'temporary' })
 
@@ -219,7 +222,7 @@ describe('LayoutService', () => {
       })
 
       it('should initialize drawer with all variant types', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'permanent' })
           expect(service.drawerState.getValue().left?.variant).toBe('permanent')
 
@@ -235,7 +238,7 @@ describe('LayoutService', () => {
 
   describe('CSS Variables', () => {
     it('should update CSS variables when drawer opens', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
@@ -247,7 +250,7 @@ describe('LayoutService', () => {
     })
 
     it('should set drawer width to 0 when closed', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
         mockSetProperty.mockClear()
 
@@ -259,7 +262,7 @@ describe('LayoutService', () => {
     })
 
     it('should update CSS variables when AppBar height changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.appBarHeight.setValue('64px')
@@ -270,7 +273,7 @@ describe('LayoutService', () => {
     })
 
     it('should update right drawer CSS variables', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.initDrawer('right', { open: true, width: '200px', variant: 'collapsible' })
@@ -282,7 +285,7 @@ describe('LayoutService', () => {
     })
 
     it('should set content margin to 0 for temporary drawer variant', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.initDrawer('right', { open: true, width: '200px', variant: 'temporary' })
@@ -297,7 +300,7 @@ describe('LayoutService', () => {
     })
 
     it('should always set content margin to drawer width for permanent drawer variant', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         // Test when closed
         service.initDrawer('left', { open: false, width: '240px', variant: 'permanent' })
         mockSetProperty.mockClear()
@@ -310,7 +313,7 @@ describe('LayoutService', () => {
     })
 
     it('should set content margin to 0 when collapsible drawer is closed', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
         mockSetProperty.mockClear()
 
@@ -325,7 +328,7 @@ describe('LayoutService', () => {
     })
 
     it('should update CSS variables when topGap changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.setTopGap('16px')
@@ -336,7 +339,7 @@ describe('LayoutService', () => {
     })
 
     it('should update CSS variables when sideGap changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         mockSetProperty.mockClear()
 
         service.setSideGap('24px')
@@ -364,13 +367,13 @@ describe('LayoutService', () => {
 
   describe('AppBar Visibility', () => {
     it('should initialize with visible AppBar', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         expect(service.appBarVisible.getValue()).toBe(true)
       })
     })
 
     it('should allow setting AppBar visibility', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         service.appBarVisible.setValue(false)
 
         expect(service.appBarVisible.getValue()).toBe(false)
@@ -380,13 +383,13 @@ describe('LayoutService', () => {
 
   describe('AppBar Height', () => {
     it('should initialize with default height', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         expect(service.appBarHeight.getValue()).toBe('48px')
       })
     })
 
     it('should allow setting AppBar height', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         service.appBarHeight.setValue('64px')
 
         expect(service.appBarHeight.getValue()).toBe('64px')
@@ -397,13 +400,13 @@ describe('LayoutService', () => {
   describe('Gap Management', () => {
     describe('topGap', () => {
       it('should initialize with default value', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           expect(service.topGap.getValue()).toBe('0px')
         })
       })
 
       it('should allow setting topGap via setTopGap', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setTopGap('16px')
 
           expect(service.topGap.getValue()).toBe('16px')
@@ -411,7 +414,7 @@ describe('LayoutService', () => {
       })
 
       it('should allow setting topGap via observable', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.topGap.setValue('32px')
 
           expect(service.topGap.getValue()).toBe('32px')
@@ -421,13 +424,13 @@ describe('LayoutService', () => {
 
     describe('sideGap', () => {
       it('should initialize with default value', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           expect(service.sideGap.getValue()).toBe('0px')
         })
       })
 
       it('should allow setting sideGap via setSideGap', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.setSideGap('24px')
 
           expect(service.sideGap.getValue()).toBe('24px')
@@ -435,7 +438,7 @@ describe('LayoutService', () => {
       })
 
       it('should allow setting sideGap via observable', () => {
-        using(new LayoutService(), (service) => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.sideGap.setValue('48px')
 
           expect(service.sideGap.getValue()).toBe('48px')
@@ -446,7 +449,7 @@ describe('LayoutService', () => {
 
   describe('Disposal', () => {
     it('should dispose all observables', () => {
-      const service = new LayoutService()
+      const service = new LayoutService(mockElement as unknown as HTMLElement)
       const drawerStateSpy = vi.spyOn(service.drawerState, Symbol.dispose)
       const appBarVisibleSpy = vi.spyOn(service.appBarVisible, Symbol.dispose)
       const appBarHeightSpy = vi.spyOn(service.appBarHeight, Symbol.dispose)
@@ -463,24 +466,9 @@ describe('LayoutService', () => {
     })
   })
 
-  describe('Server-Side Rendering Compatibility', () => {
-    it('should not throw when document is undefined', () => {
-      vi.stubGlobal('document', undefined)
-
-      expect(() => {
-        using(new LayoutService(), (service) => {
-          // Should not throw when updating CSS variables
-          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
-          service.setTopGap('16px')
-          service.setSideGap('24px')
-        })
-      }).not.toThrow()
-    })
-  })
-
   describe('Observable Subscriptions', () => {
     it('should notify subscribers when drawer state changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         const states: Array<{ left?: { open: boolean; width: string; variant: string } }> = []
 
         service.drawerState.subscribe((state) => {
@@ -497,7 +485,7 @@ describe('LayoutService', () => {
     })
 
     it('should notify subscribers when topGap changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         const values: string[] = []
 
         service.topGap.subscribe((value) => {
@@ -512,7 +500,7 @@ describe('LayoutService', () => {
     })
 
     it('should notify subscribers when sideGap changes', () => {
-      using(new LayoutService(), (service) => {
+      using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
         const values: string[] = []
 
         service.sideGap.subscribe((value) => {
@@ -534,7 +522,6 @@ describe('LayoutService', () => {
         topGap: '--layout-top-gap',
         sideGap: '--layout-side-gap',
         contentPaddingTop: '--layout-content-padding-top',
-        contentAvailableHeight: '--layout-content-available-height',
         drawerLeftWidth: '--layout-drawer-left-width',
         drawerRightWidth: '--layout-drawer-right-width',
         drawerLeftConfiguredWidth: '--layout-drawer-left-configured-width',
