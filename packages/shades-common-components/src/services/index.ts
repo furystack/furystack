@@ -1,5 +1,6 @@
 export * from './click-away-service.js'
 export * from './collection-service.js'
+export * from './layout-service.js'
 export * from './theme-provider-service.js'
 export * from './default-dark-theme.js'
 export * from './default-light-theme.js'
