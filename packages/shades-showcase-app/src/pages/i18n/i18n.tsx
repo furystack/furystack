@@ -1,5 +1,6 @@
 import { createLanguage, I18NService } from '@furystack/i18n'
 import { createComponent, Shade } from '@furystack/shades'
+import { Paper } from '@furystack/shades-common-components'
 import { createI18nComponent } from '@furystack/shades-i18n'
 import de from './de.json' with { type: 'json' }
 import en from './en.json' with { type: 'json' }
@@ -32,7 +33,7 @@ export const I18NPage = Shade({
   shadowDomName: 'i18n-page',
   render: () => {
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>I18N</h1>
         <div style={{ paddingBottom: '1em' }}>
           Select language: &nbsp;
@@ -49,7 +50,7 @@ export const I18NPage = Shade({
         </div>
         <TranslatedComponent id="greeting" key="greeting" /> &nbsp;
         <TranslatedComponent id="farewell" key="farewell" />
-      </>
+      </Paper>
     )
   },
 })

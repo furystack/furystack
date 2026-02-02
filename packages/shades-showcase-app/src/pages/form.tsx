@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button, Form, FormService, Input } from '@furystack/shades-common-components'
+import { Button, Form, FormService, Input, Paper } from '@furystack/shades-common-components'
 
 type FormDataType = {
   email: string
@@ -36,7 +36,7 @@ export const FormPage = Shade({
   },
   render: () => {
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Form</h1>
         <div style={{ display: 'flex', gap: '32px' }}>
           <Form<FormDataType>
@@ -90,7 +90,7 @@ export const FormPage = Shade({
             <FormStatusMonitor />
           </Form>
         </div>
-      </>
+      </Paper>
     )
   },
 })

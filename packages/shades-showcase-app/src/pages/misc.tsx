@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Avatar, CommandPalette, Fab, Input, Suggest } from '@furystack/shades-common-components'
+import { Avatar, CommandPalette, Fab, Input, Paper, Suggest } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 type SuggestEntry = { title: string; description: string }
@@ -43,11 +43,7 @@ export const MiscPage = Shade({
   shadowDomName: 'shades-misc-page',
   render: () => {
     return (
-      <div
-        style={{
-          padding: '32px',
-        }}
-      >
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Misc</h1>
         <div>
           <h2>Avatar</h2>
@@ -107,7 +103,7 @@ export const MiscPage = Shade({
         <hr />
         <ExampleSearchChangeComponent />
         <ExampleStoredStateChangeComponent />
-      </div>
+      </Paper>
     )
   },
 })

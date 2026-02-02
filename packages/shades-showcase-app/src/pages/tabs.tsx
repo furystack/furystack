@@ -3,10 +3,9 @@ import { Paper, Tabs } from '@furystack/shades-common-components'
 
 export const TabsPage = Shade({
   shadowDomName: 'tabs-page',
-  css: { padding: '32px' },
   render: () => {
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Tabs</h1>
         <Tabs
           tabs={[
@@ -22,7 +21,7 @@ export const TabsPage = Shade({
             },
           ]}
         />
-      </>
+      </Paper>
     )
   },
 })

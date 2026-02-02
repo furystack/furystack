@@ -1,5 +1,6 @@
 import type { Route } from '@furystack/shades'
 import { createComponent, LinkToRoute, RouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
+import { Paper } from '@furystack/shades-common-components'
 
 const CustomHeader = styledElement('h1', {
   color: 'black',
@@ -19,7 +20,7 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '16px 32px 32px 32px', textAlign: 'justify' }}>
         <CustomHeader style={{ color: 'white' }}>Home</CustomHeader>
         <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
@@ -75,7 +76,7 @@ export const HomePage = Shade({
           &nbsp;
           <CustomRouteLink href="/">RouteLink</CustomRouteLink>
         </div>
-      </>
+      </Paper>
     )
   },
 })

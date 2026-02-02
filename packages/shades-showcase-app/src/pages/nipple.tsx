@@ -1,29 +1,31 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { Paper } from '@furystack/shades-common-components'
 import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
   shadowDomName: 'nipple-page',
-  css: { position: 'relative', width: '100%', height: '100%' },
+  css: { height: '100%', padding: '16px' },
   render: ({ element }) => {
     return (
-      <>
-        <h1>Nipple</h1>
+      <Paper elevation={3} style={{ height: '100%', position: 'relative', padding: '16px', overflow: 'auto' }}>
+        <h1 style={{ margin: '0 0 16px 0' }}>Nipple</h1>
         <code
           className="nipple-container"
           style={{
             position: 'absolute',
-            top: '0',
-            left: '0',
+            top: '48px',
+            left: '16px',
             whiteSpace: 'pre-wrap',
+            zIndex: '10',
           }}
         ></code>
         <NippleComponent
           style={{
             position: 'absolute',
-            top: '0',
+            top: '48px',
             left: '0',
-            width: '100%',
-            height: '100%',
+            right: '0',
+            bottom: '0',
           }}
           managerOptions={{
             mode: 'static',
@@ -38,7 +40,7 @@ export const NipplePage = Shade({
             )
           }}
         />
-      </>
+      </Paper>
     )
   },
 })

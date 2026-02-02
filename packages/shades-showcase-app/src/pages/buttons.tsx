@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button } from '@furystack/shades-common-components'
+import { Button, Paper } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
@@ -18,7 +18,7 @@ export const ButtonsPage = Shade({
     }
 
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Buttons</h1>
         <div>
           <div>
@@ -91,7 +91,7 @@ export const ButtonsPage = Shade({
         >
           Custom Style
         </Button>
-      </>
+      </Paper>
     )
   },
 })

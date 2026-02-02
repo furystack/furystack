@@ -18,7 +18,7 @@ export const MFEPage = Shade({
     const [mfeClients, setMfeClients] = useState<MfeClientState[]>('mfeClients', [])
 
     return (
-      <div>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Micro Frontend demo</h1>
         <p>This is a micro frontend page</p>
         <Paper>
@@ -74,7 +74,7 @@ export const MFEPage = Shade({
             />
           ))}
         </div>
-      </div>
+      </Paper>
     )
   },
 })

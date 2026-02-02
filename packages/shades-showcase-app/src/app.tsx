@@ -1,5 +1,5 @@
 import { createComponent, LazyLoad, Router, Shade } from '@furystack/shades'
-import { AppBar, AppBarLink, fadeIn, fadeOut, PageLayout, Paper } from '@furystack/shades-common-components'
+import { AppBar, AppBarLink, fadeIn, fadeOut, PageLayout } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 import { PageLoader } from './components/page-loader.js'
 import { ThemeSwitch } from './components/theme-switch.js'
@@ -9,6 +9,7 @@ export const App = Shade({
   render: () => {
     return (
       <PageLayout
+        topGap="12px"
         appBar={{
           variant: 'permanent',
           component: (
@@ -44,298 +45,290 @@ export const App = Shade({
           ),
         }}
       >
-        <Paper
-          elevation={3}
-          style={{
-            padding: '8px 32px 32px 32px',
-            textAlign: 'justify',
-          }}
-        >
-          <Router
-            routes={[
-              {
-                url: '/buttons',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
+        <Router
+          routes={[
+            {
+              url: '/buttons',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { ButtonsPage } = await import('./pages/buttons.js')
+                    await sleepAsync(1000)
+                    return <ButtonsPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/form',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    await sleepAsync(1000)
+                    const { FormPage } = await import('./pages/form.js')
+                    return <FormPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/inputs',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { InputsPage } = await import('./pages/inputs.js')
+                    return <InputsPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/form',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { FormPage } = await import('./pages/form.js')
+                    return <FormPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/grid',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { GridPage } = await import('./pages/grid/index.js')
+                    return <GridPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/nipple',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { NipplePage } = await import('./pages/nipple.js')
+                    return <NipplePage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/lottie',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { LottiePage } = await import('./pages/lottie.js')
+                    return <LottiePage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/monaco',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { MonacoEditorPage } = await import('./pages/monaco.js')
+                    return <MonacoEditorPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/wizard',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { WizardPage } = await import('./pages/wizard/index.js')
+                    return <WizardPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/notys',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { NotysPage } = await import('./pages/notys.js')
+                    return <NotysPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/tabs',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { TabsPage } = await import('./pages/tabs.js')
+                    return <TabsPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/i18n',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { I18NPage } = await import('./pages/i18n/i18n.tsx')
+                    return <I18NPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/mfe',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
+              },
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
+              },
+              component: () => {
+                return (
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { ButtonsPage } = await import('./pages/buttons.js')
-                      await sleepAsync(1000)
-                      return <ButtonsPage />
+                      const { MFEPage } = await import('./pages/mfe/mfe-page.js')
+                      return <MFEPage />
                     }}
                   />
-                ),
+                )
               },
-              {
-                url: '/form',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      await sleepAsync(1000)
-                      const { FormPage } = await import('./pages/form.js')
-                      return <FormPage />
-                    }}
-                  />
-                ),
+            },
+            {
+              url: '/misc',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
               },
-              {
-                url: '/inputs',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { InputsPage } = await import('./pages/inputs.js')
-                      return <InputsPage />
-                    }}
-                  />
-                ),
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
               },
-              {
-                url: '/form',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { FormPage } = await import('./pages/form.js')
-                      return <FormPage />
-                    }}
-                  />
-                ),
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { MiscPage } = await import('./pages/misc.js')
+                    return <MiscPage />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/',
+              onVisit: async ({ element }) => {
+                await fadeIn(element, {})
               },
-              {
-                url: '/grid',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { GridPage } = await import('./pages/grid/index.js')
-                      return <GridPage />
-                    }}
-                  />
-                ),
+              onLeave: async ({ element }) => {
+                await fadeOut(element, {})
               },
-              {
-                url: '/nipple',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { NipplePage } = await import('./pages/nipple.js')
-                      return <NipplePage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/lottie',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { LottiePage } = await import('./pages/lottie.js')
-                      return <LottiePage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/monaco',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { MonacoEditorPage } = await import('./pages/monaco.js')
-                      return <MonacoEditorPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/wizard',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { WizardPage } = await import('./pages/wizard/index.js')
-                      return <WizardPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/notys',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { NotysPage } = await import('./pages/notys.js')
-                      return <NotysPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/tabs',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { TabsPage } = await import('./pages/tabs.js')
-                      return <TabsPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/i18n',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { I18NPage } = await import('./pages/i18n/i18n.tsx')
-                      return <I18NPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/mfe',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => {
-                  return (
-                    <LazyLoad
-                      loader={<PageLoader />}
-                      component={async () => {
-                        const { MFEPage } = await import('./pages/mfe/mfe-page.js')
-                        return <MFEPage />
-                      }}
-                    />
-                  )
-                },
-              },
-              {
-                url: '/misc',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { MiscPage } = await import('./pages/misc.js')
-                      return <MiscPage />
-                    }}
-                  />
-                ),
-              },
-              {
-                url: '/',
-                onVisit: async ({ element }) => {
-                  await fadeIn(element, {})
-                },
-                onLeave: async ({ element }) => {
-                  await fadeOut(element, {})
-                },
-                component: () => (
-                  <LazyLoad
-                    loader={<PageLoader />}
-                    component={async () => {
-                      const { HomePage } = await import('./pages/home/index.js')
-                      return <HomePage />
-                    }}
-                  />
-                ),
-              },
-            ]}
-            notFound={
-              <div style={{ paddingTop: '50px', textAlign: 'center' }}>
-                <h1>404 🔍</h1>
-                <p>Have you seen this cat? 😸</p>
-              </div>
-            }
-          />
-        </Paper>
+              component: () => (
+                <LazyLoad
+                  loader={<PageLoader />}
+                  component={async () => {
+                    const { HomePage } = await import('./pages/home/index.js')
+                    return <HomePage />
+                  }}
+                />
+              ),
+            },
+          ]}
+          notFound={
+            <div style={{ paddingTop: '50px', textAlign: 'center' }}>
+              <h1>404 🔍</h1>
+              <p>Have you seen this cat? 😸</p>
+            </div>
+          }
+        />
       </PageLayout>
     )
   },

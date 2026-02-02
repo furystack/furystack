@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Autocomplete, Input } from '@furystack/shades-common-components'
+import { Autocomplete, Input, Paper } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
@@ -11,7 +11,7 @@ export const InputsPage = Shade({
   },
   render: () => {
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Inputs</h1>
         <div style={{ display: 'flex', gap: '32px' }}>
           {([undefined, 'outlined', 'contained'] as const).map((variant) => (
@@ -179,7 +179,7 @@ export const InputsPage = Shade({
             </div>
           ))}
         </div>
-      </>
+      </Paper>
     )
   },
 })

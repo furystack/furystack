@@ -39,6 +39,10 @@ export type PageLayoutProps = {
     left?: DrawerConfig
     right?: DrawerConfig
   }
+  /** Gap between the AppBar and the content area (CSS value). Default: '0px' */
+  topGap?: string
+  /** Gap between the drawers and the content area (CSS value). Default: '0px' */
+  sideGap?: string
 }
 
 const DEFAULT_APPBAR_HEIGHT = '48px'
@@ -51,6 +55,7 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  * - Optional AppBar (permanent or auto-hide)
  * - Optional left/right drawers (permanent, collapsible, or temporary)
  * - Main content area with automatic margin management
+ * - Configurable gaps between AppBar/drawers and content
  *
  * @example
  * ```tsx
@@ -65,6 +70,8 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  *       component: <Sidebar />,
  *     },
  *   }}
+ *   topGap="16px"
+ *   sideGap="24px"
  * >
  *   <MainContent />
  * </PageLayout>
@@ -144,25 +151,15 @@ export const PageLayout = Shade<PageLayoutProps>({
       pointerEvents: 'auto',
     },
 
-    // Content area
+    // Content area - starts at top with padding for AppBar, AppBar overlays content
     '& .page-layout-content': {
       position: 'absolute',
-      top: 'var(--layout-content-margin-top, 48px)',
+      top: '0',
       left: 'var(--layout-content-margin-left, 0px)',
       right: 'var(--layout-content-margin-right, 0px)',
       bottom: '0',
       overflow: 'auto',
-      transition: 'left 0.3s ease-in-out, right 0.3s ease-in-out, top 0.3s ease-in-out',
-    },
-
-    // No AppBar variant
-    '& .page-layout-content.no-appbar': {
-      top: '0',
-    },
-
-    // Auto-hide AppBar variant - content extends to top, AppBar overlays
-    '& .page-layout-content.auto-hide-appbar': {
-      top: '0',
+      transition: 'left 0.3s ease-in-out, right 0.3s ease-in-out',
     },
   },
 
@@ -244,14 +241,6 @@ export const PageLayout = Shade<PageLayoutProps>({
       }
     }
 
-    // Build content class list
-    const contentClasses = ['page-layout-content']
-    if (!props.appBar) {
-      contentClasses.push('no-appbar')
-    } else if (props.appBar.variant === 'auto-hide') {
-      contentClasses.push('auto-hide-appbar')
-    }
-
     return (
       <>
         {/* AppBar */}
@@ -294,7 +283,19 @@ export const PageLayout = Shade<PageLayoutProps>({
         )}
 
         {/* Main Content */}
-        <main className={contentClasses.join(' ')} data-testid="page-layout-content">
+        <main
+          className="page-layout-content"
+          style={{
+            paddingTop: props.topGap
+              ? `calc(${props.appBar ? appBarHeight : '0px'} + ${props.topGap})`
+              : props.appBar
+                ? appBarHeight
+                : '0px',
+            paddingLeft: props.sideGap ?? '0px',
+            paddingRight: props.sideGap ?? '0px',
+          }}
+          data-testid="page-layout-content"
+        >
           {children}
         </main>
       </>

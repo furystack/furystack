@@ -1,4 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { Paper } from '@furystack/shades-common-components'
 import '@furystack/shades-lottie'
 import type { LottiePlayer } from '@lottiefiles/lottie-player'
 import lottieExample from './lottie-example.json' with { type: 'json' }
@@ -14,7 +15,7 @@ export const LottiePage = Shade({
   render: () => {
     const example = JSON.stringify(lottieExample)
     return (
-      <>
+      <Paper elevation={3} style={{ padding: '32px' }}>
         <h1>Lottie</h1>
         <lottie-player
           style={{ width: '250px', height: '250px', position: 'sticky', top: '0' }}
@@ -24,7 +25,7 @@ export const LottiePage = Shade({
             ;(ev.currentTarget as LottiePlayer)?.play()
           }}
         ></lottie-player>
-      </>
+      </Paper>
     )
   },
 })
