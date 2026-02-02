@@ -49,7 +49,7 @@ test.describe('MFE', () => {
     }
 
     await page.goto('/mfe')
-    await expect(page.getByText('Micro Frontend demo')).toBeVisible()
+    await expect(page.getByTestId('page-header-title')).toBeVisible()
 
     await addClient('Client 1')
     await addClient('Client 2')
