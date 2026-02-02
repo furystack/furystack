@@ -159,6 +159,11 @@ export const PageLayout = Shade<PageLayoutProps>({
     '& .page-layout-content.no-appbar': {
       top: '0',
     },
+
+    // Auto-hide AppBar variant - content extends to top, AppBar overlays
+    '& .page-layout-content.auto-hide-appbar': {
+      top: '0',
+    },
   },
 
   render: ({ props, children, injector, useObservable }) => {
@@ -243,6 +248,8 @@ export const PageLayout = Shade<PageLayoutProps>({
     const contentClasses = ['page-layout-content']
     if (!props.appBar) {
       contentClasses.push('no-appbar')
+    } else if (props.appBar.variant === 'auto-hide') {
+      contentClasses.push('auto-hide-appbar')
     }
 
     return (
