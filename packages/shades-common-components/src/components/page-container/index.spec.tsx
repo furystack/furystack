@@ -92,7 +92,7 @@ describe('PageContainer component', () => {
       })
     })
 
-    it('should apply default gap of 24px', async () => {
+    it('should apply default gap of 16px', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -104,7 +104,7 @@ describe('PageContainer component', () => {
 
         await sleepAsync(50)
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
-        expect(element.style.gap).toBe('24px')
+        expect(element.style.gap).toBe('16px')
       })
     })
 
@@ -198,12 +198,12 @@ describe('PageContainer component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <PageContainer gap="16px">Content</PageContainer>,
+          jsxElement: <PageContainer gap="32px">Content</PageContainer>,
         })
 
         await sleepAsync(50)
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
-        expect(element.style.gap).toBe('16px')
+        expect(element.style.gap).toBe('32px')
       })
     })
 

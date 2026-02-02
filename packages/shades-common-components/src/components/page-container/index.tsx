@@ -11,7 +11,7 @@ export type PageContainerProps = {
   centered?: boolean
   /** Padding around the content (CSS value). Default: '24px' */
   padding?: string
-  /** Gap between child elements (CSS value). Default: '24px' */
+  /** Gap between child elements (CSS value). Default: '16px' */
   gap?: string
   /** Fill the available height. Default: true */
   fullHeight?: boolean
