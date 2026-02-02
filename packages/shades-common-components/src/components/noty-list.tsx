@@ -141,8 +141,8 @@ export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
   css: {
     position: 'fixed',
-    bottom: '1em',
-    right: '1em',
+    bottom: '16px',
+    right: '16px',
     display: 'flex',
     flexDirection: 'column',
   },

@@ -1,5 +1,6 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, attachProps, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & PartialElement<HTMLDivElement>
 
@@ -10,16 +11,38 @@ export const Avatar = Shade<AvatarProps>({
     height: '128px',
     overflow: 'hidden',
     borderRadius: '50%',
-    boxShadow:
-      '0 0 0 3px rgba(255, 255, 255, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1)',
-    backgroundColor: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+    background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 10%, ${cssVariableTheme.background.paper})`,
     display: 'flex',
     position: 'relative',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     '&:hover': {
       transform: 'translateY(-2px) scale(1.02)',
-      boxShadow:
-        '0 0 0 3px rgba(255, 255, 255, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.12)',
+    },
+
+    '& .avatar-fallback-container': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      width: '100%',
+      background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 15%, ${cssVariableTheme.background.paper})`,
+    },
+
+    '& .avatar-fallback-icon': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '64px',
+      height: '64px',
+      borderRadius: '50%',
+      background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 20%, transparent)`,
+      backdropFilter: 'blur(10px)',
+      textAlign: 'center',
+      userSelect: 'none',
+      fontSize: '48px',
+      lineHeight: '1',
     },
   },
   render: ({ props, element }) => {
@@ -45,34 +68,8 @@ export const Avatar = Shade<AvatarProps>({
         src={props.avatarUrl}
         onerror={(ev) => {
           ;((ev as Event).target as HTMLImageElement).replaceWith(
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                width: '100%',
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  textAlign: 'center',
-                  userSelect: 'none',
-                  fontSize: '48px',
-                  lineHeight: '1',
-                }}
-              >
-                {props.fallback || '🛑'}
-              </div>
+            <div className="avatar-fallback-container">
+              <div className="avatar-fallback-icon">{props.fallback || '🛑'}</div>
             </div>,
           )
         }}

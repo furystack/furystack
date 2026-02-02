@@ -58,9 +58,9 @@ export const PageHeader = Shade<PageHeaderProps>({
   shadowDomName: 'shade-page-header',
   css: {
     display: 'block',
-    marginBottom: '8px',
     position: 'sticky',
     top: '0',
+    zIndex: '10',
 
     '& .page-header-container': {
       display: 'flex',
@@ -104,7 +104,7 @@ export const PageHeader = Shade<PageHeaderProps>({
     const { icon, title, description, actions } = props
 
     return (
-      <Paper className="page-header-container">
+      <Paper elevation={2} className="page-header-container">
         <div className="page-header-content">
           <h2 className="page-header-title" data-testid="page-header-title">
             {icon && <span className="page-header-icon">{icon}</span>}

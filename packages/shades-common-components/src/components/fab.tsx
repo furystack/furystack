@@ -1,6 +1,47 @@
+import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
+import type { Palette } from '../services/theme-provider-service.js'
 
-export const Fab = Shade({
+export type FabProps = PartialElement<HTMLButtonElement> & {
+  color?: keyof Palette
+}
+
+// Color mappings for each palette color
+const colorMap: Record<keyof Palette, { main: string; mainContrast: string; dark: string }> = {
+  primary: {
+    main: cssVariableTheme.palette.primary.main,
+    mainContrast: cssVariableTheme.palette.primary.mainContrast,
+    dark: cssVariableTheme.palette.primary.dark,
+  },
+  secondary: {
+    main: cssVariableTheme.palette.secondary.main,
+    mainContrast: cssVariableTheme.palette.secondary.mainContrast,
+    dark: cssVariableTheme.palette.secondary.dark,
+  },
+  error: {
+    main: cssVariableTheme.palette.error.main,
+    mainContrast: cssVariableTheme.palette.error.mainContrast,
+    dark: cssVariableTheme.palette.error.dark,
+  },
+  warning: {
+    main: cssVariableTheme.palette.warning.main,
+    mainContrast: cssVariableTheme.palette.warning.mainContrast,
+    dark: cssVariableTheme.palette.warning.dark,
+  },
+  success: {
+    main: cssVariableTheme.palette.success.main,
+    mainContrast: cssVariableTheme.palette.success.mainContrast,
+    dark: cssVariableTheme.palette.success.dark,
+  },
+  info: {
+    main: cssVariableTheme.palette.info.main,
+    mainContrast: cssVariableTheme.palette.info.mainContrast,
+    dark: cssVariableTheme.palette.info.dark,
+  },
+}
+
+export const Fab = Shade<FabProps>({
   shadowDomName: 'shade-fab',
   elementBase: HTMLButtonElement,
   elementBaseName: 'button',
@@ -8,26 +49,37 @@ export const Fab = Shade({
     position: 'fixed',
     bottom: '32px',
     right: '32px',
-    background: 'gray',
+    background: 'var(--fab-color-main)',
+    color: 'var(--fab-color-contrast)',
     width: '64px',
     height: '64px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '50%',
-    boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
     cursor: 'pointer',
     border: 'none',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease',
     '&:hover': {
       transform: 'scale(1.05)',
-      boxShadow: '3px 3px 6px rgba(0,0,0,0.4)',
+      background: 'var(--fab-color-dark)',
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.12)',
     },
     '&:active': {
       transform: 'scale(0.95)',
     },
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: '0.6',
+    },
   },
-  render: ({ children }) => {
+  render: ({ props, children, element }) => {
+    const colors = colorMap[props.color ?? 'primary']
+    element.style.setProperty('--fab-color-main', colors.main)
+    element.style.setProperty('--fab-color-contrast', colors.mainContrast)
+    element.style.setProperty('--fab-color-dark', colors.dark)
+
     return <>{children}</>
   },
 })
