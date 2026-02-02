@@ -18,7 +18,7 @@ export const ButtonsPage = Shade({
     }
 
     return (
-      <Paper elevation={3} style={{ padding: '32px' }}>
+      <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <h1>Buttons</h1>
         <div>
           <div>
@@ -79,8 +79,8 @@ export const ButtonsPage = Shade({
 
         <Button
           style={{
-            display: 'inline',
             width: '150px',
+            alignSelf: 'center',
             textAlign: 'center',
             fontFamily: 'monospace',
             fontSize: '20px',

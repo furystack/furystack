@@ -1,13 +1,19 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Paper } from '@furystack/shades-common-components'
+import { LayoutService, Paper } from '@furystack/shades-common-components'
 import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
   shadowDomName: 'nipple-page',
-  css: { height: '100%', padding: '16px' },
-  render: ({ element }) => {
+  render: ({ element, injector, useObservable }) => {
+    const layoutService = injector.getInstance(LayoutService)
+
+    const [appBarHeight] = useObservable('appBarHeight', layoutService.appBarHeight)
+
     return (
-      <Paper elevation={3} style={{ height: '100%', position: 'relative', padding: '16px', overflow: 'auto' }}>
+      <Paper
+        elevation={3}
+        style={{ height: `calc(100% - ${appBarHeight})`, position: 'relative', padding: '16px', overflow: 'auto' }}
+      >
         <h1 style={{ margin: '0 0 16px 0' }}>Nipple</h1>
         <code
           className="nipple-container"
@@ -21,7 +27,7 @@ export const NipplePage = Shade({
         ></code>
         <NippleComponent
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: '48px',
             left: '0',
             right: '0',
