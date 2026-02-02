@@ -28,7 +28,7 @@ test.describe('Data Grid component', () => {
   test.describe('Focus', () => {
     test('With mouse click', async ({ page }) => {
       await page.goto('/grid')
-      const numbers = new Array<number>(10).fill(Math.round(Math.random() * 100))
+      const numbers = new Array<number>(10).fill(0).map(() => Math.floor(Math.random() * 100) + 1)
       for (const no of numbers) {
         await clickOnRow(page, no)
         await expectRowHasFocus(page, no)
