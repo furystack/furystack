@@ -1,6 +1,6 @@
 import type { Route } from '@furystack/shades'
 import { createComponent, LinkToRoute, RouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
-import { Paper } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 const CustomHeader = styledElement('h1', {
   color: 'black',
@@ -20,63 +20,59 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <Paper elevation={3} style={{ padding: '16px 32px 32px 32px', textAlign: 'justify' }}>
-        <CustomHeader style={{ color: 'white' }}>Home</CustomHeader>
-        <h1>The standard Lorem Ipsum passage, used since the 1500s</h1>
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-        laborum."
-        <h2>Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC</h2>
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem
-        aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo
-        enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos
-        qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet,
-        consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam
-        quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam,
-        nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse
-        quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-        <h2>1914 translation by H. Rackham</h2>
-        "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I
-        will give you a complete account of the system, and expound the actual teachings of the great explorer of the
-        truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is
-        pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are
-        extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because
-        it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great
-        pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain
-        some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has
-        no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
-        <h2>Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC</h2>
-        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque
-        corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in
-        culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et
-        expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id
-        quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem
-        quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et
-        molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus
-        maiores alias consequatur aut perferendis doloribus asperiores repellat."
-        <h2>1914 translation by H. Rackham</h2>
-        "On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized
-        by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble
-        that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which
-        is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to
-        distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able
-        to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances
-        and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to
-        be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of
-        selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse
-        pains."
-        <hr />
-        Custom elements:
-        <div>
-          <CustomLinkToRoute route={route} params={{ id: 123 }}>
-            Go to wizard
-          </CustomLinkToRoute>
-          &nbsp;
-          <CustomRouteLink href="/">RouteLink</CustomRouteLink>
-        </div>
-      </Paper>
+      <PageContainer maxWidth="900px" centered>
+        <PageHeader
+          icon="🏠"
+          title="Welcome to FuryStack Shades"
+          description="Explore the component library and learn how to build modern web applications with the Shades framework."
+        />
+        <Paper elevation={3} style={{ padding: '16px 32px 32px 32px', textAlign: 'justify' }}>
+          <h2>Introduction</h2>
+          <p>
+            FuryStack Shades is a lightweight, dependency-injection powered UI framework for building modern web
+            applications. Built on top of Web Components and Shadow DOM, it provides a familiar JSX syntax while
+            offering true encapsulation and framework-agnostic components that work anywhere.
+          </p>
+
+          <h2>Core Features</h2>
+          <p>
+            The framework features a reactive programming model with ObservableValue for state management, automatic
+            dependency injection through the Injector system, and a component lifecycle that handles disposal
+            automatically. Components are defined using the Shade factory function, which creates custom elements with
+            optional Shadow DOM encapsulation.
+          </p>
+
+          <h2>Component Library</h2>
+          <p>
+            This showcase application demonstrates the shades-common-components library, which provides a collection of
+            ready-to-use UI components. You'll find form controls like Buttons, Inputs, and Autocomplete fields, layout
+            components like PageLayout and Paper, and specialized components for data display, notifications, and more.
+          </p>
+
+          <h2>Getting Started</h2>
+          <p>
+            Use the navigation bar above to explore different component categories. Each page demonstrates the
+            component's usage with live examples and interactive controls. The source code for this showcase app itself
+            serves as documentation for how to integrate these components into your own applications.
+          </p>
+
+          <h2>Styled Elements Demo</h2>
+          <p>
+            The styled elements demo below shows how to create custom styled components using the styledElement and
+            styledShade utilities, allowing you to extend base components with your own styling while maintaining type
+            safety.
+          </p>
+          <hr />
+          <CustomHeader style={{ color: 'white' }}>Custom styled elements:</CustomHeader>
+          <div>
+            <CustomLinkToRoute route={route} params={{ id: 123 }}>
+              Go to wizard
+            </CustomLinkToRoute>
+            &nbsp;
+            <CustomRouteLink href="/">RouteLink</CustomRouteLink>
+          </div>
+        </Paper>
+      </PageContainer>
     )
   },
 })
