@@ -3,7 +3,6 @@ import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
-import { Button } from './button.js'
 
 export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
   switch (type) {
@@ -24,7 +23,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   shadowDomName: 'shade-noty',
   constructed: ({ element }) => {
     setTimeout(() => {
-      const height = element.scrollHeight || 80
+      const height = element.scrollHeight || 60
       void promisifyAnimation(
         element,
         [
@@ -33,73 +32,71 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
         ],
         {
           fill: 'forwards',
-          duration: 700,
+          duration: 500,
           easing: 'cubic-bezier(0.190, 1.000, 0.220, 1.000)',
         },
       )
     })
   },
   css: {
-    margin: '8px',
+    margin: '6px',
     overflow: 'hidden',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
-    width: '340px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+    width: '300px',
     display: 'flex',
     flexDirection: 'column',
     height: '0px',
-    border: '1px solid rgba(0, 0, 0, 0.1)',
-    backdropFilter: 'blur(10px)',
     '& .noty-header': {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '12px 12px 12px 20px',
-      borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+      padding: '8px 8px 0 12px',
     },
     '& .noty-title': {
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       margin: '0',
-      fontSize: '0.95em',
+      fontSize: '0.85em',
       fontWeight: '600',
-      letterSpacing: '0.01em',
     },
     '& .dismiss-button': {
       margin: '0',
-      padding: '4px 8px',
-      fontSize: '16px',
-      minWidth: '28px',
-      opacity: '0.8',
-      transition: 'opacity 0.2s ease',
+      padding: '4px',
+      fontSize: '14px',
+      minWidth: 'auto',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      opacity: '0.7',
+      transition: 'opacity 0.15s ease',
+      lineHeight: '1',
     },
     '& .dismiss-button:hover': {
       opacity: '1',
     },
     '& .noty-body': {
-      padding: '16px 20px 18px 20px',
-      fontSize: '0.9em',
-      lineHeight: '1.5',
-      fontWeight: '400',
+      padding: '6px 12px 10px 12px',
+      fontSize: '0.8em',
+      lineHeight: '1.4',
     },
   },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
-    const headerTextColor = themeProvider.getTextColor(colors.dark)
     const textColor = themeProvider.getTextColor(colors.main)
 
     const removeSelf = async () => {
       await promisifyAnimation(
         element,
         [
-          { opacity: '1', height: `${element?.scrollHeight || 0}px`, margin: '8px 8px' },
-          { opacity: '0', height: '0px', margin: '0px 8px' },
+          { opacity: '1', height: `${element?.scrollHeight || 0}px`, margin: '6px 6px' },
+          { opacity: '0', height: '0px', margin: '0px 6px' },
         ],
         {
           fill: 'forwards',
-          duration: 700,
+          duration: 500,
           easing: 'cubic-bezier(0.190, 1.000, 0.220, 1.000)',
         },
       )
@@ -117,19 +114,13 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     return (
       <>
-        <div className="noty-header" style={{ backgroundColor: colors.dark, color: headerTextColor }}>
-          <h5 className="noty-title" title={props.model.title}>
+        <div className="noty-header">
+          <span className="noty-title" title={props.model.title}>
             {props.model.title}
-          </h5>
-          <Button
-            className="dismiss-button"
-            onclick={removeSelf}
-            title="Close Notification"
-            variant="contained"
-            color={props.model.type}
-          >
-            ✖
-          </Button>
+          </span>
+          <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: textColor }}>
+            ✕
+          </button>
         </div>
         <div className="noty-body">{props.model.body}</div>
       </>
