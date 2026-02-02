@@ -10,6 +10,13 @@ import { ObservableValue, type ValueObserver } from '@furystack/utils'
 export type DrawerVariant = 'permanent' | 'collapsible' | 'temporary'
 
 /**
+ * AppBar variant that determines visibility behavior.
+ * - 'permanent': Always visible, pushes content down
+ * - 'auto-hide': Hidden by default, overlays content when visible (on hover or programmatically)
+ */
+export type AppBarVariant = 'permanent' | 'auto-hide'
+
+/**
  * Drawer configuration for a single side (left or right).
  */
 export type DrawerSideState = {
@@ -110,6 +117,13 @@ export class LayoutService implements Disposable {
   public appBarVisible = new ObservableValue<boolean>(true)
 
   /**
+   * AppBar variant that determines visibility behavior.
+   * - 'permanent': Always visible, content has padding for appbar
+   * - 'auto-hide': Hidden by default, overlays content when visible
+   */
+  public appBarVariant = new ObservableValue<AppBarVariant>('permanent')
+
+  /**
    * Current AppBar height.
    * Used for calculating content margins.
    */
@@ -129,6 +143,7 @@ export class LayoutService implements Disposable {
 
   private drawerStateSubscription: ValueObserver<DrawerState> | null = null
   private appBarHeightSubscription: ValueObserver<string> | null = null
+  private appBarVariantSubscription: ValueObserver<AppBarVariant> | null = null
   private topGapSubscription: ValueObserver<string> | null = null
   private sideGapSubscription: ValueObserver<string> | null = null
 
@@ -263,13 +278,14 @@ export class LayoutService implements Disposable {
 
   /**
    * Updates CSS custom properties based on current layout state.
-   * Called automatically when drawer state, AppBar height, or gap values change.
+   * Called automatically when drawer state, AppBar height, variant, or gap values change.
    */
   private updateCssVariables(): void {
     if (!this.targetElement) return
 
     const state = this.drawerState.getValue()
     const appBarHeight = this.appBarHeight.getValue()
+    const appBarVariant = this.appBarVariant.getValue()
     const topGap = this.topGap.getValue()
     const sideGap = this.sideGap.getValue()
 
@@ -278,8 +294,11 @@ export class LayoutService implements Disposable {
     this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
     this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
 
-    // Content padding top (appBarHeight + topGap)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, `calc(${appBarHeight} + ${topGap})`)
+    // Content padding top:
+    // - For 'permanent' appbar: appBarHeight + topGap (content pushed below appbar)
+    // - For 'auto-hide' appbar: just topGap (appbar overlays content when visible)
+    const contentPaddingTop = appBarVariant === 'auto-hide' ? topGap : `calc(${appBarHeight} + ${topGap})`
+    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, contentPaddingTop)
 
     // Legacy content margin top (deprecated, kept for backward compatibility)
     this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
@@ -305,7 +324,7 @@ export class LayoutService implements Disposable {
 
   /**
    * Sets up subscriptions to automatically update CSS variables
-   * when drawer state, AppBar height, or gap values change.
+   * when drawer state, AppBar height, variant, or gap values change.
    */
   private setupCssVariableSync(): void {
     this.drawerStateSubscription = this.drawerState.subscribe(() => {
@@ -313,6 +332,10 @@ export class LayoutService implements Disposable {
     })
 
     this.appBarHeightSubscription = this.appBarHeight.subscribe(() => {
+      this.updateCssVariables()
+    })
+
+    this.appBarVariantSubscription = this.appBarVariant.subscribe(() => {
       this.updateCssVariables()
     })
 
@@ -337,6 +360,9 @@ export class LayoutService implements Disposable {
     this.appBarHeightSubscription?.[Symbol.dispose]()
     this.appBarHeightSubscription = null
 
+    this.appBarVariantSubscription?.[Symbol.dispose]()
+    this.appBarVariantSubscription = null
+
     this.topGapSubscription?.[Symbol.dispose]()
     this.topGapSubscription = null
 
@@ -346,6 +372,7 @@ export class LayoutService implements Disposable {
     // Dispose observables
     this.drawerState[Symbol.dispose]()
     this.appBarVisible[Symbol.dispose]()
+    this.appBarVariant[Symbol.dispose]()
     this.appBarHeight[Symbol.dispose]()
     this.topGap[Symbol.dispose]()
     this.sideGap[Symbol.dispose]()

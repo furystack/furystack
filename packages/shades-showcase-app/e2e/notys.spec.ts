@@ -1,9 +1,8 @@
+import { sleepAsync } from '@furystack/utils'
 import { expect, test } from '@playwright/test'
 
 test.describe('Notys', () => {
   test('Should be able to open and close notys in order', async ({ page }) => {
-    const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
     await page.goto('/notys')
     const infoButton = page.locator('button:has-text("Info")')
     await infoButton.click()

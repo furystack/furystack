@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { LayoutService, PageLayout } from '@furystack/shades-common-components'
+import { Button, LayoutService, PageLayout } from '@furystack/shades-common-components'
 
 const ShowHideAppBarButton = Shade({
   shadowDomName: 'show-hide-appbar-button',
@@ -50,6 +50,14 @@ export const AutoHideAppBarTest = Shade({
                 fontWeight: 'bold',
               }}
             >
+              <Button
+                style={{ fontSize: '14px', padding: '0px', position: 'fixed', right: '2px', top: '2px' }}
+                variant="contained"
+                title="Show AppBar"
+                data-testid="show-appbar-button"
+              >
+                🔻
+              </Button>
               Auto-Hide AppBar (Deep Purple) - Hover to show
             </div>
           ),

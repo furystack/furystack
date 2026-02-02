@@ -202,10 +202,16 @@ export const PageLayout = Shade<PageLayoutProps>({
 
     const screenService = injector.getInstance(ScreenService)
 
-    // Initialize AppBar height
+    // Initialize AppBar
     const appBarHeight = props.appBar?.height ?? DEFAULT_APPBAR_HEIGHT
     if (props.appBar) {
       layoutService.appBarHeight.setValue(appBarHeight)
+      layoutService.appBarVariant.setValue(props.appBar.variant)
+
+      // For auto-hide variant, start with appbar hidden
+      if (props.appBar.variant === 'auto-hide') {
+        layoutService.appBarVisible.setValue(false)
+      }
     } else {
       layoutService.appBarHeight.setValue('0px')
     }

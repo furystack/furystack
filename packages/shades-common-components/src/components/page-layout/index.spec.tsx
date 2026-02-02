@@ -213,7 +213,7 @@ describe('PageLayout component', () => {
       })
     })
 
-    it('should add appbar-visible class to host when appBarVisible is true', async () => {
+    it('should not have appbar-visible class initially for auto-hide variant (starts hidden)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -233,9 +233,9 @@ describe('PageLayout component', () => {
         })
 
         await sleepAsync(50)
-        // Initially visible (appBarVisible defaults to true)
+        // Auto-hide appbars should start hidden (no appbar-visible class)
         const pageLayout = document.querySelector('shade-page-layout')
-        expect(pageLayout?.classList.contains('appbar-visible')).toBe(true)
+        expect(pageLayout?.classList.contains('appbar-visible')).toBe(false)
       })
     })
   })
@@ -782,10 +782,16 @@ describe('PageLayout component', () => {
         const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
         const layoutService = pageLayout.injector.getInstance(LayoutService)
 
-        // Initially visible
+        // Initially hidden for auto-hide variant
+        expect(pageLayout.classList.contains('appbar-visible')).toBe(false)
+
+        // Show via LayoutService
+        layoutService.appBarVisible.setValue(true)
+        await sleepAsync(50)
+
         expect(pageLayout.classList.contains('appbar-visible')).toBe(true)
 
-        // Hide via LayoutService
+        // Hide again via LayoutService
         layoutService.appBarVisible.setValue(false)
         await sleepAsync(50)
 
