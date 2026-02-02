@@ -44,6 +44,7 @@ export const ResponsiveLayoutTest = Shade({
             variant: 'collapsible',
             width: '240px',
             defaultOpen: true,
+            collapseOnBreakpoint: 'md',
             component: (
               <div
                 data-testid="test-drawer-left"

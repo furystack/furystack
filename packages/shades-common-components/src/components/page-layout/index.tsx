@@ -1,4 +1,5 @@
-import { Shade, createComponent } from '@furystack/shades'
+import { ScreenService, Shade, createComponent, type ScreenSize } from '@furystack/shades'
+import type { ValueObserver } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { LayoutService } from '../../services/layout-service.js'
 
@@ -26,6 +27,8 @@ export type DrawerConfig = {
   component: JSX.Element
   /** Initial open state for collapsible drawers. Default: true */
   defaultOpen?: boolean
+  /** Auto-collapse the drawer below this breakpoint (uses ScreenService) */
+  collapseOnBreakpoint?: ScreenSize
 }
 
 /**
@@ -56,6 +59,7 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  * - Optional left/right drawers (permanent, collapsible, or temporary)
  * - Main content area with automatic margin management
  * - Configurable gaps between AppBar/drawers and content
+ * - Responsive drawer collapse via `collapseOnBreakpoint`
  *
  * @example
  * ```tsx
@@ -68,6 +72,7 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  *     left: {
  *       variant: 'collapsible',
  *       component: <Sidebar />,
+ *       collapseOnBreakpoint: 'md', // Auto-collapse below 900px
  *     },
  *   }}
  *   topGap="16px"
@@ -117,7 +122,6 @@ export const PageLayout = Shade<PageLayoutProps>({
       bottom: '0',
       zIndex: '1000',
       overflow: 'hidden',
-      transition: 'width 0.3s ease-in-out, transform 0.3s ease-in-out',
       background: cssVariableTheme.background.paper,
     },
     '& .page-layout-drawer-left': {
@@ -129,8 +133,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       borderLeft: `1px solid ${cssVariableTheme.divider}`,
     },
     '& .page-layout-drawer.closed': {
-      width: '0 !important',
-      overflow: 'hidden',
+      pointerEvents: 'none',
     },
 
     // Temporary drawer backdrop
@@ -155,16 +158,14 @@ export const PageLayout = Shade<PageLayoutProps>({
     '& .page-layout-content': {
       position: 'absolute',
       top: '0',
-      left: 'var(--layout-content-margin-left, 0px)',
-      right: 'var(--layout-content-margin-right, 0px)',
       bottom: '0',
       overflow: 'auto',
-      transition: 'left 0.3s ease-in-out, right 0.3s ease-in-out',
     },
   },
 
-  render: ({ props, children, injector, useObservable }) => {
+  render: ({ props, children, injector, useObservable, useDisposable }) => {
     const layoutService = injector.getInstance(LayoutService)
+    const screenService = injector.getInstance(ScreenService)
 
     // Initialize AppBar height
     const appBarHeight = props.appBar?.height ?? DEFAULT_APPBAR_HEIGHT
@@ -197,6 +198,51 @@ export const PageLayout = Shade<PageLayoutProps>({
       initializeDrawer('right', props.drawer.right)
     }
 
+    // Set up responsive breakpoint listeners for drawers
+    const setupBreakpointListener = (position: 'left' | 'right', config: DrawerConfig) => {
+      const { collapseOnBreakpoint, variant } = config
+
+      if (!collapseOnBreakpoint || variant === 'permanent') {
+        return { [Symbol.dispose]: () => {} }
+      }
+
+      const breakpointObservable = screenService.screenSize.atLeast[collapseOnBreakpoint]
+
+      const subscription: ValueObserver<boolean> = breakpointObservable.subscribe((isAtLeast) => {
+        const currentState = layoutService.drawerState.getValue()[position]
+        const currentlyOpen = currentState?.open ?? false
+
+        // When screen becomes smaller than breakpoint, close the drawer
+        // When screen becomes larger than breakpoint, open the drawer (for collapsible)
+        if (variant === 'collapsible') {
+          // Only update if the state needs to change
+          if (isAtLeast !== currentlyOpen) {
+            layoutService.setDrawerOpen(position, isAtLeast)
+          }
+        } else if (variant === 'temporary' && isAtLeast && currentlyOpen) {
+          // For temporary drawers, close when screen is large enough
+          layoutService.setDrawerOpen(position, false)
+        }
+      })
+
+      return subscription
+    }
+
+    // Set up breakpoint listeners for left and right drawers
+    useDisposable('breakpoint-listener-left', () => {
+      if (props.drawer?.left?.collapseOnBreakpoint) {
+        return setupBreakpointListener('left', props.drawer.left)
+      }
+      return { [Symbol.dispose]: () => {} }
+    })
+
+    useDisposable('breakpoint-listener-right', () => {
+      if (props.drawer?.right?.collapseOnBreakpoint) {
+        return setupBreakpointListener('right', props.drawer.right)
+      }
+      return { [Symbol.dispose]: () => {} }
+    })
+
     // Subscribe to drawer state
     const [drawerState] = useObservable('drawerState', layoutService.drawerState)
 
@@ -213,23 +259,27 @@ export const PageLayout = Shade<PageLayoutProps>({
     const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && drawerState.right?.open
     const showBackdrop = isLeftTemporaryOpen || isRightTemporaryOpen
 
-    // Calculate drawer widths for rendering
-    const getDrawerStyle = (position: 'left' | 'right', config: DrawerConfig): Partial<CSSStyleDeclaration> => {
+    // Get drawer width (animation is handled by CSS classes)
+    const getDrawerWidth = (config: DrawerConfig): string => {
+      return config.width ?? DEFAULT_DRAWER_WIDTH
+    }
+
+    // Calculate content margin based on drawer state
+    const getContentMargin = (position: 'left' | 'right'): string => {
+      const config = props.drawer?.[position]
+      if (!config) return '0px'
+
+      // Temporary drawers overlay content, don't push it
+      if (config.variant === 'temporary') return '0px'
+
       const state = drawerState[position]
       const width = config.width ?? DEFAULT_DRAWER_WIDTH
 
-      if (config.variant === 'temporary') {
-        // Temporary drawers overlay content, use transform for animation
-        return {
-          width,
-          transform: state?.open ? 'translateX(0)' : position === 'left' ? 'translateX(-100%)' : 'translateX(100%)',
-        }
-      }
+      // Permanent drawers always push content
+      if (config.variant === 'permanent') return width
 
-      // Permanent and collapsible drawers push content
-      return {
-        width: state?.open ? width : '0',
-      }
+      // Collapsible drawers push content only when open
+      return state?.open ? width : '0px'
     }
 
     // Build AppBar class list
@@ -241,8 +291,72 @@ export const PageLayout = Shade<PageLayoutProps>({
       }
     }
 
+    // Get drawer widths for animation keyframes
+    const leftDrawerWidth = props.drawer?.left?.width ?? DEFAULT_DRAWER_WIDTH
+    const rightDrawerWidth = props.drawer?.right?.width ?? DEFAULT_DRAWER_WIDTH
+    const leftDrawerOpen = drawerState.left?.open ?? false
+    const rightDrawerOpen = drawerState.right?.open ?? false
+    const leftDrawerVariant = props.drawer?.left?.variant
+    const rightDrawerVariant = props.drawer?.right?.variant
+
+    // Calculate content margins for animation (temporary drawers don't affect content)
+    const shouldAnimateLeft = leftDrawerVariant === 'collapsible'
+    const shouldAnimateRight = rightDrawerVariant === 'collapsible'
+
+    const targetLeftMargin = getContentMargin('left')
+    const targetRightMargin = getContentMargin('right')
+    // Previous margin is the opposite state (for animation from → to)
+    const prevLeftMargin = shouldAnimateLeft ? (leftDrawerOpen ? '0px' : leftDrawerWidth) : targetLeftMargin
+    const prevRightMargin = shouldAnimateRight ? (rightDrawerOpen ? '0px' : rightDrawerWidth) : targetRightMargin
+
+    // Keyframe CSS for animations (Shades recreates elements on re-render, so transitions don't work)
+    const keyframeStyles = `
+      @keyframes slideInFromLeft {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(0); }
+      }
+      @keyframes slideOutToLeft {
+        from { transform: translateX(0); }
+        to { transform: translateX(-100%); }
+      }
+      @keyframes slideInFromRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+      }
+      @keyframes slideOutToRight {
+        from { transform: translateX(0); }
+        to { transform: translateX(100%); }
+      }
+      @keyframes contentExpandLeft {
+        from { left: ${prevLeftMargin}; }
+        to { left: ${targetLeftMargin}; }
+      }
+      @keyframes contentExpandRight {
+        from { right: ${prevRightMargin}; }
+        to { right: ${targetRightMargin}; }
+      }
+      .page-layout-drawer-left.open {
+        animation: slideInFromLeft 0.3s ease-in-out forwards;
+      }
+      .page-layout-drawer-left.closed {
+        animation: slideOutToLeft 0.3s ease-in-out forwards;
+      }
+      .page-layout-drawer-right.open {
+        animation: slideInFromRight 0.3s ease-in-out forwards;
+      }
+      .page-layout-drawer-right.closed {
+        animation: slideOutToRight 0.3s ease-in-out forwards;
+      }
+      .page-layout-content {
+        animation: contentExpandLeft 0.3s ease-in-out forwards, contentExpandRight 0.3s ease-in-out forwards;
+      }
+    `
+
     return (
       <>
+        {/* Keyframe animations for drawer */}
+        <style>{keyframeStyles}</style>
+
         {/* AppBar */}
         {props.appBar && (
           <div className={appBarClasses.join(' ')} style={{ height: appBarHeight }} data-testid="page-layout-appbar">
@@ -263,8 +377,8 @@ export const PageLayout = Shade<PageLayoutProps>({
         {/* Left Drawer */}
         {props.drawer?.left && (
           <div
-            className={`page-layout-drawer page-layout-drawer-left ${!drawerState.left?.open ? 'closed' : ''}`}
-            style={getDrawerStyle('left', props.drawer.left)}
+            className={`page-layout-drawer page-layout-drawer-left ${drawerState.left?.open ? 'open' : 'closed'}`}
+            style={{ width: getDrawerWidth(props.drawer.left) }}
             data-testid="page-layout-drawer-left"
           >
             {props.drawer.left.component}
@@ -274,8 +388,8 @@ export const PageLayout = Shade<PageLayoutProps>({
         {/* Right Drawer */}
         {props.drawer?.right && (
           <div
-            className={`page-layout-drawer page-layout-drawer-right ${!drawerState.right?.open ? 'closed' : ''}`}
-            style={getDrawerStyle('right', props.drawer.right)}
+            className={`page-layout-drawer page-layout-drawer-right ${drawerState.right?.open ? 'open' : 'closed'}`}
+            style={{ width: getDrawerWidth(props.drawer.right) }}
             data-testid="page-layout-drawer-right"
           >
             {props.drawer.right.component}
@@ -293,6 +407,8 @@ export const PageLayout = Shade<PageLayoutProps>({
                 : '0px',
             paddingLeft: props.sideGap ?? '0px',
             paddingRight: props.sideGap ?? '0px',
+            left: getContentMargin('left'),
+            right: getContentMargin('right'),
           }}
           data-testid="page-layout-content"
         >
