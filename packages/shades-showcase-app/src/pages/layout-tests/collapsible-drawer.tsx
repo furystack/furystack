@@ -27,7 +27,7 @@ const ExpandCollapseButton = Shade({
  */
 export const CollapsibleDrawerTest = Shade({
   shadowDomName: 'layout-test-collapsible',
-  render: ({ injector }) => {
+  render: () => {
     return (
       <PageLayout
         appBar={{

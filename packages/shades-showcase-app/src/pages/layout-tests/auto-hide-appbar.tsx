@@ -31,7 +31,7 @@ const HideAppBarButton = Shade({
  */
 export const AutoHideAppBarTest = Shade({
   shadowDomName: 'layout-test-auto-hide',
-  render: ({ injector }) => {
+  render: () => {
     return (
       <PageLayout
         appBar={{
