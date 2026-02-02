@@ -94,22 +94,21 @@ describe('ScreenService', () => {
     })
 
     it('Should update orientation on resize', async () => {
+      // Mock matchMedia before creating the service
+      const matchMediaMock = vi.fn()
+      window.matchMedia = matchMediaMock
+
       await usingAsync(new Injector(), async (i) => {
+        // Set initial orientation to landscape
+        matchMediaMock.mockReturnValue({ matches: true } as MediaQueryList)
         const s = i.getInstance(ScreenService)
 
-        // Mock matchMedia to return landscape
-        vi.spyOn(window, 'matchMedia').mockReturnValue({
-          matches: true,
-        } as MediaQueryList)
-
+        // Verify initial landscape
         window.dispatchEvent(new Event('resize'))
         expect(s.orientation.getValue()).toBe('landscape')
 
-        // Mock matchMedia to return portrait
-        vi.spyOn(window, 'matchMedia').mockReturnValue({
-          matches: false,
-        } as MediaQueryList)
-
+        // Change to portrait
+        matchMediaMock.mockReturnValue({ matches: false } as MediaQueryList)
         window.dispatchEvent(new Event('resize'))
         expect(s.orientation.getValue()).toBe('portrait')
       })

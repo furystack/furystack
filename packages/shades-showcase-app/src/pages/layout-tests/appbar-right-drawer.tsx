@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageLayout } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar with right drawer
@@ -50,19 +50,18 @@ export const AppBarRightDrawerTest = Shade({
         },
       }}
     >
-      <div
+      <PageContainer
         data-testid="test-content"
         style={{
           background: '#ff9800',
-          height: `100%`,
-          boxSizing: 'border-box',
-          padding: '16px',
           color: 'white',
         }}
       >
-        <h2>Content Area (Orange)</h2>
-        <p>This test page shows a layout with AppBar, right drawer, and content area.</p>
-      </div>
+        <PageHeader title="▶️ AppBar + Right Drawer" />
+        <Paper>
+          <p>This test page shows a layout with AppBar, right drawer, and content area.</p>
+        </Paper>
+      </PageContainer>
     </PageLayout>
   ),
 })

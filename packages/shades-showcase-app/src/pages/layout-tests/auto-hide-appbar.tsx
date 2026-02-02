@@ -1,14 +1,21 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, LayoutService, PageLayout } from '@furystack/shades-common-components'
+import {
+  Button,
+  LayoutService,
+  PageContainer,
+  PageHeader,
+  PageLayout,
+  Paper,
+} from '@furystack/shades-common-components'
 
-const ShowHideAppBarButton = Shade({
-  shadowDomName: 'show-hide-appbar-button',
+const ShowAppBarButton = Shade({
+  shadowDomName: 'show-appbar-button',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
-      <button type="button" onclick={() => layoutService.appBarVisible.setValue(true)}>
-        Show AppBar
-      </button>
+      <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(true)}>
+        👁️ Show AppBar
+      </Button>
     )
   },
 })
@@ -18,9 +25,9 @@ const HideAppBarButton = Shade({
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
-      <button type="button" onclick={() => layoutService.appBarVisible.setValue(false)}>
-        Hide AppBar
-      </button>
+      <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(false)}>
+        🙈 Hide AppBar
+      </Button>
     )
   },
 })
@@ -63,25 +70,28 @@ export const AutoHideAppBarTest = Shade({
           ),
         }}
       >
-        <div
+        <PageContainer
           data-testid="test-content"
           style={{
             background: '#8bc34a',
-            height: `100%`,
-            boxSizing: 'border-box',
-            padding: '16px',
             color: 'white',
           }}
         >
-          <h2>Content Area (Light Green)</h2>
-          <p>This test page demonstrates the auto-hide AppBar behavior.</p>
-          <p>The AppBar is hidden by default and appears when you hover over the top of the page.</p>
-          <div style={{ marginTop: '24px' }}>
-            <h3>Controls:</h3>
-            <ShowHideAppBarButton />
-            <HideAppBarButton />
-          </div>
-        </div>
+          <PageHeader
+            title="🙈 Auto-Hide AppBar"
+            actions={
+              <>
+                <ShowAppBarButton />
+                <HideAppBarButton />
+              </>
+            }
+          />
+          <Paper>
+            <p>This test page demonstrates the auto-hide AppBar behavior.</p>
+            <p>The AppBar is hidden by default and appears when you hover over the top of the page.</p>
+            <p>Use the buttons in the header to show or hide the AppBar programmatically.</p>
+          </Paper>
+        </PageContainer>
       </PageLayout>
     )
   },

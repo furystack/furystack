@@ -1,14 +1,22 @@
 import { createComponent, ScreenService, Shade } from '@furystack/shades'
-import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
+import {
+  Button,
+  DrawerToggleButton,
+  LayoutService,
+  PageContainer,
+  PageHeader,
+  PageLayout,
+  Paper,
+} from '@furystack/shades-common-components'
 
 const ToggleDrawerButton = Shade({
-  shadowDomName: 'toggle-drawer-button',
+  shadowDomName: 'toggle-drawer-button-responsive',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
-      <button type="button" onclick={() => layoutService.toggleDrawer('left')}>
-        Toggle Drawer
-      </button>
+      <Button variant="outlined" onclick={() => layoutService.toggleDrawer('left')}>
+        📱 Toggle Drawer
+      </Button>
     )
   },
 })
@@ -82,40 +90,36 @@ export const ResponsiveLayoutTest = Shade({
           },
         }}
       >
-        <div
+        <PageContainer
           data-testid="test-content"
           style={{
             background: '#009688',
-            height: `100%`,
-            boxSizing: 'border-box',
-            padding: '16px',
             color: 'white',
           }}
         >
-          <h2>Responsive Layout Test (Teal)</h2>
-          <div style={{ marginTop: '16px' }}>
-            <h3>Current State:</h3>
-            <ul>
-              <li>
-                Screen size: <strong>{isAtLeastMd ? 'Medium or larger (≥900px)' : 'Small (<900px)'}</strong>
-              </li>
-              <li>
-                <DrawerState />
-              </li>
-            </ul>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <h3>Instructions:</h3>
-            <p>Resize the browser window to test responsive behavior:</p>
-            <ul>
-              <li>At ≥900px: The drawer can be toggled open/closed</li>
-              <li>At &lt;900px: The drawer collapses automatically</li>
-            </ul>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <ToggleDrawerButton />
-          </div>
-        </div>
+          <PageHeader title="📱 Responsive Layout" actions={<ToggleDrawerButton />} />
+          <Paper>
+            <div style={{ marginTop: '16px' }}>
+              <h3>Current State:</h3>
+              <ul>
+                <li>
+                  Screen size: <strong>{isAtLeastMd ? 'Medium or larger (≥900px)' : 'Small (<900px)'}</strong>
+                </li>
+                <li>
+                  <DrawerState />
+                </li>
+              </ul>
+            </div>
+            <div style={{ marginTop: '16px' }}>
+              <h3>Instructions:</h3>
+              <p>Resize the browser window to test responsive behavior:</p>
+              <ul>
+                <li>At ≥900px: The drawer can be toggled open/closed</li>
+                <li>At &lt;900px: The drawer collapses automatically</li>
+              </ul>
+            </div>
+          </Paper>
+        </PageContainer>
       </PageLayout>
     )
   },

@@ -61,7 +61,6 @@ export const PageHeader = Shade<PageHeaderProps>({
     marginBottom: '8px',
     position: 'sticky',
     top: '0',
-    zIndex: '1000',
 
     '& .page-header-container': {
       display: 'flex',

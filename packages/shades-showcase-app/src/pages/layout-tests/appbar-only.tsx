@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar only (no drawers)
@@ -42,13 +42,9 @@ export const AppBarOnlyTest = Shade({
         }}
       >
         <PageHeader
-          title="🐥 Content Area (Orange)"
-          actions={
-            <Button variant="contained" color="primary">
-              Action
-            </Button>
-          }
-        ></PageHeader>
+          title="📜 AppBar Only (Scroll Test)"
+          description="Testing scroll behavior with fullHeight={false}"
+        />
 
         <Paper>
           <p>This test page shows a layout with only an AppBar and content area.</p>

@@ -108,22 +108,22 @@ test.describe('PageLayout E2E Tests', () => {
       await expect(page).toHaveScreenshot('layout-collapsible-closed.png')
     })
 
-    test('drawer toggles using programmatic button', async ({ page }) => {
+    test('drawer toggles using header action button', async ({ page }) => {
       await page.goto('/layout-tests/collapsible-drawer')
 
       // Drawer should be open by default
       await expectDrawerOpen(page, 'left')
       await expect(page.getByTestId('test-drawer-left')).toBeVisible()
 
-      // Click the programmatic toggle button
-      const programmaticButton = page.getByRole('button', { name: 'Toggle Drawer Programmatically' })
-      await programmaticButton.click()
+      // Click the toggle button in the page header
+      const toggleButton = page.getByRole('button', { name: /Toggle Drawer/i })
+      await toggleButton.click()
 
       // Wait for drawer to close (auto-waits for attribute change)
       await expectDrawerClosed(page, 'left')
 
       // Toggle back open
-      await programmaticButton.click()
+      await toggleButton.click()
 
       // Wait for drawer to open (auto-waits for attribute change)
       await expectDrawerOpen(page, 'left')
@@ -158,16 +158,16 @@ test.describe('PageLayout E2E Tests', () => {
     test('AppBar shows when clicking Show button', async ({ page }) => {
       await page.goto('/layout-tests/auto-hide-appbar')
 
-      // Click the Show AppBar button
-      const showButton = page.getByRole('button', { name: 'Show AppBar' })
+      // Click the Show AppBar button in the page header
+      const showButton = page.getByRole('button', { name: /Show AppBar/i })
       await showButton.click()
 
       // AppBar should now be visible (host has appbar-visible class)
       await expect(getPageLayoutHost(page)).toHaveClass(/appbar-visible/)
       await expect(page.getByTestId('test-appbar')).toBeVisible()
 
-      // Click the Hide AppBar button
-      const hideButton = page.getByRole('button', { name: 'Hide AppBar' })
+      // Click the Hide AppBar button in the page header
+      const hideButton = page.getByRole('button', { name: /Hide AppBar/i })
       await hideButton.click()
 
       // AppBar should now be hidden (host does not have appbar-visible class)
@@ -247,8 +247,8 @@ test.describe('PageLayout E2E Tests', () => {
     test('left drawer opens with backdrop when clicking open button', async ({ page }) => {
       await page.goto('/layout-tests/temporary-drawer')
 
-      // Click open left drawer button
-      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+      // Click open left drawer button in the page header
+      await page.getByRole('button', { name: /Open Left/i }).click()
 
       // Drawer should open and backdrop should be visible
       await expectDrawerOpen(page, 'left')
@@ -262,8 +262,8 @@ test.describe('PageLayout E2E Tests', () => {
     test('right drawer opens with backdrop when clicking open button', async ({ page }) => {
       await page.goto('/layout-tests/temporary-drawer')
 
-      // Click open right drawer button
-      await page.getByRole('button', { name: 'Open Right Drawer' }).click()
+      // Click open right drawer button in the page header
+      await page.getByRole('button', { name: /Open Right/i }).click()
 
       // Drawer should open and backdrop should be visible
       await expectDrawerOpen(page, 'right')
@@ -278,7 +278,7 @@ test.describe('PageLayout E2E Tests', () => {
       await page.goto('/layout-tests/temporary-drawer')
 
       // Open left drawer
-      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+      await page.getByRole('button', { name: /Open Left/i }).click()
       await expectDrawerOpen(page, 'left')
       await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
 
@@ -294,7 +294,7 @@ test.describe('PageLayout E2E Tests', () => {
       await page.goto('/layout-tests/temporary-drawer')
 
       // Open left drawer first
-      await page.getByRole('button', { name: 'Open Left Drawer' }).click()
+      await page.getByRole('button', { name: /Open Left/i }).click()
       await expectDrawerOpen(page, 'left')
 
       // Click backdrop to close
@@ -302,7 +302,7 @@ test.describe('PageLayout E2E Tests', () => {
       await expectDrawerClosed(page, 'left')
 
       // Open right drawer
-      await page.getByRole('button', { name: 'Open Right Drawer' }).click()
+      await page.getByRole('button', { name: /Open Right/i }).click()
       await expectDrawerOpen(page, 'right')
 
       // Click backdrop to close

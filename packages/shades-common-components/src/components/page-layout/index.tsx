@@ -97,6 +97,10 @@ export const PageLayout = Shade<PageLayoutProps>({
     overflow: 'hidden',
     background: cssVariableTheme.background.default,
 
+    '& div[is="shade-paper"]': {
+      margin: '0',
+    },
+
     // AppBar container
     '& .page-layout-appbar': {
       position: 'fixed',

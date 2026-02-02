@@ -1,22 +1,22 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { DrawerToggleButton, LayoutService, PageLayout } from '@furystack/shades-common-components'
+import {
+  Button,
+  DrawerToggleButton,
+  LayoutService,
+  PageContainer,
+  PageHeader,
+  PageLayout,
+  Paper,
+} from '@furystack/shades-common-components'
 
-const ExpandCollapseButton = Shade({
-  shadowDomName: 'expand-collapse-button',
+const ToggleDrawerButton = Shade({
+  shadowDomName: 'toggle-drawer-button-collapsible',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
-      <button
-        type="button"
-        onclick={() => layoutService.toggleDrawer('left')}
-        style={{
-          marginTop: '16px',
-          padding: '8px 16px',
-          cursor: 'pointer',
-        }}
-      >
-        Toggle Drawer Programmatically
-      </button>
+      <Button variant="outlined" onclick={() => layoutService.toggleDrawer('left')}>
+        📐 Toggle Drawer
+      </Button>
     )
   },
 })
@@ -76,21 +76,19 @@ export const CollapsibleDrawerTest = Shade({
           },
         }}
       >
-        <div
+        <PageContainer
           data-testid="test-content"
           style={{
             background: '#ffeb3b',
-            height: `100%`,
-            boxSizing: 'border-box',
-            padding: '16px',
             color: '#333',
           }}
         >
-          <h2>Content Area (Yellow)</h2>
-          <p>This test page shows a layout with a collapsible drawer.</p>
-          <p>Use the toggle button in the AppBar or the button below to toggle the drawer:</p>
-          <ExpandCollapseButton />
-        </div>
+          <PageHeader title="📐 Collapsible Drawer" actions={<ToggleDrawerButton />} />
+          <Paper>
+            <p>This test page shows a layout with a collapsible drawer.</p>
+            <p>Use the hamburger icon in the AppBar or the button in the header to toggle the drawer.</p>
+          </Paper>
+        </PageContainer>
       </PageLayout>
     )
   },

@@ -1,21 +1,33 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { LayoutService, PageLayout } from '@furystack/shades-common-components'
+import {
+  Button,
+  LayoutService,
+  PageContainer,
+  PageHeader,
+  PageLayout,
+  Paper,
+} from '@furystack/shades-common-components'
 
-const OpenDrawerButton = Shade<{ position: 'left' | 'right' }>({
-  shadowDomName: 'open-drawer-button',
-  render: ({ props, injector }) => {
+const OpenLeftDrawerButton = Shade({
+  shadowDomName: 'open-left-drawer-button',
+  render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
-      <button
-        type="button"
-        onclick={() => layoutService.setDrawerOpen(props.position, true)}
-        style={{
-          padding: '8px 16px',
-          cursor: 'pointer',
-        }}
-      >
-        Open {props.position === 'left' ? 'Left' : 'Right'} Drawer
-      </button>
+      <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('left', true)}>
+        ◀️ Open Left
+      </Button>
+    )
+  },
+})
+
+const OpenRightDrawerButton = Shade({
+  shadowDomName: 'open-right-drawer-button',
+  render: ({ injector }) => {
+    const layoutService = injector.getInstance(LayoutService)
+    return (
+      <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('right', true)}>
+        ▶️ Open Right
+      </Button>
     )
   },
 })
@@ -94,25 +106,28 @@ export const TemporaryDrawerTest = Shade({
           },
         }}
       >
-        <div
+        <PageContainer
           data-testid="test-content"
           style={{
             background: '#cddc39',
-            height: `100%`,
-            boxSizing: 'border-box',
-            padding: '16px',
             color: '#333',
           }}
         >
-          <h2>Content Area (Lime)</h2>
-          <p>This test page shows a layout with temporary (overlay) drawers.</p>
-          <p>Temporary drawers appear over the content with a backdrop overlay.</p>
-          <p>Click the backdrop to close them.</p>
-          <div style={{ marginTop: '24px', display: 'flex', gap: '16px' }}>
-            <OpenDrawerButton position="left" />
-            <OpenDrawerButton position="right" />
-          </div>
-        </div>
+          <PageHeader
+            title="🚪 Temporary Drawers"
+            actions={
+              <>
+                <OpenLeftDrawerButton />
+                <OpenRightDrawerButton />
+              </>
+            }
+          />
+          <Paper>
+            <p>This test page shows a layout with temporary (overlay) drawers.</p>
+            <p>Temporary drawers appear over the content with a backdrop overlay.</p>
+            <p>Click the backdrop to close them, or use the buttons in the header to open them.</p>
+          </Paper>
+        </PageContainer>
       </PageLayout>
     )
   },
