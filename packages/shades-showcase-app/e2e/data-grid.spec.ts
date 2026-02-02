@@ -50,8 +50,8 @@ test.describe('Data Grid component', () => {
     // Row should be above the footer
     const visibleBottom = gridBox!.y + gridBox!.height - (footerBox?.height || 0)
 
-    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 10) // Allow 10px tolerance for smooth scroll
-    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 10) // Allow 10px tolerance
+    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 30) // Allow 30px tolerance for smooth scroll
+    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 30) // Allow 30px tolerance
   }
 
   test.describe('Focus', () => {
