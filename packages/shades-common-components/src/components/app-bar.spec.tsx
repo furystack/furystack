@@ -136,7 +136,7 @@ describe('AppBar component', () => {
     it('should have semi-transparent background', async () => {
       const { appBar } = await renderAppBar(<span>Content</span>)
       const computedStyle = window.getComputedStyle(appBar)
-      expect(computedStyle.background).toContain('rgba')
+      expect(computedStyle.background).toContain('color-mix')
     })
   })
 })
