@@ -10,7 +10,7 @@ export interface Tab {
 const TabHeader = Shade<{ hash: string }>({
   shadowDomName: 'shade-tab-header',
   css: {
-    padding: '1em 2.5em',
+    padding: '16px 40px',
     cursor: 'pointer',
     transition: 'box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, font-weight 0.3s ease',
     fontWeight: 'inherit',
@@ -53,7 +53,7 @@ export const Tabs = Shade<{
     flexDirection: 'column',
     '& .shade-tabs-header-container': {
       display: 'inline-flex',
-      borderRadius: '5px 5px 0 0',
+      borderRadius: '8px 8px 0 0',
       overflow: 'hidden',
       flexShrink: '0',
     },

@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button, Form, FormService, Input } from '@furystack/shades-common-components'
+import { Button, Form, FormService, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 type FormDataType = {
   email: string
@@ -28,69 +28,69 @@ const FormStatusMonitor = Shade({
 
 export const FormPage = Shade({
   shadowDomName: 'forms-page',
-  css: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-  },
   render: () => {
     return (
-      <>
-        <h1>Form</h1>
-        <div style={{ display: 'flex', gap: '32px' }}>
-          <Form<FormDataType>
-            onSubmit={(data) => {
-              alert(`Submitted: ${JSON.stringify(data, null, 2)}`)
-            }}
-            style={{
-              width: '300px',
-            }}
-            validate={(formData): formData is FormDataType => {
-              return !!(
-                typeof (formData as FormDataType).email === 'string' &&
-                typeof (formData as FormDataType).password === 'string' &&
-                typeof (formData as FormDataType).confirmPassword === 'string'
-              )
-            }}
-          >
-            <div id="fieldset">
-              <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
-              <Input labelTitle="Password" name="password" variant="outlined" required type="password" />
-              <Input
-                labelTitle="Confirm password"
-                name="confirmPassword"
-                variant="outlined"
-                required
-                type="password"
-                getValidationResult={({ state }) => {
-                  const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
-                  if (password !== state.value) {
-                    return { isValid: false, message: 'Passwords do not match' }
-                  }
+      <PageContainer maxWidth="800px" centered>
+        <PageHeader
+          icon="📋"
+          title="Form Handling"
+          description="The Form component wraps native HTML forms with type-safe data handling and validation. It integrates with FormService to provide observable form state, including raw form data, validated data, validation results, and field-level errors. Custom validation functions can be provided to implement complex cross-field validation logic like password confirmation matching."
+        />
+        <Paper elevation={3} style={{ padding: '32px' }}>
+          <div style={{ display: 'flex', gap: '32px' }}>
+            <Form<FormDataType>
+              onSubmit={(data) => {
+                alert(`Submitted: ${JSON.stringify(data, null, 2)}`)
+              }}
+              style={{
+                width: '300px',
+              }}
+              validate={(formData): formData is FormDataType => {
+                return !!(
+                  typeof (formData as FormDataType).email === 'string' &&
+                  typeof (formData as FormDataType).password === 'string' &&
+                  typeof (formData as FormDataType).confirmPassword === 'string'
+                )
+              }}
+            >
+              <div id="fieldset">
+                <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
+                <Input labelTitle="Password" name="password" variant="outlined" required type="password" />
+                <Input
+                  labelTitle="Confirm password"
+                  name="confirmPassword"
+                  variant="outlined"
+                  required
+                  type="password"
+                  getValidationResult={({ state }) => {
+                    const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
+                    if (password !== state.value) {
+                      return { isValid: false, message: 'Passwords do not match' }
+                    }
 
-                  return { isValid: true }
-                }}
-              />
-              <div style={{ display: 'flex' }}>
-                <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
-                  Reset
-                </Button>
-                <Button
-                  style={{ flexGrow: '1', justifyContent: 'center' }}
-                  type="submit"
-                  color="primary"
-                  variant="contained"
-                >
-                  Submit
-                </Button>
+                    return { isValid: true }
+                  }}
+                />
+                <div style={{ display: 'flex' }}>
+                  <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
+                    Reset
+                  </Button>
+                  <Button
+                    style={{ flexGrow: '1', justifyContent: 'center' }}
+                    type="submit"
+                    color="primary"
+                    variant="contained"
+                  >
+                    Submit
+                  </Button>
+                </div>
               </div>
-            </div>
-            <hr />
-            <FormStatusMonitor />
-          </Form>
-        </div>
-      </>
+              <hr />
+              <FormStatusMonitor />
+            </Form>
+          </div>
+        </Paper>
+      </PageContainer>
     )
   },
 })

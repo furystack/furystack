@@ -18,11 +18,28 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T) => T
 
   /**
-   * Creates a state object from an existing observable value
+   * Creates a state object from an existing observable value.
+   *
+   * **Important:** By default, this will trigger a full component re-render when the observable value changes.
+   * To prevent re-renders (e.g., for manual DOM updates or animations), provide a custom `onChange` callback.
+   *
    * @param key The key for caching the observable value
    * @param observable The observable value to observe
-   * @param options Optional options for the observer including onChange callback
+   * @param options Optional options for the observer
+   * @param options.onChange Custom callback when value changes. If not provided, the component will re-render on each change.
    * @returns tuple with the current value and a setter function
+   *
+   * @example
+   * // Default behavior: re-renders component on change
+   * const [count] = useObservable('count', countObservable)
+   *
+   * @example
+   * // Custom onChange: no re-render, manual DOM update
+   * const [count] = useObservable('count', countObservable, {
+   *   onChange: (newValue) => {
+   *     element.classList.toggle('active', newValue > 0)
+   *   }
+   * })
    */
   useObservable: <T>(
     key: string,

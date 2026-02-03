@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Avatar, CommandPalette, Fab, Input, Suggest } from '@furystack/shades-common-components'
+import {
+  Avatar,
+  CommandPalette,
+  Fab,
+  Input,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Suggest,
+} from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 type SuggestEntry = { title: string; description: string }
@@ -43,76 +52,73 @@ export const MiscPage = Shade({
   shadowDomName: 'shades-misc-page',
   render: () => {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          top: '32px',
-          left: '0',
-          width: 'calc(100% - 64px)',
-          height: '100%',
-          padding: '32px',
-        }}
-      >
-        <h1>Misc</h1>
-        <div>
-          <h2>Avatar</h2>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <Avatar title="Avatar" avatarUrl="avatar.jpg" />
-            <Avatar title="Broken Avatar without fallback" avatarUrl="broken.jpg" />
-            <Avatar title="Broken Avatar with fallback" avatarUrl="broken.jpg" fallback={<>👽</>} />
+      <PageContainer maxWidth="900px" centered>
+        <PageHeader
+          icon="🎨"
+          title="Miscellaneous Components"
+          description="A collection of utility components for common UI patterns. Avatar displays user images with fallback support for broken URLs. Fab (Floating Action Button) provides a prominent action button positioned at screen corners. Suggest offers typeahead search functionality, while CommandPalette provides a keyboard-driven command interface similar to VS Code's command palette."
+        />
+        <Paper elevation={3} style={{ padding: '32px' }}>
+          <div>
+            <h2>Avatar</h2>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <Avatar title="Avatar" avatarUrl="avatar.jpg" />
+              <Avatar title="Broken Avatar without fallback" avatarUrl="broken.jpg" />
+              <Avatar title="Broken Avatar with fallback" avatarUrl="broken.jpg" fallback={<>👽</>} />
+            </div>
           </div>
-        </div>
-        <hr />
-        <div>
-          <h2>FAB (Bottom Right) </h2>
-          <Fab>👍</Fab>
-        </div>
-        <div>
-          <h2>Suggest</h2>
-          <Suggest<SuggestEntry>
-            getEntries={async (term) => {
-              await sleepAsync(1000)
-              return entries.filter((e) => e.title.includes(term) || e.description.includes(term))
-            }}
-            getSuggestionEntry={(entry) => {
-              return {
-                element: <div>{entry.title}</div>,
-                score: 1,
-              }
-            }}
-            onSelectSuggestion={(entry) => {
-              console.log(entry)
-            }}
-            defaultPrefix=">"
-          />
-        </div>
-        <div>
-          <h2>Command Palette</h2>
-          <CommandPalette
-            defaultPrefix=">"
-            commandProviders={[
-              async ({ term }) => {
-                return entries
-                  .filter((e) => e.title.includes(term) || e.description.includes(term))
-                  .map((e) => ({
-                    element: (
-                      <div>
-                        {e.title} <br /> <hr /> {e.description}
-                      </div>
-                    ),
-                    score: 1,
-                    onSelected: () => {
-                      console.log(e)
-                    },
-                  }))
-              },
-            ]}
-          />
-        </div>
-        <hr />
-        <ExampleSearchChangeComponent />
-        <ExampleStoredStateChangeComponent />
-      </div>
+          <hr />
+          <div>
+            <h2>FAB (Bottom Right) </h2>
+            <Fab>👍</Fab>
+          </div>
+          <div>
+            <h2>Suggest</h2>
+            <Suggest<SuggestEntry>
+              getEntries={async (term) => {
+                await sleepAsync(1000)
+                return entries.filter((e) => e.title.includes(term) || e.description.includes(term))
+              }}
+              getSuggestionEntry={(entry) => {
+                return {
+                  element: <div>{entry.title}</div>,
+                  score: 1,
+                }
+              }}
+              onSelectSuggestion={(entry) => {
+                console.log(entry)
+              }}
+              defaultPrefix=">"
+            />
+          </div>
+          <div>
+            <h2>Command Palette</h2>
+            <CommandPalette
+              defaultPrefix=">"
+              commandProviders={[
+                async ({ term }) => {
+                  return entries
+                    .filter((e) => e.title.includes(term) || e.description.includes(term))
+                    .map((e) => ({
+                      element: (
+                        <div>
+                          {e.title} <br /> <hr /> {e.description}
+                        </div>
+                      ),
+                      score: 1,
+                      onSelected: () => {
+                        console.log(e)
+                      },
+                    }))
+                },
+              ]}
+            />
+          </div>
+          <hr />
+          <ExampleSearchChangeComponent />
+          <ExampleStoredStateChangeComponent />
+        </Paper>
+      </PageContainer>
     )
   },
 })

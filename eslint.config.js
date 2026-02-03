@@ -13,6 +13,7 @@ export default tseslint.config(
   },
   {
     ignores: [
+      'packages/**/coverage/*',
       'coverage',
       'packages/*/node_modules/*',
       'packages/*/esm/*',

@@ -142,9 +142,9 @@ describe('NotyComponent', () => {
 
       await sleepAsync(50)
 
-      const dismissButton = document.querySelector('button[is="shade-button"]')
+      const dismissButton = document.querySelector('.dismiss-button')
       expect(dismissButton).not.toBeNull()
-      expect(dismissButton?.textContent).toContain('✖')
+      expect(dismissButton?.textContent).toContain('✕')
     })
   })
 
@@ -184,7 +184,7 @@ describe('NotyComponent', () => {
 
       await sleepAsync(50)
 
-      const dismissButton = document.querySelector('button[is="shade-button"]') as HTMLButtonElement
+      const dismissButton = document.querySelector('.dismiss-button') as HTMLButtonElement
       expect(dismissButton).not.toBeNull()
       dismissButton.click()
 
@@ -220,7 +220,7 @@ describe('NotyComponent', () => {
     )
 
     expect(fadeInCall).toBeDefined()
-    expect((fadeInCall?.options as KeyframeAnimationOptions)?.duration).toBe(700)
+    expect((fadeInCall?.options as KeyframeAnimationOptions)?.duration).toBe(500)
     expect((fadeInCall?.options as KeyframeAnimationOptions)?.fill).toBe('forwards')
 
     vi.useRealTimers()

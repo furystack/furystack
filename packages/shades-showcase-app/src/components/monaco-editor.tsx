@@ -9,6 +9,7 @@ export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
   value?: string
   onchange?: (value: string) => void
+  style?: Partial<CSSStyleDeclaration>
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
@@ -37,11 +38,14 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
 
     return () => editorInstance.dispose()
   },
-  render: ({ element }) => {
+  render: ({ element, props }) => {
     element.style.display = 'block'
-    element.style.height = 'calc(100% - 96px)'
+    element.style.height = '100%'
     element.style.width = '100%'
     element.style.position = 'relative'
+    if (props.style) {
+      Object.assign(element.style, props.style)
+    }
     return null
   },
 })

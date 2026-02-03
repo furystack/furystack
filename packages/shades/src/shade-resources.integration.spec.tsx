@@ -78,4 +78,116 @@ describe('Shade Resources integration tests', () => {
 
     expect(renderCounter).toBeCalledTimes(3)
   })
+
+  it('Should NOT re-render the component when a custom onChange callback is provided', async () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const renderCounter = vi.fn()
+    const customOnChange = vi.fn()
+
+    const obs = new ObservableValue(0)
+
+    const ExampleComponent = Shade({
+      render: ({ useObservable }) => {
+        const [value] = useObservable('obs', obs, { onChange: customOnChange })
+
+        renderCounter()
+        return <div id="val">{value}</div>
+      },
+      shadowDomName: 'shades-example-custom-onchange',
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+
+    const element = document.querySelector('shades-example-custom-onchange') as JSX.Element
+
+    // Initial render
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+    expect(customOnChange).toBeCalledTimes(0) // Not called until value changes
+    expect(document.getElementById('val')?.textContent).toBe('0')
+
+    // Change the observable value
+    obs.setValue(1)
+
+    // Custom onChange should be called
+    expect(customOnChange).toBeCalledTimes(1)
+    expect(customOnChange).toHaveBeenLastCalledWith(1)
+
+    // But component should NOT re-render
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+
+    // DOM should still show old value since no re-render occurred
+    expect(document.getElementById('val')?.textContent).toBe('0')
+
+    // Change again to verify consistent behavior
+    obs.setValue(2)
+
+    expect(customOnChange).toBeCalledTimes(2)
+    expect(customOnChange).toHaveBeenLastCalledWith(2)
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+  })
+
+  it('Should allow manual DOM updates in custom onChange callback without re-render', async () => {
+    const injector = new Injector()
+    const rootElement = document.getElementById('root') as HTMLDivElement
+
+    const renderCounter = vi.fn()
+    const obs = new ObservableValue(0)
+
+    const ExampleComponent = Shade({
+      render: ({ useObservable, element }) => {
+        useObservable('obs', obs, {
+          onChange: (newValue) => {
+            // Manually update the DOM without triggering a re-render
+            const valueElement = element.querySelector('#manual-val')
+            if (valueElement) {
+              valueElement.textContent = String(newValue)
+            }
+          },
+        })
+
+        renderCounter()
+        return <div id="manual-val">{obs.getValue()}</div>
+      },
+      shadowDomName: 'shades-example-manual-dom-update',
+    })
+
+    initializeShadeRoot({
+      injector,
+      rootElement,
+      jsxElement: <ExampleComponent />,
+    })
+
+    const element = document.querySelector('shades-example-manual-dom-update') as JSX.Element
+
+    // Initial render
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+    expect(document.getElementById('manual-val')?.textContent).toBe('0')
+
+    // Change the observable value
+    obs.setValue(42)
+
+    // Component should NOT re-render
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+
+    // But DOM should be updated via the manual onChange callback
+    expect(document.getElementById('manual-val')?.textContent).toBe('42')
+
+    // Change again
+    obs.setValue(100)
+
+    expect(element.getRenderCount()).toBe(1)
+    expect(renderCounter).toBeCalledTimes(1)
+    expect(document.getElementById('manual-val')?.textContent).toBe('100')
+  })
 })

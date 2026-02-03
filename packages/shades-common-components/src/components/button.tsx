@@ -1,7 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { Palette } from '../services/theme-provider-service.js'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
+import type { Palette } from '../services/theme-provider-service.js'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   variant?: 'contained' | 'outlined'
@@ -78,7 +78,7 @@ export const Button = Shade<ButtonProps>({
     margin: '8px',
     padding: '8px 20px',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     textTransform: 'uppercase',
     fontSize: '14px',
     fontWeight: '500',
