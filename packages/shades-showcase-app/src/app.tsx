@@ -63,7 +63,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { ButtonsPage } = await import('./pages/buttons.js')
+                    const { ButtonsPage } = await import('./pages/components/form-controls/buttons.js')
                     await sleepAsync(1000)
                     return <ButtonsPage />
                   }}
@@ -83,7 +83,7 @@ const MainApp = Shade({
                   loader={<PageLoader />}
                   component={async () => {
                     await sleepAsync(1000)
-                    const { FormPage } = await import('./pages/form.js')
+                    const { FormPage } = await import('./pages/components/form-controls/form.js')
                     return <FormPage />
                   }}
                 />
@@ -101,7 +101,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { InputsPage } = await import('./pages/inputs.js')
+                    const { InputsPage } = await import('./pages/components/form-controls/inputs.js')
                     return <InputsPage />
                   }}
                 />
@@ -119,7 +119,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { GridPage } = await import('./pages/grid/index.js')
+                    const { GridPage } = await import('./pages/components/data-display/grid/index.js')
                     return <GridPage />
                   }}
                 />
@@ -137,7 +137,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { NipplePage } = await import('./pages/nipple.js')
+                    const { NipplePage } = await import('./pages/advanced/nipple.js')
                     return <NipplePage />
                   }}
                 />
@@ -155,7 +155,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { LottiePage } = await import('./pages/lottie.js')
+                    const { LottiePage } = await import('./pages/advanced/lottie.js')
                     return <LottiePage />
                   }}
                 />
@@ -173,7 +173,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { MonacoEditorPage } = await import('./pages/monaco.js')
+                    const { MonacoEditorPage } = await import('./pages/advanced/monaco.js')
                     return <MonacoEditorPage />
                   }}
                 />
@@ -191,7 +191,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { WizardPage } = await import('./pages/wizard/index.js')
+                    const { WizardPage } = await import('./pages/advanced/wizard/index.js')
                     return <WizardPage />
                   }}
                 />
@@ -209,7 +209,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { NotysPage } = await import('./pages/notys.js')
+                    const { NotysPage } = await import('./pages/components/feedback/notys.js')
                     return <NotysPage />
                   }}
                 />
@@ -227,7 +227,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { TabsPage } = await import('./pages/tabs.js')
+                    const { TabsPage } = await import('./pages/components/data-display/tabs.js')
                     return <TabsPage />
                   }}
                 />
@@ -245,7 +245,7 @@ const MainApp = Shade({
                 <LazyLoad
                   loader={<PageLoader />}
                   component={async () => {
-                    const { I18NPage } = await import('./pages/i18n/i18n.tsx')
+                    const { I18NPage } = await import('./pages/advanced/i18n/i18n.tsx')
                     return <I18NPage />
                   }}
                 />
@@ -264,7 +264,7 @@ const MainApp = Shade({
                   <LazyLoad
                     loader={<PageLoader />}
                     component={async () => {
-                      const { MFEPage } = await import('./pages/mfe/mfe-page.js')
+                      const { MFEPage } = await import('./pages/advanced/mfe/mfe-page.js')
                       return <MFEPage />
                     }}
                   />
@@ -336,7 +336,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { AppBarOnlyTest } = await import('./pages/layout-tests/index.js')
+                  const { AppBarOnlyTest } = await import('./pages/layouts/variants/index.js')
                   return <AppBarOnlyTest />
                 }}
               />
@@ -348,7 +348,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { AppBarLeftDrawerTest } = await import('./pages/layout-tests/index.js')
+                  const { AppBarLeftDrawerTest } = await import('./pages/layouts/variants/index.js')
                   return <AppBarLeftDrawerTest />
                 }}
               />
@@ -360,7 +360,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { AppBarRightDrawerTest } = await import('./pages/layout-tests/index.js')
+                  const { AppBarRightDrawerTest } = await import('./pages/layouts/variants/index.js')
                   return <AppBarRightDrawerTest />
                 }}
               />
@@ -372,7 +372,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { AppBarBothDrawersTest } = await import('./pages/layout-tests/index.js')
+                  const { AppBarBothDrawersTest } = await import('./pages/layouts/variants/index.js')
                   return <AppBarBothDrawersTest />
                 }}
               />
@@ -384,7 +384,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { CollapsibleDrawerTest } = await import('./pages/layout-tests/index.js')
+                  const { CollapsibleDrawerTest } = await import('./pages/layouts/variants/index.js')
                   return <CollapsibleDrawerTest />
                 }}
               />
@@ -396,7 +396,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { AutoHideAppBarTest } = await import('./pages/layout-tests/index.js')
+                  const { AutoHideAppBarTest } = await import('./pages/layouts/variants/index.js')
                   return <AutoHideAppBarTest />
                 }}
               />
@@ -408,7 +408,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { ResponsiveLayoutTest } = await import('./pages/layout-tests/index.js')
+                  const { ResponsiveLayoutTest } = await import('./pages/layouts/variants/index.js')
                   return <ResponsiveLayoutTest />
                 }}
               />
@@ -420,7 +420,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { TemporaryDrawerTest } = await import('./pages/layout-tests/index.js')
+                  const { TemporaryDrawerTest } = await import('./pages/layouts/variants/index.js')
                   return <TemporaryDrawerTest />
                 }}
               />
@@ -432,7 +432,7 @@ export const App = Shade({
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
-                  const { LayoutTestsIndex } = await import('./pages/layout-tests/index.js')
+                  const { LayoutTestsIndex } = await import('./pages/layouts/variants/index.js')
                   return <LayoutTestsIndex />
                 }}
               />
