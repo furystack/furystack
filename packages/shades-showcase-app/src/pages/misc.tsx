@@ -2,14 +2,20 @@ import { createComponent, Shade } from '@furystack/shades'
 import {
   Avatar,
   CommandPalette,
+  ContextMenu,
+  ContextMenuManager,
   Fab,
   Input,
+  List,
+  ListService,
   PageContainer,
   PageHeader,
   Paper,
   Suggest,
+  Tree,
+  TreeService,
 } from '@furystack/shades-common-components'
-import { sleepAsync } from '@furystack/utils'
+import { ObservableValue, sleepAsync } from '@furystack/utils'
 
 type SuggestEntry = { title: string; description: string }
 const entries: SuggestEntry[] = [
@@ -44,6 +50,232 @@ const ExampleStoredStateChangeComponent = Shade({
         Stored state change ({renderCount})
         <Input placeholder="Search" value={searchValue} onTextChange={setSearchValue} />
       </p>
+    )
+  },
+})
+
+type ListEntry = { label: string; icon: string }
+const listEntries: ListEntry[] = [
+  { label: 'Documents', icon: '📄' },
+  { label: 'Pictures', icon: '🖼️' },
+  { label: 'Music', icon: '🎵' },
+  { label: 'Videos', icon: '🎬' },
+  { label: 'Downloads', icon: '📥' },
+]
+
+const ListShowcase = Shade({
+  shadowDomName: 'shades-list-showcase',
+  render: ({ useDisposable }) => {
+    const listService = useDisposable('listService', () => new ListService<ListEntry>({ searchField: 'label' }))
+    const multiSelectService = useDisposable(
+      'multiSelectService',
+      () => new ListService<ListEntry>({ searchField: 'label' }),
+    )
+    const selectionCount = useDisposable('selectionCount', () => new ObservableValue(0))
+
+    return (
+      <div>
+        <h2>List</h2>
+        <h3>Basic List</h3>
+        <p style={{ marginBottom: '8px', opacity: '0.7' }}>Click to focus, arrow keys to navigate, Enter to activate</p>
+        <div style={{ maxHeight: '250px', border: '1px solid rgba(128,128,128,0.3)', borderRadius: '6px' }}>
+          <List<ListEntry>
+            items={listEntries}
+            listService={listService}
+            renderIcon={(item) => <span>{item.icon}</span>}
+            renderItem={(item) => <span>{item.label}</span>}
+            onItemActivate={(item) => console.log('Activated:', item.label)}
+          />
+        </div>
+        <h3 style={{ marginTop: '24px' }}>Multi-select List</h3>
+        <p style={{ marginBottom: '8px', opacity: '0.7' }}>
+          Ctrl+Click for toggle, Shift+Click for range, Space to toggle, + to select all, - to deselect all
+        </p>
+        <div style={{ maxHeight: '250px', border: '1px solid rgba(128,128,128,0.3)', borderRadius: '6px' }}>
+          <List<ListEntry>
+            items={listEntries}
+            listService={multiSelectService}
+            renderIcon={(item) => <span>{item.icon}</span>}
+            renderItem={(item) => <span>{item.label}</span>}
+            onSelectionChange={(selected) => selectionCount.setValue(selected.length)}
+          />
+        </div>
+        <SelectionCountDisplay selectionCount={selectionCount} />
+      </div>
+    )
+  },
+})
+
+const SelectionCountDisplay = Shade<{ selectionCount: ObservableValue<number> }>({
+  shadowDomName: 'shades-selection-count-display',
+  render: ({ props, useObservable }) => {
+    const [count] = useObservable('count', props.selectionCount)
+    return <p style={{ marginTop: '8px', opacity: '0.7' }}>Selected: {count} item(s)</p>
+  },
+})
+
+type MenuAction = { action: string }
+
+const ContextMenuShowcase = Shade({
+  shadowDomName: 'shades-context-menu-showcase',
+  render: ({ useDisposable }) => {
+    const rightClickManager = useDisposable('rightClickManager', () => new ContextMenuManager<MenuAction>())
+    const buttonManager = useDisposable('buttonManager', () => new ContextMenuManager<MenuAction>())
+
+    return (
+      <div>
+        <h2>Context Menu</h2>
+        <h3>Right-click triggered</h3>
+        <div
+          style={{
+            padding: '32px',
+            border: '2px dashed rgba(128,128,128,0.3)',
+            borderRadius: '8px',
+            textAlign: 'center',
+            cursor: 'context-menu',
+          }}
+          oncontextmenu={(ev: MouseEvent) => {
+            ev.preventDefault()
+            rightClickManager.open({
+              items: [
+                { type: 'item', data: { action: 'cut' }, label: 'Cut', icon: <span>✂️</span> },
+                { type: 'item', data: { action: 'copy' }, label: 'Copy', icon: <span>📋</span> },
+                { type: 'item', data: { action: 'paste' }, label: 'Paste', icon: <span>📌</span> },
+                { type: 'separator' },
+                {
+                  type: 'item',
+                  data: { action: 'delete' },
+                  label: 'Delete',
+                  icon: <span>🗑️</span>,
+                  description: 'Remove permanently',
+                },
+              ],
+              position: { x: ev.clientX, y: ev.clientY },
+            })
+          }}
+        >
+          Right-click here to open context menu
+        </div>
+        <ContextMenu<MenuAction>
+          manager={rightClickManager}
+          onItemSelect={(item) => console.log('Selected:', item.action)}
+        />
+
+        <h3 style={{ marginTop: '24px' }}>Button triggered</h3>
+        <button
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: '1px solid rgba(128,128,128,0.3)',
+            background: 'transparent',
+            color: 'inherit',
+            cursor: 'pointer',
+          }}
+          onclick={(ev: MouseEvent) => {
+            const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect()
+            buttonManager.open({
+              items: [
+                {
+                  type: 'item',
+                  data: { action: 'new-file' },
+                  label: 'New File',
+                  icon: <span>📄</span>,
+                  description: 'Create an empty file',
+                },
+                {
+                  type: 'item',
+                  data: { action: 'new-folder' },
+                  label: 'New Folder',
+                  icon: <span>📁</span>,
+                  description: 'Create an empty folder',
+                },
+                { type: 'separator' },
+                {
+                  type: 'item',
+                  data: { action: 'import' },
+                  label: 'Import...',
+                  icon: <span>📦</span>,
+                  description: 'Import from external source',
+                },
+                { type: 'item', data: { action: 'disabled' }, label: 'Disabled action', disabled: true },
+              ],
+              position: { x: rect.left, y: rect.bottom + 4 },
+            })
+          }}
+        >
+          Open menu
+        </button>
+        <ContextMenu<MenuAction>
+          manager={buttonManager}
+          onItemSelect={(item) => console.log('Selected:', item.action)}
+        />
+      </div>
+    )
+  },
+})
+
+type FileNode = { name: string; icon: string; children?: FileNode[] }
+const fileTree: FileNode[] = [
+  {
+    name: 'src',
+    icon: '📁',
+    children: [
+      {
+        name: 'components',
+        icon: '📁',
+        children: [
+          { name: 'list.tsx', icon: '📄' },
+          { name: 'tree.tsx', icon: '📄' },
+          { name: 'context-menu.tsx', icon: '📄' },
+        ],
+      },
+      {
+        name: 'services',
+        icon: '📁',
+        children: [
+          { name: 'list-service.ts', icon: '📄' },
+          { name: 'tree-service.ts', icon: '📄' },
+        ],
+      },
+      { name: 'index.ts', icon: '📄' },
+    ],
+  },
+  { name: 'package.json', icon: '📦' },
+  { name: 'tsconfig.json', icon: '⚙️' },
+  { name: 'README.md', icon: '📝' },
+]
+
+const TreeShowcase = Shade({
+  shadowDomName: 'shades-tree-showcase',
+  render: ({ useDisposable }) => {
+    const treeService = useDisposable(
+      'treeService',
+      () =>
+        new TreeService<FileNode>({
+          getChildren: (item) => item.children ?? [],
+          searchField: 'name',
+        }),
+    )
+
+    return (
+      <div>
+        <h2>Tree</h2>
+        <h3>File system tree</h3>
+        <p style={{ marginBottom: '8px', opacity: '0.7' }}>
+          Arrow Right/Left to expand/collapse, Up/Down to navigate, Space to select
+        </p>
+        <div style={{ maxHeight: '300px', border: '1px solid rgba(128,128,128,0.3)', borderRadius: '6px' }}>
+          <Tree<FileNode>
+            rootItems={fileTree}
+            treeService={treeService}
+            renderIcon={(item, isExpanded) => (
+              <span>{item.children && item.children.length > 0 ? (isExpanded ? '📂' : '📁') : item.icon}</span>
+            )}
+            renderItem={(item) => <span>{item.name}</span>}
+            onItemActivate={(item) => console.log('Activated:', item.name)}
+          />
+        </div>
+      </div>
     )
   },
 })
@@ -117,6 +349,12 @@ export const MiscPage = Shade({
           <hr />
           <ExampleSearchChangeComponent />
           <ExampleStoredStateChangeComponent />
+          <hr />
+          <ListShowcase />
+          <hr />
+          <ContextMenuShowcase />
+          <hr />
+          <TreeShowcase />
         </Paper>
       </PageContainer>
     )
