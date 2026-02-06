@@ -18,7 +18,7 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
-## ⚠️ Breaking Changes
+## 💥 Breaking Changes
 
 - `AppBarLink` props changed from `RouteLinkProps` to `NestedRouteLinkProps` — `href` is now required and the rendered shadow DOM element changed from `route-link` to `nested-route-link`
 
