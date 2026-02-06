@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
 import type { ExtractRouteParams, NestedRoute } from '@furystack/shades'
-import { usingAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type { BreadcrumbItem, TypedBreadcrumbProps } from './breadcrumb.js'
 import { Breadcrumb, createBreadcrumb } from './breadcrumb.js'
@@ -35,7 +35,9 @@ describe('Breadcrumb', () => {
           ),
         })
 
-        const component = rootElement.querySelector('shade-breadcrumb')
+        await sleepAsync(50)
+
+        const component = rootElement.querySelector('nav[is="shade-breadcrumb"]')
         expect(component).toBeTruthy()
         expect(component?.textContent).toContain('Home')
         expect(component?.textContent).toContain('Users')
@@ -228,7 +230,9 @@ describe('Breadcrumb', () => {
           ),
         })
 
-        const breadcrumb = rootElement.querySelector('shade-breadcrumb')
+        await sleepAsync(50)
+
+        const breadcrumb = rootElement.querySelector('nav[is="shade-breadcrumb"]')
         expect(breadcrumb?.classList.contains('custom-breadcrumb')).toBe(true)
         expect((breadcrumb as HTMLElement)?.style.padding).toBe('16px')
       })
