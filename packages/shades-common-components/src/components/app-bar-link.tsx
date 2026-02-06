@@ -1,9 +1,11 @@
-import type { NestedRouteLinkProps } from '@furystack/shades'
+import type { ChildrenList, ExtractRoutePaths, NestedRoute, NestedRouteLinkProps } from '@furystack/shades'
 import { createComponent, LocationService, NestedRouteLink, Shade } from '@furystack/shades'
 import { match, type MatchOptions } from 'path-to-regexp'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
-export const AppBarLink = Shade<NestedRouteLinkProps & { routingOptions?: MatchOptions }>({
+export type AppBarLinkProps = NestedRouteLinkProps & { routingOptions?: MatchOptions }
+
+export const AppBarLink = Shade<AppBarLinkProps>({
   shadowDomName: 'shade-app-bar-link',
   css: {
     display: 'flex',
@@ -31,3 +33,10 @@ export const AppBarLink = Shade<NestedRouteLinkProps & { routingOptions?: MatchO
     return <NestedRouteLink {...props}>{children}</NestedRouteLink>
   },
 })
+
+export const createAppBarLink = <TRoutes extends Record<string, NestedRoute<unknown>>>() => {
+  return AppBarLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
+    props: AppBarLinkProps & { href: TPath },
+    children?: ChildrenList,
+  ) => JSX.Element
+}
