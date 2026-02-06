@@ -223,6 +223,32 @@ describe('Type utilities', () => {
       expectTypeOf<Props['href']>().toEqualTypeOf<'/users/:id'>()
       expectTypeOf<Props>().toExtend<{ params: { id: string } }>()
     })
+
+    it('Should require all params for multi-param paths', () => {
+      type Props = TypedNestedRouteLinkProps<'/users/:userId/posts/:postId'>
+      expectTypeOf<Props>().toExtend<{ params: { userId: string; postId: string } }>()
+    })
+  })
+
+  describe('NestedRouteLink param inference', () => {
+    it('Should infer params as optional when href has no parameters', () => {
+      expectTypeOf(NestedRouteLink).parameter(0).toHaveProperty('params')
+      expectTypeOf(NestedRouteLink<'/buttons'>)
+        .parameter(0)
+        .toExtend<{ params?: Record<string, string> }>()
+    })
+
+    it('Should infer params as required when href has a parameter', () => {
+      expectTypeOf(NestedRouteLink<'/users/:id'>)
+        .parameter(0)
+        .toExtend<{ params: { id: string } }>()
+    })
+
+    it('Should infer multiple params from href', () => {
+      expectTypeOf(NestedRouteLink<'/users/:userId/posts/:postId'>)
+        .parameter(0)
+        .toExtend<{ params: { userId: string; postId: string } }>()
+    })
   })
 
   describe('createNestedRouteLink', () => {
@@ -237,6 +263,36 @@ describe('Type utilities', () => {
 
       const AppLink = createNestedRouteLink<Routes>()
       expectTypeOf(AppLink).parameter(0).toHaveProperty('href')
+    })
+
+    it('Should require params for parameterized routes in the tree', () => {
+      type Routes = {
+        '/': TestRoute & {
+          children: {
+            '/users/:userId': TestRoute
+          }
+        }
+      }
+
+      const AppLink = createNestedRouteLink<Routes>()
+      expectTypeOf(AppLink<'/users/:userId'>)
+        .parameter(0)
+        .toExtend<{ params: { userId: string } }>()
+    })
+
+    it('Should require combined params from parent and child route segments', () => {
+      type Routes = {
+        '/users/:userId': TestRoute & {
+          children: {
+            '/posts/:postId': TestRoute
+          }
+        }
+      }
+
+      const AppLink = createNestedRouteLink<Routes>()
+      expectTypeOf(AppLink<'/users/:userId/posts/:postId'>)
+        .parameter(0)
+        .toExtend<{ params: { userId: string; postId: string } }>()
     })
   })
 })

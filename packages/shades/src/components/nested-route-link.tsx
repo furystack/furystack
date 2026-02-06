@@ -4,8 +4,8 @@ import type { PartialElement } from '../models/partial-element.js'
 import { LocationService } from '../services/location-service.js'
 import { attachProps, createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
-import type { NestedRoute } from './nested-router.js'
 import type { ExtractRouteParams, ExtractRoutePaths } from './nested-route-types.js'
+import type { NestedRoute } from './nested-router.js'
 
 /**
  * Props for the NestedRouteLink component.
@@ -17,13 +17,18 @@ export type NestedRouteLinkProps = {
 } & PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
 
 /**
- * A link component for NestedRouter that supports SPA navigation with
- * optional route parameter compilation.
- *
- * Intercepts click events to use `history.pushState` for client-side navigation,
- * and compiles parameterized routes (e.g. `/users/:id`) when `params` is provided.
+ * Props for a type-safe nested route link.
+ * When the path contains parameters (e.g. `:id`), the `params` prop becomes required.
+ * @typeParam TPath - A specific route path string
  */
-export const NestedRouteLink = Shade<NestedRouteLinkProps>({
+export type TypedNestedRouteLinkProps<TPath extends string> = {
+  href: TPath
+} & (string extends keyof ExtractRouteParams<TPath>
+  ? { params?: Record<string, string> }
+  : { params: ExtractRouteParams<TPath> }) &
+  PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
+
+const _NestedRouteLink = Shade<NestedRouteLinkProps>({
   shadowDomName: 'nested-route-link',
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
@@ -49,16 +54,22 @@ export const NestedRouteLink = Shade<NestedRouteLinkProps>({
 })
 
 /**
- * Props for a type-safe nested route link, constrained to valid route paths.
- * When the path contains parameters (e.g. `:id`), the `params` prop becomes required.
- * @typeParam TPath - A specific route path string
+ * A link component for NestedRouter that supports SPA navigation with
+ * type-safe route parameter compilation.
+ *
+ * Intercepts click events to use `history.pushState` for client-side navigation,
+ * and compiles parameterized routes (e.g. `/users/:id`) when `params` is provided.
+ *
+ * Route parameters are automatically inferred from the `href` pattern:
+ * - `href="/buttons"` — `params` is optional
+ * - `href="/users/:id"` — `params: { id: string }` is required
+ *
+ * For additional URL validation against a route tree, use {@link createNestedRouteLink}.
  */
-export type TypedNestedRouteLinkProps<TPath extends string> = {
-  href: TPath
-} & (string extends keyof ExtractRouteParams<TPath>
-  ? { params?: Record<string, string> }
-  : { params: ExtractRouteParams<TPath> }) &
-  PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
+export const NestedRouteLink = _NestedRouteLink as unknown as <TPath extends string = string>(
+  props: TypedNestedRouteLinkProps<TPath>,
+  children?: ChildrenList,
+) => JSX.Element
 
 /**
  * Creates a type-safe wrapper around NestedRouteLink constrained to a specific route tree.
@@ -83,7 +94,7 @@ export type TypedNestedRouteLinkProps<TPath extends string> = {
  * ```
  */
 export const createNestedRouteLink = <TRoutes extends Record<string, NestedRoute<unknown>>>() => {
-  return NestedRouteLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
+  return _NestedRouteLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
     props: TypedNestedRouteLinkProps<TPath>,
     children?: ChildrenList,
   ) => JSX.Element
