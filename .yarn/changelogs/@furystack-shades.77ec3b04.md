@@ -56,6 +56,40 @@ Key features:
 - `findDivergenceIndex()` for efficient diffing - sibling navigation only triggers leave/visit for the changed subtree
 - `notFound` fallback when no routes match
 
+### New `NestedRouteLink` and `createNestedRouteLink` components
+
+Added `NestedRouteLink` for SPA navigation with type-safe parameterized routes. It intercepts clicks to use `history.pushState` and compiles URL parameters (e.g. `/users/:id`) automatically.
+
+`createNestedRouteLink()` creates a narrowed version of `NestedRouteLink` constrained to a specific route tree, so TypeScript only accepts valid paths and requires `params` when the route has parameters.
+
+**Usage:**
+
+```typescript
+import { NestedRouteLink, createNestedRouteLink } from '@furystack/shades'
+
+// Basic usage — params are inferred from the href pattern
+<NestedRouteLink href="/users/:id" params={{ id: '123' }}>User</NestedRouteLink>
+
+// Type-safe usage — constrained to a route tree
+const AppLink = createNestedRouteLink<typeof appRoutes>()
+<AppLink href="/buttons">Buttons</AppLink>
+```
+
+### Route type utilities
+
+Added type-level utilities for working with nested route trees:
+
+- `ExtractRoutePaths<T>` - recursively extracts all valid full URL paths from a nested route tree
+- `ExtractRouteParams<T>` - extracts parameter names from a URL pattern into a typed record
+- `ConcatPaths<Parent, Child>` - concatenates parent and child paths handling the `/` root
+- `UrlTree<TPaths>` - validates URL constant objects against a set of valid paths
+
+## 🗑️ Deprecated
+
+- Deprecated `Router`, `Route`, `RouterProps`, and `RouterState` in favor of `NestedRouter` and its types
+- Deprecated `RouteLink` and `RouteLinkProps` in favor of `NestedRouteLink`
+- Deprecated `LinkToRoute` and `LinkToRouteProps` in favor of `NestedRouteLink`
+
 ## 🐛 Bug Fixes
 
 - Fixed `onLeave` lifecycle hooks not firing correctly when navigating between nested routes
@@ -63,4 +97,5 @@ Key features:
 ## 🧪 Tests
 
 - Added tests for `NestedRouter` covering route matching, nested layouts, lifecycle hooks, `notFound` fallback, and URL parameter extraction
+- Added tests for `NestedRouteLink` covering SPA navigation, parameterized route compilation, and `createNestedRouteLink` type constraints
 - Refactored existing `Router`, `LazyLoad`, `LinkToRoute`, `RouteLink`, and integration tests to use `usingAsync` for proper `Injector` disposal
