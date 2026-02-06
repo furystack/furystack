@@ -1,5 +1,5 @@
-import type { ChildrenList } from '@furystack/shades'
 import { Injector } from '@furystack/inject'
+import type { ChildrenList } from '@furystack/shades'
 import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

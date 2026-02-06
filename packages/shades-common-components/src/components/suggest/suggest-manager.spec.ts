@@ -1,8 +1,8 @@
 import { Injector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SuggestionResult } from './suggestion-result.js'
 import { SuggestManager } from './suggest-manager.js'
+import type { SuggestionResult } from './suggestion-result.js'
 
 type TestEntry = { id: number; name: string }
 

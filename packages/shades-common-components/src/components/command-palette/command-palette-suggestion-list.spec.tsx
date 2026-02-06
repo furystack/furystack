@@ -2,8 +2,8 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CommandPaletteSuggestionList } from './command-palette-suggestion-list.js'
 import { CommandPaletteManager } from './command-palette-manager.js'
+import { CommandPaletteSuggestionList } from './command-palette-suggestion-list.js'
 import type { CommandPaletteSuggestionResult } from './command-provider.js'
 
 describe('CommandPaletteSuggestionList', () => {
