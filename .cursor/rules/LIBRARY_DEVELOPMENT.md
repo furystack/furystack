@@ -403,6 +403,121 @@ export class Injector {
 }
 ````
 
+## Shades Component Styling
+
+### Use `css` Property for Component Styles
+
+When creating Shades components, prefer the `css` property over `style` for component-level styling:
+
+```typescript
+// ✅ Good - use css for component defaults and pseudo-selectors
+const Button = Shade({
+  shadowDomName: 'my-button',
+  css: {
+    padding: '12px 24px',
+    backgroundColor: 'blue',
+    cursor: 'pointer',
+    '&:hover': { backgroundColor: 'darkblue' },
+    '&:disabled': { opacity: '0.5', cursor: 'not-allowed' },
+  },
+  render: ({ props }) => <button>{props.children}</button>,
+})
+
+// ❌ Avoid - using useState for hover/active states
+const Button = Shade({
+  shadowDomName: 'my-button',
+  render: ({ useState }) => {
+    const [isHovered, setIsHovered] = useState('hover', false)
+    return (
+      <button
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ backgroundColor: isHovered ? 'darkblue' : 'blue' }}
+      >
+        Click me
+      </button>
+    )
+  },
+})
+```
+
+### When to Use `style` vs `css`
+
+| Use Case                  | `style` | `css` |
+| ------------------------- | ------- | ----- |
+| Hover/focus/active states | ❌      | ✅    |
+| Per-instance overrides    | ✅      | ❌    |
+| Nested element styling    | ❌      | ✅    |
+| Dynamic values from props | ✅      | ❌    |
+| Component defaults        | ⚠️      | ✅    |
+
+### Anti-pattern: useState for CSS States
+
+**Do not** use `useState` to track CSS states like hover, focus, or active. Use `css` pseudo-selectors instead:
+
+```typescript
+// ❌ Bad - unnecessary state for CSS-representable behavior
+const [isHovered, setIsHovered] = useState('hover', false)
+const [isFocused, setIsFocused] = useState('focus', false)
+
+// ✅ Good - CSS handles these states natively
+css: {
+  '&:hover': { /* hover styles */ },
+  '&:focus': { /* focus styles */ },
+  '&:active': { /* active styles */ },
+}
+```
+
+### Type-Safe Theme Variables with `cssVariableTheme`
+
+When using theme values in the `css` property, **always import and use `cssVariableTheme`** instead of raw CSS variable strings. This provides type safety and autocomplete:
+
+```typescript
+// ✅ Good - type-safe theme access
+import { cssVariableTheme } from '@furystack/shades-common-components'
+
+const MyComponent = Shade({
+  shadowDomName: 'my-component',
+  css: {
+    color: cssVariableTheme.text.primary, // Type-checked!
+    backgroundColor: cssVariableTheme.background.paper,
+    borderColor: cssVariableTheme.palette.primary.main,
+    // For template literals when combining with other values:
+    boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
+  },
+  render: () => {
+    /* ... */
+  },
+})
+
+// ❌ Avoid - raw strings with no type safety
+const BadComponent = Shade({
+  shadowDomName: 'bad-component',
+  css: {
+    color: 'var(--shades-theme-text-primary)', // No autocomplete, typos not caught
+    backgroundColor: 'var(--shades-theme-background-paper)',
+  },
+  render: () => {
+    /* ... */
+  },
+})
+```
+
+**Available theme properties:**
+
+| Path                                    | Description           |
+| --------------------------------------- | --------------------- |
+| `cssVariableTheme.text.primary`         | Primary text color    |
+| `cssVariableTheme.text.secondary`       | Secondary text color  |
+| `cssVariableTheme.text.disabled`        | Disabled text color   |
+| `cssVariableTheme.background.default`   | Default background    |
+| `cssVariableTheme.background.paper`     | Paper/card background |
+| `cssVariableTheme.palette.primary.main` | Primary accent color  |
+| `cssVariableTheme.palette.error.main`   | Error color           |
+| `cssVariableTheme.divider`              | Divider color         |
+
+The `cssVariableTheme` object is typed as `Theme` and contains all CSS variable strings, enabling full IDE autocomplete and compile-time type checking.
+
 ## Export Patterns
 
 ### Index Exports
