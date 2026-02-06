@@ -72,6 +72,11 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)
 
+    const previousItems: Set<unknown> =
+      (element as unknown as { __previousTreeItems?: Set<unknown> }).__previousTreeItems ?? new Set()
+    const currentItems = new Set<unknown>(flattenedNodes.map((n) => n.item))
+    ;(element as unknown as { __previousTreeItems: Set<unknown> }).__previousTreeItems = currentItems
+
     return (
       <div
         role="tree"
@@ -84,6 +89,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
             item={nodeInfo.item}
             treeService={props.treeService}
             nodeInfo={nodeInfo}
+            isNew={!previousItems.has(nodeInfo.item)}
             renderItem={props.renderItem}
             renderIcon={props.renderIcon}
             onActivate={props.onItemActivate}

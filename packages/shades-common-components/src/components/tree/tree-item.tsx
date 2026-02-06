@@ -8,6 +8,7 @@ export type TreeItemProps<T> = {
   item: T
   treeService: TreeService<T>
   nodeInfo: FlattenedTreeNode<T>
+  isNew: boolean
   renderItem: (item: T, state: TreeItemState) => JSX.Element
   renderIcon?: (item: T, isExpanded: boolean) => JSX.Element
   onActivate?: (item: T) => void
@@ -25,8 +26,13 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     userSelect: 'none',
     padding: '4px 8px',
     gap: '6px',
-    transition: 'background-color 0.15s ease, box-shadow 0.15s ease-in-out',
+    transition:
+      'opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease, box-shadow 0.15s ease-in-out',
     borderLeft: '3px solid transparent',
+    '&.animate-in': {
+      opacity: '0',
+      transform: 'translateY(-6px)',
+    },
     '&:not(.selected):hover': {
       backgroundColor: 'rgba(128, 128, 128, 0.08)',
     },
@@ -39,8 +45,13 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     },
   },
   render: ({ props, element, useObservable }) => {
-    const { item, treeService, nodeInfo, renderItem, renderIcon, onActivate } = props
+    const { item, treeService, nodeInfo, isNew, renderItem, renderIcon, onActivate } = props
     const { level, hasChildren, isExpanded } = nodeInfo
+
+    if (isNew) {
+      element.classList.add('animate-in')
+      requestAnimationFrame(() => element.classList.remove('animate-in'))
+    }
 
     element.setAttribute('role', 'treeitem')
     element.setAttribute('aria-level', (level + 1).toString())
@@ -126,7 +137,19 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
           }}
           onclick={hasChildren ? handleExpandClick : undefined}
         >
-          {hasChildren ? (isExpanded ? '▾' : '▸') : ''}
+          {hasChildren ? (
+            <span
+              style={{
+                display: 'inline-block',
+                transition: 'transform 0.2s ease',
+                transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              ▸
+            </span>
+          ) : (
+            ''
+          )}
         </span>
         {renderIcon && <span className="tree-item-icon">{renderIcon(item, isExpanded)}</span>}
         <span className="tree-item-content" style={{ flex: '1' }}>
