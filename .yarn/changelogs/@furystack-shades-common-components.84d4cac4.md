@@ -1,4 +1,5 @@
 <!-- version-type: minor -->
+
 # @furystack/shades-common-components
 
 <!--
@@ -18,6 +19,7 @@ appear before simple list items within each section.
 -->
 
 ## 🗑️ Deprecated
+
 <!-- PLACEHOLDER: Describe deprecated features. Double-check if they are annotated with a `@deprecated` jsdoc tag. -->
 
 ## ✨ Features
@@ -72,6 +74,7 @@ const AppBreadcrumb = createBreadcrumb<typeof appRoutes>()
 **Route Parameters:**
 
 Route parameters are automatically inferred from the path pattern:
+
 - `path="/buttons"` — `params` is optional
 - `path="/users/:id"` — `params: { id: string }` is required
 
@@ -81,15 +84,19 @@ Route parameters are automatically inferred from the path pattern:
 - Added `createAppBarLink<TRoutes>()` helper for type-safe app bar links constrained to specific route trees
 
 ## 🐛 Bug Fixes
+
 <!-- PLACEHOLDER: Describe the nasty little bugs that has been eradicated (fix:) -->
 
 ## 📚 Documentation
+
 <!-- PLACEHOLDER: Describe documentation changes (docs:) -->
 
 ## ⚡ Performance
+
 <!-- PLACEHOLDER: Describe performance improvements (perf:) -->
 
 ## ♻️ Refactoring
+
 <!-- PLACEHOLDER: Describe code refactoring (refactor:) -->
 
 ## 🧪 Tests
@@ -97,13 +104,17 @@ Route parameters are automatically inferred from the path pattern:
 - Added full test coverage for `Breadcrumb` component including runtime behavior tests and type safety validation
 
 ## 📦 Build
+
 <!-- PLACEHOLDER: Describe build system changes (build:) -->
 
 ## 👷 CI
+
 <!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
 
 ## ⬆️ Dependencies
+
 <!-- PLACEHOLDER: Describe dependency updates (deps:) -->
 
 ## 🔧 Chores
+
 <!-- PLACEHOLDER: Describe other changes (chore:) -->
