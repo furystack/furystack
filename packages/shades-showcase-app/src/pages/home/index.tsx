@@ -2,6 +2,8 @@ import type { Route } from '@furystack/shades'
 import { createComponent, LinkToRoute, RouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
+import { showcaseUrls } from '../../routes.js'
+
 const CustomHeader = styledElement('h1', {
   color: 'black',
 })
@@ -69,7 +71,7 @@ export const HomePage = Shade({
               Go to wizard
             </CustomLinkToRoute>
             &nbsp;
-            <CustomRouteLink href="/">RouteLink</CustomRouteLink>
+            <CustomRouteLink href={showcaseUrls.home}>RouteLink</CustomRouteLink>
           </div>
         </Paper>
       </PageContainer>

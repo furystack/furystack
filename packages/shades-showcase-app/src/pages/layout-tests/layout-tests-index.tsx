@@ -1,6 +1,8 @@
 import { createComponent, RouteLink, Shade } from '@furystack/shades'
 import { AppBar, cssVariableTheme, PageLayout } from '@furystack/shades-common-components'
 
+import { showcaseUrls } from '../../routes.js'
+
 /**
  * Index page for layout tests - lists all available test pages
  */
@@ -9,49 +11,49 @@ export const LayoutTestsIndex = Shade({
   render: () => {
     const testPages = [
       {
-        url: '/layout-tests/appbar-only',
+        url: showcaseUrls.layoutTests.appBarOnly,
         title: 'AppBar Only',
         description: 'Layout with only an AppBar and content area',
         color: '#e91e63',
       },
       {
-        url: '/layout-tests/appbar-left-drawer',
+        url: showcaseUrls.layoutTests.appBarLeftDrawer,
         title: 'AppBar + Left Drawer',
         description: 'Layout with AppBar and a permanent left drawer',
         color: '#2196f3',
       },
       {
-        url: '/layout-tests/appbar-right-drawer',
+        url: showcaseUrls.layoutTests.appBarRightDrawer,
         title: 'AppBar + Right Drawer',
         description: 'Layout with AppBar and a permanent right drawer',
         color: '#4caf50',
       },
       {
-        url: '/layout-tests/appbar-both-drawers',
+        url: showcaseUrls.layoutTests.appBarBothDrawers,
         title: 'AppBar + Both Drawers',
         description: 'Layout with AppBar and both left and right permanent drawers',
         color: '#ff9800',
       },
       {
-        url: '/layout-tests/collapsible-drawer',
+        url: showcaseUrls.layoutTests.collapsibleDrawer,
         title: 'Collapsible Drawer',
         description: 'Layout with a collapsible drawer that can be toggled open/closed',
         color: '#9c27b0',
       },
       {
-        url: '/layout-tests/auto-hide-appbar',
+        url: showcaseUrls.layoutTests.autoHideAppBar,
         title: 'Auto-Hide AppBar',
         description: 'Layout with an AppBar that hides when not hovered',
         color: '#673ab7',
       },
       {
-        url: '/layout-tests/responsive-layout',
+        url: showcaseUrls.layoutTests.responsiveLayout,
         title: 'Responsive Layout',
         description: 'Layout with a drawer that responds to screen size changes',
         color: '#607d8b',
       },
       {
-        url: '/layout-tests/temporary-drawer',
+        url: showcaseUrls.layoutTests.temporaryDrawer,
         title: 'Temporary Drawer',
         description: 'Layout with temporary (overlay) drawers that appear over content with a backdrop',
         color: '#009688',
@@ -65,7 +67,7 @@ export const LayoutTestsIndex = Shade({
           component: (
             <AppBar>
               <RouteLink
-                href="/"
+                href={showcaseUrls.home}
                 style={{
                   color: cssVariableTheme.text.primary,
                   textDecoration: 'none',

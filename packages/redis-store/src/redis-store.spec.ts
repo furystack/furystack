@@ -59,7 +59,7 @@ describe('Redis Store', () => {
 
   it('Should throw on search', async () => {
     await usingAsync(await setupRedisStore(), async ({ store }) => {
-      await expect(store.find()).rejects.toThrow()
+      await expect(store.find({})).rejects.toThrow()
     })
   })
 })
