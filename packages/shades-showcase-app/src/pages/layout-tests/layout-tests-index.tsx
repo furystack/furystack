@@ -1,7 +1,5 @@
-import { createComponent, RouteLink, Shade } from '@furystack/shades'
+import { createComponent, NestedRouteLink, Shade } from '@furystack/shades'
 import { AppBar, cssVariableTheme, PageLayout } from '@furystack/shades-common-components'
-
-import { showcaseUrls } from '../../routes.js'
 
 /**
  * Index page for layout tests - lists all available test pages
@@ -11,49 +9,49 @@ export const LayoutTestsIndex = Shade({
   render: () => {
     const testPages = [
       {
-        url: showcaseUrls.layoutTests.appBarOnly,
+        url: '/layout-tests/appbar-only',
         title: 'AppBar Only',
         description: 'Layout with only an AppBar and content area',
         color: '#e91e63',
       },
       {
-        url: showcaseUrls.layoutTests.appBarLeftDrawer,
+        url: '/layout-tests/appbar-left-drawer',
         title: 'AppBar + Left Drawer',
         description: 'Layout with AppBar and a permanent left drawer',
         color: '#2196f3',
       },
       {
-        url: showcaseUrls.layoutTests.appBarRightDrawer,
+        url: '/layout-tests/appbar-right-drawer',
         title: 'AppBar + Right Drawer',
         description: 'Layout with AppBar and a permanent right drawer',
         color: '#4caf50',
       },
       {
-        url: showcaseUrls.layoutTests.appBarBothDrawers,
+        url: '/layout-tests/appbar-both-drawers',
         title: 'AppBar + Both Drawers',
         description: 'Layout with AppBar and both left and right permanent drawers',
         color: '#ff9800',
       },
       {
-        url: showcaseUrls.layoutTests.collapsibleDrawer,
+        url: '/layout-tests/collapsible-drawer',
         title: 'Collapsible Drawer',
         description: 'Layout with a collapsible drawer that can be toggled open/closed',
         color: '#9c27b0',
       },
       {
-        url: showcaseUrls.layoutTests.autoHideAppBar,
+        url: '/layout-tests/auto-hide-appbar',
         title: 'Auto-Hide AppBar',
         description: 'Layout with an AppBar that hides when not hovered',
         color: '#673ab7',
       },
       {
-        url: showcaseUrls.layoutTests.responsiveLayout,
+        url: '/layout-tests/responsive-layout',
         title: 'Responsive Layout',
         description: 'Layout with a drawer that responds to screen size changes',
         color: '#607d8b',
       },
       {
-        url: showcaseUrls.layoutTests.temporaryDrawer,
+        url: '/layout-tests/temporary-drawer',
         title: 'Temporary Drawer',
         description: 'Layout with temporary (overlay) drawers that appear over content with a backdrop',
         color: '#009688',
@@ -66,8 +64,8 @@ export const LayoutTestsIndex = Shade({
           variant: 'permanent',
           component: (
             <AppBar>
-              <RouteLink
-                href={showcaseUrls.home}
+              <NestedRouteLink
+                href="/"
                 style={{
                   color: cssVariableTheme.text.primary,
                   textDecoration: 'none',
@@ -79,7 +77,7 @@ export const LayoutTestsIndex = Shade({
               >
                 <span style={{ fontSize: '20px' }}>←</span>
                 <span>Back to Showcase App</span>
-              </RouteLink>
+              </NestedRouteLink>
               <h3 style={{ margin: '0', flex: '1' }}>Layout Test Pages</h3>
             </AppBar>
           ),
@@ -94,7 +92,7 @@ export const LayoutTestsIndex = Shade({
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {testPages.map((page) => (
-              <RouteLink
+              <NestedRouteLink
                 href={page.url}
                 style={{
                   display: 'flex',
@@ -121,7 +119,7 @@ export const LayoutTestsIndex = Shade({
                   <div style={{ color: cssVariableTheme.text.primary, fontWeight: 'bold' }}>{page.title}</div>
                   <div style={{ color: cssVariableTheme.text.secondary, fontSize: '14px' }}>{page.description}</div>
                 </div>
-              </RouteLink>
+              </NestedRouteLink>
             ))}
           </div>
         </div>

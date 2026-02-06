@@ -1,42 +1,10 @@
 import type { NestedRoute } from '@furystack/shades'
 import { createComponent, LazyLoad } from '@furystack/shades'
-import { AppBar, AppBarLink, fadeIn, fadeOut, PageLayout } from '@furystack/shades-common-components'
+import { fadeIn, fadeOut } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 import { PageLoader } from './components/page-loader.js'
-import { ThemeSwitch } from './components/theme-switch.js'
-
-/**
- * Centralized URL constants for all showcase routes.
- * Use these instead of hardcoded URL strings in navigation links and route references.
- */
-export const showcaseUrls = {
-  home: '/',
-  buttons: '/buttons',
-  inputs: '/inputs',
-  form: '/form',
-  grid: '/grid',
-  nipple: '/nipple',
-  lottie: '/lottie',
-  monaco: '/monaco',
-  wizard: '/wizard',
-  notys: '/notys',
-  tabs: '/tabs',
-  i18n: '/i18n',
-  mfe: '/mfe',
-  misc: '/misc',
-  layoutTests: {
-    index: '/layout-tests',
-    appBarOnly: '/layout-tests/appbar-only',
-    appBarLeftDrawer: '/layout-tests/appbar-left-drawer',
-    appBarRightDrawer: '/layout-tests/appbar-right-drawer',
-    appBarBothDrawers: '/layout-tests/appbar-both-drawers',
-    collapsibleDrawer: '/layout-tests/collapsible-drawer',
-    autoHideAppBar: '/layout-tests/auto-hide-appbar',
-    responsiveLayout: '/layout-tests/responsive-layout',
-    temporaryDrawer: '/layout-tests/temporary-drawer',
-  },
-} as const
+import { ShowcaseLayout } from './components/showcase-layout.js'
 
 const withFadeTransition = {
   onVisit: async ({ element }: { element: JSX.Element }) => {
@@ -161,44 +129,7 @@ export const appRoutes = {
   },
   '/': {
     component: ({ outlet }) => (
-      <PageLayout
-        topGap="12px"
-        appBar={{
-          variant: 'permanent',
-          component: (
-            <AppBar>
-              <h3 style={{ margin: '0', paddingLeft: '16px' }}>Showcase App</h3>
-              <div
-                style={{
-                  display: 'flex',
-                  height: '32px',
-                  paddingLeft: '16px',
-                  gap: '4px',
-                  overflow: 'hidden',
-                  overflowX: 'auto',
-                }}
-              >
-                <AppBarLink href={showcaseUrls.home}>Home</AppBarLink>
-                <AppBarLink href={showcaseUrls.buttons}>Buttons</AppBarLink>
-                <AppBarLink href={showcaseUrls.inputs}>Inputs</AppBarLink>
-                <AppBarLink href={showcaseUrls.form}>Form</AppBarLink>
-                <AppBarLink href={showcaseUrls.grid}>Grid</AppBarLink>
-                <AppBarLink href={showcaseUrls.nipple}>Nipple</AppBarLink>
-                <AppBarLink href={showcaseUrls.lottie}>Lottie</AppBarLink>
-                <AppBarLink href={showcaseUrls.monaco}>Monaco</AppBarLink>
-                <AppBarLink href={showcaseUrls.wizard}>Wizard</AppBarLink>
-                <AppBarLink href={showcaseUrls.notys}>Notys</AppBarLink>
-                <AppBarLink href={showcaseUrls.tabs}>Tabs</AppBarLink>
-                <AppBarLink href={showcaseUrls.i18n}>I18N</AppBarLink>
-                <AppBarLink href={showcaseUrls.mfe}>MFE</AppBarLink>
-                <AppBarLink href={showcaseUrls.misc}>Misc</AppBarLink>
-                <AppBarLink href={showcaseUrls.layoutTests.index}>Layout Tests</AppBarLink>
-              </div>
-              <ThemeSwitch />
-            </AppBar>
-          ),
-        }}
-      >
+      <ShowcaseLayout>
         {outlet ?? (
           <LazyLoad
             loader={<PageLoader />}
@@ -208,7 +139,7 @@ export const appRoutes = {
             }}
           />
         )}
-      </PageLayout>
+      </ShowcaseLayout>
     ),
     children: {
       '/buttons': {

@@ -1,4 +1,6 @@
 import { createComponent, NestedRouter, Shade } from '@furystack/shades'
+
+import { NotFoundPage } from './components/not-found-page.js'
 import { appRoutes } from './routes.js'
 
 /**
@@ -9,16 +11,6 @@ import { appRoutes } from './routes.js'
 export const App = Shade({
   shadowDomName: 'shades-app',
   render: () => {
-    return (
-      <NestedRouter
-        routes={appRoutes}
-        notFound={
-          <div style={{ paddingTop: '50px', textAlign: 'center' }}>
-            <h1>404 🔍</h1>
-            <p>Have you seen this cat? 😸</p>
-          </div>
-        }
-      />
-    )
+    return <NestedRouter routes={appRoutes} notFound={<NotFoundPage />} />
   },
 })

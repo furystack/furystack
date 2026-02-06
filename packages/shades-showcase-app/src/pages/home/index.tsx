@@ -1,22 +1,13 @@
-import type { Route } from '@furystack/shades'
-import { createComponent, LinkToRoute, RouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
+import { createComponent, NestedRouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
-
-import { showcaseUrls } from '../../routes.js'
 
 const CustomHeader = styledElement('h1', {
   color: 'black',
 })
 
-const CustomRouteLink = styledShade(RouteLink, {
+const CustomNestedRouteLink = styledShade(NestedRouteLink, {
   color: 'blue',
 })
-
-const CustomLinkToRoute = styledShade(LinkToRoute, {
-  color: 'black',
-})
-
-const route = { url: '/wizard/:id' } as Route<{ id: number }>
 
 export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
@@ -67,11 +58,11 @@ export const HomePage = Shade({
           <hr />
           <CustomHeader style={{ color: 'white' }}>Custom styled elements:</CustomHeader>
           <div>
-            <CustomLinkToRoute route={route} params={{ id: 123 }}>
+            <CustomNestedRouteLink href="/wizard" style={{ color: 'black' }}>
               Go to wizard
-            </CustomLinkToRoute>
+            </CustomNestedRouteLink>
             &nbsp;
-            <CustomRouteLink href={showcaseUrls.home}>RouteLink</CustomRouteLink>
+            <CustomNestedRouteLink href="/">NestedRouteLink</CustomNestedRouteLink>
           </div>
         </Paper>
       </PageContainer>

@@ -32,7 +32,7 @@ describe('AppBarLink component', () => {
       })
     })
 
-    it('should render children through RouteLink', async () => {
+    it('should render children through NestedRouteLink', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -48,7 +48,7 @@ describe('AppBarLink component', () => {
       })
     })
 
-    it('should render RouteLink with correct href', async () => {
+    it('should render NestedRouteLink with correct href', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
