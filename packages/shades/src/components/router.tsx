@@ -7,6 +7,9 @@ import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
 
+/**
+ * @deprecated Use NestedRouter instead
+ */
 export interface Route<TMatchResult = unknown> {
   url: string
   component: (options: {
@@ -18,17 +21,27 @@ export interface Route<TMatchResult = unknown> {
   onLeave?: (options: RenderOptions<unknown>) => Promise<void>
 }
 
+/**
+ * @deprecated Use NestedRouterProps instead
+ */
 export interface RouterProps {
   style?: CSSStyleDeclaration
   routes: Array<Route<any>>
   notFound?: JSX.Element
 }
 
+/**
+ * @deprecated Use NestedRouterState instead
+ */
 export interface RouterState {
   activeRoute?: Route<unknown> | null
   activeRouteParams?: unknown
   jsx: JSX.Element
 }
+
+/**
+ * @deprecated Use NestedRouter instead
+ */
 export const Router = Shade<RouterProps>({
   shadowDomName: 'shade-router',
   render: (options) => {
