@@ -120,6 +120,28 @@ describe('Cache types', () => {
 })
 ```
 
+## Resource Disposal
+
+### Use `usingAsync()` for Injector Cleanup
+
+Always wrap `Injector` instances in `usingAsync()` to ensure proper disposal of singletons (e.g. `LocationService`, stores, caches) after the test completes. This prevents leaked global state (such as monkeypatched `history.pushState`) from affecting subsequent tests.
+
+```typescript
+import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
+
+it('should work with injected services', async () => {
+  await usingAsync(new Injector(), async (injector) => {
+    // The injector and all its singletons are automatically
+    // disposed when this callback returns or throws
+    const service = injector.getInstance(MyService)
+    expect(service.getData()).toBe('expected')
+  })
+})
+```
+
+**Why this matters:** `Injector` implements `AsyncDisposable`. Services like `LocationService` modify global state in their constructor (e.g. wrapping `history.pushState`). Without proper disposal, these modifications leak across tests causing hangs or flaky failures.
+
 ## Vitest Patterns
 
 ### Test Structure
