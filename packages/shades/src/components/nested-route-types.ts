@@ -6,9 +6,7 @@ import type { NestedRoute } from './nested-router.js'
  * @typeParam Parent - The parent route path
  * @typeParam Child - The child route path
  */
-export type ConcatPaths<Parent extends string, Child extends string> = Parent extends '/'
-  ? Child
-  : `${Parent}${Child}`
+export type ConcatPaths<Parent extends string, Child extends string> = Parent extends '/' ? Child : `${Parent}${Child}`
 
 /**
  * Recursively extracts all valid full URL paths from a nested route tree.
