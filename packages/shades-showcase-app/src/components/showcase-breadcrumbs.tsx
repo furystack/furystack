@@ -1,37 +1,36 @@
 import { createComponent, LocationService, Shade, type ExtractRoutePaths } from '@furystack/shades'
 import { createBreadcrumb, type BreadcrumbItem } from '@furystack/shades-common-components'
 import type { appRoutes } from '../routes.tsx'
+import { findNavItemByPath } from '../navigation.js'
 
 type AppRoutePath = ExtractRoutePaths<typeof appRoutes>
 
 const getBreadcrumbItems = (currentPath: string): Array<BreadcrumbItem<AppRoutePath>> => {
-  const routeLabels: Partial<Record<AppRoutePath, string>> = {
-    '/buttons': 'Buttons',
-    '/inputs': 'Inputs',
-    '/form': 'Form',
-    '/grid': 'Grid',
-    '/nipple': 'Nipple',
-    '/lottie': 'Lottie',
-    '/monaco': 'Monaco',
-    '/wizard': 'Wizard',
-    '/notys': 'Notys',
-    '/tabs': 'Tabs',
-    '/i18n': 'I18N',
-    '/mfe': 'MFE',
-    '/misc': 'Misc',
-  }
-
   if (currentPath === '/') return []
 
-  const label = routeLabels[currentPath as AppRoutePath]
-  if (label) {
-    return [{ path: currentPath as AppRoutePath, label }]
+  // Check navigation config first
+  const navItem = findNavItemByPath(currentPath)
+  if (navItem) {
+    const items: Array<BreadcrumbItem<AppRoutePath>> = [
+      {
+        path: `/${navItem.category.slug}` as AppRoutePath,
+        label: navItem.category.label,
+      },
+    ]
+    if ('page' in navItem) {
+      items.push({
+        path: `/${navItem.category.slug}/${navItem.page.slug}` as AppRoutePath,
+        label: navItem.page.label,
+      })
+    }
+    return items
   }
 
+  // Handle layout-tests (not in navigation config)
   if (currentPath.startsWith('/layout-tests')) {
     const items: Array<BreadcrumbItem<AppRoutePath>> = [{ path: '/layout-tests', label: 'Layout Tests' }]
 
-    const layoutTestLabels: Partial<Record<AppRoutePath, string>> = {
+    const layoutTestLabels: Partial<Record<string, string>> = {
       '/layout-tests/appbar-only': 'AppBar Only',
       '/layout-tests/appbar-left-drawer': 'AppBar + Left Drawer',
       '/layout-tests/appbar-right-drawer': 'AppBar + Right Drawer',
@@ -42,7 +41,7 @@ const getBreadcrumbItems = (currentPath: string): Array<BreadcrumbItem<AppRouteP
       '/layout-tests/temporary-drawer': 'Temporary Drawer',
     }
 
-    const subLabel = layoutTestLabels[currentPath as AppRoutePath]
+    const subLabel = layoutTestLabels[currentPath]
     if (subLabel) {
       items.push({ path: currentPath as AppRoutePath, label: subLabel })
     }
@@ -52,6 +51,7 @@ const getBreadcrumbItems = (currentPath: string): Array<BreadcrumbItem<AppRouteP
 
   return []
 }
+
 const ShowcaseBreadcrumbItem = createBreadcrumb<typeof appRoutes>()
 
 export const ShowcaseBreadcrumbComponent = Shade({

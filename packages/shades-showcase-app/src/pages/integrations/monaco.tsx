@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
-import { MonacoEditor } from '../components/monaco-editor.js'
+import { MonacoEditor } from '../../components/monaco-editor.js'
 
 export const MonacoEditorPage = Shade({
   shadowDomName: 'monaco-editor-page',

@@ -1,16 +1,17 @@
-import { createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
 import { AppBar, createAppBarLink } from '@furystack/shades-common-components'
 
 import type { appRoutes } from '../routes.tsx'
+import { navigationConfig } from '../navigation.js'
 import { ShowcaseBreadcrumbComponent } from './showcase-breadcrumbs.tsx'
 import { ThemeSwitch } from './theme-switch.js'
 
-// Create type-safe components constrained to the app routes
+type AppRoutePath = ExtractRoutePaths<typeof appRoutes>
 const ShowcaseAppBarLinks = createAppBarLink<typeof appRoutes>()
 
 /**
  * Main navigation AppBar for the showcase application.
- * Contains links to all top-level pages and the theme switcher.
+ * Contains category-level links driven by the navigation config and the theme switcher.
  */
 export const ShowcaseAppBar = Shade({
   shadowDomName: 'showcase-app-bar',
@@ -31,19 +32,14 @@ export const ShowcaseAppBar = Shade({
           }}
         >
           <ShowcaseAppBarLinks href="/">Home</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/buttons">Buttons</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/inputs">Inputs</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/form">Form</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/grid">Grid</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/nipple">Nipple</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/lottie">Lottie</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/monaco">Monaco</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/wizard">Wizard</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/notys">Notys</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/tabs">Tabs</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/i18n">I18N</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/mfe">MFE</ShowcaseAppBarLinks>
-          <ShowcaseAppBarLinks href="/misc">Misc</ShowcaseAppBarLinks>
+          {navigationConfig.map((category) => (
+            <ShowcaseAppBarLinks
+              href={`/${category.slug}/${category.children[0].slug}` as AppRoutePath}
+              routingOptions={{ end: false }}
+            >
+              {category.label}
+            </ShowcaseAppBarLinks>
+          ))}
           <ShowcaseAppBarLinks href="/layout-tests" routingOptions={{ end: false }}>
             Layout Tests
           </ShowcaseAppBarLinks>
