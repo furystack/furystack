@@ -197,33 +197,34 @@ describe('NotyComponent', () => {
   it('should start fade-in animation on mount', async () => {
     vi.useFakeTimers()
 
-    const injector = new Injector()
-    setupTheme(injector)
-    const rootElement = document.getElementById('root') as HTMLDivElement
-    const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
+    await usingAsync(new Injector(), async (injector) => {
+      setupTheme(injector)
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
+      })
+
+      // Wait for render
+      await vi.advanceTimersByTimeAsync(50)
+
+      // The constructed hook schedules the animation via setTimeout
+      await vi.advanceTimersByTimeAsync(10)
+
+      const fadeInCall = animateCalls.find(
+        (call) =>
+          Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'opacity' in kf && 'height' in kf),
+      )
+
+      expect(fadeInCall).toBeDefined()
+      expect((fadeInCall?.options as KeyframeAnimationOptions)?.duration).toBe(500)
+      expect((fadeInCall?.options as KeyframeAnimationOptions)?.fill).toBe('forwards')
+
+      vi.useRealTimers()
     })
-
-    // Wait for render
-    await vi.advanceTimersByTimeAsync(50)
-
-    // The constructed hook schedules the animation via setTimeout
-    await vi.advanceTimersByTimeAsync(10)
-
-    const fadeInCall = animateCalls.find(
-      (call) =>
-        Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'opacity' in kf && 'height' in kf),
-    )
-
-    expect(fadeInCall).toBeDefined()
-    expect((fadeInCall?.options as KeyframeAnimationOptions)?.duration).toBe(500)
-    expect((fadeInCall?.options as KeyframeAnimationOptions)?.fill).toBe('forwards')
-
-    vi.useRealTimers()
   })
 
   it('should auto-dismiss after timeout for success type', async () => {
@@ -250,27 +251,28 @@ describe('NotyComponent', () => {
       },
     ) as typeof Element.prototype.animate
 
-    const injector = new Injector()
-    setupTheme(injector)
-    const rootElement = document.getElementById('root') as HTMLDivElement
-    const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
+    await usingAsync(new Injector(), async (injector) => {
+      setupTheme(injector)
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      })
+
+      await vi.advanceTimersByTimeAsync(50)
+      expect(onDismiss).not.toHaveBeenCalled()
+
+      // Success timeout is 5000ms
+      await vi.advanceTimersByTimeAsync(5000)
+      await vi.advanceTimersByTimeAsync(50)
+
+      expect(onDismiss).toHaveBeenCalled()
+
+      vi.useRealTimers()
     })
-
-    await vi.advanceTimersByTimeAsync(50)
-    expect(onDismiss).not.toHaveBeenCalled()
-
-    // Success timeout is 5000ms
-    await vi.advanceTimersByTimeAsync(5000)
-    await vi.advanceTimersByTimeAsync(50)
-
-    expect(onDismiss).toHaveBeenCalled()
-
-    vi.useRealTimers()
   })
 
   it('should use custom timeout when provided', async () => {
@@ -297,50 +299,52 @@ describe('NotyComponent', () => {
       },
     ) as typeof Element.prototype.animate
 
-    const injector = new Injector()
-    setupTheme(injector)
-    const rootElement = document.getElementById('root') as HTMLDivElement
-    // Info default timeout is 20000, but we set custom 1000
-    const model: NotyModel = { type: 'info', title: 'Info', body: 'Info message', timeout: 1000 }
+    await usingAsync(new Injector(), async (injector) => {
+      setupTheme(injector)
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      // Info default timeout is 20000, but we set custom 1000
+      const model: NotyModel = { type: 'info', title: 'Info', body: 'Info message', timeout: 1000 }
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      })
+
+      await vi.advanceTimersByTimeAsync(50)
+      expect(onDismiss).not.toHaveBeenCalled()
+
+      await vi.advanceTimersByTimeAsync(1000)
+      await vi.advanceTimersByTimeAsync(50)
+
+      expect(onDismiss).toHaveBeenCalled()
+
+      vi.useRealTimers()
     })
-
-    await vi.advanceTimersByTimeAsync(50)
-    expect(onDismiss).not.toHaveBeenCalled()
-
-    await vi.advanceTimersByTimeAsync(1000)
-    await vi.advanceTimersByTimeAsync(50)
-
-    expect(onDismiss).toHaveBeenCalled()
-
-    vi.useRealTimers()
   })
 
   it('should not auto-dismiss for error type (timeout 0)', async () => {
     vi.useFakeTimers()
     const onDismiss = vi.fn()
 
-    const injector = new Injector()
-    setupTheme(injector)
-    const rootElement = document.getElementById('root') as HTMLDivElement
-    const model: NotyModel = { type: 'error', title: 'Error', body: 'Error message' }
+    await usingAsync(new Injector(), async (injector) => {
+      setupTheme(injector)
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const model: NotyModel = { type: 'error', title: 'Error', body: 'Error message' }
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
+      })
+
+      await vi.advanceTimersByTimeAsync(50)
+      await vi.advanceTimersByTimeAsync(30000)
+
+      expect(onDismiss).not.toHaveBeenCalled()
+
+      vi.useRealTimers()
     })
-
-    await vi.advanceTimersByTimeAsync(50)
-    await vi.advanceTimersByTimeAsync(30000)
-
-    expect(onDismiss).not.toHaveBeenCalled()
-
-    vi.useRealTimers()
   })
 
   it('should render all noty types with appropriate styling', async () => {

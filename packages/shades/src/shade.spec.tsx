@@ -54,45 +54,46 @@ describe('Shade edge cases', () => {
   describe('injector from props', () => {
     it('should use props injector for child component instead of inheriting from parent', async () => {
       await usingAsync(new Injector(), async (rootInjector) => {
-        const propsInjector = new Injector()
-        const rootElement = document.getElementById('root') as HTMLDivElement
+        await usingAsync(new Injector(), async (propsInjector) => {
+          const rootElement = document.getElementById('root') as HTMLDivElement
 
-        let parentCapturedInjector: Injector | undefined
-        let childCapturedInjector: Injector | undefined
+          let parentCapturedInjector: Injector | undefined
+          let childCapturedInjector: Injector | undefined
 
-        const ChildComponent = Shade<{ injector?: Injector }>({
-          shadowDomName: 'shade-injector-child-props-test',
-          render: ({ injector }) => {
-            childCapturedInjector = injector
-            return <div>Child</div>
-          },
+          const ChildComponent = Shade<{ injector?: Injector }>({
+            shadowDomName: 'shade-injector-child-props-test',
+            render: ({ injector }) => {
+              childCapturedInjector = injector
+              return <div>Child</div>
+            },
+          })
+
+          const ParentComponent = Shade({
+            shadowDomName: 'shade-injector-parent-props-test',
+            render: ({ injector, children }) => {
+              parentCapturedInjector = injector
+              return <div>{children}</div>
+            },
+          })
+
+          initializeShadeRoot({
+            injector: rootInjector,
+            rootElement,
+            jsxElement: (
+              <ParentComponent>
+                <ChildComponent injector={propsInjector} />
+              </ParentComponent>
+            ),
+          })
+
+          await sleepAsync(10)
+
+          // Parent should use root injector (inherited from parent)
+          expect(parentCapturedInjector).toBe(rootInjector)
+          // Child should use the props injector, not the parent's
+          expect(childCapturedInjector).toBe(propsInjector)
+          expect(childCapturedInjector).not.toBe(rootInjector)
         })
-
-        const ParentComponent = Shade({
-          shadowDomName: 'shade-injector-parent-props-test',
-          render: ({ injector, children }) => {
-            parentCapturedInjector = injector
-            return <div>{children}</div>
-          },
-        })
-
-        initializeShadeRoot({
-          injector: rootInjector,
-          rootElement,
-          jsxElement: (
-            <ParentComponent>
-              <ChildComponent injector={propsInjector} />
-            </ParentComponent>
-          ),
-        })
-
-        await sleepAsync(10)
-
-        // Parent should use root injector (inherited from parent)
-        expect(parentCapturedInjector).toBe(rootInjector)
-        // Child should use the props injector, not the parent's
-        expect(childCapturedInjector).toBe(propsInjector)
-        expect(childCapturedInjector).not.toBe(rootInjector)
       })
     })
   })

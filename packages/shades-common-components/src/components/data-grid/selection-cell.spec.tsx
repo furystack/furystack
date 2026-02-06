@@ -32,6 +32,7 @@ describe('SelectionCell', () => {
         root.querySelector('shades-data-grid-selection-cell')?.querySelector('input[type="checkbox"]') as
           | HTMLInputElement
           | undefined,
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
 
@@ -39,11 +40,11 @@ describe('SelectionCell', () => {
     it('should render a checkbox input', async () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
-        const { cell, getCheckbox } = await renderSelectionCell(entry, service)
-
-        expect(cell).toBeTruthy()
-        expect(getCheckbox()).toBeTruthy()
-        expect(getCheckbox()?.type).toBe('checkbox')
+        await usingAsync(await renderSelectionCell(entry, service), async ({ cell, getCheckbox }) => {
+          expect(cell).toBeTruthy()
+          expect(getCheckbox()).toBeTruthy()
+          expect(getCheckbox()?.type).toBe('checkbox')
+        })
       })
     })
   })
@@ -52,9 +53,9 @@ describe('SelectionCell', () => {
     it('should be unchecked when entry is not selected', async () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
-        const { getCheckbox } = await renderSelectionCell(entry, service)
-
-        expect(getCheckbox()?.checked).toBe(false)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(getCheckbox()?.checked).toBe(false)
+        })
       })
     })
 
@@ -62,28 +63,28 @@ describe('SelectionCell', () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
         service.selection.setValue([entry])
-        const { getCheckbox } = await renderSelectionCell(entry, service)
-
-        expect(getCheckbox()?.checked).toBe(true)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(getCheckbox()?.checked).toBe(true)
+        })
       })
     })
 
     it('should update checkbox when selection changes externally', async () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
-        const { getCheckbox } = await renderSelectionCell(entry, service)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(getCheckbox()?.checked).toBe(false)
 
-        expect(getCheckbox()?.checked).toBe(false)
+          service.selection.setValue([entry])
+          await sleepAsync(50)
 
-        service.selection.setValue([entry])
-        await sleepAsync(50)
+          expect(getCheckbox()?.checked).toBe(true)
 
-        expect(getCheckbox()?.checked).toBe(true)
+          service.selection.setValue([])
+          await sleepAsync(50)
 
-        service.selection.setValue([])
-        await sleepAsync(50)
-
-        expect(getCheckbox()?.checked).toBe(false)
+          expect(getCheckbox()?.checked).toBe(false)
+        })
       })
     })
 
@@ -92,9 +93,9 @@ describe('SelectionCell', () => {
         const entry = { id: 1, name: 'Test' }
         const otherEntry = { id: 2, name: 'Other' }
         service.selection.setValue([otherEntry])
-        const { getCheckbox } = await renderSelectionCell(entry, service)
-
-        expect(getCheckbox()?.checked).toBe(false)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(getCheckbox()?.checked).toBe(false)
+        })
       })
     })
   })
@@ -103,15 +104,15 @@ describe('SelectionCell', () => {
     it('should add entry to selection when checkbox is clicked and entry is not selected', async () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
-        const { getCheckbox } = await renderSelectionCell(entry, service)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(service.selection.getValue()).toEqual([])
 
-        expect(service.selection.getValue()).toEqual([])
+          const checkbox = getCheckbox()
+          checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
+          await sleepAsync(50)
 
-        const checkbox = getCheckbox()
-        checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-        await sleepAsync(50)
-
-        expect(service.selection.getValue()).toContain(entry)
+          expect(service.selection.getValue()).toContain(entry)
+        })
       })
     })
 
@@ -119,15 +120,15 @@ describe('SelectionCell', () => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const entry = { id: 1, name: 'Test' }
         service.selection.setValue([entry])
-        const { getCheckbox } = await renderSelectionCell(entry, service)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          expect(service.selection.getValue()).toContain(entry)
 
-        expect(service.selection.getValue()).toContain(entry)
+          const checkbox = getCheckbox()
+          checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
+          await sleepAsync(50)
 
-        const checkbox = getCheckbox()
-        checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-        await sleepAsync(50)
-
-        expect(service.selection.getValue()).not.toContain(entry)
+          expect(service.selection.getValue()).not.toContain(entry)
+        })
       })
     })
 
@@ -136,14 +137,14 @@ describe('SelectionCell', () => {
         const entry = { id: 1, name: 'Test' }
         const otherEntry = { id: 2, name: 'Other' }
         service.selection.setValue([otherEntry])
-        const { getCheckbox } = await renderSelectionCell(entry, service)
+        await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
+          const checkbox = getCheckbox()
+          checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
+          await sleepAsync(50)
 
-        const checkbox = getCheckbox()
-        checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-        await sleepAsync(50)
-
-        expect(service.selection.getValue()).toContain(entry)
-        expect(service.selection.getValue()).toContain(otherEntry)
+          expect(service.selection.getValue()).toContain(entry)
+          expect(service.selection.getValue()).toContain(otherEntry)
+        })
       })
     })
   })

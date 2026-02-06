@@ -200,19 +200,20 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
 
-        expect(getEntries).not.toHaveBeenCalled()
-        expect(manager.isLoading.getValue()).toBe(false)
+          expect(getEntries).not.toHaveBeenCalled()
+          expect(manager.isLoading.getValue()).toBe(false)
 
-        await vi.advanceTimersByTimeAsync(250)
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(getEntries).toHaveBeenCalledWith('test')
-        expect(manager.isOpened.getValue()).toBe(true)
-        expect(manager.currentSuggestions.getValue()).toHaveLength(3)
+          expect(getEntries).toHaveBeenCalledWith('test')
+          expect(manager.isOpened.getValue()).toBe(true)
+          expect(manager.currentSuggestions.getValue()).toHaveLength(3)
+        })
       })
     })
 
@@ -224,18 +225,19 @@ describe('SuggestManager', () => {
       })
       const getEntries = vi.fn().mockReturnValue(entriesPromise)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(manager.isLoading.getValue()).toBe(true)
+          expect(manager.isLoading.getValue()).toBe(true)
 
-        resolveEntries!(testEntries)
-        await vi.advanceTimersByTimeAsync(0)
+          resolveEntries!(testEntries)
+          await vi.advanceTimersByTimeAsync(0)
 
-        expect(manager.isLoading.getValue()).toBe(false)
+          expect(manager.isLoading.getValue()).toBe(false)
+        })
       })
     })
 
@@ -243,20 +245,21 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'a' })
-        await vi.advanceTimersByTimeAsync(100)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'a' })
+          await vi.advanceTimersByTimeAsync(100)
 
-        void manager.getSuggestion({ injector, term: 'ab' })
-        await vi.advanceTimersByTimeAsync(100)
+          void manager.getSuggestion({ injector, term: 'ab' })
+          await vi.advanceTimersByTimeAsync(100)
 
-        void manager.getSuggestion({ injector, term: 'abc' })
-        await vi.advanceTimersByTimeAsync(250)
+          void manager.getSuggestion({ injector, term: 'abc' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(getEntries).toHaveBeenCalledTimes(1)
-        expect(getEntries).toHaveBeenCalledWith('abc')
+          expect(getEntries).toHaveBeenCalledTimes(1)
+          expect(getEntries).toHaveBeenCalledWith('abc')
+        })
       })
     })
 
@@ -264,18 +267,19 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(getEntries).toHaveBeenCalledTimes(1)
+          expect(getEntries).toHaveBeenCalledTimes(1)
 
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(getEntries).toHaveBeenCalledTimes(1)
+          expect(getEntries).toHaveBeenCalledTimes(1)
+        })
       })
     })
 
@@ -283,20 +287,21 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(getSuggestionEntry).toHaveBeenCalledTimes(3)
-        expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[0])
-        expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[1])
-        expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[2])
+          expect(getSuggestionEntry).toHaveBeenCalledTimes(3)
+          expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[0])
+          expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[1])
+          expect(getSuggestionEntry).toHaveBeenCalledWith(testEntries[2])
 
-        const suggestions = manager.currentSuggestions.getValue()
-        expect(suggestions[0].entry).toBe(testEntries[0])
-        expect(suggestions[0].suggestion.score).toBe(1)
+          const suggestions = manager.currentSuggestions.getValue()
+          expect(suggestions[0].entry).toBe(testEntries[0])
+          expect(suggestions[0].suggestion.score).toBe(1)
+        })
       })
     })
 
@@ -304,22 +309,23 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        manager.selectedIndex.setValue(1)
+          manager.selectedIndex.setValue(1)
 
-        const newEntries = [testEntries[1], testEntries[2]]
-        getEntries.mockResolvedValue(newEntries)
-        getSuggestionEntry.mockImplementation(createSuggestionResult)
+          const newEntries = [testEntries[1], testEntries[2]]
+          getEntries.mockResolvedValue(newEntries)
+          getSuggestionEntry.mockImplementation(createSuggestionResult)
 
-        void manager.getSuggestion({ injector, term: 'test2' })
-        await vi.advanceTimersByTimeAsync(250)
+          void manager.getSuggestion({ injector, term: 'test2' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(manager.selectedIndex.getValue()).toBe(0)
+          expect(manager.selectedIndex.getValue()).toBe(0)
+        })
       })
     })
 
@@ -327,21 +333,22 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        manager.selectedIndex.setValue(2)
+          manager.selectedIndex.setValue(2)
 
-        const newEntries = [{ id: 4, name: 'delta' }]
-        getEntries.mockResolvedValue(newEntries)
+          const newEntries = [{ id: 4, name: 'delta' }]
+          getEntries.mockResolvedValue(newEntries)
 
-        void manager.getSuggestion({ injector, term: 'test2' })
-        await vi.advanceTimersByTimeAsync(250)
+          void manager.getSuggestion({ injector, term: 'test2' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(manager.selectedIndex.getValue()).toBe(0)
+          expect(manager.selectedIndex.getValue()).toBe(0)
+        })
       })
     })
   })
@@ -351,19 +358,20 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        const onSelect = vi.fn()
-        manager.subscribe('onSelectSuggestion', onSelect)
+          const onSelect = vi.fn()
+          manager.subscribe('onSelectSuggestion', onSelect)
 
-        manager.selectSuggestion(1)
+          manager.selectSuggestion(1)
 
-        expect(onSelect).toHaveBeenCalledWith(testEntries[1])
-        expect(manager.isOpened.getValue()).toBe(false)
+          expect(onSelect).toHaveBeenCalledWith(testEntries[1])
+          expect(manager.isOpened.getValue()).toBe(false)
+        })
       })
     })
 
@@ -371,20 +379,21 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        manager.selectedIndex.setValue(2)
+          manager.selectedIndex.setValue(2)
 
-        const onSelect = vi.fn()
-        manager.subscribe('onSelectSuggestion', onSelect)
+          const onSelect = vi.fn()
+          manager.subscribe('onSelectSuggestion', onSelect)
 
-        manager.selectSuggestion()
+          manager.selectSuggestion()
 
-        expect(onSelect).toHaveBeenCalledWith(testEntries[2])
+          expect(onSelect).toHaveBeenCalledWith(testEntries[2])
+        })
       })
     })
 
@@ -392,17 +401,18 @@ describe('SuggestManager', () => {
       const testEntries = createTestEntries()
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
-      const injector = new Injector()
 
-      await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
-        void manager.getSuggestion({ injector, term: 'test' })
-        await vi.advanceTimersByTimeAsync(250)
+      await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
+          void manager.getSuggestion({ injector, term: 'test' })
+          await vi.advanceTimersByTimeAsync(250)
 
-        expect(manager.isOpened.getValue()).toBe(true)
+          expect(manager.isOpened.getValue()).toBe(true)
 
-        manager.selectSuggestion(0)
+          manager.selectSuggestion(0)
 
-        expect(manager.isOpened.getValue()).toBe(false)
+          expect(manager.isOpened.getValue()).toBe(false)
+        })
       })
     })
   })

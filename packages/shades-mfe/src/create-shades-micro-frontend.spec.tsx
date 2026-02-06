@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, Shade } from '@furystack/shades'
-import { sleepAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateMicroFrontendService } from './create-microfrontend-service.js'
 import { createShadesMicroFrontend } from './create-shades-micro-frontend.js'
@@ -27,26 +27,27 @@ describe('createShadesMicroFrontend', () => {
     expect(result.destroy).toBeUndefined()
   })
 
-  it('should create a child injector when create is called', () => {
+  it('should create a child injector when create is called', async () => {
     const TestComponent = Shade<{ value: string }>({
       shadowDomName: 'test-mfe-child-injector',
       render: ({ props }) => <div>{props.value}</div>,
     })
 
-    const parentInjector = new Injector()
-    const createChildSpy = vi.spyOn(parentInjector, 'createChild')
+    await usingAsync(new Injector(), async (parentInjector) => {
+      const createChildSpy = vi.spyOn(parentInjector, 'createChild')
 
-    const mfeService = createShadesMicroFrontend(TestComponent)
-    const rootElement = document.getElementById('root') as HTMLDivElement
+      const mfeService = createShadesMicroFrontend(TestComponent)
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    mfeService.create({
-      api: { value: 'test' },
-      rootElement,
-      injector: parentInjector,
-    })
+      mfeService.create({
+        api: { value: 'test' },
+        rootElement,
+        injector: parentInjector,
+      })
 
-    expect(createChildSpy).toHaveBeenCalledWith({
-      owner: createShadesMicroFrontend,
+      expect(createChildSpy).toHaveBeenCalledWith({
+        owner: createShadesMicroFrontend,
+      })
     })
   })
 
@@ -58,19 +59,20 @@ describe('createShadesMicroFrontend', () => {
       render: ({ props }) => <div data-testid="content">Value: {props.value}</div>,
     })
 
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const mfeService = createShadesMicroFrontend(TestComponent)
-    mfeService.create({
-      api: { value: testValue },
-      rootElement,
-      injector,
+      const mfeService = createShadesMicroFrontend(TestComponent)
+      mfeService.create({
+        api: { value: testValue },
+        rootElement,
+        injector,
+      })
+
+      await sleepAsync(10)
+
+      expect(rootElement.innerHTML).toContain(`Value: ${testValue}`)
     })
-
-    await sleepAsync(10)
-
-    expect(rootElement.innerHTML).toContain(`Value: ${testValue}`)
   })
 
   it('should render the component into the provided root element', async () => {
@@ -79,20 +81,21 @@ describe('createShadesMicroFrontend', () => {
       render: () => <span>MFE Content</span>,
     })
 
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const mfeService = createShadesMicroFrontend(TestComponent)
-    mfeService.create({
-      api: {},
-      rootElement,
-      injector,
+      const mfeService = createShadesMicroFrontend(TestComponent)
+      mfeService.create({
+        api: {},
+        rootElement,
+        injector,
+      })
+
+      await sleepAsync(10)
+
+      expect(rootElement.querySelector('test-mfe-root-element')).toBeTruthy()
+      expect(rootElement.innerHTML).toContain('MFE Content')
     })
-
-    await sleepAsync(10)
-
-    expect(rootElement.querySelector('test-mfe-root-element')).toBeTruthy()
-    expect(rootElement.innerHTML).toContain('MFE Content')
   })
 
   it('should work with complex API types', async () => {
@@ -115,29 +118,30 @@ describe('createShadesMicroFrontend', () => {
       ),
     })
 
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const mfeService = createShadesMicroFrontend(TestComponent)
-    mfeService.create({
-      api: {
-        user: { id: '123', name: 'John Doe' },
-        onClick: clickHandler,
-        items: ['a', 'b', 'c'],
-      },
-      rootElement,
-      injector,
+      const mfeService = createShadesMicroFrontend(TestComponent)
+      mfeService.create({
+        api: {
+          user: { id: '123', name: 'John Doe' },
+          onClick: clickHandler,
+          items: ['a', 'b', 'c'],
+        },
+        rootElement,
+        injector,
+      })
+
+      await sleepAsync(10)
+
+      expect(rootElement.innerHTML).toContain('John Doe')
+      expect(rootElement.innerHTML).toContain('3')
+
+      const button = rootElement.querySelector('button')
+      button?.click()
+
+      expect(clickHandler).toHaveBeenCalled()
     })
-
-    await sleepAsync(10)
-
-    expect(rootElement.innerHTML).toContain('John Doe')
-    expect(rootElement.innerHTML).toContain('3')
-
-    const button = rootElement.querySelector('button')
-    button?.click()
-
-    expect(clickHandler).toHaveBeenCalled()
   })
 
   it('should use the child injector for the shade root', async () => {
@@ -151,20 +155,21 @@ describe('createShadesMicroFrontend', () => {
       },
     })
 
-    const parentInjector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (parentInjector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const mfeService = createShadesMicroFrontend(TestComponent)
-    mfeService.create({
-      api: {},
-      rootElement,
-      injector: parentInjector,
+      const mfeService = createShadesMicroFrontend(TestComponent)
+      mfeService.create({
+        api: {},
+        rootElement,
+        injector: parentInjector,
+      })
+
+      await sleepAsync(10)
+
+      expect(capturedInjector).toBeDefined()
+      // The component should receive a child injector, not the parent
+      expect(capturedInjector).not.toBe(parentInjector)
     })
-
-    await sleepAsync(10)
-
-    expect(capturedInjector).toBeDefined()
-    // The component should receive a child injector, not the parent
-    expect(capturedInjector).not.toBe(parentInjector)
   })
 })

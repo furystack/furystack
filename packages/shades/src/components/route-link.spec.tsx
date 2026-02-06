@@ -1,4 +1,5 @@
 import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { LocationService } from '../services/location-service.js'
@@ -14,27 +15,28 @@ describe('RouteLink', () => {
   })
 
   it('Shuld display the loader and completed state', async () => {
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const onRouteChange = vi.fn()
+      const onRouteChange = vi.fn()
 
-    injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
+      injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: (
-        <RouteLink id="route" href="/subroute">
-          Link
-        </RouteLink>
-      ),
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <RouteLink id="route" href="/subroute">
+            Link
+          </RouteLink>
+        ),
+      })
+      expect(document.body.innerHTML).toMatchInlineSnapshot(
+        `"<div id="root"><a is="route-link" id="route" href="/subroute">Link</a></div>"`,
+      )
+      expect(onRouteChange).not.toBeCalled()
+      document.getElementById('route')?.click()
+      expect(onRouteChange).toBeCalledTimes(1)
     })
-    expect(document.body.innerHTML).toMatchInlineSnapshot(
-      `"<div id="root"><a is="route-link" id="route" href="/subroute">Link</a></div>"`,
-    )
-    expect(onRouteChange).not.toBeCalled()
-    document.getElementById('route')?.click()
-    expect(onRouteChange).toBeCalledTimes(1)
   })
 })

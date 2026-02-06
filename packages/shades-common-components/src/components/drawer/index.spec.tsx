@@ -57,14 +57,16 @@ describe('Drawer component', () => {
       drawer,
       layoutService,
       screenService: injector.getInstance(ScreenService),
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
 
   describe('rendering', () => {
     it('should render the shade-drawer custom element', async () => {
-      const { drawer } = await renderDrawer()
-      expect(drawer).not.toBeNull()
-      expect(drawer.tagName.toLowerCase()).toBe('shade-drawer')
+      await usingAsync(await renderDrawer(), async ({ drawer }) => {
+        expect(drawer).not.toBeNull()
+        expect(drawer.tagName.toLowerCase()).toBe('shade-drawer')
+      })
     })
 
     it('should render children in drawer content', async () => {
@@ -135,12 +137,15 @@ describe('Drawer component', () => {
 
   describe('permanent variant', () => {
     it('should initialize as open', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'permanent',
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'permanent',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+        },
+      )
     })
 
     it('should not have closed class when open', async () => {
@@ -190,22 +195,28 @@ describe('Drawer component', () => {
 
   describe('collapsible variant', () => {
     it('should initialize as open by default', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'collapsible',
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'collapsible',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+        },
+      )
     })
 
     it('should initialize as closed when defaultOpen is false', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'collapsible',
-        defaultOpen: false,
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'collapsible',
+          defaultOpen: false,
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+        },
+      )
     })
 
     it('should add closed class when drawer is closed', async () => {
@@ -264,22 +275,28 @@ describe('Drawer component', () => {
 
   describe('temporary variant', () => {
     it('should initialize as closed by default', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'temporary',
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'temporary',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+        },
+      )
     })
 
     it('should initialize as open when defaultOpen is true', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'temporary',
-        defaultOpen: true,
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'temporary',
+          defaultOpen: true,
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+        },
+      )
     })
 
     it('should render backdrop', async () => {
@@ -391,22 +408,28 @@ describe('Drawer component', () => {
 
   describe('width configuration', () => {
     it('should use custom width', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'permanent',
-        width: '300px',
-      })
-
-      expect(layoutService.drawerState.getValue().left?.width).toBe('300px')
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'permanent',
+          width: '300px',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.width).toBe('300px')
+        },
+      )
     })
 
     it('should use default width of 240px when not specified', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'left',
-        variant: 'permanent',
-      })
-
-      expect(layoutService.drawerState.getValue().left?.width).toBe('240px')
+      await usingAsync(
+        await renderDrawer({
+          position: 'left',
+          variant: 'permanent',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.width).toBe('240px')
+        },
+      )
     })
 
     it('should update width in LayoutService when changed', async () => {
@@ -438,17 +461,20 @@ describe('Drawer component', () => {
 
   describe('right drawer', () => {
     it('should initialize right drawer state correctly', async () => {
-      const { layoutService } = await renderDrawer({
-        position: 'right',
-        variant: 'collapsible',
-        width: '200px',
-      })
-
-      expect(layoutService.drawerState.getValue().right).toEqual({
-        open: true,
-        width: '200px',
-        variant: 'collapsible',
-      })
+      await usingAsync(
+        await renderDrawer({
+          position: 'right',
+          variant: 'collapsible',
+          width: '200px',
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().right).toEqual({
+            open: true,
+            width: '200px',
+            variant: 'collapsible',
+          })
+        },
+      )
     })
 
     it('should render right drawer backdrop for temporary variant', async () => {

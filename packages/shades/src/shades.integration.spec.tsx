@@ -14,34 +14,36 @@ describe('Shades integration tests', () => {
     document.body.innerHTML = ''
   })
 
-  it('Should mount a custom component to a Shade root', () => {
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+  it('Should mount a custom component to a Shade root', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const ExampleComponent = Shade({ render: () => <div>Hello</div>, shadowDomName: 'shades-example' })
+      const ExampleComponent = Shade({ render: () => <div>Hello</div>, shadowDomName: 'shades-example' })
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <ExampleComponent />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+      expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>Hello</div></shades-example></div>')
     })
-    expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>Hello</div></shades-example></div>')
   })
 
-  it('Should mount a custom component with a string render result', () => {
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+  it('Should mount a custom component with a string render result', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    const ExampleComponent = Shade({ render: () => 'Hello', shadowDomName: 'shades-string-render-result' })
+      const ExampleComponent = Shade({ render: () => 'Hello', shadowDomName: 'shades-string-render-result' })
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: <ExampleComponent />,
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+      expect(document.body.innerHTML).toBe(
+        '<div id="root"><shades-string-render-result>Hello</shades-string-render-result></div>',
+      )
     })
-    expect(document.body.innerHTML).toBe(
-      '<div id="root"><shades-string-render-result>Hello</shades-string-render-result></div>',
-    )
   })
 
   it('Should mount a custom component with null render result', async () => {

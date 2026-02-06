@@ -6,9 +6,10 @@ import { Injector } from './injector.js'
 import { getInjectorReference } from './with-injector-reference.js'
 
 describe('Injector', () => {
-  it('Shold be constructed', () => {
-    const i = new Injector()
-    expect(i).toBeInstanceOf(Injector)
+  it('Shold be constructed', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      expect(i).toBeInstanceOf(Injector)
+    })
   })
 
   it('Should be disposed', async () => {
@@ -17,9 +18,10 @@ describe('Injector', () => {
     })
   })
 
-  it('Parent should be undefined by default', () => {
-    const i = new Injector()
-    expect(i.options.parent).toBeUndefined()
+  it('Parent should be undefined by default', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      expect(i.options.parent).toBeUndefined()
+    })
   })
 
   it('Should throw an error when setting an Injector instance', async () => {
@@ -61,20 +63,22 @@ describe('Injector', () => {
   })
 
   describe('Scoped lifetime', () => {
-    it('Should set and return instance from cache', () => {
-      const i = new Injector()
-      @Injectable({ lifetime: 'scoped' })
-      class InstanceClass {}
-      const instance = new InstanceClass()
-      i.setExplicitInstance(instance)
-      expect(i.getInstance(InstanceClass)).toBe(instance)
+    it('Should set and return instance from cache', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'scoped' })
+        class InstanceClass {}
+        const instance = new InstanceClass()
+        i.setExplicitInstance(instance)
+        expect(i.getInstance(InstanceClass)).toBe(instance)
+      })
     })
 
-    it('Should instantiate and return an instance', () => {
-      const i = new Injector()
-      @Injectable({ lifetime: 'scoped' })
-      class InstanceClass {}
-      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+    it('Should instantiate and return an instance', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        @Injectable({ lifetime: 'scoped' })
+        class InstanceClass {}
+        expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+      })
     })
 
     it('Scoped with transient dependencies should throw an error', async () => {
@@ -96,59 +100,63 @@ describe('Injector', () => {
   })
 
   describe('Singleton lifetime', () => {
-    it('Should return from a parent injector if available', () => {
-      const parent = new Injector()
-      const i = parent.createChild()
-      @Injectable({ lifetime: 'singleton' })
-      class InstanceClass {}
-      const instance = new InstanceClass()
-      parent.setExplicitInstance(instance)
-      expect(i.getInstance(InstanceClass)).toBe(instance)
-      expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
+    it('Should return from a parent injector if available', async () => {
+      await usingAsync(new Injector(), async (parent) => {
+        const i = parent.createChild()
+        @Injectable({ lifetime: 'singleton' })
+        class InstanceClass {}
+        const instance = new InstanceClass()
+        parent.setExplicitInstance(instance)
+        expect(i.getInstance(InstanceClass)).toBe(instance)
+        expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
+      })
     })
 
-    it('Should create instance on a parent injector if not available', () => {
-      const parent = new Injector()
-      const i = parent.createChild()
-      @Injectable({ lifetime: 'singleton' })
-      class InstanceClass {}
-      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-      expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+    it('Should create instance on a parent injector if not available', async () => {
+      await usingAsync(new Injector(), async (parent) => {
+        const i = parent.createChild()
+        @Injectable({ lifetime: 'singleton' })
+        class InstanceClass {}
+        expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+        expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+      })
     })
 
-    it('Should preserve parent injector reference when singleton is retrieved from child', () => {
-      const parent = new Injector()
-      const child = parent.createChild()
+    it('Should preserve parent injector reference when singleton is retrieved from child', async () => {
+      await usingAsync(new Injector(), async (parent) => {
+        const child = parent.createChild()
 
-      @Injectable({ lifetime: 'singleton' })
-      class SingletonClass {}
+        @Injectable({ lifetime: 'singleton' })
+        class SingletonClass {}
 
-      // Parent creates the singleton first
-      const instanceFromParent = parent.getInstance(SingletonClass)
-      expect(getInjectorReference(instanceFromParent)).toBe(parent)
+        // Parent creates the singleton first
+        const instanceFromParent = parent.getInstance(SingletonClass)
+        expect(getInjectorReference(instanceFromParent)).toBe(parent)
 
-      // Child retrieves the same singleton - injector reference should still point to parent
-      const instanceFromChild = child.getInstance(SingletonClass)
-      expect(instanceFromChild).toBe(instanceFromParent)
-      expect(getInjectorReference(instanceFromChild)).toBe(parent)
+        // Child retrieves the same singleton - injector reference should still point to parent
+        const instanceFromChild = child.getInstance(SingletonClass)
+        expect(instanceFromChild).toBe(instanceFromParent)
+        expect(getInjectorReference(instanceFromChild)).toBe(parent)
+      })
     })
 
-    it('Should set parent injector reference when singleton is first created via child', () => {
-      const parent = new Injector()
-      const child = parent.createChild()
+    it('Should set parent injector reference when singleton is first created via child', async () => {
+      await usingAsync(new Injector(), async (parent) => {
+        const child = parent.createChild()
 
-      @Injectable({ lifetime: 'singleton' })
-      class SingletonClass {}
+        @Injectable({ lifetime: 'singleton' })
+        class SingletonClass {}
 
-      // Child requests singleton first - it should be created on parent with parent's reference
-      const instanceFromChild = child.getInstance(SingletonClass)
-      expect(parent.cachedSingletons.get(SingletonClass)).toBe(instanceFromChild)
-      expect(getInjectorReference(instanceFromChild)).toBe(parent)
+        // Child requests singleton first - it should be created on parent with parent's reference
+        const instanceFromChild = child.getInstance(SingletonClass)
+        expect(parent.cachedSingletons.get(SingletonClass)).toBe(instanceFromChild)
+        expect(getInjectorReference(instanceFromChild)).toBe(parent)
 
-      // Parent retrieves same singleton - reference should still be parent
-      const instanceFromParent = parent.getInstance(SingletonClass)
-      expect(instanceFromParent).toBe(instanceFromChild)
-      expect(getInjectorReference(instanceFromParent)).toBe(parent)
+        // Parent retrieves same singleton - reference should still be parent
+        const instanceFromParent = parent.getInstance(SingletonClass)
+        expect(instanceFromParent).toBe(instanceFromChild)
+        expect(getInjectorReference(instanceFromParent)).toBe(parent)
+      })
     })
 
     it('Singleton with transient dependencies should throw an error', async () => {
@@ -222,48 +230,48 @@ describe('Injector', () => {
     })
   })
 
-  it('Should resolve injectable fields', () => {
-    const i = new Injector()
+  it('Should resolve injectable fields', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      @Injectable()
+      class Injected1 {}
+      @Injectable()
+      class Injected2 {}
 
-    @Injectable()
-    class Injected1 {}
-    @Injectable()
-    class Injected2 {}
+      @Injectable()
+      class InstanceClass {
+        @Injected(Injected1)
+        declare injected1: Injected1
 
-    @Injectable()
-    class InstanceClass {
-      @Injected(Injected1)
-      declare injected1: Injected1
+        @Injected(Injected2)
+        declare injected2: Injected2
+      }
 
-      @Injected(Injected2)
-      declare injected2: Injected2
-    }
+      const instance = i.getInstance(InstanceClass)
 
-    const instance = i.getInstance(InstanceClass)
-
-    expect(instance).toBeInstanceOf(InstanceClass)
-    expect(instance.injected1).toBeInstanceOf(Injected1)
-    expect(instance.injected2).toBeInstanceOf(Injected2)
+      expect(instance).toBeInstanceOf(InstanceClass)
+      expect(instance.injected1).toBeInstanceOf(Injected1)
+      expect(instance.injected2).toBeInstanceOf(Injected2)
+    })
   })
 
-  it('Should resolve injectable fields recursively', () => {
-    const i = new Injector()
+  it('Should resolve injectable fields recursively', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      @Injectable()
+      class Injected1 {}
+      @Injectable()
+      class Injected2 {
+        @Injected(Injected1)
+        declare injected1: Injected1
+      }
 
-    @Injectable()
-    class Injected1 {}
-    @Injectable()
-    class Injected2 {
-      @Injected(Injected1)
-      declare injected1: Injected1
-    }
-
-    @Injectable()
-    class InstanceClass {
-      @Injected(Injected2)
-      declare injected2: Injected2
-    }
-    expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-    expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
+      @Injectable()
+      class InstanceClass {
+        @Injected(Injected2)
+        declare injected2: Injected2
+      }
+      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+      expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
+    })
   })
 
   it('Should throw if failed to dispose one or more entries', async () => {

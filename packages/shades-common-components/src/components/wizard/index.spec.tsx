@@ -1,7 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
-import { sleepAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WizardStepProps } from './index.js'
 import { Wizard } from './index.js'
@@ -103,122 +103,131 @@ describe('Wizard', () => {
         btn?.click()
         await sleepAsync(50)
       },
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
 
   describe('rendering', () => {
     it('should render the wizard container', async () => {
-      const { wizard } = await renderWizard([Step1])
-      expect(wizard).toBeTruthy()
-      expect(wizard.tagName.toLowerCase()).toBe('shades-wizard')
+      await usingAsync(await renderWizard([Step1]), async ({ wizard }) => {
+        expect(wizard).toBeTruthy()
+        expect(wizard.tagName.toLowerCase()).toBe('shades-wizard')
+      })
     })
 
     it('should render the first step initially', async () => {
-      const { getStepName } = await renderWizard([Step1, Step2])
-      expect(getStepName()).toBe('step1')
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ getStepName }) => {
+        expect(getStepName()).toBe('step1')
+      })
     })
 
     it('should pass correct props to the first step', async () => {
-      const { getStepInfo } = await renderWizard([Step1, Step2, Step3])
-      expect(getStepInfo()).toBe('Page 1 of 3')
+      await usingAsync(await renderWizard([Step1, Step2, Step3]), async ({ getStepInfo }) => {
+        expect(getStepInfo()).toBe('Page 1 of 3')
+      })
     })
   })
 
   describe('navigation', () => {
     it('should navigate to next step when onNext is called', async () => {
-      const { getStepName, clickNext } = await renderWizard([Step1, Step2])
-
-      expect(getStepName()).toBe('step1')
-      await clickNext()
-      expect(getStepName()).toBe('step2')
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ getStepName, clickNext }) => {
+        expect(getStepName()).toBe('step1')
+        await clickNext()
+        expect(getStepName()).toBe('step2')
+      })
     })
 
     it('should navigate to previous step when onPrev is called', async () => {
-      const { getStepName, clickNext, clickPrev } = await renderWizard([Step1, Step2])
-
-      await clickNext()
-      expect(getStepName()).toBe('step2')
-      await clickPrev()
-      expect(getStepName()).toBe('step1')
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ getStepName, clickNext, clickPrev }) => {
+        await clickNext()
+        expect(getStepName()).toBe('step2')
+        await clickPrev()
+        expect(getStepName()).toBe('step1')
+      })
     })
 
     it('should not navigate before first step', async () => {
-      const { getStepName, clickPrev } = await renderWizard([Step1, Step2])
-
-      expect(getStepName()).toBe('step1')
-      await clickPrev()
-      expect(getStepName()).toBe('step1')
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ getStepName, clickPrev }) => {
+        expect(getStepName()).toBe('step1')
+        await clickPrev()
+        expect(getStepName()).toBe('step1')
+      })
     })
 
     it('should update step info when navigating', async () => {
-      const { getStepInfo, clickNext } = await renderWizard([Step1, Step2])
-
-      expect(getStepInfo()).toBe('Page 1 of 2')
-      await clickNext()
-      expect(getStepInfo()).toBe('Page 2 of 2')
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ getStepInfo, clickNext }) => {
+        expect(getStepInfo()).toBe('Page 1 of 2')
+        await clickNext()
+        expect(getStepInfo()).toBe('Page 2 of 2')
+      })
     })
 
     it('should navigate through multiple steps', async () => {
-      const { getStepName, getStepInfo, clickNext, clickPrev } = await renderWizard([Step1, Step2, Step3])
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3]),
+        async ({ getStepName, getStepInfo, clickNext, clickPrev }) => {
+          expect(getStepName()).toBe('step1')
+          expect(getStepInfo()).toBe('Page 1 of 3')
 
-      expect(getStepName()).toBe('step1')
-      expect(getStepInfo()).toBe('Page 1 of 3')
+          await clickNext()
+          expect(getStepName()).toBe('step2')
+          expect(getStepInfo()).toBe('Page 2 of 3')
 
-      await clickNext()
-      expect(getStepName()).toBe('step2')
-      expect(getStepInfo()).toBe('Page 2 of 3')
+          await clickNext()
+          expect(getStepName()).toBe('step3')
+          expect(getStepInfo()).toBe('Page 3 of 3')
 
-      await clickNext()
-      expect(getStepName()).toBe('step3')
-      expect(getStepInfo()).toBe('Page 3 of 3')
-
-      await clickPrev()
-      expect(getStepName()).toBe('step2')
-      expect(getStepInfo()).toBe('Page 2 of 3')
+          await clickPrev()
+          expect(getStepName()).toBe('step2')
+          expect(getStepInfo()).toBe('Page 2 of 3')
+        },
+      )
     })
   })
 
   describe('onFinish', () => {
     it('should call onFinish when clicking next on the last step', async () => {
       const onFinish = vi.fn()
-      const { clickNext } = await renderWizard([Step1], onFinish)
-
-      expect(onFinish).not.toHaveBeenCalled()
-      await clickNext()
-      expect(onFinish).toHaveBeenCalledOnce()
+      await usingAsync(await renderWizard([Step1], onFinish), async ({ clickNext }) => {
+        expect(onFinish).not.toHaveBeenCalled()
+        await clickNext()
+        expect(onFinish).toHaveBeenCalledOnce()
+      })
     })
 
     it('should call onFinish after navigating to the last step', async () => {
       const onFinish = vi.fn()
-      const { clickNext } = await renderWizard([Step1, Step2], onFinish)
+      await usingAsync(await renderWizard([Step1, Step2], onFinish), async ({ clickNext }) => {
+        await clickNext()
+        expect(onFinish).not.toHaveBeenCalled()
 
-      await clickNext()
-      expect(onFinish).not.toHaveBeenCalled()
-
-      await clickNext()
-      expect(onFinish).toHaveBeenCalledOnce()
+        await clickNext()
+        expect(onFinish).toHaveBeenCalledOnce()
+      })
     })
 
     it('should work without onFinish callback', async () => {
-      const { getStepName, clickNext } = await renderWizard([Step1])
-
-      expect(getStepName()).toBe('step1')
-      await clickNext()
-      expect(getStepName()).toBe('step1')
+      await usingAsync(await renderWizard([Step1]), async ({ getStepName, clickNext }) => {
+        expect(getStepName()).toBe('step1')
+        await clickNext()
+        expect(getStepName()).toBe('step1')
+      })
     })
   })
 
   describe('Paper container', () => {
     it('should render step inside a Paper component', async () => {
-      const { wizard } = await renderWizard([Step1])
-      const paper = wizard.querySelector('div[is="shade-paper"]')
-      expect(paper).toBeTruthy()
+      await usingAsync(await renderWizard([Step1]), async ({ wizard }) => {
+        const paper = wizard.querySelector('div[is="shade-paper"]')
+        expect(paper).toBeTruthy()
+      })
     })
 
     it('should have elevation 3 on the Paper', async () => {
-      const { wizard } = await renderWizard([Step1])
-      const paper = wizard.querySelector('div[is="shade-paper"]')
-      expect(paper?.getAttribute('data-elevation')).toBe('3')
+      await usingAsync(await renderWizard([Step1]), async ({ wizard }) => {
+        const paper = wizard.querySelector('div[is="shade-paper"]')
+        expect(paper?.getAttribute('data-elevation')).toBe('3')
+      })
     })
   })
 })

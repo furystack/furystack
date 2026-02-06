@@ -9,26 +9,28 @@ Every exported function, class, and method must have tests:
 ```typescript
 // ✅ Good - testing public API
 describe('Injectable', () => {
-  it('should create injectable class with singleton lifetime', () => {
-    @Injectable({ lifetime: 'singleton' })
-    class MyService {}
+  it('should create injectable class with singleton lifetime', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'singleton' })
+      class MyService {}
 
-    const injector = new Injector()
-    const instance1 = injector.getInstance(MyService)
-    const instance2 = injector.getInstance(MyService)
+      const instance1 = injector.getInstance(MyService)
+      const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).toBe(instance2) // Same instance
+      expect(instance1).toBe(instance2) // Same instance
+    })
   })
 
-  it('should create injectable class with transient lifetime', () => {
-    @Injectable({ lifetime: 'transient' })
-    class MyService {}
+  it('should create injectable class with transient lifetime', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'transient' })
+      class MyService {}
 
-    const injector = new Injector()
-    const instance1 = injector.getInstance(MyService)
-    const instance2 = injector.getInstance(MyService)
+      const instance1 = injector.getInstance(MyService)
+      const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).not.toBe(instance2) // Different instances
+      expect(instance1).not.toBe(instance2) // Different instances
+    })
   })
 })
 ```
@@ -72,26 +74,27 @@ Test how packages work together:
 ```typescript
 // ✅ Good - integration test
 describe('DI Integration', () => {
-  it('should inject dependencies across packages', () => {
-    @Injectable({ lifetime: 'singleton' })
-    class ServiceA {
-      public name = 'ServiceA'
-    }
-
-    @Injectable({ lifetime: 'singleton' })
-    class ServiceB {
-      @Injected(ServiceA)
-      declare public serviceA: ServiceA
-
-      public getName(): string {
-        return this.serviceA.name
+  it('should inject dependencies across packages', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'singleton' })
+      class ServiceA {
+        public name = 'ServiceA'
       }
-    }
 
-    const injector = new Injector()
-    const serviceB = injector.getInstance(ServiceB)
+      @Injectable({ lifetime: 'singleton' })
+      class ServiceB {
+        @Injected(ServiceA)
+        declare public serviceA: ServiceA
 
-    expect(serviceB.getName()).toBe('ServiceA')
+        public getName(): string {
+          return this.serviceA.name
+        }
+      }
+
+      const serviceB = injector.getInstance(ServiceB)
+
+      expect(serviceB.getName()).toBe('ServiceA')
+    })
   })
 })
 ```
@@ -173,14 +176,15 @@ Keep mocking minimal in library tests:
 ```typescript
 // ✅ Good - testing real implementations
 describe('Injector', () => {
-  it('should create instances of registered classes', () => {
-    class MyClass {}
+  it('should create instances of registered classes', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      class MyClass {}
 
-    const injector = new Injector()
-    injector.setExplicitInstance(MyClass, new MyClass())
+      injector.setExplicitInstance(MyClass, new MyClass())
 
-    const instance = injector.getInstance(MyClass)
-    expect(instance).toBeInstanceOf(MyClass)
+      const instance = injector.getInstance(MyClass)
+      expect(instance).toBeInstanceOf(MyClass)
+    })
   })
 })
 ```
