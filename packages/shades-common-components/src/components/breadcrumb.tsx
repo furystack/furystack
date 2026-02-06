@@ -1,6 +1,5 @@
+import type { ExtractRouteParams, ExtractRoutePaths, NestedRoute, PartialElement } from '@furystack/shades'
 import { compileRoute, createComponent, LocationService, NestedRouteLink, Shade } from '@furystack/shades'
-import type { PartialElement } from '@furystack/shades'
-import type { ExtractRouteParams, ExtractRoutePaths, NestedRoute } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 /**
@@ -68,6 +67,8 @@ export type TypedBreadcrumbProps<TRoutes extends Record<string, NestedRoute<unkn
  */
 export const Breadcrumb = Shade<BreadcrumbProps>({
   shadowDomName: 'shade-breadcrumb',
+  elementBase: HTMLElement,
+  elementBaseName: 'nav',
   css: {
     display: 'flex',
     alignItems: 'center',
@@ -100,20 +101,11 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
       cursor: 'default',
     },
   },
-  render: ({ props, injector, useObservable, element }) => {
-    const { items, separator = '/', homeItem, lastItemClickable = false, style, className, ...restProps } = props
+  render: ({ props, injector, useObservable }) => {
+    const { items, separator = '/', homeItem, lastItemClickable = false } = props
 
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
-
-    // Apply custom styles
-    if (style) {
-      Object.assign(element.style, style)
-    }
-
-    if (className) {
-      element.className = className
-    }
 
     const allItems = homeItem ? [homeItem, ...items] : items
 
@@ -151,14 +143,14 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
     }
 
     return (
-      <nav aria-label="Breadcrumb" {...restProps}>
+      <>
         {allItems.map((item, index) => (
           <>
             {renderItem(item, index, index === allItems.length - 1)}
             {index < allItems.length - 1 && renderSeparator()}
           </>
         ))}
-      </nav>
+      </>
     )
   },
 })
