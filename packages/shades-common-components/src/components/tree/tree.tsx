@@ -1,5 +1,6 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
+import { ObservableValue } from '@furystack/utils'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import type { TreeService } from '../../services/tree-service.js'
 import { TreeItem } from './tree-item.js'
@@ -72,10 +73,10 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)
 
-    const previousItems: Set<unknown> =
-      (element as unknown as { __previousTreeItems?: Set<unknown> }).__previousTreeItems ?? new Set()
+    const previousItemsRef = useDisposable('previousTreeItems', () => new ObservableValue<Set<unknown>>(new Set()))
+    const previousItems = previousItemsRef.getValue()
     const currentItems = new Set<unknown>(flattenedNodes.map((n) => n.item))
-    ;(element as unknown as { __previousTreeItems: Set<unknown> }).__previousTreeItems = currentItems
+    previousItemsRef.setValue(currentItems)
 
     return (
       <div

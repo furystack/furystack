@@ -70,8 +70,8 @@ export class ContextMenuManager<T> extends EventHub<{ onSelectItem: T }> impleme
     const item = this.items.getValue()[idx]
     if (item?.type === 'item' && !item.disabled && item.data !== undefined) {
       this.emit('onSelectItem', item.data)
+      this.close()
     }
-    this.close()
   }
 
   /**

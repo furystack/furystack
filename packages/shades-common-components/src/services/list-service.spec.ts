@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ListService } from './list-service.js'
 
 type TestItem = { id: number; name: string }
@@ -256,31 +256,6 @@ describe('ListService', () => {
       service[Symbol.dispose]()
     })
 
-    it('should handle Enter to activate focused item', () => {
-      const onItemActivate = vi.fn()
-      const { service, items } = createTestService({ onItemActivate })
-      service.hasFocus.setValue(true)
-      service.focusedItem.setValue(items[1])
-
-      service.handleKeyDown(new KeyboardEvent('keydown', { key: 'Enter' }))
-
-      expect(onItemActivate).toHaveBeenCalledWith(items[1])
-
-      service[Symbol.dispose]()
-    })
-
-    it('should not activate when no item is focused on Enter', () => {
-      const onItemActivate = vi.fn()
-      const { service } = createTestService({ onItemActivate })
-      service.hasFocus.setValue(true)
-
-      service.handleKeyDown(new KeyboardEvent('keydown', { key: 'Enter' }))
-
-      expect(onItemActivate).not.toHaveBeenCalled()
-
-      service[Symbol.dispose]()
-    })
-
     it('should handle type-ahead search when searchField is set', () => {
       const { service, items } = createTestService({ searchField: 'name' })
       service.hasFocus.setValue(true)
@@ -370,18 +345,7 @@ describe('ListService', () => {
   })
 
   describe('handleItemDoubleClick', () => {
-    it('should call onItemActivate on double-click', () => {
-      const onItemActivate = vi.fn()
-      const { service, items } = createTestService({ onItemActivate })
-
-      service.handleItemDoubleClick(items[0])
-
-      expect(onItemActivate).toHaveBeenCalledWith(items[0])
-
-      service[Symbol.dispose]()
-    })
-
-    it('should not throw when onItemActivate is not set', () => {
+    it('should not throw on double-click', () => {
       const { service, items } = createTestService()
 
       expect(() => service.handleItemDoubleClick(items[0])).not.toThrow()

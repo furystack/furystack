@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { TreeService } from './tree-service.js'
 
 type TestNode = { id: number; name: string; children?: TestNode[] }
@@ -30,11 +30,10 @@ describe('TreeService', () => {
     },
   ]
 
-  const createTestService = (options?: { onItemActivate?: (item: TestNode) => void }) => {
+  const createTestService = () => {
     const rootItems = createTreeData()
     const service = new TreeService<TestNode>({
       getChildren,
-      onItemActivate: options?.onItemActivate,
     })
     service.rootItems.setValue(rootItems)
     service.updateFlattenedNodes()
@@ -380,19 +379,6 @@ describe('TreeService', () => {
       service[Symbol.dispose]()
     })
 
-    it('should handle Enter to activate focused item', () => {
-      const onItemActivate = vi.fn()
-      const { service, rootItems } = createTestService({ onItemActivate })
-      service.hasFocus.setValue(true)
-      service.focusedItem.setValue(rootItems[1])
-
-      service.handleKeyDown(new KeyboardEvent('keydown', { key: 'Enter' }))
-
-      expect(onItemActivate).toHaveBeenCalledWith(rootItems[1])
-
-      service[Symbol.dispose]()
-    })
-
     it('should handle Escape to clear selection and search term', () => {
       const { service, rootItems } = createTestService()
       service.hasFocus.setValue(true)
@@ -421,24 +407,12 @@ describe('TreeService', () => {
       service[Symbol.dispose]()
     })
 
-    it('should call onItemActivate on double-click of a leaf node', () => {
-      const onItemActivate = vi.fn()
-      const { service, rootItems } = createTestService({ onItemActivate })
+    it('should not expand on double-click of a leaf node', () => {
+      const { service, rootItems } = createTestService()
 
       service.handleItemDoubleClick(rootItems[1])
 
-      expect(onItemActivate).toHaveBeenCalledWith(rootItems[1])
-
-      service[Symbol.dispose]()
-    })
-
-    it('should not call onItemActivate on double-click of a node with children', () => {
-      const onItemActivate = vi.fn()
-      const { service, rootItems } = createTestService({ onItemActivate })
-
-      service.handleItemDoubleClick(rootItems[0])
-
-      expect(onItemActivate).not.toHaveBeenCalled()
+      expect(service.isExpanded(rootItems[1])).toBe(false)
 
       service[Symbol.dispose]()
     })

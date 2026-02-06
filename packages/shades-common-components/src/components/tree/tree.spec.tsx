@@ -35,10 +35,9 @@ describe('Tree', () => {
     },
   ]
 
-  const createTestService = (options?: { onItemActivate?: (item: TestNode) => void }) => {
+  const createTestService = () => {
     return new TreeService<TestNode>({
       getChildren,
-      onItemActivate: options?.onItemActivate,
     })
   }
 

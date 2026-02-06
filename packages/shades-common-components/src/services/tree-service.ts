@@ -170,8 +170,6 @@ export class TreeService<T> extends ListService<T> {
     const children = this.treeOptions.getChildren(item)
     if (children.length > 0) {
       this.toggleExpanded(item)
-    } else {
-      super.handleItemDoubleClick(item)
     }
   }
 

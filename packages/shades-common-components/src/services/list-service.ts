@@ -5,12 +5,6 @@ export type ListServiceOptions<T> = {
    * An optional field that can be used for type-ahead search
    */
   searchField?: keyof T
-
-  /**
-   * Optional callback for item activation (Enter key or double-click)
-   * @param item The activated item
-   */
-  onItemActivate?: (item: T) => void
 }
 
 /**
@@ -73,15 +67,19 @@ export class ListService<T> implements Disposable {
           }
           break
         case '*':
+          ev.preventDefault()
           this.selection.setValue(items.filter((e) => !selectedItems.includes(e)))
           break
         case '+':
+          ev.preventDefault()
           this.selection.setValue(items)
           break
         case '-':
+          ev.preventDefault()
           this.selection.setValue([])
           break
         case 'Insert':
+          ev.preventDefault()
           if (focusedItem) {
             if (this.selection.getValue().includes(focusedItem)) {
               this.selection.setValue([...this.selection.getValue().filter((e) => e !== focusedItem)])
@@ -89,11 +87,6 @@ export class ListService<T> implements Disposable {
               this.selection.setValue([...this.selection.getValue(), focusedItem])
             }
             this.focusedItem.setValue(items[items.findIndex((e) => e === this.focusedItem.getValue()) + 1])
-          }
-          break
-        case 'Enter':
-          if (focusedItem) {
-            this.options.onItemActivate?.(focusedItem)
           }
           break
         case 'ArrowUp':
@@ -105,10 +98,12 @@ export class ListService<T> implements Disposable {
           this.focusedItem.setValue(items[Math.min(items.length - 1, items.findIndex((e) => e === focusedItem) + 1)])
           break
         case 'Home': {
+          ev.preventDefault()
           this.focusedItem.setValue(items[0])
           break
         }
         case 'End': {
+          ev.preventDefault()
           this.focusedItem.setValue(items[items.length - 1])
           break
         }
@@ -117,6 +112,7 @@ export class ListService<T> implements Disposable {
           break
         }
         case 'Escape': {
+          ev.preventDefault()
           this.searchTerm.setValue('')
           this.selection.setValue([])
           break
@@ -150,24 +146,24 @@ export class ListService<T> implements Disposable {
       const items = this.items.getValue()
       const lastFocusedIndex = items.findIndex((e) => e === lastFocused)
       const itemIndex = items.findIndex((e) => e === item)
-      const selection = [...currentSelectionValue]
-      if (lastFocusedIndex > itemIndex) {
-        for (let i = itemIndex; i <= lastFocusedIndex; i++) {
-          selection.push(items[i])
-        }
-      } else {
-        for (let i = lastFocusedIndex; i <= itemIndex; i++) {
-          selection.push(items[i])
+      const start = Math.min(lastFocusedIndex, itemIndex)
+      const end = Math.max(lastFocusedIndex, itemIndex)
+      const rangeItems = items.slice(start, end + 1)
+      const newSelection = [...currentSelectionValue]
+      for (const rangeItem of rangeItems) {
+        if (!newSelection.includes(rangeItem)) {
+          newSelection.push(rangeItem)
         }
       }
-      this.selection.setValue(selection)
+      this.selection.setValue(newSelection)
     }
     this.focusedItem.setValue(item)
   }
 
-  public handleItemDoubleClick(item: T) {
-    this.options.onItemActivate?.(item)
-  }
+  /**
+   * Hook for double-click behavior. No-op in base class; overridden by TreeService for expand/collapse.
+   */
+  public handleItemDoubleClick(_item: T) {}
 
   constructor(private options: ListServiceOptions<T> = {}) {}
 }

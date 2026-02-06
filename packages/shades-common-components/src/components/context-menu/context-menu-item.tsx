@@ -34,10 +34,13 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
         cursor: 'not-allowed',
       },
     },
+    constructed: ({ props, element }) => {
+      const timer = setTimeout(() => element.classList.add('visible'), props.index * 30)
+      return () => clearTimeout(timer)
+    },
     render: ({ props, element, useObservable }) => {
       const { item, index, manager } = props
 
-      setTimeout(() => element.classList.add('visible'), index * 30)
       element.setAttribute('role', 'menuitem')
 
       if (item.disabled) {
