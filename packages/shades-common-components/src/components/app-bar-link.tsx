@@ -34,6 +34,14 @@ export const AppBarLink = Shade<AppBarLinkProps>({
   },
 })
 
+/**
+ * Creates a type-safe wrapper around AppBarLink constrained to a specific route tree.
+ * The returned component has the same runtime behavior but narrows `href` to only accept
+ * valid route paths, and requires `params` when the route has parameters.
+ *
+ * @typeParam TRoutes - The route tree type (use `typeof yourRoutes`)
+ * @returns A type-safe AppBarLink component constrained to a specific route tree.
+ */
 export const createAppBarLink = <TRoutes extends Record<string, NestedRoute<unknown>>>() => {
   return AppBarLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
     props: AppBarLinkProps & { href: TPath },
