@@ -1,5 +1,7 @@
 export * from './lazy-load.js'
 export * from './link-to-route.js'
+export * from './nested-route-link.js'
+export * from './nested-route-types.js'
 export * from './nested-router.js'
 export * from './route-link.js'
 export * from './router.js'
