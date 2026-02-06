@@ -53,7 +53,7 @@ const withFadeTransition = {
  * `/layout-tests` and its children render standalone (no PageLayout wrapper).
  * `/` wraps its children in the main app layout with AppBar navigation.
  */
-export const appRoutes: Record<string, NestedRoute<any>> = {
+export const appRoutes = {
   '/layout-tests': {
     component: ({ outlet }) => {
       return (
@@ -371,4 +371,4 @@ export const appRoutes: Record<string, NestedRoute<any>> = {
       },
     },
   },
-}
+} satisfies Record<string, NestedRoute<any>>

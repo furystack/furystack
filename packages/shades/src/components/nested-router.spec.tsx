@@ -83,6 +83,41 @@ describe('buildMatchChain', () => {
     expect(chain![0].match.params).toEqual({ slug: 'hello' })
   })
 
+  it('should match root "/" parent with children against child URLs (path-to-regexp v8 workaround)', () => {
+    const child: NestedRoute = { component: () => <div>buttons</div> }
+    const parent: NestedRoute = {
+      component: ({ outlet }) => <div>layout{outlet}</div>,
+      children: { '/buttons': child },
+    }
+    const chain = buildMatchChain({ '/': parent }, '/buttons')
+    expect(chain).toHaveLength(2)
+    expect(chain![0].route).toBe(parent)
+    expect(chain![1].route).toBe(child)
+  })
+
+  it('should match root "/" parent alone when URL is exactly "/"', () => {
+    const child: NestedRoute = { component: () => <div>buttons</div> }
+    const parent: NestedRoute = {
+      component: ({ outlet }) => <div>layout{outlet}</div>,
+      children: { '/buttons': child },
+    }
+    const chain = buildMatchChain({ '/': parent }, '/')
+    expect(chain).toHaveLength(1)
+    expect(chain![0].route).toBe(parent)
+  })
+
+  it('should prefer a more specific route over the root "/" parent', () => {
+    const specificChild: NestedRoute = { component: () => <div>specific</div> }
+    const rootChild: NestedRoute = { component: () => <div>root-child</div> }
+    const rootParent: NestedRoute = {
+      component: ({ outlet }) => <div>{outlet}</div>,
+      children: { '/other': rootChild },
+    }
+    const chain = buildMatchChain({ '/specific': specificChild, '/': rootParent }, '/specific')
+    expect(chain).toHaveLength(1)
+    expect(chain![0].route).toBe(specificChild)
+  })
+
   it('should extract parameters from both parent and child', () => {
     const child: NestedRoute<{ postId: string }> = { component: () => <div /> }
     const parent: NestedRoute<{ userId: string }> = {
@@ -142,7 +177,7 @@ describe('renderMatchChain', () => {
       },
     ]
 
-    renderMatchChain(chain, '/leaf')
+    const result = renderMatchChain(chain, '/leaf')
 
     expect(componentFn).toHaveBeenCalledTimes(1)
     expect(componentFn).toHaveBeenCalledWith({
@@ -150,6 +185,8 @@ describe('renderMatchChain', () => {
       match: { path: '/leaf', params: {} },
       outlet: undefined,
     })
+    expect(result.chainElements).toHaveLength(1)
+    expect(result.jsx).toBe(result.chainElements[0])
   })
 
   it('should render inside-out: innermost first, then pass as outlet to parent', () => {
@@ -175,11 +212,15 @@ describe('renderMatchChain', () => {
       },
     ]
 
-    renderMatchChain(chain, '/parent/child')
+    const result = renderMatchChain(chain, '/parent/child')
 
     expect(callOrder).toEqual(['child', 'parent'])
     expect(childComponent).toHaveBeenCalledWith(expect.objectContaining({ outlet: undefined }))
     expect(parentComponent).toHaveBeenCalledWith(expect.objectContaining({ outlet: expect.anything() as unknown }))
+
+    expect(result.chainElements).toHaveLength(2)
+    expect(result.jsx).toBe(result.chainElements[0])
+    expect(result.chainElements[0]).not.toBe(result.chainElements[1])
   })
 
   it('should pass currentUrl to every component in the chain', () => {
@@ -204,6 +245,31 @@ describe('renderMatchChain', () => {
     renderMatchChain(chain, '/a/b/c')
 
     expect(urls).toEqual(['/a/b/c', '/a/b/c', '/a/b/c'])
+  })
+
+  it('should return per-entry chainElements where each entry is the component output at that level', () => {
+    const grandchildEl = <div>grandchild</div>
+    const childComponent = vi.fn(({ outlet }: { outlet?: JSX.Element }) => <section>child{outlet}</section>)
+    const parentComponent = vi.fn(({ outlet }: { outlet?: JSX.Element }) => <main>parent{outlet}</main>)
+
+    const chain: MatchChainEntry[] = [
+      { route: { component: parentComponent }, match: { path: '/a', params: {} } },
+      { route: { component: childComponent }, match: { path: '/b', params: {} } },
+      { route: { component: () => grandchildEl }, match: { path: '/c', params: {} } },
+    ]
+
+    const result = renderMatchChain(chain, '/a/b/c')
+
+    expect(result.chainElements).toHaveLength(3)
+    // chainElements[2] is the leaf (grandchild output)
+    expect(result.chainElements[2]).toBe(grandchildEl)
+    // chainElements[1] is the child wrapping the grandchild
+    expect(result.chainElements[1]).not.toBe(grandchildEl)
+    // chainElements[0] is the outermost parent (same as jsx)
+    expect(result.chainElements[0]).toBe(result.jsx)
+    // Each level wraps the next, so they must all be different
+    expect(result.chainElements[0]).not.toBe(result.chainElements[1])
+    expect(result.chainElements[1]).not.toBe(result.chainElements[2])
   })
 })
 
@@ -343,6 +409,102 @@ describe('NestedRouter lifecycle hooks', () => {
       expect(getContent()).toBe('not found')
       expect(onLeaveOther).toBeCalledTimes(1)
       expect(callOrder).toEqual(['leave-other'])
+    })
+  })
+})
+
+describe('NestedRouter lifecycle element scope', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  it('should pass the child element (not the full tree) to onLeave/onVisit when switching between sibling children', async () => {
+    history.pushState(null, '', '/parent/child-a')
+
+    const visitElements: Array<{ route: string; element: JSX.Element }> = []
+    const leaveElements: Array<{ route: string; element: JSX.Element }> = []
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <RouteLink id="child-a" href="/parent/child-a">
+              child-a
+            </RouteLink>
+            <RouteLink id="child-b" href="/parent/child-b">
+              child-b
+            </RouteLink>
+            <NestedRouter
+              routes={{
+                '/parent': {
+                  component: ({ outlet }) => <div id="wrapper">{outlet ?? <span>index</span>}</div>,
+                  onVisit: async ({ element }) => {
+                    visitElements.push({ route: 'parent', element })
+                  },
+                  onLeave: async ({ element }) => {
+                    leaveElements.push({ route: 'parent', element })
+                  },
+                  children: {
+                    '/child-a': {
+                      component: () => <div id="child-a-content">child-a</div>,
+                      onVisit: async ({ element }) => {
+                        visitElements.push({ route: 'child-a', element })
+                      },
+                      onLeave: async ({ element }) => {
+                        leaveElements.push({ route: 'child-a', element })
+                      },
+                    },
+                    '/child-b': {
+                      component: () => <div id="child-b-content">child-b</div>,
+                      onVisit: async ({ element }) => {
+                        visitElements.push({ route: 'child-b', element })
+                      },
+                      onLeave: async ({ element }) => {
+                        leaveElements.push({ route: 'child-b', element })
+                      },
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      const clickOn = (name: string) => document.getElementById(name)?.click()
+
+      // --- Initial load at /parent/child-a ---
+      await sleepAsync(100)
+      expect(visitElements).toHaveLength(2)
+      // Parent's onVisit element should be the full tree (parent wrapping child)
+      expect(visitElements[0].route).toBe('parent')
+      expect((visitElements[0].element as HTMLElement).id).toBe('wrapper')
+      // Child-a's onVisit element should be just the child element, not the wrapper
+      expect(visitElements[1].route).toBe('child-a')
+      expect((visitElements[1].element as HTMLElement).id).toBe('child-a-content')
+
+      // --- Switch to child-b: parent stays, only child lifecycle fires ---
+      visitElements.length = 0
+      leaveElements.length = 0
+      clickOn('child-b')
+      await sleepAsync(100)
+
+      // onLeave should receive the child-a element, not the full wrapper
+      expect(leaveElements).toHaveLength(1)
+      expect(leaveElements[0].route).toBe('child-a')
+      expect((leaveElements[0].element as HTMLElement).id).toBe('child-a-content')
+
+      // onVisit should receive the child-b element, not the full wrapper
+      expect(visitElements).toHaveLength(1)
+      expect(visitElements[0].route).toBe('child-b')
+      expect((visitElements[0].element as HTMLElement).id).toBe('child-b-content')
     })
   })
 })

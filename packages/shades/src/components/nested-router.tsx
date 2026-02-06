@@ -51,6 +51,7 @@ export type MatchChainEntry = {
 export type NestedRouterState = {
   matchChain: MatchChainEntry[] | null
   jsx: JSX.Element
+  chainElements: JSX.Element[]
 }
 
 /**
@@ -73,7 +74,13 @@ export const buildMatchChain = (
   for (const [pattern, route] of Object.entries(routes)) {
     if (route.children) {
       const prefixMatchFn = match(pattern, { ...route.routingOptions, end: false })
-      const prefixResult = prefixMatchFn(currentUrl)
+      let prefixResult = prefixMatchFn(currentUrl)
+
+      // In path-to-regexp v8, match('/', { end: false }) only matches exact '/'.
+      // For the root pattern, any URL is logically under '/', so force a prefix match.
+      if (!prefixResult && pattern === '/') {
+        prefixResult = { path: '/', params: {} }
+      }
 
       if (prefixResult) {
         let remainingUrl = currentUrl.slice(prefixResult.path.length)
@@ -122,16 +129,29 @@ export const findDivergenceIndex = (oldChain: MatchChainEntry[], newChain: Match
 }
 
 /**
+ * The result of rendering a match chain, containing both the fully composed
+ * JSX tree and per-entry elements for scoped lifecycle animations.
+ */
+export type RenderMatchChainResult = {
+  jsx: JSX.Element
+  chainElements: JSX.Element[]
+}
+
+/**
  * Renders a match chain inside-out: starts with the innermost (leaf) route
  * rendered with `outlet: undefined`, then passes its JSX as `outlet` to
  * each successive parent up the chain.
  *
+ * Returns per-entry elements so that lifecycle hooks (`onLeave`/`onVisit`)
+ * receive only the element for their own route level, not the full tree.
+ *
  * @param chain - The match chain from outermost to innermost
  * @param currentUrl - The current URL path
- * @returns The fully composed JSX element
+ * @returns The fully composed JSX element and per-entry rendered elements
  */
-export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): JSX.Element => {
+export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): RenderMatchChainResult => {
   let outlet: JSX.Element | undefined
+  const chainElements: JSX.Element[] = new Array<JSX.Element>(chain.length)
 
   for (let i = chain.length - 1; i >= 0; i--) {
     const entry = chain[i]
@@ -140,9 +160,10 @@ export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): 
       match: entry.match,
       outlet,
     })
+    chainElements[i] = outlet
   }
 
-  return outlet as JSX.Element
+  return { jsx: outlet as JSX.Element, chainElements }
 }
 
 /**
@@ -162,11 +183,12 @@ export const NestedRouter = Shade<NestedRouterProps>({
     const [state, setState] = useState<NestedRouterState>('routerState', {
       matchChain: [],
       jsx: <div />,
+      chainElements: [],
     })
 
     const updateUrl = async (currentUrl: string) => {
       const [lastState] = useState<NestedRouterState>('routerState', state)
-      const { matchChain: lastChain, jsx: lastJsx } = lastState
+      const { matchChain: lastChain, chainElements: lastChainElements } = lastState
       try {
         await lock.acquire()
         const newChain = buildMatchChain(options.props.routes, currentUrl)
@@ -182,26 +204,27 @@ export const NestedRouter = Shade<NestedRouterProps>({
           if (hasChanged) {
             // Call onLeave for routes that are being left (from divergence point to end of old chain)
             for (let i = lastChainEntries.length - 1; i >= divergeIndex; i--) {
-              await lastChainEntries[i].route.onLeave?.({ ...options, element: lastJsx })
+              await lastChainEntries[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
             }
 
-            const newJsx = renderMatchChain(newChain, currentUrl)
-            setState({ matchChain: newChain, jsx: newJsx })
+            const { jsx: newJsx, chainElements: newChainElements } = renderMatchChain(newChain, currentUrl)
+            setState({ matchChain: newChain, jsx: newJsx, chainElements: newChainElements })
 
             // Call onVisit for routes that are being entered (from divergence point to end of new chain)
             for (let i = divergeIndex; i < newChain.length; i++) {
-              await newChain[i].route.onVisit?.({ ...options, element: newJsx })
+              await newChain[i].route.onVisit?.({ ...options, element: newChainElements[i] })
             }
           }
         } else if (lastChain !== null) {
           // No match found — call onLeave for all active routes and show notFound.
           // The null sentinel prevents re-entering this block on re-render.
           for (let i = (lastChain?.length ?? 0) - 1; i >= 0; i--) {
-            await lastChain[i].route.onLeave?.({ ...options, element: lastJsx })
+            await lastChain[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
           }
           setState({
             matchChain: null,
             jsx: options.props.notFound || <div />,
+            chainElements: [],
           })
         }
       } catch (e) {
