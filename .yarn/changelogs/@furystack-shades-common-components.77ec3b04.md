@@ -1,4 +1,4 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 
 # @furystack/shades-common-components
 
@@ -17,6 +17,10 @@ Use h3 (###) and below for detailed entries with paragraphs, code examples, and 
 TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
+
+## ⚠️ Breaking Changes
+
+- `AppBarLink` props changed from `RouteLinkProps` to `NestedRouteLinkProps` — `href` is now required and the rendered shadow DOM element changed from `route-link` to `nested-route-link`
 
 ## ♻️ Refactoring
 

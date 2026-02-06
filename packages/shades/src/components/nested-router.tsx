@@ -30,7 +30,6 @@ export type NestedRoute<TMatchResult = unknown> = {
  * Routes are defined as a Record where keys are URL patterns.
  */
 export type NestedRouterProps = {
-  style?: CSSStyleDeclaration
   routes: Record<string, NestedRoute<any>>
   notFound?: JSX.Element
 }
