@@ -1,5 +1,5 @@
 import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
-import { AppBar, createAppBarLink } from '@furystack/shades-common-components'
+import { AppBar, createAppBarLink, cssVariableTheme } from '@furystack/shades-common-components'
 
 import type { appRoutes } from '../routes.tsx'
 import { navigationConfig } from '../navigation.js'
@@ -11,21 +11,38 @@ const ShowcaseAppBarLinks = createAppBarLink<typeof appRoutes>()
 
 /**
  * Main navigation AppBar for the showcase application.
- * Contains category-level links driven by the navigation config and the theme switcher.
+ * Single-row layout: breadcrumbs, vertical separator, category links, and theme switch.
  */
 export const ShowcaseAppBar = Shade({
   shadowDomName: 'showcase-app-bar',
   render: () => {
     return (
       <AppBar>
-        <div style={{ paddingLeft: '16px', fontSize: '0.9em' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: '12px',
+            marginRight: '8px',
+            whiteSpace: 'nowrap',
+          }}
+        >
           <ShowcaseBreadcrumbComponent />
         </div>
         <div
           style={{
+            width: '1px',
+            alignSelf: 'stretch',
+            background: cssVariableTheme.divider,
+            opacity: '0.4',
+            margin: '8px 4px',
+          }}
+        />
+        <div
+          style={{
             display: 'flex',
+            flex: '1',
             height: '32px',
-            paddingLeft: '16px',
             gap: '4px',
             overflow: 'hidden',
             overflowX: 'auto',
