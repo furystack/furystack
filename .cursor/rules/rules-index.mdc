@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
 ---
+
 This file contains a list of helpful information and context that the agent can reference when working in this codebase. Each entry provides specific guidance or rules for different aspects of the project. You can read these files using the readFile tool if the users prompt seems related.
 
 - [FuryStack-specific library patterns, dependency injection, Observable, and disposable resources](./LIBRARY_DEVELOPMENT.md)
 - [Public API testing, integration tests, and Vitest patterns for library development](./TESTING_GUIDELINES.md)
+- [Semantic versioning, changelog format, version bumps, and release workflow](./VERSIONING_AND_CHANGELOG.md)
