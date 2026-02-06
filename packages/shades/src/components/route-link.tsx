@@ -1,10 +1,12 @@
-import { Shade } from '../shade.js'
 import type { PartialElement } from '../models/partial-element.js'
 import { LocationService } from '../services/location-service.js'
 import { attachProps, createComponent } from '../shade-component.js'
+import { Shade } from '../shade.js'
 
+/** @deprecated Use `NestedRouteLinkProps` from `nested-route-link` instead */
 export type RouteLinkProps = PartialElement<Omit<HTMLAnchorElement, 'onclick'>>
 
+/** @deprecated Use `NestedRouteLink` from `nested-route-link` instead */
 export const RouteLink = Shade<RouteLinkProps>({
   shadowDomName: 'route-link',
   elementBase: HTMLAnchorElement,

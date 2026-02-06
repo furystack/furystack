@@ -104,9 +104,9 @@ test.describe('Navigation', () => {
 
   test('Should have a 404 page', async ({ page }) => {
     await page.goto('/non-existing-page')
-    const notFoundTitle = page.locator('shade-router h1', { hasText: '404' })
+    const notFoundTitle = page.locator('h1', { hasText: '404' })
     await expect(notFoundTitle).toBeVisible()
-    const notFoundContent = page.locator('shade-router p', { hasText: 'Have you seen this cat? 😸' })
+    const notFoundContent = page.locator('p', { hasText: 'Have you seen this cat? 😸' })
     await expect(notFoundContent).toBeVisible()
   })
 })

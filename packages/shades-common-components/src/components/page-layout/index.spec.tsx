@@ -45,14 +45,16 @@ describe('PageLayout component', () => {
       injector,
       pageLayout,
       layoutService: pageLayout.injector.getInstance(LayoutService),
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
 
   describe('rendering', () => {
     it('should render the shade-page-layout custom element', async () => {
-      const { pageLayout } = await renderPageLayout()
-      expect(pageLayout).not.toBeNull()
-      expect(pageLayout.tagName.toLowerCase()).toBe('shade-page-layout')
+      await usingAsync(await renderPageLayout(), async ({ pageLayout }) => {
+        expect(pageLayout).not.toBeNull()
+        expect(pageLayout.tagName.toLowerCase()).toBe('shade-page-layout')
+      })
     })
 
     it('should render children in content area', async () => {
@@ -77,21 +79,24 @@ describe('PageLayout component', () => {
 
   describe('positioning', () => {
     it('should have fixed positioning', async () => {
-      const { pageLayout } = await renderPageLayout()
-      const computedStyle = window.getComputedStyle(pageLayout)
-      expect(computedStyle.position).toBe('fixed')
+      await usingAsync(await renderPageLayout(), async ({ pageLayout }) => {
+        const computedStyle = window.getComputedStyle(pageLayout)
+        expect(computedStyle.position).toBe('fixed')
+      })
     })
 
     it('should have full width', async () => {
-      const { pageLayout } = await renderPageLayout()
-      const computedStyle = window.getComputedStyle(pageLayout)
-      expect(computedStyle.width).toBe('100%')
+      await usingAsync(await renderPageLayout(), async ({ pageLayout }) => {
+        const computedStyle = window.getComputedStyle(pageLayout)
+        expect(computedStyle.width).toBe('100%')
+      })
     })
 
     it('should have full height', async () => {
-      const { pageLayout } = await renderPageLayout()
-      const computedStyle = window.getComputedStyle(pageLayout)
-      expect(computedStyle.height).toBe('100%')
+      await usingAsync(await renderPageLayout(), async ({ pageLayout }) => {
+        const computedStyle = window.getComputedStyle(pageLayout)
+        expect(computedStyle.height).toBe('100%')
+      })
     })
   })
 
@@ -141,26 +146,32 @@ describe('PageLayout component', () => {
     })
 
     it('should use custom AppBar height', async () => {
-      const { layoutService } = await renderPageLayout({
-        appBar: {
-          variant: 'permanent',
-          height: '64px',
-          component: <div>AppBar</div>,
+      await usingAsync(
+        await renderPageLayout({
+          appBar: {
+            variant: 'permanent',
+            height: '64px',
+            component: <div>AppBar</div>,
+          },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.appBarHeight.getValue()).toBe('64px')
         },
-      })
-
-      expect(layoutService.appBarHeight.getValue()).toBe('64px')
+      )
     })
 
     it('should use default AppBar height when not specified', async () => {
-      const { layoutService } = await renderPageLayout({
-        appBar: {
-          variant: 'permanent',
-          component: <div>AppBar</div>,
+      await usingAsync(
+        await renderPageLayout({
+          appBar: {
+            variant: 'permanent',
+            component: <div>AppBar</div>,
+          },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.appBarHeight.getValue()).toBe('48px')
         },
-      })
-
-      expect(layoutService.appBarHeight.getValue()).toBe('48px')
+      )
     })
 
     it('should add appbar-auto-hide class to host for auto-hide variant', async () => {
@@ -288,70 +299,85 @@ describe('PageLayout component', () => {
     })
 
     it('should initialize permanent drawer as open', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'permanent',
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'permanent',
+              component: <div>Left Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(true)
         },
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      )
     })
 
     it('should initialize collapsible drawer as open by default', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'collapsible',
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'collapsible',
+              component: <div>Left Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(true)
         },
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      )
     })
 
     it('should initialize collapsible drawer as closed when defaultOpen is false', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'collapsible',
-            defaultOpen: false,
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'collapsible',
+              defaultOpen: false,
+              component: <div>Left Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.open).toBe(false)
         },
-      })
-
-      expect(layoutService.drawerState.getValue().left?.open).toBe(false)
+      )
     })
 
     it('should use custom drawer width', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'permanent',
-            width: '300px',
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'permanent',
+              width: '300px',
+              component: <div>Left Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.width).toBe('300px')
         },
-      })
-
-      expect(layoutService.drawerState.getValue().left?.width).toBe('300px')
+      )
     })
 
     it('should use default drawer width when not specified', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'permanent',
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'permanent',
+              component: <div>Left Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().left?.width).toBe('240px')
         },
-      })
-
-      expect(layoutService.drawerState.getValue().left?.width).toBe('240px')
+      )
     })
 
     it('should add drawer-left-closed class to host when drawer is closed', async () => {
@@ -431,21 +457,24 @@ describe('PageLayout component', () => {
     })
 
     it('should initialize right drawer state correctly', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          right: {
-            variant: 'permanent',
-            width: '200px',
-            component: <div>Right Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            right: {
+              variant: 'permanent',
+              width: '200px',
+              component: <div>Right Drawer</div>,
+            },
           },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue().right).toEqual({
+            open: true,
+            width: '200px',
+            variant: 'permanent',
+          })
         },
-      })
-
-      expect(layoutService.drawerState.getValue().right).toEqual({
-        open: true,
-        width: '200px',
-        variant: 'permanent',
-      })
+      )
     })
   })
 
@@ -482,26 +511,29 @@ describe('PageLayout component', () => {
     })
 
     it('should initialize both drawer states correctly', async () => {
-      const { layoutService } = await renderPageLayout({
-        drawer: {
-          left: {
-            variant: 'permanent',
-            width: '240px',
-            component: <div>Left Drawer</div>,
+      await usingAsync(
+        await renderPageLayout({
+          drawer: {
+            left: {
+              variant: 'permanent',
+              width: '240px',
+              component: <div>Left Drawer</div>,
+            },
+            right: {
+              variant: 'collapsible',
+              width: '200px',
+              defaultOpen: false,
+              component: <div>Right Drawer</div>,
+            },
           },
-          right: {
-            variant: 'collapsible',
-            width: '200px',
-            defaultOpen: false,
-            component: <div>Right Drawer</div>,
-          },
+        }),
+        async ({ layoutService }) => {
+          expect(layoutService.drawerState.getValue()).toEqual({
+            left: { open: true, width: '240px', variant: 'permanent' },
+            right: { open: false, width: '200px', variant: 'collapsible' },
+          })
         },
-      })
-
-      expect(layoutService.drawerState.getValue()).toEqual({
-        left: { open: true, width: '240px', variant: 'permanent' },
-        right: { open: false, width: '200px', variant: 'collapsible' },
-      })
+      )
     })
   })
 
@@ -716,9 +748,9 @@ describe('PageLayout component', () => {
 
   describe('LayoutService Integration', () => {
     it('should update AppBar height to 0 when no AppBar is configured', async () => {
-      const { layoutService } = await renderPageLayout()
-
-      expect(layoutService.appBarHeight.getValue()).toBe('0px')
+      await usingAsync(await renderPageLayout(), async ({ layoutService }) => {
+        expect(layoutService.appBarHeight.getValue()).toBe('0px')
+      })
     })
 
     it('should respond to drawer state changes from LayoutService', async () => {

@@ -4,11 +4,13 @@ import { createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
 import type { Route } from './router.js'
 
+/** @deprecated Use `NestedRouteLinkProps` from `nested-route-link` instead */
 export type LinkToRouteProps<T extends object> = {
   route: Route<T>
   params: T
 } & Omit<JSX.IntrinsicElements['a'], 'href'>
 
+/** @deprecated Use `NestedRouteLink` from `nested-route-link` instead */
 export const LinkToRoute: <T extends object>(props: LinkToRouteProps<T>, children?: ChildrenList) => JSX.Element =
   Shade({
     shadowDomName: 'link-to-route',

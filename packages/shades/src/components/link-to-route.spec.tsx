@@ -1,4 +1,5 @@
 import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
@@ -14,28 +15,29 @@ describe('LinkToRoute', () => {
   })
 
   it('Shuld display the loader and completed state', async () => {
-    const injector = new Injector()
-    const rootElement = document.getElementById('root') as HTMLDivElement
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
 
-    initializeShadeRoot({
-      injector,
-      rootElement,
-      jsxElement: (
-        <LinkToRoute
-          route={
-            {
-              url: '/subroute/:id',
-            } as Route<{ id: number }>
-          }
-          params={{ id: 123 }}
-          id="route"
-        >
-          Link
-        </LinkToRoute>
-      ),
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <LinkToRoute
+            route={
+              {
+                url: '/subroute/:id',
+              } as Route<{ id: number }>
+            }
+            params={{ id: 123 }}
+            id="route"
+          >
+            Link
+          </LinkToRoute>
+        ),
+      })
+      expect(document.body.innerHTML).toBe(
+        '<div id="root"><a is="link-to-route" id="route" href="/subroute/123">Link</a></div>',
+      )
     })
-    expect(document.body.innerHTML).toBe(
-      '<div id="root"><a is="link-to-route" id="route" href="/subroute/123">Link</a></div>',
-    )
   })
 })

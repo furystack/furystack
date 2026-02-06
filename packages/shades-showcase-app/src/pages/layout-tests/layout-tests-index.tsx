@@ -1,4 +1,4 @@
-import { createComponent, RouteLink, Shade } from '@furystack/shades'
+import { createComponent, NestedRouteLink, Shade } from '@furystack/shades'
 import { AppBar, cssVariableTheme, PageLayout } from '@furystack/shades-common-components'
 
 /**
@@ -64,7 +64,7 @@ export const LayoutTestsIndex = Shade({
           variant: 'permanent',
           component: (
             <AppBar>
-              <RouteLink
+              <NestedRouteLink
                 href="/"
                 style={{
                   color: cssVariableTheme.text.primary,
@@ -77,7 +77,7 @@ export const LayoutTestsIndex = Shade({
               >
                 <span style={{ fontSize: '20px' }}>←</span>
                 <span>Back to Showcase App</span>
-              </RouteLink>
+              </NestedRouteLink>
               <h3 style={{ margin: '0', flex: '1' }}>Layout Test Pages</h3>
             </AppBar>
           ),
@@ -92,7 +92,7 @@ export const LayoutTestsIndex = Shade({
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {testPages.map((page) => (
-              <RouteLink
+              <NestedRouteLink
                 href={page.url}
                 style={{
                   display: 'flex',
@@ -119,7 +119,7 @@ export const LayoutTestsIndex = Shade({
                   <div style={{ color: cssVariableTheme.text.primary, fontWeight: 'bold' }}>{page.title}</div>
                   <div style={{ color: cssVariableTheme.text.secondary, fontSize: '14px' }}>{page.description}</div>
                 </div>
-              </RouteLink>
+              </NestedRouteLink>
             ))}
           </div>
         </div>

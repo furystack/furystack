@@ -9,26 +9,28 @@ Every exported function, class, and method must have tests:
 ```typescript
 // ✅ Good - testing public API
 describe('Injectable', () => {
-  it('should create injectable class with singleton lifetime', () => {
-    @Injectable({ lifetime: 'singleton' })
-    class MyService {}
+  it('should create injectable class with singleton lifetime', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'singleton' })
+      class MyService {}
 
-    const injector = new Injector()
-    const instance1 = injector.getInstance(MyService)
-    const instance2 = injector.getInstance(MyService)
+      const instance1 = injector.getInstance(MyService)
+      const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).toBe(instance2) // Same instance
+      expect(instance1).toBe(instance2) // Same instance
+    })
   })
 
-  it('should create injectable class with transient lifetime', () => {
-    @Injectable({ lifetime: 'transient' })
-    class MyService {}
+  it('should create injectable class with transient lifetime', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'transient' })
+      class MyService {}
 
-    const injector = new Injector()
-    const instance1 = injector.getInstance(MyService)
-    const instance2 = injector.getInstance(MyService)
+      const instance1 = injector.getInstance(MyService)
+      const instance2 = injector.getInstance(MyService)
 
-    expect(instance1).not.toBe(instance2) // Different instances
+      expect(instance1).not.toBe(instance2) // Different instances
+    })
   })
 })
 ```
@@ -72,26 +74,27 @@ Test how packages work together:
 ```typescript
 // ✅ Good - integration test
 describe('DI Integration', () => {
-  it('should inject dependencies across packages', () => {
-    @Injectable({ lifetime: 'singleton' })
-    class ServiceA {
-      public name = 'ServiceA'
-    }
-
-    @Injectable({ lifetime: 'singleton' })
-    class ServiceB {
-      @Injected(ServiceA)
-      declare public serviceA: ServiceA
-
-      public getName(): string {
-        return this.serviceA.name
+  it('should inject dependencies across packages', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      @Injectable({ lifetime: 'singleton' })
+      class ServiceA {
+        public name = 'ServiceA'
       }
-    }
 
-    const injector = new Injector()
-    const serviceB = injector.getInstance(ServiceB)
+      @Injectable({ lifetime: 'singleton' })
+      class ServiceB {
+        @Injected(ServiceA)
+        declare public serviceA: ServiceA
 
-    expect(serviceB.getName()).toBe('ServiceA')
+        public getName(): string {
+          return this.serviceA.name
+        }
+      }
+
+      const serviceB = injector.getInstance(ServiceB)
+
+      expect(serviceB.getName()).toBe('ServiceA')
+    })
   })
 })
 ```
@@ -119,6 +122,28 @@ describe('Cache types', () => {
   })
 })
 ```
+
+## Resource Disposal
+
+### Use `usingAsync()` for Injector Cleanup
+
+Always wrap `Injector` instances in `usingAsync()` to ensure proper disposal of singletons (e.g. `LocationService`, stores, caches) after the test completes. This prevents leaked global state (such as monkeypatched `history.pushState`) from affecting subsequent tests.
+
+```typescript
+import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
+
+it('should work with injected services', async () => {
+  await usingAsync(new Injector(), async (injector) => {
+    // The injector and all its singletons are automatically
+    // disposed when this callback returns or throws
+    const service = injector.getInstance(MyService)
+    expect(service.getData()).toBe('expected')
+  })
+})
+```
+
+**Why this matters:** `Injector` implements `AsyncDisposable`. Services like `LocationService` modify global state in their constructor (e.g. wrapping `history.pushState`). Without proper disposal, these modifications leak across tests causing hangs or flaky failures.
 
 ## Vitest Patterns
 
@@ -151,14 +176,15 @@ Keep mocking minimal in library tests:
 ```typescript
 // ✅ Good - testing real implementations
 describe('Injector', () => {
-  it('should create instances of registered classes', () => {
-    class MyClass {}
+  it('should create instances of registered classes', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      class MyClass {}
 
-    const injector = new Injector()
-    injector.setExplicitInstance(MyClass, new MyClass())
+      injector.setExplicitInstance(MyClass, new MyClass())
 
-    const instance = injector.getInstance(MyClass)
-    expect(instance).toBeInstanceOf(MyClass)
+      const instance = injector.getInstance(MyClass)
+      expect(instance).toBeInstanceOf(MyClass)
+    })
   })
 })
 ```
