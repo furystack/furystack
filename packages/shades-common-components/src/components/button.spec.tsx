@@ -92,18 +92,12 @@ describe('Button', () => {
     colors.forEach((color) => {
       it(`should set CSS custom properties for ${color} color`, async () => {
         await usingAsync(await renderButton({ color }), async ({ button }) => {
-          expect(button.style.getPropertyValue('--btn-color-main')).toBe(
-            `var(--shades-theme-palette-${color}-main)`,
-          )
+          expect(button.style.getPropertyValue('--btn-color-main')).toBe(`var(--shades-theme-palette-${color}-main)`)
           expect(button.style.getPropertyValue('--btn-color-main-contrast')).toBe(
             `var(--shades-theme-palette-${color}-main-contrast)`,
           )
-          expect(button.style.getPropertyValue('--btn-color-light')).toBe(
-            `var(--shades-theme-palette-${color}-light)`,
-          )
-          expect(button.style.getPropertyValue('--btn-color-dark')).toBe(
-            `var(--shades-theme-palette-${color}-dark)`,
-          )
+          expect(button.style.getPropertyValue('--btn-color-light')).toBe(`var(--shades-theme-palette-${color}-light)`)
+          expect(button.style.getPropertyValue('--btn-color-dark')).toBe(`var(--shades-theme-palette-${color}-dark)`)
           expect(button.style.getPropertyValue('--btn-color-dark-contrast')).toBe(
             `var(--shades-theme-palette-${color}-dark-contrast)`,
           )
@@ -118,9 +112,7 @@ describe('Button', () => {
           'var(--shades-theme-background-default)',
         )
         expect(button.style.getPropertyValue('--btn-color-light')).toBe('var(--shades-theme-text-primary)')
-        expect(button.style.getPropertyValue('--btn-color-dark')).toBe(
-          'var(--shades-theme-button-disabled-background)',
-        )
+        expect(button.style.getPropertyValue('--btn-color-dark')).toBe('var(--shades-theme-button-disabled-background)')
         expect(button.style.getPropertyValue('--btn-color-dark-contrast')).toBe('var(--shades-theme-text-primary)')
       })
     })

@@ -191,7 +191,11 @@ describe('DataGridBody', () => {
         rootElement,
         jsxElement: (
           <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} onRowClick={onRowClick} />
+            <DataGridBody<TestEntry, 'id' | 'name'>
+              service={service}
+              columns={['id', 'name']}
+              onRowClick={onRowClick}
+            />
           </table>
         ),
       })

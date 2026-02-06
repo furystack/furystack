@@ -1,7 +1,8 @@
 import { StoreManager } from '@furystack/core'
 import { Injector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
 import { createClient } from 'redis'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RedisStore } from './redis-store.js'
 import { useRedis } from './store-manager-helpers.js'
 
@@ -13,46 +14,52 @@ describe('Redis Store', () => {
     declare value: string
   }
 
-  let i!: Injector
-  let store!: RedisStore<ExampleClass, 'id'>
-  let client!: ReturnType<typeof createClient>
-
-  beforeEach(async () => {
-    client = createClient({ url: redisUrl })
-    i = new Injector()
-    useRedis({ injector: i, model: ExampleClass, primaryKey: 'id', client })
-    store = i.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
+  const setupRedisStore = async () => {
+    const client = createClient({ url: redisUrl })
+    const injector = new Injector()
+    useRedis({ injector, model: ExampleClass, primaryKey: 'id', client })
+    const store = injector.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
     await client.connect()
-  })
+    return {
+      store,
+      [Symbol.asyncDispose]: async () => {
+        await client.quit()
+        store[Symbol.dispose]()
+        await injector[Symbol.asyncDispose]()
+      },
+    }
+  }
 
-  afterEach(async () => {
-    await client.quit()
-    store[Symbol.dispose]()
-    await i[Symbol.asyncDispose]()
-  })
-
-  it('Should be a RedisStore instance', () => {
-    expect(store).toBeInstanceOf(RedisStore)
+  it('Should be a RedisStore instance', async () => {
+    await usingAsync(await setupRedisStore(), async ({ store }) => {
+      expect(store).toBeInstanceOf(RedisStore)
+    })
   })
 
   it('Should add an entity', async () => {
-    const entityToAdd: ExampleClass = { id: 'something', value: 'value' }
-    await store.add(entityToAdd)
-    const retrieved = await store.get(entityToAdd.id)
-    expect(retrieved).toEqual(entityToAdd)
-    await store.update(entityToAdd.id, { ...entityToAdd, value: 'updatedValue' })
-    const updated = await store.get(entityToAdd.id)
-    expect(updated && updated.value).toBe('updatedValue')
-    await store.remove(entityToAdd.id)
-    const deleted = await store.get(entityToAdd.id)
-    expect(deleted).toBeFalsy()
+    await usingAsync(await setupRedisStore(), async ({ store }) => {
+      const entityToAdd: ExampleClass = { id: 'something', value: 'value' }
+      await store.add(entityToAdd)
+      const retrieved = await store.get(entityToAdd.id)
+      expect(retrieved).toEqual(entityToAdd)
+      await store.update(entityToAdd.id, { ...entityToAdd, value: 'updatedValue' })
+      const updated = await store.get(entityToAdd.id)
+      expect(updated && updated.value).toBe('updatedValue')
+      await store.remove(entityToAdd.id)
+      const deleted = await store.get(entityToAdd.id)
+      expect(deleted).toBeFalsy()
+    })
   })
 
   it('Should throw on count', async () => {
-    await expect(store.count()).rejects.toThrow()
+    await usingAsync(await setupRedisStore(), async ({ store }) => {
+      await expect(store.count()).rejects.toThrow()
+    })
   })
 
   it('Should throw on search', async () => {
-    await expect(store.find()).rejects.toThrow()
+    await usingAsync(await setupRedisStore(), async ({ store }) => {
+      await expect(store.find()).rejects.toThrow()
+    })
   })
 })
