@@ -5,6 +5,29 @@ import { navigationConfig, type NavCategory, type NavPage } from '../navigation.
 
 const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
   shadowDomName: 'sidebar-page-link',
+  css: {
+    display: 'block',
+    '& a': {
+      display: 'block',
+      padding: '7px 16px 7px 44px',
+      textDecoration: 'none',
+      color: 'inherit',
+      fontSize: '0.84rem',
+      borderRadius: '6px',
+      borderLeft: '3px solid transparent',
+      margin: '1px 8px 1px 0',
+      transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+    },
+    '& a:hover': {
+      background: 'rgba(128,128,128,0.12)',
+    },
+    '& a.active': {
+      color: cssVariableTheme.palette.primary.main,
+      fontWeight: '600',
+      background: 'rgba(128,128,128,0.1)',
+      borderLeftColor: cssVariableTheme.palette.primary.main,
+    },
+  },
   render: ({ props, injector, useObservable }) => {
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
@@ -15,20 +38,10 @@ const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
     return (
       <a
         href={href}
+        className={isActive ? 'active' : ''}
         onclick={(ev: MouseEvent) => {
           ev.preventDefault()
           history.pushState({}, '', href)
-        }}
-        style={{
-          display: 'block',
-          padding: '6px 16px 6px 40px',
-          textDecoration: 'none',
-          color: isActive ? cssVariableTheme.palette.primary.main : 'inherit',
-          fontWeight: isActive ? 'bold' : 'normal',
-          fontSize: '0.875rem',
-          borderRadius: '4px',
-          background: isActive ? 'rgba(128,128,128,0.1)' : 'transparent',
-          transition: 'background 0.15s ease',
         }}
       >
         {props.page.label}
@@ -39,6 +52,44 @@ const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
 
 const SidebarCategory = Shade<{ category: NavCategory }>({
   shadowDomName: 'sidebar-category',
+  css: {
+    display: 'block',
+    marginBottom: '2px',
+    '& .category-header': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '8px 12px',
+      cursor: 'pointer',
+      fontSize: '0.82rem',
+      fontWeight: '500',
+      letterSpacing: '0.02em',
+      userSelect: 'none',
+      borderRadius: '6px',
+      margin: '0 8px',
+      transition: 'background 0.15s ease, color 0.15s ease',
+    },
+    '& .category-header:hover': {
+      background: 'rgba(128,128,128,0.1)',
+    },
+    '& .category-header.active': {
+      color: cssVariableTheme.palette.primary.main,
+      fontWeight: '600',
+    },
+    '& .expand-arrow': {
+      fontSize: '0.55rem',
+      width: '12px',
+      textAlign: 'center',
+      transition: 'transform 0.2s ease',
+      display: 'inline-block',
+    },
+    '& .expand-arrow.expanded': {
+      transform: 'rotate(90deg)',
+    },
+    '& .category-children': {
+      paddingBottom: '4px',
+    },
+  },
   render: ({ props, injector, useObservable, useState }) => {
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
@@ -54,28 +105,17 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
     }
 
     return (
-      <div style={{ marginBottom: '4px' }}>
+      <div>
         <div
+          className={`category-header${isCategoryActive ? ' active' : ''}`}
           onclick={() => setIsExpanded(!isExpanded)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            fontWeight: isCategoryActive ? 'bold' : 'normal',
-            color: isCategoryActive ? cssVariableTheme.palette.primary.main : 'inherit',
-            fontSize: '0.9rem',
-            userSelect: 'none',
-            borderRadius: '4px',
-          }}
         >
-          <span style={{ fontSize: '0.75rem', width: '12px', textAlign: 'center' }}>{isExpanded ? '▼' : '▶'}</span>
+          <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>
           <span>{props.category.icon}</span>
           <span>{props.category.label}</span>
         </div>
         {isExpanded && (
-          <div>
+          <div className="category-children">
             {props.category.children.map((page) => (
               <SidebarPageLink category={props.category} page={page} />
             ))}
@@ -93,27 +133,72 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
  */
 export const SidebarNavigation = Shade({
   shadowDomName: 'sidebar-navigation',
+  css: {
+    display: 'block',
+    height: '100%',
+    overflow: 'hidden auto',
+    color: cssVariableTheme.text.primary,
+    scrollbarWidth: 'thin',
+    scrollbarGutter: 'stable',
+    '&::-webkit-scrollbar': {
+      width: '4px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'transparent',
+      borderRadius: '4px',
+    },
+    '&:hover::-webkit-scrollbar-thumb': {
+      background: 'rgba(128,128,128,0.4)',
+    },
+    '& .sidebar-header': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '16px 20px 12px',
+      textDecoration: 'none',
+      color: 'inherit',
+      fontWeight: '700',
+      fontSize: '0.95rem',
+      letterSpacing: '0.01em',
+      borderRadius: '6px',
+      margin: '0 8px',
+      transition: 'background 0.15s ease',
+    },
+    '& .sidebar-header:hover': {
+      background: 'rgba(128,128,128,0.1)',
+    },
+    '& .sidebar-divider': {
+      height: '1px',
+      background: cssVariableTheme.divider,
+      margin: '4px 16px 8px',
+      opacity: '0.6',
+    },
+    '& .sidebar-section-label': {
+      padding: '8px 20px 4px',
+      fontSize: '0.68rem',
+      fontWeight: '600',
+      letterSpacing: '0.08em',
+      textTransform: 'uppercase',
+      color: cssVariableTheme.text.secondary,
+      userSelect: 'none',
+    },
+  },
   render: () => {
     return (
-      <nav style={{ padding: '8px 0', height: '100%', overflow: 'auto' }}>
+      <nav style={{ padding: '4px 0 8px' }}>
         <a
+          className="sidebar-header"
           href="/"
           onclick={(ev: MouseEvent) => {
             ev.preventDefault()
             history.pushState({}, '', '/')
           }}
-          style={{
-            display: 'block',
-            padding: '8px 16px',
-            textDecoration: 'none',
-            color: 'inherit',
-            fontWeight: 'bold',
-            fontSize: '0.9rem',
-            marginBottom: '8px',
-          }}
         >
-          🏠 Home
+          <span style={{ fontSize: '1.1rem' }}>🔥</span>
+          <span>FuryStack Shades</span>
         </a>
+        <div className="sidebar-divider" />
+        <div className="sidebar-section-label">Components</div>
         {navigationConfig.map((category) => (
           <SidebarCategory category={category} />
         ))}
