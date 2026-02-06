@@ -1,7 +1,9 @@
 import { createComponent, Shade } from '@furystack/shades'
 import {
   Avatar,
+  Breadcrumb,
   CommandPalette,
+  createBreadcrumb,
   Fab,
   Input,
   PageContainer,
@@ -10,6 +12,10 @@ import {
   Suggest,
 } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
+
+import type { appRoutes } from '../routes.js'
+
+const AppBreadcrumb = createBreadcrumb<typeof appRoutes>()
 
 type SuggestEntry = { title: string; description: string }
 const entries: SuggestEntry[] = [
@@ -117,6 +123,74 @@ export const MiscPage = Shade({
           <hr />
           <ExampleSearchChangeComponent />
           <ExampleStoredStateChangeComponent />
+          <hr />
+          <div>
+            <h2>Breadcrumb</h2>
+
+            <h3>Basic Breadcrumb</h3>
+            <Breadcrumb homeItem={{ path: '/' as const, label: 'Home' }} items={[{ path: '/misc', label: 'Misc' }]} />
+
+            <h3>Multiple Items</h3>
+            <Breadcrumb
+              items={[
+                { path: '/' as const, label: 'Home' },
+                { path: '/buttons' as const, label: 'Buttons' },
+                { path: '/misc' as const, label: 'Miscellaneous' },
+              ]}
+            />
+
+            <h3>Custom Separator</h3>
+            <Breadcrumb
+              items={[
+                { path: '/' as const, label: 'Home' },
+                { path: '/grid' as const, label: 'Grid' },
+                { path: '/misc' as const, label: 'Misc' },
+              ]}
+              separator=" → "
+            />
+
+            <h3>Custom Rendering</h3>
+            <Breadcrumb
+              items={[
+                {
+                  path: '/' as const,
+                  label: 'Home',
+                  render: (item, isActive) => (
+                    <span style={{ fontWeight: isActive ? 'bold' : 'normal', color: isActive ? 'var(--primary)' : '' }}>
+                      🏠 {item.label}
+                    </span>
+                  ),
+                },
+                {
+                  path: '/misc' as const,
+                  label: 'Misc',
+                  render: (item, isActive) => (
+                    <span style={{ fontWeight: isActive ? 'bold' : 'normal', color: isActive ? 'var(--primary)' : '' }}>
+                      🎨 {item.label}
+                    </span>
+                  ),
+                },
+              ]}
+              separator=" › "
+              lastItemClickable={true}
+            />
+
+            <h3>Type-Safe Breadcrumb (using createBreadcrumb)</h3>
+            <AppBreadcrumb
+              homeItem={{ path: '/', label: '🏠 Home' }}
+              items={[{ path: '/misc', label: 'Miscellaneous' }]}
+              separator=" / "
+            />
+
+            <h3>Last Item Non-Clickable (default)</h3>
+            <Breadcrumb
+              items={[
+                { path: '/' as const, label: 'Home' },
+                { path: '/misc' as const, label: 'Misc (not clickable)' },
+              ]}
+              lastItemClickable={false}
+            />
+          </div>
         </Paper>
       </PageContainer>
     )
