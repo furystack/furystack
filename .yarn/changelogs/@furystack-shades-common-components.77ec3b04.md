@@ -1,4 +1,4 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/shades-common-components
 
