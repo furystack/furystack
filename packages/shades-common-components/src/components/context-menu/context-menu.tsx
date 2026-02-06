@@ -13,6 +13,25 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
   ContextMenuProps<any>
 >({
   shadowDomName: 'shade-context-menu',
+  css: {
+    '& .context-menu-backdrop': {
+      opacity: '0',
+      transition: 'opacity 0.15s ease-out',
+    },
+    '& .context-menu-backdrop.visible': {
+      opacity: '1',
+    },
+    '& .context-menu-container': {
+      opacity: '0',
+      transform: 'scale(0.95) translateY(-4px)',
+      transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+      transformOrigin: 'top left',
+    },
+    '& .context-menu-container.visible': {
+      opacity: '1',
+      transform: 'scale(1) translateY(0)',
+    },
+  },
   constructed: ({ props }) => {
     const listener = (ev: KeyboardEvent) => {
       props.manager.handleKeyDown(ev)
@@ -20,7 +39,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
     window.addEventListener('keydown', listener, true)
     return () => window.removeEventListener('keydown', listener, true)
   },
-  render: ({ props, useObservable, useDisposable }) => {
+  render: ({ props, useObservable, useDisposable, element }) => {
     const { manager, onItemSelect } = props
 
     useDisposable('onItemSelect', () => manager.subscribe('onSelectItem', (item) => onItemSelect?.(item)))
@@ -32,6 +51,11 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
     if (!isOpened) {
       return null
     }
+
+    requestAnimationFrame(() => {
+      element.querySelector('.context-menu-backdrop')?.classList.add('visible')
+      element.querySelector('.context-menu-container')?.classList.add('visible')
+    })
 
     return (
       <div
