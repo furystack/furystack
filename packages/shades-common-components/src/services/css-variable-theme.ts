@@ -179,7 +179,7 @@ export const useThemeCssVariables = (theme: DeepPartial<Theme>) => {
   const root = document.querySelector(':root') as HTMLElement
   assignValue(cssVariableTheme, theme, root)
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
     setCssVariable(cssVariableTheme.transitions.duration.fast, '0s', root)
     setCssVariable(cssVariableTheme.transitions.duration.normal, '0s', root)
     setCssVariable(cssVariableTheme.transitions.duration.slow, '0s', root)

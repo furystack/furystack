@@ -13,7 +13,7 @@ export const promisifyAnimation = async (
     if (!el) {
       return reject(new Error('No element provided'))
     }
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
     const resolvedOptions: KeyframeAnimationOptions =
       typeof options === 'number' ? { duration: options } : { ...options }
     if (prefersReducedMotion) {
