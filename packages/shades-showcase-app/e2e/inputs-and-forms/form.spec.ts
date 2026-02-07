@@ -399,14 +399,6 @@ test.describe('Advanced Form', () => {
     // Scroll to the advanced form section
     await advancedForm.scrollIntoViewIfNeeded()
 
-    // Fill in Full Name
-    const fullNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
-    await fullNameInput.fill('Jane Doe')
-
-    // Fill in Email
-    const emailInput = advancedForm.getByRole('textbox', { name: 'Email' })
-    await emailInput.fill('jane@example.com')
-
     // Select an experience level (Intermediate) - use native click to work around
     // Playwright touch emulation issues with custom-styled radios after form fill
     const intermediateRadio = advancedForm.getByRole('radio', { name: 'Intermediate' })
@@ -417,6 +409,9 @@ test.describe('Advanced Form', () => {
     const trackTrigger = advancedForm.locator('shade-select').locator('[role="combobox"]')
     await trackTrigger.click()
     await advancedForm.locator('[role="listbox"]').getByRole('option', { name: 'Frontend' }).click()
+
+    // Verify the dropdown closed and value is displayed
+    await expect(trackTrigger.locator('.select-value')).toContainText('Frontend')
 
     // Check optional checkboxes (Workshops) - use native click for cross-browser compatibility
     const workshopsCheckbox = advancedForm.getByRole('checkbox', { name: 'Workshops' })
@@ -429,8 +424,22 @@ test.describe('Advanced Form', () => {
     await termsCheckbox.evaluate((el: HTMLInputElement) => el.click())
     await expect(termsCheckbox).toBeChecked()
 
+    // Fill text inputs last to avoid firefox re-render clearing values.
+    // Use pressSequentially for cross-browser compatibility with Shades' re-rendering.
+    const fullNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
+    await fullNameInput.scrollIntoViewIfNeeded()
+    await fullNameInput.click()
+    await fullNameInput.pressSequentially('Jane Doe', { delay: 20 })
+    await expect(fullNameInput).toHaveValue('Jane Doe')
+
+    const emailInput = advancedForm.getByRole('textbox', { name: 'Email' })
+    await emailInput.click()
+    await emailInput.pressSequentially('jane@example.com', { delay: 20 })
+    await expect(emailInput).toHaveValue('jane@example.com')
+
     // Click Register
     const registerButton = advancedForm.getByRole('button', { name: 'Register' })
+    await registerButton.scrollIntoViewIfNeeded()
     await registerButton.click()
 
     // Verify the success alert appears (allow extra time for form processing)

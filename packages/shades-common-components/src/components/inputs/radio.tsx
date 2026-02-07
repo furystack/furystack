@@ -129,11 +129,12 @@ export const Radio = Shade<RadioProps>({
     },
   },
   constructed: ({ props, injector, element }) => {
+    let formCleanup: (() => void) | undefined
     if (injector.cachedSingletons.has(FormService)) {
       const input = element.querySelector('input[type="radio"]') as HTMLInputElement
       const formService = injector.getInstance(FormService)
       formService.inputs.add(input)
-      return () => formService.inputs.delete(input)
+      formCleanup = () => formService.inputs.delete(input)
     }
 
     // After connection to the DOM, read group-level overrides from parent RadioGroup
@@ -158,6 +159,8 @@ export const Radio = Shade<RadioProps>({
         }
       }
     }
+
+    return formCleanup
   },
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
