@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('I18n', () => {
   test('Should be able to change language', async ({ page }) => {
-    await page.goto('/i18n')
+    await page.goto('/integrations/i18n')
 
     const select = page.locator('select[name="currentLanguage"]')
     const greeting = page.locator('#greeting')

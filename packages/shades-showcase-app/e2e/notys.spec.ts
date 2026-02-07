@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Notys', () => {
   test('Should be able to open and close notys in order', async ({ page }) => {
-    await page.goto('/notys')
+    await page.goto('/feedback/notifications')
     const infoButton = page.locator('button:has-text("Info")')
     await infoButton.click()
     const infoNoty = page.locator('shade-noty:has-text("Info")')

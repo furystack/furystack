@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const wizardPageUrl = '/wizard'
+const wizardPageUrl = '/surfaces/wizard'
 
 test.describe('Wizard', () => {
   test('Should be opened and closed with a backdrop click', async ({ page }) => {

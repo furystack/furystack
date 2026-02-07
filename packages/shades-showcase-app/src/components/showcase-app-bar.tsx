@@ -50,10 +50,7 @@ export const ShowcaseAppBar = Shade({
         >
           <ShowcaseAppBarLinks href="/">Home</ShowcaseAppBarLinks>
           {navigationConfig.map((category) => (
-            <ShowcaseAppBarLinks
-              href={`/${category.slug}/${category.children[0].slug}` as AppRoutePath}
-              routingOptions={{ end: false }}
-            >
+            <ShowcaseAppBarLinks href={`/${category.slug}` as AppRoutePath} routingOptions={{ end: false }}>
               {category.label}
             </ShowcaseAppBarLinks>
           ))}

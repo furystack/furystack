@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Form', () => {
   test('should submit form after performing validation', async ({ page }) => {
-    await page.goto('/form')
+    await page.goto('/inputs-and-forms/form')
 
     const form = page.locator('form')
 

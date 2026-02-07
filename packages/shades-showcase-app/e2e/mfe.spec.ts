@@ -48,7 +48,7 @@ test.describe('MFE', () => {
       await expect(container).not.toContainText(`${sender}:${message}`)
     }
 
-    await page.goto('/mfe')
+    await page.goto('/integrations/mfe')
     await expect(page.getByTestId('page-header-title')).toBeVisible()
 
     await addClient('Client 1')

@@ -6,7 +6,8 @@ type NavigateProps = {
 
 /**
  * Redirect helper component. Navigates to the given path on render
- * by calling history.pushState and updating LocationService state.
+ * by replacing the current history entry so the intermediate URL
+ * does not pollute the browser's back/forward stack.
  */
 export const Navigate = Shade<NavigateProps>({
   shadowDomName: 'showcase-navigate',
@@ -14,7 +15,7 @@ export const Navigate = Shade<NavigateProps>({
     const locationService = injector.getInstance(LocationService)
     const current = locationService.onLocationPathChanged.getValue()
     if (current !== props.to) {
-      history.pushState({}, '', props.to)
+      history.replaceState({}, '', props.to)
     }
   },
   render: () => <></>,

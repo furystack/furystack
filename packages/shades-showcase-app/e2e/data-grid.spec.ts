@@ -56,7 +56,7 @@ test.describe('Data Grid component', () => {
 
   test.describe('Focus', () => {
     test('With mouse click', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       const numbers = new Array<number>(10).fill(0).map(() => Math.floor(Math.random() * 100) + 1)
       for (const no of numbers) {
         await clickOnRow(page, no)
@@ -66,7 +66,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('With keyboard', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       await clickOnRow(page, 1)
       await expectRowHasFocus(page, 1)
       await page.keyboard.press('ArrowDown')
@@ -79,7 +79,7 @@ test.describe('Data Grid component', () => {
   test.describe('Selection', () => {
     test.describe('Keyboard shortcuts', () => {
       test('space should invert selection and keep focus', async ({ page }) => {
-        await page.goto('/grid')
+        await page.goto('/data-display/grid')
         await clickOnRow(page, 1)
 
         // select row 1
@@ -117,7 +117,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('insert should invert selection and move focus down', async ({ page }) => {
-        await page.goto('/grid')
+        await page.goto('/data-display/grid')
         await clickOnRow(page, 1)
 
         // select row 1, focus on 2
@@ -141,7 +141,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('plus should select all rows', async ({ page }) => {
-        await page.goto('/grid')
+        await page.goto('/data-display/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('+', {
           delay: 25,
@@ -150,7 +150,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('minus should deselect all rows', async ({ page }) => {
-        await page.goto('/grid')
+        await page.goto('/data-display/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('Insert')
         await page.keyboard.press('Insert')
@@ -161,7 +161,7 @@ test.describe('Data Grid component', () => {
       })
 
       test('star should invert selection', async ({ page }) => {
-        await page.goto('/grid')
+        await page.goto('/data-display/grid')
         await clickOnRow(page, 1)
         await page.keyboard.press('Insert')
         await page.keyboard.press('Insert')
@@ -175,7 +175,7 @@ test.describe('Data Grid component', () => {
 
   test.describe('Gestures', () => {
     test('CTRL+click should toggle selection', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       /** TODO */
       await clickOnRow(page, 1, ['Control'])
       await expectRowHasFocus(page, 1)
@@ -194,7 +194,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('SHIFT+click should select range', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       await clickOnRow(page, 1)
       await expectRowHasFocus(page, 1)
       await expectSelectionCount(page, 0)
@@ -208,7 +208,7 @@ test.describe('Data Grid component', () => {
 
   test.describe('Keyboard Navigation Scrolling', () => {
     test('ArrowDown should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       await clickOnRow(page, 1)
       await expectRowHasFocus(page, 1)
 
@@ -222,7 +222,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('ArrowUp should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
 
       // First navigate to a row far down the list
       await clickOnRow(page, 50)
@@ -238,7 +238,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('Home key should scroll to first row', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
 
       // Start from a row in the middle
       await clickOnRow(page, 50)
@@ -252,7 +252,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('End key should scroll to last row', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
 
       // Start from the first row
       await clickOnRow(page, 1)
@@ -266,7 +266,7 @@ test.describe('Data Grid component', () => {
     })
 
     test('Multiple consecutive navigation should scroll to final row', async ({ page }) => {
-      await page.goto('/grid')
+      await page.goto('/data-display/grid')
       await clickOnRow(page, 1)
 
       // Navigate down 30 rows and verify final row is visible
