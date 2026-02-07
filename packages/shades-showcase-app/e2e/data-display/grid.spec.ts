@@ -2,6 +2,8 @@ import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 
 test.describe('Data Grid component', () => {
+  test.skip(({ isMobile }) => isMobile, 'Desktop-only tests (requires keyboard interaction)')
+
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
     await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
   }

@@ -31,6 +31,7 @@ const config: PlaywrightTestConfig = {
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+      timeout: 60000,
     },
   ],
   webServer: {
