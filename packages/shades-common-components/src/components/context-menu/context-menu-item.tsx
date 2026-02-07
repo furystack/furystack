@@ -1,6 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { ContextMenuItem, ContextMenuManager } from './context-menu-manager.js'
 
 export type ContextMenuItemProps<T> = {
@@ -21,7 +21,11 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
       gap: cssVariableTheme.spacing.sm,
       opacity: '0',
       transform: 'translateY(-4px)',
-      transition: `opacity 0.25s ease-out, transform ${cssVariableTheme.transitions.duration.fast} ease-out, background-color ${cssVariableTheme.transitions.duration.fast} ease`,
+      transition: buildTransition(
+        ['opacity', cssVariableTheme.transitions.duration.slow, 'ease-out'],
+        ['transform', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+        ['background-color', cssVariableTheme.transitions.duration.fast, 'ease'],
+      ),
       '&.visible': {
         opacity: '1',
         transform: 'translateY(0)',

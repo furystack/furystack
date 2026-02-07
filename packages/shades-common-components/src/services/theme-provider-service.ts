@@ -102,6 +102,8 @@ export type ActionColors = {
   disabledOpacity: string
   /** Overlay background color for backdrops (drawers, modals) */
   backdrop: Color
+  /** Subtle border color for structural dividers, input borders, and dropdown outlines */
+  subtleBorder: Color
 }
 
 /**

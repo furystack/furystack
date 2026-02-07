@@ -27,7 +27,7 @@ export const TextArea = Shade<TextAreaProps>({
       transition: `color ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
     },
     '&[data-variant="outlined"] label': {
-      border: `1px solid ${cssVariableTheme.action.activeBackground}`,
+      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
     '&[data-disabled] label': {
       color: cssVariableTheme.text.disabled,

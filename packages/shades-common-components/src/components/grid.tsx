@@ -50,11 +50,11 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
         letterSpacing: '0.05em',
         textAlign: 'left',
         borderBottom: `2px solid ${cssVariableTheme.background.default}`,
-        borderRight: `1px solid ${cssVariableTheme.action.activeBackground}`,
+        borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       },
       '& td': {
         padding: '0.75em 1.2em',
-        borderBottom: `1px solid ${cssVariableTheme.action.selectedBackground}`,
+        borderBottom: `1px solid ${cssVariableTheme.action.subtleBorder}`,
         transition: `background-color ${cssVariableTheme.transitions.duration.normal} ease`,
         fontSize: '0.875rem',
         lineHeight: '1.5',

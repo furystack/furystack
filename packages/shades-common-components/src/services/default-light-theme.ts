@@ -28,6 +28,7 @@ export const defaultLightTheme: Theme = {
     focusRing: '0 0 0 3px rgba(128, 128, 128, 0.15)',
     disabledOpacity: '0.6',
     backdrop: 'rgba(0, 0, 0, 0.5)',
+    subtleBorder: 'rgba(128, 128, 128, 0.2)',
   },
   shape: {
     borderRadius: {

@@ -1,6 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { FlattenedTreeNode, TreeService } from '../../services/tree-service.js'
 import type { TreeItemState } from './tree.js'
 
@@ -26,7 +26,12 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     userSelect: 'none',
     padding: '4px 8px',
     gap: '6px',
-    transition: `opacity ${cssVariableTheme.transitions.duration.fast} ease-out, transform ${cssVariableTheme.transitions.duration.fast} ease-out, background-color ${cssVariableTheme.transitions.duration.fast} ease, box-shadow ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}`,
+    transition: buildTransition(
+      ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+      ['transform', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+      ['background-color', cssVariableTheme.transitions.duration.fast, 'ease'],
+      ['box-shadow', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.easeInOut],
+    ),
     borderLeft: '3px solid transparent',
     '&.animate-in': {
       opacity: '0',

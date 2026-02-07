@@ -109,8 +109,8 @@ export const DataGrid: <T, Column extends string>(
       textAlign: 'left',
       zIndex: '1',
       boxShadow: cssVariableTheme.shadows.sm,
-      borderBottom: `2px solid ${cssVariableTheme.action.activeBackground}`,
-      borderRight: `1px solid ${cssVariableTheme.action.activeBackground}`,
+      borderBottom: `2px solid ${cssVariableTheme.action.subtleBorder}`,
+      borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
   },
   constructed: ({ props }) => {

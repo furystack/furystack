@@ -1,4 +1,4 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 
 # @furystack/shades-common-components
 
@@ -32,6 +32,14 @@ Extended the theme system with six new token groups, enabling centralized contro
 - `spacing` - Spacing scale (`xs` through `xl`) for consistent padding, margins, and gaps
 
 All new tokens are available in `defaultDarkTheme`, `defaultLightTheme`, and `cssVariableTheme`.
+
+### New exported types
+
+All token group types are exported for type-safe custom themes: `ActionColors`, `BorderRadiusScale`, `Shape`, `Shadows`, `FontSizeScale`, `FontWeightScale`, `LineHeightScale`, `Typography`, `TransitionDurations`, `TransitionEasings`, `Transitions`, `Spacing`.
+
+### `buildTransition` helper
+
+New utility function `buildTransition(...specs)` that builds CSS transition strings from `[property, duration, easing]` tuples, reducing boilerplate when composing multi-property transitions.
 
 ## 🐛 Bug Fixes
 

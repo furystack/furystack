@@ -20,7 +20,7 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
     alignItems: 'center',
     cursor: 'default',
     userSelect: 'none',
-    padding: `${cssVariableTheme.spacing.sm} 12px`,
+    padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
     gap: cssVariableTheme.spacing.sm,
     transition: `background-color ${cssVariableTheme.transitions.duration.fast} ease, box-shadow ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}`,
     borderLeft: '3px solid transparent',

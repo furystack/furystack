@@ -28,6 +28,7 @@ export const defaultDarkTheme: Theme = {
     focusRing: '0 0 0 3px rgba(255, 255, 255, 0.15)',
     disabledOpacity: '0.6',
     backdrop: 'rgba(0, 0, 0, 0.65)',
+    subtleBorder: 'rgba(255, 255, 255, 0.2)',
   },
   shape: {
     borderRadius: {

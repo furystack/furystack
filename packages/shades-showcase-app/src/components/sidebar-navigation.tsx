@@ -67,7 +67,7 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
       userSelect: 'none',
       borderRadius: cssVariableTheme.shape.borderRadius.sm,
       margin: '0 8px',
-      transition: 'background 0.15s ease, color 0.15s ease',
+      transition: `background ${cssVariableTheme.transitions.duration.fast} ease, color ${cssVariableTheme.transitions.duration.fast} ease`,
     },
     '& .category-header:hover': {
       background: cssVariableTheme.action.hoverBackground,
@@ -80,7 +80,7 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
       fontSize: '0.55rem',
       width: '12px',
       textAlign: 'center',
-      transition: 'transform 0.2s ease',
+      transition: `transform ${cssVariableTheme.transitions.duration.normal} ease`,
       display: 'inline-block',
     },
     '& .expand-arrow.expanded': {
@@ -162,7 +162,7 @@ export const SidebarNavigation = Shade({
       letterSpacing: '0.01em',
       borderRadius: cssVariableTheme.shape.borderRadius.sm,
       margin: '0 8px',
-      transition: 'background 0.15s ease',
+      transition: `background ${cssVariableTheme.transitions.duration.fast} ease`,
     },
     '& .sidebar-header:hover': {
       background: cssVariableTheme.action.hoverBackground,

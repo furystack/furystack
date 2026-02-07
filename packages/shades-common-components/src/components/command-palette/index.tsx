@@ -36,12 +36,12 @@ export const CommandPalette = Shade<CommandPaletteProps>({
       borderRadius: cssVariableTheme.shape.borderRadius.lg,
       position: 'relative',
       background: cssVariableTheme.action.hoverBackground,
-      border: `1px solid ${cssVariableTheme.action.selectedBackground}`,
+      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       boxShadow: cssVariableTheme.shadows.sm,
       transition: `all ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
     },
     '&.opened .input-container': {
-      border: `1px solid ${cssVariableTheme.action.activeBackground}`,
+      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       boxShadow: cssVariableTheme.shadows.md,
     },
     '& .term-icon': {

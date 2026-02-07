@@ -154,12 +154,12 @@ export const Input = Shade<TextInputProps>({
 
     // Outlined variant - default border
     '&[data-variant="outlined"] label': {
-      borderColor: cssVariableTheme.action.activeBackground,
+      borderColor: cssVariableTheme.action.subtleBorder,
     },
 
     // Contained variant - background using color-mix for theme-aware alpha
     '&[data-variant="contained"] label': {
-      borderColor: cssVariableTheme.action.activeBackground,
+      borderColor: cssVariableTheme.action.subtleBorder,
       background: 'color-mix(in srgb, var(--input-primary-color) 8%, transparent)',
     },
 

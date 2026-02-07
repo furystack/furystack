@@ -60,7 +60,7 @@ export const Loader = Shade<LoaderProps>({
           position: 'relative',
           width: `calc(100% - ${borderWidth * 2}px)`,
           height: `calc(100% - ${borderWidth * 2}px)`,
-          border: `${borderWidth}px solid ${cssVariableTheme.action.hoverBackground}`,
+          border: `${borderWidth}px solid ${cssVariableTheme.action.subtleBorder}`,
           borderBottom: `${borderWidth}px solid ${borderColor}`,
           borderRadius: cssVariableTheme.shape.borderRadius.full,
         }}

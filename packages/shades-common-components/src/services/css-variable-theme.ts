@@ -76,6 +76,7 @@ export const cssVariableTheme: Theme = {
     focusRing: 'var(--shades-theme-action-focus-ring)',
     disabledOpacity: 'var(--shades-theme-action-disabled-opacity)',
     backdrop: 'var(--shades-theme-action-backdrop)',
+    subtleBorder: 'var(--shades-theme-action-subtle-border)',
   },
   shape: {
     borderRadius: {
@@ -134,6 +135,19 @@ export const cssVariableTheme: Theme = {
     xl: 'var(--shades-theme-spacing-xl)',
   },
 }
+
+/**
+ * Builds a CSS transition string from property-duration-easing triplets.
+ * @param specs - Array of [property, duration, easing] tuples
+ * @returns A CSS transition string
+ * @example
+ * buildTransition(
+ *   ['background', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+ *   ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+ * )
+ */
+export const buildTransition = (...specs: Array<[property: string, duration: string, easing: string]>): string =>
+  specs.map(([prop, dur, ease]) => `${prop} ${dur} ${ease}`).join(', ')
 
 export const setCssVariable = (key: string, value: string, root: HTMLElement) => {
   root.style.setProperty(key.replace('var(', '').replace(')', ''), value)

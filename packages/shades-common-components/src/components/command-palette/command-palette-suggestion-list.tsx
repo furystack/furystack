@@ -19,7 +19,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
       backgroundColor: cssVariableTheme.background.paper,
       boxShadow: cssVariableTheme.shadows.lg,
       backdropFilter: 'blur(20px)',
-      border: `1px solid ${cssVariableTheme.action.activeBackground}`,
+      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
     '& .suggestion-item': {
       padding: '0.875em 1.25em',
