@@ -20,15 +20,15 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
     alignItems: 'center',
     cursor: 'default',
     userSelect: 'none',
-    padding: '8px 12px',
-    gap: '8px',
-    transition: 'background-color 0.15s ease, box-shadow 0.15s ease-in-out',
+    padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
+    gap: cssVariableTheme.spacing.sm,
+    transition: `background-color ${cssVariableTheme.transitions.duration.fast} ease, box-shadow ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}`,
     borderLeft: '3px solid transparent',
     '&:not(.selected):hover': {
-      backgroundColor: 'rgba(128, 128, 128, 0.08)',
+      backgroundColor: cssVariableTheme.action.hoverBackground,
     },
     '&.selected': {
-      backgroundColor: 'rgba(128, 128, 128, 0.15)',
+      backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
     '&.focused': {

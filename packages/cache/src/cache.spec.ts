@@ -1,6 +1,6 @@
 import { sleepAsync } from '@furystack/utils'
 import { Cache } from './cache.js'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
     const cache = new Cache({ load: () => Promise.resolve(1) })
@@ -120,6 +120,14 @@ describe('Cache', () => {
   })
 
   describe('Loading, locking and reloading', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
     it('should store and retrieve results based on the arguments', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
@@ -156,9 +164,11 @@ describe('Cache', () => {
 
       const cache = new Cache({ load: loader })
       const resultPromise = cache.get(1, 2)
-      await sleepAsync(100)
-      const result2 = await cache.get(1, 2)
+      await vi.advanceTimersByTimeAsync(100)
+      const result2Promise = cache.get(1, 2)
+      await vi.advanceTimersByTimeAsync(1000)
       const result = await resultPromise
+      const result2 = await result2Promise
       expect(result).toStrictEqual(result2)
       expect(result).toEqual(3)
       expect(loader).toHaveBeenCalledTimes(1)
@@ -176,8 +186,12 @@ describe('Cache', () => {
       )
 
       const cache = new Cache({ load: loader })
-      const result = await cache.get(1, 2)
-      const result2 = await cache.reload(1, 2)
+      const resultPromise = cache.get(1, 2)
+      await vi.advanceTimersByTimeAsync(1000)
+      const result = await resultPromise
+      const result2Promise = cache.reload(1, 2)
+      await vi.advanceTimersByTimeAsync(1000)
+      const result2 = await result2Promise
       expect(result).toStrictEqual(result2)
       expect(result).toEqual(3)
       expect(loader).toHaveBeenCalledTimes(2)
@@ -196,8 +210,9 @@ describe('Cache', () => {
 
       const cache = new Cache({ load: loader })
       const reloadPromise = cache.reload(1, 2)
-      await sleepAsync(100)
-      const resultPromise = await cache.get(1, 2)
+      await vi.advanceTimersByTimeAsync(100)
+      const resultPromise = cache.get(1, 2)
+      await vi.advanceTimersByTimeAsync(1000)
       const reloaded = await reloadPromise
       const loaded = await resultPromise
       expect(reloaded).toStrictEqual(loaded)
@@ -217,7 +232,10 @@ describe('Cache', () => {
       )
 
       const cache = new Cache({ load: loader })
-      await expect(cache.reload(1, 2)).rejects.toThrow('Failed')
+      const reloadPromise = cache.reload(1, 2)
+      const expectation = expect(reloadPromise).rejects.toThrow('Failed')
+      await vi.advanceTimersByTimeAsync(1000)
+      await expectation
 
       const actualValue = cache.getObservable(1, 2).getValue()
       expect(actualValue.status).toEqual('failed')

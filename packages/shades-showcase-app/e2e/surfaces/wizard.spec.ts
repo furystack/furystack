@@ -4,16 +4,12 @@ const wizardPageUrl = '/surfaces/wizard'
 
 test.describe('Wizard', () => {
   test('Should be opened and closed with a backdrop click', async ({ page }) => {
-    const sleepAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
     await page.goto(wizardPageUrl)
     const wizardButton = page.locator('button', { hasText: 'Open Wizard' })
     await wizardButton.click()
     const wizard = page.locator('shades-wizard')
 
     await wizard.waitFor({ state: 'visible' })
-
-    await sleepAsync(1000)
 
     await expect(wizard).toHaveScreenshot('wizard-1.png')
 

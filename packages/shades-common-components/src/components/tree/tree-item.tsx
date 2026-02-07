@@ -1,6 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { FlattenedTreeNode, TreeService } from '../../services/tree-service.js'
 import type { TreeItemState } from './tree.js'
 
@@ -26,18 +26,22 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     userSelect: 'none',
     padding: '4px 8px',
     gap: '6px',
-    transition:
-      'opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease, box-shadow 0.15s ease-in-out',
+    transition: buildTransition(
+      ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+      ['transform', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+      ['background-color', cssVariableTheme.transitions.duration.fast, 'ease'],
+      ['box-shadow', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.easeInOut],
+    ),
     borderLeft: '3px solid transparent',
     '&.animate-in': {
       opacity: '0',
       transform: 'translateY(-6px)',
     },
     '&:not(.selected):hover': {
-      backgroundColor: 'rgba(128, 128, 128, 0.08)',
+      backgroundColor: cssVariableTheme.action.hoverBackground,
     },
     '&.selected': {
-      backgroundColor: 'rgba(128, 128, 128, 0.15)',
+      backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
     '&.focused': {

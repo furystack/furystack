@@ -69,7 +69,85 @@ export const cssVariableTheme: Theme = {
     },
   },
   divider: 'var(--shades-theme-divider)',
+  action: {
+    hoverBackground: 'var(--shades-theme-action-hover-background)',
+    selectedBackground: 'var(--shades-theme-action-selected-background)',
+    activeBackground: 'var(--shades-theme-action-active-background)',
+    focusRing: 'var(--shades-theme-action-focus-ring)',
+    disabledOpacity: 'var(--shades-theme-action-disabled-opacity)',
+    backdrop: 'var(--shades-theme-action-backdrop)',
+    subtleBorder: 'var(--shades-theme-action-subtle-border)',
+  },
+  shape: {
+    borderRadius: {
+      xs: 'var(--shades-theme-shape-border-radius-xs)',
+      sm: 'var(--shades-theme-shape-border-radius-sm)',
+      md: 'var(--shades-theme-shape-border-radius-md)',
+      lg: 'var(--shades-theme-shape-border-radius-lg)',
+      full: 'var(--shades-theme-shape-border-radius-full)',
+    },
+  },
+  shadows: {
+    none: 'var(--shades-theme-shadows-none)',
+    sm: 'var(--shades-theme-shadows-sm)',
+    md: 'var(--shades-theme-shadows-md)',
+    lg: 'var(--shades-theme-shadows-lg)',
+    xl: 'var(--shades-theme-shadows-xl)',
+  },
+  typography: {
+    fontFamily: 'var(--shades-theme-typography-font-family)',
+    fontSize: {
+      xs: 'var(--shades-theme-typography-font-size-xs)',
+      sm: 'var(--shades-theme-typography-font-size-sm)',
+      md: 'var(--shades-theme-typography-font-size-md)',
+      lg: 'var(--shades-theme-typography-font-size-lg)',
+      xl: 'var(--shades-theme-typography-font-size-xl)',
+    },
+    fontWeight: {
+      normal: 'var(--shades-theme-typography-font-weight-normal)',
+      medium: 'var(--shades-theme-typography-font-weight-medium)',
+      semibold: 'var(--shades-theme-typography-font-weight-semibold)',
+      bold: 'var(--shades-theme-typography-font-weight-bold)',
+    },
+    lineHeight: {
+      tight: 'var(--shades-theme-typography-line-height-tight)',
+      normal: 'var(--shades-theme-typography-line-height-normal)',
+      relaxed: 'var(--shades-theme-typography-line-height-relaxed)',
+    },
+  },
+  transitions: {
+    duration: {
+      fast: 'var(--shades-theme-transitions-duration-fast)',
+      normal: 'var(--shades-theme-transitions-duration-normal)',
+      slow: 'var(--shades-theme-transitions-duration-slow)',
+    },
+    easing: {
+      default: 'var(--shades-theme-transitions-easing-default)',
+      easeOut: 'var(--shades-theme-transitions-easing-ease-out)',
+      easeInOut: 'var(--shades-theme-transitions-easing-ease-in-out)',
+    },
+  },
+  spacing: {
+    xs: 'var(--shades-theme-spacing-xs)',
+    sm: 'var(--shades-theme-spacing-sm)',
+    md: 'var(--shades-theme-spacing-md)',
+    lg: 'var(--shades-theme-spacing-lg)',
+    xl: 'var(--shades-theme-spacing-xl)',
+  },
 }
+
+/**
+ * Builds a CSS transition string from property-duration-easing triplets.
+ * @param specs - Array of [property, duration, easing] tuples
+ * @returns A CSS transition string
+ * @example
+ * buildTransition(
+ *   ['background', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+ *   ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],
+ * )
+ */
+export const buildTransition = (...specs: Array<[property: string, duration: string, easing: string]>): string =>
+  specs.map(([prop, dur, ease]) => `${prop} ${dur} ${ease}`).join(', ')
 
 export const setCssVariable = (key: string, value: string, root: HTMLElement) => {
   root.style.setProperty(key.replace('var(', '').replace(')', ''), value)
@@ -100,4 +178,10 @@ const assignValue = <T extends object>(
 export const useThemeCssVariables = (theme: DeepPartial<Theme>) => {
   const root = document.querySelector(':root') as HTMLElement
   assignValue(cssVariableTheme, theme, root)
+
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+    setCssVariable(cssVariableTheme.transitions.duration.fast, '0s', root)
+    setCssVariable(cssVariableTheme.transitions.duration.normal, '0s', root)
+    setCssVariable(cssVariableTheme.transitions.duration.slow, '0s', root)
+  }
 }

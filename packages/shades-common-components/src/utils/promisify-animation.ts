@@ -13,7 +13,13 @@ export const promisifyAnimation = async (
     if (!el) {
       return reject(new Error('No element provided'))
     }
-    const animation = el.animate(keyframes, options)
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+    const resolvedOptions: KeyframeAnimationOptions =
+      typeof options === 'number' ? { duration: options } : { ...options }
+    if (prefersReducedMotion) {
+      resolvedOptions.duration = 0
+    }
+    const animation = el.animate(keyframes, resolvedOptions)
     animation.onfinish = resolve
     animation.oncancel = reject
   })

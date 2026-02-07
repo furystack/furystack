@@ -1,11 +1,76 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button, Form, FormService, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Divider,
+  Form,
+  FormService,
+  Input,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
+  Switch,
+  TextArea,
+  Tooltip,
+} from '@furystack/shades-common-components'
+import { ObservableValue } from '@furystack/utils'
 
 type FormDataType = {
   email: string
   password: string
   confirmPassword: string
 }
+
+type AdvancedFormData = {
+  fullName: string
+  email: string
+  experienceLevel: string
+  track: string
+  acceptTerms: string
+}
+
+type FormAlertProps = {
+  alertState: ObservableValue<'success' | 'error' | null>
+}
+
+const FormAlert = Shade<FormAlertProps>({
+  shadowDomName: 'shade-form-alert',
+  render: ({ props, useObservable }) => {
+    const [currentAlert] = useObservable('currentAlert', props.alertState)
+
+    if (currentAlert === 'success') {
+      return (
+        <Alert
+          severity="success"
+          title="Registration Successful"
+          variant="filled"
+          onClose={() => props.alertState.setValue(null)}
+          style={{ marginBottom: '16px' }}
+        >
+          Your event registration has been submitted.
+        </Alert>
+      )
+    }
+    if (currentAlert === 'error') {
+      return (
+        <Alert
+          severity="error"
+          title="Validation Failed"
+          variant="filled"
+          onClose={() => props.alertState.setValue(null)}
+          style={{ marginBottom: '16px' }}
+        >
+          Please fix the errors below and try again.
+        </Alert>
+      )
+    }
+    return <></>
+  },
+})
 
 const FormStatusMonitor = Shade({
   shadowDomName: 'shade-form-status-monitor',
@@ -28,7 +93,9 @@ const FormStatusMonitor = Shade({
 
 export const FormPage = Shade({
   shadowDomName: 'forms-page',
-  render: () => {
+  render: ({ useDisposable }) => {
+    const alertState = useDisposable('alertState', () => new ObservableValue<'success' | 'error' | null>(null))
+
     return (
       <PageContainer maxWidth="800px" centered>
         <PageHeader
@@ -89,6 +156,156 @@ export const FormPage = Shade({
               <FormStatusMonitor />
             </Form>
           </div>
+        </Paper>
+
+        <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
+          <h3 style={{ marginTop: '0' }}>Advanced Form</h3>
+          <p style={{ opacity: '0.7' }}>
+            An event registration form showcasing all input components with validation, dividers, tooltips, and
+            submission feedback alerts.
+          </p>
+
+          <FormAlert alertState={alertState} />
+
+          <Form<AdvancedFormData>
+            onSubmit={() => {
+              alertState.setValue('success')
+            }}
+            validate={(formData): formData is AdvancedFormData => {
+              const data = formData as Partial<AdvancedFormData>
+              const isValid = !!(
+                typeof data.fullName === 'string' &&
+                data.fullName.length >= 2 &&
+                typeof data.email === 'string' &&
+                typeof data.experienceLevel === 'string' &&
+                typeof data.track === 'string' &&
+                data.acceptTerms === 'yes'
+              )
+              if (!isValid) {
+                alertState.setValue('error')
+              }
+              return isValid
+            }}
+          >
+            <Divider textAlign="left" style={{ margin: '16px 0' }}>
+              Personal Information
+            </Divider>
+
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: '1' }}>
+                <Input
+                  labelTitle={
+                    <Tooltip title="Enter your full legal name as it appears on your ID" placement="top">
+                      <span>Full Name</span>
+                    </Tooltip>
+                  }
+                  name="fullName"
+                  variant="outlined"
+                  required
+                  getValidationResult={({ state }) => {
+                    if (state.validity.valueMissing) {
+                      return { isValid: false, message: 'Full name is required' }
+                    }
+                    if (state.value.length > 0 && state.value.length < 2) {
+                      return { isValid: false, message: 'Name must be at least 2 characters' }
+                    }
+                    return { isValid: true }
+                  }}
+                  getHelperText={() => 'As it appears on your ID'}
+                />
+              </div>
+              <div style={{ flex: '1' }}>
+                <Input
+                  labelTitle="Email"
+                  name="email"
+                  variant="outlined"
+                  required
+                  type="email"
+                  getValidationResult={({ state }) => {
+                    if (state.validity.valueMissing) {
+                      return { isValid: false, message: 'Email address is required' }
+                    }
+                    if (state.validity.typeMismatch) {
+                      return { isValid: false, message: 'Please enter a valid email (e.g. name@example.com)' }
+                    }
+                    return { isValid: true }
+                  }}
+                  getHelperText={() => "We'll send your registration confirmation here"}
+                />
+              </div>
+            </div>
+
+            <TextArea labelTitle="Bio" variant="outlined" placeholder="Tell us about yourself..." />
+
+            <Divider textAlign="left" style={{ margin: '16px 0' }}>
+              Event Preferences
+            </Divider>
+
+            <div style={{ marginBottom: '1.25em' }}>
+              <RadioGroup name="experienceLevel" labelTitle="Experience Level">
+                <Radio value="beginner" labelTitle="Beginner" />
+                <Radio value="intermediate" labelTitle="Intermediate" />
+                <Radio value="advanced" labelTitle="Advanced" />
+              </RadioGroup>
+            </div>
+
+            <Select
+              name="track"
+              labelTitle="Track"
+              variant="outlined"
+              required
+              placeholder="Select a track"
+              options={[
+                { value: 'frontend', label: 'Frontend' },
+                { value: 'backend', label: 'Backend' },
+                { value: 'devops', label: 'DevOps' },
+                { value: 'design', label: 'Design' },
+              ]}
+              getValidationResult={({ state }) => {
+                if (!state.value) {
+                  return { isValid: false, message: 'Please select a track' }
+                }
+                return { isValid: true }
+              }}
+            />
+
+            <Divider textAlign="left" style={{ margin: '16px 0' }}>
+              Additional Options
+            </Divider>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.25em' }}>
+              <Checkbox name="workshops" value="yes" labelTitle="Workshops" />
+              <Checkbox name="networking" value="yes" labelTitle="Networking" />
+              <Checkbox name="talks" value="yes" labelTitle="Lightning Talks" />
+            </div>
+
+            <div style={{ marginBottom: '1.25em' }}>
+              <Switch name="notifications" value="yes" labelTitle="Receive email notifications" />
+            </div>
+
+            <Divider style={{ margin: '16px 0' }} />
+
+            <div style={{ marginBottom: '1.25em' }}>
+              <Checkbox name="acceptTerms" value="yes" labelTitle="I accept the terms and conditions" required />
+            </div>
+
+            <div style={{ display: 'flex', marginTop: '16px' }}>
+              <Button style={{ flexGrow: '1', justifyContent: 'center' }} type="reset" variant="outlined">
+                Reset
+              </Button>
+              <Button
+                style={{ flexGrow: '1', justifyContent: 'center' }}
+                type="submit"
+                color="primary"
+                variant="contained"
+              >
+                Register
+              </Button>
+            </div>
+
+            <hr />
+            <FormStatusMonitor />
+          </Form>
         </Paper>
       </PageContainer>
     )

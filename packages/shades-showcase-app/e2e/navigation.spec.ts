@@ -7,7 +7,11 @@ const categories = [
     url: '/inputs-and-forms/buttons',
     pages: [
       { name: 'Buttons', url: '/inputs-and-forms/buttons' },
+      { name: 'Checkboxes', url: '/inputs-and-forms/checkboxes' },
       { name: 'Inputs', url: '/inputs-and-forms/inputs' },
+      { name: 'Radio', url: '/inputs-and-forms/radio' },
+      { name: 'Select', url: '/inputs-and-forms/select' },
+      { name: 'Switch', url: '/inputs-and-forms/switch' },
       { name: 'Form', url: '/inputs-and-forms/form' },
     ],
   },
@@ -18,8 +22,12 @@ const categories = [
       { name: 'Grid', url: '/data-display/grid' },
       { name: 'List', url: '/data-display/list' },
       { name: 'Tree', url: '/data-display/tree' },
+      { name: 'Accordion', url: '/data-display/accordion' },
       { name: 'Avatar', url: '/data-display/avatar' },
+      { name: 'Badge', url: '/data-display/badge' },
       { name: 'Breadcrumb', url: '/data-display/breadcrumb' },
+      { name: 'Chip', url: '/data-display/chip' },
+      { name: 'Tooltip', url: '/data-display/tooltip' },
     ],
   },
   {
@@ -30,18 +38,30 @@ const categories = [
       { name: 'Context Menu', url: '/navigation/context-menu' },
       { name: 'Command Palette', url: '/navigation/command-palette' },
       { name: 'Suggest', url: '/navigation/suggest' },
+      { name: 'Pagination', url: '/navigation/pagination' },
     ],
   },
   {
     name: 'Feedback',
-    url: '/feedback/notifications',
-    pages: [{ name: 'Notifications', url: '/feedback/notifications' }],
+    url: '/feedback/alert',
+    pages: [
+      { name: 'Alert', url: '/feedback/alert' },
+      { name: 'Notifications', url: '/feedback/notifications' },
+      { name: 'Progress', url: '/feedback/progress' },
+    ],
+  },
+  {
+    name: 'Layout',
+    url: '/layout/divider',
+    pages: [{ name: 'Divider', url: '/layout/divider' }],
   },
   {
     name: 'Surfaces',
-    url: '/surfaces/wizard',
+    url: '/surfaces/card',
     pages: [
+      { name: 'Card', url: '/surfaces/card' },
       { name: 'Wizard', url: '/surfaces/wizard' },
+      { name: 'Dialog', url: '/surfaces/dialog' },
       { name: 'FAB', url: '/surfaces/fab' },
     ],
   },
@@ -68,7 +88,7 @@ const categories = [
 
 const getAppBarLink = (page: Page, linkText: string) => {
   const appBar = page.locator('shade-app-bar')
-  return appBar.locator('shade-app-bar-link', { has: page.locator(`text=${linkText}`) })
+  return appBar.locator('shade-app-bar-link', { has: page.locator(`text="${linkText}"`) })
 }
 
 const expectSelected = async (link: Locator) => await expect(link).toHaveCSS('opacity', '1')

@@ -1,0 +1,239 @@
+import { createComponent } from '@furystack/shades'
+import { describe, expect, it, vi } from 'vitest'
+import type { AlertProps } from './alert.js'
+import { Alert } from './alert.js'
+
+describe('Alert', () => {
+  it('should be defined', () => {
+    expect(Alert).toBeDefined()
+    expect(typeof Alert).toBe('function')
+  })
+
+  it('should create an alert element with default props', () => {
+    const el = (<Alert>Test message</Alert>) as unknown as HTMLElement
+    expect(el).toBeDefined()
+    expect(el.tagName?.toLowerCase()).toBe('shade-alert')
+  })
+
+  it('should set severity to info by default', () => {
+    const el = (
+      <div>
+        <Alert>Info message</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    expect(alert.getAttribute('data-severity')).toBe('info')
+  })
+
+  it('should set data-severity attribute for each severity', () => {
+    const severities = ['error', 'warning', 'info', 'success'] as const
+
+    for (const severity of severities) {
+      const el = (
+        <div>
+          <Alert severity={severity}>Message</Alert>
+        </div>
+      )
+      const alert = el.firstElementChild as JSX.Element
+      alert.callConstructed()
+      expect(alert.getAttribute('data-severity')).toBe(severity)
+    }
+  })
+
+  it('should set data-variant attribute when variant is provided', () => {
+    const variants = ['filled', 'outlined', 'standard'] as const
+
+    for (const variant of variants) {
+      const el = (
+        <div>
+          <Alert variant={variant}>Message</Alert>
+        </div>
+      )
+      const alert = el.firstElementChild as JSX.Element
+      alert.callConstructed()
+      expect(alert.getAttribute('data-variant')).toBe(variant)
+    }
+  })
+
+  it('should not set data-variant attribute when variant is not provided', () => {
+    const el = (
+      <div>
+        <Alert>Message</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    expect(alert.hasAttribute('data-variant')).toBe(false)
+  })
+
+  it('should set role="alert" on the element', () => {
+    const el = (
+      <div>
+        <Alert>Message</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    expect(alert.getAttribute('role')).toBe('alert')
+  })
+
+  it('should render a title when title prop is provided', () => {
+    const el = (
+      <div>
+        <Alert title="Error Title" severity="error">
+          Details here
+        </Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const titleEl = alert.querySelector('.alert-title')
+    expect(titleEl).not.toBeNull()
+    expect(titleEl?.textContent).toBe('Error Title')
+  })
+
+  it('should not render a title when title prop is not provided', () => {
+    const el = (
+      <div>
+        <Alert severity="info">Just a message</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const titleEl = alert.querySelector('.alert-title')
+    expect(titleEl).toBeNull()
+  })
+
+  it('should render a close button when onClose is provided', () => {
+    const onClose = vi.fn()
+    const el = (
+      <div>
+        <Alert onClose={onClose}>Closeable</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const closeBtn = alert.querySelector('.alert-close')
+    expect(closeBtn).not.toBeNull()
+  })
+
+  it('should not render a close button when onClose is not provided', () => {
+    const el = (
+      <div>
+        <Alert>Not closeable</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const closeBtn = alert.querySelector('.alert-close')
+    expect(closeBtn).toBeNull()
+  })
+
+  it('should call onClose when close button is clicked', () => {
+    const onClose = vi.fn()
+    const el = (
+      <div>
+        <Alert onClose={onClose}>Closeable</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const closeBtn = alert.querySelector('.alert-close') as HTMLElement
+    closeBtn.click()
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  it('should stop propagation when close button is clicked', () => {
+    const onClose = vi.fn()
+    const onAlertClick = vi.fn()
+    const el = (
+      <div>
+        <Alert onClose={onClose} onclick={onAlertClick}>
+          Closeable
+        </Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const closeBtn = alert.querySelector('.alert-close') as HTMLElement
+    closeBtn.click()
+    expect(onClose).toHaveBeenCalledOnce()
+    expect(onAlertClick).not.toHaveBeenCalled()
+  })
+
+  it('should render the default icon for the severity', () => {
+    const el = (
+      <div>
+        <Alert severity="error">Error</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const iconEl = alert.querySelector('.alert-icon')
+    expect(iconEl).not.toBeNull()
+    expect(iconEl?.textContent).toBe('❌')
+  })
+
+  it('should render a custom icon when icon prop is provided', () => {
+    const el = (
+      <div>
+        <Alert severity="error" icon="🔥">
+          Error
+        </Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const iconEl = alert.querySelector('.alert-icon')
+    expect(iconEl).not.toBeNull()
+    expect(iconEl?.textContent).toBe('🔥')
+  })
+
+  it('should set CSS custom properties for severity color', () => {
+    const el = (
+      <div>
+        <Alert severity="error">Error</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    expect(alert.style.getPropertyValue('--alert-color-main')).toBe('var(--shades-theme-palette-error-main)')
+  })
+
+  it('should set CSS custom properties for success severity', () => {
+    const el = (
+      <div>
+        <Alert severity="success">Success</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    expect(alert.style.getPropertyValue('--alert-color-main')).toBe('var(--shades-theme-palette-success-main)')
+  })
+
+  it('should render children in the message area', () => {
+    const el = (
+      <div>
+        <Alert>Alert message content</Alert>
+      </div>
+    )
+    const alert = el.firstElementChild as JSX.Element
+    alert.callConstructed()
+    const messageEl = alert.querySelector('.alert-message')
+    expect(messageEl).not.toBeNull()
+  })
+
+  it('should set props correctly', () => {
+    const el = (
+      <Alert severity="warning" variant="filled" title="Warning Title" icon="⚡">
+        Warning content
+      </Alert>
+    ) as unknown as JSX.Element
+    const props = el.props as AlertProps
+    expect(props.severity).toBe('warning')
+    expect(props.variant).toBe('filled')
+    expect(props.title).toBe('Warning Title')
+    expect(props.icon).toBe('⚡')
+  })
+})

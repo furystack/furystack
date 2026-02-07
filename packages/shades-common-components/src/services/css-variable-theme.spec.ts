@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { cssVariableTheme, getCssVariable, setCssVariable, useThemeCssVariables } from './css-variable-theme.js'
+import {
+  buildTransition,
+  cssVariableTheme,
+  getCssVariable,
+  setCssVariable,
+  useThemeCssVariables,
+} from './css-variable-theme.js'
 
 describe('css-variable-theme', () => {
   describe('cssVariableTheme', () => {
@@ -21,6 +27,59 @@ describe('css-variable-theme', () => {
     it('should have palette with color variants', () => {
       expect(cssVariableTheme.palette.primary.main).toBe('var(--shades-theme-palette-primary-main)')
       expect(cssVariableTheme.palette.error.main).toBe('var(--shades-theme-palette-error-main)')
+    })
+
+    it('should have action properties with CSS variable references', () => {
+      expect(cssVariableTheme.action.hoverBackground).toBe('var(--shades-theme-action-hover-background)')
+      expect(cssVariableTheme.action.selectedBackground).toBe('var(--shades-theme-action-selected-background)')
+      expect(cssVariableTheme.action.activeBackground).toBe('var(--shades-theme-action-active-background)')
+      expect(cssVariableTheme.action.focusRing).toBe('var(--shades-theme-action-focus-ring)')
+      expect(cssVariableTheme.action.disabledOpacity).toBe('var(--shades-theme-action-disabled-opacity)')
+      expect(cssVariableTheme.action.backdrop).toBe('var(--shades-theme-action-backdrop)')
+      expect(cssVariableTheme.action.subtleBorder).toBe('var(--shades-theme-action-subtle-border)')
+    })
+
+    it('should have shape properties with CSS variable references', () => {
+      expect(cssVariableTheme.shape.borderRadius.xs).toBe('var(--shades-theme-shape-border-radius-xs)')
+      expect(cssVariableTheme.shape.borderRadius.sm).toBe('var(--shades-theme-shape-border-radius-sm)')
+      expect(cssVariableTheme.shape.borderRadius.md).toBe('var(--shades-theme-shape-border-radius-md)')
+      expect(cssVariableTheme.shape.borderRadius.lg).toBe('var(--shades-theme-shape-border-radius-lg)')
+      expect(cssVariableTheme.shape.borderRadius.full).toBe('var(--shades-theme-shape-border-radius-full)')
+    })
+
+    it('should have shadow properties with CSS variable references', () => {
+      expect(cssVariableTheme.shadows.none).toBe('var(--shades-theme-shadows-none)')
+      expect(cssVariableTheme.shadows.sm).toBe('var(--shades-theme-shadows-sm)')
+      expect(cssVariableTheme.shadows.md).toBe('var(--shades-theme-shadows-md)')
+      expect(cssVariableTheme.shadows.lg).toBe('var(--shades-theme-shadows-lg)')
+      expect(cssVariableTheme.shadows.xl).toBe('var(--shades-theme-shadows-xl)')
+    })
+
+    it('should have typography properties with CSS variable references', () => {
+      expect(cssVariableTheme.typography.fontFamily).toBe('var(--shades-theme-typography-font-family)')
+      expect(cssVariableTheme.typography.fontSize.xs).toBe('var(--shades-theme-typography-font-size-xs)')
+      expect(cssVariableTheme.typography.fontSize.md).toBe('var(--shades-theme-typography-font-size-md)')
+      expect(cssVariableTheme.typography.fontWeight.normal).toBe('var(--shades-theme-typography-font-weight-normal)')
+      expect(cssVariableTheme.typography.fontWeight.bold).toBe('var(--shades-theme-typography-font-weight-bold)')
+      expect(cssVariableTheme.typography.lineHeight.tight).toBe('var(--shades-theme-typography-line-height-tight)')
+      expect(cssVariableTheme.typography.lineHeight.normal).toBe('var(--shades-theme-typography-line-height-normal)')
+    })
+
+    it('should have transition properties with CSS variable references', () => {
+      expect(cssVariableTheme.transitions.duration.fast).toBe('var(--shades-theme-transitions-duration-fast)')
+      expect(cssVariableTheme.transitions.duration.normal).toBe('var(--shades-theme-transitions-duration-normal)')
+      expect(cssVariableTheme.transitions.duration.slow).toBe('var(--shades-theme-transitions-duration-slow)')
+      expect(cssVariableTheme.transitions.easing.default).toBe('var(--shades-theme-transitions-easing-default)')
+      expect(cssVariableTheme.transitions.easing.easeOut).toBe('var(--shades-theme-transitions-easing-ease-out)')
+      expect(cssVariableTheme.transitions.easing.easeInOut).toBe('var(--shades-theme-transitions-easing-ease-in-out)')
+    })
+
+    it('should have spacing properties with CSS variable references', () => {
+      expect(cssVariableTheme.spacing.xs).toBe('var(--shades-theme-spacing-xs)')
+      expect(cssVariableTheme.spacing.sm).toBe('var(--shades-theme-spacing-sm)')
+      expect(cssVariableTheme.spacing.md).toBe('var(--shades-theme-spacing-md)')
+      expect(cssVariableTheme.spacing.lg).toBe('var(--shades-theme-spacing-lg)')
+      expect(cssVariableTheme.spacing.xl).toBe('var(--shades-theme-spacing-xl)')
     })
   })
 
@@ -199,6 +258,115 @@ describe('css-variable-theme', () => {
       })
 
       expect(root.style.getPropertyValue('--shades-theme-text-primary')).toBe('#bbb')
+    })
+
+    it('should set action CSS variables from theme', () => {
+      useThemeCssVariables({
+        action: {
+          hoverBackground: 'rgba(255, 255, 255, 0.08)',
+          focusRing: '0 0 0 3px rgba(255, 255, 255, 0.15)',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-action-hover-background')).toBe('rgba(255, 255, 255, 0.08)')
+      expect(root.style.getPropertyValue('--shades-theme-action-focus-ring')).toBe(
+        '0 0 0 3px rgba(255, 255, 255, 0.15)',
+      )
+    })
+
+    it('should set shape CSS variables from theme', () => {
+      useThemeCssVariables({
+        shape: {
+          borderRadius: {
+            md: '8px',
+            full: '50%',
+          },
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-shape-border-radius-md')).toBe('8px')
+      expect(root.style.getPropertyValue('--shades-theme-shape-border-radius-full')).toBe('50%')
+    })
+
+    it('should set typography CSS variables from theme', () => {
+      useThemeCssVariables({
+        typography: {
+          fontFamily: 'monospace',
+          fontSize: {
+            md: '14px',
+          },
+          fontWeight: {
+            bold: '700',
+          },
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-typography-font-family')).toBe('monospace')
+      expect(root.style.getPropertyValue('--shades-theme-typography-font-size-md')).toBe('14px')
+      expect(root.style.getPropertyValue('--shades-theme-typography-font-weight-bold')).toBe('700')
+    })
+
+    it('should set transition CSS variables from theme', () => {
+      useThemeCssVariables({
+        transitions: {
+          duration: {
+            fast: '0.15s',
+          },
+          easing: {
+            default: 'ease',
+          },
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-transitions-duration-fast')).toBe('0.15s')
+      expect(root.style.getPropertyValue('--shades-theme-transitions-easing-default')).toBe('ease')
+    })
+
+    it('should set spacing CSS variables from theme', () => {
+      useThemeCssVariables({
+        spacing: {
+          xs: '4px',
+          md: '16px',
+          xl: '32px',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-spacing-xs')).toBe('4px')
+      expect(root.style.getPropertyValue('--shades-theme-spacing-md')).toBe('16px')
+      expect(root.style.getPropertyValue('--shades-theme-spacing-xl')).toBe('32px')
+    })
+  })
+
+  describe('buildTransition', () => {
+    it('should build a single transition string', () => {
+      expect(buildTransition(['background', '0.2s', 'ease'])).toBe('background 0.2s ease')
+    })
+
+    it('should join multiple transitions with commas', () => {
+      expect(buildTransition(['background', '0.2s', 'ease'], ['opacity', '0.15s', 'ease-out'])).toBe(
+        'background 0.2s ease, opacity 0.15s ease-out',
+      )
+    })
+
+    it('should handle three or more transitions', () => {
+      const result = buildTransition(
+        ['background', '0.2s', 'ease'],
+        ['color', '0.3s', 'linear'],
+        ['transform', '0.1s', 'ease-in-out'],
+      )
+      expect(result).toBe('background 0.2s ease, color 0.3s linear, transform 0.1s ease-in-out')
+    })
+
+    it('should work with CSS variable references', () => {
+      expect(
+        buildTransition([
+          'background',
+          cssVariableTheme.transitions.duration.normal,
+          cssVariableTheme.transitions.easing.default,
+        ]),
+      ).toBe(
+        'background var(--shades-theme-transitions-duration-normal) var(--shades-theme-transitions-easing-default)',
+      )
     })
   })
 })

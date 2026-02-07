@@ -108,7 +108,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       left: '0',
       right: '0',
       zIndex: '1100',
-      transition: 'top 0.3s ease-in-out',
+      transition: `top ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
       height: `var(${LAYOUT_CSS_VARIABLES.appBarHeight})`,
     },
 
@@ -131,7 +131,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       zIndex: '1000',
       overflow: 'hidden',
       background: cssVariableTheme.background.paper,
-      transition: 'transform 0.3s ease-in-out',
+      transition: `transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
     '& .page-layout-drawer-left': {
       left: '0',
@@ -163,11 +163,11 @@ export const PageLayout = Shade<PageLayoutProps>({
       left: '0',
       right: '0',
       bottom: '0',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: cssVariableTheme.action.backdrop,
       zIndex: '999',
       opacity: '0',
       pointerEvents: 'none',
-      transition: 'opacity 0.3s ease-in-out',
+      transition: `opacity ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
     '&.backdrop-visible .page-layout-drawer-backdrop': {
       opacity: '1',
@@ -185,7 +185,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       paddingRight: 'var(--layout-side-gap, 0px)',
       left: 'var(--layout-content-margin-left, 0px)',
       right: 'var(--layout-content-margin-right, 0px)',
-      transition: 'left 0.3s ease-in-out, right 0.3s ease-in-out',
+      transition: `left ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}, right ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
 
@@ -262,7 +262,7 @@ export const PageLayout = Shade<PageLayoutProps>({
 
       const breakpointObservable = screenService.screenSize.atLeast[collapseOnBreakpoint]
 
-      const subscription: ValueObserver<boolean> = breakpointObservable.subscribe((isAtLeast) => {
+      const applyBreakpoint = (isAtLeast: boolean) => {
         const currentState = layoutService.drawerState.getValue()[position]
         const currentlyOpen = currentState?.open ?? false
 
@@ -277,7 +277,12 @@ export const PageLayout = Shade<PageLayoutProps>({
           // For temporary drawers, close when screen is large enough
           layoutService.setDrawerOpen(position, false)
         }
-      })
+      }
+
+      const subscription: ValueObserver<boolean> = breakpointObservable.subscribe(applyBreakpoint)
+
+      // Apply the current breakpoint value immediately since subscribe only fires on changes
+      applyBreakpoint(breakpointObservable.getValue())
 
       return subscription
     }

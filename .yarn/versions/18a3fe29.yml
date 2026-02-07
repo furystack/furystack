@@ -1,0 +1,7 @@
+releases:
+  "@furystack/cache": patch
+  "@furystack/shades-common-components": major
+  "@furystack/shades-showcase-app": patch
+
+declined:
+  - furystack
