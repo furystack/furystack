@@ -162,7 +162,24 @@ export const Radio = Shade<RadioProps>({
   render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    if (props.disabled) {
+    // Read group-level overrides from parent RadioGroup when element is connected
+    const group = element.isConnected ? element.closest('shade-radio-group') : null
+    const groupName = group?.getAttribute('data-group-name')
+    const groupDisabled = group?.hasAttribute('data-disabled') ?? false
+    const groupValue = group?.getAttribute('data-group-value')
+    const groupDefaultValue = group?.getAttribute('data-group-default-value')
+
+    const effectiveName = groupName ?? props.name
+    const isDisabled = props.disabled || groupDisabled
+
+    let isChecked = props.checked
+    if (groupValue !== undefined && groupValue !== null) {
+      isChecked = props.value === groupValue
+    } else if (groupDefaultValue !== undefined && groupDefaultValue !== null && isChecked === undefined) {
+      isChecked = props.value === groupDefaultValue
+    }
+
+    if (isDisabled) {
       element.setAttribute('data-disabled', '')
     } else {
       element.removeAttribute('data-disabled')
@@ -176,9 +193,9 @@ export const Radio = Shade<RadioProps>({
           <input
             type="radio"
             value={props.value}
-            checked={props.checked}
-            disabled={props.disabled}
-            name={props.name}
+            checked={isChecked}
+            disabled={isDisabled}
+            name={effectiveName}
             onchange={props.onchange}
           />
         </span>
