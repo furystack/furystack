@@ -457,9 +457,10 @@ test.describe('Advanced Form', () => {
     const advancedForm = page.locator('form').nth(1)
     await advancedForm.scrollIntoViewIfNeeded()
 
-    // Fill in some fields
+    // Fill in some fields - use pressSequentially for firefox compatibility
     const fullNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
-    await fullNameInput.fill('John Smith')
+    await fullNameInput.click()
+    await fullNameInput.pressSequentially('John Smith', { delay: 20 })
     await expect(fullNameInput).toHaveValue('John Smith')
 
     // Click Reset
