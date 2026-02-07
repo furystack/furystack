@@ -15,19 +15,19 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
     css: {
       display: 'flex',
       alignItems: 'center',
-      padding: '8px 16px',
+      padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
       cursor: 'default',
       userSelect: 'none',
-      gap: '8px',
+      gap: cssVariableTheme.spacing.sm,
       opacity: '0',
       transform: 'translateY(-4px)',
-      transition: 'opacity 0.25s ease-out, transform 0.15s ease-out, background-color 0.15s ease',
+      transition: `opacity 0.25s ease-out, transform ${cssVariableTheme.transitions.duration.fast} ease-out, background-color ${cssVariableTheme.transitions.duration.fast} ease`,
       '&.visible': {
         opacity: '1',
         transform: 'translateY(0)',
       },
       '&:not(.disabled):hover, &.focused': {
-        backgroundColor: 'rgba(128, 128, 128, 0.12)',
+        backgroundColor: cssVariableTheme.action.hoverBackground,
       },
       '&.disabled': {
         opacity: '0.5',

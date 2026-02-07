@@ -26,13 +26,13 @@ export const DataGridRow: <T, Column extends string>(
     display: 'table-row',
     cursor: 'default',
     userSelect: 'none',
-    transition: 'background-color 0.15s ease, box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out',
+    transition: `background-color ${cssVariableTheme.transitions.duration.fast} ease, box-shadow ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}, transform ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}`,
     borderLeft: '3px solid transparent',
     '&:not(.selected):hover': {
-      backgroundColor: 'rgba(128, 128, 128, 0.08)',
+      backgroundColor: cssVariableTheme.action.hoverBackground,
     },
     '&.selected': {
-      backgroundColor: 'rgba(128, 128, 128, 0.15)',
+      backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
     '&.focused': {
@@ -42,7 +42,7 @@ export const DataGridRow: <T, Column extends string>(
     },
     '& td': {
       padding: '0.75em 1.2em',
-      borderBottom: '1px solid rgba(128, 128, 128, 0.1)',
+      borderBottom: `1px solid ${cssVariableTheme.action.hoverBackground}`,
       verticalAlign: 'middle',
       fontSize: '0.875rem',
       lineHeight: '1.5',

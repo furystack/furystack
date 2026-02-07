@@ -6,21 +6,21 @@ export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
   elementBase: HTMLDivElement,
   elementBaseName: 'div',
   css: {
-    borderRadius: '8px',
-    padding: '16px',
+    borderRadius: cssVariableTheme.shape.borderRadius.md,
+    padding: cssVariableTheme.spacing.md,
     backgroundColor: cssVariableTheme.background.paper,
     color: cssVariableTheme.text.primary,
     '&[data-elevation="0"]': {
-      boxShadow: 'none',
+      boxShadow: cssVariableTheme.shadows.none,
     },
     '&[data-elevation="1"]': {
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+      boxShadow: cssVariableTheme.shadows.sm,
     },
     '&[data-elevation="2"]': {
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08)',
+      boxShadow: cssVariableTheme.shadows.md,
     },
     '&[data-elevation="3"]': {
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08)',
+      boxShadow: cssVariableTheme.shadows.lg,
     },
   },
   render: ({ props, children, element }) => {

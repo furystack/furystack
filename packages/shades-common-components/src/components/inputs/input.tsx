@@ -139,12 +139,12 @@ export const Input = Shade<TextInputProps>({
       flexDirection: 'column',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
-      fontSize: '11px',
-      fontWeight: '500',
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+      fontWeight: cssVariableTheme.typography.fontWeight.medium,
       letterSpacing: '0.01em',
       padding: '12px 14px',
-      borderRadius: '8px',
-      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      borderRadius: cssVariableTheme.shape.borderRadius.md,
+      transition: `all ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.default}`,
       cursor: 'text',
       color: cssVariableTheme.text.secondary,
       background: 'transparent',
@@ -154,12 +154,12 @@ export const Input = Shade<TextInputProps>({
 
     // Outlined variant - default border
     '&[data-variant="outlined"] label': {
-      borderColor: 'rgba(128, 128, 128, 0.3)',
+      borderColor: cssVariableTheme.action.activeBackground,
     },
 
     // Contained variant - background using color-mix for theme-aware alpha
     '&[data-variant="contained"] label': {
-      borderColor: 'rgba(128, 128, 128, 0.3)',
+      borderColor: cssVariableTheme.action.activeBackground,
       background: 'color-mix(in srgb, var(--input-primary-color) 8%, transparent)',
     },
 
@@ -171,7 +171,7 @@ export const Input = Shade<TextInputProps>({
     // Focus state for outlined/contained variants - add border and shadow
     '&[data-variant="outlined"]:focus-within label, &[data-variant="contained"]:focus-within label': {
       borderColor: 'var(--input-primary-color)',
-      boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+      boxShadow: cssVariableTheme.action.focusRing,
     },
     '&[data-variant="contained"]:focus-within label': {
       background: 'color-mix(in srgb, var(--input-primary-color) 12%, transparent)',
@@ -193,7 +193,7 @@ export const Input = Shade<TextInputProps>({
     '&[data-invalid][data-variant="outlined"]:focus-within label, &[data-invalid][data-variant="contained"]:focus-within label':
       {
         borderColor: 'var(--input-error-color)',
-        boxShadow: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+        boxShadow: cssVariableTheme.action.focusRing,
       },
     '&[data-invalid][data-variant="contained"]:focus-within label': {
       background: 'color-mix(in srgb, var(--input-error-color) 12%, transparent)',
@@ -203,7 +203,7 @@ export const Input = Shade<TextInputProps>({
     '&[data-disabled] label': {
       color: cssVariableTheme.text.disabled,
       filter: 'grayscale(100%)',
-      opacity: '0.5',
+      opacity: cssVariableTheme.action.disabledOpacity,
       cursor: 'not-allowed',
     },
     '&[data-disabled]:focus-within label': {
@@ -214,15 +214,15 @@ export const Input = Shade<TextInputProps>({
       display: 'flex',
       alignItems: 'center',
       width: '100%',
-      gap: '8px',
+      gap: cssVariableTheme.spacing.sm,
     },
     '& input': {
       color: 'inherit',
       border: 'none',
       backgroundColor: 'transparent',
       outline: 'none',
-      fontSize: '13px',
-      fontWeight: '400',
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+      fontWeight: cssVariableTheme.typography.fontWeight.normal,
       width: '100%',
       textOverflow: 'ellipsis',
       padding: '0',
@@ -232,7 +232,7 @@ export const Input = Shade<TextInputProps>({
       lineHeight: '1.5',
     },
     '& .helperText': {
-      fontSize: '11px',
+      fontSize: cssVariableTheme.typography.fontSize.xs,
       marginTop: '6px',
       opacity: '0.85',
       lineHeight: '1.4',
@@ -240,7 +240,7 @@ export const Input = Shade<TextInputProps>({
     '& .startIcon, & .endIcon': {
       display: 'flex',
       alignItems: 'center',
-      fontSize: '16px',
+      fontSize: cssVariableTheme.typography.fontSize.lg,
     },
   },
   constructed: ({ injector, element }) => {

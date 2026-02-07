@@ -16,7 +16,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
   css: {
     '& .context-menu-backdrop': {
       opacity: '0',
-      transition: 'opacity 0.15s ease-out',
+      transition: `opacity ${cssVariableTheme.transitions.duration.fast} ease-out`,
     },
     '& .context-menu-backdrop.visible': {
       opacity: '1',
@@ -24,7 +24,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
     '& .context-menu-container': {
       opacity: '0',
       transform: 'scale(0.95) translateY(-4px)',
-      transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+      transition: `opacity ${cssVariableTheme.transitions.duration.fast} ease-out, transform ${cssVariableTheme.transitions.duration.fast} ease-out`,
       transformOrigin: 'top left',
     },
     '& .context-menu-container.visible': {
@@ -83,8 +83,8 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
             top: `${position.y}px`,
             minWidth: '200px',
             background: cssVariableTheme.background.paper,
-            borderRadius: '8px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            borderRadius: cssVariableTheme.shape.borderRadius.md,
+            boxShadow: cssVariableTheme.shadows.lg,
             border: `1px solid ${cssVariableTheme.divider}`,
             padding: '4px 0',
             overflow: 'hidden',

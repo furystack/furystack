@@ -1,4 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 
@@ -59,9 +60,9 @@ export const Loader = Shade<LoaderProps>({
           position: 'relative',
           width: `calc(100% - ${borderWidth * 2}px)`,
           height: `calc(100% - ${borderWidth * 2}px)`,
-          border: `${borderWidth}px solid rgba(128,128,128,0.1)`,
+          border: `${borderWidth}px solid ${cssVariableTheme.action.hoverBackground}`,
           borderBottom: `${borderWidth}px solid ${borderColor}`,
-          borderRadius: '50%',
+          borderRadius: cssVariableTheme.shape.borderRadius.full,
         }}
       />
     )

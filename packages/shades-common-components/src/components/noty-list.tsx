@@ -1,4 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
@@ -41,8 +42,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
   css: {
     margin: '6px',
     overflow: 'hidden',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+    borderRadius: cssVariableTheme.shape.borderRadius.md,
+    boxShadow: cssVariableTheme.shadows.sm,
     width: '300px',
     display: 'flex',
     flexDirection: 'column',
@@ -59,18 +60,18 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       textOverflow: 'ellipsis',
       margin: '0',
       fontSize: '0.85em',
-      fontWeight: '600',
+      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
     },
     '& .dismiss-button': {
       margin: '0',
       padding: '4px',
-      fontSize: '14px',
+      fontSize: cssVariableTheme.typography.fontSize.md,
       minWidth: 'auto',
       background: 'transparent',
       border: 'none',
       cursor: 'pointer',
       opacity: '0.7',
-      transition: 'opacity 0.15s ease',
+      transition: `opacity ${cssVariableTheme.transitions.duration.fast} ease`,
       lineHeight: '1',
     },
     '& .dismiss-button:hover': {
@@ -132,8 +133,8 @@ export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
   css: {
     position: 'fixed',
-    bottom: '16px',
-    right: '16px',
+    bottom: cssVariableTheme.spacing.md,
+    right: cssVariableTheme.spacing.md,
     display: 'flex',
     flexDirection: 'column',
   },

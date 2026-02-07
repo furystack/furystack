@@ -72,15 +72,15 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
   css: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '8px 0',
+    gap: cssVariableTheme.spacing.sm,
+    padding: `${cssVariableTheme.spacing.sm} 0`,
     fontSize: '0.9em',
     color: cssVariableTheme.text.secondary,
 
     '& a': {
       color: 'inherit',
       textDecoration: 'none',
-      transition: 'opacity 0.2s ease-in-out',
+      transition: `opacity ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
       opacity: '0.8',
     },
 

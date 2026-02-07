@@ -11,7 +11,7 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
       '& .suggestion-items-container': {
         borderTop: 'none',
         position: 'absolute',
-        borderRadius: '0px 0px 12px 12px',
+        borderRadius: `0px 0px ${cssVariableTheme.shape.borderRadius.lg} ${cssVariableTheme.shape.borderRadius.lg}`,
         marginLeft: '14px',
         marginTop: '4px',
         overflow: 'hidden',
@@ -19,9 +19,9 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
         left: 'auto',
         backgroundColor: cssVariableTheme.background.paper,
         color: cssVariableTheme.text.secondary,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
+        boxShadow: cssVariableTheme.shadows.lg,
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(128,128,128,0.2)',
+        border: `1px solid ${cssVariableTheme.action.activeBackground}`,
       },
       '& .suggestion-item': {
         padding: '0.875em 1.25em',
@@ -29,20 +29,20 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
         background: 'transparent',
         fontWeight: '400',
         borderLeft: '3px solid transparent',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: `all ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.default}`,
         fontSize: '0.95em',
         letterSpacing: '0.01em',
       },
       '& .suggestion-item:hover': {
-        background: 'rgba(128,128,128,0.1)',
+        background: cssVariableTheme.action.hoverBackground,
       },
       '& .suggestion-item.selected': {
-        background: 'rgba(128,128,128,0.2)',
+        background: cssVariableTheme.action.activeBackground,
         fontWeight: '500',
         borderLeft: `3px solid ${cssVariableTheme.text.primary}`,
       },
       '& .suggestion-item.selected:hover': {
-        background: 'rgba(128,128,128,0.2)',
+        background: cssVariableTheme.action.activeBackground,
       },
     },
     render: ({ element, props, useObservable }) => {
