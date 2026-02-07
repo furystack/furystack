@@ -57,7 +57,7 @@ describe('styles', () => {
       })
 
       it('should have border', () => {
-        expect(styles.glassBox.border).toBe('1px solid rgba(128,128,128,.3)')
+        expect(styles.glassBox.border).toBe('1px solid rgba(128, 128, 128, 0.3)')
       })
 
       it('should have boxShadow', () => {
