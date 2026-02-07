@@ -262,7 +262,7 @@ export const PageLayout = Shade<PageLayoutProps>({
 
       const breakpointObservable = screenService.screenSize.atLeast[collapseOnBreakpoint]
 
-      const subscription: ValueObserver<boolean> = breakpointObservable.subscribe((isAtLeast) => {
+      const applyBreakpoint = (isAtLeast: boolean) => {
         const currentState = layoutService.drawerState.getValue()[position]
         const currentlyOpen = currentState?.open ?? false
 
@@ -277,7 +277,12 @@ export const PageLayout = Shade<PageLayoutProps>({
           // For temporary drawers, close when screen is large enough
           layoutService.setDrawerOpen(position, false)
         }
-      })
+      }
+
+      const subscription: ValueObserver<boolean> = breakpointObservable.subscribe(applyBreakpoint)
+
+      // Apply the current breakpoint value immediately since subscribe only fires on changes
+      applyBreakpoint(breakpointObservable.getValue())
 
       return subscription
     }

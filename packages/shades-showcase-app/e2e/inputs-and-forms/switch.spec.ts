@@ -9,16 +9,17 @@ test.describe('Switch', () => {
 
     // Find the first basic switch (unchecked by default)
     const firstSwitch = content.getByRole('switch').first()
+    const firstSwitchTrack = content.locator('shade-switch').first().locator('.switch-track')
 
     // Should be unchecked initially
     await expect(firstSwitch).not.toBeChecked()
 
-    // Check it
-    await firstSwitch.check({ force: true })
+    // Check it by clicking the visible switch track element
+    await firstSwitchTrack.click()
     await expect(firstSwitch).toBeChecked()
 
     // Uncheck it
-    await firstSwitch.uncheck({ force: true })
+    await firstSwitchTrack.click()
     await expect(firstSwitch).not.toBeChecked()
   })
 

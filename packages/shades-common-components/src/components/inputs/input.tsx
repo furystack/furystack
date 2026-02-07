@@ -356,11 +356,11 @@ export const Input = Shade<TextInputProps>({
             }}
             onfocus={(ev) => {
               const el = ev.target as HTMLInputElement
-              setState({ ...state, focused: true, validity: el.validity })
+              setState({ ...state, value: el.value, focused: true, validity: el.validity })
             }}
             onblur={(ev) => {
               const el = ev.target as HTMLInputElement
-              setState({ ...state, focused: false, validity: el.validity })
+              setState({ ...state, value: el.value, focused: false, validity: el.validity })
             }}
             {...props}
             style={props.style}

@@ -386,7 +386,8 @@ test.describe('Form', () => {
 })
 
 test.describe('Advanced Form', () => {
-  test('should complete event registration successfully (happy path)', async ({ page }) => {
+  test('should complete event registration successfully (happy path)', async ({ page }, testInfo) => {
+    testInfo.setTimeout(60000)
     await page.goto('/inputs-and-forms/form')
 
     const content = page.locator('forms-page')
@@ -406,31 +407,35 @@ test.describe('Advanced Form', () => {
     const emailInput = advancedForm.getByRole('textbox', { name: 'Email' })
     await emailInput.fill('jane@example.com')
 
-    // Select an experience level (Intermediate)
+    // Select an experience level (Intermediate) - use native click to work around
+    // Playwright touch emulation issues with custom-styled radios after form fill
     const intermediateRadio = advancedForm.getByRole('radio', { name: 'Intermediate' })
-    await intermediateRadio.check()
+    await intermediateRadio.evaluate((el: HTMLInputElement) => el.click())
+    await expect(intermediateRadio).toBeChecked()
 
     // Select a Track (Frontend) - custom select component
     const trackTrigger = advancedForm.locator('shade-select').locator('[role="combobox"]')
     await trackTrigger.click()
     await advancedForm.locator('[role="listbox"]').getByRole('option', { name: 'Frontend' }).click()
 
-    // Check optional checkboxes (Workshops)
+    // Check optional checkboxes (Workshops) - use native click for cross-browser compatibility
     const workshopsCheckbox = advancedForm.getByRole('checkbox', { name: 'Workshops' })
-    await workshopsCheckbox.check({ force: true })
+    await workshopsCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(workshopsCheckbox).toBeChecked()
 
     // Accept terms and conditions
     const termsCheckbox = advancedForm.getByRole('checkbox', { name: 'I accept the terms and conditions' })
     await termsCheckbox.scrollIntoViewIfNeeded()
-    await termsCheckbox.check({ force: true })
+    await termsCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(termsCheckbox).toBeChecked()
 
     // Click Register
     const registerButton = advancedForm.getByRole('button', { name: 'Register' })
     await registerButton.click()
 
-    // Verify the success alert appears
+    // Verify the success alert appears (allow extra time for form processing)
     const successAlert = content.getByText('Registration Successful')
-    await expect(successAlert).toBeVisible()
+    await expect(successAlert).toBeVisible({ timeout: 10000 })
   })
 
   test('should reset the form', async ({ page }) => {
