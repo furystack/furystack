@@ -1,6 +1,6 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { cssVariableTheme } from '../services/css-variable-theme.js'
+import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import type { Palette } from '../services/theme-provider-service.js'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
@@ -75,13 +75,13 @@ export const Button = Shade<ButtonProps>({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '8px',
-    padding: '8px 20px',
+    margin: cssVariableTheme.spacing.sm,
+    padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.lg}`,
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: cssVariableTheme.shape.borderRadius.md,
     textTransform: 'uppercase',
-    fontSize: '14px',
-    fontWeight: '500',
+    fontSize: cssVariableTheme.typography.fontSize.md,
+    fontWeight: cssVariableTheme.typography.fontWeight.medium,
     letterSpacing: '0.5px',
     lineHeight: '1.75',
     minWidth: '64px',
@@ -89,8 +89,13 @@ export const Button = Shade<ButtonProps>({
     cursor: 'pointer',
     boxShadow: 'none',
     background: 'transparent',
-    transition:
-      'background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s cubic-bezier(0.230, 1.000, 0.320, 1.000), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: buildTransition(
+      ['background', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+      ['box-shadow', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+      ['color', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+      ['transform', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.easeOut],
+      ['opacity', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
+    ),
 
     // Common states
     '&:active:not(:disabled)': {

@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { Fab } from './fab.js'
 
 describe('Fab', () => {
@@ -50,8 +51,8 @@ describe('Fab', () => {
     it('should be positioned at bottom-right corner', async () => {
       await usingAsync(await renderFab(), async ({ fab }) => {
         const computedStyle = window.getComputedStyle(fab)
-        expect(computedStyle.bottom).toBe('32px')
-        expect(computedStyle.right).toBe('32px')
+        expect(computedStyle.bottom).toBe(cssVariableTheme.spacing.xl)
+        expect(computedStyle.right).toBe(cssVariableTheme.spacing.xl)
       })
     })
   })
@@ -74,7 +75,7 @@ describe('Fab', () => {
     it('should have circular shape', async () => {
       await usingAsync(await renderFab(), async ({ fab }) => {
         const computedStyle = window.getComputedStyle(fab)
-        expect(computedStyle.borderRadius).toBe('50%')
+        expect(computedStyle.borderRadius).toBe(cssVariableTheme.shape.borderRadius.full)
       })
     })
 

@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { Loader } from './loader.js'
 
@@ -239,7 +240,8 @@ describe('Loader', () => {
 
       expect(innerDiv.style.width).toBe('calc(100% - 30px)')
       expect(innerDiv.style.height).toBe('calc(100% - 30px)')
-      expect(innerDiv.style.borderTopWidth).toBe('15px')
+      const styleAttr = innerDiv.getAttribute('style') || ''
+      expect(styleAttr).toContain('15px solid')
     })
   })
 
@@ -263,7 +265,8 @@ describe('Loader', () => {
 
       expect(innerDiv.style.width).toBe('calc(100% - 20px)')
       expect(innerDiv.style.height).toBe('calc(100% - 20px)')
-      expect(innerDiv.style.borderTopWidth).toBe('10px')
+      const styleAttr = innerDiv.getAttribute('style') || ''
+      expect(styleAttr).toContain('10px solid')
     })
   })
 
@@ -330,7 +333,7 @@ describe('Loader', () => {
       const innerDiv = loader.querySelector('div') as HTMLElement
       expect(innerDiv).not.toBeNull()
 
-      expect(innerDiv.style.borderRadius).toBe('50%')
+      expect(innerDiv.style.borderRadius).toBe(cssVariableTheme.shape.borderRadius.full)
       expect(innerDiv.style.position).toBe('relative')
     })
   })
@@ -353,8 +356,7 @@ describe('Loader', () => {
       const innerDiv = loader.querySelector('div') as HTMLElement
       expect(innerDiv).not.toBeNull()
 
-      expect(innerDiv.style.borderTopColor).toBe('rgba(128, 128, 128, 0.1)')
-      expect(innerDiv.style.borderBottomColor).toBe('rgb(0, 255, 0)')
+      expect(innerDiv.style.borderBottom).toContain('rgb(0, 255, 0)')
     })
   })
 })

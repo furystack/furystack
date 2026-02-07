@@ -68,7 +68,7 @@ export const Drawer = Shade<DrawerProps>({
       bottom: '0',
       zIndex: '1000',
       overflow: 'hidden',
-      transition: 'width 0.3s ease-in-out, transform 0.3s ease-in-out',
+      transition: `width ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}, transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
       background: cssVariableTheme.background.paper,
     },
 
@@ -103,11 +103,11 @@ export const Drawer = Shade<DrawerProps>({
       left: '0',
       right: '0',
       bottom: '0',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: cssVariableTheme.action.backdrop,
       zIndex: '999',
       opacity: '0',
       pointerEvents: 'none',
-      transition: 'opacity 0.3s ease-in-out',
+      transition: `opacity ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
     '& .drawer-backdrop.visible': {
       opacity: '1',

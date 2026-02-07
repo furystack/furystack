@@ -65,7 +65,7 @@ export const PageHeader = Shade<PageHeaderProps>({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: '16px',
+      gap: cssVariableTheme.spacing.md,
     },
 
     '& .page-header-content': {
@@ -75,27 +75,27 @@ export const PageHeader = Shade<PageHeaderProps>({
 
     '& .page-header-title': {
       margin: '0',
-      fontSize: '1.5rem',
-      fontWeight: '600',
-      lineHeight: '1.3',
+      fontSize: cssVariableTheme.typography.fontSize.xl,
+      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
+      lineHeight: cssVariableTheme.typography.lineHeight.tight,
       color: cssVariableTheme.text.primary,
     },
 
     '& .page-header-icon': {
-      marginRight: '8px',
+      marginRight: cssVariableTheme.spacing.sm,
     },
 
     '& .page-header-description': {
-      margin: '8px 0 0 0',
-      fontSize: '0.875rem',
-      lineHeight: '1.5',
+      margin: `${cssVariableTheme.spacing.sm} 0 0 0`,
+      fontSize: cssVariableTheme.typography.fontSize.md,
+      lineHeight: cssVariableTheme.typography.lineHeight.normal,
       color: cssVariableTheme.text.secondary,
     },
 
     '& .page-header-actions': {
       display: 'flex',
       alignItems: 'center',
-      gap: '8px',
+      gap: cssVariableTheme.spacing.sm,
       flexShrink: '0',
     },
   },

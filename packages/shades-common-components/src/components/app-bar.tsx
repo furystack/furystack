@@ -10,9 +10,8 @@ export const AppBar = Shade({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
-    transition:
-      'opacity .35s cubic-bezier(0.550, 0.085, 0.680, 0.530), padding .2s cubic-bezier(0.550, 0.085, 0.680, 0.530)',
+    boxShadow: cssVariableTheme.shadows.md,
+    transition: `opacity ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}, padding ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.default}`,
     opacity: '0',
     position: 'fixed',
     zIndex: '1',

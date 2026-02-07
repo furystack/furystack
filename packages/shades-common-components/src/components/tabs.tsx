@@ -1,5 +1,5 @@
 import { LocationService, Shade, createComponent } from '@furystack/shades'
-import { cssVariableTheme } from '../services/css-variable-theme.js'
+import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 
 export interface Tab {
   header: JSX.Element
@@ -12,7 +12,12 @@ const TabHeader = Shade<{ hash: string }>({
   css: {
     padding: '16px 40px',
     cursor: 'pointer',
-    transition: 'box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, font-weight 0.3s ease',
+    transition: buildTransition(
+      ['box-shadow', cssVariableTheme.transitions.duration.slow, 'ease'],
+      ['background', cssVariableTheme.transitions.duration.slow, 'ease'],
+      ['color', cssVariableTheme.transitions.duration.slow, 'ease'],
+      ['font-weight', cssVariableTheme.transitions.duration.slow, 'ease'],
+    ),
     fontWeight: 'inherit',
     background: cssVariableTheme.background.default,
     color: cssVariableTheme.text.secondary,
@@ -53,7 +58,7 @@ export const Tabs = Shade<{
     flexDirection: 'column',
     '& .shade-tabs-header-container': {
       display: 'inline-flex',
-      borderRadius: '8px 8px 0 0',
+      borderRadius: `${cssVariableTheme.shape.borderRadius.md} ${cssVariableTheme.shape.borderRadius.md} 0 0`,
       overflow: 'hidden',
       flexShrink: '0',
     },

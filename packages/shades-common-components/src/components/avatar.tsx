@@ -10,15 +10,15 @@ export const Avatar = Shade<AvatarProps>({
     width: '128px',
     height: '128px',
     overflow: 'hidden',
-    borderRadius: '50%',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)',
+    borderRadius: cssVariableTheme.shape.borderRadius.full,
+    boxShadow: cssVariableTheme.shadows.md,
     background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 10%, ${cssVariableTheme.background.paper})`,
     display: 'flex',
     position: 'relative',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: `all ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
     '&:hover': {
       transform: 'translateY(-2px) scale(1.02)',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.12)',
+      boxShadow: cssVariableTheme.shadows.xl,
     },
 
     '& .avatar-fallback-container': {
@@ -36,7 +36,7 @@ export const Avatar = Shade<AvatarProps>({
       justifyContent: 'center',
       width: '64px',
       height: '64px',
-      borderRadius: '50%',
+      borderRadius: cssVariableTheme.shape.borderRadius.full,
       background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 20%, transparent)`,
       backdropFilter: 'blur(10px)',
       textAlign: 'center',

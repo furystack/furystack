@@ -22,8 +22,8 @@ export const ShowcaseAppBar = Shade({
           style={{
             display: 'flex',
             alignItems: 'center',
-            paddingLeft: '12px',
-            marginRight: '8px',
+            paddingLeft: cssVariableTheme.spacing.sm,
+            marginRight: cssVariableTheme.spacing.sm,
             whiteSpace: 'nowrap',
           }}
         >
@@ -35,7 +35,7 @@ export const ShowcaseAppBar = Shade({
             alignSelf: 'stretch',
             background: cssVariableTheme.divider,
             opacity: '0.4',
-            margin: '8px 4px',
+            margin: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.xs}`,
           }}
         />
         <div

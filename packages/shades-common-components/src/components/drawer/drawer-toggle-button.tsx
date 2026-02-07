@@ -50,7 +50,7 @@ export const DrawerToggleButton = Shade<DrawerToggleButtonProps>({
       borderRadius: '50%',
       background: 'transparent',
       cursor: 'pointer',
-      transition: 'background-color 0.2s ease',
+      transition: `background-color ${cssVariableTheme.transitions.duration.normal} ease`,
       color: cssVariableTheme.text.primary,
     },
 
@@ -78,7 +78,7 @@ export const DrawerToggleButton = Shade<DrawerToggleButtonProps>({
       height: '2px',
       backgroundColor: 'currentColor',
       borderRadius: '1px',
-      transition: 'transform 0.3s ease, opacity 0.3s ease',
+      transition: `transform ${cssVariableTheme.transitions.duration.slow} ease, opacity ${cssVariableTheme.transitions.duration.slow} ease`,
     },
 
     // Open state - transform to X
