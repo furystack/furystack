@@ -7,7 +7,8 @@ const config: PlaywrightTestConfig = {
   forbidOnly: isInCi,
   testDir: 'e2e',
   fullyParallel: true,
-  retries: isInCi ? 2 : 0,
+  retries: isInCi ? 2 : 1,
+  workers: isInCi ? undefined : '50%',
   reporter: isInCi ? 'github' : 'line',
   expect: {
     toHaveScreenshot: {

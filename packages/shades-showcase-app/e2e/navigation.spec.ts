@@ -76,6 +76,8 @@ const expectSelected = async (link: Locator) => await expect(link).toHaveCSS('op
 const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveCSS('opacity', '1')
 
 test.describe('Navigation', () => {
+  test.skip(({ isMobile }) => isMobile, 'AppBar navigation tests are desktop-only')
+
   test.describe('Category links in AppBar', () => {
     categories.forEach(({ name: categoryName, url: categoryUrl }) => {
       test(`${categoryName} should be accessible from AppBar and navigate to first child`, async ({ page }) => {
