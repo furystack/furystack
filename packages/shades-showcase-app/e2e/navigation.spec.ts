@@ -1,104 +1,120 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 
-const pages = {
-  buttons: {
-    name: 'Buttons',
-    url: '/buttons',
+const categories = [
+  {
+    name: 'Inputs & Forms',
+    url: '/inputs-and-forms/buttons',
+    pages: [
+      { name: 'Buttons', url: '/inputs-and-forms/buttons' },
+      { name: 'Inputs', url: '/inputs-and-forms/inputs' },
+      { name: 'Form', url: '/inputs-and-forms/form' },
+    ],
   },
-  inputs: {
-    name: 'Inputs',
-    url: '/inputs',
+  {
+    name: 'Data Display',
+    url: '/data-display/grid',
+    pages: [
+      { name: 'Grid', url: '/data-display/grid' },
+      { name: 'List', url: '/data-display/list' },
+      { name: 'Tree', url: '/data-display/tree' },
+      { name: 'Avatar', url: '/data-display/avatar' },
+      { name: 'Breadcrumb', url: '/data-display/breadcrumb' },
+    ],
   },
-  form: {
-    name: 'Form',
-    url: '/form',
+  {
+    name: 'Navigation',
+    url: '/navigation/tabs',
+    pages: [
+      { name: 'Tabs', url: '/navigation/tabs' },
+      { name: 'Context Menu', url: '/navigation/context-menu' },
+      { name: 'Command Palette', url: '/navigation/command-palette' },
+      { name: 'Suggest', url: '/navigation/suggest' },
+    ],
   },
-  grid: {
-    name: 'Grid',
-    url: '/grid',
+  {
+    name: 'Feedback',
+    url: '/feedback/notifications',
+    pages: [{ name: 'Notifications', url: '/feedback/notifications' }],
   },
-  nipple: {
-    name: 'Nipple',
-    url: '/nipple',
+  {
+    name: 'Surfaces',
+    url: '/surfaces/wizard',
+    pages: [
+      { name: 'Wizard', url: '/surfaces/wizard' },
+      { name: 'FAB', url: '/surfaces/fab' },
+    ],
   },
-  lottie: {
-    name: 'Lottie',
-    url: '/lottie',
+  {
+    name: 'Integrations',
+    url: '/integrations/monaco',
+    pages: [
+      { name: 'Monaco', url: '/integrations/monaco' },
+      { name: 'Lottie', url: '/integrations/lottie' },
+      { name: 'Nipple', url: '/integrations/nipple' },
+      { name: 'MFE', url: '/integrations/mfe' },
+      { name: 'I18N', url: '/integrations/i18n' },
+    ],
   },
-  monaco: {
-    name: 'Monaco',
-    url: '/monaco',
+  {
+    name: 'Utilities',
+    url: '/utilities/search-state',
+    pages: [
+      { name: 'Search State', url: '/utilities/search-state' },
+      { name: 'Stored State', url: '/utilities/stored-state' },
+    ],
   },
-  wizard: {
-    name: 'Wizard',
-    url: '/wizard',
-  },
-  notys: {
-    name: 'Notys',
-    url: '/notys',
-  },
-  tabs: {
-    name: 'Tabs',
-    url: '/tabs',
-  },
-  i18n: {
-    name: 'I18N',
-    url: '/i18n',
-  },
-  mfe: {
-    name: 'MFE',
-    url: '/mfe',
-  },
-  misc: {
-    name: 'Misc',
-    url: '/misc',
-  },
-}
+]
 
-const getNavigationEntry = async (page: Page, entryName: string) => {
+const getAppBarLink = (page: Page, linkText: string) => {
   const appBar = page.locator('shade-app-bar')
-  const menuEntry = appBar.locator('shade-app-bar-link', { has: page.locator(`text=${entryName}`) })
-  return menuEntry
+  return appBar.locator('shade-app-bar-link', { has: page.locator(`text=${linkText}`) })
 }
 
-const expectSelected = async (menuEntry: Locator) => await expect(menuEntry).toHaveCSS('opacity', '1')
+const expectSelected = async (link: Locator) => await expect(link).toHaveCSS('opacity', '1')
 
-const expectNotSelected = async (menuEntry: Locator) => await expect(menuEntry).not.toHaveCSS('opacity', '1')
-
-const expectPageTitle = async (page: Page, title: string) => page.locator('shade-router h1', { hasText: title })
+const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveCSS('opacity', '1')
 
 test.describe('Navigation', () => {
-  Object.values(pages).forEach(({ name, url }) => {
-    test(`${name} Should be available from Navigation menu`, async ({ page }) => {
-      await page.goto('http://localhost:8080/')
-      const homePageTitle = page.locator('shades-showcase-home')
-      await expect(homePageTitle).toBeVisible()
+  test.skip(({ isMobile }) => isMobile, 'AppBar navigation tests are desktop-only')
 
-      // Home should be selected
-      const homeMenuElement = await getNavigationEntry(page, 'Home')
-      await expectSelected(homeMenuElement)
+  test.describe('Category links in AppBar', () => {
+    categories.forEach(({ name: categoryName, url: categoryUrl }) => {
+      test(`${categoryName} should be accessible from AppBar and navigate to first child`, async ({ page }) => {
+        await page.goto('http://localhost:8080/')
+        const homePageTitle = page.locator('shades-showcase-home')
+        await expect(homePageTitle).toBeVisible()
 
-      const targetMenuElement = await getNavigationEntry(page, name)
-      await expectNotSelected(targetMenuElement)
+        const homeLink = getAppBarLink(page, 'Home')
+        await expectSelected(homeLink)
 
-      await targetMenuElement.click()
-      await expect(page).toHaveURL(url)
+        const categoryLink = getAppBarLink(page, categoryName)
+        await expectNotSelected(categoryLink)
 
-      await expectSelected(targetMenuElement)
-      await expectNotSelected(homeMenuElement)
+        await categoryLink.click()
+        await expect(page).toHaveURL(categoryUrl)
 
-      await page.goBack()
-      await expectSelected(homeMenuElement)
+        await expectSelected(categoryLink)
+        await expectNotSelected(homeLink)
 
-      await page.goForward()
-      await expectSelected(targetMenuElement)
+        await page.goBack()
+        await expectSelected(homeLink)
+
+        await page.goForward()
+        await expectSelected(categoryLink)
+      })
     })
-    test(`${name} Should be available from URL`, async ({ page }) => {
-      await page.goto(url)
-      const menuEntry = await getNavigationEntry(page, name)
-      await expectSelected(menuEntry)
-      await expectPageTitle(page, name)
+  })
+
+  test.describe('Pages accessible from URL', () => {
+    categories.forEach(({ name: categoryName, pages }) => {
+      pages.forEach(({ name: pageName, url: pageUrl }) => {
+        test(`${pageName} should be accessible from URL and highlight ${categoryName} category`, async ({ page }) => {
+          await page.goto(pageUrl)
+          const categoryLink = getAppBarLink(page, categoryName)
+          await expectSelected(categoryLink)
+        })
+      })
     })
   })
 

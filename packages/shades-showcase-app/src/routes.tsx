@@ -3,6 +3,7 @@ import { createComponent, LazyLoad } from '@furystack/shades'
 import { fadeIn, fadeOut } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
+import { Navigate } from './components/navigate.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 
@@ -19,7 +20,7 @@ const withFadeTransition = {
  * Top-level route definitions for the NestedRouter.
  *
  * `/layout-tests` and its children render standalone (no PageLayout wrapper).
- * `/` wraps its children in the main app layout with AppBar navigation.
+ * `/` wraps its children in the main app layout with AppBar + Sidebar navigation.
  */
 export const appRoutes = {
   '/layout-tests': {
@@ -142,163 +143,306 @@ export const appRoutes = {
       </ShowcaseLayout>
     ),
     children: {
-      '/buttons': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { ButtonsPage } = await import('./pages/buttons.js')
-              await sleepAsync(1000)
-              return <ButtonsPage />
-            }}
-          />
-        ),
+      '/inputs-and-forms': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/inputs-and-forms/buttons" />,
+        children: {
+          '/buttons': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ButtonsPage } = await import('./pages/inputs-and-forms/buttons.js')
+                  await sleepAsync(1000)
+                  return <ButtonsPage />
+                }}
+              />
+            ),
+          },
+          '/inputs': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { InputsPage } = await import('./pages/inputs-and-forms/inputs.js')
+                  return <InputsPage />
+                }}
+              />
+            ),
+          },
+          '/form': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  await sleepAsync(1000)
+                  const { FormPage } = await import('./pages/inputs-and-forms/form.js')
+                  return <FormPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/form': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              await sleepAsync(1000)
-              const { FormPage } = await import('./pages/form.js')
-              return <FormPage />
-            }}
-          />
-        ),
+      '/data-display': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
+        children: {
+          '/grid': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { GridPage } = await import('./pages/data-display/grid/index.js')
+                  return <GridPage />
+                }}
+              />
+            ),
+          },
+          '/list': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ListPage } = await import('./pages/data-display/list.js')
+                  return <ListPage />
+                }}
+              />
+            ),
+          },
+          '/tree': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TreePage } = await import('./pages/data-display/tree.js')
+                  return <TreePage />
+                }}
+              />
+            ),
+          },
+          '/avatar': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AvatarPage } = await import('./pages/data-display/avatar.js')
+                  return <AvatarPage />
+                }}
+              />
+            ),
+          },
+          '/breadcrumb': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { BreadcrumbPage } = await import('./pages/data-display/breadcrumb.js')
+                  return <BreadcrumbPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/inputs': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { InputsPage } = await import('./pages/inputs.js')
-              return <InputsPage />
-            }}
-          />
-        ),
+      '/navigation': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/navigation/tabs" />,
+        children: {
+          '/tabs': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TabsPage } = await import('./pages/navigation/tabs.js')
+                  return <TabsPage />
+                }}
+              />
+            ),
+          },
+          '/context-menu': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ContextMenuPage } = await import('./pages/navigation/context-menu.js')
+                  return <ContextMenuPage />
+                }}
+              />
+            ),
+          },
+          '/command-palette': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CommandPalettePage } = await import('./pages/navigation/command-palette.js')
+                  return <CommandPalettePage />
+                }}
+              />
+            ),
+          },
+          '/suggest': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SuggestPage } = await import('./pages/navigation/suggest.js')
+                  return <SuggestPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/grid': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { GridPage } = await import('./pages/grid/index.js')
-              return <GridPage />
-            }}
-          />
-        ),
+      '/feedback': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/feedback/notifications" />,
+        children: {
+          '/notifications': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { NotysPage } = await import('./pages/feedback/notifications.js')
+                  return <NotysPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/nipple': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { NipplePage } = await import('./pages/nipple.js')
-              return <NipplePage />
-            }}
-          />
-        ),
+      '/surfaces': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/wizard" />,
+        children: {
+          '/wizard': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { WizardPage } = await import('./pages/surfaces/wizard/index.js')
+                  return <WizardPage />
+                }}
+              />
+            ),
+          },
+          '/fab': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { FabPage } = await import('./pages/surfaces/fab.js')
+                  return <FabPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/lottie': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { LottiePage } = await import('./pages/lottie.js')
-              return <LottiePage />
-            }}
-          />
-        ),
+      '/integrations': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/integrations/monaco" />,
+        children: {
+          '/monaco': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { MonacoEditorPage } = await import('./pages/integrations/monaco.js')
+                  return <MonacoEditorPage />
+                }}
+              />
+            ),
+          },
+          '/lottie': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { LottiePage } = await import('./pages/integrations/lottie.js')
+                  return <LottiePage />
+                }}
+              />
+            ),
+          },
+          '/nipple': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { NipplePage } = await import('./pages/integrations/nipple.js')
+                  return <NipplePage />
+                }}
+              />
+            ),
+          },
+          '/mfe': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { MFEPage } = await import('./pages/integrations/mfe/mfe-page.js')
+                  return <MFEPage />
+                }}
+              />
+            ),
+          },
+          '/i18n': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { I18NPage } = await import('./pages/integrations/i18n/i18n.tsx')
+                  return <I18NPage />
+                }}
+              />
+            ),
+          },
+        },
       },
-      '/monaco': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { MonacoEditorPage } = await import('./pages/monaco.js')
-              return <MonacoEditorPage />
-            }}
-          />
-        ),
-      },
-      '/wizard': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { WizardPage } = await import('./pages/wizard/index.js')
-              return <WizardPage />
-            }}
-          />
-        ),
-      },
-      '/notys': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { NotysPage } = await import('./pages/notys.js')
-              return <NotysPage />
-            }}
-          />
-        ),
-      },
-      '/tabs': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { TabsPage } = await import('./pages/tabs.js')
-              return <TabsPage />
-            }}
-          />
-        ),
-      },
-      '/i18n': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { I18NPage } = await import('./pages/i18n/i18n.tsx')
-              return <I18NPage />
-            }}
-          />
-        ),
-      },
-      '/mfe': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { MFEPage } = await import('./pages/mfe/mfe-page.js')
-              return <MFEPage />
-            }}
-          />
-        ),
-      },
-      '/misc': {
-        ...withFadeTransition,
-        component: () => (
-          <LazyLoad
-            loader={<PageLoader />}
-            component={async () => {
-              const { MiscPage } = await import('./pages/misc.js')
-              return <MiscPage />
-            }}
-          />
-        ),
+      '/utilities': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/utilities/search-state" />,
+        children: {
+          '/search-state': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SearchStatePage } = await import('./pages/utilities/search-state.js')
+                  return <SearchStatePage />
+                }}
+              />
+            ),
+          },
+          '/stored-state': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { StoredStatePage } = await import('./pages/utilities/stored-state.js')
+                  return <StoredStatePage />
+                }}
+              />
+            ),
+          },
+        },
       },
     },
   },
