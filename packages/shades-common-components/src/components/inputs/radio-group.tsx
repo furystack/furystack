@@ -65,11 +65,7 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
       flexWrap: 'wrap',
     },
   },
-  render: ({ props, children, element }) => {
-    const orientation = props.orientation || 'vertical'
-    element.setAttribute('data-orientation', orientation)
-    element.setAttribute('role', 'radiogroup')
-
+  constructed: ({ props, element }) => {
     const handleChange = (ev: Event) => {
       const target = ev.target as HTMLInputElement
       if (target.type === 'radio' && target.checked) {
@@ -79,26 +75,34 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
 
     element.addEventListener('change', handleChange)
 
-    const applyPropsToRadios = () => {
-      const radios = element.querySelectorAll('shade-radio')
-      radios.forEach((radio) => {
-        const input = radio.querySelector<HTMLInputElement>('input[type="radio"]')
-        if (input) {
-          input.name = props.name
-          if (props.value !== undefined) {
-            input.checked = input.value === props.value
-          } else if (props.defaultValue !== undefined && !input.hasAttribute('data-default-applied')) {
-            input.checked = input.value === props.defaultValue
-            input.setAttribute('data-default-applied', '')
-          }
-          if (props.disabled) {
-            input.disabled = true
-          }
-        }
-      })
+    return () => {
+      element.removeEventListener('change', handleChange)
+    }
+  },
+  render: ({ props, children, element }) => {
+    const orientation = props.orientation || 'vertical'
+    element.setAttribute('data-orientation', orientation)
+    element.setAttribute('role', 'radiogroup')
+
+    // Expose group-level props as data attributes so child Radio components
+    // can read them synchronously during their own render cycle.
+    element.setAttribute('data-group-name', props.name)
+
+    if (props.disabled) {
+      element.setAttribute('data-disabled', '')
+    } else {
+      element.removeAttribute('data-disabled')
     }
 
-    requestAnimationFrame(applyPropsToRadios)
+    if (props.value !== undefined) {
+      element.setAttribute('data-group-value', props.value)
+    } else {
+      element.removeAttribute('data-group-value')
+    }
+
+    if (props.defaultValue !== undefined) {
+      element.setAttribute('data-group-default-value', props.defaultValue)
+    }
 
     return (
       <>

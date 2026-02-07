@@ -1,6 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
+import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
 
 export type ChipProps = PartialElement<HTMLElement> & {
@@ -12,58 +13,11 @@ export type ChipProps = PartialElement<HTMLElement> & {
   onDelete?: (ev: MouseEvent) => void
 }
 
-const colorMap: Record<
-  keyof Palette,
-  { main: string; mainContrast: string; light: string; dark: string; darkContrast: string }
-> = {
-  primary: {
-    main: cssVariableTheme.palette.primary.main,
-    mainContrast: cssVariableTheme.palette.primary.mainContrast,
-    light: cssVariableTheme.palette.primary.light,
-    dark: cssVariableTheme.palette.primary.dark,
-    darkContrast: cssVariableTheme.palette.primary.darkContrast,
-  },
-  secondary: {
-    main: cssVariableTheme.palette.secondary.main,
-    mainContrast: cssVariableTheme.palette.secondary.mainContrast,
-    light: cssVariableTheme.palette.secondary.light,
-    dark: cssVariableTheme.palette.secondary.dark,
-    darkContrast: cssVariableTheme.palette.secondary.darkContrast,
-  },
-  error: {
-    main: cssVariableTheme.palette.error.main,
-    mainContrast: cssVariableTheme.palette.error.mainContrast,
-    light: cssVariableTheme.palette.error.light,
-    dark: cssVariableTheme.palette.error.dark,
-    darkContrast: cssVariableTheme.palette.error.darkContrast,
-  },
-  warning: {
-    main: cssVariableTheme.palette.warning.main,
-    mainContrast: cssVariableTheme.palette.warning.mainContrast,
-    light: cssVariableTheme.palette.warning.light,
-    dark: cssVariableTheme.palette.warning.dark,
-    darkContrast: cssVariableTheme.palette.warning.darkContrast,
-  },
-  success: {
-    main: cssVariableTheme.palette.success.main,
-    mainContrast: cssVariableTheme.palette.success.mainContrast,
-    light: cssVariableTheme.palette.success.light,
-    dark: cssVariableTheme.palette.success.dark,
-    darkContrast: cssVariableTheme.palette.success.darkContrast,
-  },
-  info: {
-    main: cssVariableTheme.palette.info.main,
-    mainContrast: cssVariableTheme.palette.info.mainContrast,
-    light: cssVariableTheme.palette.info.light,
-    dark: cssVariableTheme.palette.info.dark,
-    darkContrast: cssVariableTheme.palette.info.darkContrast,
-  },
-}
-
 const defaultColors = {
   main: cssVariableTheme.text.secondary,
   mainContrast: cssVariableTheme.background.default,
   light: cssVariableTheme.text.primary,
+  lightContrast: cssVariableTheme.background.default,
   dark: cssVariableTheme.text.disabled,
   darkContrast: cssVariableTheme.background.default,
 }
@@ -219,7 +173,7 @@ export const Chip = Shade<ChipProps>({
       element.removeAttribute('data-clickable')
     }
 
-    const colors = color ? colorMap[color] : defaultColors
+    const colors = color ? paletteFullColors[color] : defaultColors
     element.style.setProperty('--chip-color-main', colors.main)
     element.style.setProperty('--chip-color-main-contrast', colors.mainContrast)
     element.style.setProperty('--chip-color-light', colors.light)

@@ -1,5 +1,5 @@
 releases:
-  "@furystack/shades-common-components": minor
+  "@furystack/shades-common-components": major
   "@furystack/shades-showcase-app": patch
 declined:
   - furystack

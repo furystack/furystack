@@ -1,4 +1,4 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/shades-common-components
 
@@ -17,6 +17,12 @@ Use h3 (###) and below for detailed entries with paragraphs, code examples, and 
 TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
+
+## 💥 Breaking Changes
+
+### `Theme` interface extended with 6 new required properties
+
+The `Theme` interface now requires the following additional properties: `action`, `shape`, `shadows`, `typography`, `transitions`, and `spacing`. Any custom theme objects must be updated to include these new token groups. See `defaultDarkTheme` and `defaultLightTheme` for reference implementations.
 
 ## ✨ Features
 

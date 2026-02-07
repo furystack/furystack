@@ -1,6 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
+import { paletteMainColors } from '../services/palette-css-vars.js'
 
 export type AlertSeverity = 'error' | 'warning' | 'info' | 'success'
 
@@ -13,26 +14,10 @@ export type AlertProps = PartialElement<HTMLElement> & {
 }
 
 const severityColorMap: Record<AlertSeverity, { main: string; mainContrast: string; light: string }> = {
-  error: {
-    main: cssVariableTheme.palette.error.main,
-    mainContrast: cssVariableTheme.palette.error.mainContrast,
-    light: cssVariableTheme.palette.error.light,
-  },
-  warning: {
-    main: cssVariableTheme.palette.warning.main,
-    mainContrast: cssVariableTheme.palette.warning.mainContrast,
-    light: cssVariableTheme.palette.warning.light,
-  },
-  info: {
-    main: cssVariableTheme.palette.info.main,
-    mainContrast: cssVariableTheme.palette.info.mainContrast,
-    light: cssVariableTheme.palette.info.light,
-  },
-  success: {
-    main: cssVariableTheme.palette.success.main,
-    mainContrast: cssVariableTheme.palette.success.mainContrast,
-    light: cssVariableTheme.palette.success.light,
-  },
+  error: { ...paletteMainColors.error, light: cssVariableTheme.palette.error.light },
+  warning: { ...paletteMainColors.warning, light: cssVariableTheme.palette.warning.light },
+  info: { ...paletteMainColors.info, light: cssVariableTheme.palette.info.light },
+  success: { ...paletteMainColors.success, light: cssVariableTheme.palette.success.light },
 }
 
 const defaultIcons: Record<AlertSeverity, string> = {

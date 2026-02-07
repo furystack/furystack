@@ -128,12 +128,35 @@ export const Radio = Shade<RadioProps>({
       cursor: 'not-allowed',
     },
   },
-  constructed: ({ injector, element }) => {
+  constructed: ({ props, injector, element }) => {
     if (injector.cachedSingletons.has(FormService)) {
       const input = element.querySelector('input[type="radio"]') as HTMLInputElement
       const formService = injector.getInstance(FormService)
       formService.inputs.add(input)
       return () => formService.inputs.delete(input)
+    }
+
+    // After connection to the DOM, read group-level overrides from parent RadioGroup
+    const group = element.closest('shade-radio-group')
+    if (group) {
+      const input = element.querySelector<HTMLInputElement>('input[type="radio"]')
+      if (input) {
+        const groupName = group.getAttribute('data-group-name')
+        if (groupName) input.name = groupName
+
+        const groupDisabled = group.hasAttribute('data-disabled')
+        if (groupDisabled) input.disabled = true
+
+        const groupValue = group.getAttribute('data-group-value')
+        if (groupValue !== null) {
+          input.checked = props.value === groupValue
+        } else {
+          const groupDefaultValue = group.getAttribute('data-group-default-value')
+          if (groupDefaultValue !== null && props.checked === undefined) {
+            input.checked = props.value === groupDefaultValue
+          }
+        }
+      }
     }
   },
   render: ({ props, injector, element }) => {
