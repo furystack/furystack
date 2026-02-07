@@ -159,6 +159,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/checkboxes': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CheckboxesPage } = await import('./pages/inputs-and-forms/checkboxes.js')
+                  return <CheckboxesPage />
+                }}
+              />
+            ),
+          },
           '/inputs': {
             ...withFadeTransition,
             component: () => (
@@ -167,6 +179,42 @@ export const appRoutes = {
                 component={async () => {
                   const { InputsPage } = await import('./pages/inputs-and-forms/inputs.js')
                   return <InputsPage />
+                }}
+              />
+            ),
+          },
+          '/radio': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { RadioPage } = await import('./pages/inputs-and-forms/radio.js')
+                  return <RadioPage />
+                }}
+              />
+            ),
+          },
+          '/select': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SelectPage } = await import('./pages/inputs-and-forms/select.js')
+                  return <SelectPage />
+                }}
+              />
+            ),
+          },
+          '/switch': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SwitchPage } = await import('./pages/inputs-and-forms/switch.js')
+                  return <SwitchPage />
                 }}
               />
             ),
@@ -189,6 +237,18 @@ export const appRoutes = {
       '/data-display': {
         component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
         children: {
+          '/accordion': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AccordionPage } = await import('./pages/data-display/accordion.js')
+                  return <AccordionPage />
+                }}
+              />
+            ),
+          },
           '/grid': {
             ...withFadeTransition,
             component: () => (
@@ -237,6 +297,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/badge': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { BadgePage } = await import('./pages/data-display/badge.js')
+                  return <BadgePage />
+                }}
+              />
+            ),
+          },
           '/breadcrumb': {
             ...withFadeTransition,
             component: () => (
@@ -245,6 +317,30 @@ export const appRoutes = {
                 component={async () => {
                   const { BreadcrumbPage } = await import('./pages/data-display/breadcrumb.js')
                   return <BreadcrumbPage />
+                }}
+              />
+            ),
+          },
+          '/chip': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ChipPage } = await import('./pages/data-display/chip.js')
+                  return <ChipPage />
+                }}
+              />
+            ),
+          },
+          '/tooltip': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TooltipPage } = await import('./pages/data-display/tooltip.js')
+                  return <TooltipPage />
                 }}
               />
             ),
@@ -302,11 +398,35 @@ export const appRoutes = {
               />
             ),
           },
+          '/pagination': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { PaginationPage } = await import('./pages/navigation/pagination.js')
+                  return <PaginationPage />
+                }}
+              />
+            ),
+          },
         },
       },
       '/feedback': {
-        component: ({ outlet }) => outlet ?? <Navigate to="/feedback/notifications" />,
+        component: ({ outlet }) => outlet ?? <Navigate to="/feedback/alert" />,
         children: {
+          '/alert': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { AlertPage } = await import('./pages/feedback/alert.js')
+                  return <AlertPage />
+                }}
+              />
+            ),
+          },
           '/notifications': {
             ...withFadeTransition,
             component: () => (
@@ -319,11 +439,52 @@ export const appRoutes = {
               />
             ),
           },
+          '/progress': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ProgressPage } = await import('./pages/feedback/progress.js')
+                  return <ProgressPage />
+                }}
+              />
+            ),
+          },
+        },
+      },
+      '/layout': {
+        component: ({ outlet }) => outlet ?? <Navigate to="/layout/divider" />,
+        children: {
+          '/divider': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { DividerPage } = await import('./pages/layout/divider.js')
+                  return <DividerPage />
+                }}
+              />
+            ),
+          },
         },
       },
       '/surfaces': {
-        component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/wizard" />,
+        component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/card" />,
         children: {
+          '/card': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CardPage } = await import('./pages/surfaces/card.js')
+                  return <CardPage />
+                }}
+              />
+            ),
+          },
           '/wizard': {
             ...withFadeTransition,
             component: () => (
@@ -332,6 +493,18 @@ export const appRoutes = {
                 component={async () => {
                   const { WizardPage } = await import('./pages/surfaces/wizard/index.js')
                   return <WizardPage />
+                }}
+              />
+            ),
+          },
+          '/dialog': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { DialogPage } = await import('./pages/surfaces/dialog.js')
+                  return <DialogPage />
                 }}
               />
             ),
