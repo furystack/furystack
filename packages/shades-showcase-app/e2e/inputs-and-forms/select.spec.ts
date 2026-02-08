@@ -225,6 +225,6 @@ test.describe('Select', () => {
     // Selected items should have check marks
     const selectedOptions = listbox.locator('.dropdown-item[data-selected]')
     await expect(selectedOptions).toHaveCount(2)
-    await expect(selectedOptions.first().locator('.check-icon')).toHaveText('✓')
+    await expect(selectedOptions.first().locator('.check-icon shade-icon')).toBeVisible()
   })
 })
