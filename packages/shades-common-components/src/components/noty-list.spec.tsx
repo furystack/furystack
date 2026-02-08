@@ -211,7 +211,7 @@ describe('NotyComponent', () => {
       // Wait for render
       await vi.advanceTimersByTimeAsync(50)
 
-      // The constructed hook schedules the animation via setTimeout
+      // The useDisposable hook schedules the animation via setTimeout
       await vi.advanceTimersByTimeAsync(10)
 
       const fadeInCall = animateCalls.find(

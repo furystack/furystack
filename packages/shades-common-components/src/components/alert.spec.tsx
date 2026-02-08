@@ -22,7 +22,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     expect(alert.getAttribute('data-severity')).toBe('info')
   })
 
@@ -36,7 +36,7 @@ describe('Alert', () => {
         </div>
       )
       const alert = el.firstElementChild as JSX.Element
-      alert.callConstructed()
+      alert.updateComponent()
       expect(alert.getAttribute('data-severity')).toBe(severity)
     }
   })
@@ -51,7 +51,7 @@ describe('Alert', () => {
         </div>
       )
       const alert = el.firstElementChild as JSX.Element
-      alert.callConstructed()
+      alert.updateComponent()
       expect(alert.getAttribute('data-variant')).toBe(variant)
     }
   })
@@ -63,7 +63,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     expect(alert.hasAttribute('data-variant')).toBe(false)
   })
 
@@ -74,7 +74,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     expect(alert.getAttribute('role')).toBe('alert')
   })
 
@@ -87,7 +87,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const titleEl = alert.querySelector('.alert-title')
     expect(titleEl).not.toBeNull()
     expect(titleEl?.textContent).toBe('Error Title')
@@ -100,7 +100,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const titleEl = alert.querySelector('.alert-title')
     expect(titleEl).toBeNull()
   })
@@ -113,7 +113,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const closeBtn = alert.querySelector('.alert-close')
     expect(closeBtn).not.toBeNull()
   })
@@ -125,7 +125,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const closeBtn = alert.querySelector('.alert-close')
     expect(closeBtn).toBeNull()
   })
@@ -138,7 +138,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const closeBtn = alert.querySelector('.alert-close') as HTMLElement
     closeBtn.click()
     expect(onClose).toHaveBeenCalledOnce()
@@ -155,7 +155,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const closeBtn = alert.querySelector('.alert-close') as HTMLElement
     closeBtn.click()
     expect(onClose).toHaveBeenCalledOnce()
@@ -169,7 +169,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const iconEl = alert.querySelector('.alert-icon')
     expect(iconEl).not.toBeNull()
     expect(iconEl?.querySelector('shade-icon')).not.toBeNull()
@@ -184,7 +184,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const iconEl = alert.querySelector('.alert-icon')
     expect(iconEl).not.toBeNull()
     expect(iconEl?.textContent).toBe('🔥')
@@ -197,7 +197,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     expect(alert.style.getPropertyValue('--alert-color-main')).toBe('var(--shades-theme-palette-error-main)')
   })
 
@@ -208,7 +208,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     expect(alert.style.getPropertyValue('--alert-color-main')).toBe('var(--shades-theme-palette-success-main)')
   })
 
@@ -219,7 +219,7 @@ describe('Alert', () => {
       </div>
     )
     const alert = el.firstElementChild as JSX.Element
-    alert.callConstructed()
+    alert.updateComponent()
     const messageEl = alert.querySelector('.alert-message')
     expect(messageEl).not.toBeNull()
   })

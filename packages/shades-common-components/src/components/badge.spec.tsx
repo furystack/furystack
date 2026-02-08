@@ -38,7 +38,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     expect(badge.querySelector('.badge-indicator')).not.toBeNull()
   })
 
@@ -51,7 +51,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('42')
   })
@@ -65,7 +65,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('99+')
   })
@@ -79,7 +79,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('10+')
   })
@@ -93,7 +93,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('5')
   })
@@ -107,7 +107,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
@@ -121,7 +121,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(false)
   })
@@ -135,7 +135,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
@@ -149,7 +149,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-dot')).toBe(true)
     expect(indicator.textContent).toBe('')
@@ -164,7 +164,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(false)
   })
@@ -178,7 +178,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
@@ -192,7 +192,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     expect(badge.style.getPropertyValue('--badge-color-main')).toBe('var(--shades-theme-palette-primary-main)')
     expect(badge.style.getPropertyValue('--badge-color-contrast')).toBe(
       'var(--shades-theme-palette-primary-main-contrast)',
@@ -208,7 +208,7 @@ describe('Badge', () => {
       </div>
     )
     const badge = el.firstElementChild as JSX.Element
-    badge.callConstructed()
+    badge.updateComponent()
     expect(badge.style.getPropertyValue('--badge-color-main')).toBe('var(--shades-theme-palette-error-main)')
   })
 })

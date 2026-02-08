@@ -360,223 +360,223 @@ export const Slider = Shade<SliderProps>({
     },
   },
 
-  constructed: ({ element }) => {
-    let isDragging = false
-    let activeThumbIdx = 0
-    let cleanupDrag: (() => void) | null = null
-    // Pending value tracked during drag to avoid triggering re-renders mid-interaction.
-    // Shades recreates custom elements on parent re-render, which would orphan our
-    // document-level drag listeners and cause stale getBoundingClientRect calculations.
-    let pendingValue: number | [number, number] | null = null
+  render: ({ props, injector, element, useDisposable }) => {
+    useDisposable('interaction-handler', () => {
+      let isDragging = false
+      let activeThumbIdx = 0
+      let cleanupDrag: (() => void) | null = null
+      // Pending value tracked during drag to avoid triggering re-renders mid-interaction.
+      // Shades recreates custom elements on parent re-render, which would orphan our
+      // document-level drag listeners and cause stale getBoundingClientRect calculations.
+      let pendingValue: number | [number, number] | null = null
 
-    const getProps = (): SliderProps & { min: number; max: number; step: number } => {
-      const p = sliderPropsMap.get(element)
-      return {
-        ...p,
-        min: p?.min ?? 0,
-        max: p?.max ?? 100,
-        step: p?.step ?? 1,
+      const getProps = (): SliderProps & { min: number; max: number; step: number } => {
+        const p = sliderPropsMap.get(element)
+        return {
+          ...p,
+          min: p?.min ?? 0,
+          max: p?.max ?? 100,
+          step: p?.step ?? 1,
+        }
       }
-    }
 
-    const getValueFromPointer = (clientX: number, clientY: number): number | null => {
-      if (!element.isConnected) return null
-      const root = element.querySelector('.slider-root')
-      if (!root) return null
-      const rect = root.getBoundingClientRect()
-      if (rect.width === 0 && rect.height === 0) return null
-      const { min, max, step, vertical } = getProps()
-      let pct: number
-      if (vertical) {
-        pct = rect.height > 0 ? ((rect.bottom - clientY) / rect.height) * 100 : 0
-      } else {
-        pct = rect.width > 0 ? ((clientX - rect.left) / rect.width) * 100 : 0
-      }
-      pct = clamp(pct, 0, 100)
-      return snapToStep(percentToValue(pct, min, max), step, min, max)
-    }
-
-    /** Updates the DOM directly without triggering parent re-render */
-    const applyVisual = (newValue: number | [number, number]): void => {
-      const { min, max, vertical } = getProps()
-      syncVisuals(element, newValue, min, max, vertical ?? false)
-    }
-
-    /** Notifies the parent via onValueChange (may trigger element recreation) */
-    const emitToParent = (newValue: number | [number, number]): void => {
-      getProps().onValueChange?.(newValue)
-    }
-
-    const getCurrentValue = (): number | [number, number] => {
-      if (pendingValue !== null) return pendingValue
-      const props = getProps()
-      return props.value ?? props.min
-    }
-
-    const handlePointerDown = (e: MouseEvent | TouchEvent): void => {
-      const props = getProps()
-      if (props.disabled) return
-
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-      const target = e.target as HTMLElement
-      const isThumb = target.classList.contains('slider-thumb')
-
-      if (isThumb) {
-        activeThumbIdx = Number(target.dataset.index ?? 0)
-        pendingValue = getCurrentValue()
-      } else {
-        const newVal = getValueFromPointer(clientX, clientY)
-        if (newVal === null) return
-        const currentValue = props.value ?? props.min
-
-        if (isRangeValue(currentValue)) {
-          const distStart = Math.abs(newVal - currentValue[0])
-          const distEnd = Math.abs(newVal - currentValue[1])
-          activeThumbIdx = distStart <= distEnd ? 0 : 1
-          const updated: [number, number] = [currentValue[0], currentValue[1]]
-          updated[activeThumbIdx] = newVal
-          if (updated[0] > updated[1]) {
-            activeThumbIdx = activeThumbIdx === 0 ? 1 : 0
-            ;[updated[0], updated[1]] = [updated[1], updated[0]]
-          }
-          pendingValue = updated
+      const getValueFromPointer = (clientX: number, clientY: number): number | null => {
+        if (!element.isConnected) return null
+        const root = element.querySelector('.slider-root')
+        if (!root) return null
+        const rect = root.getBoundingClientRect()
+        if (rect.width === 0 && rect.height === 0) return null
+        const { min, max, step, vertical } = getProps()
+        let pct: number
+        if (vertical) {
+          pct = rect.height > 0 ? ((rect.bottom - clientY) / rect.height) * 100 : 0
         } else {
-          activeThumbIdx = 0
-          pendingValue = newVal
+          pct = rect.width > 0 ? ((clientX - rect.left) / rect.width) * 100 : 0
         }
-        applyVisual(pendingValue)
+        pct = clamp(pct, 0, 100)
+        return snapToStep(percentToValue(pct, min, max), step, min, max)
       }
 
-      isDragging = true
-      element.setAttribute('data-dragging', '')
+      const applyVisual = (newValue: number | [number, number]): void => {
+        const { min, max, vertical } = getProps()
+        syncVisuals(element, newValue, min, max, vertical ?? false)
+      }
 
-      const handlePointerMove = (moveEvt: MouseEvent | TouchEvent): void => {
-        if (!isDragging || !element.isConnected) {
-          endDrag()
-          return
+      const emitToParent = (newValue: number | [number, number]): void => {
+        getProps().onValueChange?.(newValue)
+      }
+
+      const getCurrentValue = (): number | [number, number] => {
+        if (pendingValue !== null) return pendingValue
+        const currentProps = getProps()
+        return currentProps.value ?? currentProps.min
+      }
+
+      const handlePointerDown = (e: MouseEvent | TouchEvent): void => {
+        const currentProps = getProps()
+        if (currentProps.disabled) return
+
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+        const target = e.target as HTMLElement
+        const isThumb = target.classList.contains('slider-thumb')
+
+        if (isThumb) {
+          activeThumbIdx = Number(target.dataset.index ?? 0)
+          pendingValue = getCurrentValue()
+        } else {
+          const newVal = getValueFromPointer(clientX, clientY)
+          if (newVal === null) return
+          const currentValue = currentProps.value ?? currentProps.min
+
+          if (isRangeValue(currentValue)) {
+            const distStart = Math.abs(newVal - currentValue[0])
+            const distEnd = Math.abs(newVal - currentValue[1])
+            activeThumbIdx = distStart <= distEnd ? 0 : 1
+            const updated: [number, number] = [currentValue[0], currentValue[1]]
+            updated[activeThumbIdx] = newVal
+            if (updated[0] > updated[1]) {
+              activeThumbIdx = activeThumbIdx === 0 ? 1 : 0
+              ;[updated[0], updated[1]] = [updated[1], updated[0]]
+            }
+            pendingValue = updated
+          } else {
+            activeThumbIdx = 0
+            pendingValue = newVal
+          }
+          applyVisual(pendingValue)
         }
-        moveEvt.preventDefault()
 
-        const mx = 'touches' in moveEvt ? moveEvt.touches[0].clientX : moveEvt.clientX
-        const my = 'touches' in moveEvt ? moveEvt.touches[0].clientY : moveEvt.clientY
-        const newVal = getValueFromPointer(mx, my)
-        if (newVal === null) return
+        isDragging = true
+        element.setAttribute('data-dragging', '')
+
+        const handlePointerMove = (moveEvt: MouseEvent | TouchEvent): void => {
+          if (!isDragging || !element.isConnected) {
+            endDrag()
+            return
+          }
+          moveEvt.preventDefault()
+
+          const mx = 'touches' in moveEvt ? moveEvt.touches[0].clientX : moveEvt.clientX
+          const my = 'touches' in moveEvt ? moveEvt.touches[0].clientY : moveEvt.clientY
+          const newVal = getValueFromPointer(mx, my)
+          if (newVal === null) return
+          const currentValue = getCurrentValue()
+
+          if (isRangeValue(currentValue)) {
+            const updated: [number, number] = [currentValue[0], currentValue[1]]
+            updated[activeThumbIdx] = newVal
+            if (updated[0] > updated[1]) {
+              activeThumbIdx = activeThumbIdx === 0 ? 1 : 0
+              ;[updated[0], updated[1]] = [updated[1], updated[0]]
+            }
+            pendingValue = updated
+          } else {
+            pendingValue = newVal
+          }
+          applyVisual(pendingValue)
+        }
+
+        const endDrag = (): void => {
+          isDragging = false
+          element.removeAttribute('data-dragging')
+          document.removeEventListener('mousemove', handlePointerMove)
+          document.removeEventListener('mouseup', endDrag)
+          document.removeEventListener('touchmove', handlePointerMove)
+          document.removeEventListener('touchend', endDrag)
+          cleanupDrag = null
+          if (pendingValue !== null) {
+            const value = pendingValue
+            pendingValue = null
+            emitToParent(value)
+          }
+        }
+
+        document.addEventListener('mousemove', handlePointerMove)
+        document.addEventListener('mouseup', endDrag)
+        document.addEventListener('touchmove', handlePointerMove, { passive: false })
+        document.addEventListener('touchend', endDrag)
+        cleanupDrag = endDrag
+        e.preventDefault()
+      }
+
+      const handleKeyDown = (e: KeyboardEvent): void => {
+        const currentProps = getProps()
+        if (currentProps.disabled) return
+
+        const target = e.target as HTMLElement
+        if (!target.classList.contains('slider-thumb')) return
+
+        const thumbIdx = Number(target.dataset.index ?? 0)
+        const { step, min, max } = currentProps
         const currentValue = getCurrentValue()
 
+        let val: number
         if (isRangeValue(currentValue)) {
-          const updated: [number, number] = [currentValue[0], currentValue[1]]
-          updated[activeThumbIdx] = newVal
-          if (updated[0] > updated[1]) {
-            activeThumbIdx = activeThumbIdx === 0 ? 1 : 0
-            ;[updated[0], updated[1]] = [updated[1], updated[0]]
-          }
-          pendingValue = updated
+          val = currentValue[thumbIdx]
         } else {
-          pendingValue = newVal
+          val = currentValue
         }
-        applyVisual(pendingValue)
-      }
 
-      const endDrag = (): void => {
-        isDragging = false
-        element.removeAttribute('data-dragging')
-        document.removeEventListener('mousemove', handlePointerMove)
-        document.removeEventListener('mouseup', endDrag)
-        document.removeEventListener('touchmove', handlePointerMove)
-        document.removeEventListener('touchend', endDrag)
-        cleanupDrag = null
-        if (pendingValue !== null) {
-          const value = pendingValue
-          pendingValue = null
-          emitToParent(value)
+        const effectiveStep = step <= 0 ? 1 : step
+        const bigStep = effectiveStep * 10
+        let newVal: number
+
+        switch (e.key) {
+          case 'ArrowRight':
+          case 'ArrowUp':
+            newVal = snapToStep(val + effectiveStep, step, min, max)
+            break
+          case 'ArrowLeft':
+          case 'ArrowDown':
+            newVal = snapToStep(val - effectiveStep, step, min, max)
+            break
+          case 'PageUp':
+            newVal = snapToStep(val + bigStep, step, min, max)
+            break
+          case 'PageDown':
+            newVal = snapToStep(val - bigStep, step, min, max)
+            break
+          case 'Home':
+            newVal = min
+            break
+          case 'End':
+            newVal = max
+            break
+          default:
+            return
         }
+
+        e.preventDefault()
+
+        let updated: number | [number, number]
+        if (isRangeValue(currentValue)) {
+          const pair: [number, number] = [currentValue[0], currentValue[1]]
+          pair[thumbIdx] = newVal
+          if (thumbIdx === 0 && pair[0] > pair[1]) pair[0] = pair[1]
+          if (thumbIdx === 1 && pair[1] < pair[0]) pair[1] = pair[0]
+          updated = pair
+        } else {
+          updated = newVal
+        }
+        applyVisual(updated)
+        emitToParent(updated)
       }
 
-      document.addEventListener('mousemove', handlePointerMove)
-      document.addEventListener('mouseup', endDrag)
-      document.addEventListener('touchmove', handlePointerMove, { passive: false })
-      document.addEventListener('touchend', endDrag)
-      cleanupDrag = endDrag
-      e.preventDefault()
-    }
+      element.addEventListener('mousedown', handlePointerDown)
+      element.addEventListener('touchstart', handlePointerDown, { passive: false })
+      element.addEventListener('keydown', handleKeyDown)
 
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      const props = getProps()
-      if (props.disabled) return
-
-      const target = e.target as HTMLElement
-      if (!target.classList.contains('slider-thumb')) return
-
-      const thumbIdx = Number(target.dataset.index ?? 0)
-      const { step, min, max } = props
-      const currentValue = getCurrentValue()
-
-      let val: number
-      if (isRangeValue(currentValue)) {
-        val = currentValue[thumbIdx]
-      } else {
-        val = currentValue
+      return {
+        [Symbol.dispose]: () => {
+          element.removeEventListener('mousedown', handlePointerDown)
+          element.removeEventListener('touchstart', handlePointerDown)
+          element.removeEventListener('keydown', handleKeyDown)
+          cleanupDrag?.()
+        },
       }
+    })
 
-      const effectiveStep = step <= 0 ? 1 : step
-      const bigStep = effectiveStep * 10
-      let newVal: number
-
-      switch (e.key) {
-        case 'ArrowRight':
-        case 'ArrowUp':
-          newVal = snapToStep(val + effectiveStep, step, min, max)
-          break
-        case 'ArrowLeft':
-        case 'ArrowDown':
-          newVal = snapToStep(val - effectiveStep, step, min, max)
-          break
-        case 'PageUp':
-          newVal = snapToStep(val + bigStep, step, min, max)
-          break
-        case 'PageDown':
-          newVal = snapToStep(val - bigStep, step, min, max)
-          break
-        case 'Home':
-          newVal = min
-          break
-        case 'End':
-          newVal = max
-          break
-        default:
-          return
-      }
-
-      e.preventDefault()
-
-      let updated: number | [number, number]
-      if (isRangeValue(currentValue)) {
-        const pair: [number, number] = [currentValue[0], currentValue[1]]
-        pair[thumbIdx] = newVal
-        if (thumbIdx === 0 && pair[0] > pair[1]) pair[0] = pair[1]
-        if (thumbIdx === 1 && pair[1] < pair[0]) pair[1] = pair[0]
-        updated = pair
-      } else {
-        updated = newVal
-      }
-      applyVisual(updated)
-      emitToParent(updated)
-    }
-
-    element.addEventListener('mousedown', handlePointerDown)
-    element.addEventListener('touchstart', handlePointerDown, { passive: false })
-    element.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      element.removeEventListener('mousedown', handlePointerDown)
-      element.removeEventListener('touchstart', handlePointerDown)
-      element.removeEventListener('keydown', handleKeyDown)
-      cleanupDrag?.()
-    }
-  },
-
-  render: ({ props, injector, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const min = props.min ?? 0
     const max = props.max ?? 100
@@ -586,7 +586,7 @@ export const Slider = Shade<SliderProps>({
     const disabled = props.disabled ?? false
     const rangeMode = isRangeValue(value)
 
-    // Store props for constructed event handlers
+    // Store props for interaction event handlers
     sliderPropsMap.set(element, props)
 
     // Data attributes for CSS

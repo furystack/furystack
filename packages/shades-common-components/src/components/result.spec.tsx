@@ -26,7 +26,7 @@ describe('Result', () => {
         </div>
       )
       const result = el.firstElementChild as JSX.Element
-      result.callConstructed()
+      result.updateComponent()
       expect(result.getAttribute('data-status')).toBe(status)
     }
   })
@@ -38,7 +38,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const titleEl = result.querySelector('.result-title')
     expect(titleEl).not.toBeNull()
     expect(titleEl?.textContent).toBe('Operation Successful')
@@ -51,7 +51,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).not.toBeNull()
     expect(subtitleEl?.textContent).toBe('Some details here')
@@ -64,7 +64,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).toBeNull()
   })
@@ -80,7 +80,7 @@ describe('Result', () => {
         </div>
       )
       const result = el.firstElementChild as JSX.Element
-      result.callConstructed()
+      result.updateComponent()
       const iconEl = result.querySelector('.result-icon')
       expect(iconEl).not.toBeNull()
       expect(iconEl?.querySelector('shade-icon')).not.toBeNull()
@@ -94,7 +94,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const iconEl = result.querySelector('.result-icon')
     expect(iconEl).not.toBeNull()
     expect(iconEl?.textContent).toBe('🎉')
@@ -107,7 +107,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-success-main)')
   })
 
@@ -118,7 +118,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
@@ -129,7 +129,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-warning-main)')
   })
 
@@ -140,7 +140,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-info-main)')
   })
 
@@ -151,7 +151,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
@@ -164,7 +164,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const extraEl = result.querySelector('.result-extra')
     expect(extraEl).not.toBeNull()
     const button = extraEl?.querySelector('button')
@@ -179,7 +179,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const extraEl = result.querySelector('.result-extra')
     expect(extraEl).toBeNull()
   })
@@ -191,7 +191,7 @@ describe('Result', () => {
       </div>
     )
     const result = el.firstElementChild as JSX.Element
-    result.callConstructed()
+    result.updateComponent()
     const iconEl = result.querySelector('.result-icon')
     expect(iconEl?.getAttribute('role')).toBe('img')
   })

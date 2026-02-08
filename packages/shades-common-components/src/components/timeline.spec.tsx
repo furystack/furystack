@@ -35,7 +35,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.querySelector('.timeline-dot')).not.toBeNull()
     expect(item.querySelector('.timeline-content')).not.toBeNull()
     expect(item.querySelector('.timeline-tail')).not.toBeNull()
@@ -48,7 +48,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const label = item.querySelector('.timeline-label') as HTMLElement
     expect(label).not.toBeNull()
     expect(label.textContent).toBe('Jan 2024')
@@ -61,7 +61,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.querySelector('.timeline-label')).toBeNull()
   })
 
@@ -72,7 +72,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const dot = item.querySelector('.timeline-dot') as HTMLElement
     expect(dot.hasAttribute('data-custom')).toBe(true)
   })
@@ -84,7 +84,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const dot = item.querySelector('.timeline-dot') as HTMLElement
     expect(dot.hasAttribute('data-custom')).toBe(false)
   })
@@ -96,7 +96,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.style.getPropertyValue('--timeline-dot-color')).toBe('var(--shades-theme-palette-success-main)')
   })
 
@@ -107,7 +107,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.style.getPropertyValue('--timeline-dot-color')).toBe('var(--shades-theme-palette-primary-main)')
   })
 
@@ -118,7 +118,7 @@ describe('TimelineItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const tail = item.querySelector('.timeline-tail') as HTMLElement
     expect(tail.hasAttribute('data-pending')).toBe(true)
   })
@@ -152,7 +152,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
   })
@@ -166,7 +166,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     expect(timeline.getAttribute('data-mode')).toBe('alternate')
   })
 
@@ -179,7 +179,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     expect(timeline.getAttribute('data-mode')).toBe('left')
   })
 
@@ -193,7 +193,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].hasAttribute('data-last')).toBe(false)
     expect(items[1].hasAttribute('data-last')).toBe(true)
@@ -208,7 +208,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
   })
@@ -223,7 +223,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].hasAttribute('data-last')).toBe(false)
     expect(items[1].hasAttribute('data-last')).toBe(false)
@@ -238,7 +238,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const item = timeline.querySelector('shade-timeline-item') as HTMLElement
     expect(item.getAttribute('data-side')).toBe('right')
   })
@@ -254,7 +254,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].getAttribute('data-side')).toBe('left')
     expect(items[1].getAttribute('data-side')).toBe('right')
@@ -270,7 +270,7 @@ describe('Timeline', () => {
       </div>
     )
     const timeline = el.firstElementChild as JSX.Element
-    timeline.callConstructed()
+    timeline.updateComponent()
     const item = timeline.querySelector('shade-timeline-item') as HTMLElement
     expect(item.hasAttribute('data-side')).toBe(false)
   })

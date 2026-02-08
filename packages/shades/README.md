@@ -18,10 +18,8 @@ You can check the [@furystack/boilerplate](https://github.com/furystack/boilerpl
 
 A shade (component) can be constructed from the following properties:
 
-- `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render.
-- `initialState` – A default state that can be updated during the component lifecycle.
+- `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render. Use `useDisposable` within render for one-time setup that needs cleanup.
 - `shadowDomName` – Can be specified as the custom element's name in the DOM.
-- `constructed: (options: RenderOptions)=>void` – Optional callback executed after component construction. It can return a cleanup method (e.g., free up resources, dispose value observers, etc.).
 - `onAttach: (options: RenderOptions)=>void` – Executed when the component is attached to the DOM.
 - `onDetach: (options: RenderOptions)=>void` – Executed when the component is detached from the DOM.
 - `style` – Optional inline styles applied to each component instance. Use for per-instance overrides.
