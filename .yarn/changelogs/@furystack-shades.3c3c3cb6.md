@@ -1,5 +1,11 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 # @furystack/shades
+
+## ⚠️ Changed
+
+### Behavioral change: `updateComponent()` is now asynchronous
+
+`updateComponent()` no longer renders synchronously. Any code that calls `updateComponent()` (or triggers it via observable changes) and immediately inspects the DOM will now see stale state. Use `await flushUpdates()` to wait for pending renders to complete before reading the DOM.
 
 ## ⚡ Performance
 

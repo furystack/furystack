@@ -307,6 +307,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 /**
  * Flushes any pending microtask-based component updates.
  * Useful in tests to wait for batched renders to complete before asserting DOM state.
+ *
+ * Note: this flushes one level of pending updates. If a render itself triggers new
+ * `updateComponent()` calls, an additional `await flushUpdates()` may be needed.
  * @returns a promise that resolves after the current microtask queue has been processed
  */
 export const flushUpdates = (): Promise<void> => new Promise<void>((resolve) => queueMicrotask(resolve))
