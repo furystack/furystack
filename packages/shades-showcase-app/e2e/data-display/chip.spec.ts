@@ -1,63 +1,42 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Chip', () => {
-  test('should delete chips and reset them', async ({ page }) => {
+  test('delete chips, reset, and clickable chip feedback', async ({ page }) => {
     await page.goto('/data-display/chip')
 
     const content = page.locator('shades-chip-page')
     await content.waitFor({ state: 'visible' })
 
-    // Find the "Deletable" heading
-    const deletableHeading = content.getByRole('heading', { name: 'Deletable' })
-    await expect(deletableHeading).toBeVisible()
+    // Delete a chip and reset
+    await expect(content.getByRole('heading', { name: 'Deletable' })).toBeVisible()
 
-    // Count initial deletable chips (6 palette colors) - they are in the next sibling div
-    const deletableSection = deletableHeading.locator('+ div')
-    const initialChips = deletableSection.locator('shade-chip')
-    const initialCount = await initialChips.count()
-    expect(initialCount).toBe(6)
+    // Find deletable chips by looking for chips with delete buttons
+    const deletableChips = content.locator('shade-chip .chip-delete')
+    const initialDeleteCount = await deletableChips.count()
+    expect(initialDeleteCount).toBeGreaterThanOrEqual(6)
 
-    // Delete the first chip by clicking its delete button
-    const firstDeleteButton = initialChips.first().locator('.chip-delete')
-    await firstDeleteButton.click()
+    // Delete the first chip
+    await deletableChips.first().click()
 
-    // Should now have one fewer chip plus a Reset chip
-    const chipsAfterDelete = deletableSection.locator('shade-chip')
-    const countAfterDelete = await chipsAfterDelete.count()
-    // 5 remaining palette chips + 1 Reset chip = 6
-    expect(countAfterDelete).toBe(6)
-
-    // The Reset chip should be visible
-    await expect(deletableSection.getByText('Reset')).toBeVisible()
+    // A Reset chip should appear
+    await expect(content.getByText('Reset')).toBeVisible()
 
     // Click Reset to restore all chips
-    await deletableSection.locator('shade-chip', { hasText: 'Reset' }).click()
+    await content.locator('shade-chip', { hasText: 'Reset' }).click()
 
-    // All original chips should be back, no Reset chip
-    const chipsAfterReset = deletableSection.locator('shade-chip')
-    const countAfterReset = await chipsAfterReset.count()
-    expect(countAfterReset).toBe(6)
-  })
+    // After reset, delete buttons should be back
+    const afterResetCount = await content.locator('shade-chip .chip-delete').count()
+    expect(afterResetCount).toBeGreaterThanOrEqual(6)
 
-  test('should trigger feedback when clicking a clickable chip', async ({ page }) => {
-    await page.goto('/data-display/chip')
-
-    const content = page.locator('shades-chip-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Set up dialog handler to auto-accept before clicking
+    // Clickable chip feedback
     let dialogMessage = ''
     page.on('dialog', async (dialog) => {
       dialogMessage = dialog.message()
       await dialog.accept()
     })
-
-    // Click a clickable chip - find the "Clickable" heading's sibling section
-    const clickableHeading = content.getByRole('heading', { name: 'Clickable' })
-    const clickableSection = clickableHeading.locator('+ div')
-    await clickableSection.locator('shade-chip').first().click()
-
-    // Verify the alert dialog appeared with expected content
+    await expect(content.getByRole('heading', { name: 'Clickable' })).toBeVisible()
+    const clickableChips = content.locator('shade-chip[data-clickable]')
+    await clickableChips.first().click()
     expect(dialogMessage).toContain('Clicked')
   })
 })

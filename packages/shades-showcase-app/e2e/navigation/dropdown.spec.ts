@@ -1,80 +1,53 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Dropdown', () => {
-  test.beforeEach(async ({ page }) => {
+  test('basic dropdown: open, select item, grouped items, disabled, and backdrop close', async ({ page }) => {
     await page.goto('/navigation/dropdown')
     await page.locator('shades-dropdown-page').waitFor({ state: 'visible' })
-  })
 
-  test('should display the page and open a basic dropdown', async ({ page }) => {
     await expect(page.locator('shade-page-header')).toContainText('Dropdown')
 
-    // Click the first "Actions" button to open the dropdown
+    // Open basic dropdown
     const firstDropdown = page.locator('basic-dropdown-demo shade-dropdown').first()
     await firstDropdown.locator('.dropdown-trigger').click()
-
-    // Dropdown panel should appear with menu items
     const panel = firstDropdown.locator('.dropdown-panel')
     await expect(panel).toHaveClass(/visible/)
     await expect(panel.getByText('Cut')).toBeVisible()
     await expect(panel.getByText('Copy')).toBeVisible()
     await expect(panel.getByText('Paste')).toBeVisible()
     await expect(panel.getByText('Select All')).toBeVisible()
-  })
 
-  test('should select an item, close the dropdown, and show the selection', async ({ page }) => {
+    // Select an item
     const demo = page.locator('basic-dropdown-demo')
-    const firstDropdown = demo.locator('shade-dropdown').first()
-    await firstDropdown.locator('.dropdown-trigger').click()
-
-    const panel = firstDropdown.locator('.dropdown-panel')
-    await expect(panel).toHaveClass(/visible/)
-
-    // Select "Cut"
     await panel.getByText('Cut').click()
+    await expect(panel).not.toHaveClass(/visible/)
+    await expect(demo.getByText('Last selected: cut')).toBeVisible()
 
-    // Menu should close
+    // Close dropdown via backdrop
+    await firstDropdown.locator('.dropdown-trigger').click()
+    await expect(panel).toHaveClass(/visible/)
+    await firstDropdown.locator('.dropdown-backdrop').click({ position: { x: 10, y: 10 } })
     await expect(panel).not.toHaveClass(/visible/)
 
-    // Selection text should update
-    await expect(demo.getByText('Last selected: cut')).toBeVisible()
-  })
-
-  test('should open a grouped dropdown with organized sections', async ({ page }) => {
-    // Click the "File Menu" button
+    // Grouped dropdown
     await page.getByText('File Menu').click()
+    const groupedPanel = page.locator('.dropdown-panel.visible')
+    await expect(groupedPanel).toBeVisible()
+    await expect(groupedPanel.getByText('New File')).toBeVisible()
+    await expect(groupedPanel.getByText('Open')).toBeVisible()
+    await expect(groupedPanel.getByText('Save')).toBeVisible()
+    await expect(groupedPanel.getByText('Undo')).toBeVisible()
+    await expect(groupedPanel.getByText('Redo')).toBeVisible()
 
-    // The visible panel should show grouped items
-    const panel = page.locator('.dropdown-panel.visible')
-    await expect(panel).toBeVisible()
-    await expect(panel.getByText('New File')).toBeVisible()
-    await expect(panel.getByText('Open')).toBeVisible()
-    await expect(panel.getByText('Save')).toBeVisible()
-    await expect(panel.getByText('Undo')).toBeVisible()
-    await expect(panel.getByText('Redo')).toBeVisible()
-  })
+    // Close grouped dropdown before opening next
+    await page.keyboard.press('Escape')
 
-  test('should render disabled items that are not clickable', async ({ page }) => {
+    // Disabled items
     await page.getByText('More Options').click()
-
-    const panel = page.locator('.dropdown-panel.visible')
-    await expect(panel).toBeVisible()
-
-    const deleteItem = panel.locator('.dropdown-item.disabled')
+    const morePanel = page.locator('.dropdown-panel.visible')
+    await expect(morePanel).toBeVisible()
+    const deleteItem = morePanel.locator('.dropdown-item.disabled')
     await expect(deleteItem).toBeVisible()
     await expect(deleteItem).toContainText('Delete')
-  })
-
-  test('should close dropdown when clicking the backdrop', async ({ page }) => {
-    const firstDropdown = page.locator('basic-dropdown-demo shade-dropdown').first()
-    await firstDropdown.locator('.dropdown-trigger').click()
-
-    const panel = firstDropdown.locator('.dropdown-panel')
-    await expect(panel).toHaveClass(/visible/)
-
-    // Click backdrop to close
-    await firstDropdown.locator('.dropdown-backdrop').click({ position: { x: 10, y: 10 } })
-
-    await expect(panel).not.toHaveClass(/visible/)
   })
 })

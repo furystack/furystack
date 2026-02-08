@@ -30,11 +30,8 @@ test.describe('Data Grid component', () => {
   const expectRowIsInViewport = async (page: Page, rowNumber: number) => {
     const row = page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)
 
-    // Wait for smooth scroll animation to complete (up to 1 second)
-    // by waiting for the row to be in viewport
     await expect(row).toBeInViewport({ timeout: 2000 })
 
-    // Additional verification: row should be visible below header and above footer
     const grid = page.locator('shade-data-grid')
     const header = page.locator('shade-data-grid th').first()
     const footer = page.locator('shade-data-grid-footer')
@@ -47,236 +44,166 @@ test.describe('Data Grid component', () => {
     expect(rowBox).not.toBeNull()
     expect(gridBox).not.toBeNull()
 
-    // Row should be below the sticky header
     const visibleTop = gridBox!.y + (headerBox?.height || 0)
-    // Row should be above the footer
     const visibleBottom = gridBox!.y + gridBox!.height - (footerBox?.height || 0)
 
-    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 50) // Allow 50px tolerance for smooth scroll and layout variations
-    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 50) // Allow 50px tolerance
+    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 50)
+    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 50)
   }
 
-  test.describe('Focus', () => {
-    test('With mouse click', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      const numbers = new Array<number>(10).fill(0).map(() => Math.floor(Math.random() * 100) + 1)
-      for (const no of numbers) {
-        await clickOnRow(page, no)
-        await expectRowHasFocus(page, no)
-        await expectSelectionCount(page, 0)
-      }
-    })
+  test('focus: mouse click and keyboard navigation', async ({ page }) => {
+    await page.goto('/data-display/grid')
 
-    test('With keyboard', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      await clickOnRow(page, 1)
-      await expectRowHasFocus(page, 1)
-      await page.keyboard.press('ArrowDown')
-      await expectRowHasFocus(page, 2)
-      await page.keyboard.press('ArrowUp')
-      await expectRowHasFocus(page, 1)
-    })
-  })
-
-  test.describe('Selection', () => {
-    test.describe('Keyboard shortcuts', () => {
-      test('space should invert selection and keep focus', async ({ page }) => {
-        await page.goto('/data-display/grid')
-        await clickOnRow(page, 1)
-
-        // select row 1
-        await expectRowHasFocus(page, 1)
-        await page.keyboard.press(' ')
-        await expectRowHasFocus(page, 1)
-        await expectSelectionCount(page, 1)
-        await expectRowIsSelected(page, 1)
-
-        // select row 2
-        await page.keyboard.press('ArrowDown')
-        await page.keyboard.press(' ')
-        await expectRowHasFocus(page, 2)
-        await expectSelectionCount(page, 2)
-        await expectRowIsSelected(page, 1)
-        await expectRowIsSelected(page, 2)
-
-        // select row 3
-        await page.keyboard.press('ArrowDown')
-        await page.keyboard.press(' ')
-        await expectRowHasFocus(page, 3)
-        await expectSelectionCount(page, 3)
-        await expectRowIsSelected(page, 1)
-        await expectRowIsSelected(page, 2)
-        await expectRowIsSelected(page, 3)
-
-        // deselect row 2
-        await page.keyboard.press('ArrowUp')
-        await page.keyboard.press(' ')
-        await expectRowHasFocus(page, 2)
-        await expectSelectionCount(page, 2)
-        await expectRowIsSelected(page, 1)
-        await expectRowIsUnselected(page, 2)
-        await expectRowIsSelected(page, 3)
-      })
-
-      test('insert should invert selection and move focus down', async ({ page }) => {
-        await page.goto('/data-display/grid')
-        await clickOnRow(page, 1)
-
-        // select row 1, focus on 2
-        await page.keyboard.press('Insert')
-        await expectRowHasFocus(page, 2)
-        await expectRowIsSelected(page, 1)
-        await expectSelectionCount(page, 1)
-
-        // select row 2, focus on 3
-        await page.keyboard.press('Insert')
-        await expectRowHasFocus(page, 3)
-        await expectRowIsSelected(page, 2)
-        await expectSelectionCount(page, 2)
-
-        await page.keyboard.press('ArrowUp')
-        await expectRowHasFocus(page, 2)
-        await page.keyboard.press('Insert')
-        await expectRowIsUnselected(page, 2)
-        await expectSelectionCount(page, 1)
-        await expectRowHasFocus(page, 3)
-      })
-
-      test('plus should select all rows', async ({ page }) => {
-        await page.goto('/data-display/grid')
-        await clickOnRow(page, 1)
-        await page.keyboard.press('+', {
-          delay: 25,
-        })
-        await expectSelectionCount(page, 100)
-      })
-
-      test('minus should deselect all rows', async ({ page }) => {
-        await page.goto('/data-display/grid')
-        await clickOnRow(page, 1)
-        await page.keyboard.press('Insert')
-        await page.keyboard.press('Insert')
-        await page.keyboard.press('Insert')
-        await expectSelectionCount(page, 3)
-        await page.keyboard.press('-')
-        await expectSelectionCount(page, 0)
-      })
-
-      test('star should invert selection', async ({ page }) => {
-        await page.goto('/data-display/grid')
-        await clickOnRow(page, 1)
-        await page.keyboard.press('Insert')
-        await page.keyboard.press('Insert')
-        await page.keyboard.press('Insert')
-        await expectSelectionCount(page, 3)
-        await page.keyboard.press('*')
-        await expectSelectionCount(page, 97)
-      })
-    })
-  })
-
-  test.describe('Gestures', () => {
-    test('CTRL+click should toggle selection', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      /** TODO */
-      await clickOnRow(page, 1, ['Control'])
-      await expectRowHasFocus(page, 1)
-      await expectRowIsSelected(page, 1)
-      await expectSelectionCount(page, 1)
-
-      await clickOnRow(page, 2, ['Control'])
-      await expectRowHasFocus(page, 2)
-      await expectRowIsSelected(page, 2)
-      await expectSelectionCount(page, 2)
-
-      await clickOnRow(page, 2, ['Control'])
-      await expectRowHasFocus(page, 2)
-      await expectRowIsUnselected(page, 2)
-      await expectSelectionCount(page, 1)
-    })
-
-    test('SHIFT+click should select range', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      await clickOnRow(page, 1)
-      await expectRowHasFocus(page, 1)
+    // Mouse click focus
+    const numbers = new Array<number>(10).fill(0).map(() => Math.floor(Math.random() * 100) + 1)
+    for (const no of numbers) {
+      await clickOnRow(page, no)
+      await expectRowHasFocus(page, no)
       await expectSelectionCount(page, 0)
+    }
 
-      await clickOnRow(page, 4, ['Shift'])
-
-      await expectRowIsSelected(page, 1, 2, 3, 4)
-      await expectRowHasFocus(page, 4)
-    })
+    // Keyboard navigation
+    await clickOnRow(page, 1)
+    await expectRowHasFocus(page, 1)
+    await page.keyboard.press('ArrowDown')
+    await expectRowHasFocus(page, 2)
+    await page.keyboard.press('ArrowUp')
+    await expectRowHasFocus(page, 1)
   })
 
-  test.describe('Keyboard Navigation Scrolling', () => {
-    test('ArrowDown should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      await clickOnRow(page, 1)
-      await expectRowHasFocus(page, 1)
+  test('selection: space, insert, plus, minus, and star keyboard shortcuts', async ({ page }) => {
+    await page.goto('/data-display/grid')
+    await clickOnRow(page, 1)
 
-      // Navigate down many rows to go beyond the visible area
-      for (let i = 1; i <= 30; i++) {
-        await page.keyboard.press('ArrowDown')
-      }
+    // Space should invert selection and keep focus
+    await expectRowHasFocus(page, 1)
+    await page.keyboard.press(' ')
+    await expectRowHasFocus(page, 1)
+    await expectSelectionCount(page, 1)
+    await expectRowIsSelected(page, 1)
 
-      await expectRowHasFocus(page, 31)
-      await expectRowIsInViewport(page, 31)
-    })
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press(' ')
+    await expectRowHasFocus(page, 2)
+    await expectSelectionCount(page, 2)
+    await expectRowIsSelected(page, 1)
+    await expectRowIsSelected(page, 2)
 
-    test('ArrowUp should scroll focused row into view when navigating beyond visible area', async ({ page }) => {
-      await page.goto('/data-display/grid')
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press(' ')
+    await expectRowHasFocus(page, 3)
+    await expectSelectionCount(page, 3)
+    await expectRowIsSelected(page, 1, 2, 3)
 
-      // First navigate to a row far down the list
-      await clickOnRow(page, 50)
-      await expectRowHasFocus(page, 50)
+    await expect(page.locator('shade-data-grid')).toHaveScreenshot('grid-with-selection.png')
 
-      // Navigate up many rows to go beyond the visible area
-      for (let i = 1; i <= 30; i++) {
-        await page.keyboard.press('ArrowUp')
-      }
+    // Deselect row 2
+    await page.keyboard.press('ArrowUp')
+    await page.keyboard.press(' ')
+    await expectRowHasFocus(page, 2)
+    await expectSelectionCount(page, 2)
+    await expectRowIsSelected(page, 1)
+    await expectRowIsUnselected(page, 2)
+    await expectRowIsSelected(page, 3)
 
-      await expectRowHasFocus(page, 20)
-      await expectRowIsInViewport(page, 20)
-    })
+    // Plus should select all rows
+    await page.keyboard.press('+', { delay: 25 })
+    await expectSelectionCount(page, 100)
 
-    test('Home key should scroll to first row', async ({ page }) => {
-      await page.goto('/data-display/grid')
+    // Minus should deselect all rows
+    await page.keyboard.press('-')
+    await expectSelectionCount(page, 0)
 
-      // Start from a row in the middle
-      await clickOnRow(page, 50)
-      await expectRowHasFocus(page, 50)
+    // Insert should invert selection and move focus down
+    await clickOnRow(page, 1)
+    await page.keyboard.press('Insert')
+    await expectRowHasFocus(page, 2)
+    await expectRowIsSelected(page, 1)
+    await expectSelectionCount(page, 1)
 
-      // Press Home to go to first row
-      await page.keyboard.press('Home')
+    await page.keyboard.press('Insert')
+    await expectRowHasFocus(page, 3)
+    await expectRowIsSelected(page, 2)
+    await expectSelectionCount(page, 2)
 
-      await expectRowHasFocus(page, 1)
-      await expectRowIsInViewport(page, 1)
-    })
+    await page.keyboard.press('ArrowUp')
+    await expectRowHasFocus(page, 2)
+    await page.keyboard.press('Insert')
+    await expectRowIsUnselected(page, 2)
+    await expectSelectionCount(page, 1)
+    await expectRowHasFocus(page, 3)
 
-    test('End key should scroll to last row', async ({ page }) => {
-      await page.goto('/data-display/grid')
+    // Star should invert selection
+    await page.keyboard.press('-')
+    await expectSelectionCount(page, 0)
+    await clickOnRow(page, 1)
+    await page.keyboard.press('Insert')
+    await page.keyboard.press('Insert')
+    await page.keyboard.press('Insert')
+    await expectSelectionCount(page, 3)
+    await page.keyboard.press('*')
+    await expectSelectionCount(page, 97)
+  })
 
-      // Start from the first row
-      await clickOnRow(page, 1)
-      await expectRowHasFocus(page, 1)
+  test('gestures: CTRL+click and SHIFT+click selection', async ({ page }) => {
+    await page.goto('/data-display/grid')
 
-      // Press End to go to last row
-      await page.keyboard.press('End')
+    // CTRL+click should toggle selection
+    await clickOnRow(page, 1)
+    await clickOnRow(page, 1, ['Control'])
+    await expectRowHasFocus(page, 1)
+    await expectRowIsSelected(page, 1)
+    await expectSelectionCount(page, 1)
 
-      await expectRowHasFocus(page, 100)
-      await expectRowIsInViewport(page, 100)
-    })
+    await clickOnRow(page, 2, ['Control'])
+    await expectRowHasFocus(page, 2)
+    await expectRowIsSelected(page, 2)
+    await expectSelectionCount(page, 2)
 
-    test('Multiple consecutive navigation should scroll to final row', async ({ page }) => {
-      await page.goto('/data-display/grid')
-      await clickOnRow(page, 1)
+    await clickOnRow(page, 2, ['Control'])
+    await expectRowHasFocus(page, 2)
+    await expectRowIsUnselected(page, 2)
+    await expectSelectionCount(page, 1)
 
-      // Navigate down 30 rows and verify final row is visible
-      for (let i = 1; i <= 30; i++) {
-        await page.keyboard.press('ArrowDown')
-      }
-      await expectRowHasFocus(page, 31)
-      await expectRowIsInViewport(page, 31)
-    })
+    // SHIFT+click should select range (deselect all first)
+    await page.keyboard.press('-')
+    await expectSelectionCount(page, 0)
+    await clickOnRow(page, 1)
+    await expectRowHasFocus(page, 1)
+    await expectSelectionCount(page, 0)
+
+    await clickOnRow(page, 4, ['Shift'])
+    await expectRowIsSelected(page, 1, 2, 3, 4)
+    await expectRowHasFocus(page, 4)
+  })
+
+  test('keyboard scrolling: ArrowDown, ArrowUp, Home, and End', async ({ page }) => {
+    await page.goto('/data-display/grid')
+
+    // ArrowDown should scroll focused row into view
+    await clickOnRow(page, 1)
+    await expectRowHasFocus(page, 1)
+    for (let i = 1; i <= 30; i++) {
+      await page.keyboard.press('ArrowDown')
+    }
+    await expectRowHasFocus(page, 31)
+    await expectRowIsInViewport(page, 31)
+
+    // Home key should scroll to first row
+    await page.keyboard.press('Home')
+    await expectRowHasFocus(page, 1)
+    await expectRowIsInViewport(page, 1)
+
+    // End key should scroll to last row
+    await page.keyboard.press('End')
+    await expectRowHasFocus(page, 100)
+    await expectRowIsInViewport(page, 100)
+
+    // ArrowUp should scroll focused row into view
+    for (let i = 1; i <= 30; i++) {
+      await page.keyboard.press('ArrowUp')
+    }
+    await expectRowHasFocus(page, 70)
+    await expectRowIsInViewport(page, 70)
   })
 })

@@ -1,65 +1,49 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Menu', () => {
-  test.beforeEach(async ({ page }) => {
+  test('horizontal, vertical, and inline menus with expand/collapse', async ({ page }) => {
     await page.goto('/navigation/menu')
     await page.locator('shades-menu-page').waitFor({ state: 'visible' })
-  })
 
-  test('should display the page header', async ({ page }) => {
+    // Page header
     const pageHeader = page.locator('shade-page-header')
     await expect(pageHeader).toBeVisible()
     await expect(pageHeader).toContainText('Menu')
-  })
 
-  test('should render horizontal menu and select an item', async ({ page }) => {
-    const demo = page.locator('horizontal-menu-demo')
-    const menu = demo.locator('shade-menu[data-mode="horizontal"]')
-    await expect(menu).toBeVisible()
+    // Horizontal menu: render and select item
+    const hDemo = page.locator('horizontal-menu-demo')
+    const hMenu = hDemo.locator('shade-menu[data-mode="horizontal"]')
+    await expect(hMenu).toBeVisible()
+    await expect(hMenu.getByText('Home')).toBeVisible()
+    await expect(hMenu.getByText('Products')).toBeVisible()
+    await expect(hMenu.getByText('About')).toBeVisible()
+    await expect(hMenu.getByText('Contact')).toBeVisible()
+    await hMenu.locator('[data-key="products"]').click()
+    await expect(hDemo.getByText('Selected: products')).toBeVisible()
 
-    // Menu items should be visible
-    await expect(menu.getByText('Home')).toBeVisible()
-    await expect(menu.getByText('Products')).toBeVisible()
-    await expect(menu.getByText('About')).toBeVisible()
-    await expect(menu.getByText('Contact')).toBeVisible()
+    // Vertical menu with groups
+    const vDemo = page.locator('vertical-menu-demo')
+    const vMenu = vDemo.locator('shade-menu[data-mode="vertical"]')
+    await expect(vMenu).toBeVisible()
+    await expect(vMenu.getByText('Dashboard')).toBeVisible()
+    await expect(vMenu.getByText('Users')).toBeVisible()
+    await expect(vMenu.getByText('Administration')).toBeVisible()
+    await expect(vMenu.getByText('Settings')).toBeVisible()
+    await expect(vMenu.getByText('Logs')).toBeVisible()
 
-    // Click Products to change selection
-    await menu.locator('[data-key="products"]').click()
-    await expect(demo.getByText('Selected: products')).toBeVisible()
-  })
+    // Inline menu: expand/collapse groups
+    const iDemo = page.locator('inline-menu-demo')
+    const iMenu = iDemo.locator('shade-menu[data-mode="inline"]')
+    await expect(iMenu).toBeVisible()
+    await expect(iMenu.getByText('Inbox')).toBeVisible()
+    await expect(iMenu.getByText('Sent')).toBeVisible()
 
-  test('should render vertical menu with groups', async ({ page }) => {
-    const demo = page.locator('vertical-menu-demo')
-    const menu = demo.locator('shade-menu[data-mode="vertical"]')
-    await expect(menu).toBeVisible()
-
-    await expect(menu.getByText('Dashboard')).toBeVisible()
-    await expect(menu.getByText('Users')).toBeVisible()
-    await expect(menu.getByText('Administration')).toBeVisible()
-    await expect(menu.getByText('Settings')).toBeVisible()
-    await expect(menu.getByText('Logs')).toBeVisible()
-  })
-
-  test('should render inline menu and expand/collapse groups', async ({ page }) => {
-    const demo = page.locator('inline-menu-demo')
-    const menu = demo.locator('shade-menu[data-mode="inline"]')
-    await expect(menu).toBeVisible()
-
-    // Top-level items should be visible
-    await expect(menu.getByText('Inbox')).toBeVisible()
-    await expect(menu.getByText('Sent')).toBeVisible()
-
-    // Group labels should be visible
-    const foldersLabel = menu.locator('.menu-group-label-inline').filter({ hasText: 'Folders' })
+    const foldersLabel = iMenu.locator('.menu-group-label-inline').filter({ hasText: 'Folders' })
     await expect(foldersLabel).toBeVisible()
-
-    // Click to expand
     await foldersLabel.click()
-    await expect(menu.locator('[data-key="work"]')).toBeVisible()
-    await expect(menu.locator('[data-key="personal"]')).toBeVisible()
-
-    // Click again to collapse
+    await expect(iMenu.locator('[data-key="work"]')).toBeVisible()
+    await expect(iMenu.locator('[data-key="personal"]')).toBeVisible()
     await foldersLabel.click()
-    await expect(menu.locator('[data-key="work"]')).not.toBeVisible()
+    await expect(iMenu.locator('[data-key="work"]')).not.toBeVisible()
   })
 })

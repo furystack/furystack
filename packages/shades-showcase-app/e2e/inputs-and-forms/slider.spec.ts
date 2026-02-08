@@ -1,114 +1,67 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Slider', () => {
-  test('should render slider components on the page', async ({ page }) => {
+  test('rendering: sections, accessibility, range, vertical, disabled, and marks', async ({ page }) => {
     await page.goto('/inputs-and-forms/slider')
 
     const content = page.locator('slider-page')
     await content.waitFor({ state: 'visible' })
 
-    // Should have multiple slider sections
+    // Verify all sections
     await expect(content.getByRole('heading', { name: 'Basic Slider' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Colors' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Range Slider' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Vertical' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Disabled' })).toBeVisible()
-  })
 
-  test('should have accessible slider elements', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
-    // All sliders should have role="slider" on their thumbs
+    // Verify accessible slider elements
     const sliders = content.locator('[role="slider"]')
-    const count = await sliders.count()
-    expect(count).toBeGreaterThan(0)
-
-    // First slider thumb should have proper ARIA attributes
+    const sliderCount = await sliders.count()
+    expect(sliderCount).toBeGreaterThan(0)
     const firstSlider = sliders.first()
     await expect(firstSlider).toHaveAttribute('aria-valuemin', '0')
     await expect(firstSlider).toHaveAttribute('aria-valuemax', '100')
     await expect(firstSlider).toHaveAttribute('aria-orientation', 'horizontal')
-  })
 
-  test('should update basic slider via keyboard', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Find the first slider thumb (basic slider)
-    const basicThumb = content.locator('shade-slider').first().locator('.slider-thumb')
-    await basicThumb.focus()
-
-    // Get initial value
-    const initialValue = await basicThumb.getAttribute('aria-valuenow')
-    expect(initialValue).toBe('40')
-
-    // Press ArrowRight to increment
-    await basicThumb.press('ArrowRight')
-    const newValue = await basicThumb.getAttribute('aria-valuenow')
-    expect(newValue).toBe('41')
-  })
-
-  test('should render range slider with two thumbs', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
-    // The range slider section
-    const rangeHeading = content.getByRole('heading', { name: 'Range Slider' })
-    await expect(rangeHeading).toBeVisible()
-
-    // Find the range slider via its demo wrapper (it should have two thumbs)
+    // Verify range slider has two thumbs
+    await expect(content.getByRole('heading', { name: 'Range Slider' })).toBeVisible()
     const rangeSlider = content.locator('slider-demo-range shade-slider')
     const thumbs = rangeSlider.locator('.slider-thumb')
     await expect(thumbs).toHaveCount(2)
-  })
 
-  test('should render vertical sliders', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Find vertical sliders
+    // Verify vertical sliders
     const verticalSliders = content.locator('shade-slider[data-vertical]')
-    const count = await verticalSliders.count()
-    expect(count).toBeGreaterThan(0)
-
-    // Vertical slider thumbs should have vertical orientation
+    const verticalCount = await verticalSliders.count()
+    expect(verticalCount).toBeGreaterThan(0)
     const firstVerticalThumb = verticalSliders.first().locator('.slider-thumb').first()
     await expect(firstVerticalThumb).toHaveAttribute('aria-orientation', 'vertical')
-  })
 
-  test('should show disabled sliders', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
+    // Verify disabled sliders
     const disabledSliders = content.locator('shade-slider[data-disabled]')
-    const count = await disabledSliders.count()
-    expect(count).toBeGreaterThan(0)
+    const disabledCount = await disabledSliders.count()
+    expect(disabledCount).toBeGreaterThan(0)
+
+    // Verify marks and labels
+    await expect(content.getByRole('heading', { name: 'Custom Marks with Labels' })).toBeVisible()
+    const labels = content.locator('.slider-mark-label')
+    const labelCount = await labels.count()
+    expect(labelCount).toBeGreaterThan(0)
+
+    await expect(content).toHaveScreenshot('slider-page.png')
   })
 
-  test('should render marks and labels', async ({ page }) => {
+  test('interaction: keyboard update on basic slider', async ({ page }) => {
     await page.goto('/inputs-and-forms/slider')
 
     const content = page.locator('slider-page')
     await content.waitFor({ state: 'visible' })
 
-    // The custom marks section should have label elements
-    const marksHeading = content.getByRole('heading', { name: 'Custom Marks with Labels' })
-    await expect(marksHeading).toBeVisible()
+    const basicThumb = content.locator('shade-slider').first().locator('.slider-thumb')
+    await basicThumb.focus()
 
-    // Mark labels should be visible on the page
-    const labels = content.locator('.slider-mark-label')
-    const count = await labels.count()
-    expect(count).toBeGreaterThan(0)
+    await expect(basicThumb).toHaveAttribute('aria-valuenow', '40')
+
+    await basicThumb.press('ArrowRight')
+    await expect(basicThumb).toHaveAttribute('aria-valuenow', '41')
   })
 })
