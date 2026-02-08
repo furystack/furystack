@@ -256,8 +256,8 @@ describe('Dropdown', () => {
       })
     })
 
-    it('should render string icons (non-Node)', async () => {
-      const items: MenuEntry[] = [{ key: 'cut', label: 'Cut', icon: '✂️' }]
+    it('should render JSX element icons', async () => {
+      const items: MenuEntry[] = [{ key: 'cut', label: 'Cut', icon: <span>X</span> }]
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
@@ -265,7 +265,7 @@ describe('Dropdown', () => {
 
         const icon = dropdown.querySelector('.dropdown-item-icon')
         expect(icon).toBeTruthy()
-        expect(icon?.textContent).toContain('✂️')
+        expect(icon?.textContent).toContain('X')
       })
     })
   })

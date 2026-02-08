@@ -61,7 +61,8 @@ describe('Select', () => {
             { value: 'banana', label: 'Banana' },
           ],
         }
-        expect(group.label).toBe('Fruits')
+        expect(group).toHaveProperty('label', 'Fruits')
+        expect(group).toHaveProperty('options')
         expect(group.options).toHaveLength(2)
       })
 
@@ -70,6 +71,7 @@ describe('Select', () => {
           label: 'Empty',
           options: [],
         }
+        expect(group).toHaveProperty('options')
         expect(group.options).toHaveLength(0)
       })
     })
@@ -159,9 +161,9 @@ describe('Select', () => {
         }
         expect(props.showSearch).toBe(true)
 
-        const result = props.filterOption!('test', { value: 'a', label: 'Alpha' })
-        expect(result).toBe(true)
+        filterOption('test', { value: 'a', label: 'Alpha' })
         expect(filterOption).toHaveBeenCalledWith('test', { value: 'a', label: 'Alpha' })
+        expect(filterOption).toHaveReturnedWith(true)
       })
 
       it('Should accept optionGroups', () => {
@@ -184,8 +186,8 @@ describe('Select', () => {
           ],
         }
         expect(props.optionGroups).toHaveLength(2)
-        expect(props.optionGroups![0].label).toBe('Fruits')
-        expect(props.optionGroups![0].options).toHaveLength(2)
+        expect(props.optionGroups?.[0]).toHaveProperty('label', 'Fruits')
+        expect(props.optionGroups?.[0].options).toHaveLength(2)
       })
 
       it('Should accept combined options and optionGroups', () => {
@@ -213,7 +215,7 @@ describe('Select', () => {
           mode: 'multiple',
           showSearch: true,
           value: ['g1a'],
-          filterOption: (text, opt) => opt.label.startsWith(text),
+          filterOption: (text: string, opt: SelectOption) => opt.label.startsWith(text),
           onMultiValueChange: () => {},
           onValueChange: () => {},
         }
@@ -887,8 +889,6 @@ describe('Select', () => {
 
     it('should handle undefined value in single mode', async () => {
       await usingAsync(await renderSelect({ options: defaultOptions }), async ({ select }) => {
-        const hidden = select.querySelector('input[type="hidden"]') as HTMLInputElement
-        // hidden input should exist even without name, the value should be empty
         expect(select.querySelector('.select-value')).not.toBeNull()
       })
     })
