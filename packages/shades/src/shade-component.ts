@@ -1,5 +1,6 @@
 import type { ChildrenList, ShadeComponent } from './models/index.js'
 import { isShadeComponent } from './models/shade-component.js'
+import { storeElementProps } from './dom-morph.js'
 
 /**
  * Appends a list of items to a HTML element
@@ -86,6 +87,7 @@ export const createComponentInner = <TProps extends object>(
     const el = document.createElement(elementType)
 
     attachProps(el, props)
+    storeElementProps(el, props as Record<string, unknown> | null | undefined)
 
     if (children) {
       appendChild(el, children)

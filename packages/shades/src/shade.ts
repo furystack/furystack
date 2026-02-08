@@ -1,6 +1,7 @@
 import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
+import { morphChildren, morphElement } from './dom-morph.js'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
@@ -225,21 +226,43 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         private _performUpdate() {
-          const renderResult = this.render(this.getRenderOptions())
+          // JSX fragments (<>...</>) produce DocumentFragment at runtime,
+          // even though the render return type doesn't reflect it
+          const renderResult: JSX.Element | DocumentFragment | string | null = this.render(this.getRenderOptions())
 
           if (renderResult === null || renderResult === undefined) {
             this.innerHTML = ''
+            return
           }
 
           if (typeof renderResult === 'string' || typeof renderResult === 'number') {
-            this.innerHTML = renderResult
+            if (this.childNodes.length === 1 && this.firstChild?.nodeType === Node.TEXT_NODE) {
+              if (this.firstChild.textContent !== String(renderResult)) {
+                this.firstChild.textContent = String(renderResult)
+              }
+            } else {
+              this.innerHTML = String(renderResult)
+            }
+            return
+          }
+
+          // Check DocumentFragment first since it's not an HTMLElement
+          // but JSX.Element extends HTMLElement
+          if (renderResult instanceof DocumentFragment) {
+            if (this.childNodes.length > 0) {
+              morphChildren(this, renderResult)
+            } else {
+              this.replaceChildren(renderResult)
+            }
+            return
           }
 
           if (renderResult instanceof HTMLElement) {
-            this.replaceChildren(renderResult)
-          }
-          if (renderResult instanceof DocumentFragment) {
-            this.replaceChildren(renderResult)
+            if (this.children.length === 1 && this.firstElementChild) {
+              morphElement(this.firstElementChild, renderResult)
+            } else {
+              this.replaceChildren(renderResult)
+            }
           }
         }
 
