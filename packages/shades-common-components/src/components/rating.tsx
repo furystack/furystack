@@ -233,7 +233,7 @@ export const Rating = Shade<RatingProps>({
     element.onkeydown = isInteractive
       ? (ev: KeyboardEvent) => {
           const step = precision === 0.5 ? 0.5 : 1
-          let newValue = value
+          let newValue: number
 
           switch (ev.key) {
             case 'ArrowRight':

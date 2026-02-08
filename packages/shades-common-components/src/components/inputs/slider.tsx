@@ -521,7 +521,7 @@ export const Slider = Shade<SliderProps>({
 
       const effectiveStep = step <= 0 ? 1 : step
       const bigStep = effectiveStep * 10
-      let newVal = val
+      let newVal: number
 
       switch (e.key) {
         case 'ArrowRight':
