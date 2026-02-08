@@ -102,6 +102,9 @@ const resolveMarks = (
 const isRangeValue = (value: unknown): value is [number, number] =>
   Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number'
 
+/** Stores props for each Slider element so the constructed handler can access them without re-renders */
+const sliderPropsMap = new WeakMap<HTMLElement, SliderProps>()
+
 /**
  * Directly updates DOM positions and aria-valuenow on thumb/track elements.
  * Used during drag for smooth updates without triggering a full re-render.
@@ -252,14 +255,14 @@ export const Slider = Shade<SliderProps>({
     '& .slider-rail': {
       position: 'absolute',
       inset: '0',
-      borderRadius: '2px',
+      borderRadius: cssVariableTheme.shape.borderRadius.xs,
       backgroundColor: 'color-mix(in srgb, var(--slider-color) 30%, transparent)',
     },
 
     '& .slider-track': {
       position: 'absolute',
       height: '100%',
-      borderRadius: '2px',
+      borderRadius: cssVariableTheme.shape.borderRadius.xs,
       backgroundColor: 'var(--slider-color)',
       transition: buildTransition(
         ['left', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
@@ -284,7 +287,7 @@ export const Slider = Shade<SliderProps>({
       position: 'absolute',
       width: '20px',
       height: '20px',
-      borderRadius: '50%',
+      borderRadius: cssVariableTheme.shape.borderRadius.full,
       backgroundColor: 'var(--slider-color)',
       boxShadow: cssVariableTheme.shadows.sm,
       top: '50%',
@@ -325,7 +328,7 @@ export const Slider = Shade<SliderProps>({
       position: 'absolute',
       width: '4px',
       height: '4px',
-      borderRadius: '50%',
+      borderRadius: cssVariableTheme.shape.borderRadius.full,
       top: '50%',
       transform: 'translate(-50%, -50%)',
       backgroundColor: 'color-mix(in srgb, var(--slider-color) 50%, white)',
@@ -352,7 +355,7 @@ export const Slider = Shade<SliderProps>({
 
     '&[data-vertical] .slider-mark-label': {
       top: 'auto',
-      left: '16px',
+      left: cssVariableTheme.spacing.md,
       transform: 'translateY(50%)',
     },
   },
@@ -367,7 +370,7 @@ export const Slider = Shade<SliderProps>({
     let pendingValue: number | [number, number] | null = null
 
     const getProps = (): SliderProps & { min: number; max: number; step: number } => {
-      const p = (element as unknown as Record<string, unknown>).__sliderProps as SliderProps | undefined
+      const p = sliderPropsMap.get(element)
       return {
         ...p,
         min: p?.min ?? 0,
@@ -584,7 +587,7 @@ export const Slider = Shade<SliderProps>({
     const rangeMode = isRangeValue(value)
 
     // Store props for constructed event handlers
-    ;(element as unknown as Record<string, unknown>).__sliderProps = props
+    sliderPropsMap.set(element, props)
 
     // Data attributes for CSS
     if (vertical) element.setAttribute('data-vertical', '')

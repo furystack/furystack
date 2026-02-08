@@ -16,6 +16,7 @@ import {
   Switch,
   TextArea,
   Tooltip,
+  Typography,
 } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
@@ -159,11 +160,13 @@ export const FormPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3 style={{ marginTop: '0' }}>Advanced Form</h3>
-          <p style={{ opacity: '0.7' }}>
+          <Typography variant="h3" style={{ marginTop: '0' }}>
+            Advanced Form
+          </Typography>
+          <Typography variant="body1" style={{ opacity: '0.7' }}>
             An event registration form showcasing all input components with validation, dividers, tooltips, and
             submission feedback alerts.
-          </p>
+          </Typography>
 
           <FormAlert alertState={alertState} />
 

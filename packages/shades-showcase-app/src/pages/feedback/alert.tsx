@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { AlertSeverity } from '@furystack/shades-common-components'
-import { Alert, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Alert, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const severities: AlertSeverity[] = ['error', 'warning', 'info', 'success']
 
@@ -26,14 +26,18 @@ export const AlertPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Standard (default)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Standard (default)
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {severities.map((severity) => (
               <Alert severity={severity}>This is a {severity} alert — check it out!</Alert>
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Filled</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Filled
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {severities.map((severity) => (
               <Alert severity={severity} variant="filled">
@@ -42,7 +46,9 @@ export const AlertPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Outlined</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Outlined
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {severities.map((severity) => (
               <Alert severity={severity} variant="outlined">
@@ -51,7 +57,9 @@ export const AlertPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>With title</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            With title
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {severities.map((severity) => (
               <Alert severity={severity} title={`${severity.charAt(0).toUpperCase()}${severity.slice(1)}`}>
@@ -60,7 +68,9 @@ export const AlertPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Custom icon</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Custom icon
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <Alert severity="info" icon="💡">
               Tip: You can use custom icons for alerts.
@@ -73,7 +83,9 @@ export const AlertPage = Shade({
             </Alert>
           </div>
 
-          <h3 style={{ margin: '0' }}>Closeable</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Closeable
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {severities
               .filter((s) => !state.dismissed.includes(s))

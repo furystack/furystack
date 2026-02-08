@@ -171,7 +171,7 @@ export const Select = Shade<SelectProps>({
       alignItems: 'center',
       justifyContent: 'space-between',
       width: '100%',
-      marginTop: '8px',
+      marginTop: cssVariableTheme.spacing.sm,
       marginBottom: '2px',
       cursor: 'inherit',
     },
@@ -193,7 +193,7 @@ export const Select = Shade<SelectProps>({
     '& .select-multi-values': {
       display: 'flex',
       flexWrap: 'wrap',
-      gap: '4px',
+      gap: cssVariableTheme.spacing.xs,
       flexGrow: '1',
       minHeight: '24px',
       alignItems: 'center',
@@ -202,7 +202,7 @@ export const Select = Shade<SelectProps>({
     '& .select-chip': {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '4px',
+      gap: cssVariableTheme.spacing.xs,
       padding: '2px 8px',
       borderRadius: cssVariableTheme.shape.borderRadius.lg,
       background: 'color-mix(in srgb, var(--select-primary-color) 15%, transparent)',
@@ -241,7 +241,7 @@ export const Select = Shade<SelectProps>({
       marginLeft: cssVariableTheme.spacing.sm,
       transition: `transform ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.default}`,
       fontSize: '10px',
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
       flexShrink: '0',
     },
 
@@ -262,22 +262,22 @@ export const Select = Shade<SelectProps>({
       position: 'absolute',
       left: '0',
       right: '0',
-      zIndex: '1000',
+      zIndex: cssVariableTheme.zIndex.drawer,
       maxHeight: '240px',
       overflowY: 'auto',
       background: cssVariableTheme.background.paper,
       border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       borderRadius: cssVariableTheme.shape.borderRadius.md,
       boxShadow: cssVariableTheme.shadows.lg,
-      marginTop: '4px',
-      padding: '4px 0',
+      marginTop: cssVariableTheme.spacing.xs,
+      padding: `${cssVariableTheme.spacing.xs} 0`,
       listStyle: 'none',
     },
 
     '& .dropdown[data-direction="up"]': {
       bottom: '100%',
       marginTop: '0',
-      marginBottom: '4px',
+      marginBottom: cssVariableTheme.spacing.xs,
     },
 
     '& .dropdown-search': {
@@ -333,7 +333,7 @@ export const Select = Shade<SelectProps>({
     },
 
     '& .dropdown-item .check-icon': {
-      marginRight: '8px',
+      marginRight: cssVariableTheme.spacing.sm,
       width: '16px',
       fontSize: '12px',
       flexShrink: '0',

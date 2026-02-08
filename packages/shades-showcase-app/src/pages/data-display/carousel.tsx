@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Carousel, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Carousel, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const sampleSlides = [
   { bg: '#1a237e', label: 'Slide 1', description: 'Deep indigo backdrop' },
@@ -43,22 +43,34 @@ export const CarouselPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <h3 style={{ margin: '0' }}>Basic</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Basic
+          </Typography>
           <Carousel slides={createSlides()} style={{ borderRadius: '8px' }} />
 
-          <h3 style={{ margin: '0' }}>Autoplay</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Autoplay
+          </Typography>
           <Carousel slides={createSlides()} autoplay autoplayInterval={2500} style={{ borderRadius: '8px' }} />
 
-          <h3 style={{ margin: '0' }}>Fade effect</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Fade effect
+          </Typography>
           <Carousel slides={createSlides()} effect="fade" style={{ borderRadius: '8px' }} />
 
-          <h3 style={{ margin: '0' }}>Without dots</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Without dots
+          </Typography>
           <Carousel slides={createSlides()} dots={false} style={{ borderRadius: '8px' }} />
 
-          <h3 style={{ margin: '0' }}>Vertical</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Vertical
+          </Typography>
           <Carousel slides={createSlides()} vertical style={{ borderRadius: '8px', height: '250px' }} />
 
-          <h3 style={{ margin: '0' }}>Starting from slide 3</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Starting from slide 3
+          </Typography>
           <Carousel slides={createSlides()} defaultActiveIndex={2} style={{ borderRadius: '8px' }} />
         </Paper>
       </PageContainer>

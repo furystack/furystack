@@ -24,7 +24,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     alignItems: 'center',
     cursor: 'default',
     userSelect: 'none',
-    padding: '4px 8px',
+    padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
     gap: '6px',
     transition: buildTransition(
       ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],

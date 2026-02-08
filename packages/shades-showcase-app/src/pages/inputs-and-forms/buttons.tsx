@@ -1,23 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
-
-const SectionTitle = Shade<{ title: string }>({
-  shadowDomName: 'buttons-section-title',
-  render: ({ props }) => (
-    <h3
-      style={{
-        margin: '0',
-        fontSize: '14px',
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-        opacity: '0.7',
-      }}
-    >
-      {props.title}
-    </h3>
-  ),
-})
+import { Button, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
@@ -38,7 +20,7 @@ export const ButtonsPage = Shade({
         />
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Variants */}
-          <SectionTitle title="Variants" />
+          <Typography variant="h3">Variants</Typography>
           <div>
             <div>
               <Button onclick={onclick} disabled={!isEnabledObject.isEnabled}>
@@ -99,7 +81,7 @@ export const ButtonsPage = Shade({
           </div>
 
           {/* Sizes */}
-          <SectionTitle title="Sizes" />
+          <Typography variant="h3">Sizes</Typography>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             <Button onclick={onclick} variant="contained" color="primary" size="small">
               Small
@@ -124,7 +106,7 @@ export const ButtonsPage = Shade({
           </div>
 
           {/* Danger */}
-          <SectionTitle title="Danger" />
+          <Typography variant="h3">Danger</Typography>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             <Button onclick={onclick} danger>
               Danger Text
@@ -138,7 +120,7 @@ export const ButtonsPage = Shade({
           </div>
 
           {/* Loading */}
-          <SectionTitle title="Loading" />
+          <Typography variant="h3">Loading</Typography>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             <Button loading>Loading</Button>
             <Button loading variant="outlined" color="primary">
@@ -153,7 +135,7 @@ export const ButtonsPage = Shade({
           </div>
 
           {/* Icons */}
-          <SectionTitle title="Icons" />
+          <Typography variant="h3">Icons</Typography>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             <Button onclick={onclick} variant="contained" color="primary" startIcon={<span>⬅</span>}>
               Start Icon

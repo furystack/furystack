@@ -122,6 +122,7 @@ describe('Rating', () => {
         await sleepAsync(50)
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
+        expect(filledSpans.length).toBe(5)
         for (const span of filledSpans) {
           expect((span as HTMLElement).style.width).toBe('0%')
         }

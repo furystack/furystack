@@ -1,6 +1,7 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
+import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
@@ -28,55 +29,6 @@ export type ButtonProps = PartialElement<HTMLButtonElement> & {
   endIcon?: JSX.Element
 }
 
-// Color mappings for each palette color
-const colorMap: Record<
-  keyof Palette,
-  { main: string; mainContrast: string; light: string; dark: string; darkContrast: string }
-> = {
-  primary: {
-    main: cssVariableTheme.palette.primary.main,
-    mainContrast: cssVariableTheme.palette.primary.mainContrast,
-    light: cssVariableTheme.palette.primary.light,
-    dark: cssVariableTheme.palette.primary.dark,
-    darkContrast: cssVariableTheme.palette.primary.darkContrast,
-  },
-  secondary: {
-    main: cssVariableTheme.palette.secondary.main,
-    mainContrast: cssVariableTheme.palette.secondary.mainContrast,
-    light: cssVariableTheme.palette.secondary.light,
-    dark: cssVariableTheme.palette.secondary.dark,
-    darkContrast: cssVariableTheme.palette.secondary.darkContrast,
-  },
-  error: {
-    main: cssVariableTheme.palette.error.main,
-    mainContrast: cssVariableTheme.palette.error.mainContrast,
-    light: cssVariableTheme.palette.error.light,
-    dark: cssVariableTheme.palette.error.dark,
-    darkContrast: cssVariableTheme.palette.error.darkContrast,
-  },
-  warning: {
-    main: cssVariableTheme.palette.warning.main,
-    mainContrast: cssVariableTheme.palette.warning.mainContrast,
-    light: cssVariableTheme.palette.warning.light,
-    dark: cssVariableTheme.palette.warning.dark,
-    darkContrast: cssVariableTheme.palette.warning.darkContrast,
-  },
-  success: {
-    main: cssVariableTheme.palette.success.main,
-    mainContrast: cssVariableTheme.palette.success.mainContrast,
-    light: cssVariableTheme.palette.success.light,
-    dark: cssVariableTheme.palette.success.dark,
-    darkContrast: cssVariableTheme.palette.success.darkContrast,
-  },
-  info: {
-    main: cssVariableTheme.palette.info.main,
-    mainContrast: cssVariableTheme.palette.info.mainContrast,
-    light: cssVariableTheme.palette.info.light,
-    dark: cssVariableTheme.palette.info.dark,
-    darkContrast: cssVariableTheme.palette.info.darkContrast,
-  },
-}
-
 // Default colors when no color prop is specified
 const defaultColors = {
   main: cssVariableTheme.text.secondary,
@@ -86,22 +38,13 @@ const defaultColors = {
   darkContrast: cssVariableTheme.text.primary,
 }
 
-let spinnerKeyframesInjected = false
 const ensureSpinnerKeyframes = () => {
-  if (spinnerKeyframesInjected || typeof document === 'undefined') return
+  if (typeof document === 'undefined') return
+  if (document.querySelector('style[data-shades-button-spinner]')) return
   const style = document.createElement('style')
   style.setAttribute('data-shades-button-spinner', '')
   style.textContent = '@keyframes shade-btn-spin { to { transform: rotate(360deg); } }'
   document.head.appendChild(style)
-  spinnerKeyframesInjected = true
-}
-
-/**
- * Resets the spinner keyframes injection state. Used for testing only.
- */
-export const resetSpinnerKeyframes = () => {
-  spinnerKeyframesInjected = false
-  document.querySelector('style[data-shades-button-spinner]')?.remove()
 }
 
 const spinnerStyle: Partial<CSSStyleDeclaration> = {
@@ -110,7 +53,7 @@ const spinnerStyle: Partial<CSSStyleDeclaration> = {
   height: '1em',
   border: '2px solid currentColor',
   borderRightColor: 'transparent',
-  borderRadius: '50%',
+  borderRadius: cssVariableTheme.shape.borderRadius.full,
   animation: 'shade-btn-spin 0.75s linear infinite',
   flexShrink: '0',
 }
@@ -138,7 +81,7 @@ export const Button = Shade<ButtonProps>({
     textTransform: 'uppercase',
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
-    letterSpacing: '0.5px',
+    letterSpacing: cssVariableTheme.typography.letterSpacing.wider,
     lineHeight: '1.75',
     minWidth: '64px',
     userSelect: 'none',
@@ -160,7 +103,7 @@ export const Button = Shade<ButtonProps>({
 
     '&:disabled': {
       cursor: 'not-allowed',
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
     },
 
     // ==========================================
@@ -273,7 +216,7 @@ export const Button = Shade<ButtonProps>({
     const effectiveColor = props.danger ? 'error' : props.color
 
     // Set CSS custom properties for the button colors
-    const colors = effectiveColor ? colorMap[effectiveColor] : defaultColors
+    const colors = effectiveColor ? paletteFullColors[effectiveColor] : defaultColors
     element.style.setProperty('--btn-color-main', colors.main)
     element.style.setProperty('--btn-color-main-contrast', colors.mainContrast)
     element.style.setProperty('--btn-color-light', colors.light)

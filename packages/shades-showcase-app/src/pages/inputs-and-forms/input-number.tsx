@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { InputNumber, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { InputNumber, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 export const InputNumberPage = Shade({
@@ -17,11 +17,11 @@ export const InputNumberPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Basic</h3>
+          <Typography variant="h3">Basic</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             {([undefined, 'outlined', 'contained'] as const).map((variant) => (
               <div style={{ flex: '1', minWidth: '200px' }}>
-                <h4>{variant || 'default'}</h4>
+                <Typography variant="h4">{variant || 'default'}</Typography>
                 <InputNumber variant={variant} labelTitle="Quantity" value={1} helperText="Enter a quantity" />
               </div>
             ))}
@@ -29,7 +29,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Min / Max / Step</h3>
+          <Typography variant="h3">Min / Max / Step</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             <div style={{ flex: '1', minWidth: '200px' }}>
               <InputNumber
@@ -69,7 +69,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Precision</h3>
+          <Typography variant="h3">Precision</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             <div style={{ flex: '1', minWidth: '200px' }}>
               <InputNumber
@@ -104,7 +104,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Formatter / Parser</h3>
+          <Typography variant="h3">Formatter / Parser</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             <div style={{ flex: '1', minWidth: '200px' }}>
               <InputNumber
@@ -142,7 +142,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Colors</h3>
+          <Typography variant="h3">Colors</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
               <div style={{ minWidth: '150px' }}>
@@ -153,7 +153,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Controlled</h3>
+          <Typography variant="h3">Controlled</Typography>
           <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
             <div style={{ flex: '1', minWidth: '200px' }}>
               <InputNumber
@@ -170,7 +170,7 @@ export const InputNumberPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Disabled & Read-only</h3>
+          <Typography variant="h3">Disabled & Read-only</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             <div style={{ flex: '1', minWidth: '200px' }}>
               <InputNumber variant="outlined" labelTitle="Disabled" value={42} disabled helperText="Cannot interact" />

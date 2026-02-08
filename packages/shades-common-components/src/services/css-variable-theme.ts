@@ -114,6 +114,14 @@ export const cssVariableTheme: Theme = {
       normal: 'var(--shades-theme-typography-line-height-normal)',
       relaxed: 'var(--shades-theme-typography-line-height-relaxed)',
     },
+    letterSpacing: {
+      tight: 'var(--shades-theme-typography-letter-spacing-tight)',
+      dense: 'var(--shades-theme-typography-letter-spacing-dense)',
+      normal: 'var(--shades-theme-typography-letter-spacing-normal)',
+      wide: 'var(--shades-theme-typography-letter-spacing-wide)',
+      wider: 'var(--shades-theme-typography-letter-spacing-wider)',
+      widest: 'var(--shades-theme-typography-letter-spacing-widest)',
+    },
   },
   transitions: {
     duration: {
@@ -133,6 +141,19 @@ export const cssVariableTheme: Theme = {
     md: 'var(--shades-theme-spacing-md)',
     lg: 'var(--shades-theme-spacing-lg)',
     xl: 'var(--shades-theme-spacing-xl)',
+  },
+  zIndex: {
+    drawer: 'var(--shades-theme-z-index-drawer)',
+    appBar: 'var(--shades-theme-z-index-app-bar)',
+    modal: 'var(--shades-theme-z-index-modal)',
+    tooltip: 'var(--shades-theme-z-index-tooltip)',
+    dropdown: 'var(--shades-theme-z-index-dropdown)',
+  },
+  effects: {
+    blurSm: 'var(--shades-theme-effects-blur-sm)',
+    blurMd: 'var(--shades-theme-effects-blur-md)',
+    blurLg: 'var(--shades-theme-effects-blur-lg)',
+    blurXl: 'var(--shades-theme-effects-blur-xl)',
   },
 }
 

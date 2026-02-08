@@ -1,5 +1,12 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { CircularProgress, LinearProgress, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  CircularProgress,
+  LinearProgress,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 import type { ObservableValue } from '@furystack/utils'
 import { ObservableValue as OV } from '@furystack/utils'
 
@@ -42,7 +49,7 @@ export const ProgressPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Linear Progress – Indeterminate</h3>
+          <Typography variant="h3">Linear Progress – Indeterminate</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <LinearProgress />
             {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
@@ -52,7 +59,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Linear Progress – Determinate</h3>
+          <Typography variant="h3">Linear Progress – Determinate</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <input
@@ -74,7 +81,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Linear Progress – Sizes</h3>
+          <Typography variant="h3">Linear Progress – Sizes</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <div style={{ marginBottom: '8px', fontSize: '14px' }}>Small</div>
@@ -88,7 +95,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Circular Progress – Indeterminate</h3>
+          <Typography variant="h3">Circular Progress – Indeterminate</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <CircularProgress />
             {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
@@ -98,7 +105,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Circular Progress – Determinate</h3>
+          <Typography variant="h3">Circular Progress – Determinate</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <input
@@ -122,7 +129,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Circular Progress – Sizes</h3>
+          <Typography variant="h3">Circular Progress – Sizes</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <CircularProgress size={24} />
             <CircularProgress size={40} />
@@ -132,7 +139,7 @@ export const ProgressPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Circular Progress – Thickness</h3>
+          <Typography variant="h3">Circular Progress – Thickness</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <CircularProgress variant="determinate" value={progressValue} thickness={2} />
             <CircularProgress variant="determinate" value={progressValue} thickness={3.6} />

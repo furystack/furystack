@@ -58,7 +58,7 @@ export const Chip = Shade<ChipProps>({
 
     // Disabled state
     '&[data-disabled]': {
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
       pointerEvents: 'none',
     },
 
@@ -125,7 +125,7 @@ export const Chip = Shade<ChipProps>({
       marginRight: `calc(-1 * ${cssVariableTheme.spacing.xs})`,
       width: '18px',
       height: '18px',
-      fontSize: '14px',
+      fontSize: cssVariableTheme.typography.fontSize.md,
       lineHeight: '1',
       opacity: '0.7',
       transition: buildTransition(

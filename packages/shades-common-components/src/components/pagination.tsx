@@ -179,7 +179,7 @@ export const Pagination = Shade<PaginationProps>({
 
     // Disabled state on the host
     '&[data-disabled]': {
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
       pointerEvents: 'none',
     },
   },

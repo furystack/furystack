@@ -12,7 +12,7 @@ export type Tab = {
 const TabHeader = Shade<{ hash: string }>({
   shadowDomName: 'shade-tab-header',
   css: {
-    padding: '16px 40px',
+    padding: `${cssVariableTheme.spacing.md} 40px`,
     cursor: 'pointer',
     transition: buildTransition(
       ['box-shadow', cssVariableTheme.transitions.duration.slow, 'ease'],
@@ -26,7 +26,7 @@ const TabHeader = Shade<{ hash: string }>({
     boxShadow: 'none',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: cssVariableTheme.spacing.sm,
     textDecoration: 'none',
     '&.active': {
       fontWeight: 'bolder',
@@ -84,7 +84,7 @@ export const Tabs = Shade<{
 
     // Controlled mode tab button
     '& .shade-tab-btn': {
-      padding: '16px 40px',
+      padding: `${cssVariableTheme.spacing.md} 40px`,
       cursor: 'pointer',
       transition: buildTransition(
         ['box-shadow', cssVariableTheme.transitions.duration.slow, 'ease'],
@@ -98,7 +98,7 @@ export const Tabs = Shade<{
       boxShadow: 'none',
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '8px',
+      gap: cssVariableTheme.spacing.sm,
       border: 'none',
       font: 'inherit',
     },
@@ -135,7 +135,7 @@ export const Tabs = Shade<{
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '8px 16px',
+      padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
       border: 'none',
       background: 'transparent',
       color: cssVariableTheme.text.secondary,

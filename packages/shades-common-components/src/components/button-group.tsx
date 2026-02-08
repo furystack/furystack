@@ -116,7 +116,7 @@ export const ToggleButton = Shade<ToggleButtonProps>({
     margin: '0',
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
-    letterSpacing: '0.5px',
+    letterSpacing: cssVariableTheme.typography.letterSpacing.wider,
     lineHeight: '1.75',
     cursor: 'pointer',
     userSelect: 'none',
@@ -145,7 +145,7 @@ export const ToggleButton = Shade<ToggleButtonProps>({
 
     '&:disabled': {
       cursor: 'not-allowed',
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
     },
 
     '&:active:not(:disabled)': {

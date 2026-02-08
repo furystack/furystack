@@ -102,7 +102,7 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
           {renderItem(item, state)}
         </span>
         {renderSecondaryActions && (
-          <span className="list-item-actions" style={{ display: 'flex', gap: '4px' }}>
+          <span className="list-item-actions" style={{ display: 'flex', gap: cssVariableTheme.spacing.xs }}>
             {renderSecondaryActions(item).map((action) => action)}
           </span>
         )}

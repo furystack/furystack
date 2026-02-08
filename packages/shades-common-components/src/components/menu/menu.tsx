@@ -98,7 +98,7 @@ export const Menu = Shade<MenuProps>({
     outline: 'none',
     listStyle: 'none',
     margin: '0',
-    padding: '4px 0',
+    padding: `${cssVariableTheme.spacing.xs} 0`,
     fontFamily: cssVariableTheme.typography.fontFamily,
     fontSize: cssVariableTheme.typography.fontSize.md,
     color: cssVariableTheme.text.primary,
@@ -174,7 +174,7 @@ export const Menu = Shade<MenuProps>({
     // Divider
     '& .menu-divider': {
       height: '1px',
-      margin: '4px 8px',
+      margin: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
       backgroundColor: cssVariableTheme.divider,
     },
 
@@ -194,7 +194,7 @@ export const Menu = Shade<MenuProps>({
       fontWeight: cssVariableTheme.typography.fontWeight.bold,
       color: cssVariableTheme.text.secondary,
       textTransform: 'uppercase',
-      letterSpacing: '0.5px',
+      letterSpacing: cssVariableTheme.typography.letterSpacing.wider,
       userSelect: 'none',
     },
 

@@ -29,7 +29,9 @@ export const TypographyPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Variants</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Variants
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {allVariants.map((variant) => (
               <Typography variant={variant} gutterBottom>
@@ -40,7 +42,9 @@ export const TypographyPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Colors</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Colors
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Typography color="textPrimary">textPrimary (default)</Typography>
             <Typography color="textSecondary">textSecondary</Typography>
@@ -55,14 +59,18 @@ export const TypographyPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Ellipsis (single line)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Ellipsis (single line)
+          </Typography>
           <div style={{ maxWidth: '300px' }}>
             <Typography ellipsis>
               This is a very long text that should be truncated with an ellipsis when it overflows the container width.
             </Typography>
           </div>
 
-          <h3 style={{ margin: '0' }}>Ellipsis (multi-line, max 2 lines)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Ellipsis (multi-line, max 2 lines)
+          </Typography>
           <div style={{ maxWidth: '300px' }}>
             <Typography ellipsis={2}>
               This is a longer text that should be clamped after two lines. It keeps going and going to demonstrate the
@@ -72,7 +80,9 @@ export const TypographyPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Copyable</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Copyable
+          </Typography>
           <Typography copyable>Click the copy icon to copy this text.</Typography>
           <Typography variant="h5" copyable>
             Copyable heading
@@ -80,7 +90,9 @@ export const TypographyPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Alignment</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Alignment
+          </Typography>
           <Typography align="left">Left aligned text</Typography>
           <Typography align="center">Center aligned text</Typography>
           <Typography align="right">Right aligned text</Typography>

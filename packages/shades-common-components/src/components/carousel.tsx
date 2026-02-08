@@ -94,14 +94,14 @@ export const Carousel = Shade<CarouselProps>({
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '36px',
-      height: '36px',
+      width: cssVariableTheme.spacing.xl,
+      height: cssVariableTheme.spacing.xl,
       border: 'none',
       borderRadius: cssVariableTheme.shape.borderRadius.full,
-      background: 'rgba(0,0,0,0.35)',
-      color: '#fff',
+      background: cssVariableTheme.action.backdrop,
+      color: cssVariableTheme.palette.primary.mainContrast,
       cursor: 'pointer',
-      fontSize: '20px',
+      fontSize: cssVariableTheme.typography.fontSize.lg,
       lineHeight: '1',
       transition: buildTransition([
         'background',
@@ -110,27 +110,27 @@ export const Carousel = Shade<CarouselProps>({
       ]),
     },
     '& .carousel-arrow:hover': {
-      background: 'rgba(0,0,0,0.55)',
+      background: `color-mix(in srgb, ${cssVariableTheme.action.backdrop} 85%, black)`,
     },
     // Horizontal arrows
     '&:not([data-vertical]) .carousel-arrow-prev': {
       top: '50%',
-      left: '8px',
+      left: cssVariableTheme.spacing.sm,
       transform: 'translateY(-50%)',
     },
     '&:not([data-vertical]) .carousel-arrow-next': {
       top: '50%',
-      right: '8px',
+      right: cssVariableTheme.spacing.sm,
       transform: 'translateY(-50%)',
     },
     // Vertical arrows
     '&[data-vertical] .carousel-arrow-prev': {
-      top: '8px',
+      top: cssVariableTheme.spacing.sm,
       left: '50%',
       transform: 'translateX(-50%)',
     },
     '&[data-vertical] .carousel-arrow-next': {
-      bottom: '8px',
+      bottom: cssVariableTheme.spacing.sm,
       left: '50%',
       transform: 'translateX(-50%)',
     },
@@ -140,16 +140,16 @@ export const Carousel = Shade<CarouselProps>({
       position: 'absolute',
       zIndex: '2',
       display: 'flex',
-      gap: '8px',
+      gap: cssVariableTheme.spacing.sm,
     },
     '&:not([data-vertical]) .carousel-dots': {
-      bottom: '12px',
+      bottom: cssVariableTheme.spacing.sm,
       left: '50%',
       transform: 'translateX(-50%)',
       flexDirection: 'row',
     },
     '&[data-vertical] .carousel-dots': {
-      right: '12px',
+      right: cssVariableTheme.spacing.sm,
       top: '50%',
       transform: 'translateY(-50%)',
       flexDirection: 'column',
@@ -161,7 +161,7 @@ export const Carousel = Shade<CarouselProps>({
       border: 'none',
       padding: '0',
       cursor: 'pointer',
-      background: 'rgba(255,255,255,0.5)',
+      background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 50%, transparent)`,
       transition: buildTransition([
         'background',
         cssVariableTheme.transitions.duration.fast,
@@ -169,10 +169,10 @@ export const Carousel = Shade<CarouselProps>({
       ]),
     },
     '& .carousel-dot[data-active]': {
-      background: '#fff',
+      background: cssVariableTheme.background.paper,
     },
     '& .carousel-dot:hover:not([data-active])': {
-      background: 'rgba(255,255,255,0.75)',
+      background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 75%, transparent)`,
     },
   },
   render: ({ props, element, useDisposable }) => {

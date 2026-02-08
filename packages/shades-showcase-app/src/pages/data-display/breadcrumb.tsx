@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Breadcrumb, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Breadcrumb, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const BreadcrumbPage = Shade({
   shadowDomName: 'shades-breadcrumb-page',
@@ -12,13 +12,13 @@ export const BreadcrumbPage = Shade({
           description="Breadcrumb navigation with customizable separators and rendering."
         />
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Basic Breadcrumb</h3>
+          <Typography variant="h3">Basic Breadcrumb</Typography>
           <Breadcrumb
             homeItem={{ path: '/' as const, label: 'Home' }}
             items={[{ path: '/data-display/breadcrumb', label: 'Breadcrumb' }]}
           />
 
-          <h3>Multiple Items</h3>
+          <Typography variant="h3">Multiple Items</Typography>
           <Breadcrumb
             items={[
               { path: '/' as const, label: 'Home' },
@@ -27,7 +27,7 @@ export const BreadcrumbPage = Shade({
             ]}
           />
 
-          <h3>Custom Separator</h3>
+          <Typography variant="h3">Custom Separator</Typography>
           <Breadcrumb
             items={[
               { path: '/' as const, label: 'Home' },
@@ -37,7 +37,7 @@ export const BreadcrumbPage = Shade({
             separator=" → "
           />
 
-          <h3>Custom Rendering</h3>
+          <Typography variant="h3">Custom Rendering</Typography>
           <Breadcrumb
             items={[
               {
@@ -63,7 +63,7 @@ export const BreadcrumbPage = Shade({
             lastItemClickable={true}
           />
 
-          <h3>Last Item Non-Clickable (default)</h3>
+          <Typography variant="h3">Last Item Non-Clickable (default)</Typography>
           <Breadcrumb
             items={[
               { path: '/' as const, label: 'Home' },

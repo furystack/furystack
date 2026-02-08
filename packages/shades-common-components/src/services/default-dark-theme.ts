@@ -66,6 +66,14 @@ export const defaultDarkTheme: Theme = {
       normal: '1.5',
       relaxed: '1.75',
     },
+    letterSpacing: {
+      tight: '-0.5px',
+      dense: '-0.25px',
+      normal: '0px',
+      wide: '0.15px',
+      wider: '0.5px',
+      widest: '1.5px',
+    },
   },
   transitions: {
     duration: {
@@ -85,5 +93,18 @@ export const defaultDarkTheme: Theme = {
     md: '16px',
     lg: '24px',
     xl: '32px',
+  },
+  zIndex: {
+    drawer: '1000',
+    appBar: '1100',
+    modal: '1200',
+    tooltip: '1300',
+    dropdown: '1400',
+  },
+  effects: {
+    blurSm: '4px',
+    blurMd: '8px',
+    blurLg: '15px',
+    blurXl: '20px',
   },
 }

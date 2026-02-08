@@ -40,7 +40,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     })
   },
   css: {
-    margin: '6px',
+    margin: cssVariableTheme.spacing.xs,
     overflow: 'hidden',
     borderRadius: cssVariableTheme.shape.borderRadius.md,
     boxShadow: cssVariableTheme.shadows.sm,
@@ -52,7 +52,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '8px 8px 0 12px',
+      padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.sm} 0 ${cssVariableTheme.spacing.sm}`,
     },
     '& .noty-title': {
       whiteSpace: 'nowrap',
@@ -64,7 +64,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     },
     '& .dismiss-button': {
       margin: '0',
-      padding: '4px',
+      padding: cssVariableTheme.spacing.xs,
       fontSize: cssVariableTheme.typography.fontSize.md,
       minWidth: 'auto',
       background: 'transparent',
@@ -78,7 +78,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       opacity: '1',
     },
     '& .noty-body': {
-      padding: '6px 12px 10px 12px',
+      padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.sm}`,
       fontSize: '0.8em',
       lineHeight: '1.4',
     },

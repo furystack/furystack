@@ -6,7 +6,7 @@ export const AppBar = Shade({
   css: {
     width: '100%',
     background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 85%, transparent)`,
-    backdropFilter: 'blur(15px)',
+    backdropFilter: `blur(${cssVariableTheme.effects.blurLg})`,
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',

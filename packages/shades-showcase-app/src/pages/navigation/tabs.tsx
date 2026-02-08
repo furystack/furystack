@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
-import { PageContainer, PageHeader, Paper, Tabs, type Tab } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, Paper, Tabs, type Tab, Typography } from '@furystack/shades-common-components'
 
 const ControlledTabsDemo = Shade({
   shadowDomName: 'controlled-tabs-demo',
@@ -116,7 +116,9 @@ export const TabsPage = Shade({
           description="The Tabs component organizes content into switchable panels with a tab header strip. Tabs support hash-based navigation (deep linking), controlled mode, card-style headers, vertical orientation, closable tabs, and an add button."
         />
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Hash-based (default)</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Hash-based (default)
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <Tabs
             tabs={[
@@ -134,12 +136,16 @@ export const TabsPage = Shade({
           />
         </Paper>
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Controlled mode</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Controlled mode
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <ControlledTabsDemo />
         </Paper>
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Card type</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Card type
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <Tabs
             type="card"
@@ -164,7 +170,9 @@ export const TabsPage = Shade({
           />
         </Paper>
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Vertical orientation</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Vertical orientation
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <Tabs
             orientation="vertical"
@@ -190,7 +198,9 @@ export const TabsPage = Shade({
           />
         </Paper>
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Vertical + Card type</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Vertical + Card type
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <Tabs
             orientation="vertical"
@@ -217,7 +227,9 @@ export const TabsPage = Shade({
           />
         </Paper>
 
-        <h3 style={{ marginTop: '32px', marginBottom: '12px' }}>Closable tabs with add button</h3>
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Closable tabs with add button
+        </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <ClosableTabsDemo />
         </Paper>

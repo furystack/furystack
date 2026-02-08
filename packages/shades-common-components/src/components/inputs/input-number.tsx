@@ -196,7 +196,7 @@ export const InputNumber = Shade<InputNumberProps>({
       width: '100%',
       textOverflow: 'ellipsis',
       padding: '0',
-      marginTop: '8px',
+      marginTop: cssVariableTheme.spacing.sm,
       marginBottom: '2px',
       flexGrow: '1',
       lineHeight: '1.5',

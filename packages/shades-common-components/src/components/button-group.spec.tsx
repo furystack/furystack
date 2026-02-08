@@ -413,6 +413,7 @@ describe('SegmentedControl', () => {
     it('should disable all options when disabled', async () => {
       await usingAsync(await renderSegmented({ disabled: true }), async ({ control }) => {
         const buttons = control.querySelectorAll('.segmented-option')
+        expect(buttons.length).toBe(3)
         buttons.forEach((btn) => {
           expect((btn as HTMLButtonElement).disabled).toBe(true)
         })

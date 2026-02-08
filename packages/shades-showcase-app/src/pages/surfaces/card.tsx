@@ -10,6 +10,7 @@ import {
   PageContainer,
   PageHeader,
   Paper,
+  Typography,
 } from '@furystack/shades-common-components'
 
 const sampleImage = 'https://picsum.photos/seed/card-demo/600/400'
@@ -28,42 +29,52 @@ export const CardPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <h3 style={{ margin: '0' }}>Basic Cards</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Basic Cards
+          </Typography>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Card style={{ width: '300px' }}>
               <CardContent>
-                <p style={{ margin: '0' }}>
+                <Typography variant="body1" style={{ margin: '0' }}>
                   A simple card with content only. Cards provide a flexible container for grouping related information.
-                </p>
+                </Typography>
               </CardContent>
             </Card>
 
             <Card variant="outlined" style={{ width: '300px' }}>
               <CardContent>
-                <p style={{ margin: '0' }}>
+                <Typography variant="body1" style={{ margin: '0' }}>
                   An outlined card variant uses a border instead of elevation for a lighter visual treatment.
-                </p>
+                </Typography>
               </CardContent>
             </Card>
           </div>
 
-          <h3 style={{ margin: '0' }}>Elevation Levels</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Elevation Levels
+          </Typography>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             {([0, 1, 2, 3] as const).map((elevation) => (
               <Card elevation={elevation} style={{ width: '180px' }}>
                 <CardContent>
-                  <p style={{ margin: '0', textAlign: 'center' }}>Elevation {elevation}</p>
+                  <Typography variant="body1" style={{ margin: '0', textAlign: 'center' }}>
+                    Elevation {elevation}
+                  </Typography>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Card with Header</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Card with Header
+          </Typography>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Card style={{ width: '350px' }}>
               <CardHeader title="Card Title" subheader="Secondary text goes here" />
               <CardContent>
-                <p style={{ margin: '0' }}>The CardHeader component supports a title and optional subheader text.</p>
+                <Typography variant="body1" style={{ margin: '0' }}>
+                  The CardHeader component supports a title and optional subheader text.
+                </Typography>
               </CardContent>
             </Card>
 
@@ -90,36 +101,31 @@ export const CardPage = Shade({
                   </div>
                 }
                 action={
-                  <button
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '20px',
-                      color: 'var(--shades-theme-text-secondary)',
-                      padding: '4px',
-                    }}
-                  >
+                  <Button variant="text" style={{ minWidth: 'auto', margin: '0', padding: '4px', fontSize: '20px' }}>
                     ⋮
-                  </button>
+                  </Button>
                 }
               />
               <CardContent>
-                <p style={{ margin: '0' }}>This card includes an avatar and an action button in the header area.</p>
+                <Typography variant="body1" style={{ margin: '0' }}>
+                  This card includes an avatar and an action button in the header area.
+                </Typography>
               </CardContent>
             </Card>
           </div>
 
-          <h3 style={{ margin: '0' }}>Media Cards</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Media Cards
+          </Typography>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Card style={{ width: '345px' }}>
               <CardMedia image={sampleImage} alt="Sample landscape" height="180px" />
               <CardHeader title="Scenic Landscape" subheader="Photography" />
               <CardContent>
-                <p style={{ margin: '0' }}>
+                <Typography variant="body1" style={{ margin: '0' }}>
                   Cards can display rich media content with the CardMedia component. Images are rendered with
                   object-fit: cover.
-                </p>
+                </Typography>
               </CardContent>
               <CardActions>
                 <Button variant="outlined" onclick={() => alert('Share clicked')}>
@@ -156,9 +162,9 @@ export const CardPage = Shade({
               />
               <CardMedia image={sampleImage3} alt="Travel destination" height="180px" />
               <CardContent>
-                <p style={{ margin: '0' }}>
+                <Typography variant="body1" style={{ margin: '0' }}>
                   Media can be placed below the header for a different layout. Combine sub-components in any order.
-                </p>
+                </Typography>
               </CardContent>
               <CardActions disableSpacing>
                 <Button variant="outlined" onclick={() => alert('Book Now')}>
@@ -168,11 +174,15 @@ export const CardPage = Shade({
             </Card>
           </div>
 
-          <h3 style={{ margin: '0' }}>Clickable Cards</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Clickable Cards
+          </Typography>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Card clickable style={{ width: '250px' }} onclick={() => alert('Elevation card clicked')}>
               <CardContent>
-                <p style={{ margin: '0', textAlign: 'center' }}>Clickable elevation card</p>
+                <Typography variant="body1" style={{ margin: '0', textAlign: 'center' }}>
+                  Clickable elevation card
+                </Typography>
               </CardContent>
             </Card>
 
@@ -183,12 +193,16 @@ export const CardPage = Shade({
               onclick={() => alert('Outlined card clicked')}
             >
               <CardContent>
-                <p style={{ margin: '0', textAlign: 'center' }}>Clickable outlined card</p>
+                <Typography variant="body1" style={{ margin: '0', textAlign: 'center' }}>
+                  Clickable outlined card
+                </Typography>
               </CardContent>
             </Card>
           </div>
 
-          <h3 style={{ margin: '0' }}>Recipe Card (Complex Example)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Recipe Card (Complex Example)
+          </Typography>
           <Card style={{ maxWidth: '400px' }}>
             <CardMedia image={sampleImage2} alt="Delicious pasta dish" height="220px" />
             <CardHeader
@@ -214,9 +228,9 @@ export const CardPage = Shade({
               }
             />
             <CardContent>
-              <p style={{ margin: '0 0 12px 0' }}>
+              <Typography variant="body1" style={{ margin: '0 0 12px 0' }}>
                 A fresh and vibrant pasta dish loaded with seasonal vegetables, tossed in olive oil and garlic.
-              </p>
+              </Typography>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 <Chip size="small" color="success">
                   Vegetarian

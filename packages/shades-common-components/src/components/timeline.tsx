@@ -198,7 +198,7 @@ export const Timeline = Shade<TimelineProps>({
     const pendingItem = pending ? (
       <TimelineItem
         color="info"
-        dot={<span style={{ fontSize: '14px' }}>⏳</span>}
+        dot={<span style={{ fontSize: cssVariableTheme.typography.fontSize.md }}>⏳</span>}
         data-last=""
         data-pending=""
         {...(mode === 'right'

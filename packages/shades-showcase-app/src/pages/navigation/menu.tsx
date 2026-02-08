@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
-import { Menu, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Menu, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 const horizontalItems: MenuEntry[] = [
@@ -68,7 +68,9 @@ const HorizontalMenuDemo = Shade({
           selectedKey={selected}
           onSelect={(key) => selected$.setValue(key)}
         />
-        <p style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>Selected: {selected}</p>
+        <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
+          Selected: {selected}
+        </Typography>
       </div>
     )
   },
@@ -90,7 +92,9 @@ const VerticalMenuDemo = Shade({
             onSelect={(key) => selected$.setValue(key)}
           />
         </div>
-        <p style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>Selected: {selected}</p>
+        <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
+          Selected: {selected}
+        </Typography>
       </div>
     )
   },
@@ -107,7 +111,9 @@ const InlineMenuDemo = Shade({
         <div style={{ maxWidth: '280px' }}>
           <Menu items={inlineItems} mode="inline" selectedKey={selected} onSelect={(key) => selected$.setValue(key)} />
         </div>
-        <p style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>Selected: {selected}</p>
+        <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
+          Selected: {selected}
+        </Typography>
       </div>
     )
   },
@@ -125,26 +131,26 @@ export const MenuPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
-          <h3>Horizontal Mode</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>
+          <Typography variant="h3">Horizontal Mode</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Items flow left-to-right. Use ArrowLeft/ArrowRight for keyboard navigation.
-          </p>
+          </Typography>
           <HorizontalMenuDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
-          <h3>Vertical Mode</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>
+          <Typography variant="h3">Vertical Mode</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Items stack vertically with group headers. Use ArrowUp/ArrowDown for keyboard navigation.
-          </p>
+          </Typography>
           <VerticalMenuDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Inline Mode</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>
+          <Typography variant="h3">Inline Mode</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Like vertical mode, but groups are collapsible. Click a group header to expand or collapse it.
-          </p>
+          </Typography>
           <InlineMenuDemo />
         </Paper>
       </PageContainer>

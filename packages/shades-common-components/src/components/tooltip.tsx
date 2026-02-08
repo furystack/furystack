@@ -30,7 +30,7 @@ export const Tooltip = Shade<TooltipProps>({
 
     '& .tooltip-popup': {
       position: 'absolute',
-      zIndex: '1500',
+      zIndex: cssVariableTheme.zIndex.tooltip,
       pointerEvents: 'none',
       opacity: '0',
       visibility: 'hidden',

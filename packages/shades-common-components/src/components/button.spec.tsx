@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Button, resetSpinnerKeyframes } from './button.js'
+import { Button } from './button.js'
 
 describe('Button', () => {
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('Button', () => {
 
   afterEach(() => {
     document.body.innerHTML = ''
-    resetSpinnerKeyframes()
+    document.querySelector('style[data-shades-button-spinner]')?.remove()
   })
 
   const renderButton = async (props: Parameters<typeof Button>[0] = {}, children?: JSX.Element[]) => {

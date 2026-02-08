@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { SliderMark } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Paper, Slider } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 const BasicSliderDemo = Shade({
@@ -85,12 +85,12 @@ export const SliderPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Basic Slider</h3>
+          <Typography variant="h3">Basic Slider</Typography>
           <BasicSliderDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Colors</h3>
+          <Typography variant="h3">Colors</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -104,12 +104,12 @@ export const SliderPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Discrete with Steps</h3>
+          <Typography variant="h3">Discrete with Steps</Typography>
           <DiscreteSliderDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Custom Marks with Labels</h3>
+          <Typography variant="h3">Custom Marks with Labels</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ flex: '1' }}>
               <Slider value={50} marks={temperatureMarks} />
@@ -118,12 +118,12 @@ export const SliderPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Range Slider</h3>
+          <Typography variant="h3">Range Slider</Typography>
           <RangeSliderDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Vertical</h3>
+          <Typography variant="h3">Vertical</Typography>
           <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap', alignItems: 'flex-end', minHeight: '240px' }}>
             <Slider value={30} vertical />
             <Slider value={60} vertical color="secondary" />
@@ -133,7 +133,7 @@ export const SliderPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Disabled</h3>
+          <Typography variant="h3">Disabled</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <Slider value={40} disabled />
             <Slider value={[30, 70] as [number, number]} disabled color="secondary" />
@@ -141,7 +141,7 @@ export const SliderPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Custom Range</h3>
+          <Typography variant="h3">Custom Range</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <div style={{ fontSize: '14px', marginBottom: '8px' }}>Temperature (min: -20, max: 50, step: 5)</div>

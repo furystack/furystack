@@ -8,6 +8,7 @@ import {
   SegmentedControl,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
@@ -129,7 +130,9 @@ export const ButtonGroupPage = Shade({
 
         {/* ButtonGroup - static, no state */}
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0', color: 'inherit' }}>ButtonGroup</h3>
+          <Typography variant="h3" style={{ margin: '0', color: 'inherit' }}>
+            ButtonGroup
+          </Typography>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
@@ -193,7 +196,9 @@ export const ButtonGroupPage = Shade({
           elevation={3}
           style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px' }}
         >
-          <h3 style={{ margin: '0', color: 'inherit' }}>ToggleButtonGroup</h3>
+          <Typography variant="h3" style={{ margin: '0', color: 'inherit' }}>
+            ToggleButtonGroup
+          </Typography>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <ToggleExclusiveDemo />
@@ -207,7 +212,9 @@ export const ButtonGroupPage = Shade({
           elevation={3}
           style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px' }}
         >
-          <h3 style={{ margin: '0', color: 'inherit' }}>SegmentedControl</h3>
+          <Typography variant="h3" style={{ margin: '0', color: 'inherit' }}>
+            SegmentedControl
+          </Typography>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <SegmentedControlDemo />

@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import { Loader } from '../loader.js'
+import { searchableInputStyles } from '../searchable-input-styles.js'
 import { SuggestInput } from './suggest-input.js'
 import { SuggestManager } from './suggest-manager.js'
 import { SuggestionList } from './suggestion-list.js'
@@ -26,70 +27,10 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
 >({
   shadowDomName: 'shade-suggest',
   css: {
-    flexGrow: '1',
+    ...searchableInputStyles,
     '& .suggest-wrapper': {
       display: 'flex',
       flexDirection: 'column',
-    },
-    '& .input-container': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: '0 1.25em',
-      borderRadius: cssVariableTheme.shape.borderRadius.lg,
-      position: 'relative',
-      background: cssVariableTheme.action.hoverBackground,
-      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
-      boxShadow: cssVariableTheme.shadows.sm,
-      transition: `all ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
-    },
-    '&.opened .input-container': {
-      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
-      boxShadow: cssVariableTheme.shadows.md,
-    },
-    '& .term-icon': {
-      cursor: 'pointer',
-      color: cssVariableTheme.text.secondary,
-      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
-      fontSize: '0.95em',
-      transition: `color ${cssVariableTheme.transitions.duration.normal} ease`,
-      padding: '0.5em 0.75em 0.5em 0',
-      userSelect: 'none',
-    },
-    '& .term-icon:hover': {
-      color: cssVariableTheme.text.primary,
-    },
-    '& .post-controls': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '0px',
-      overflow: 'hidden',
-    },
-    '&.opened .post-controls': {
-      width: '50px',
-    },
-    '& .close-suggestions': {
-      width: '24px',
-      height: '24px',
-      opacity: '0',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      borderRadius: cssVariableTheme.shape.borderRadius.sm,
-      transition: `all ${cssVariableTheme.transitions.duration.normal} ease`,
-      fontSize: cssVariableTheme.typography.fontSize.md,
-      color: cssVariableTheme.text.secondary,
-      background: 'transparent',
-      transform: 'scale(1)',
-    },
-    '&.opened .close-suggestions': {
-      opacity: '1',
-    },
-    '& .close-suggestions:hover': {
-      background: 'rgba(255,255,255,0.15)',
-      transform: 'scale(1.1)',
     },
   },
   render: ({ props, injector, element, useDisposable }) => {

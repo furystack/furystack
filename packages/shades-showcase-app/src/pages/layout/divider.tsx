@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Chip, Divider, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Chip, Divider, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const DividerPage = Shade({
   shadowDomName: 'shades-divider-page',
@@ -13,32 +13,52 @@ export const DividerPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Basic horizontal</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Basic horizontal
+          </Typography>
           <div>
-            <p style={{ margin: '0 0 0 0' }}>Content above the divider</p>
+            <Typography variant="body1" style={{ margin: '0 0 0 0' }}>
+              Content above the divider
+            </Typography>
             <Divider />
-            <p style={{ margin: '0' }}>Content below the divider</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              Content below the divider
+            </Typography>
           </div>
 
-          <h3 style={{ margin: '0' }}>Variants</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Variants
+          </Typography>
           <div>
-            <p style={{ margin: '0' }}>Full width (default)</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              Full width (default)
+            </Typography>
             <Divider />
-            <p style={{ margin: '0' }}>Inset (indented on the start side)</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              Inset (indented on the start side)
+            </Typography>
             <Divider variant="inset" />
-            <p style={{ margin: '0' }}>Middle (indented on both sides)</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              Middle (indented on both sides)
+            </Typography>
             <Divider variant="middle" />
-            <p style={{ margin: '0' }}>Content continues here</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              Content continues here
+            </Typography>
           </div>
 
-          <h3 style={{ margin: '0' }}>With text (center, left, right)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            With text (center, left, right)
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <Divider>CENTER</Divider>
             <Divider textAlign="left">LEFT</Divider>
             <Divider textAlign="right">RIGHT</Divider>
           </div>
 
-          <h3 style={{ margin: '0' }}>With rich content</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            With rich content
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <Divider>
               <Chip color="primary" size="small">
@@ -48,7 +68,9 @@ export const DividerPage = Shade({
             <Divider>OR</Divider>
           </div>
 
-          <h3 style={{ margin: '0' }}>Vertical orientation</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Vertical orientation
+          </Typography>
           <div
             style={{
               display: 'flex',
@@ -64,7 +86,9 @@ export const DividerPage = Shade({
             <span>Item 3</span>
           </div>
 
-          <h3 style={{ margin: '0' }}>Vertical with text</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Vertical with text
+          </Typography>
           <div
             style={{
               display: 'flex',
@@ -78,7 +102,9 @@ export const DividerPage = Shade({
             <span style={{ display: 'flex', alignItems: 'center' }}>Right</span>
           </div>
 
-          <h3 style={{ margin: '0' }}>In a list context</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            In a list context
+          </Typography>
           <div
             style={{
               display: 'flex',

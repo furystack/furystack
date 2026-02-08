@@ -1,6 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Paper, Timeline, TimelineItem } from '@furystack/shades-common-components'
+import {
+  PageContainer,
+  PageHeader,
+  Paper,
+  Timeline,
+  TimelineItem,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -16,7 +23,9 @@ export const TimelinePage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <h3 style={{ margin: '0' }}>Basic (left mode)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Basic (left mode)
+          </Typography>
           <Timeline>
             <TimelineItem>Create a services site</TimelineItem>
             <TimelineItem>Solve initial network problems</TimelineItem>
@@ -24,7 +33,9 @@ export const TimelinePage = Shade({
             <TimelineItem>Network problems being solved</TimelineItem>
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>Colors</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Colors
+          </Typography>
           <Timeline>
             {paletteColors.map((color, i) => (
               <TimelineItem color={color}>
@@ -33,7 +44,9 @@ export const TimelinePage = Shade({
             ))}
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>Custom dots</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Custom dots
+          </Typography>
           <Timeline>
             <TimelineItem dot={<span>🎉</span>} color="success">
               Project launched
@@ -49,7 +62,9 @@ export const TimelinePage = Shade({
             </TimelineItem>
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>With labels</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            With labels
+          </Typography>
           <Timeline mode="alternate">
             <TimelineItem label="2024-01-15" color="primary">
               Project kickoff meeting
@@ -65,14 +80,18 @@ export const TimelinePage = Shade({
             </TimelineItem>
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>Right mode</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Right mode
+          </Typography>
           <Timeline mode="right">
             <TimelineItem label="Step 1">Sign up for account</TimelineItem>
             <TimelineItem label="Step 2">Complete profile</TimelineItem>
             <TimelineItem label="Step 3">Start building</TimelineItem>
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>Alternate mode</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Alternate mode
+          </Typography>
           <Timeline mode="alternate">
             <TimelineItem color="primary">Morning standup</TimelineItem>
             <TimelineItem color="info">Code review</TimelineItem>
@@ -81,7 +100,9 @@ export const TimelinePage = Shade({
             <TimelineItem color="secondary">Retrospective</TimelineItem>
           </Timeline>
 
-          <h3 style={{ margin: '0' }}>Pending state</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Pending state
+          </Typography>
           <Timeline pending="Recording...">
             <TimelineItem color="success">Create account 2024-09-01</TimelineItem>
             <TimelineItem color="success">Complete onboarding 2024-09-02</TimelineItem>

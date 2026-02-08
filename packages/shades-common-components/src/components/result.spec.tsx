@@ -17,6 +17,7 @@ describe('Result', () => {
 
   it('should set data-status attribute for each status', () => {
     const statuses: ResultStatus[] = ['success', 'error', 'warning', 'info', '403', '404', '500']
+    expect(statuses.length).toBe(7)
 
     for (const status of statuses) {
       const el = (
@@ -70,6 +71,7 @@ describe('Result', () => {
 
   it('should render the default icon for each status', () => {
     const statuses: ResultStatus[] = ['success', 'error', 'warning', 'info', '403', '404', '500']
+    expect(statuses.length).toBe(7)
 
     for (const status of statuses) {
       const el = (

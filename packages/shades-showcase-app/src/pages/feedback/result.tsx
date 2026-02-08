@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { ResultStatus } from '@furystack/shades-common-components'
-import { Button, PageContainer, PageHeader, Paper, Result } from '@furystack/shades-common-components'
+import { Button, PageContainer, PageHeader, Paper, Result, Typography } from '@furystack/shades-common-components'
 
 const semanticStatuses: ResultStatus[] = ['success', 'error', 'warning', 'info']
 
@@ -16,7 +16,9 @@ export const ResultPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
-          <h3 style={{ margin: '0' }}>Semantic statuses</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Semantic statuses
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {semanticStatuses.map((status) => (
               <Paper elevation={1} style={{ padding: '16px' }}>
@@ -36,7 +38,9 @@ export const ResultPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>HTTP error codes</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            HTTP error codes
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             <Paper elevation={1} style={{ padding: '16px' }}>
               <Result
@@ -78,7 +82,9 @@ export const ResultPage = Shade({
             </Paper>
           </div>
 
-          <h3 style={{ margin: '0' }}>Custom icon</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Custom icon
+          </Typography>
           <Paper elevation={1} style={{ padding: '16px' }}>
             <Result
               status="success"
@@ -92,7 +98,9 @@ export const ResultPage = Shade({
             </Result>
           </Paper>
 
-          <h3 style={{ margin: '0' }}>Without actions</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Without actions
+          </Typography>
           <Paper elevation={1} style={{ padding: '16px' }}>
             <Result
               status="info"

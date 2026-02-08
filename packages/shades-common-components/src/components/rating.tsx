@@ -75,7 +75,7 @@ export const Rating = Shade<RatingProps>({
       position: 'relative',
       display: 'inline-flex',
       cursor: 'pointer',
-      fontSize: '24px',
+      fontSize: cssVariableTheme.typography.fontSize.xl,
       lineHeight: '1',
       userSelect: 'none',
       webkitUserSelect: 'none',

@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 
@@ -52,6 +51,12 @@ export type ImageGroupProps = {
 const LIGHTBOX_Z_INDEX = '2000'
 
 const closeLightbox = async (backdrop: HTMLElement) => {
+  // Clean up keyboard listener stored on the backdrop element
+  const storedCleanup = (backdrop as unknown as Record<string, unknown>).__lightboxKeyCleanup as
+    | (() => void)
+    | undefined
+  storedCleanup?.()
+
   const panel = backdrop.querySelector('.lightbox-panel')
   if (panel) {
     try {
@@ -93,7 +98,7 @@ const createLightbox = (
         left: '0',
         width: '100%',
         height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        backgroundColor: cssVariableTheme.action.backdrop,
         zIndex: LIGHTBOX_Z_INDEX,
         display: 'flex',
         alignItems: 'center',
@@ -139,16 +144,16 @@ const createLightbox = (
         className="lightbox-toolbar"
         style={{
           position: 'fixed',
-          bottom: '24px',
+          bottom: cssVariableTheme.spacing.lg,
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          padding: '8px 16px',
-          borderRadius: '8px',
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          backdropFilter: 'blur(8px)',
+          gap: cssVariableTheme.spacing.sm,
+          padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
+          borderRadius: cssVariableTheme.shape.borderRadius.md,
+          backgroundColor: cssVariableTheme.action.backdrop,
+          backdropFilter: `blur(${cssVariableTheme.effects.blurMd})`,
           zIndex: '1',
         }}
       >
@@ -188,7 +193,7 @@ const createLightbox = (
         >
           🔄
         </button>
-        <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.3)' }} />
+        <div style={{ width: '1px', height: '20px', backgroundColor: cssVariableTheme.action.subtleBorder }} />
         <button
           className="lightbox-close"
           title="Close"
@@ -210,7 +215,7 @@ const createLightbox = (
             style={{
               ...navButtonStyle(),
               position: 'fixed',
-              left: '16px',
+              left: cssVariableTheme.spacing.md,
               top: '50%',
               zIndex: '1',
             }}
@@ -236,7 +241,7 @@ const createLightbox = (
             style={{
               ...navButtonStyle(),
               position: 'fixed',
-              right: '16px',
+              right: cssVariableTheme.spacing.md,
               top: '50%',
               zIndex: '1',
             }}
@@ -263,8 +268,8 @@ const createLightbox = (
               bottom: '72px',
               left: '50%',
               transform: 'translateX(-50%)',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: '14px',
+              color: cssVariableTheme.text.secondary,
+              fontSize: cssVariableTheme.typography.fontSize.md,
               zIndex: '1',
             }}
           >
@@ -280,7 +285,6 @@ const createLightbox = (
   const handleKeydown = (ev: KeyboardEvent) => {
     if (ev.key === 'Escape') {
       void closeLightbox(backdrop)
-      document.removeEventListener('keydown', handleKeydown)
     }
     if (groupSrcs && groupSrcs.length > 1) {
       if (ev.key === 'ArrowLeft') {
@@ -295,6 +299,10 @@ const createLightbox = (
   }
 
   document.addEventListener('keydown', handleKeydown)
+  // Store cleanup function on the backdrop so closeLightbox can remove it
+  ;(backdrop as unknown as Record<string, unknown>).__lightboxKeyCleanup = () => {
+    document.removeEventListener('keydown', handleKeydown)
+  }
 
   // Animate in (may not be available in test environments)
   const panel = backdrop.querySelector('.lightbox-panel')
@@ -313,16 +321,16 @@ const toolbarButtonStyle = (): Partial<CSSStyleDeclaration> => ({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: '36px',
-  height: '36px',
+  width: cssVariableTheme.spacing.xl,
+  height: cssVariableTheme.spacing.xl,
   border: 'none',
   background: 'transparent',
-  color: 'white',
-  borderRadius: '6px',
+  color: cssVariableTheme.background.paper,
+  borderRadius: cssVariableTheme.shape.borderRadius.sm,
   cursor: 'pointer',
-  fontSize: '16px',
+  fontSize: cssVariableTheme.typography.fontSize.lg,
   padding: '0',
-  transition: 'background 0.15s ease',
+  transition: `background ${cssVariableTheme.transitions.duration.fast} ease`,
 })
 
 const navButtonStyle = (): Partial<CSSStyleDeclaration> => ({
@@ -333,13 +341,13 @@ const navButtonStyle = (): Partial<CSSStyleDeclaration> => ({
   width: '40px',
   height: '40px',
   border: 'none',
-  background: 'rgba(0, 0, 0, 0.5)',
-  color: 'white',
-  borderRadius: '50%',
+  background: cssVariableTheme.action.backdrop,
+  color: cssVariableTheme.background.paper,
+  borderRadius: cssVariableTheme.shape.borderRadius.full,
   cursor: 'pointer',
-  fontSize: '24px',
+  fontSize: cssVariableTheme.typography.fontSize.xl,
   padding: '0',
-  transition: 'background 0.15s ease',
+  transition: `background ${cssVariableTheme.transitions.duration.fast} ease`,
 })
 
 /**
@@ -398,15 +406,15 @@ export const Image = Shade<ImageProps>({
         ['transform', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
       ),
       pointerEvents: 'none',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      color: 'white',
+      backgroundColor: cssVariableTheme.action.backdrop,
+      color: cssVariableTheme.background.paper,
       borderRadius: cssVariableTheme.shape.borderRadius.full,
       width: '40px',
       height: '40px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '20px',
+      fontSize: cssVariableTheme.typography.fontSize.lg,
     },
 
     '&[data-preview]:hover .image-preview-icon': {
@@ -462,8 +470,6 @@ export const Image = Shade<ImageProps>({
     element.setAttribute('data-src', src)
     element.setAttribute('data-alt', alt)
 
-    const hasError = new ObservableValue(false)
-
     return (
       <>
         <img
@@ -477,7 +483,6 @@ export const Image = Shade<ImageProps>({
           }}
           onclick={handleClick}
           onerror={() => {
-            hasError.setValue(true)
             const img = element.querySelector('img')
             if (img) img.style.display = 'none'
             const fallbackEl = element.querySelector<HTMLElement>('.image-fallback')
@@ -512,7 +517,7 @@ export const ImageGroup = Shade<ImageGroupProps>({
     alignItems: 'flex-start',
   },
   render: ({ props, children, element }) => {
-    const { gap = '8px' } = props
+    const { gap = cssVariableTheme.spacing.sm } = props
     element.style.gap = gap
 
     return <>{children}</>

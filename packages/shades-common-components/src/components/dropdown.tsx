@@ -139,7 +139,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     // Divider
     '& .dropdown-divider': {
       height: '1px',
-      margin: '4px 8px',
+      margin: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
       backgroundColor: cssVariableTheme.divider,
     },
 
@@ -150,7 +150,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
       fontWeight: cssVariableTheme.typography.fontWeight.bold,
       color: cssVariableTheme.text.secondary,
       textTransform: 'uppercase',
-      letterSpacing: '0.5px',
+      letterSpacing: cssVariableTheme.typography.letterSpacing.wider,
       userSelect: 'none',
     },
   },
@@ -306,7 +306,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
             left: '0',
             width: '100%',
             height: '100%',
-            zIndex: '9999',
+            zIndex: cssVariableTheme.zIndex.dropdown,
           }}
           onclick={closeDropdown}
         >
@@ -320,7 +320,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
               borderRadius: cssVariableTheme.shape.borderRadius.md,
               boxShadow: cssVariableTheme.shadows.lg,
               border: `1px solid ${cssVariableTheme.divider}`,
-              padding: '4px 0',
+              padding: `${cssVariableTheme.spacing.xs} 0`,
               overflow: 'hidden',
             }}
             onclick={(ev: MouseEvent) => ev.stopPropagation()}

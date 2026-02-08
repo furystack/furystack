@@ -1,3 +1,5 @@
+import { cssVariableTheme } from '../services/css-variable-theme.js'
+
 declare global {
   interface CSSStyleDeclaration {
     backdropFilter: string
@@ -5,27 +7,27 @@ declare global {
 }
 
 const glassBox: Partial<CSSStyleDeclaration> = {
-  backdropFilter: 'blur(4px)',
-  borderRadius: '5px',
-  border: '1px solid rgba(128, 128, 128, 0.3)',
-  boxShadow: 'rgba(0, 0, 0, 0.3) 2px 2px 2px, 1px 1px 3px -2px rgba(255,255,255,0.3) inset',
+  backdropFilter: `blur(${cssVariableTheme.effects.blurSm})`,
+  borderRadius: cssVariableTheme.shape.borderRadius.sm,
+  border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
+  boxShadow: cssVariableTheme.shadows.md,
 }
 
 export const colors = {
   primary: {
-    light: '#82e9de',
-    main: '#4db6ac',
-    dark: '#00867d',
-    contrastText: '#000',
+    light: cssVariableTheme.palette.primary.light,
+    main: cssVariableTheme.palette.primary.main,
+    dark: cssVariableTheme.palette.primary.dark,
+    contrastText: cssVariableTheme.palette.primary.mainContrast,
   },
   secondary: {
-    light: '#62727b',
-    main: '#37474f',
-    dark: '#102027',
-    contrastText: '#fff',
+    light: cssVariableTheme.palette.secondary.light,
+    main: cssVariableTheme.palette.secondary.main,
+    dark: cssVariableTheme.palette.secondary.dark,
+    contrastText: cssVariableTheme.palette.secondary.mainContrast,
   },
   error: {
-    main: 'red',
+    main: cssVariableTheme.palette.error.main,
   },
 }
 
