@@ -1,12 +1,13 @@
 import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import { morphChildren, morphElement } from './dom-morph.js'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
-import { attachProps, attachStyles } from './shade-component.js'
+import { attachProps, attachStyles, setRenderMode } from './shade-component.js'
 import { StyleManager } from './style-manager.js'
+import type { VChild } from './vnode.js'
+import { patchChildren, toVChildArray } from './vnode.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
@@ -212,6 +213,12 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         private _updateScheduled = false
 
         /**
+         * The VChild array from the previous render, with `_el` references
+         * pointing to the real DOM nodes. Used to diff against the next render.
+         */
+        private _prevVTree: VChild[] | null = null
+
+        /**
          * Schedules a component update via microtask. Multiple calls before the microtask
          * runs are coalesced into a single render pass.
          */
@@ -226,44 +233,13 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         private _performUpdate() {
-          // JSX fragments (<>...</>) produce DocumentFragment at runtime,
-          // even though the render return type doesn't reflect it
-          const renderResult: JSX.Element | DocumentFragment | string | null = this.render(this.getRenderOptions())
+          setRenderMode(true)
+          const renderResult = this.render(this.getRenderOptions())
+          setRenderMode(false)
 
-          if (renderResult === null || renderResult === undefined) {
-            this.innerHTML = ''
-            return
-          }
-
-          if (typeof renderResult === 'string' || typeof renderResult === 'number') {
-            if (this.childNodes.length === 1 && this.firstChild?.nodeType === Node.TEXT_NODE) {
-              if (this.firstChild.textContent !== String(renderResult)) {
-                this.firstChild.textContent = String(renderResult)
-              }
-            } else {
-              this.innerHTML = String(renderResult)
-            }
-            return
-          }
-
-          // Check DocumentFragment first since it's not an HTMLElement
-          // but JSX.Element extends HTMLElement
-          if (renderResult instanceof DocumentFragment) {
-            if (this.childNodes.length > 0) {
-              morphChildren(this, renderResult)
-            } else {
-              this.replaceChildren(renderResult)
-            }
-            return
-          }
-
-          if (renderResult instanceof HTMLElement) {
-            if (this.children.length === 1 && this.firstElementChild) {
-              morphElement(this.firstElementChild, renderResult)
-            } else {
-              this.replaceChildren(renderResult)
-            }
-          }
+          const newVTree = toVChildArray(renderResult)
+          patchChildren(this, this._prevVTree || [], newVTree)
+          this._prevVTree = newVTree
         }
 
         private _injector?: Injector

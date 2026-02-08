@@ -1,6 +1,24 @@
 import type { ChildrenList, ShadeComponent } from './models/index.js'
 import { isShadeComponent } from './models/shade-component.js'
-import { storeElementProps } from './dom-morph.js'
+import { createVNode } from './vnode.js'
+
+// ---------------------------------------------------------------------------
+// Render-mode toggle
+// ---------------------------------------------------------------------------
+
+let renderMode = false
+
+/**
+ * When true, the JSX factory produces VNode descriptors instead of real DOM elements.
+ * Set to true by `_performUpdate` before calling `render()`, then back to false after.
+ */
+export const setRenderMode = (mode: boolean): void => {
+  renderMode = mode
+}
+
+// ---------------------------------------------------------------------------
+// Real-DOM helpers (used outside render mode)
+// ---------------------------------------------------------------------------
 
 /**
  * Appends a list of items to a HTML element
@@ -87,7 +105,6 @@ export const createComponentInner = <TProps extends object>(
     const el = document.createElement(elementType)
 
     attachProps(el, props)
-    storeElementProps(el, props as Record<string, unknown> | null | undefined)
 
     if (children) {
       appendChild(el, children)
@@ -110,6 +127,21 @@ export const createFragmentInner = (...[_props, ...children]: CreateFragmentArgs
 }
 
 export const createComponent = <TProps extends object>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
+  // In render mode, produce VNode descriptors instead of real DOM elements
+  if (renderMode) {
+    const [type, props, ...children] = args
+    // When jsxFragmentFactory === jsxFactory (both "createComponent"), the compiler
+    // passes createComponent itself as the first arg for fragments: createComponent(createComponent, null, ...)
+    if (type === null || (type as unknown) === createComponent) {
+      return createVNode(null, null, ...children) as unknown as ReturnType<typeof createComponentInner>
+    }
+    return createVNode(
+      type as string | ((...a: unknown[]) => unknown),
+      props as Record<string, unknown> | null,
+      ...children,
+    ) as unknown as ReturnType<typeof createComponentInner>
+  }
+
   if (args[0] === null) {
     return createFragmentInner(...args)
   }

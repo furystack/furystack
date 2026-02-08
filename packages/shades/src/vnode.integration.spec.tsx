@@ -5,7 +5,7 @@ import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
 import { flushUpdates, Shade } from './shade.js'
 
-describe('DOM morph integration tests', () => {
+describe('VNode reconciliation integration tests', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>'
   })
