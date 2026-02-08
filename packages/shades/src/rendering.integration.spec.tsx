@@ -50,15 +50,13 @@ describe('Rendering integration tests', () => {
     })
   })
 
-  it('should not remount child Shade components on parent re-render', async () => {
+  it('should remount child Shade components with fresh lifecycle on parent re-render', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const childRenderCounter = vi.fn()
-      const disconnectSpy = vi.fn()
 
       const ChildComponent = Shade({
-        tagName: 'child-preserve-test',
-        onDetach: disconnectSpy,
+        tagName: 'child-replace-test',
         render: () => {
           childRenderCounter()
           return <div>Child</div>
@@ -66,12 +64,13 @@ describe('Rendering integration tests', () => {
       })
 
       const ParentComponent = Shade({
-        tagName: 'parent-preserve-test',
+        tagName: 'parent-replace-test',
         render: ({ useState }) => {
           const [count, setCount] = useState('count', 0)
           return (
             <div>
               <ChildComponent />
+              <span id="count">{count}</span>
               <button id="increment" onclick={() => setCount(count + 1)}>
                 +
               </button>
@@ -82,19 +81,15 @@ describe('Rendering integration tests', () => {
 
       initializeShadeRoot({ injector, rootElement, jsxElement: <ParentComponent /> })
       expect(childRenderCounter).toHaveBeenCalledTimes(1)
-      expect(disconnectSpy).not.toHaveBeenCalled()
-
-      const childEl = document.querySelector('child-preserve-test') as JSX.Element
 
       // Trigger parent re-render
       document.getElementById('increment')?.click()
       await flushMicrotasks()
-      // Allow child's scheduled update to complete
-      await flushMicrotasks()
 
-      // Child should be preserved (not disconnected and remounted)
-      expect(disconnectSpy).not.toHaveBeenCalled()
-      expect(document.querySelector('child-preserve-test')).toBe(childEl)
+      // Child is replaced with a fresh instance (gets full lifecycle)
+      expect(childRenderCounter).toHaveBeenCalledTimes(2)
+      // The surrounding HTML elements (span, button) are preserved by the reconciler
+      expect(document.getElementById('count')?.textContent).toBe('1')
     })
   })
 

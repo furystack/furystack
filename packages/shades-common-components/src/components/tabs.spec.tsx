@@ -184,7 +184,8 @@ describe('Tabs', () => {
 
       // Verify tab1 is active
       expect(document.getElementById('content-1')).toBeTruthy()
-      expect(document.body.innerHTML).toMatch(/shade-tab-header[^>]*class="active"[^>]*href="#tab1"/)
+      const tab1Header = document.querySelector('a[is="shade-tab-header"][href="#tab1"]') as HTMLElement
+      expect(tab1Header?.classList.contains('active')).toBe(true)
 
       // Change hash
       window.location.hash = '#tab2'
@@ -195,7 +196,11 @@ describe('Tabs', () => {
       // Verify tab2 is now active
       expect(document.getElementById('content-2')).toBeTruthy()
       expect(document.getElementById('content-1')).toBeFalsy()
-      expect(document.body.innerHTML).toMatch(/shade-tab-header[^>]*class="active"[^>]*href="#tab2"/)
+      // Re-query headers since Shade elements are replaced on re-render
+      const tab2Header = document.querySelector('a[is="shade-tab-header"][href="#tab2"]') as HTMLElement
+      const tab1HeaderAfter = document.querySelector('a[is="shade-tab-header"][href="#tab1"]') as HTMLElement
+      expect(tab2Header?.classList.contains('active')).toBe(true)
+      expect(tab1HeaderAfter?.classList.contains('active')).toBe(false)
     })
   })
 

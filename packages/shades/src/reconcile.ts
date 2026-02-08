@@ -138,19 +138,14 @@ const patchElement = (existing: HTMLElement, incoming: HTMLElement): void => {
 }
 
 /**
- * Patches only host-level attributes and styles on a custom element.
- * Does NOT update Shade-internal properties or reconcile children.
- */
-const patchHostElement = (existing: HTMLElement, incoming: HTMLElement): void => {
-  patchAttributes(existing, incoming)
-  patchStyles(existing, incoming)
-}
-
-/**
  * Reconciles a single node pair.
  * @returns The resulting node in the DOM (either the existing node or its replacement)
  */
 const reconcileNode = (parent: Element, existing: ChildNode, incoming: ChildNode): ChildNode => {
+  if (existing === incoming) {
+    return existing
+  }
+
   if (existing.nodeType === Node.TEXT_NODE && incoming.nodeType === Node.TEXT_NODE) {
     if (existing.textContent !== incoming.textContent) {
       existing.textContent = incoming.textContent
@@ -167,13 +162,11 @@ const reconcileNode = (parent: Element, existing: ChildNode, incoming: ChildNode
     const incomingEl = incoming as HTMLElement
 
     if (isShadeElement(existingEl)) {
-      const existingShade = existingEl as unknown as JSX.Element
-      const incomingShade = incomingEl as unknown as JSX.Element
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JSX.Element.props is typed as any
-      existingShade.props = incomingShade.props
-      existingShade.shadeChildren = incomingShade.shadeChildren
-      patchHostElement(existingEl, incomingEl)
-      existingShade.scheduleUpdate()
+      // Always replace Shade elements — they manage their own lifecycle via
+      // connectedCallback/constructed, and may have internal state (useState,
+      // useDisposable) that cannot be updated from outside.
+      parent.replaceChild(incoming, existing)
+      return incoming
     } else {
       patchElement(existingEl, incomingEl)
       reconcileChildren(existingEl, Array.from(incomingEl.childNodes))
