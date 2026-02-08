@@ -34,7 +34,6 @@ export type CircularProgressProps = {
   thickness?: number
 }
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
 const SVG_SIZE = 44
 const DEFAULT_SIZE = 40
 const DEFAULT_THICKNESS = 3.6
@@ -62,80 +61,6 @@ const updateDeterminate = (element: HTMLElement, circumference: number, value: n
     circle.style.strokeDashoffset = `${dashOffset}`
   }
   element.setAttribute('aria-valuenow', String(clamped))
-}
-
-const createSvgContent = ({
-  size,
-  thickness,
-  circumference,
-  dashOffset,
-  indeterminate,
-}: {
-  size: number
-  thickness: number
-  circumference: number
-  dashOffset: number
-  indeterminate: boolean
-}): SVGSVGElement => {
-  const radius = (SVG_SIZE - thickness) / 2
-  const center = String(SVG_SIZE / 2)
-
-  const svg = document.createElementNS(SVG_NS, 'svg')
-  svg.setAttribute('width', String(size))
-  svg.setAttribute('height', String(size))
-  svg.setAttribute('viewBox', `0 0 ${SVG_SIZE} ${SVG_SIZE}`)
-
-  const track = document.createElementNS(SVG_NS, 'circle')
-  track.setAttribute('class', 'progress-track')
-  track.setAttribute('cx', center)
-  track.setAttribute('cy', center)
-  track.setAttribute('r', String(radius))
-  track.setAttribute('stroke-width', String(thickness))
-
-  const circle = document.createElementNS(SVG_NS, 'circle')
-  circle.setAttribute('class', 'progress-circle')
-  circle.setAttribute('cx', center)
-  circle.setAttribute('cy', center)
-  circle.setAttribute('r', String(radius))
-  circle.setAttribute('stroke-width', String(thickness))
-  circle.setAttribute(
-    'stroke-dasharray',
-    indeterminate ? `${circumference * 0.05} ${circumference}` : `${circumference}`,
-  )
-  circle.style.strokeDashoffset = `${dashOffset}`
-  circle.setAttribute('transform', `rotate(-90 ${SVG_SIZE / 2} ${SVG_SIZE / 2})`)
-
-  svg.appendChild(track)
-  svg.appendChild(circle)
-
-  if (indeterminate) {
-    const style = document.createElementNS(SVG_NS, 'style')
-    style.textContent = `
-      @keyframes circular-rotate {
-        100% { transform: rotate(360deg); }
-      }
-      @keyframes circular-dash {
-        0% {
-          stroke-dasharray: ${circumference * 0.05} ${circumference};
-          stroke-dashoffset: 0;
-        }
-        50% {
-          stroke-dasharray: ${circumference * 0.7} ${circumference};
-          stroke-dashoffset: ${-circumference * 0.12};
-        }
-        100% {
-          stroke-dasharray: ${circumference * 0.7} ${circumference};
-          stroke-dashoffset: ${-circumference * 0.88};
-        }
-      }
-    `
-    svg.insertBefore(style, track)
-
-    svg.style.animation = 'circular-rotate 1.4s linear infinite'
-    circle.style.animation = 'circular-dash 1.4s ease-in-out infinite'
-  }
-
-  return svg
 }
 
 export const CircularProgress = Shade<CircularProgressProps>({
@@ -168,10 +93,12 @@ export const CircularProgress = Shade<CircularProgressProps>({
     const value = clampValue(props.value?.getValue() ?? 0)
     const size = props.size ?? DEFAULT_SIZE
     const thickness = props.thickness ?? DEFAULT_THICKNESS
+    const indeterminate = variant === 'indeterminate'
+
+    const radius = (SVG_SIZE - thickness) / 2
+    const circumference = 2 * Math.PI * radius
 
     if (variant === 'determinate' && props.value) {
-      const radius = (SVG_SIZE - thickness) / 2
-      const circumference = 2 * Math.PI * radius
       useDisposable('value-subscription', () =>
         props.value!.subscribe((next) => updateDeterminate(element, circumference, next)),
       )
@@ -188,22 +115,52 @@ export const CircularProgress = Shade<CircularProgressProps>({
 
     setCircularColors({ element, themeProvider, props })
 
-    const radius = (SVG_SIZE - thickness) / 2
-    const circumference = 2 * Math.PI * radius
-
     const dashOffset = variant === 'determinate' ? circumference - (value / 100) * circumference : 0
+    const center = SVG_SIZE / 2
 
-    const svg = createSvgContent({
-      size,
-      thickness,
-      circumference,
-      dashOffset,
-      indeterminate: variant === 'indeterminate',
-    })
-
-    const wrapper = (<span className="circular-progress-container" />) as unknown as HTMLElement
-    wrapper.appendChild(svg)
-
-    return wrapper as unknown as JSX.Element
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
+        style={indeterminate ? { animation: 'circular-rotate 1.4s linear infinite' } : undefined}
+      >
+        {indeterminate && (
+          <style>{`
+            @keyframes circular-rotate {
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes circular-dash {
+              0% {
+                stroke-dasharray: ${circumference * 0.05} ${circumference};
+                stroke-dashoffset: 0;
+              }
+              50% {
+                stroke-dasharray: ${circumference * 0.7} ${circumference};
+                stroke-dashoffset: ${-circumference * 0.12};
+              }
+              100% {
+                stroke-dasharray: ${circumference * 0.7} ${circumference};
+                stroke-dashoffset: ${-circumference * 0.88};
+              }
+            }
+          `}</style>
+        )}
+        <circle className="progress-track" cx={center} cy={center} r={radius} stroke-width={thickness} />
+        <circle
+          className="progress-circle"
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke-width={thickness}
+          stroke-dasharray={indeterminate ? `${circumference * 0.05} ${circumference}` : `${circumference}`}
+          style={{
+            strokeDashoffset: `${dashOffset}`,
+            ...(indeterminate ? { animation: 'circular-dash 1.4s ease-in-out infinite' } : {}),
+          }}
+          transform={`rotate(-90 ${SVG_SIZE / 2} ${SVG_SIZE / 2})`}
+        />
+      </svg>
+    )
   },
 })
