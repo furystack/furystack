@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
-import { Button, Dropdown, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Button, Dropdown, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 const basicItems: MenuEntry[] = [
@@ -78,14 +78,18 @@ export const DropdownPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
-          <h3>Basic Dropdown</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>Click the button to open a dropdown menu.</p>
+          <Typography variant="h3">Basic Dropdown</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
+            Click the button to open a dropdown menu.
+          </Typography>
           <BasicDropdownDemo />
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
-          <h3>Grouped Items</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>Dropdown items can be organized into labeled groups.</p>
+          <Typography variant="h3">Grouped Items</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
+            Dropdown items can be organized into labeled groups.
+          </Typography>
           <Dropdown items={groupedItems} onSelect={(key) => console.log('Selected:', key)}>
             <Button variant="contained" color="primary">
               File Menu
@@ -94,10 +98,10 @@ export const DropdownPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
-          <h3>With Disabled Items</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>
+          <Typography variant="h3">With Disabled Items</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Individual items can be disabled while others remain interactive.
-          </p>
+          </Typography>
           <Dropdown items={withDisabledItems} onSelect={(key) => console.log('Selected:', key)}>
             <Button variant="outlined" color="warning">
               More Options
@@ -106,10 +110,10 @@ export const DropdownPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Disabled Dropdown</h3>
-          <p style={{ opacity: '0.7', marginBottom: '16px' }}>
+          <Typography variant="h3">Disabled Dropdown</Typography>
+          <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             The entire dropdown can be disabled, preventing it from opening.
-          </p>
+          </Typography>
           <Dropdown items={basicItems} disabled>
             <Button variant="outlined" disabled>
               Disabled

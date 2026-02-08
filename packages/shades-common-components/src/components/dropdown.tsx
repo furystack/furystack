@@ -18,6 +18,9 @@ export type DropdownProps = {
   onSelect?: (key: string) => void
 }
 
+const cloneNode = (node: JSX.Element | string): JSX.Element | string =>
+  node instanceof Node ? (node.cloneNode(true) as JSX.Element) : node
+
 const renderDropdownItems = (items: MenuEntry[], onSelect: (key: string) => void): JSX.Element[] => {
   return items.map((item) => {
     if (item.type === 'divider') {
@@ -47,8 +50,8 @@ const renderDropdownItems = (items: MenuEntry[], onSelect: (key: string) => void
           }
         }}
       >
-        {item.icon && <span className="dropdown-item-icon">{item.icon}</span>}
-        <span className="dropdown-item-label">{item.label}</span>
+        {item.icon && <span className="dropdown-item-icon">{cloneNode(item.icon)}</span>}
+        <span className="dropdown-item-label">{cloneNode(item.label)}</span>
       </div>
     )
   })
@@ -256,14 +259,14 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     const openDropdown = () => {
-      if (isOpen.getValue() || isOpen.isDisposed) return
+      if (isOpen.isDisposed || isOpen.getValue()) return
       isOpen.setValue(true)
       element.setAttribute('data-open', '')
       positionAndShowPanel()
     }
 
     const closeDropdown = () => {
-      if (!isOpen.getValue() || isOpen.isDisposed) return
+      if (isOpen.isDisposed || !isOpen.getValue()) return
       isOpen.setValue(false)
       element.removeAttribute('data-open')
       const backdrop = element.querySelector<HTMLElement>('.dropdown-backdrop')
@@ -274,7 +277,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     const handleTriggerClick = () => {
-      if (disabled) return
+      if (disabled || isOpen.isDisposed) return
       if (isOpen.getValue()) {
         closeDropdown()
       } else {
@@ -288,7 +291,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     // If re-rendered while open (e.g. parent prop change), restore visual state
-    if (isOpen.getValue()) {
+    if (!isOpen.isDisposed && isOpen.getValue()) {
       element.setAttribute('data-open', '')
       positionAndShowPanel()
     }
