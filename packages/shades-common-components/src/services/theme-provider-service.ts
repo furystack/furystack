@@ -219,8 +219,11 @@ export type ThemeTypography = {
   /** Line height scale */
   lineHeight: LineHeightScale
   /** Letter spacing scale */
-  letterSpacing: LetterSpacingScale
+  letterSpacing?: LetterSpacingScale
 }
+
+/** @deprecated Use `ThemeTypography` instead */
+export type Typography = ThemeTypography
 
 /**
  * Transition duration presets.
@@ -345,9 +348,9 @@ export interface Theme {
   /** Spacing scale */
   spacing: Spacing
   /** Z-index stacking layers */
-  zIndex: ZIndex
+  zIndex?: ZIndex
   /** Visual effect tokens (blur, backdrop) */
-  effects: Effects
+  effects?: Effects
 }
 
 export class RgbColor {

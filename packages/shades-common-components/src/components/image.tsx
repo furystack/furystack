@@ -52,12 +52,12 @@ export type ImageGroupProps = {
 
 const LIGHTBOX_Z_INDEX = '2000'
 
+const lightboxCleanupMap = new WeakMap<HTMLElement, () => void>()
+
 const closeLightbox = async (backdrop: HTMLElement) => {
-  // Clean up keyboard listener stored on the backdrop element
-  const storedCleanup = (backdrop as unknown as Record<string, unknown>).__lightboxKeyCleanup as
-    | (() => void)
-    | undefined
+  const storedCleanup = lightboxCleanupMap.get(backdrop)
   storedCleanup?.()
+  lightboxCleanupMap.delete(backdrop)
 
   const panel = backdrop.querySelector('.lightbox-panel')
   if (panel) {
@@ -301,10 +301,9 @@ const createLightbox = (
   }
 
   document.addEventListener('keydown', handleKeydown)
-  // Store cleanup function on the backdrop so closeLightbox can remove it
-  ;(backdrop as unknown as Record<string, unknown>).__lightboxKeyCleanup = () => {
+  lightboxCleanupMap.set(backdrop, () => {
     document.removeEventListener('keydown', handleKeydown)
-  }
+  })
 
   // Animate in (may not be available in test environments)
   const panel = backdrop.querySelector('.lightbox-panel')

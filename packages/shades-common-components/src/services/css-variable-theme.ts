@@ -1,6 +1,6 @@
 import type { DeepPartial } from '@furystack/utils'
 import type { Theme } from './theme-provider-service.js'
-export const cssVariableTheme: Theme = {
+export const cssVariableTheme = {
   name: 'css-variable-theme',
   text: {
     primary: 'var(--shades-theme-text-primary)',
@@ -155,7 +155,7 @@ export const cssVariableTheme: Theme = {
     blurLg: 'var(--shades-theme-effects-blur-lg)',
     blurXl: 'var(--shades-theme-effects-blur-xl)',
   },
-}
+} satisfies Theme
 
 /**
  * Builds a CSS transition string from property-duration-easing triplets.

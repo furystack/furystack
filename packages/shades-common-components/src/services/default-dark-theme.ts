@@ -1,7 +1,7 @@
 import { defaultPalette } from './default-palette.js'
 import type { Theme } from './theme-provider-service.js'
 
-export const defaultDarkTheme: Theme = {
+export const defaultDarkTheme = {
   name: 'default-dark-theme',
   text: {
     primary: '#fff',
@@ -107,4 +107,4 @@ export const defaultDarkTheme: Theme = {
     blurLg: '15px',
     blurXl: '20px',
   },
-}
+} satisfies Theme
