@@ -460,5 +460,189 @@ describe('Slider', () => {
         },
       )
     })
+
+    it('should handle step=0 (continuous mode) with keyboard using effective step of 1', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 0, onValueChange }),
+        async ({ slider }) => {
+          const thumb = slider.querySelector('.slider-thumb') as HTMLElement
+          thumb.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith(51)
+        },
+      )
+    })
+  })
+
+  describe('range keyboard navigation', () => {
+    it('should increment first thumb of range with ArrowRight', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], step: 5, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([25, 80])
+        },
+      )
+    })
+
+    it('should decrement second thumb of range with ArrowLeft', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], step: 5, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([20, 75])
+        },
+      )
+    })
+
+    it('should clamp range thumb 0 to not exceed thumb 1', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [50, 50] as [number, number], step: 10, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([50, 50])
+        },
+      )
+    })
+
+    it('should clamp range thumb 1 to not go below thumb 0', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [50, 50] as [number, number], step: 10, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([50, 50])
+        },
+      )
+    })
+
+    it('should jump range thumb to min on Home', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [30, 70] as [number, number], min: 0, max: 100, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([0, 70])
+        },
+      )
+    })
+
+    it('should jump range thumb to max on End', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [30, 70] as [number, number], min: 0, max: 100, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([30, 100])
+        },
+      )
+    })
+
+    it('should use ArrowUp to increment value', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], step: 5, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([25, 80])
+        },
+      )
+    })
+
+    it('should use ArrowDown to decrement value', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], step: 5, onValueChange }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          thumbs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+          expect(onValueChange).toHaveBeenCalledWith([20, 75])
+        },
+      )
+    })
+  })
+
+  describe('PageDown', () => {
+    it('should large-step down on PageDown', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSlider({ value: 50, step: 1, onValueChange }), async ({ slider }) => {
+        const thumb = slider.querySelector('.slider-thumb') as HTMLElement
+        thumb.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }))
+        expect(onValueChange).toHaveBeenCalledWith(40)
+      })
+    })
+  })
+
+  describe('vertical range positioning', () => {
+    it('should use bottom for positioning range thumbs vertically', async () => {
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], vertical: true }),
+        async ({ slider }) => {
+          const thumbs = slider.querySelectorAll<HTMLElement>('.slider-thumb')
+          expect(thumbs[0].style.bottom).toBe('20%')
+          expect(thumbs[1].style.bottom).toBe('80%')
+        },
+      )
+    })
+
+    it('should use bottom/height for range track in vertical mode', async () => {
+      await usingAsync(
+        await renderSlider({ value: [20, 80] as [number, number], vertical: true }),
+        async ({ slider }) => {
+          const track = slider.querySelector('.slider-track') as HTMLElement
+          expect(track.style.bottom).toBe('20%')
+          expect(track.style.height).toBe('60%')
+        },
+      )
+    })
+  })
+
+  describe('marks with step=0', () => {
+    it('should not generate auto marks when step is 0', async () => {
+      await usingAsync(await renderSlider({ min: 0, max: 100, step: 0, marks: true }), async ({ slider }) => {
+        const dots = slider.querySelectorAll('.slider-mark-dot')
+        expect(dots.length).toBe(0)
+      })
+    })
+  })
+
+  describe('non-keyboard events are ignored', () => {
+    it('should not fire change when non-slider-thumb receives keyboard event', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSlider({ value: 50, onValueChange }), async ({ slider }) => {
+        const rail = slider.querySelector('.slider-rail') as HTMLElement
+        rail.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should ignore unrecognized keys', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSlider({ value: 50, onValueChange }), async ({ slider }) => {
+        const thumb = slider.querySelector('.slider-thumb') as HTMLElement
+        thumb.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('marks positioning in vertical mode', () => {
+    it('should use bottom for marks in vertical mode', async () => {
+      const marks = [{ value: 50, label: 'Half' }]
+      await usingAsync(await renderSlider({ marks, vertical: true }), async ({ slider }) => {
+        const dot = slider.querySelector('.slider-mark-dot') as HTMLElement
+        expect(dot.style.bottom).toBe('50%')
+      })
+    })
   })
 })

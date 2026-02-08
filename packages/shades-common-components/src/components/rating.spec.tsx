@@ -542,4 +542,325 @@ describe('Rating', () => {
       })
     })
   })
+
+  describe('additional keyboard navigation', () => {
+    it('should jump to max on End', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} max={5} onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).toHaveBeenCalledWith(5)
+      })
+    })
+
+    it('should jump to 0 on Home', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).toHaveBeenCalledWith(0)
+      })
+    })
+
+    it('should increase value with ArrowUp', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={2} onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).toHaveBeenCalledWith(3)
+      })
+    })
+
+    it('should decrease value with ArrowDown', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).toHaveBeenCalledWith(2)
+      })
+    })
+
+    it('should not fire onValueChange for unrecognized keys', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should not handle keyboard when disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} disabled onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should not handle keyboard when readOnly', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} readOnly onValueChange={onchange} />,
+        })
+
+        await sleepAsync(50)
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+
+        await sleepAsync(50)
+
+        expect(onchange).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('hover visuals', () => {
+    it('should restore star visuals on mouse leave', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={2} />,
+        })
+
+        await sleepAsync(50)
+
+        const container = document.querySelector('shade-rating .rating-container') as HTMLElement
+        container.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
+
+        await sleepAsync(50)
+
+        const filledSpans = document.querySelectorAll('shade-rating .star-filled')
+        expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[1] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[2] as HTMLElement).style.width).toBe('0%')
+      })
+    })
+
+    it('should update star visuals on hover', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={1} />,
+        })
+
+        await sleepAsync(50)
+
+        const stars = document.querySelectorAll('shade-rating .rating-star')
+        const star4 = stars[3] as HTMLElement
+
+        // Simulate mouse move on 4th star
+        const rect = star4.getBoundingClientRect()
+        star4.dispatchEvent(
+          new MouseEvent('mousemove', {
+            bubbles: true,
+            clientX: rect.left + rect.width / 2 + 1,
+          }),
+        )
+
+        await sleepAsync(50)
+
+        const filledSpans = document.querySelectorAll('shade-rating .star-filled')
+        // Stars 0-3 should be filled (hover value = 4)
+        expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[1] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[2] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[3] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[4] as HTMLElement).style.width).toBe('0%')
+      })
+    })
+
+    it('should not update star visuals on hover when disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={1} disabled />,
+        })
+
+        await sleepAsync(50)
+
+        const stars = document.querySelectorAll('shade-rating .rating-star')
+        ;(stars[3] as HTMLElement).dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 100 }))
+
+        await sleepAsync(50)
+
+        const filledSpans = document.querySelectorAll('shade-rating .star-filled')
+        // Only first star should be filled (no hover effect)
+        expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[1] as HTMLElement).style.width).toBe('0%')
+      })
+    })
+
+    it('should not update star visuals on mouse leave when disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={2} disabled />,
+        })
+
+        await sleepAsync(50)
+
+        const container = document.querySelector('shade-rating .rating-container') as HTMLElement
+        container.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
+
+        await sleepAsync(50)
+
+        const filledSpans = document.querySelectorAll('shade-rating .star-filled')
+        expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[1] as HTMLElement).style.width).toBe('100%')
+        expect((filledSpans[2] as HTMLElement).style.width).toBe('0%')
+      })
+    })
+  })
+
+  describe('small size', () => {
+    it('should set data-size to small', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating size="small" />,
+        })
+
+        await sleepAsync(50)
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.getAttribute('data-size')).toBe('small')
+      })
+    })
+  })
+
+  describe('aria-readonly', () => {
+    it('should set aria-readonly when readOnly', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating readOnly value={3} />,
+        })
+
+        await sleepAsync(50)
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.getAttribute('aria-readonly')).toBe('true')
+      })
+    })
+
+    it('should not have aria-readonly when interactive', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} />,
+        })
+
+        await sleepAsync(50)
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.hasAttribute('aria-readonly')).toBe(false)
+      })
+    })
+  })
 })
