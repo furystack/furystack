@@ -1,4 +1,5 @@
 import { Shade } from '@furystack/shades'
+import type { editor as editorTypes } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main.js'
 
@@ -14,35 +15,6 @@ export interface MonacoEditorProps {
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
   render: ({ element, props, useDisposable, injector }) => {
-    useDisposable('editor-init', () => {
-      const themeProvider = injector.getInstance(ThemeProviderService)
-
-      const editorInstance = editor.create(element as HTMLElement, {
-        theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-        ...props.options,
-      })
-      editorInstance.setValue(props.value || '')
-      if (props.onchange) {
-        editorInstance.onKeyUp(() => {
-          const value = editorInstance.getValue()
-          props.onchange?.(value)
-        })
-      }
-
-      const themeSub = themeProvider.subscribe('themeChanged', () => {
-        editorInstance.updateOptions({
-          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-        })
-      })
-
-      return {
-        [Symbol.dispose]: () => {
-          themeSub[Symbol.dispose]()
-          editorInstance.dispose()
-        },
-      }
-    })
-
     element.style.display = 'block'
     element.style.height = '100%'
     element.style.width = '100%'
@@ -50,6 +22,42 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
     if (props.style) {
       Object.assign(element.style, props.style)
     }
+
+    useDisposable('editor-init', () => {
+      let editorInstance: editorTypes.IStandaloneCodeEditor | undefined
+      let themeSub: Disposable | undefined
+
+      // Defer creation to after updateComponent finishes clearing innerHTML
+      queueMicrotask(() => {
+        const themeProvider = injector.getInstance(ThemeProviderService)
+
+        editorInstance = editor.create(element as HTMLElement, {
+          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+          ...props.options,
+        })
+        editorInstance.setValue(props.value || '')
+        if (props.onchange) {
+          editorInstance.onKeyUp(() => {
+            const value = editorInstance!.getValue()
+            props.onchange?.(value)
+          })
+        }
+
+        themeSub = themeProvider.subscribe('themeChanged', () => {
+          editorInstance!.updateOptions({
+            theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+          })
+        })
+      })
+
+      return {
+        [Symbol.dispose]: () => {
+          themeSub?.[Symbol.dispose]()
+          editorInstance?.dispose()
+        },
+      }
+    })
+
     return null
   },
 })
