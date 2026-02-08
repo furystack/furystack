@@ -962,8 +962,7 @@ describe('Slider', () => {
           document.dispatchEvent(new MouseEvent('mousemove', { clientX: 2, clientY: 80, bubbles: true }))
 
           // During drag, syncVisuals updates positions directly
-          const track = slider.querySelector('.slider-track') as HTMLElement
-          // The track and thumb should be updated
+          expect(slider.querySelector('.slider-track')).not.toBeNull()
           expect(slider.hasAttribute('data-dragging')).toBe(true)
 
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
