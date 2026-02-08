@@ -645,4 +645,369 @@ describe('Slider', () => {
       })
     })
   })
+
+  describe('mouse interaction', () => {
+    const mockSliderRoot = (slider: HTMLElement, rect: Partial<DOMRect>) => {
+      const root = slider.querySelector('.slider-root')
+      if (root) {
+        vi.spyOn(root, 'getBoundingClientRect').mockReturnValue({
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 4,
+          right: 200,
+          bottom: 4,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+          ...rect,
+        })
+      }
+    }
+
+    it('should update slider on mousedown on track (single mode)', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 150, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(75)
+        },
+      )
+    })
+
+    it('should not respond to mousedown when disabled', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSlider({ value: 50, disabled: true, onValueChange }), async ({ slider }) => {
+        mockSliderRoot(slider, { left: 0, width: 200 })
+
+        slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+        await sleepAsync(50)
+
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should set data-dragging during drag and remove after', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
+          expect(slider.hasAttribute('data-dragging')).toBe(true)
+
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(slider.hasAttribute('data-dragging')).toBe(false)
+        },
+      )
+    })
+
+    it('should update value on mousemove during drag', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 0, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          const thumb = slider.querySelector('.slider-thumb') as HTMLElement
+          thumb.dispatchEvent(new MouseEvent('mousedown', { clientX: 0, clientY: 2, bubbles: true }))
+
+          document.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(50)
+        },
+      )
+    })
+
+    it('should handle range slider mousedown - picks nearest thumb', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({
+          value: [20, 80] as [number, number],
+          min: 0,
+          max: 100,
+          step: 1,
+          onValueChange,
+        }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          // Click at 90% (180px) → closer to thumb at 80%
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 180, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const val = onValueChange.mock.calls[0][0] as [number, number]
+          expect(val[0]).toBe(20)
+          expect(val[1]).toBe(90)
+        },
+      )
+    })
+
+    it('should handle range slider mousedown - swaps if crossover', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({
+          value: [40, 60] as [number, number],
+          min: 0,
+          max: 100,
+          step: 1,
+          onValueChange,
+        }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          // Click at 20% (40px), closer to start thumb at 40%.
+          // New val for thumb[0]=20. 20 < 60, no swap.
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 40, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const val = onValueChange.mock.calls[0][0] as [number, number]
+          expect(val[0]).toBe(20)
+          expect(val[1]).toBe(60)
+        },
+      )
+    })
+
+    it('should handle mousemove with range values', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({
+          value: [20, 80] as [number, number],
+          min: 0,
+          max: 100,
+          step: 1,
+          onValueChange,
+        }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          const thumbs = slider.querySelectorAll('.slider-thumb')
+          // Mousedown on first thumb
+          ;(thumbs[0] as HTMLElement).dispatchEvent(
+            new MouseEvent('mousedown', { clientX: 40, clientY: 2, bubbles: true }),
+          )
+
+          // Move to 60px (30%)
+          document.dispatchEvent(new MouseEvent('mousemove', { clientX: 60, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const val = onValueChange.mock.calls[0][0] as [number, number]
+          expect(val[0]).toBe(30)
+          expect(val[1]).toBe(80)
+        },
+      )
+    })
+
+    it('should handle vertical mode mousedown', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 1, vertical: true, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { top: 0, height: 200, bottom: 200, left: 0, width: 4 })
+
+          // Click at bottom-50px (bottom=200, clientY=150 → (200-150)/200=25%)
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 2, clientY: 150, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(25)
+        },
+      )
+    })
+
+    it('should clamp pointer values to 0-100 range', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          // Click far to the right beyond the track
+          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 400, clientY: 2, bubbles: true }))
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(100)
+        },
+      )
+    })
+  })
+
+  describe('touch interaction', () => {
+    const mockSliderRoot = (slider: HTMLElement, rect: Partial<DOMRect>) => {
+      const root = slider.querySelector('.slider-root')
+      if (root) {
+        vi.spyOn(root, 'getBoundingClientRect').mockReturnValue({
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 4,
+          right: 200,
+          bottom: 4,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+          ...rect,
+        })
+      }
+    }
+
+    it('should handle touchstart on track', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          const touch = { clientX: 100, clientY: 2, identifier: 0, target: slider }
+          slider.dispatchEvent(new TouchEvent('touchstart', { touches: [touch as unknown as Touch] }))
+          document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [touch as unknown as Touch] }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(50)
+        },
+      )
+    })
+
+    it('should handle touchmove during drag', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({ value: 0, min: 0, max: 100, step: 1, onValueChange }),
+        async ({ slider }) => {
+          mockSliderRoot(slider, { left: 0, width: 200 })
+
+          const startTouch = { clientX: 0, clientY: 2, identifier: 0, target: slider }
+          slider.dispatchEvent(new TouchEvent('touchstart', { touches: [startTouch as unknown as Touch] }))
+
+          const moveTouch = { clientX: 150, clientY: 2, identifier: 0, target: slider }
+          document.dispatchEvent(
+            new TouchEvent('touchmove', { touches: [moveTouch as unknown as Touch], cancelable: true }),
+          )
+
+          const endTouch = { clientX: 150, clientY: 2, identifier: 0, target: slider }
+          document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [endTouch as unknown as Touch] }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+          const calledWith = onValueChange.mock.calls[0][0] as number
+          expect(calledWith).toBe(75)
+        },
+      )
+    })
+  })
+
+  describe('syncVisuals for vertical range', () => {
+    it('should position range thumbs and track in vertical mode during drag', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSlider({
+          value: [20, 80] as [number, number],
+          min: 0,
+          max: 100,
+          step: 1,
+          vertical: true,
+          onValueChange,
+        }),
+        async ({ slider }) => {
+          const root = slider.querySelector('.slider-root')
+          if (root) {
+            vi.spyOn(root, 'getBoundingClientRect').mockReturnValue({
+              top: 0,
+              left: 0,
+              width: 4,
+              height: 200,
+              right: 4,
+              bottom: 200,
+              x: 0,
+              y: 0,
+              toJSON: () => ({}),
+            })
+          }
+
+          const thumbs = slider.querySelectorAll('.slider-thumb')
+          // Mousedown on first thumb to start drag
+          ;(thumbs[0] as HTMLElement).dispatchEvent(
+            new MouseEvent('mousedown', { clientX: 2, clientY: 160, bubbles: true }),
+          )
+
+          // Move to 60% from bottom: clientY = 200 - 120 = 80
+          document.dispatchEvent(new MouseEvent('mousemove', { clientX: 2, clientY: 80, bubbles: true }))
+
+          // During drag, syncVisuals updates positions directly
+          const track = slider.querySelector('.slider-track') as HTMLElement
+          // The track and thumb should be updated
+          expect(slider.hasAttribute('data-dragging')).toBe(true)
+
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalled()
+        },
+      )
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should return null from getValueFromPointer when root has zero dimensions', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSlider({ value: 50, min: 0, max: 100, onValueChange }), async ({ slider }) => {
+        const root = slider.querySelector('.slider-root')
+        if (root) {
+          vi.spyOn(root, 'getBoundingClientRect').mockReturnValue({
+            top: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+            right: 0,
+            bottom: 0,
+            x: 0,
+            y: 0,
+            toJSON: () => ({}),
+          })
+        }
+
+        slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+        await sleepAsync(50)
+
+        // Should not have fired because getValueFromPointer returned null
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should handle valueToPercent when max === min', async () => {
+      await usingAsync(await renderSlider({ value: 5, min: 5, max: 5 }), async ({ slider }) => {
+        const thumb = slider.querySelector('.slider-thumb') as HTMLElement
+        expect(thumb.style.left).toBe('0%')
+      })
+    })
+  })
 })

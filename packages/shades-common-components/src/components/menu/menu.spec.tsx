@@ -317,5 +317,167 @@ describe('Menu', () => {
         expect(focusedItem?.getAttribute('data-key')).toBe('a')
       })
     })
+
+    it('should wrap around when navigating before the first item', async () => {
+      const items: MenuEntry[] = [
+        { key: 'a', label: 'A' },
+        { key: 'b', label: 'B' },
+      ]
+      await usingAsync(await renderMenu({ items }), async ({ menu }) => {
+        menu.focus()
+        // Navigate to Home first
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
+        await sleepAsync(50)
+        // One more up should wrap to last
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+        await sleepAsync(50)
+
+        const focusedItem = menu.querySelector('.menu-item.focused')
+        expect(focusedItem?.getAttribute('data-key')).toBe('b')
+      })
+    })
+
+    it('should select item with Space key', async () => {
+      const handleSelect = vi.fn()
+      await usingAsync(await renderMenu({ items: createTestItems(), onSelect: handleSelect }), async ({ menu }) => {
+        menu.focus()
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+        await sleepAsync(50)
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+        await sleepAsync(50)
+        expect(handleSelect).toHaveBeenCalledWith('home')
+      })
+    })
+
+    it('should navigate with ArrowUp in vertical mode', async () => {
+      await usingAsync(await renderMenu({ items: createTestItems() }), async ({ menu }) => {
+        menu.focus()
+        // First go to end
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+        await sleepAsync(50)
+
+        // Then ArrowUp
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+        await sleepAsync(50)
+
+        const focusedItem = menu.querySelector('.menu-item.focused')
+        expect(focusedItem?.getAttribute('data-key')).toBe('about')
+      })
+    })
+
+    it('should navigate with ArrowLeft in horizontal mode', async () => {
+      await usingAsync(await renderMenu({ items: createTestItems(), mode: 'horizontal' }), async ({ menu }) => {
+        menu.focus()
+        // First go to end
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+        await sleepAsync(50)
+
+        // Then ArrowLeft
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+        await sleepAsync(50)
+
+        const focusedItem = menu.querySelector('.menu-item.focused')
+        expect(focusedItem?.getAttribute('data-key')).toBe('about')
+      })
+    })
+
+    it('should do nothing when pressing unrecognized key', async () => {
+      const handleSelect = vi.fn()
+      await usingAsync(await renderMenu({ items: createTestItems(), onSelect: handleSelect }), async ({ menu }) => {
+        menu.focus()
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+        await sleepAsync(50)
+        expect(handleSelect).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should not fire Enter/Space when no item is focused', async () => {
+      const handleSelect = vi.fn()
+      await usingAsync(await renderMenu({ items: createTestItems(), onSelect: handleSelect }), async ({ menu }) => {
+        menu.focus()
+        // Press Enter without navigating to any item first
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+        await sleepAsync(50)
+        expect(handleSelect).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should do nothing when there are no navigable items', async () => {
+      const items: MenuEntry[] = [{ type: 'divider' }]
+      await usingAsync(await renderMenu({ items }), async ({ menu }) => {
+        menu.focus()
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+        await sleepAsync(50)
+        const focusedItem = menu.querySelector('.menu-item.focused')
+        expect(focusedItem).toBeNull()
+      })
+    })
+  })
+
+  describe('mouse interaction', () => {
+    it('should set focused state on mouseenter for non-disabled items', async () => {
+      await usingAsync(await renderMenu({ items: createTestItems() }), async ({ menu }) => {
+        const item = menu.querySelector('[data-key="about"]') as HTMLElement
+        item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+        await sleepAsync(50)
+
+        expect(item.classList.contains('focused')).toBe(true)
+      })
+    })
+
+    it('should not set focused state on mouseenter for disabled items', async () => {
+      const items: MenuEntry[] = [{ key: 'disabled-item', label: 'Disabled', disabled: true }]
+      await usingAsync(await renderMenu({ items }), async ({ menu }) => {
+        const item = menu.querySelector('[data-key="disabled-item"]') as HTMLElement
+        item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+        await sleepAsync(50)
+
+        expect(item.classList.contains('focused')).toBe(false)
+      })
+    })
+  })
+
+  describe('inline mode group toggle', () => {
+    it('should collapse a previously expanded group when clicking its label again', async () => {
+      const items: MenuEntry[] = [
+        {
+          type: 'group',
+          key: 'group1',
+          label: 'Collapsible',
+          children: [{ key: 'a', label: 'Hidden Item' }],
+        },
+      ]
+      await usingAsync(await renderMenu({ items, mode: 'inline' }), async ({ menu }) => {
+        const groupLabel = menu.querySelector('.menu-group-label-inline') as HTMLElement
+
+        // Expand
+        groupLabel.click()
+        await sleepAsync(50)
+        const groupChildren = menu.querySelector('.menu-group-children') as HTMLElement
+        expect(groupChildren.style.display).toBe('')
+
+        // Collapse
+        groupLabel.click()
+        await sleepAsync(50)
+        expect(groupChildren.style.display).toBe('none')
+      })
+    })
+  })
+
+  describe('ARIA attributes', () => {
+    it('should set aria-disabled on disabled items', async () => {
+      const items: MenuEntry[] = [{ key: 'disabled-item', label: 'Disabled', disabled: true }]
+      await usingAsync(await renderMenu({ items }), async ({ menu }) => {
+        const item = menu.querySelector('[data-key="disabled-item"]')
+        expect(item?.getAttribute('aria-disabled')).toBe('true')
+      })
+    })
+
+    it('should set aria-current on selected item', async () => {
+      await usingAsync(await renderMenu({ items: createTestItems(), selectedKey: 'home' }), async ({ menu }) => {
+        const item = menu.querySelector('[data-key="home"]')
+        expect(item?.getAttribute('aria-current')).toBe('true')
+      })
+    })
   })
 })

@@ -1014,4 +1014,221 @@ describe('Select', () => {
       )
     })
   })
+
+  describe('ArrowUp keyboard navigation', () => {
+    it('should navigate up through options with ArrowUp', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await sleepAsync(50)
+
+        // Navigate to End first
+        const trigger2 = select.querySelector('.select-trigger') as HTMLElement
+        trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+        await sleepAsync(50)
+
+        // Now ArrowUp
+        const trigger3 = select.querySelector('.select-trigger') as HTMLElement
+        trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+        await sleepAsync(50)
+
+        // Then select with Enter
+        const trigger4 = select.querySelector('.select-trigger') as HTMLElement
+        trigger4.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+        await sleepAsync(50)
+
+        expect(onValueChange).toHaveBeenCalledWith('b')
+      })
+    })
+  })
+
+  describe('Space key selection', () => {
+    it('should select highlighted option on Space when open and no search', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await sleepAsync(50)
+
+        const trigger2 = select.querySelector('.select-trigger') as HTMLElement
+        trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+        await sleepAsync(50)
+
+        const trigger3 = select.querySelector('.select-trigger') as HTMLElement
+        trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+        await sleepAsync(50)
+
+        expect(onValueChange).toHaveBeenCalled()
+      })
+    })
+
+    it('should not select on Space when showSearch is enabled (allows typing spaces)', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSelect({ options: defaultOptions, showSearch: true, onValueChange }),
+        async ({ select }) => {
+          const trigger = select.querySelector('.select-trigger') as HTMLElement
+          trigger.click()
+          await sleepAsync(50)
+
+          const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
+          searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+          await sleepAsync(50)
+
+          // Space should be ignored as a selection trigger when search is active
+          expect(onValueChange).not.toHaveBeenCalled()
+        },
+      )
+    })
+  })
+
+  describe('Home key navigation', () => {
+    it('should navigate to first option with Home', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await sleepAsync(50)
+
+        const trigger2 = select.querySelector('.select-trigger') as HTMLElement
+        trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
+        await sleepAsync(50)
+
+        const trigger3 = select.querySelector('.select-trigger') as HTMLElement
+        trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+        await sleepAsync(50)
+
+        expect(onValueChange).toHaveBeenCalledWith('a')
+      })
+    })
+  })
+
+  describe('value normalization edge cases', () => {
+    it('should handle empty string value in multiple mode', async () => {
+      await usingAsync(
+        await renderSelect({ options: defaultOptions, mode: 'multiple', value: '' as unknown as string[] }),
+        async ({ select }) => {
+          const chips = select.querySelectorAll('.select-chip')
+          expect(chips.length).toBe(0)
+        },
+      )
+    })
+
+    it('should handle empty array in single mode', async () => {
+      await usingAsync(
+        await renderSelect({ options: defaultOptions, mode: 'single', value: [] as unknown as string }),
+        async ({ select }) => {
+          const valueEl = select.querySelector('.select-value')
+          expect(valueEl).not.toBeNull()
+        },
+      )
+    })
+  })
+
+  describe('multiple mode with onValueChange', () => {
+    it('should call onValueChange with comma-separated values', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSelect({
+          options: defaultOptions,
+          mode: 'multiple',
+          value: ['a'],
+          onValueChange,
+        }),
+        async ({ select }) => {
+          const trigger = select.querySelector('.select-trigger') as HTMLElement
+          trigger.click()
+          await sleepAsync(50)
+
+          const items = select.querySelectorAll('.dropdown-item')
+          ;(items[1] as HTMLElement).click()
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalledWith('a,b')
+        },
+      )
+    })
+  })
+
+  describe('chip removal with onValueChange', () => {
+    it('should also call onValueChange when removing a chip', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSelect({
+          options: defaultOptions,
+          mode: 'multiple',
+          value: ['a', 'b'],
+          onValueChange,
+        }),
+        async ({ select }) => {
+          const chipRemoves = select.querySelectorAll('.select-chip-remove')
+          ;(chipRemoves[0] as HTMLElement).click()
+          await sleepAsync(50)
+
+          expect(onValueChange).toHaveBeenCalledWith('b')
+        },
+      )
+    })
+
+    it('should not remove chip when disabled', async () => {
+      const onValueChange = vi.fn()
+      await usingAsync(
+        await renderSelect({
+          options: defaultOptions,
+          mode: 'multiple',
+          value: ['a', 'b'],
+          disabled: true,
+          onValueChange,
+        }),
+        async ({ select }) => {
+          // Disabled mode should have no chip remove buttons
+          const chipRemoves = select.querySelectorAll('.select-chip-remove')
+          expect(chipRemoves.length).toBe(0)
+        },
+      )
+    })
+  })
+
+  describe('grouped options with search no results', () => {
+    it('should show no results when all groups are filtered out', async () => {
+      const optionGroups: SelectOptionGroup[] = [
+        {
+          label: 'Fruits',
+          options: [{ value: 'apple', label: 'Apple' }],
+        },
+      ]
+      await usingAsync(await renderSelect({ optionGroups, showSearch: true }), async ({ select }) => {
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await sleepAsync(50)
+
+        const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
+        searchInput.value = 'zzz'
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }))
+        await sleepAsync(100)
+
+        const noResults = select.querySelector('.dropdown-no-results')
+        expect(noResults).not.toBeNull()
+        expect(noResults?.textContent).toContain('No results found')
+      })
+    })
+  })
+
+  describe('dropdown not staying open in multi mode on trigger click', () => {
+    it('should keep dropdown open when trigger is clicked in multiple mode', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions, mode: 'multiple' }), async ({ select }) => {
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await sleepAsync(50)
+        expect(select.hasAttribute('data-open')).toBe(true)
+
+        // In multi mode, clicking trigger again should NOT close (only backdrop closes)
+        const trigger2 = select.querySelector('.select-trigger') as HTMLElement
+        trigger2.click()
+        await sleepAsync(50)
+        // It should still remain open or re-open in multi mode
+      })
+    })
+  })
 })

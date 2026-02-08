@@ -484,3 +484,128 @@ describe('SegmentedControl', () => {
     })
   })
 })
+
+describe('ToggleButtonGroup edge cases', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  const renderToggleGroup = async (props: Parameters<typeof ToggleButtonGroup>[0] = {}, children?: JSX.Element[]) => {
+    const injector = new Injector()
+    const root = document.getElementById('root')!
+    initializeShadeRoot({
+      injector,
+      rootElement: root,
+      jsxElement: <ToggleButtonGroup {...props}>{children}</ToggleButtonGroup>,
+    })
+    await sleepAsync(100)
+    return {
+      injector,
+      group: root.querySelector('shade-toggle-button-group') as HTMLElement,
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
+    }
+  }
+
+  it('should handle string value for multi-select (non-array)', async () => {
+    const handleChange = vi.fn()
+    await usingAsync(
+      await renderToggleGroup({ value: 'bold', onValueChange: handleChange }, [
+        <ToggleButton value="bold">B</ToggleButton>,
+        <ToggleButton value="italic">I</ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        const italicBtn = group.querySelector('button[data-value="italic"]') as HTMLButtonElement
+        italicBtn.click()
+        expect(handleChange).toHaveBeenCalledWith(['bold', 'italic'])
+      },
+    )
+  })
+
+  it('should handle empty value for multi-select', async () => {
+    const handleChange = vi.fn()
+    await usingAsync(
+      await renderToggleGroup({ value: undefined, onValueChange: handleChange }, [
+        <ToggleButton value="bold">B</ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        const boldBtn = group.querySelector('button[data-value="bold"]') as HTMLButtonElement
+        boldBtn.click()
+        expect(handleChange).toHaveBeenCalledWith(['bold'])
+      },
+    )
+  })
+
+  it('should handle exclusive mode with array value', async () => {
+    const handleChange = vi.fn()
+    await usingAsync(
+      await renderToggleGroup({ exclusive: true, value: ['center'], onValueChange: handleChange }, [
+        <ToggleButton value="left">Left</ToggleButton>,
+        <ToggleButton value="center">Center</ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        const leftBtn = group.querySelector('button[data-value="left"]') as HTMLButtonElement
+        leftBtn.click()
+        expect(handleChange).toHaveBeenCalledWith('left')
+      },
+    )
+  })
+
+  it('should not call onValueChange when clicking a disabled button', async () => {
+    const handleChange = vi.fn()
+    await usingAsync(
+      await renderToggleGroup({ exclusive: true, value: '', onValueChange: handleChange }, [
+        <ToggleButton value="a" disabled>
+          A
+        </ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        const btn = group.querySelector('button[data-value="a"]') as HTMLButtonElement
+        btn.click()
+        expect(handleChange).not.toHaveBeenCalled()
+      },
+    )
+  })
+
+  it('should disable all toggle buttons when group disabled is true', async () => {
+    await usingAsync(
+      await renderToggleGroup({ disabled: true }, [
+        <ToggleButton value="a">A</ToggleButton>,
+        <ToggleButton value="b">B</ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        await sleepAsync(50)
+        const buttons = group.querySelectorAll('button[data-value]')
+        buttons.forEach((btn) => {
+          expect(btn.hasAttribute('disabled')).toBe(true)
+        })
+      },
+    )
+  })
+
+  it('should apply vertical orientation border radius', async () => {
+    await usingAsync(
+      await renderToggleGroup({ orientation: 'vertical' }, [
+        <ToggleButton value="a">A</ToggleButton>,
+        <ToggleButton value="b">B</ToggleButton>,
+      ] as unknown as JSX.Element[]),
+      async ({ group }) => {
+        await sleepAsync(50)
+        const buttons = group.querySelectorAll('button[data-value]')
+        // First button should have top radius
+        expect((buttons[0] as HTMLElement).style.borderRadius).toContain('0 0')
+        // Last button should have bottom radius
+        expect((buttons[1] as HTMLElement).style.borderRadius).toContain('0 0')
+      },
+    )
+  })
+
+  it('should apply custom style', async () => {
+    await usingAsync(await renderToggleGroup({ style: { gap: '8px' } }), async ({ group }) => {
+      expect(group.style.gap).toBe('8px')
+    })
+  })
+})

@@ -552,4 +552,197 @@ describe('ImageGroup component', () => {
       lightbox?.remove()
     })
   })
+
+  it('should navigate with keyboard arrows in group lightbox', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <ImageGroup>
+            <Image src="https://example.com/1.jpg" alt="Image 1" preview />
+            <Image src="https://example.com/2.jpg" alt="Image 2" preview />
+          </ImageGroup>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const images = document.querySelectorAll('shade-image img')
+      ;(images[0] as HTMLImageElement).click()
+
+      await sleepAsync(50)
+
+      const lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).not.toBeNull()
+
+      const lightboxImg = lightbox?.querySelector('.lightbox-image') as HTMLImageElement
+      expect(lightboxImg.src).toBe('https://example.com/1.jpg')
+
+      // Navigate with ArrowRight
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+      await sleepAsync(50)
+
+      expect(lightboxImg.src).toBe('https://example.com/2.jpg')
+
+      // Navigate with ArrowLeft
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+      await sleepAsync(50)
+
+      expect(lightboxImg.src).toBe('https://example.com/1.jpg')
+
+      // Clean up
+      lightbox?.remove()
+    })
+  })
+
+  it('should zoom in and out in the lightbox', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" preview />,
+      })
+
+      await sleepAsync(50)
+
+      const img = document.querySelector('shade-image img') as HTMLImageElement
+      img.click()
+
+      await sleepAsync(50)
+
+      const lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).not.toBeNull()
+
+      const lightboxImg = lightbox?.querySelector('.lightbox-image') as HTMLImageElement
+
+      // Zoom in
+      const zoomInBtn = lightbox?.querySelector('.lightbox-zoom-in') as HTMLButtonElement
+      zoomInBtn.click()
+      await sleepAsync(50)
+
+      expect(lightboxImg.style.transform).toContain('scale(1.25)')
+
+      // Zoom out
+      const zoomOutBtn = lightbox?.querySelector('.lightbox-zoom-out') as HTMLButtonElement
+      zoomOutBtn.click()
+      await sleepAsync(50)
+
+      expect(lightboxImg.style.transform).toContain('scale(1)')
+
+      // Clean up
+      lightbox?.remove()
+    })
+  })
+
+  it('should rotate in the lightbox', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" preview />,
+      })
+
+      await sleepAsync(50)
+
+      const img = document.querySelector('shade-image img') as HTMLImageElement
+      img.click()
+
+      await sleepAsync(50)
+
+      const lightbox = document.querySelector('.lightbox-backdrop')
+      const lightboxImg = lightbox?.querySelector('.lightbox-image') as HTMLImageElement
+
+      const rotateBtn = lightbox?.querySelector('.lightbox-rotate') as HTMLButtonElement
+      rotateBtn.click()
+      await sleepAsync(50)
+
+      expect(lightboxImg.style.transform).toContain('rotate(90deg)')
+
+      // Clean up
+      lightbox?.remove()
+    })
+  })
+
+  it('should close lightbox when clicking the close button', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" preview />,
+      })
+
+      await sleepAsync(50)
+
+      const img = document.querySelector('shade-image img') as HTMLImageElement
+      img.click()
+
+      await sleepAsync(50)
+
+      let lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).not.toBeNull()
+
+      const closeBtn = lightbox?.querySelector('.lightbox-close') as HTMLButtonElement
+      closeBtn.click()
+
+      await sleepAsync(200)
+
+      lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).toBeNull()
+    })
+  })
+
+  it('should close lightbox when clicking the backdrop', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" preview />,
+      })
+
+      await sleepAsync(50)
+
+      const img = document.querySelector('shade-image img') as HTMLImageElement
+      img.click()
+
+      await sleepAsync(50)
+
+      const lightbox = document.querySelector('.lightbox-backdrop') as HTMLElement
+      expect(lightbox).not.toBeNull()
+
+      // Click on the backdrop itself (not child elements)
+      lightbox.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+      await sleepAsync(200)
+
+      expect(document.querySelector('.lightbox-backdrop')).toBeNull()
+    })
+  })
+
+  it('should apply style overrides', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" style={{ margin: '10px' }} />,
+      })
+
+      await sleepAsync(50)
+
+      const imageComponent = document.querySelector('shade-image') as HTMLElement
+      expect(imageComponent.style.margin).toBe('10px')
+    })
+  })
 })

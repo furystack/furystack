@@ -790,4 +790,105 @@ describe('Carousel', () => {
       expect(carousel.hasAttribute('data-vertical')).toBe(false)
     })
   })
+
+  describe('vertical slide mode DOM updates', () => {
+    it('should update track transform with translateY when navigating vertically', async () => {
+      const handleChange = vi.fn()
+
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Carousel slides={createSlides()} vertical style={{ height: '300px' }} onChange={handleChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
+        nextButton.click()
+
+        await sleepAsync(100)
+
+        const track = document.querySelector('.carousel-track') as HTMLElement
+        expect(track.style.transform).toContain('translateY')
+      })
+    })
+  })
+
+  describe('vertical swipe support', () => {
+    const createTouchEvent = (type: string, x: number, y: number) => {
+      const touchObj = { clientX: x, clientY: y, identifier: 0, target: document.body }
+      if (type === 'touchstart') {
+        return new TouchEvent(type, { touches: [touchObj as unknown as Touch] })
+      }
+      return new TouchEvent(type, { changedTouches: [touchObj as unknown as Touch] })
+    }
+
+    it('should go to previous slide on vertical swipe down', async () => {
+      const handleChange = vi.fn()
+
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Carousel slides={createSlides()} vertical defaultActiveIndex={2} onChange={handleChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const carousel = document.querySelector('shade-carousel') as HTMLElement
+        carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
+        carousel.dispatchEvent(createTouchEvent('touchend', 100, 200))
+
+        expect(handleChange).toHaveBeenCalledWith(1)
+      })
+    })
+
+    it('should not navigate on small vertical swipe', async () => {
+      const handleChange = vi.fn()
+
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Carousel slides={createSlides()} vertical onChange={handleChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const carousel = document.querySelector('shade-carousel') as HTMLElement
+        carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
+        carousel.dispatchEvent(createTouchEvent('touchend', 100, 130))
+
+        expect(handleChange).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('fade effect with defaultActiveIndex', () => {
+    it('should set correct initial active slide for fade effect with non-zero index', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Carousel slides={createSlides()} effect="fade" defaultActiveIndex={1} />,
+        })
+
+        await sleepAsync(100)
+
+        const fadeSlides = document.querySelectorAll('.carousel-fade-slide')
+        expect(fadeSlides[0].hasAttribute('data-active')).toBe(false)
+        expect(fadeSlides[1].hasAttribute('data-active')).toBe(true)
+        expect(fadeSlides[2].hasAttribute('data-active')).toBe(false)
+      })
+    })
+  })
 })
