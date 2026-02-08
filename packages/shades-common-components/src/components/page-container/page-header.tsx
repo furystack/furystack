@@ -60,7 +60,7 @@ export const PageHeader = Shade<PageHeaderProps>({
     display: 'block',
     position: 'sticky',
     top: '0',
-    zIndex: cssVariableTheme.zIndex.appBar,
+    zIndex: `calc(${cssVariableTheme.zIndex.appBar} - 1)`,
 
     '& .page-header-container': {
       display: 'flex',
