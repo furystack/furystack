@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it, vi } from 'vitest'
 import type { PaginationProps } from './pagination.js'
 import { Pagination } from './pagination.js'
@@ -40,7 +40,7 @@ describe('Pagination', () => {
     expect(props.color).toBe('primary')
   })
 
-  it('should render page buttons for small page counts', () => {
+  it('should render page buttons for small page counts', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -49,12 +49,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     // Should have prev + 5 page buttons + next = 7 buttons
     const items = pagination.querySelectorAll('.pagination-item')
     expect(items.length).toBe(7) // prev + 5 pages + next
   })
 
-  it('should render ellipsis for large page counts', () => {
+  it('should render ellipsis for large page counts', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -63,11 +64,12 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(2)
   })
 
-  it('should mark current page as selected', () => {
+  it('should mark current page as selected', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -76,12 +78,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const selected = pagination.querySelector('[data-selected]') as HTMLElement
     expect(selected).not.toBeNull()
     expect(selected.textContent).toBe('3')
   })
 
-  it('should set data-disabled on prev button when on first page', () => {
+  it('should set data-disabled on prev button when on first page', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -90,11 +93,12 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const prevButton = pagination.querySelector('.pagination-item') as HTMLElement
     expect(prevButton.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should set data-disabled on next button when on last page', () => {
+  it('should set data-disabled on next button when on last page', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -103,12 +107,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const items = pagination.querySelectorAll('.pagination-item')
     const nextButton = items[items.length - 1] as HTMLElement
     expect(nextButton.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should call onPageChange with the correct page when a page button is clicked', () => {
+  it('should call onPageChange with the correct page when a page button is clicked', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -117,13 +122,14 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     // Click page 3 (index: prev=0, page1=1, page2=2, page3=3)
     const items = pagination.querySelectorAll('.pagination-item')
     ;(items[3] as HTMLElement).click()
     expect(onPageChange).toHaveBeenCalledWith(3)
   })
 
-  it('should call onPageChange with page-1 when prev button is clicked', () => {
+  it('should call onPageChange with page-1 when prev button is clicked', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -132,12 +138,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const prevButton = pagination.querySelector('.pagination-item') as HTMLElement
     prevButton.click()
     expect(onPageChange).toHaveBeenCalledWith(2)
   })
 
-  it('should call onPageChange with page+1 when next button is clicked', () => {
+  it('should call onPageChange with page+1 when next button is clicked', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -146,13 +153,14 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const items = pagination.querySelectorAll('.pagination-item')
     const nextButton = items[items.length - 1] as HTMLElement
     nextButton.click()
     expect(onPageChange).toHaveBeenCalledWith(4)
   })
 
-  it('should not call onPageChange when clicking the currently selected page', () => {
+  it('should not call onPageChange when clicking the currently selected page', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -161,12 +169,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const selected = pagination.querySelector('[data-selected]') as HTMLElement
     selected.click()
     expect(onPageChange).not.toHaveBeenCalled()
   })
 
-  it('should set data-size attribute when size is provided', () => {
+  it('should set data-size attribute when size is provided', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -175,10 +184,11 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     expect(pagination.getAttribute('data-size')).toBe('small')
   })
 
-  it('should set data-disabled on host when disabled', () => {
+  it('should set data-disabled on host when disabled', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -187,10 +197,11 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     expect(pagination.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should set CSS custom properties for palette color', () => {
+  it('should set CSS custom properties for palette color', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -199,12 +210,13 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     expect(pagination.style.getPropertyValue('--pagination-color-main')).toBe(
       'var(--shades-theme-palette-primary-main)',
     )
   })
 
-  it('should set default CSS custom properties when no color prop', () => {
+  it('should set default CSS custom properties when no color prop', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -213,10 +225,11 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     expect(pagination.style.getPropertyValue('--pagination-color-main')).toBe('var(--shades-theme-text-primary)')
   })
 
-  it('should render only left ellipsis when near the end', () => {
+  it('should render only left ellipsis when near the end', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -225,11 +238,12 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(1)
   })
 
-  it('should render only right ellipsis when near the start', () => {
+  it('should render only right ellipsis when near the start', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -238,11 +252,12 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(1)
   })
 
-  it('should render all pages without ellipsis for count equal to total display slots', () => {
+  it('should render all pages without ellipsis for count equal to total display slots', async () => {
     const onPageChange = vi.fn()
     const el = (
       <div>
@@ -251,6 +266,7 @@ describe('Pagination', () => {
     )
     const pagination = el.firstElementChild as JSX.Element
     pagination.updateComponent()
+    await flushUpdates()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(0)
     const items = pagination.querySelectorAll('.pagination-item')

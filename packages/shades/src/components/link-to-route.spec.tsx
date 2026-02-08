@@ -3,6 +3,7 @@ import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 import { LinkToRoute } from './link-to-route.js'
 import type { Route } from './router.js'
 
@@ -35,6 +36,7 @@ describe('LinkToRoute', () => {
           </LinkToRoute>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><a is="link-to-route" id="route" href="/subroute/123">Link</a></div>',
       )

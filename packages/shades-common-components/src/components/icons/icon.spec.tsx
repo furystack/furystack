@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import type { IconProps } from './icon.js'
 import { Icon } from './icon.js'
@@ -46,7 +46,7 @@ describe('Icon', () => {
     expect(el.props.ariaLabel).toBe('Close')
   })
 
-  it('should render with default medium size', () => {
+  it('should render with default medium size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -54,10 +54,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('data-size')).toBe('medium')
   })
 
-  it('should render with small size', () => {
+  it('should render with small size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} size="small" />
@@ -65,10 +66,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('data-size')).toBe('small')
   })
 
-  it('should render with large size', () => {
+  it('should render with large size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} size="large" />
@@ -76,10 +78,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('data-size')).toBe('large')
   })
 
-  it('should handle custom numeric size', () => {
+  it('should handle custom numeric size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} size={20} />
@@ -87,12 +90,13 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.hasAttribute('data-size')).toBe(false)
     expect(icon.style.width).toBe('20px')
     expect(icon.style.height).toBe('20px')
   })
 
-  it('should set role="img" attribute', () => {
+  it('should set role="img" attribute', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -100,10 +104,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('role')).toBe('img')
   })
 
-  it('should set aria-label when ariaLabel is provided', () => {
+  it('should set aria-label when ariaLabel is provided', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} ariaLabel="Close button" />
@@ -111,11 +116,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('aria-label')).toBe('Close button')
     expect(icon.hasAttribute('aria-hidden')).toBe(false)
   })
 
-  it('should set aria-hidden when no ariaLabel is provided', () => {
+  it('should set aria-hidden when no ariaLabel is provided', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -123,11 +129,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.getAttribute('aria-hidden')).toBe('true')
     expect(icon.hasAttribute('aria-label')).toBe(false)
   })
 
-  it('should set palette color CSS custom property', () => {
+  it('should set palette color CSS custom property', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} color="error" />
@@ -135,10 +142,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.style.getPropertyValue('--icon-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
-  it('should not set --icon-color when no color prop', () => {
+  it('should not set --icon-color when no color prop', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -146,10 +154,11 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     expect(icon.style.getPropertyValue('--icon-color')).toBe('')
   })
 
-  it('should render an SVG element inside the component', () => {
+  it('should render an SVG element inside the component', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -157,11 +166,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')
     expect(svg).not.toBeNull()
   })
 
-  it('should render correct number of path elements for stroke icon', () => {
+  it('should render correct number of path elements for stroke icon', async () => {
     const el = (
       <div>
         <Icon icon={multiPathIcon} />
@@ -169,11 +179,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const paths = icon.querySelectorAll('path')
     expect(paths.length).toBe(3)
   })
 
-  it('should render correct number of path elements for fill icon', () => {
+  it('should render correct number of path elements for fill icon', async () => {
     const el = (
       <div>
         <Icon icon={sampleFillIcon} />
@@ -181,11 +192,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const paths = icon.querySelectorAll('path')
     expect(paths.length).toBe(2)
   })
 
-  it('should set stroke attributes for stroke-style icons', () => {
+  it('should set stroke attributes for stroke-style icons', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -193,6 +205,7 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('fill')).toBe('none')
     expect(svg.getAttribute('stroke')).toBe('currentColor')
@@ -201,7 +214,7 @@ describe('Icon', () => {
     expect(svg.getAttribute('stroke-linejoin')).toBe('round')
   })
 
-  it('should set fill attributes for fill-style icons', () => {
+  it('should set fill attributes for fill-style icons', async () => {
     const el = (
       <div>
         <Icon icon={sampleFillIcon} />
@@ -209,12 +222,13 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('fill')).toBe('currentColor')
     expect(svg.getAttribute('stroke')).toBe('none')
   })
 
-  it('should set fill-rule on paths that specify it', () => {
+  it('should set fill-rule on paths that specify it', async () => {
     const el = (
       <div>
         <Icon icon={sampleFillIcon} />
@@ -222,11 +236,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const paths = icon.querySelectorAll('path')
     expect(paths[1].getAttribute('fill-rule')).toBe('evenodd')
   })
 
-  it('should use default viewBox of 0 0 24 24', () => {
+  it('should use default viewBox of 0 0 24 24', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} />
@@ -234,11 +249,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('viewBox')).toBe('0 0 24 24')
   })
 
-  it('should use custom viewBox when specified', () => {
+  it('should use custom viewBox when specified', async () => {
     const el = (
       <div>
         <Icon icon={customViewBoxIcon} />
@@ -246,11 +262,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('viewBox')).toBe('0 0 48 48')
   })
 
-  it('should use custom strokeWidth when specified', () => {
+  it('should use custom strokeWidth when specified', async () => {
     const customStrokeIcon: IconDefinition = {
       paths: [{ d: 'M6 6l12 12' }],
       strokeWidth: 3,
@@ -262,11 +279,12 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('stroke-width')).toBe('3')
   })
 
-  it('should set SVG width and height matching size', () => {
+  it('should set SVG width and height matching size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} size="large" />
@@ -274,12 +292,13 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('32')
     expect(svg.getAttribute('height')).toBe('32')
   })
 
-  it('should set SVG width and height for custom numeric size', () => {
+  it('should set SVG width and height for custom numeric size', async () => {
     const el = (
       <div>
         <Icon icon={sampleStrokeIcon} size={48} />
@@ -287,6 +306,7 @@ describe('Icon', () => {
     )
     const icon = el.firstElementChild as JSX.Element
     icon.updateComponent()
+    await flushUpdates()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('48')
     expect(svg.getAttribute('height')).toBe('48')

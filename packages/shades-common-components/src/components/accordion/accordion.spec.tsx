@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it, vi } from 'vitest'
 import { AccordionItem } from './accordion-item.js'
 import { Accordion } from './accordion.js'
@@ -15,7 +15,7 @@ describe('Accordion', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-accordion')
   })
 
-  it('should render children', () => {
+  it('should render children', async () => {
     const el = (
       <div>
         <Accordion>
@@ -25,10 +25,11 @@ describe('Accordion', () => {
     )
     const accordion = el.firstElementChild as JSX.Element
     accordion.updateComponent()
+    await flushUpdates()
     expect(accordion.querySelector('span')).not.toBeNull()
   })
 
-  it('should set data-variant attribute when variant is provided', () => {
+  it('should set data-variant attribute when variant is provided', async () => {
     const el = (
       <div>
         <Accordion variant="elevation" />
@@ -36,10 +37,11 @@ describe('Accordion', () => {
     )
     const accordion = el.firstElementChild as JSX.Element
     accordion.updateComponent()
+    await flushUpdates()
     expect(accordion.getAttribute('data-variant')).toBe('elevation')
   })
 
-  it('should not set data-variant attribute for outlined (default)', () => {
+  it('should not set data-variant attribute for outlined (default)', async () => {
     const el = (
       <div>
         <Accordion />
@@ -47,6 +49,7 @@ describe('Accordion', () => {
     )
     const accordion = el.firstElementChild as JSX.Element
     accordion.updateComponent()
+    await flushUpdates()
     expect(accordion.hasAttribute('data-variant')).toBe(false)
   })
 })
@@ -63,7 +66,7 @@ describe('AccordionItem', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-accordion-item')
   })
 
-  it('should render the title text in the header', () => {
+  it('should render the title text in the header', async () => {
     const el = (
       <div>
         <AccordionItem title="My Section">
@@ -73,12 +76,13 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const title = item.querySelector('.accordion-title') as HTMLElement
     expect(title).not.toBeNull()
     expect(title.textContent).toBe('My Section')
   })
 
-  it('should render children in the content area', () => {
+  it('should render children in the content area', async () => {
     const el = (
       <div>
         <AccordionItem title="Section">
@@ -88,12 +92,13 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const inner = item.querySelector('.accordion-content-inner') as HTMLElement
     expect(inner).not.toBeNull()
     expect(inner.querySelector('p')).not.toBeNull()
   })
 
-  it('should not set data-expanded when defaultExpanded is not set', () => {
+  it('should not set data-expanded when defaultExpanded is not set', async () => {
     const el = (
       <div>
         <AccordionItem title="Collapsed" />
@@ -101,10 +106,11 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
-  it('should set data-expanded when defaultExpanded is true', () => {
+  it('should set data-expanded when defaultExpanded is true', async () => {
     const el = (
       <div>
         <AccordionItem title="Expanded" defaultExpanded />
@@ -112,10 +118,11 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
-  it('should set data-disabled when disabled is true', () => {
+  it('should set data-disabled when disabled is true', async () => {
     const el = (
       <div>
         <AccordionItem title="Disabled" disabled />
@@ -123,10 +130,11 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should not set data-disabled when disabled is false', () => {
+  it('should not set data-disabled when disabled is false', async () => {
     const el = (
       <div>
         <AccordionItem title="Enabled" />
@@ -134,10 +142,11 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.hasAttribute('data-disabled')).toBe(false)
   })
 
-  it('should render the icon when provided', () => {
+  it('should render the icon when provided', async () => {
     const el = (
       <div>
         <AccordionItem title="With Icon" icon="🔧" />
@@ -145,12 +154,13 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const icon = item.querySelector('.accordion-icon') as HTMLElement
     expect(icon).not.toBeNull()
     expect(icon.textContent).toBe('🔧')
   })
 
-  it('should not render the icon when not provided', () => {
+  it('should not render the icon when not provided', async () => {
     const el = (
       <div>
         <AccordionItem title="No Icon" />
@@ -158,10 +168,11 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.querySelector('.accordion-icon')).toBeNull()
   })
 
-  it('should render the chevron', () => {
+  it('should render the chevron', async () => {
     const el = (
       <div>
         <AccordionItem title="Has Chevron" />
@@ -169,12 +180,13 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const chevron = item.querySelector('.accordion-chevron') as HTMLElement
     expect(chevron).not.toBeNull()
     expect(chevron.querySelector('shade-icon')).not.toBeNull()
   })
 
-  it('should set aria-expanded to false when collapsed', () => {
+  it('should set aria-expanded to false when collapsed', async () => {
     const el = (
       <div>
         <AccordionItem title="Collapsed" />
@@ -182,11 +194,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('should set aria-expanded to true when expanded', () => {
+  it('should set aria-expanded to true when expanded', async () => {
     const el = (
       <div>
         <AccordionItem title="Expanded" defaultExpanded />
@@ -194,11 +207,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('aria-expanded')).toBe('true')
   })
 
-  it('should set content height to 0px when collapsed', () => {
+  it('should set content height to 0px when collapsed', async () => {
     const el = (
       <div>
         <AccordionItem title="Collapsed" />
@@ -206,12 +220,13 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const content = item.querySelector('.accordion-content') as HTMLElement
     expect(content.style.height).toBe('0px')
     expect(content.style.opacity).toBe('0')
   })
 
-  it('should not set content height to 0px when expanded', () => {
+  it('should not set content height to 0px when expanded', async () => {
     const el = (
       <div>
         <AccordionItem title="Expanded" defaultExpanded />
@@ -219,11 +234,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const content = item.querySelector('.accordion-content') as HTMLElement
     expect(content.style.height).not.toBe('0px')
   })
 
-  it('should have a role="button" on the header', () => {
+  it('should have a role="button" on the header', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" />
@@ -231,11 +247,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('role')).toBe('button')
   })
 
-  it('should set tabIndex on the header when not disabled', () => {
+  it('should set tabIndex on the header when not disabled', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" />
@@ -243,11 +260,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.tabIndex).toBe(0)
   })
 
-  it('should set tabIndex to -1 on the header when disabled', () => {
+  it('should set tabIndex to -1 on the header when disabled', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" disabled />
@@ -255,11 +273,12 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.tabIndex).toBe(-1)
   })
 
-  it('should toggle data-expanded on header click', () => {
+  it('should toggle data-expanded on header click', async () => {
     const mockAnimation = { finished: Promise.resolve() }
     Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
 
@@ -272,6 +291,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -282,7 +302,7 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
-  it('should toggle data-expanded back on second click', () => {
+  it('should toggle data-expanded back on second click', async () => {
     const mockAnimation = { finished: Promise.resolve() }
     Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
 
@@ -295,6 +315,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(true)
 
@@ -305,7 +326,7 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
-  it('should toggle on Enter keydown', () => {
+  it('should toggle on Enter keydown', async () => {
     const mockAnimation = { finished: Promise.resolve() }
     Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
 
@@ -318,6 +339,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -327,7 +349,7 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
-  it('should toggle on Space keydown', () => {
+  it('should toggle on Space keydown', async () => {
     const mockAnimation = { finished: Promise.resolve() }
     Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
 
@@ -340,6 +362,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -349,7 +372,7 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
-  it('should not toggle on unrelated keydown', () => {
+  it('should not toggle on unrelated keydown', async () => {
     const el = (
       <div>
         <AccordionItem title="No Toggle">
@@ -359,6 +382,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -368,7 +392,7 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
-  it('should not toggle when disabled', () => {
+  it('should not toggle when disabled', async () => {
     const el = (
       <div>
         <AccordionItem title="Disabled" disabled>
@@ -378,6 +402,7 @@ describe('AccordionItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 

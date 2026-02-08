@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import { Card, CardActions, CardContent, CardHeader, CardMedia } from './card.js'
 
@@ -14,7 +14,7 @@ describe('Card', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-card')
   })
 
-  it('should render children', () => {
+  it('should render children', async () => {
     const el = (
       <div>
         <Card>
@@ -24,10 +24,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.querySelector('span')).not.toBeNull()
   })
 
-  it('should set data-variant to elevation by default', () => {
+  it('should set data-variant to elevation by default', async () => {
     const el = (
       <div>
         <Card />
@@ -35,10 +36,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.getAttribute('data-variant')).toBe('elevation')
   })
 
-  it('should set data-variant to outlined when specified', () => {
+  it('should set data-variant to outlined when specified', async () => {
     const el = (
       <div>
         <Card variant="outlined" />
@@ -46,10 +48,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.getAttribute('data-variant')).toBe('outlined')
   })
 
-  it('should set data-elevation to 1 by default', () => {
+  it('should set data-elevation to 1 by default', async () => {
     const el = (
       <div>
         <Card />
@@ -57,10 +60,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.getAttribute('data-elevation')).toBe('1')
   })
 
-  it('should set data-elevation to the provided value', () => {
+  it('should set data-elevation to the provided value', async () => {
     const el = (
       <div>
         <Card elevation={3} />
@@ -68,10 +72,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.getAttribute('data-elevation')).toBe('3')
   })
 
-  it('should set data-clickable when clickable is true', () => {
+  it('should set data-clickable when clickable is true', async () => {
     const el = (
       <div>
         <Card clickable />
@@ -79,10 +84,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.hasAttribute('data-clickable')).toBe(true)
   })
 
-  it('should set data-clickable when onclick handler is provided', () => {
+  it('should set data-clickable when onclick handler is provided', async () => {
     const el = (
       <div>
         <Card onclick={() => {}} />
@@ -90,10 +96,11 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.hasAttribute('data-clickable')).toBe(true)
   })
 
-  it('should not set data-clickable by default', () => {
+  it('should not set data-clickable by default', async () => {
     const el = (
       <div>
         <Card />
@@ -101,6 +108,7 @@ describe('Card', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.hasAttribute('data-clickable')).toBe(false)
   })
 })
@@ -117,7 +125,7 @@ describe('CardHeader', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-card-header')
   })
 
-  it('should render a title', () => {
+  it('should render a title', async () => {
     const el = (
       <div>
         <CardHeader title="My Title" />
@@ -125,12 +133,13 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     const titleEl = header.querySelector('.card-header-title')
     expect(titleEl).not.toBeNull()
     expect(titleEl?.textContent).toBe('My Title')
   })
 
-  it('should render a subheader when provided', () => {
+  it('should render a subheader when provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" subheader="Subheader text" />
@@ -138,12 +147,13 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     const subheaderEl = header.querySelector('.card-header-subheader')
     expect(subheaderEl).not.toBeNull()
     expect(subheaderEl?.textContent).toBe('Subheader text')
   })
 
-  it('should not render a subheader when not provided', () => {
+  it('should not render a subheader when not provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" />
@@ -151,11 +161,12 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     const subheaderEl = header.querySelector('.card-header-subheader')
     expect(subheaderEl).toBeNull()
   })
 
-  it('should render an avatar when provided', () => {
+  it('should render an avatar when provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" avatar={<span className="test-avatar">A</span>} />
@@ -163,12 +174,13 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     const avatarContainer = header.querySelector('.card-header-avatar')
     expect(avatarContainer).not.toBeNull()
     expect(avatarContainer?.querySelector('.test-avatar')).not.toBeNull()
   })
 
-  it('should not render avatar container when not provided', () => {
+  it('should not render avatar container when not provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" />
@@ -176,10 +188,11 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     expect(header.querySelector('.card-header-avatar')).toBeNull()
   })
 
-  it('should render an action when provided', () => {
+  it('should render an action when provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" action={<button className="test-action">X</button>} />
@@ -187,12 +200,13 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     const actionContainer = header.querySelector('.card-header-action')
     expect(actionContainer).not.toBeNull()
     expect(actionContainer?.querySelector('.test-action')).not.toBeNull()
   })
 
-  it('should not render action container when not provided', () => {
+  it('should not render action container when not provided', async () => {
     const el = (
       <div>
         <CardHeader title="Title" />
@@ -200,6 +214,7 @@ describe('CardHeader', () => {
     )
     const header = el.firstElementChild as JSX.Element
     header.updateComponent()
+    await flushUpdates()
     expect(header.querySelector('.card-header-action')).toBeNull()
   })
 })
@@ -216,7 +231,7 @@ describe('CardContent', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-card-content')
   })
 
-  it('should render children', () => {
+  it('should render children', async () => {
     const el = (
       <div>
         <CardContent>
@@ -226,6 +241,7 @@ describe('CardContent', () => {
     )
     const content = el.firstElementChild as JSX.Element
     content.updateComponent()
+    await flushUpdates()
     expect(content.querySelector('p')).not.toBeNull()
   })
 })
@@ -242,7 +258,7 @@ describe('CardMedia', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-card-media')
   })
 
-  it('should render an img element with the provided src', () => {
+  it('should render an img element with the provided src', async () => {
     const el = (
       <div>
         <CardMedia image="https://example.com/photo.jpg" alt="Test photo" />
@@ -250,13 +266,14 @@ describe('CardMedia', () => {
     )
     const media = el.firstElementChild as JSX.Element
     media.updateComponent()
+    await flushUpdates()
     const img = media.querySelector('img') as HTMLImageElement
     expect(img).not.toBeNull()
     expect(img.getAttribute('src')).toBe('https://example.com/photo.jpg')
     expect(img.getAttribute('alt')).toBe('Test photo')
   })
 
-  it('should set height on the element', () => {
+  it('should set height on the element', async () => {
     const el = (
       <div>
         <CardMedia image="https://example.com/photo.jpg" height="300px" />
@@ -264,10 +281,11 @@ describe('CardMedia', () => {
     )
     const media = el.firstElementChild as JSX.Element
     media.updateComponent()
+    await flushUpdates()
     expect(media.style.height).toBe('300px')
   })
 
-  it('should default height to 200px', () => {
+  it('should default height to 200px', async () => {
     const el = (
       <div>
         <CardMedia image="https://example.com/photo.jpg" />
@@ -275,10 +293,11 @@ describe('CardMedia', () => {
     )
     const media = el.firstElementChild as JSX.Element
     media.updateComponent()
+    await flushUpdates()
     expect(media.style.height).toBe('200px')
   })
 
-  it('should default alt to empty string', () => {
+  it('should default alt to empty string', async () => {
     const el = (
       <div>
         <CardMedia image="https://example.com/photo.jpg" />
@@ -286,6 +305,7 @@ describe('CardMedia', () => {
     )
     const media = el.firstElementChild as JSX.Element
     media.updateComponent()
+    await flushUpdates()
     const img = media.querySelector('img') as HTMLImageElement
     expect(img.getAttribute('alt')).toBe('')
   })
@@ -303,7 +323,7 @@ describe('CardActions', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-card-actions')
   })
 
-  it('should render children', () => {
+  it('should render children', async () => {
     const el = (
       <div>
         <CardActions>
@@ -313,10 +333,11 @@ describe('CardActions', () => {
     )
     const actions = el.firstElementChild as JSX.Element
     actions.updateComponent()
+    await flushUpdates()
     expect(actions.querySelector('button')).not.toBeNull()
   })
 
-  it('should set data-disable-spacing when disableSpacing is true', () => {
+  it('should set data-disable-spacing when disableSpacing is true', async () => {
     const el = (
       <div>
         <CardActions disableSpacing />
@@ -324,10 +345,11 @@ describe('CardActions', () => {
     )
     const actions = el.firstElementChild as JSX.Element
     actions.updateComponent()
+    await flushUpdates()
     expect(actions.hasAttribute('data-disable-spacing')).toBe(true)
   })
 
-  it('should not set data-disable-spacing by default', () => {
+  it('should not set data-disable-spacing by default', async () => {
     const el = (
       <div>
         <CardActions />
@@ -335,12 +357,13 @@ describe('CardActions', () => {
     )
     const actions = el.firstElementChild as JSX.Element
     actions.updateComponent()
+    await flushUpdates()
     expect(actions.hasAttribute('data-disable-spacing')).toBe(false)
   })
 })
 
 describe('Card composition', () => {
-  it('should compose Card with all sub-components', () => {
+  it('should compose Card with all sub-components', async () => {
     const el = (
       <div>
         <Card>
@@ -357,6 +380,7 @@ describe('Card composition', () => {
     )
     const card = el.firstElementChild as JSX.Element
     card.updateComponent()
+    await flushUpdates()
     expect(card.querySelector('shade-card-media')).not.toBeNull()
     expect(card.querySelector('shade-card-header')).not.toBeNull()
     expect(card.querySelector('shade-card-content')).not.toBeNull()

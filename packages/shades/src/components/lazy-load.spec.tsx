@@ -5,6 +5,7 @@ import { LazyLoad } from './lazy-load.js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 
 describe('Lazy Load', () => {
   beforeEach(() => {
@@ -31,6 +32,7 @@ describe('Lazy Load', () => {
           />
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>Loading...</div></lazy-load></div>')
       await sleepAsync(150)
       expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>Loaded</div></lazy-load></div>')
@@ -60,6 +62,7 @@ describe('Lazy Load', () => {
           />
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>Loading...</div></lazy-load></div>')
       await sleepAsync(1)
       expect(load).toBeCalledTimes(1)
@@ -97,6 +100,7 @@ describe('Lazy Load', () => {
           />
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>Loading...</div></lazy-load></div>')
       await sleepAsync(1)
       expect(load).toBeCalledTimes(1)

@@ -208,10 +208,23 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           return renderOptions
         }
 
+        private _updateScheduled = false
+
         /**
-         * Updates the component in the DOM.
+         * Schedules a component update via microtask. Multiple calls before the microtask
+         * runs are coalesced into a single render pass.
          */
         public updateComponent() {
+          if (!this._updateScheduled) {
+            this._updateScheduled = true
+            queueMicrotask(() => {
+              this._updateScheduled = false
+              this._performUpdate()
+            })
+          }
+        }
+
+        private _performUpdate() {
           const renderResult = this.render(this.getRenderOptions())
 
           if (renderResult === null || renderResult === undefined) {
@@ -290,3 +303,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
     return el as JSX.Element
   }
 }
+
+/**
+ * Flushes any pending microtask-based component updates.
+ * Useful in tests to wait for batched renders to complete before asserting DOM state.
+ * @returns a promise that resolves after the current microtask queue has been processed
+ */
+export const flushUpdates = (): Promise<void> => new Promise<void>((resolve) => queueMicrotask(resolve))

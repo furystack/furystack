@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import { Divider } from './divider.js'
 
@@ -14,7 +14,7 @@ describe('Divider', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-divider')
   })
 
-  it('should set role="separator" by default', () => {
+  it('should set role="separator" by default', async () => {
     const el = (
       <div>
         <Divider />
@@ -22,10 +22,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('role')).toBe('separator')
   })
 
-  it('should render as horizontal by default (no data-orientation)', () => {
+  it('should render as horizontal by default (no data-orientation)', async () => {
     const el = (
       <div>
         <Divider />
@@ -33,10 +34,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-orientation')).toBe(false)
   })
 
-  it('should set data-orientation="vertical" when orientation is vertical', () => {
+  it('should set data-orientation="vertical" when orientation is vertical', async () => {
     const el = (
       <div>
         <Divider orientation="vertical" />
@@ -44,11 +46,12 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('data-orientation')).toBe('vertical')
     expect(divider.getAttribute('aria-orientation')).toBe('vertical')
   })
 
-  it('should set data-variant for inset variant', () => {
+  it('should set data-variant for inset variant', async () => {
     const el = (
       <div>
         <Divider variant="inset" />
@@ -56,10 +59,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('data-variant')).toBe('inset')
   })
 
-  it('should set data-variant for middle variant', () => {
+  it('should set data-variant for middle variant', async () => {
     const el = (
       <div>
         <Divider variant="middle" />
@@ -67,10 +71,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('data-variant')).toBe('middle')
   })
 
-  it('should not set data-variant for full variant', () => {
+  it('should not set data-variant for full variant', async () => {
     const el = (
       <div>
         <Divider variant="full" />
@@ -78,10 +83,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-variant')).toBe(false)
   })
 
-  it('should not set data-variant when no variant is specified', () => {
+  it('should not set data-variant when no variant is specified', async () => {
     const el = (
       <div>
         <Divider />
@@ -89,10 +95,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-variant')).toBe(false)
   })
 
-  it('should set data-has-children when children are provided', () => {
+  it('should set data-has-children when children are provided', async () => {
     const el = (
       <div>
         <Divider>Section</Divider>
@@ -100,10 +107,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-has-children')).toBe(true)
   })
 
-  it('should not set data-has-children when no children', () => {
+  it('should not set data-has-children when no children', async () => {
     const el = (
       <div>
         <Divider />
@@ -111,10 +119,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-has-children')).toBe(false)
   })
 
-  it('should render children inside a divider-text span', () => {
+  it('should render children inside a divider-text span', async () => {
     const el = (
       <div>
         <Divider>OR</Divider>
@@ -122,11 +131,12 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     const textSpan = divider.querySelector('.divider-text')
     expect(textSpan).not.toBeNull()
   })
 
-  it('should set data-text-align for left alignment', () => {
+  it('should set data-text-align for left alignment', async () => {
     const el = (
       <div>
         <Divider textAlign="left">Section</Divider>
@@ -134,10 +144,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('data-text-align')).toBe('left')
   })
 
-  it('should set data-text-align for right alignment', () => {
+  it('should set data-text-align for right alignment', async () => {
     const el = (
       <div>
         <Divider textAlign="right">Section</Divider>
@@ -145,10 +156,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.getAttribute('data-text-align')).toBe('right')
   })
 
-  it('should not set data-text-align for center alignment (default)', () => {
+  it('should not set data-text-align for center alignment (default)', async () => {
     const el = (
       <div>
         <Divider textAlign="center">Section</Divider>
@@ -156,10 +168,11 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-text-align')).toBe(false)
   })
 
-  it('should not set data-text-align when no textAlign is provided', () => {
+  it('should not set data-text-align when no textAlign is provided', async () => {
     const el = (
       <div>
         <Divider>Section</Divider>
@@ -167,6 +180,7 @@ describe('Divider', () => {
     )
     const divider = el.firstElementChild as JSX.Element
     divider.updateComponent()
+    await flushUpdates()
     expect(divider.hasAttribute('data-text-align')).toBe(false)
   })
 

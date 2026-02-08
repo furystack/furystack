@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it, vi } from 'vitest'
 import type { ChipProps } from './chip.js'
 import { Chip } from './chip.js'
@@ -28,7 +28,7 @@ describe('Chip', () => {
     expect(el.props.disabled).toBe(true)
   })
 
-  it('should render with a label span', () => {
+  it('should render with a label span', async () => {
     const el = (
       <div>
         <Chip>Default</Chip>
@@ -36,10 +36,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.querySelector('.chip-label')).toBeDefined()
   })
 
-  it('should render with a delete button when onDelete is provided', () => {
+  it('should render with a delete button when onDelete is provided', async () => {
     const onDelete = vi.fn()
     const el = (
       <div>
@@ -48,12 +49,13 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     expect(deleteBtn).toBeDefined()
     expect(deleteBtn).not.toBeNull()
   })
 
-  it('should not render a delete button when onDelete is not provided', () => {
+  it('should not render a delete button when onDelete is not provided', async () => {
     const el = (
       <div>
         <Chip>No Delete</Chip>
@@ -61,11 +63,12 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     const deleteBtn = chip.querySelector('.chip-delete')
     expect(deleteBtn).toBeNull()
   })
 
-  it('should set data-variant attribute when variant is provided', () => {
+  it('should set data-variant attribute when variant is provided', async () => {
     const el = (
       <div>
         <Chip variant="outlined">Outlined</Chip>
@@ -73,10 +76,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.getAttribute('data-variant')).toBe('outlined')
   })
 
-  it('should set data-size attribute when size is small', () => {
+  it('should set data-size attribute when size is small', async () => {
     const el = (
       <div>
         <Chip size="small">Small</Chip>
@@ -84,10 +88,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.getAttribute('data-size')).toBe('small')
   })
 
-  it('should set data-disabled attribute when disabled', () => {
+  it('should set data-disabled attribute when disabled', async () => {
     const el = (
       <div>
         <Chip disabled>Disabled</Chip>
@@ -95,10 +100,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should not set data-disabled attribute when not disabled', () => {
+  it('should not set data-disabled attribute when not disabled', async () => {
     const el = (
       <div>
         <Chip>Enabled</Chip>
@@ -106,10 +112,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.hasAttribute('data-disabled')).toBe(false)
   })
 
-  it('should set data-clickable when clickable prop is true', () => {
+  it('should set data-clickable when clickable prop is true', async () => {
     const el = (
       <div>
         <Chip clickable>Clickable</Chip>
@@ -117,10 +124,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.hasAttribute('data-clickable')).toBe(true)
   })
 
-  it('should set data-clickable when onclick handler is provided', () => {
+  it('should set data-clickable when onclick handler is provided', async () => {
     const el = (
       <div>
         <Chip onclick={() => {}}>Click Handler</Chip>
@@ -128,10 +136,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.hasAttribute('data-clickable')).toBe(true)
   })
 
-  it('should set CSS custom properties for palette color', () => {
+  it('should set CSS custom properties for palette color', async () => {
     const el = (
       <div>
         <Chip color="primary">Primary</Chip>
@@ -139,10 +148,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.style.getPropertyValue('--chip-color-main')).toBe('var(--shades-theme-palette-primary-main)')
   })
 
-  it('should set CSS custom properties for default color when no color prop', () => {
+  it('should set CSS custom properties for default color when no color prop', async () => {
     const el = (
       <div>
         <Chip>Default</Chip>
@@ -150,10 +160,11 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     expect(chip.style.getPropertyValue('--chip-color-main')).toBe('var(--shades-theme-text-secondary)')
   })
 
-  it('should call onDelete when delete button is clicked', () => {
+  it('should call onDelete when delete button is clicked', async () => {
     const onDelete = vi.fn()
     const el = (
       <div>
@@ -162,12 +173,13 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     deleteBtn.click()
     expect(onDelete).toHaveBeenCalledOnce()
   })
 
-  it('should stop propagation when delete button is clicked', () => {
+  it('should stop propagation when delete button is clicked', async () => {
     const onDelete = vi.fn()
     const onChipClick = vi.fn()
     const el = (
@@ -179,6 +191,7 @@ describe('Chip', () => {
     )
     const chip = el.firstElementChild as JSX.Element
     chip.updateComponent()
+    await flushUpdates()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     deleteBtn.click()
     expect(onDelete).toHaveBeenCalledOnce()

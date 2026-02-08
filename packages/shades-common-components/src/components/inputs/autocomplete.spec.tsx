@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Autocomplete } from './autocomplete.js'
@@ -24,6 +24,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={suggestions} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -53,6 +54,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={['option1', 'option2']} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -77,6 +79,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={suggestions} onchange={onchange} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -105,6 +108,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={suggestions} onchange={onchange} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -132,6 +136,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={suggestions} strict={true} onchange={onchange} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -165,6 +170,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={suggestions} strict={true} onchange={onchange} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -199,6 +205,7 @@ describe('Autocomplete component', () => {
         ),
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -220,6 +227,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={[]} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
@@ -243,6 +251,7 @@ describe('Autocomplete component', () => {
         jsxElement: <Autocomplete suggestions={['test']} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')

@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import type { TimelineItemProps, TimelineProps } from './timeline.js'
 import { Timeline, TimelineItem } from './timeline.js'
@@ -26,7 +26,7 @@ describe('TimelineItem', () => {
     expect(el.props.label).toBe('2024-01-01')
   })
 
-  it('should render dot and content', () => {
+  it('should render dot and content', async () => {
     const el = (
       <div>
         <TimelineItem>
@@ -36,12 +36,13 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.querySelector('.timeline-dot')).not.toBeNull()
     expect(item.querySelector('.timeline-content')).not.toBeNull()
     expect(item.querySelector('.timeline-tail')).not.toBeNull()
   })
 
-  it('should render a label when provided', () => {
+  it('should render a label when provided', async () => {
     const el = (
       <div>
         <TimelineItem label="Jan 2024">Event</TimelineItem>
@@ -49,12 +50,13 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const label = item.querySelector('.timeline-label') as HTMLElement
     expect(label).not.toBeNull()
     expect(label.textContent).toBe('Jan 2024')
   })
 
-  it('should not render a label when not provided', () => {
+  it('should not render a label when not provided', async () => {
     const el = (
       <div>
         <TimelineItem>Event</TimelineItem>
@@ -62,10 +64,11 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.querySelector('.timeline-label')).toBeNull()
   })
 
-  it('should set custom dot when dot prop is provided', () => {
+  it('should set custom dot when dot prop is provided', async () => {
     const el = (
       <div>
         <TimelineItem dot={<span>🎉</span>}>Party!</TimelineItem>
@@ -73,11 +76,12 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const dot = item.querySelector('.timeline-dot') as HTMLElement
     expect(dot.hasAttribute('data-custom')).toBe(true)
   })
 
-  it('should not set data-custom when dot prop is not provided', () => {
+  it('should not set data-custom when dot prop is not provided', async () => {
     const el = (
       <div>
         <TimelineItem>Event</TimelineItem>
@@ -85,11 +89,12 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const dot = item.querySelector('.timeline-dot') as HTMLElement
     expect(dot.hasAttribute('data-custom')).toBe(false)
   })
 
-  it('should set CSS custom property for dot color', () => {
+  it('should set CSS custom property for dot color', async () => {
     const el = (
       <div>
         <TimelineItem color="success">Done</TimelineItem>
@@ -97,10 +102,11 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.style.getPropertyValue('--timeline-dot-color')).toBe('var(--shades-theme-palette-success-main)')
   })
 
-  it('should default to primary color', () => {
+  it('should default to primary color', async () => {
     const el = (
       <div>
         <TimelineItem>Event</TimelineItem>
@@ -108,10 +114,11 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     expect(item.style.getPropertyValue('--timeline-dot-color')).toBe('var(--shades-theme-palette-primary-main)')
   })
 
-  it('should render dashed tail when data-pending attribute is set', () => {
+  it('should render dashed tail when data-pending attribute is set', async () => {
     const el = (
       <div>
         <TimelineItem data-pending="">Event</TimelineItem>
@@ -119,6 +126,7 @@ describe('TimelineItem', () => {
     )
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
+    await flushUpdates()
     const tail = item.querySelector('.timeline-tail') as HTMLElement
     expect(tail.hasAttribute('data-pending')).toBe(true)
   })
@@ -142,7 +150,7 @@ describe('Timeline', () => {
     expect(el.props.pending).toBe(true)
   })
 
-  it('should render timeline items as children', () => {
+  it('should render timeline items as children', async () => {
     const el = (
       <div>
         <Timeline>
@@ -153,11 +161,12 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
   })
 
-  it('should set data-mode attribute', () => {
+  it('should set data-mode attribute', async () => {
     const el = (
       <div>
         <Timeline mode="alternate">
@@ -167,10 +176,11 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     expect(timeline.getAttribute('data-mode')).toBe('alternate')
   })
 
-  it('should default mode to left', () => {
+  it('should default mode to left', async () => {
     const el = (
       <div>
         <Timeline>
@@ -180,10 +190,11 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     expect(timeline.getAttribute('data-mode')).toBe('left')
   })
 
-  it('should mark last item with data-last', () => {
+  it('should mark last item with data-last', async () => {
     const el = (
       <div>
         <Timeline>
@@ -194,12 +205,13 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].hasAttribute('data-last')).toBe(false)
     expect(items[1].hasAttribute('data-last')).toBe(true)
   })
 
-  it('should add pending item when pending is true', () => {
+  it('should add pending item when pending is true', async () => {
     const el = (
       <div>
         <Timeline pending>
@@ -209,11 +221,12 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
   })
 
-  it('should not mark original last item as data-last when pending is present', () => {
+  it('should not mark original last item as data-last when pending is present', async () => {
     const el = (
       <div>
         <Timeline pending>
@@ -224,12 +237,13 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].hasAttribute('data-last')).toBe(false)
     expect(items[1].hasAttribute('data-last')).toBe(false)
   })
 
-  it('should set data-side="right" on items in right mode', () => {
+  it('should set data-side="right" on items in right mode', async () => {
     const el = (
       <div>
         <Timeline mode="right">
@@ -239,11 +253,12 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const item = timeline.querySelector('shade-timeline-item') as HTMLElement
     expect(item.getAttribute('data-side')).toBe('right')
   })
 
-  it('should alternate data-side in alternate mode', () => {
+  it('should alternate data-side in alternate mode', async () => {
     const el = (
       <div>
         <Timeline mode="alternate">
@@ -255,13 +270,14 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items[0].getAttribute('data-side')).toBe('left')
     expect(items[1].getAttribute('data-side')).toBe('right')
     expect(items[2].getAttribute('data-side')).toBe('left')
   })
 
-  it('should not set data-side in left mode', () => {
+  it('should not set data-side in left mode', async () => {
     const el = (
       <div>
         <Timeline mode="left">
@@ -271,6 +287,7 @@ describe('Timeline', () => {
     )
     const timeline = el.firstElementChild as JSX.Element
     timeline.updateComponent()
+    await flushUpdates()
     const item = timeline.querySelector('shade-timeline-item') as HTMLElement
     expect(item.hasAttribute('data-side')).toBe(false)
   })

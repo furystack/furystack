@@ -3,7 +3,7 @@ import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
-import { Shade } from './shade.js'
+import { flushUpdates, Shade } from './shade.js'
 
 describe('Shade Resources integration tests', () => {
   beforeEach(() => {
@@ -46,6 +46,7 @@ describe('Shade Resources integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-example-resource><div><div id="val1">0</div><div id="val2">a</div></div></shades-example-resource></div>',
       )
@@ -56,12 +57,14 @@ describe('Shade Resources integration tests', () => {
       expect(renderCounter).toBeCalledTimes(1)
 
       obs1.setValue(1)
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">a</div></div></shades-example-resource></div>',
       )
       expect(renderCounter).toBeCalledTimes(2)
 
       obs2.setValue('b')
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">b</div></div></shades-example-resource></div>',
       )
@@ -104,6 +107,7 @@ describe('Shade Resources integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
 
       const element = document.querySelector('shades-example-custom-onchange') as JSX.Element
 
@@ -167,6 +171,7 @@ describe('Shade Resources integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
 
       const element = document.querySelector('shades-example-manual-dom-update') as JSX.Element
 
@@ -191,6 +196,107 @@ describe('Shade Resources integration tests', () => {
       expect(element.getRenderCount()).toBe(1)
       expect(renderCounter).toBeCalledTimes(1)
       expect(document.getElementById('manual-val')?.textContent).toBe('100')
+    })
+  })
+
+  it('Should batch multiple synchronous observable changes into a single render', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      const renderCounter = vi.fn()
+
+      const obs1 = new ObservableValue(0)
+      const obs2 = new ObservableValue('a')
+      const obs3 = new ObservableValue(false)
+
+      const ExampleComponent = Shade({
+        render: ({ useObservable }) => {
+          const [value1] = useObservable('obs1', obs1)
+          const [value2] = useObservable('obs2', obs2)
+          const [value3] = useObservable('obs3', obs3)
+
+          renderCounter()
+          return (
+            <div>
+              <span id="v1">{value1}</span>
+              <span id="v2">{value2}</span>
+              <span id="v3">{String(value3)}</span>
+            </div>
+          )
+        },
+        shadowDomName: 'shades-example-batching',
+      })
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+      await flushUpdates()
+
+      const element = document.querySelector('shades-example-batching') as JSX.Element
+
+      expect(element.getRenderCount()).toBe(1)
+      expect(renderCounter).toBeCalledTimes(1)
+
+      // Change all three observables synchronously without awaiting in between
+      obs1.setValue(42)
+      obs2.setValue('z')
+      obs3.setValue(true)
+
+      // Before flushing, the DOM should still reflect the old values
+      expect(element.getRenderCount()).toBe(1)
+
+      await flushUpdates()
+
+      // After flushing, all changes should be reflected in a single render
+      expect(element.getRenderCount()).toBe(2)
+      expect(renderCounter).toBeCalledTimes(2)
+      expect(document.getElementById('v1')?.textContent).toBe('42')
+      expect(document.getElementById('v2')?.textContent).toBe('z')
+      expect(document.getElementById('v3')?.textContent).toBe('true')
+    })
+  })
+
+  it('Should batch multiple updateComponent() calls into a single render', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      const renderCounter = vi.fn()
+
+      const ExampleComponent = Shade({
+        render: () => {
+          renderCounter()
+          return <div>content</div>
+        },
+        shadowDomName: 'shades-example-update-batching',
+      })
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ExampleComponent />,
+      })
+      await flushUpdates()
+
+      const element = document.querySelector('shades-example-update-batching') as JSX.Element
+
+      expect(element.getRenderCount()).toBe(1)
+      expect(renderCounter).toBeCalledTimes(1)
+
+      // Call updateComponent multiple times synchronously
+      element.updateComponent()
+      element.updateComponent()
+      element.updateComponent()
+
+      // Before flushing, render count should still be 1
+      expect(element.getRenderCount()).toBe(1)
+
+      await flushUpdates()
+
+      // After flushing, only a single additional render should have occurred
+      expect(element.getRenderCount()).toBe(2)
+      expect(renderCounter).toBeCalledTimes(2)
     })
   })
 })

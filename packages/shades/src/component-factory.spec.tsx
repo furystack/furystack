@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { describe, expect, it, vi } from 'vitest'
 import './jsx'
 import { createComponent } from './shade-component.js'
-import { Shade } from './shade.js'
+import { flushUpdates, Shade } from './shade.js'
 
 describe('Shades Component Factory', () => {
   describe('HTML Elements', () => {
@@ -75,7 +75,7 @@ describe('Shades Component Factory', () => {
       expect(shade.shadeChildren).toEqual([])
     })
 
-    it('Should render a component with props', () => {
+    it('Should render a component with props', async () => {
       const Example = Shade<{ foo: string; injector: Injector }>({
         shadowDomName: 'example-with-props',
         render: ({ props }) => <div>{props.foo}</div>,
@@ -90,6 +90,7 @@ describe('Shades Component Factory', () => {
       const shade = component.firstElementChild as JSX.Element<{ foo: string }>
 
       shade.updateComponent()
+      await flushUpdates()
 
       expect(shade.props.foo).toEqual('example')
       expect(shade.shadeChildren).toEqual([])
@@ -97,7 +98,7 @@ describe('Shades Component Factory', () => {
       expect(shade.innerHTML).toBe('<div>example</div>')
     })
 
-    it('Should render a component with state', () => {
+    it('Should render a component with state', async () => {
       const Example = Shade({
         shadowDomName: 'example-with-state',
         render: ({ useState }) => {
@@ -114,6 +115,7 @@ describe('Shades Component Factory', () => {
 
       const shade = component.firstElementChild as JSX.Element
       shade.updateComponent()
+      await flushUpdates()
       expect(shade.resourceManager.stateObservers.get('foo')?.getValue()).toEqual('example')
       expect(shade.shadeChildren).toEqual([])
     })

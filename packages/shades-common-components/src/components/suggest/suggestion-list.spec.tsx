@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { using, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SuggestManager } from './suggest-manager.js'
 import { SuggestionList } from './suggestion-list.js'
@@ -58,38 +58,42 @@ describe('SuggestionList', () => {
   it('should render with shadow DOM', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
+      const manager = createManager()
 
-      using(createManager(), (manager) => {
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <SuggestionList manager={manager} />,
-        })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       const suggestionList = document.querySelector('shade-suggest-suggestion-list')
       expect(suggestionList).not.toBeNull()
+
+      manager[Symbol.dispose]()
     })
   })
 
   it('should render the suggestions container', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
+      const manager = createManager()
 
-      using(createManager(), (manager) => {
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <SuggestionList manager={manager} />,
-        })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       const container = document.querySelector('.suggestion-items-container')
       expect(container).not.toBeNull()
+
+      manager[Symbol.dispose]()
     })
   })
 
@@ -104,6 +108,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       void manager.getSuggestion({ injector, term: 'test' })
@@ -132,6 +137,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       void manager.getSuggestion({ injector, term: 'test' })
@@ -158,6 +164,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       void manager.getSuggestion({ injector, term: 'test' })
@@ -195,6 +202,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       void manager.getSuggestion({ injector, term: 'test' })
@@ -224,6 +232,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       manager.currentSuggestions.setValue([
@@ -257,6 +266,7 @@ describe('SuggestionList', () => {
         jsxElement: <SuggestionList manager={manager} />,
       })
 
+      await flushUpdates()
       await vi.advanceTimersByTimeAsync(50)
 
       const suggestionItems = document.querySelectorAll('.suggestion-item')

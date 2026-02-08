@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 import { RouteLink } from './route-link.js'
 
 describe('RouteLink', () => {
@@ -31,6 +32,7 @@ describe('RouteLink', () => {
           </RouteLink>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toMatchInlineSnapshot(
         `"<div id="root"><a is="route-link" id="route" href="/subroute">Link</a></div>"`,
       )
