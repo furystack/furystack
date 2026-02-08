@@ -305,6 +305,69 @@ describe('AccordionItem', () => {
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
+  it('should toggle on Enter keydown', () => {
+    const mockAnimation = { finished: Promise.resolve() }
+    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+    const el = (
+      <div>
+        <AccordionItem title="Keyboard Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+    expect(item.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  it('should toggle on Space keydown', () => {
+    const mockAnimation = { finished: Promise.resolve() }
+    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+    const el = (
+      <div>
+        <AccordionItem title="Space Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    expect(item.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  it('should not toggle on unrelated keydown', () => {
+    const el = (
+      <div>
+        <AccordionItem title="No Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+  })
+
   it('should not toggle when disabled', () => {
     const el = (
       <div>

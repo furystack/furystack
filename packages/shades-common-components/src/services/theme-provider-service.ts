@@ -222,9 +222,6 @@ export type ThemeTypography = {
   letterSpacing?: LetterSpacingScale
 }
 
-/** @deprecated Use `ThemeTypography` instead */
-export type Typography = ThemeTypography
-
 /**
  * Transition duration presets.
  */

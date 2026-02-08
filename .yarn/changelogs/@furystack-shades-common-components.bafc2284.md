@@ -40,7 +40,8 @@
 
 ## ♻️ Refactoring
 
-- Renamed `Typography` type to `ThemeTypography` in `ThemeProviderService` to avoid naming conflict with the new `Typography` component. A deprecated `Typography` alias is re-exported for backward compatibility.
+- Renamed `Typography` type to `ThemeTypography` in `ThemeProviderService` to avoid naming conflict with the new `Typography` component
+- Made `zIndex`, `effects`, and `typography.letterSpacing` optional on the `Theme` interface for backward compatibility with existing custom themes
 
 ## 🧪 Tests
 
