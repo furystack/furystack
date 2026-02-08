@@ -89,16 +89,16 @@ export const LinearProgress = Shade<LinearProgressProps>({
       transition: 'none',
     },
   },
-  constructed: ({ props, element }) => {
-    const variant = props.variant || 'indeterminate'
-    if (variant === 'determinate' && props.value) {
-      const subscription = props.value.subscribe((next) => updateDeterminate(element, next))
-      return () => subscription[Symbol.dispose]()
-    }
-  },
-  render: ({ props, injector, element }) => {
+  render: ({ props, injector, useDisposable, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const variant = props.variant || 'indeterminate'
+
+    if (variant === 'determinate' && props.value) {
+      useDisposable('determinate-subscription', () =>
+        props.value!.subscribe((next) => updateDeterminate(element, next)),
+      )
+    }
+
     const value = clampValue(props.value?.getValue() ?? 0)
 
     if (props.size === 'small') {

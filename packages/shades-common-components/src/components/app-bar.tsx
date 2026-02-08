@@ -20,12 +20,13 @@ export const AppBar = Shade({
       opacity: '1',
     },
   },
-  constructed: ({ element }) => {
-    requestAnimationFrame(() => {
-      element.classList.add('visible')
+  render: ({ children, element, useDisposable }) => {
+    useDisposable('fade-in', () => {
+      requestAnimationFrame(() => {
+        element.classList.add('visible')
+      })
+      return { [Symbol.dispose]: () => {} }
     })
-  },
-  render: ({ children }) => {
     return <>{children}</>
   },
 })

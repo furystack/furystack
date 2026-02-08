@@ -21,13 +21,6 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   render: (options: RenderOptions<TProps, TElementBase>) => JSX.Element | string | null
 
   /**
-   * Construct hook. Will be executed once when the element has been constructed and initialized
-   */
-  constructed?: (
-    options: RenderOptions<TProps, TElementBase>,
-  ) => void | undefined | (() => void) | Promise<void | undefined | (() => void)>
-
-  /**
    * Will be executed when the element is attached to the DOM.
    */
   onAttach?: (options: RenderOptions<TProps, TElementBase>) => void
@@ -112,7 +105,6 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         public async disconnectedCallback() {
           o.onDetach?.(this.getRenderOptions())
           await this.resourceManager[Symbol.asyncDispose]()
-          this.cleanup?.()
         }
 
         /**
@@ -265,24 +257,12 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         /**
-         * Finalize the component initialization after it gets the Props. Called by the framework internally
+         * Performs the initial render when the element is connected to the DOM.
+         * Called by the framework internally.
          */
         public callConstructed() {
           this.updateComponent()
-          const cleanupResult = o.constructed && o.constructed(this.getRenderOptions())
-          if (cleanupResult instanceof Promise) {
-            cleanupResult
-              .then((cleanup) => (this.cleanup = cleanup))
-              .catch(() => {
-                /** */
-              })
-          } else {
-            // construct is not async
-            this.cleanup = cleanupResult
-          }
         }
-
-        private cleanup: void | (() => void) = undefined
 
         private _injector?: Injector
 

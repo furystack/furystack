@@ -157,56 +157,57 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
       userSelect: 'none',
     },
   },
-  constructed: ({ element }) => {
-    const listener = (ev: KeyboardEvent) => {
-      if (!element.hasAttribute('data-open')) return
-
-      const panel = element.querySelector('.dropdown-panel')
-      if (!panel) return
-
-      const allItems = Array.from(panel.querySelectorAll<HTMLElement>('.dropdown-item:not(.disabled)'))
-
-      switch (ev.key) {
-        case 'Escape': {
-          ev.preventDefault()
-          element.querySelector('.dropdown-backdrop')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-          break
-        }
-        case 'ArrowDown': {
-          if (allItems.length === 0) break
-          ev.preventDefault()
-          const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
-          const currentIndex = focusedItem ? allItems.indexOf(focusedItem) : -1
-          const nextIndex = currentIndex < allItems.length - 1 ? currentIndex + 1 : 0
-          allItems.forEach((el) => el.classList.remove('focused'))
-          allItems[nextIndex]?.classList.add('focused')
-          break
-        }
-        case 'ArrowUp': {
-          if (allItems.length === 0) break
-          ev.preventDefault()
-          const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
-          const currentIndex = focusedItem ? allItems.indexOf(focusedItem) : allItems.length
-          const prevIndex = currentIndex > 0 ? currentIndex - 1 : allItems.length - 1
-          allItems.forEach((el) => el.classList.remove('focused'))
-          allItems[prevIndex]?.classList.add('focused')
-          break
-        }
-        case 'Enter': {
-          ev.preventDefault()
-          const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
-          focusedItem?.click()
-          break
-        }
-        default:
-          break
-      }
-    }
-
-    window.addEventListener('keydown', listener, true)
-    return () => window.removeEventListener('keydown', listener, true)
-  },
   render: ({ props, children, element, useDisposable }) => {
+    useDisposable('keydown-handler', () => {
+      const listener = (ev: KeyboardEvent) => {
+        if (!element.hasAttribute('data-open')) return
+
+        const panel = element.querySelector('.dropdown-panel')
+        if (!panel) return
+
+        const allItems = Array.from(panel.querySelectorAll<HTMLElement>('.dropdown-item:not(.disabled)'))
+
+        switch (ev.key) {
+          case 'Escape': {
+            ev.preventDefault()
+            element.querySelector('.dropdown-backdrop')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+            break
+          }
+          case 'ArrowDown': {
+            if (allItems.length === 0) break
+            ev.preventDefault()
+            const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
+            const currentIndex = focusedItem ? allItems.indexOf(focusedItem) : -1
+            const nextIndex = currentIndex < allItems.length - 1 ? currentIndex + 1 : 0
+            allItems.forEach((el) => el.classList.remove('focused'))
+            allItems[nextIndex]?.classList.add('focused')
+            break
+          }
+          case 'ArrowUp': {
+            if (allItems.length === 0) break
+            ev.preventDefault()
+            const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
+            const currentIndex = focusedItem ? allItems.indexOf(focusedItem) : allItems.length
+            const prevIndex = currentIndex > 0 ? currentIndex - 1 : allItems.length - 1
+            allItems.forEach((el) => el.classList.remove('focused'))
+            allItems[prevIndex]?.classList.add('focused')
+            break
+          }
+          case 'Enter': {
+            ev.preventDefault()
+            const focusedItem = panel.querySelector<HTMLElement>('.dropdown-item.focused')
+            focusedItem?.click()
+            break
+          }
+          default:
+            break
+        }
+      }
+
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
+    })
+
     const { items, placement = 'bottomLeft', disabled, onSelect } = props
 
     const isOpen = useDisposable('isOpen', () => new ObservableValue(false))

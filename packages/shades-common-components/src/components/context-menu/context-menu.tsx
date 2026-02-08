@@ -32,14 +32,15 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
       transform: 'scale(1) translateY(0)',
     },
   },
-  constructed: ({ props }) => {
-    const listener = (ev: KeyboardEvent) => {
-      props.manager.handleKeyDown(ev)
-    }
-    window.addEventListener('keydown', listener, true)
-    return () => window.removeEventListener('keydown', listener, true)
-  },
   render: ({ props, useObservable, useDisposable, element }) => {
+    useDisposable('keydown-handler', () => {
+      const listener = (ev: KeyboardEvent) => {
+        props.manager.handleKeyDown(ev)
+      }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
+    })
+
     const { manager, onItemSelect } = props
 
     useDisposable('onItemSelect', () => manager.subscribe('onSelectItem', (item) => onItemSelect?.(item)))

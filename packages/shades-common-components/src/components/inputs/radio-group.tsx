@@ -65,21 +65,17 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
       flexWrap: 'wrap',
     },
   },
-  constructed: ({ props, element }) => {
-    const handleChange = (ev: Event) => {
-      const target = ev.target as HTMLInputElement
-      if (target.type === 'radio' && target.checked) {
-        props.onValueChange?.(target.value)
+  render: ({ props, children, element, useDisposable }) => {
+    useDisposable('change-handler', () => {
+      const handleChange = (ev: Event) => {
+        const target = ev.target as HTMLInputElement
+        if (target.type === 'radio' && target.checked) {
+          props.onValueChange?.(target.value)
+        }
       }
-    }
-
-    element.addEventListener('change', handleChange)
-
-    return () => {
-      element.removeEventListener('change', handleChange)
-    }
-  },
-  render: ({ props, children, element }) => {
+      element.addEventListener('change', handleChange)
+      return { [Symbol.dispose]: () => element.removeEventListener('change', handleChange) }
+    })
     const orientation = props.orientation || 'vertical'
     element.setAttribute('data-orientation', orientation)
     element.setAttribute('role', 'radiogroup')

@@ -178,31 +178,6 @@ describe('Shades integration tests', () => {
     })
   })
 
-  it("Should execute the constructed and constructed's cleanup callback", async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const cleanup = vi.fn()
-      const constructed = vi.fn(() => cleanup)
-
-      const ExampleComponent = Shade({
-        constructed,
-        tagName: 'example-component-1',
-        render: () => <div>Hello</div>,
-      })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <ExampleComponent />,
-      })
-      expect(constructed).toBeCalled()
-      expect(cleanup).not.toBeCalled()
-      document.body.innerHTML = ''
-      await sleepAsync(10) // Dispose can be async
-      expect(cleanup).toBeCalled()
-    })
-  })
-
   it('Should execute the onAttach and onDetach callbacks', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement

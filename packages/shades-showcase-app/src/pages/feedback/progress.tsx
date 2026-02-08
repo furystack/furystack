@@ -19,13 +19,14 @@ const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
   css: {
     display: 'inline',
   },
-  constructed: ({ props, element }) => {
-    const sub = props.value.subscribe((v) => {
-      element.textContent = `${v}${props.suffix ?? ''}`
+  render: ({ props, element, useDisposable }) => {
+    useDisposable('value-subscription', () => {
+      const sub = props.value.subscribe((v) => {
+        element.textContent = `${v}${props.suffix ?? ''}`
+      })
+      return { [Symbol.dispose]: () => sub[Symbol.dispose]() }
     })
-    return () => sub[Symbol.dispose]()
-  },
-  render: ({ props }) => {
+
     return (
       <>
         {props.value.getValue()}

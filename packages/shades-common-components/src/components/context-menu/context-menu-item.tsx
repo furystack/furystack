@@ -38,11 +38,11 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
         cursor: 'not-allowed',
       },
     },
-    constructed: ({ props, element }) => {
-      const timer = setTimeout(() => element.classList.add('visible'), props.index * 30)
-      return () => clearTimeout(timer)
-    },
-    render: ({ props, element, useObservable }) => {
+    render: ({ props, element, useObservable, useDisposable }) => {
+      useDisposable('fade-in', () => {
+        const timer = setTimeout(() => element.classList.add('visible'), props.index * 30)
+        return { [Symbol.dispose]: () => clearTimeout(timer) }
+      })
       const { item, index, manager } = props
 
       element.setAttribute('role', 'menuitem')

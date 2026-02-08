@@ -13,27 +13,29 @@ export interface LazyLoadState {
 
 export const LazyLoad = Shade<LazyLoadProps>({
   tagName: 'lazy-load',
-  constructed: async ({ props, useState, element }) => {
-    const [_component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
-    const [_errorState, setErrorState] = useState<unknown>('error', undefined)
-    try {
-      const loaded = await props.component()
-      if (element.isConnected) {
-        setComponent(loaded)
-      }
-    } catch (error) {
-      if (props.error) {
-        if (element.isConnected) {
-          setErrorState(error)
-        }
-      } else {
-        throw error
-      }
-    }
-  },
-  render: ({ props, useState }) => {
+  render: ({ props, useState, useDisposable, element }) => {
     const [error, setError] = useState<unknown>('error', undefined)
     const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
+
+    useDisposable('loader', () => {
+      void (async () => {
+        try {
+          const loaded = await props.component()
+          if (element.isConnected) {
+            setComponent(loaded)
+          }
+        } catch (e) {
+          if (props.error) {
+            if (element.isConnected) {
+              setError(e)
+            }
+          } else {
+            throw e
+          }
+        }
+      })()
+      return { [Symbol.dispose]: () => {} }
+    })
 
     if (error && props.error) {
       return props.error(error, async () => {

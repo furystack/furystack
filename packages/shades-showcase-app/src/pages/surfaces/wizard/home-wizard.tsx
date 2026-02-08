@@ -82,10 +82,14 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 
 export const Step1 = Shade<WizardStepProps>({
   tagName: 'shades-wiz-step1',
-  constructed: ({ element }) => {
-    element.querySelector('input')?.focus()
-  },
-  render: ({ props }) => {
+  render: ({ props, element, useDisposable }) => {
+    useDisposable('focus-input', () => {
+      queueMicrotask(() => {
+        element.querySelector('input')?.focus()
+      })
+      return { [Symbol.dispose]: () => {} }
+    })
+
     return (
       <WizardStep title="Step 1" {...props}>
         <div>

@@ -27,21 +27,22 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  constructed: ({ props }) => {
-    const listener = (ev: KeyboardEvent) => {
-      props.listService.handleKeyDown(ev)
+  render: ({ props, useDisposable, element }) => {
+    useDisposable('keydown-handler', () => {
+      const listener = (ev: KeyboardEvent) => {
+        props.listService.handleKeyDown(ev)
 
-      if (ev.key === 'Enter' && props.listService.hasFocus.getValue()) {
-        const focusedItem = props.listService.focusedItem.getValue()
-        if (focusedItem && props.onItemActivate) {
-          props.onItemActivate(focusedItem)
+        if (ev.key === 'Enter' && props.listService.hasFocus.getValue()) {
+          const focusedItem = props.listService.focusedItem.getValue()
+          if (focusedItem && props.onItemActivate) {
+            props.onItemActivate(focusedItem)
+          }
         }
       }
-    }
-    window.addEventListener('keydown', listener)
-    return () => window.removeEventListener('keydown', listener)
-  },
-  render: ({ props, useDisposable, element }) => {
+      window.addEventListener('keydown', listener)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+    })
+
     props.listService.items.setValue(props.items)
 
     useDisposable(

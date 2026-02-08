@@ -252,15 +252,24 @@ export const InputNumber = Shade<InputNumberProps>({
       lineHeight: '1.4',
     },
   },
-  constructed: ({ injector, element }) => {
-    if (injector.cachedSingletons.has(FormService)) {
-      const input = element.querySelector('input') as HTMLInputElement
-      const formService = injector.getInstance(FormService)
-      formService.inputs.add(input)
-      return () => formService.inputs.delete(input)
-    }
-  },
   render: ({ props, injector, useObservable, useDisposable, element }) => {
+    useDisposable('form-registration', () => {
+      let input: HTMLInputElement | null = null
+      let formService: InstanceType<typeof FormService> | null = null
+      queueMicrotask(() => {
+        input = element.querySelector('input') as HTMLInputElement
+        if (input && injector.cachedSingletons.has(FormService)) {
+          formService = injector.getInstance(FormService)
+          formService.inputs.add(input)
+        }
+      })
+      return {
+        [Symbol.dispose]() {
+          if (input && formService) formService.inputs.delete(input)
+        },
+      }
+    })
+
     const themeProvider = injector.getInstance(ThemeProviderService)
 
     if (props.variant) {

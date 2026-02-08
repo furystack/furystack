@@ -195,36 +195,35 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
         flexDirection: 'column',
       },
     },
-    constructed: ({ props, element }) => {
-      const handleClick = (ev: Event) => {
-        const target = (ev.target as HTMLElement).closest('button[data-value]')
-        if (!target || target.hasAttribute('disabled')) return
+    render: ({ props, children, element, useDisposable }) => {
+      useDisposable('click-handler', () => {
+        const handleClick = (ev: Event) => {
+          const target = (ev.target as HTMLElement).closest('button[data-value]')
+          if (!target || target.hasAttribute('disabled')) return
 
-        const clickedValue = target.getAttribute('data-value')
-        if (!clickedValue) return
+          const clickedValue = target.getAttribute('data-value')
+          if (!clickedValue) return
 
-        if (props.exclusive) {
-          const currentValue = Array.isArray(props.value) ? props.value[0] : props.value
-          // Allow deselecting in exclusive mode
-          const newValue = currentValue === clickedValue ? '' : clickedValue
-          props.onValueChange?.(newValue)
-        } else {
-          const currentValues = Array.isArray(props.value)
-            ? props.value
-            : props.value
-              ? [props.value]
-              : ([] as string[])
-          const newValues = currentValues.includes(clickedValue)
-            ? currentValues.filter((v) => v !== clickedValue)
-            : [...currentValues, clickedValue]
-          props.onValueChange?.(newValues)
+          if (props.exclusive) {
+            const currentValue = Array.isArray(props.value) ? props.value[0] : props.value
+            const newValue = currentValue === clickedValue ? '' : clickedValue
+            props.onValueChange?.(newValue)
+          } else {
+            const currentValues = Array.isArray(props.value)
+              ? props.value
+              : props.value
+                ? [props.value]
+                : ([] as string[])
+            const newValues = currentValues.includes(clickedValue)
+              ? currentValues.filter((v) => v !== clickedValue)
+              : [...currentValues, clickedValue]
+            props.onValueChange?.(newValues)
+          }
         }
-      }
 
-      element.addEventListener('click', handleClick)
-      return () => element.removeEventListener('click', handleClick)
-    },
-    render: ({ props, children, element }) => {
+        element.addEventListener('click', handleClick)
+        return { [Symbol.dispose]: () => element.removeEventListener('click', handleClick) }
+      })
       const { orientation = 'horizontal', disabled, color, style } = props
       const selectedValues = Array.isArray(props.value) ? props.value : props.value ? [props.value] : ([] as string[])
 

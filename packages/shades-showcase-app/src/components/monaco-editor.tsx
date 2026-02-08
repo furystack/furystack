@@ -13,32 +13,7 @@ export interface MonacoEditorProps {
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   tagName: 'monaco-editor',
-  constructed: ({ element, props, useDisposable, injector }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
-
-    const editorInstance = editor.create(element as HTMLElement, {
-      theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-      ...props.options,
-    })
-    editorInstance.setValue(props.value || '')
-    if (props.onchange) {
-      editorInstance.onKeyUp(() => {
-        const value = editorInstance.getValue()
-        props.onchange?.(value)
-      })
-    }
-
-    useDisposable('themeChange', () =>
-      themeProvider.subscribe('themeChanged', () => {
-        editorInstance.updateOptions({
-          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-        })
-      }),
-    )
-
-    return () => editorInstance.dispose()
-  },
-  render: ({ element, props }) => {
+  render: ({ element, props, useDisposable, injector }) => {
     element.style.display = 'block'
     element.style.height = '100%'
     element.style.width = '100%'
@@ -46,6 +21,36 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
     if (props.style) {
       Object.assign(element.style, props.style)
     }
+
+    useDisposable('monaco-editor-instance', () => {
+      const themeProvider = injector.getInstance(ThemeProviderService)
+
+      const editorInstance = editor.create(element as HTMLElement, {
+        theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+        ...props.options,
+      })
+      editorInstance.setValue(props.value || '')
+      if (props.onchange) {
+        editorInstance.onKeyUp(() => {
+          const value = editorInstance.getValue()
+          props.onchange?.(value)
+        })
+      }
+
+      const themeSubscription = themeProvider.subscribe('themeChanged', () => {
+        editorInstance.updateOptions({
+          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+        })
+      })
+
+      return {
+        [Symbol.dispose]: () => {
+          themeSubscription[Symbol.dispose]()
+          editorInstance.dispose()
+        },
+      }
+    })
+
     return null
   },
 })
