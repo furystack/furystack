@@ -53,7 +53,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('data-size')).toBe('medium')
   })
 
@@ -64,7 +64,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('data-size')).toBe('small')
   })
 
@@ -75,7 +75,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('data-size')).toBe('large')
   })
 
@@ -86,7 +86,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.hasAttribute('data-size')).toBe(false)
     expect(icon.style.width).toBe('20px')
     expect(icon.style.height).toBe('20px')
@@ -99,7 +99,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('role')).toBe('img')
   })
 
@@ -110,7 +110,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('aria-label')).toBe('Close button')
     expect(icon.hasAttribute('aria-hidden')).toBe(false)
   })
@@ -122,7 +122,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.getAttribute('aria-hidden')).toBe('true')
     expect(icon.hasAttribute('aria-label')).toBe(false)
   })
@@ -134,7 +134,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.style.getPropertyValue('--icon-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
@@ -145,7 +145,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     expect(icon.style.getPropertyValue('--icon-color')).toBe('')
   })
 
@@ -156,7 +156,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')
     expect(svg).not.toBeNull()
   })
@@ -168,7 +168,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const paths = icon.querySelectorAll('path')
     expect(paths.length).toBe(3)
   })
@@ -180,7 +180,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const paths = icon.querySelectorAll('path')
     expect(paths.length).toBe(2)
   })
@@ -192,7 +192,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('fill')).toBe('none')
     expect(svg.getAttribute('stroke')).toBe('currentColor')
@@ -208,7 +208,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('fill')).toBe('currentColor')
     expect(svg.getAttribute('stroke')).toBe('none')
@@ -221,7 +221,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const paths = icon.querySelectorAll('path')
     expect(paths[1].getAttribute('fill-rule')).toBe('evenodd')
   })
@@ -233,7 +233,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('viewBox')).toBe('0 0 24 24')
   })
@@ -245,7 +245,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('viewBox')).toBe('0 0 48 48')
   })
@@ -261,7 +261,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('stroke-width')).toBe('3')
   })
@@ -273,7 +273,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('32')
     expect(svg.getAttribute('height')).toBe('32')
@@ -286,7 +286,7 @@ describe('Icon', () => {
       </div>
     )
     const icon = el.firstElementChild as JSX.Element
-    icon.callConstructed()
+    icon.updateComponent()
     const svg = icon.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('48')
     expect(svg.getAttribute('height')).toBe('48')

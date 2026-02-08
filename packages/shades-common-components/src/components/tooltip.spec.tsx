@@ -23,7 +23,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup.textContent).toContain('My Tooltip')
   })
@@ -37,7 +37,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.getAttribute('data-placement')).toBe('bottom')
   })
 
@@ -50,7 +50,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup).toBeDefined()
     expect(popup).not.toBeNull()
@@ -66,7 +66,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup.textContent).toContain('Hello World')
   })
@@ -80,7 +80,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     const arrow = tooltip.querySelector('.tooltip-arrow')
     expect(arrow).not.toBeNull()
   })
@@ -94,7 +94,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.getAttribute('data-placement')).toBe('bottom')
   })
 
@@ -107,7 +107,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.hasAttribute('data-placement')).toBe(false)
   })
 
@@ -122,7 +122,7 @@ describe('Tooltip', () => {
         </div>
       )
       const tooltip = el.firstElementChild as JSX.Element
-      tooltip.callConstructed()
+      tooltip.updateComponent()
       expect(tooltip.getAttribute('data-placement')).toBe(placement)
     }
   })
@@ -136,7 +136,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.hasAttribute('data-disabled')).toBe(true)
   })
 
@@ -149,7 +149,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.hasAttribute('data-disabled')).toBe(false)
   })
 
@@ -162,7 +162,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('300ms')
   })
 
@@ -175,7 +175,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('')
   })
 
@@ -188,7 +188,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('')
   })
 
@@ -201,7 +201,7 @@ describe('Tooltip', () => {
       </div>
     )
     const tooltip = el.firstElementChild as JSX.Element
-    tooltip.callConstructed()
+    tooltip.updateComponent()
     const button = tooltip.querySelector('button')
     expect(button).not.toBeNull()
     expect(button?.textContent).toBe('Click me')

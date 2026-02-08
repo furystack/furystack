@@ -162,22 +162,20 @@ export const CircularProgress = Shade<CircularProgressProps>({
       transition: `stroke-dashoffset ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
-  constructed: ({ props, element }) => {
-    const variant = props.variant || 'indeterminate'
-    const thickness = props.thickness ?? DEFAULT_THICKNESS
-    if (variant === 'determinate' && props.value) {
-      const radius = (SVG_SIZE - thickness) / 2
-      const circumference = 2 * Math.PI * radius
-      const subscription = props.value.subscribe((next) => updateDeterminate(element, circumference, next))
-      return () => subscription[Symbol.dispose]()
-    }
-  },
-  render: ({ props, injector, element }) => {
+  render: ({ props, injector, element, useDisposable }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const variant = props.variant || 'indeterminate'
     const value = clampValue(props.value?.getValue() ?? 0)
     const size = props.size ?? DEFAULT_SIZE
     const thickness = props.thickness ?? DEFAULT_THICKNESS
+
+    if (variant === 'determinate' && props.value) {
+      const radius = (SVG_SIZE - thickness) / 2
+      const circumference = 2 * Math.PI * radius
+      useDisposable('value-subscription', () =>
+        props.value!.subscribe((next) => updateDeterminate(element, circumference, next)),
+      )
+    }
 
     element.setAttribute('role', 'progressbar')
     if (variant === 'determinate') {

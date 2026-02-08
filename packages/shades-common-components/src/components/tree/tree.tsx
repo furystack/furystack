@@ -30,21 +30,22 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  constructed: ({ props }) => {
-    const listener = (ev: KeyboardEvent) => {
-      props.treeService.handleKeyDown(ev)
+  render: ({ props, useDisposable, useObservable, element }) => {
+    useDisposable('keydown-handler', () => {
+      const listener = (ev: KeyboardEvent) => {
+        props.treeService.handleKeyDown(ev)
 
-      if (ev.key === 'Enter' && props.treeService.hasFocus.getValue()) {
-        const focusedItem = props.treeService.focusedItem.getValue()
-        if (focusedItem && props.onItemActivate) {
-          props.onItemActivate(focusedItem)
+        if (ev.key === 'Enter' && props.treeService.hasFocus.getValue()) {
+          const focusedItem = props.treeService.focusedItem.getValue()
+          if (focusedItem && props.onItemActivate) {
+            props.onItemActivate(focusedItem)
+          }
         }
       }
-    }
-    window.addEventListener('keydown', listener)
-    return () => window.removeEventListener('keydown', listener)
-  },
-  render: ({ props, useDisposable, useObservable, element }) => {
+      window.addEventListener('keydown', listener)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+    })
+
     if (props.treeService.rootItems.getValue() !== props.rootItems) {
       props.treeService.rootItems.setValue(props.rootItems)
       props.treeService.updateFlattenedNodes()

@@ -21,7 +21,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('role')).toBe('separator')
   })
 
@@ -32,7 +32,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-orientation')).toBe(false)
   })
 
@@ -43,7 +43,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('data-orientation')).toBe('vertical')
     expect(divider.getAttribute('aria-orientation')).toBe('vertical')
   })
@@ -55,7 +55,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('data-variant')).toBe('inset')
   })
 
@@ -66,7 +66,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('data-variant')).toBe('middle')
   })
 
@@ -77,7 +77,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-variant')).toBe(false)
   })
 
@@ -88,7 +88,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-variant')).toBe(false)
   })
 
@@ -99,7 +99,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-has-children')).toBe(true)
   })
 
@@ -110,7 +110,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-has-children')).toBe(false)
   })
 
@@ -121,7 +121,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     const textSpan = divider.querySelector('.divider-text')
     expect(textSpan).not.toBeNull()
   })
@@ -133,7 +133,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('data-text-align')).toBe('left')
   })
 
@@ -144,7 +144,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.getAttribute('data-text-align')).toBe('right')
   })
 
@@ -155,7 +155,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-text-align')).toBe(false)
   })
 
@@ -166,7 +166,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.hasAttribute('data-text-align')).toBe(false)
   })
 
@@ -177,7 +177,7 @@ describe('Divider', () => {
       </div>
     )
     const divider = el.firstElementChild as JSX.Element
-    divider.callConstructed()
+    divider.updateComponent()
     expect(divider.style.borderColor).toBe('red')
   })
 })

@@ -9,11 +9,15 @@ export const Autocomplete = Shade<{
   onchange?: (value: string) => void
 }>({
   shadowDomName: 'shade-autocomplete',
-  constructed({ element, useState }) {
-    const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
-    element.querySelector('input')?.setAttribute('list', dataListId)
-  },
-  render: ({ props, useState }) => {
+  render: ({ props, useState, element, useDisposable }) => {
+    useDisposable('datalist-binding', () => {
+      queueMicrotask(() => {
+        const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
+        element.querySelector('input')?.setAttribute('list', dataListId)
+      })
+      return { [Symbol.dispose]: () => {} }
+    })
+
     const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
 
     return (

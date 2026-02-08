@@ -48,7 +48,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     // Should have prev + 5 page buttons + next = 7 buttons
     const items = pagination.querySelectorAll('.pagination-item')
     expect(items.length).toBe(7) // prev + 5 pages + next
@@ -62,7 +62,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(2)
   })
@@ -75,7 +75,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const selected = pagination.querySelector('[data-selected]') as HTMLElement
     expect(selected).not.toBeNull()
     expect(selected.textContent).toBe('3')
@@ -89,7 +89,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const prevButton = pagination.querySelector('.pagination-item') as HTMLElement
     expect(prevButton.hasAttribute('data-disabled')).toBe(true)
   })
@@ -102,7 +102,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const items = pagination.querySelectorAll('.pagination-item')
     const nextButton = items[items.length - 1] as HTMLElement
     expect(nextButton.hasAttribute('data-disabled')).toBe(true)
@@ -116,7 +116,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     // Click page 3 (index: prev=0, page1=1, page2=2, page3=3)
     const items = pagination.querySelectorAll('.pagination-item')
     ;(items[3] as HTMLElement).click()
@@ -131,7 +131,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const prevButton = pagination.querySelector('.pagination-item') as HTMLElement
     prevButton.click()
     expect(onPageChange).toHaveBeenCalledWith(2)
@@ -145,7 +145,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const items = pagination.querySelectorAll('.pagination-item')
     const nextButton = items[items.length - 1] as HTMLElement
     nextButton.click()
@@ -160,7 +160,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const selected = pagination.querySelector('[data-selected]') as HTMLElement
     selected.click()
     expect(onPageChange).not.toHaveBeenCalled()
@@ -174,7 +174,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     expect(pagination.getAttribute('data-size')).toBe('small')
   })
 
@@ -186,7 +186,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     expect(pagination.hasAttribute('data-disabled')).toBe(true)
   })
 
@@ -198,7 +198,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     expect(pagination.style.getPropertyValue('--pagination-color-main')).toBe(
       'var(--shades-theme-palette-primary-main)',
     )
@@ -212,7 +212,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     expect(pagination.style.getPropertyValue('--pagination-color-main')).toBe('var(--shades-theme-text-primary)')
   })
 
@@ -224,7 +224,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(1)
   })
@@ -237,7 +237,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(1)
   })
@@ -250,7 +250,7 @@ describe('Pagination', () => {
       </div>
     )
     const pagination = el.firstElementChild as JSX.Element
-    pagination.callConstructed()
+    pagination.updateComponent()
     const ellipses = pagination.querySelectorAll('.pagination-ellipsis')
     expect(ellipses.length).toBe(0)
     const items = pagination.querySelectorAll('.pagination-item')

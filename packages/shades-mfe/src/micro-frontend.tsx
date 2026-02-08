@@ -10,42 +10,43 @@ type MicroFrontendProps<TApi> = {
 
 export const MicroFrontend: <TApi>(props: MicroFrontendProps<TApi>) => JSX.Element = Shade({
   shadowDomName: 'shade-micro-frontend',
-  constructed: async ({ props, element, injector }) => {
-    const tryCreateComponent = async () => {
-      const creatorService = await props.loaderCallback()
-      // TODO: Think about type checking
-      // if (!(creatorService instanceof CreateMicroFrontendService)) {
-      //   throw new Error('Invalid creator service')
-      // }
+  render: ({ props, element, injector, useDisposable }) => {
+    useDisposable('mfe-loader', () => {
+      let destroyFn: (() => void) | undefined
 
-      const childInjector = injector.createChild({
-        owner: creatorService,
-      })
+      const tryCreateComponent = async () => {
+        const creatorService = await props.loaderCallback()
 
-      element.innerHTML = ''
+        const childInjector = injector.createChild({
+          owner: creatorService,
+        })
 
-      creatorService.create({
-        api: props.api,
-        rootElement: element,
-        injector: childInjector,
-      })
+        element.innerHTML = ''
 
-      return () => creatorService.destroy?.({ api: props.api, injector: childInjector })
-    }
+        creatorService.create({
+          api: props.api,
+          rootElement: element,
+          injector: childInjector,
+        })
 
-    try {
-      return await tryCreateComponent()
-    } catch (error) {
-      if (props.error) {
-        element.appendChild(
-          props.error(error, async () => {
-            await tryCreateComponent()
-          }),
-        )
+        destroyFn = () => creatorService.destroy?.({ api: props.api, injector: childInjector })
       }
-    }
-  },
-  render: ({ props }) => {
+
+      tryCreateComponent().catch((error: unknown) => {
+        if (props.error) {
+          element.appendChild(
+            props.error(error, async () => {
+              await tryCreateComponent()
+            }),
+          )
+        }
+      })
+
+      return {
+        [Symbol.asyncDispose]: async () => destroyFn?.(),
+      }
+    })
+
     return props.loader || null
   },
 })

@@ -10,7 +10,6 @@ declare global {
       props: TProps
       updateComponent: () => void
       shadeChildren?: ChildrenList
-      callConstructed: () => void
       resourceManager: ResourceManager
       getRenderCount(): number
     }

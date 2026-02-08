@@ -180,15 +180,23 @@ export const Switch = Shade<SwitchProps>({
       pointerEvents: 'none',
     },
   },
-  constructed: ({ injector, element }) => {
-    if (injector.cachedSingletons.has(FormService)) {
-      const input = element.querySelector('input[type="checkbox"]') as HTMLInputElement
-      const formService = injector.getInstance(FormService)
-      formService.inputs.add(input)
-      return () => formService.inputs.delete(input)
-    }
-  },
-  render: ({ props, injector, element }) => {
+  render: ({ props, injector, element, useDisposable }) => {
+    useDisposable('form-registration', () => {
+      let input: HTMLInputElement | null = null
+      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      if (formService) {
+        queueMicrotask(() => {
+          input = element.querySelector('input[type="checkbox"]') as HTMLInputElement
+          if (input) formService.inputs.add(input)
+        })
+      }
+      return {
+        [Symbol.dispose]: () => {
+          if (input && formService) formService.inputs.delete(input)
+        },
+      }
+    })
+
     const themeProvider = injector.getInstance(ThemeProviderService)
 
     if (props.disabled) {

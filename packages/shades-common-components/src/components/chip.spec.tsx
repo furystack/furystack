@@ -35,7 +35,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.querySelector('.chip-label')).toBeDefined()
   })
 
@@ -47,7 +47,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     expect(deleteBtn).toBeDefined()
     expect(deleteBtn).not.toBeNull()
@@ -60,7 +60,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     const deleteBtn = chip.querySelector('.chip-delete')
     expect(deleteBtn).toBeNull()
   })
@@ -72,7 +72,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.getAttribute('data-variant')).toBe('outlined')
   })
 
@@ -83,7 +83,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.getAttribute('data-size')).toBe('small')
   })
 
@@ -94,7 +94,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.hasAttribute('data-disabled')).toBe(true)
   })
 
@@ -105,7 +105,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.hasAttribute('data-disabled')).toBe(false)
   })
 
@@ -116,7 +116,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.hasAttribute('data-clickable')).toBe(true)
   })
 
@@ -127,7 +127,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.hasAttribute('data-clickable')).toBe(true)
   })
 
@@ -138,7 +138,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.style.getPropertyValue('--chip-color-main')).toBe('var(--shades-theme-palette-primary-main)')
   })
 
@@ -149,7 +149,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     expect(chip.style.getPropertyValue('--chip-color-main')).toBe('var(--shades-theme-text-secondary)')
   })
 
@@ -161,7 +161,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     deleteBtn.click()
     expect(onDelete).toHaveBeenCalledOnce()
@@ -178,7 +178,7 @@ describe('Chip', () => {
       </div>
     )
     const chip = el.firstElementChild as JSX.Element
-    chip.callConstructed()
+    chip.updateComponent()
     const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
     deleteBtn.click()
     expect(onDelete).toHaveBeenCalledOnce()

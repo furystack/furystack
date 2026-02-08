@@ -23,7 +23,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.querySelector('span')).not.toBeNull()
   })
 
@@ -34,7 +34,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.getAttribute('data-variant')).toBe('elevation')
   })
 
@@ -45,7 +45,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.getAttribute('data-variant')).toBe('outlined')
   })
 
@@ -56,7 +56,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.getAttribute('data-elevation')).toBe('1')
   })
 
@@ -67,7 +67,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.getAttribute('data-elevation')).toBe('3')
   })
 
@@ -78,7 +78,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.hasAttribute('data-clickable')).toBe(true)
   })
 
@@ -89,7 +89,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.hasAttribute('data-clickable')).toBe(true)
   })
 
@@ -100,7 +100,7 @@ describe('Card', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.hasAttribute('data-clickable')).toBe(false)
   })
 })
@@ -124,7 +124,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     const titleEl = header.querySelector('.card-header-title')
     expect(titleEl).not.toBeNull()
     expect(titleEl?.textContent).toBe('My Title')
@@ -137,7 +137,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     const subheaderEl = header.querySelector('.card-header-subheader')
     expect(subheaderEl).not.toBeNull()
     expect(subheaderEl?.textContent).toBe('Subheader text')
@@ -150,7 +150,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     const subheaderEl = header.querySelector('.card-header-subheader')
     expect(subheaderEl).toBeNull()
   })
@@ -162,7 +162,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     const avatarContainer = header.querySelector('.card-header-avatar')
     expect(avatarContainer).not.toBeNull()
     expect(avatarContainer?.querySelector('.test-avatar')).not.toBeNull()
@@ -175,7 +175,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     expect(header.querySelector('.card-header-avatar')).toBeNull()
   })
 
@@ -186,7 +186,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     const actionContainer = header.querySelector('.card-header-action')
     expect(actionContainer).not.toBeNull()
     expect(actionContainer?.querySelector('.test-action')).not.toBeNull()
@@ -199,7 +199,7 @@ describe('CardHeader', () => {
       </div>
     )
     const header = el.firstElementChild as JSX.Element
-    header.callConstructed()
+    header.updateComponent()
     expect(header.querySelector('.card-header-action')).toBeNull()
   })
 })
@@ -225,7 +225,7 @@ describe('CardContent', () => {
       </div>
     )
     const content = el.firstElementChild as JSX.Element
-    content.callConstructed()
+    content.updateComponent()
     expect(content.querySelector('p')).not.toBeNull()
   })
 })
@@ -249,7 +249,7 @@ describe('CardMedia', () => {
       </div>
     )
     const media = el.firstElementChild as JSX.Element
-    media.callConstructed()
+    media.updateComponent()
     const img = media.querySelector('img') as HTMLImageElement
     expect(img).not.toBeNull()
     expect(img.getAttribute('src')).toBe('https://example.com/photo.jpg')
@@ -263,7 +263,7 @@ describe('CardMedia', () => {
       </div>
     )
     const media = el.firstElementChild as JSX.Element
-    media.callConstructed()
+    media.updateComponent()
     expect(media.style.height).toBe('300px')
   })
 
@@ -274,7 +274,7 @@ describe('CardMedia', () => {
       </div>
     )
     const media = el.firstElementChild as JSX.Element
-    media.callConstructed()
+    media.updateComponent()
     expect(media.style.height).toBe('200px')
   })
 
@@ -285,7 +285,7 @@ describe('CardMedia', () => {
       </div>
     )
     const media = el.firstElementChild as JSX.Element
-    media.callConstructed()
+    media.updateComponent()
     const img = media.querySelector('img') as HTMLImageElement
     expect(img.getAttribute('alt')).toBe('')
   })
@@ -312,7 +312,7 @@ describe('CardActions', () => {
       </div>
     )
     const actions = el.firstElementChild as JSX.Element
-    actions.callConstructed()
+    actions.updateComponent()
     expect(actions.querySelector('button')).not.toBeNull()
   })
 
@@ -323,7 +323,7 @@ describe('CardActions', () => {
       </div>
     )
     const actions = el.firstElementChild as JSX.Element
-    actions.callConstructed()
+    actions.updateComponent()
     expect(actions.hasAttribute('data-disable-spacing')).toBe(true)
   })
 
@@ -334,7 +334,7 @@ describe('CardActions', () => {
       </div>
     )
     const actions = el.firstElementChild as JSX.Element
-    actions.callConstructed()
+    actions.updateComponent()
     expect(actions.hasAttribute('data-disable-spacing')).toBe(false)
   })
 })
@@ -356,7 +356,7 @@ describe('Card composition', () => {
       </div>
     )
     const card = el.firstElementChild as JSX.Element
-    card.callConstructed()
+    card.updateComponent()
     expect(card.querySelector('shade-card-media')).not.toBeNull()
     expect(card.querySelector('shade-card-header')).not.toBeNull()
     expect(card.querySelector('shade-card-content')).not.toBeNull()

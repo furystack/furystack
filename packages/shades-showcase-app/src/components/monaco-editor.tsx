@@ -13,32 +13,36 @@ export interface MonacoEditorProps {
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
-  constructed: ({ element, props, useDisposable, injector }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+  render: ({ element, props, useDisposable, injector }) => {
+    useDisposable('editor-init', () => {
+      const themeProvider = injector.getInstance(ThemeProviderService)
 
-    const editorInstance = editor.create(element as HTMLElement, {
-      theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-      ...props.options,
-    })
-    editorInstance.setValue(props.value || '')
-    if (props.onchange) {
-      editorInstance.onKeyUp(() => {
-        const value = editorInstance.getValue()
-        props.onchange?.(value)
+      const editorInstance = editor.create(element as HTMLElement, {
+        theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+        ...props.options,
       })
-    }
+      editorInstance.setValue(props.value || '')
+      if (props.onchange) {
+        editorInstance.onKeyUp(() => {
+          const value = editorInstance.getValue()
+          props.onchange?.(value)
+        })
+      }
 
-    useDisposable('themeChange', () =>
-      themeProvider.subscribe('themeChanged', () => {
+      const themeSub = themeProvider.subscribe('themeChanged', () => {
         editorInstance.updateOptions({
           theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
         })
-      }),
-    )
+      })
 
-    return () => editorInstance.dispose()
-  },
-  render: ({ element, props }) => {
+      return {
+        [Symbol.dispose]: () => {
+          themeSub[Symbol.dispose]()
+          editorInstance.dispose()
+        },
+      }
+    })
+
     element.style.display = 'block'
     element.style.height = '100%'
     element.style.width = '100%'

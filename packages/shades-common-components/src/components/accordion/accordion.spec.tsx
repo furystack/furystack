@@ -24,7 +24,7 @@ describe('Accordion', () => {
       </div>
     )
     const accordion = el.firstElementChild as JSX.Element
-    accordion.callConstructed()
+    accordion.updateComponent()
     expect(accordion.querySelector('span')).not.toBeNull()
   })
 
@@ -35,7 +35,7 @@ describe('Accordion', () => {
       </div>
     )
     const accordion = el.firstElementChild as JSX.Element
-    accordion.callConstructed()
+    accordion.updateComponent()
     expect(accordion.getAttribute('data-variant')).toBe('elevation')
   })
 
@@ -46,7 +46,7 @@ describe('Accordion', () => {
       </div>
     )
     const accordion = el.firstElementChild as JSX.Element
-    accordion.callConstructed()
+    accordion.updateComponent()
     expect(accordion.hasAttribute('data-variant')).toBe(false)
   })
 })
@@ -72,7 +72,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const title = item.querySelector('.accordion-title') as HTMLElement
     expect(title).not.toBeNull()
     expect(title.textContent).toBe('My Section')
@@ -87,7 +87,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const inner = item.querySelector('.accordion-content-inner') as HTMLElement
     expect(inner).not.toBeNull()
     expect(inner.querySelector('p')).not.toBeNull()
@@ -100,7 +100,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
@@ -111,7 +111,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
@@ -122,7 +122,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.hasAttribute('data-disabled')).toBe(true)
   })
 
@@ -133,7 +133,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.hasAttribute('data-disabled')).toBe(false)
   })
 
@@ -144,7 +144,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const icon = item.querySelector('.accordion-icon') as HTMLElement
     expect(icon).not.toBeNull()
     expect(icon.textContent).toBe('🔧')
@@ -157,7 +157,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     expect(item.querySelector('.accordion-icon')).toBeNull()
   })
 
@@ -168,7 +168,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const chevron = item.querySelector('.accordion-chevron') as HTMLElement
     expect(chevron).not.toBeNull()
     expect(chevron.querySelector('shade-icon')).not.toBeNull()
@@ -181,7 +181,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('aria-expanded')).toBe('false')
   })
@@ -193,7 +193,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('aria-expanded')).toBe('true')
   })
@@ -205,7 +205,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const content = item.querySelector('.accordion-content') as HTMLElement
     expect(content.style.height).toBe('0px')
     expect(content.style.opacity).toBe('0')
@@ -218,7 +218,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const content = item.querySelector('.accordion-content') as HTMLElement
     expect(content.style.height).not.toBe('0px')
   })
@@ -230,7 +230,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.getAttribute('role')).toBe('button')
   })
@@ -242,7 +242,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.tabIndex).toBe(0)
   })
@@ -254,7 +254,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
     const header = item.querySelector('.accordion-header') as HTMLElement
     expect(header.tabIndex).toBe(-1)
   })
@@ -271,7 +271,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -294,7 +294,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(true)
 
@@ -317,7 +317,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -339,7 +339,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -358,7 +358,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 
@@ -377,7 +377,7 @@ describe('AccordionItem', () => {
       </div>
     )
     const item = el.firstElementChild as JSX.Element
-    item.callConstructed()
+    item.updateComponent()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
 

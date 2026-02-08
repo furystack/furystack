@@ -24,23 +24,6 @@ export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
 
 export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>({
   shadowDomName: 'shade-noty',
-  constructed: ({ element }) => {
-    setTimeout(() => {
-      const height = element.scrollHeight || 60
-      void promisifyAnimation(
-        element,
-        [
-          { opacity: '0', height: '0px' },
-          { opacity: '1', height: `${height}px` },
-        ],
-        {
-          fill: 'forwards',
-          duration: 500,
-          easing: 'cubic-bezier(0.190, 1.000, 0.220, 1.000)',
-        },
-      )
-    })
-  },
   css: {
     margin: cssVariableTheme.spacing.xs,
     overflow: 'hidden',
@@ -85,7 +68,26 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, element }) => {
+  render: ({ props, injector, element, useDisposable }) => {
+    useDisposable('enter-animation', () => {
+      setTimeout(() => {
+        const height = element.scrollHeight || 60
+        void promisifyAnimation(
+          element,
+          [
+            { opacity: '0', height: '0px' },
+            { opacity: '1', height: `${height}px` },
+          ],
+          {
+            fill: 'forwards',
+            duration: 500,
+            easing: 'cubic-bezier(0.190, 1.000, 0.220, 1.000)',
+          },
+        )
+      })
+      return { [Symbol.dispose]: () => {} }
+    })
+
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
     const textColor = themeProvider.getTextColor(colors.main)

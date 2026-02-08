@@ -355,15 +355,23 @@ export const Select = Shade<SelectProps>({
       lineHeight: '1.4',
     },
   },
-  constructed: ({ injector, element }) => {
-    const hiddenInput = element.querySelector<HTMLInputElement>('input[type="hidden"]')
-    if (hiddenInput && injector.cachedSingletons.has(FormService)) {
-      const formService = injector.getInstance(FormService)
-      formService.inputs.add(hiddenInput)
-      return () => formService.inputs.delete(hiddenInput)
-    }
-  },
-  render: ({ props, injector, useObservable, element }) => {
+  render: ({ props, injector, useObservable, element, useDisposable }) => {
+    useDisposable('form-registration', () => {
+      let hiddenInput: HTMLInputElement | null = null
+      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      if (formService) {
+        queueMicrotask(() => {
+          hiddenInput = element.querySelector<HTMLInputElement>('input[type="hidden"]')
+          if (hiddenInput) formService.inputs.add(hiddenInput)
+        })
+      }
+      return {
+        [Symbol.dispose]: () => {
+          if (hiddenInput && formService) formService.inputs.delete(hiddenInput)
+        },
+      }
+    })
+
     const themeProvider = injector.getInstance(ThemeProviderService)
     const isMultiple = props.mode === 'multiple'
 

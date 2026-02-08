@@ -176,16 +176,21 @@ describe('Shades integration tests', () => {
     })
   })
 
-  it("Should execute the constructed and constructed's cleanup callback", async () => {
+  it('Should execute useDisposable cleanup on component disconnection', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const cleanup = vi.fn()
-      const constructed = vi.fn(() => cleanup)
+      const setup = vi.fn()
 
       const ExampleComponent = Shade({
-        constructed,
         shadowDomName: 'example-component-1',
-        render: () => <div>Hello</div>,
+        render: ({ useDisposable }) => {
+          useDisposable('test', () => {
+            setup()
+            return { [Symbol.dispose]: cleanup }
+          })
+          return <div>Hello</div>
+        },
       })
 
       initializeShadeRoot({
@@ -193,7 +198,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
-      expect(constructed).toBeCalled()
+      expect(setup).toBeCalled()
       expect(cleanup).not.toBeCalled()
       document.body.innerHTML = ''
       await sleepAsync(10) // Dispose can be async

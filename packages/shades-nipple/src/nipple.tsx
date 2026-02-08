@@ -13,26 +13,27 @@ export interface NippleComponentProps {
 
 export const NippleComponent = Shade<NippleComponentProps>({
   shadowDomName: 'shade-nipple',
-  constructed: async ({ element, props }) => {
-    const manager = nipplejs.create({
-      zone: element,
-      ...props.managerOptions,
+  render: ({ children, element, props, useDisposable }) => {
+    useDisposable('nipple-init', () => {
+      const manager = nipplejs.create({
+        zone: element,
+        ...props.managerOptions,
+      })
+      if (props.onStart) {
+        manager.on('start', props.onStart)
+      }
+      if (props.onEnd) {
+        manager.on('end', props.onEnd)
+      }
+      if (props.onDir) {
+        manager.on('dir', props.onDir)
+      }
+      if (props.onMove) {
+        manager.on('move', props.onMove)
+      }
+      return { [Symbol.dispose]: () => manager.destroy() }
     })
-    if (props.onStart) {
-      manager.on('start', props.onStart)
-    }
-    if (props.onEnd) {
-      manager.on('end', props.onEnd)
-    }
-    if (props.onDir) {
-      manager.on('dir', props.onDir)
-    }
-    if (props.onMove) {
-      manager.on('move', props.onMove)
-    }
-    return () => manager.destroy()
-  },
-  render: ({ children }) => {
+
     if (children) {
       return <>{children}</>
     }

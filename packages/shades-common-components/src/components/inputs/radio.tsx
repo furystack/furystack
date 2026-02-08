@@ -128,41 +128,45 @@ export const Radio = Shade<RadioProps>({
       cursor: 'not-allowed',
     },
   },
-  constructed: ({ props, injector, element }) => {
-    let formCleanup: (() => void) | undefined
-    if (injector.cachedSingletons.has(FormService)) {
-      const input = element.querySelector('input[type="radio"]') as HTMLInputElement
-      const formService = injector.getInstance(FormService)
-      formService.inputs.add(input)
-      formCleanup = () => formService.inputs.delete(input)
-    }
+  render: ({ props, injector, element, useDisposable }) => {
+    useDisposable('form-registration', () => {
+      let input: HTMLInputElement | null = null
+      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
 
-    // After connection to the DOM, read group-level overrides from parent RadioGroup
-    const group = element.closest('shade-radio-group')
-    if (group) {
-      const input = element.querySelector<HTMLInputElement>('input[type="radio"]')
-      if (input) {
-        const groupName = group.getAttribute('data-group-name')
-        if (groupName) input.name = groupName
+      queueMicrotask(() => {
+        input = element.querySelector('input[type="radio"]') as HTMLInputElement
+        if (input && formService) {
+          formService.inputs.add(input)
+        }
 
-        const groupDisabled = group.hasAttribute('data-disabled')
-        if (groupDisabled) input.disabled = true
+        // Read group-level overrides from parent RadioGroup
+        const group = element.closest('shade-radio-group')
+        if (group && input) {
+          const groupName = group.getAttribute('data-group-name')
+          if (groupName) input.name = groupName
 
-        const groupValue = group.getAttribute('data-group-value')
-        if (groupValue !== null) {
-          input.checked = props.value === groupValue
-        } else {
-          const groupDefaultValue = group.getAttribute('data-group-default-value')
-          if (groupDefaultValue !== null && props.checked === undefined) {
-            input.checked = props.value === groupDefaultValue
+          const groupDisabled = group.hasAttribute('data-disabled')
+          if (groupDisabled) input.disabled = true
+
+          const groupValue = group.getAttribute('data-group-value')
+          if (groupValue !== null) {
+            input.checked = props.value === groupValue
+          } else {
+            const groupDefaultValue = group.getAttribute('data-group-default-value')
+            if (groupDefaultValue !== null && props.checked === undefined) {
+              input.checked = props.value === groupDefaultValue
+            }
           }
         }
-      }
-    }
+      })
 
-    return formCleanup
-  },
-  render: ({ props, injector, element }) => {
+      return {
+        [Symbol.dispose]: () => {
+          if (input && formService) formService.inputs.delete(input)
+        },
+      }
+    })
+
     const themeProvider = injector.getInstance(ThemeProviderService)
 
     // Read group-level overrides from parent RadioGroup when element is connected

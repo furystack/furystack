@@ -89,7 +89,7 @@ describe('Shades Component Factory', () => {
 
       const shade = component.firstElementChild as JSX.Element<{ foo: string }>
 
-      shade.callConstructed()
+      shade.updateComponent()
 
       expect(shade.props.foo).toEqual('example')
       expect(shade.shadeChildren).toEqual([])
@@ -113,7 +113,7 @@ describe('Shades Component Factory', () => {
       )
 
       const shade = component.firstElementChild as JSX.Element
-      shade.callConstructed()
+      shade.updateComponent()
       expect(shade.resourceManager.stateObservers.get('foo')?.getValue()).toEqual('example')
       expect(shade.shadeChildren).toEqual([])
     })
