@@ -1,1 +1,3 @@
-export type ChildrenList = Array<string | HTMLElement | JSX.Element | string[] | HTMLElement[] | JSX.Element[]>
+export type ChildrenList = Array<
+  string | HTMLElement | SVGElement | JSX.Element | string[] | HTMLElement[] | SVGElement[] | JSX.Element[]
+>

@@ -4,9 +4,7 @@ import { paletteMainColors } from '../../services/palette-css-vars.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import type { IconDefinition } from './icon-types.js'
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
-
-const SIZE_MAP: Record<string, number> = {
+const SIZE_MAP: Record<'small' | 'medium' | 'large', number> = {
   small: 16,
   medium: 24,
   large: 32,
@@ -35,39 +33,6 @@ export type IconProps = PartialElement<HTMLElement> & {
    * When omitted, sets `aria-hidden="true"` to hide the decorative icon from assistive technologies.
    */
   ariaLabel?: string
-}
-
-const createSvg = (icon: IconDefinition, sizePx: number): SVGSVGElement => {
-  const viewBox = icon.viewBox ?? '0 0 24 24'
-  const isStroke = (icon.style ?? 'stroke') === 'stroke'
-
-  const svg = document.createElementNS(SVG_NS, 'svg')
-  svg.setAttribute('width', String(sizePx))
-  svg.setAttribute('height', String(sizePx))
-  svg.setAttribute('viewBox', viewBox)
-  svg.setAttribute('xmlns', SVG_NS)
-
-  if (isStroke) {
-    svg.setAttribute('fill', 'none')
-    svg.setAttribute('stroke', 'currentColor')
-    svg.setAttribute('stroke-width', String(icon.strokeWidth ?? 2))
-    svg.setAttribute('stroke-linecap', 'round')
-    svg.setAttribute('stroke-linejoin', 'round')
-  } else {
-    svg.setAttribute('fill', 'currentColor')
-    svg.setAttribute('stroke', 'none')
-  }
-
-  for (const pathDef of icon.paths) {
-    const path = document.createElementNS(SVG_NS, 'path')
-    path.setAttribute('d', pathDef.d)
-    if (pathDef.fillRule) {
-      path.setAttribute('fill-rule', pathDef.fillRule)
-    }
-    svg.appendChild(path)
-  }
-
-  return svg
 }
 
 export const Icon = Shade<IconProps>({
@@ -102,7 +67,7 @@ export const Icon = Shade<IconProps>({
     const { icon, size = 'medium', color, ariaLabel, style } = props
 
     const sizeName = typeof size === 'string' ? size : undefined
-    const sizePx = typeof size === 'number' ? size : (SIZE_MAP[size] ?? 24)
+    const sizePx = typeof size === 'number' ? size : SIZE_MAP[size]
 
     if (sizeName) {
       element.setAttribute('data-size', sizeName)
@@ -132,10 +97,24 @@ export const Icon = Shade<IconProps>({
       Object.assign(element.style, style)
     }
 
-    const svg = createSvg(icon, sizePx)
-    const wrapper = (<span className="icon-container" />) as unknown as HTMLElement
-    wrapper.appendChild(svg)
+    const viewBox = icon.viewBox ?? '0 0 24 24'
+    const isStroke = (icon.style ?? 'stroke') === 'stroke'
 
-    return wrapper as unknown as JSX.Element
+    return (
+      <svg
+        width={sizePx}
+        height={sizePx}
+        viewBox={viewBox}
+        fill={isStroke ? 'none' : 'currentColor'}
+        stroke={isStroke ? 'currentColor' : 'none'}
+        stroke-width={isStroke ? (icon.strokeWidth ?? 2) : undefined}
+        stroke-linecap={isStroke ? 'round' : undefined}
+        stroke-linejoin={isStroke ? 'round' : undefined}
+      >
+        {icon.paths.map((p) => (
+          <path d={p.d} fill-rule={p.fillRule} />
+        ))}
+      </svg>
+    )
   },
 })

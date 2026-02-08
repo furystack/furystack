@@ -8,6 +8,7 @@
  */
 
 import type { ChildrenList } from './models/children-list.js'
+import { SVG_NS, isSvgTag } from './svg.js'
 
 // ---------------------------------------------------------------------------
 // Brands & sentinels
@@ -105,6 +106,11 @@ export const flattenVChildren = (raw: unknown[]): VChild[] => {
 
 /**
  * Creates a VNode descriptor. Used as the JSX factory during renders.
+ *
+ * For intrinsic elements (string type), the returned VNode includes DOM-shim
+ * methods (`setAttribute`, `appendChild`, etc.) so that component code which
+ * creates intermediate JSX and calls DOM methods on it continues to work.
+ *
  * @param type Tag name, Shade factory function, or null (fragment)
  * @param props Element props / component props
  * @param rawChildren Varargs children (strings, VNodes, arrays, etc.)
@@ -115,12 +121,43 @@ export const createVNode = (
   ...rawChildren: unknown[]
 ): VNode => {
   const children = flattenVChildren(rawChildren)
-  return {
+  const vnode: VNode = {
     _brand: VNODE_BRAND,
     type: type === null ? FRAGMENT : type,
-    props: props || null,
+    props: props ? { ...props } : null,
     children,
   }
+
+  // For intrinsic elements, add DOM-shim methods so that component render code
+  // which does `const el = <div/>; el.setAttribute(...)` still works in VNode mode.
+  if (typeof type === 'string') {
+    const v = vnode as unknown as Record<string, unknown>
+    v.setAttribute = (name: string, value: string) => {
+      if (!vnode.props) vnode.props = {}
+      vnode.props[name] = value
+    }
+    v.removeAttribute = (name: string) => {
+      if (vnode.props) delete vnode.props[name]
+    }
+    v.getAttribute = (name: string) => {
+      return (vnode.props?.[name] as string) ?? null
+    }
+    v.hasAttribute = (name: string) => {
+      return vnode.props ? name in vnode.props : false
+    }
+    v.appendChild = (child: unknown) => {
+      if (child instanceof Node) {
+        vnode.children.push({ _brand: VNODE_BRAND, type: EXISTING_NODE, props: null, children: [], _el: child })
+      } else if (isVNode(child) || isVTextNode(child)) {
+        vnode.children.push(child)
+      }
+      return child
+    }
+    v.tagName = type.toUpperCase()
+    v.nodeName = type.toUpperCase()
+  }
+
+  return vnode
 }
 
 // ---------------------------------------------------------------------------
@@ -178,19 +215,41 @@ export const toVChildArray = (renderResult: unknown): VChild[] => {
 // Props / style application
 // ---------------------------------------------------------------------------
 
-const setProp = (el: HTMLElement, key: string, value: unknown): void => {
+const setProp = (el: Element, key: string, value: unknown): void => {
   if (key === 'style' && typeof value === 'object' && value !== null) {
     for (const [sk, sv] of Object.entries(value as Record<string, string>)) {
-      ;(el.style as unknown as Record<string, string>)[sk] = sv
+      ;((el as HTMLElement).style as unknown as Record<string, string>)[sk] = sv
     }
-  } else if (key.startsWith('data-') || key.startsWith('aria-')) {
+    return
+  }
+
+  if (el instanceof SVGElement) {
+    if (key === 'className') {
+      el.setAttribute('class', String(value))
+    } else if (key.startsWith('on') && typeof value === 'function') {
+      ;(el as unknown as Record<string, unknown>)[key] = value
+    } else if (value === null || value === undefined || value === false) {
+      el.removeAttribute(key)
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      el.setAttribute(key, String(value))
+    }
+    return
+  }
+
+  if (key.startsWith('data-') || key.startsWith('aria-')) {
     el.setAttribute(key, typeof value === 'string' ? value : '')
   } else {
     ;(el as unknown as Record<string, unknown>)[key] = value
   }
 }
 
-const removeProp = (el: HTMLElement, key: string): void => {
+const removeProp = (el: Element, key: string): void => {
+  if (el instanceof SVGElement) {
+    el.removeAttribute(key === 'className' ? 'class' : key)
+    return
+  }
+
   if (key === 'style') {
     el.removeAttribute('style')
   } else if (key.startsWith('data-') || key.startsWith('aria-')) {
@@ -207,20 +266,21 @@ const removeProp = (el: HTMLElement, key: string): void => {
 }
 
 const patchStyle = (
-  el: HTMLElement,
+  el: Element,
   oldStyle: Record<string, string> | undefined,
   newStyle: Record<string, string> | undefined,
 ): void => {
+  const style = (el as HTMLElement).style as unknown as Record<string, string>
   const oldS = oldStyle || {}
   const newS = newStyle || {}
   for (const key of Object.keys(oldS)) {
     if (!(key in newS)) {
-      ;(el.style as unknown as Record<string, string>)[key] = ''
+      style[key] = ''
     }
   }
   for (const [key, value] of Object.entries(newS)) {
     if (oldS[key] !== value) {
-      ;(el.style as unknown as Record<string, string>)[key] = value
+      style[key] = value
     }
   }
 }
@@ -228,7 +288,7 @@ const patchStyle = (
 /**
  * Applies all props to a freshly created element (initial mount).
  */
-const applyProps = (el: HTMLElement, props: Record<string, unknown> | null): void => {
+const applyProps = (el: Element, props: Record<string, unknown> | null): void => {
   if (!props) return
   for (const [key, value] of Object.entries(props)) {
     setProp(el, key, value)
@@ -239,7 +299,7 @@ const applyProps = (el: HTMLElement, props: Record<string, unknown> | null): voi
  * Diffs old and new props and applies minimal updates to a live DOM element.
  */
 export const patchProps = (
-  el: HTMLElement,
+  el: Element,
   oldProps: Record<string, unknown> | null,
   newProps: Record<string, unknown> | null,
 ): void => {
@@ -296,7 +356,8 @@ export const mountChild = (child: VChild, parent: Node | null): Node => {
   }
 
   // Intrinsic element
-  const el = document.createElement(child.type as string)
+  const tag = child.type as string
+  const el = isSvgTag(tag) ? document.createElementNS(SVG_NS, tag) : document.createElement(tag)
   applyProps(el, child.props)
   child._el = el
 
@@ -376,7 +437,7 @@ const patchChild = (_parentEl: Node, oldChild: VChild, newChild: VChild): void =
     }
 
     // --- Intrinsic element ---
-    const el = oldChild._el as HTMLElement
+    const el = oldChild._el as Element
     newChild._el = el
     patchProps(el, oldChild.props, newChild.props)
     patchChildren(el, oldChild.children, newChild.children)

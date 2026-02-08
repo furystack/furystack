@@ -233,9 +233,13 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         private _performUpdate() {
+          let renderResult: unknown
           setRenderMode(true)
-          const renderResult = this.render(this.getRenderOptions())
-          setRenderMode(false)
+          try {
+            renderResult = this.render(this.getRenderOptions())
+          } finally {
+            setRenderMode(false)
+          }
 
           const newVTree = toVChildArray(renderResult)
           patchChildren(this, this._prevVTree || [], newVTree)
