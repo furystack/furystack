@@ -2,6 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import type { Palette } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
+import { Icon } from './icons/icon.js'
+import { star as starIcon, starOutline } from './icons/icon-definitions.js'
 
 /**
  * Props for the Rating component
@@ -36,13 +38,13 @@ export type RatingProps = {
    */
   color?: keyof Palette
   /**
-   * Character used for filled stars (default: '★')
+   * Content used for filled stars (default: filled star icon)
    */
-  icon?: string
+  icon?: JSX.Element | string
   /**
-   * Character used for empty stars (default: '☆')
+   * Content used for empty stars (default: outlined star icon)
    */
-  emptyIcon?: string
+  emptyIcon?: JSX.Element | string
   /**
    * Callback when the rating value changes
    * @param value - The new rating value
@@ -145,8 +147,8 @@ export const Rating = Shade<RatingProps>({
     const max = props.max ?? 5
     const precision = props.precision ?? 1
     const value = props.value ?? 0
-    const filledIcon = props.icon ?? '★'
-    const emptyIcon = props.emptyIcon ?? '☆'
+    const filledIcon = props.icon ?? ((<Icon icon={starIcon} size="small" />) as unknown as JSX.Element)
+    const emptyIcon = props.emptyIcon ?? ((<Icon icon={starOutline} size="small" />) as unknown as JSX.Element)
     const isInteractive = !props.disabled && !props.readOnly
 
     const color = themeProvider.theme.palette[props.color || 'warning'].main

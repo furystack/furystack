@@ -48,6 +48,7 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Breadcrumb', slug: 'breadcrumb' },
       { label: 'Carousel', slug: 'carousel' },
       { label: 'Chip', slug: 'chip' },
+      { label: 'Icons', slug: 'icons' },
       { label: 'Image', slug: 'image' },
       { label: 'Timeline', slug: 'timeline' },
       { label: 'Tooltip', slug: 'tooltip' },

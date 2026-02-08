@@ -2,6 +2,16 @@ import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
+import { Icon } from './icons/icon.js'
+import {
+  checkCircle,
+  errorCircle,
+  forbidden,
+  info as infoIcon,
+  searchOff,
+  serverError,
+  warning as warningIcon,
+} from './icons/icon-definitions.js'
 
 /**
  * Result status types. Includes both semantic statuses and HTTP error codes.
@@ -16,7 +26,7 @@ export type ResultProps = PartialElement<HTMLElement> & {
   /** Optional subtitle text below the title */
   subtitle?: string
   /** Optional custom icon to override the default status icon */
-  icon?: string
+  icon?: JSX.Element | string
 }
 
 const statusColorMap: Record<ResultStatus, string> = {
@@ -29,14 +39,14 @@ const statusColorMap: Record<ResultStatus, string> = {
   '500': paletteMainColors.error.main,
 }
 
-const defaultIcons: Record<ResultStatus, string> = {
-  success: '✅',
-  error: '❌',
-  warning: '⚠️',
-  info: 'ℹ️',
-  '403': '🚫',
-  '404': '🔍',
-  '500': '💥',
+const defaultIcons: Record<ResultStatus, JSX.Element> = {
+  success: (<Icon icon={checkCircle} size={64} />) as unknown as JSX.Element,
+  error: (<Icon icon={errorCircle} size={64} />) as unknown as JSX.Element,
+  warning: (<Icon icon={warningIcon} size={64} />) as unknown as JSX.Element,
+  info: (<Icon icon={infoIcon} size={64} />) as unknown as JSX.Element,
+  '403': (<Icon icon={forbidden} size={64} />) as unknown as JSX.Element,
+  '404': (<Icon icon={searchOff} size={64} />) as unknown as JSX.Element,
+  '500': (<Icon icon={serverError} size={64} />) as unknown as JSX.Element,
 }
 
 const defaultTitles: Record<ResultStatus, string> = {

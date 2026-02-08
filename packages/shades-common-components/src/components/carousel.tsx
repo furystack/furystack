@@ -2,6 +2,8 @@ import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
+import { Icon } from './icons/icon.js'
+import { chevronDown, chevronLeft, chevronRight, chevronUp } from './icons/icon-definitions.js'
 
 /**
  * Props for the Carousel component.
@@ -390,8 +392,8 @@ export const Carousel = Shade<CarouselProps>({
         </div>
       )
 
-    const prevArrow = vertical ? '▲' : '◀'
-    const nextArrow = vertical ? '▼' : '▶'
+    const prevIcon = vertical ? chevronUp : chevronLeft
+    const nextIcon = vertical ? chevronDown : chevronRight
 
     return (
       <>
@@ -406,7 +408,7 @@ export const Carousel = Shade<CarouselProps>({
               goPrev()
             }}
           >
-            {prevArrow}
+            <Icon icon={prevIcon} size="small" />
           </button>
         )}
 
@@ -419,7 +421,7 @@ export const Carousel = Shade<CarouselProps>({
               goNext()
             }}
           >
-            {nextArrow}
+            <Icon icon={nextIcon} size="small" />
           </button>
         )}
 

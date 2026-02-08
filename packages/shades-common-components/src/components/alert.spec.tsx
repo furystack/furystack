@@ -172,7 +172,7 @@ describe('Alert', () => {
     alert.callConstructed()
     const iconEl = alert.querySelector('.alert-icon')
     expect(iconEl).not.toBeNull()
-    expect(iconEl?.textContent).toBe('❌')
+    expect(iconEl?.querySelector('shade-icon')).not.toBeNull()
   })
 
   it('should render a custom icon when icon prop is provided', () => {

@@ -353,8 +353,8 @@ describe('Carousel', () => {
 
       const prevButton = document.querySelector('.carousel-arrow-prev') as HTMLButtonElement
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
-      expect(prevButton.textContent).toContain('◀')
-      expect(nextButton.textContent).toContain('▶')
+      expect(prevButton.querySelector('shade-icon')).not.toBeNull()
+      expect(nextButton.querySelector('shade-icon')).not.toBeNull()
     })
   })
 
@@ -372,8 +372,8 @@ describe('Carousel', () => {
 
       const prevButton = document.querySelector('.carousel-arrow-prev') as HTMLButtonElement
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
-      expect(prevButton.textContent).toContain('▲')
-      expect(nextButton.textContent).toContain('▼')
+      expect(prevButton.querySelector('shade-icon')).not.toBeNull()
+      expect(nextButton.querySelector('shade-icon')).not.toBeNull()
     })
   })
 

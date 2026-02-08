@@ -2,6 +2,8 @@ import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import { Icon } from '../icons/icon.js'
+import { close } from '../icons/icon-definitions.js'
 import { Loader } from '../loader.js'
 import { searchableInputStyles } from '../searchable-input-styles.js'
 import { SuggestInput } from './suggest-input.js'
@@ -112,7 +114,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
               borderWidth={4}
             />
             <div className="close-suggestions" onclick={() => manager.isOpened.setValue(false)}>
-              ✖
+              <Icon icon={close} size={14} />
             </div>
           </div>
         </div>

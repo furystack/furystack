@@ -171,7 +171,7 @@ describe('AccordionItem', () => {
     item.callConstructed()
     const chevron = item.querySelector('.accordion-chevron') as HTMLElement
     expect(chevron).not.toBeNull()
-    expect(chevron.textContent).toBe('▾')
+    expect(chevron.querySelector('shade-icon')).not.toBeNull()
   })
 
   it('should set aria-expanded to false when collapsed', () => {

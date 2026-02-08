@@ -144,7 +144,7 @@ describe('NotyComponent', () => {
 
       const dismissButton = document.querySelector('.dismiss-button')
       expect(dismissButton).not.toBeNull()
-      expect(dismissButton?.textContent).toContain('✕')
+      expect(dismissButton?.querySelector('shade-icon')).not.toBeNull()
     })
   })
 

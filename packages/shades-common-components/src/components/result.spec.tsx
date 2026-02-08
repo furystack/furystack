@@ -1,7 +1,7 @@
 import { createComponent } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import type { ResultProps, ResultStatus } from './result.js'
-import { Result, resultDefaultIcons } from './result.js'
+import { Result } from './result.js'
 
 describe('Result', () => {
   it('should be defined', () => {
@@ -83,7 +83,7 @@ describe('Result', () => {
       result.callConstructed()
       const iconEl = result.querySelector('.result-icon')
       expect(iconEl).not.toBeNull()
-      expect(iconEl?.textContent).toBe(resultDefaultIcons[status])
+      expect(iconEl?.querySelector('shade-icon')).not.toBeNull()
     }
   })
 

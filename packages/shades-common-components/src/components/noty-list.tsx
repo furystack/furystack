@@ -4,6 +4,8 @@ import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
+import { Icon } from './icons/icon.js'
+import { close } from './icons/icon-definitions.js'
 
 export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
   switch (type) {
@@ -120,7 +122,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
             {props.model.title}
           </span>
           <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: textColor }}>
-            ✕
+            <Icon icon={close} size={14} />
           </button>
         </div>
         <div className="noty-body">{props.model.body}</div>

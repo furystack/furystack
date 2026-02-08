@@ -3,6 +3,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import { Icon } from './icons/icon.js'
+import { clipboard } from './icons/icon-definitions.js'
 
 /**
  * Typography variant determines semantic HTML tag and default styles.
@@ -292,7 +294,7 @@ export const Typography = Shade<TypographyProps>({
         {inner}
         {copyable ? (
           <button type="button" className="typo-copy-btn" onclick={handleCopy} title="Copy to clipboard">
-            📋
+            <Icon icon={clipboard} size={14} />
           </button>
         ) : null}
       </>

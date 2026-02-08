@@ -393,6 +393,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/icons': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { IconsPage } = await import('./pages/data-display/icons.js')
+                  return <IconsPage />
+                }}
+              />
+            ),
+          },
           '/image': {
             ...withFadeTransition,
             component: () => (

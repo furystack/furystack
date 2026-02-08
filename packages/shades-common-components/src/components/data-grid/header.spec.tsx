@@ -154,7 +154,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('↕')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -172,7 +172,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('⬇')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -190,7 +190,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('⬆')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -208,7 +208,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('↕')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -295,13 +295,13 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         let button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('↕')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
 
         findOptions.setValue({ order: { name: 'ASC' } })
         await sleepAsync(50)
 
         button = document.querySelector('data-grid-order-button')
-        expect(button?.textContent).toContain('⬇')
+        expect(button?.querySelector('shade-icon')).not.toBeNull()
       })
     })
   })
@@ -321,7 +321,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.textContent).toContain('🔎')
+        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -339,7 +339,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.textContent).toContain('🔍')
+        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
@@ -357,7 +357,7 @@ describe('DataGridHeader', () => {
         await sleepAsync(50)
 
         const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.textContent).toContain('🔎')
+        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
       })
     })
   })

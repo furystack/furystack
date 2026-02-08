@@ -2,6 +2,14 @@ import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
+import { Icon } from './icons/icon.js'
+import {
+  checkCircle,
+  close as closeIcon,
+  errorCircle,
+  info as infoIcon,
+  warning as warningIcon,
+} from './icons/icon-definitions.js'
 
 export type AlertSeverity = 'error' | 'warning' | 'info' | 'success'
 
@@ -10,7 +18,7 @@ export type AlertProps = PartialElement<HTMLElement> & {
   variant?: 'filled' | 'outlined' | 'standard'
   title?: string
   onClose?: (ev: MouseEvent) => void
-  icon?: string
+  icon?: JSX.Element | string
 }
 
 const severityColorMap: Record<AlertSeverity, { main: string; mainContrast: string; light: string }> = {
@@ -20,11 +28,11 @@ const severityColorMap: Record<AlertSeverity, { main: string; mainContrast: stri
   success: { ...paletteMainColors.success, light: cssVariableTheme.palette.success.light },
 }
 
-const defaultIcons: Record<AlertSeverity, string> = {
-  error: '❌',
-  warning: '⚠️',
-  info: 'ℹ️',
-  success: '✅',
+const defaultIcons: Record<AlertSeverity, JSX.Element> = {
+  error: (<Icon icon={errorCircle} size="small" />) as unknown as JSX.Element,
+  warning: (<Icon icon={warningIcon} size="small" />) as unknown as JSX.Element,
+  info: (<Icon icon={infoIcon} size="small" />) as unknown as JSX.Element,
+  success: (<Icon icon={checkCircle} size="small" />) as unknown as JSX.Element,
 }
 
 export const Alert = Shade<AlertProps>({
@@ -174,7 +182,7 @@ export const Alert = Shade<AlertProps>({
               onClose(ev)
             }}
           >
-            ✕
+            <Icon icon={closeIcon} size="small" />
           </span>
         ) : null}
       </>

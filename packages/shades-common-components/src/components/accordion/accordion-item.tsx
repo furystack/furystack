@@ -1,6 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import { collapse, expand } from '../animations.js'
+import { Icon } from '../icons/icon.js'
+import { chevronDown } from '../icons/icon-definitions.js'
 
 /**
  * Props for the AccordionItem component.
@@ -172,7 +174,9 @@ export const AccordionItem = Shade<AccordionItemProps>({
       >
         {props.icon ? <span className="accordion-icon">{props.icon}</span> : null}
         <span className="accordion-title">{props.title}</span>
-        <span className="accordion-chevron">▾</span>
+        <span className="accordion-chevron">
+          <Icon icon={chevronDown} size={16} />
+        </span>
       </div>
     ) as unknown as HTMLDivElement
 

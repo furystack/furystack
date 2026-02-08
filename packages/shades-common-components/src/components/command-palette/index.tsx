@@ -2,6 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
+import { Icon } from '../icons/icon.js'
+import { close } from '../icons/icon-definitions.js'
 import { Loader } from '../loader.js'
 import { searchableInputStyles } from '../searchable-input-styles.js'
 import { CommandPaletteInput } from './command-palette-input.js'
@@ -114,7 +116,7 @@ export const CommandPalette = Shade<CommandPaletteProps>({
               <Loader style={{ width: '100%', height: '100%' }} />
             </div>
             <div className="close-suggestions" onclick={() => setIsOpened(false)}>
-              ✖
+              <Icon icon={close} size={14} />
             </div>
           </div>
         </div>

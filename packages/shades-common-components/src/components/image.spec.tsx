@@ -156,7 +156,7 @@ describe('Image component', () => {
       const fallback = imageComponent?.querySelector('.image-fallback') as HTMLElement
       expect(fallback).not.toBeNull()
       expect(fallback.style.display).toBe('flex')
-      expect(fallback.textContent).toContain('🖼️')
+      expect(fallback.querySelector('shade-icon')).not.toBeNull()
     })
   })
 

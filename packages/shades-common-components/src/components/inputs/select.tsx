@@ -5,6 +5,8 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
+import { Icon } from '../icons/icon.js'
+import { check, close } from '../icons/icon-definitions.js'
 import type { InputValidationResult } from './input.js'
 
 export type SelectOption = {
@@ -635,7 +637,7 @@ export const Select = Shade<SelectProps>({
                         removeChip(val)
                       }}
                     >
-                      ✕
+                      <Icon icon={close} size={12} />
                     </span>
                   ) : null}
                 </span>
@@ -669,7 +671,7 @@ export const Select = Shade<SelectProps>({
             selectOption(option)
           }}
         >
-          {isMultiple ? <span className="check-icon">{isSelected ? '✓' : ''}</span> : null}
+          {isMultiple ? <span className="check-icon">{isSelected ? <Icon icon={check} size={14} /> : ''}</span> : null}
           {option.label}
         </li>
       )

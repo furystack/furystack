@@ -1,5 +1,7 @@
 import { LocationService, Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
+import { Icon } from './icons/icon.js'
+import { close } from './icons/icon-definitions.js'
 
 export type Tab = {
   header: JSX.Element
@@ -259,12 +261,20 @@ export const Tabs = Shade<{
                 onclick={(e: MouseEvent) => handleTabClick(e, tab, index)}
               >
                 {tab.header}
-                {hasCloseButton ? <span className="shade-tab-close">✕</span> : null}
+                {hasCloseButton ? (
+                  <span className="shade-tab-close">
+                    <Icon icon={close} size={12} />
+                  </span>
+                ) : null}
               </button>
             ) : (
               <TabHeader hash={tab.hash} onclick={(e: MouseEvent) => handleTabClick(e, tab, index)}>
                 {tab.header}
-                {hasCloseButton ? <span className="shade-tab-close">✕</span> : null}
+                {hasCloseButton ? (
+                  <span className="shade-tab-close">
+                    <Icon icon={close} size={12} />
+                  </span>
+                ) : null}
               </TabHeader>
             )
           })}

@@ -1,6 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
+import { Icon } from './icons/icon.js'
+import { close, imageBroken, rotate, search, zoomIn, zoomOut } from './icons/icon-definitions.js'
 
 export type ImageProps = {
   /**
@@ -167,7 +169,7 @@ const createLightbox = (
             if (img) updateTransform(img)
           }}
         >
-          🔍+
+          <Icon icon={zoomIn} size="small" />
         </button>
         <button
           className="lightbox-zoom-out"
@@ -179,7 +181,7 @@ const createLightbox = (
             if (img) updateTransform(img)
           }}
         >
-          🔍−
+          <Icon icon={zoomOut} size="small" />
         </button>
         <button
           className="lightbox-rotate"
@@ -191,7 +193,7 @@ const createLightbox = (
             if (img) updateTransform(img)
           }}
         >
-          🔄
+          <Icon icon={rotate} size="small" />
         </button>
         <div style={{ width: '1px', height: '20px', backgroundColor: cssVariableTheme.action.subtleBorder }} />
         <button
@@ -202,7 +204,7 @@ const createLightbox = (
             await closeLightbox(backdrop as unknown as HTMLElement)
           }}
         >
-          ✕
+          <Icon icon={close} size="small" />
         </button>
       </div>
 
@@ -497,9 +499,13 @@ export const Image = Shade<ImageProps>({
             height: height || '150px',
           }}
         >
-          {fallback || '🖼️'}
+          {fallback || <Icon icon={imageBroken} size="large" />}
         </div>
-        {preview ? <div className="image-preview-icon">🔍</div> : null}
+        {preview ? (
+          <div className="image-preview-icon">
+            <Icon icon={search} size="small" />
+          </div>
+        ) : null}
       </>
     )
   },
