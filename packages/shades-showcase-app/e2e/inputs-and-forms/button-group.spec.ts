@@ -10,11 +10,13 @@ test.describe('Button Group', () => {
   test('should render the page with all sections', async ({ page }) => {
     const content = page.locator('button-group-page')
 
-    await expect(content.locator('shade-page-header')).toBeVisible()
+    // Page header should be visible
+    await expect(content.getByRole('heading', { name: 'Button Group', level: 2 })).toBeVisible()
 
-    // Should have 3 papers: ButtonGroup, ToggleButtonGroup, SegmentedControl
-    const papers = content.locator('shade-paper')
-    await expect(papers).toHaveCount(3)
+    // Should have 3 sections: ButtonGroup, ToggleButtonGroup, SegmentedControl
+    await expect(content.getByRole('heading', { name: 'ButtonGroup', level: 3, exact: true })).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'ToggleButtonGroup', level: 3 })).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'SegmentedControl', level: 3 })).toBeVisible()
   })
 
   test('should render ButtonGroup variants', async ({ page }) => {

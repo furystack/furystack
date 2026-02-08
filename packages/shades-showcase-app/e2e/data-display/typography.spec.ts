@@ -74,7 +74,7 @@ test.describe('Typography', () => {
     const content = page.locator('shades-typography-page')
     await content.waitFor({ state: 'visible' })
 
-    const copyableHeading = content.getByRole('heading', { name: 'Copyable' })
+    const copyableHeading = content.getByRole('heading', { name: 'Copyable', exact: true })
     await expect(copyableHeading).toBeVisible()
 
     // Check that copy buttons exist

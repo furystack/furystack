@@ -63,8 +63,8 @@ test.describe('Slider', () => {
     const rangeHeading = content.getByRole('heading', { name: 'Range Slider' })
     await expect(rangeHeading).toBeVisible()
 
-    // Find the range slider (it should have two thumbs)
-    const rangeSlider = rangeHeading.locator('xpath=ancestor::shade-paper').locator('shade-slider').first()
+    // Find the range slider via its demo wrapper (it should have two thumbs)
+    const rangeSlider = content.locator('slider-demo-range shade-slider')
     const thumbs = rangeSlider.locator('.slider-thumb')
     await expect(thumbs).toHaveCount(2)
   })
@@ -106,8 +106,8 @@ test.describe('Slider', () => {
     const marksHeading = content.getByRole('heading', { name: 'Custom Marks with Labels' })
     await expect(marksHeading).toBeVisible()
 
-    const marksSection = marksHeading.locator('xpath=ancestor::shade-paper')
-    const labels = marksSection.locator('.slider-mark-label')
+    // Mark labels should be visible on the page
+    const labels = content.locator('.slider-mark-label')
     const count = await labels.count()
     expect(count).toBeGreaterThan(0)
   })

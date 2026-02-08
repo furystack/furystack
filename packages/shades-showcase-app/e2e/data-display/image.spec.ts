@@ -4,13 +4,12 @@ test.describe('Image', () => {
   test('should render the Image page with all sections', async ({ page }) => {
     await page.goto('/data-display/image')
 
-    const pageHeader = page.locator('shade-page-header')
-    await expect(pageHeader).toBeVisible()
-    await expect(pageHeader).toContainText('Image')
+    // Page header should be visible
+    await expect(page.getByRole('heading', { name: 'Image', level: 2 })).toBeVisible()
 
-    // Should have multiple paper sections
-    const papers = page.locator('shade-paper')
-    await expect(papers.first()).toBeVisible()
+    // Basic images should be visible
+    const images = page.locator('shade-image')
+    await expect(images.first()).toBeVisible()
   })
 
   test('should render basic images', async ({ page }) => {

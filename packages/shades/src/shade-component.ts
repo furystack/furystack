@@ -44,7 +44,7 @@ export const attachStyles = (el: HTMLElement, props: unknown) => {
 export const attachDataAttributes = <TProps extends object>(el: HTMLElement, props: TProps) => {
   if (props) {
     Object.entries(props)
-      .filter(([key]) => key.startsWith('data-'))
+      .filter(([key]) => key.startsWith('data-') || key.startsWith('aria-'))
       .forEach(([key, value]) => el.setAttribute(key, (value as string) || ''))
   }
 }
