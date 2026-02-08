@@ -41,13 +41,13 @@
     "test": "yarn run vitest",
     "test:debug": "yarn run --inspect-brk vitest --runInBand",
     "test:e2e": "yarn workspace @furystack/shades-showcase-app e2e test",
-    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build"
+    "create-schemas": "yarn build && yarn ts-json-schema-generator  -f packages/rest-service/tsconfig.json -p packages/rest-service/src/validate.integration.schema.ts -o packages/rest-service/src/validate.integration.spec.schema.json && yarn build",
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "name": "furystack",
