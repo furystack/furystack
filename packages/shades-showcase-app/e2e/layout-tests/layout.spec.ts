@@ -163,8 +163,11 @@ test.describe('PageLayout E2E Tests', () => {
       await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
       await expect(page).toHaveScreenshot('layout-temporary-drawer-left-open.png')
 
-      // Close left drawer via backdrop
-      await page.getByTestId('page-layout-backdrop').click()
+      // Close left drawer via backdrop (click at right edge to avoid drawer overlay on mobile)
+      const backdropBox = await page.getByTestId('page-layout-backdrop').boundingBox()
+      if (backdropBox) {
+        await page.mouse.click(backdropBox.x + backdropBox.width - 10, backdropBox.y + backdropBox.height / 2)
+      }
       await expectDrawerClosed(page, 'left')
       await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
 
@@ -175,8 +178,11 @@ test.describe('PageLayout E2E Tests', () => {
       await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
       await expect(page).toHaveScreenshot('layout-temporary-drawer-right-open.png')
 
-      // Close right drawer via backdrop
-      await page.getByTestId('page-layout-backdrop').click()
+      // Close right drawer via backdrop (click at left edge to avoid drawer overlay on mobile)
+      const backdropBox2 = await page.getByTestId('page-layout-backdrop').boundingBox()
+      if (backdropBox2) {
+        await page.mouse.click(backdropBox2.x + 10, backdropBox2.y + backdropBox2.height / 2)
+      }
       await expectDrawerClosed(page, 'right')
       await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
     })

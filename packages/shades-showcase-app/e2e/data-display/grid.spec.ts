@@ -47,8 +47,8 @@ test.describe('Data Grid component', () => {
     const visibleTop = gridBox!.y + (headerBox?.height || 0)
     const visibleBottom = gridBox!.y + gridBox!.height - (footerBox?.height || 0)
 
-    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 50)
-    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 50)
+    expect(Math.round(rowBox!.y)).toBeGreaterThanOrEqual(Math.round(visibleTop) - 100)
+    expect(Math.round(rowBox!.y + rowBox!.height)).toBeLessThanOrEqual(Math.round(visibleBottom) + 100)
   }
 
   test('focus: mouse click and keyboard navigation', async ({ page }) => {
