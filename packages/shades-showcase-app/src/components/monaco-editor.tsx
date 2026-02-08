@@ -14,11 +14,13 @@ export interface MonacoEditorProps {
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   shadowDomName: 'monaco-editor',
+  css: {
+    display: 'block',
+    height: '100%',
+    width: '100%',
+    position: 'relative',
+  },
   render: ({ element, props, useDisposable, injector }) => {
-    element.style.display = 'block'
-    element.style.height = '100%'
-    element.style.width = '100%'
-    element.style.position = 'relative'
     if (props.style) {
       Object.assign(element.style, props.style)
     }
