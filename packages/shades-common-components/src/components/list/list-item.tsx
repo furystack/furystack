@@ -1,7 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import type { ListService } from '../../services/list-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import type { ListService } from '../../services/list-service.js'
 import type { ListItemState } from './list.js'
 
 export type ListItemProps<T> = {

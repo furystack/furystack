@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import * as allIcons from './icon-definitions.js'
-import type { IconDefinition } from './icon-types.js'
 
 const iconEntries = Object.entries(allIcons)
 

@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { PageContainer, PageHeader, Paper, Tabs, Typography, type Tab } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
-import { PageContainer, PageHeader, Paper, Tabs, type Tab, Typography } from '@furystack/shades-common-components'
 
 const ControlledTabsDemo = Shade({
   shadowDomName: 'controlled-tabs-demo',

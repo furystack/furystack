@@ -1,7 +1,7 @@
 import { LocationService, Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
-import { Icon } from './icons/icon.js'
 import { close } from './icons/icon-definitions.js'
+import { Icon } from './icons/icon.js'
 
 export type Tab = {
   header: JSX.Element
