@@ -264,7 +264,7 @@ export const Select = Shade<SelectProps>({
       position: 'absolute',
       left: '0',
       right: '0',
-      zIndex: cssVariableTheme.zIndex.drawer,
+      zIndex: cssVariableTheme.zIndex.dropdown,
       maxHeight: '240px',
       overflowY: 'auto',
       background: cssVariableTheme.background.paper,
