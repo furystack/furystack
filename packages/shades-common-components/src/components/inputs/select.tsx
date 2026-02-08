@@ -92,7 +92,7 @@ const defaultFilterOption = (searchText: string, option: SelectOption): boolean 
 }
 
 export const Select = Shade<SelectProps>({
-  shadowDomName: 'shade-select',
+  tagName: 'shade-select',
   css: {
     display: 'block',
     position: 'relative',

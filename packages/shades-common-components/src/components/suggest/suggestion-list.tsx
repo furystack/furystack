@@ -6,7 +6,7 @@ import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children: ChildrenList) => JSX.Element<any> =
   Shade<{ manager: SuggestManager<any> }>({
-    shadowDomName: 'shade-suggest-suggestion-list',
+    tagName: 'shade-suggest-suggestion-list',
     css: {
       '& .suggestion-items-container': {
         borderTop: 'none',

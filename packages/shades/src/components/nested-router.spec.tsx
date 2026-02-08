@@ -424,8 +424,8 @@ describe('NestedRouter lifecycle element scope', () => {
   it('should pass the child element (not the full tree) to onLeave/onVisit when switching between sibling children', async () => {
     history.pushState(null, '', '/parent/child-a')
 
-    const visitElements: Array<{ route: string; element: JSX.Element }> = []
-    const leaveElements: Array<{ route: string; element: JSX.Element }> = []
+    const visitElements: Array<{ route: string; elementId: string }> = []
+    const leaveElements: Array<{ route: string; elementId: string }> = []
 
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -446,28 +446,28 @@ describe('NestedRouter lifecycle element scope', () => {
                 '/parent': {
                   component: ({ outlet }) => <div id="wrapper">{outlet ?? <span>index</span>}</div>,
                   onVisit: async ({ element }) => {
-                    visitElements.push({ route: 'parent', element })
+                    visitElements.push({ route: 'parent', elementId: (element as HTMLElement).id })
                   },
                   onLeave: async ({ element }) => {
-                    leaveElements.push({ route: 'parent', element })
+                    leaveElements.push({ route: 'parent', elementId: (element as HTMLElement).id })
                   },
                   children: {
                     '/child-a': {
                       component: () => <div id="child-a-content">child-a</div>,
                       onVisit: async ({ element }) => {
-                        visitElements.push({ route: 'child-a', element })
+                        visitElements.push({ route: 'child-a', elementId: (element as HTMLElement).id })
                       },
                       onLeave: async ({ element }) => {
-                        leaveElements.push({ route: 'child-a', element })
+                        leaveElements.push({ route: 'child-a', elementId: (element as HTMLElement).id })
                       },
                     },
                     '/child-b': {
                       component: () => <div id="child-b-content">child-b</div>,
                       onVisit: async ({ element }) => {
-                        visitElements.push({ route: 'child-b', element })
+                        visitElements.push({ route: 'child-b', elementId: (element as HTMLElement).id })
                       },
                       onLeave: async ({ element }) => {
-                        leaveElements.push({ route: 'child-b', element })
+                        leaveElements.push({ route: 'child-b', elementId: (element as HTMLElement).id })
                       },
                     },
                   },
@@ -483,12 +483,10 @@ describe('NestedRouter lifecycle element scope', () => {
       // --- Initial load at /parent/child-a ---
       await sleepAsync(100)
       expect(visitElements).toHaveLength(2)
-      // Parent's onVisit element should be the full tree (parent wrapping child)
       expect(visitElements[0].route).toBe('parent')
-      expect((visitElements[0].element as HTMLElement).id).toBe('wrapper')
-      // Child-a's onVisit element should be just the child element, not the wrapper
+      expect(visitElements[0].elementId).toBe('wrapper')
       expect(visitElements[1].route).toBe('child-a')
-      expect((visitElements[1].element as HTMLElement).id).toBe('child-a-content')
+      expect(visitElements[1].elementId).toBe('child-a-content')
 
       // --- Switch to child-b: parent stays, only child lifecycle fires ---
       visitElements.length = 0
@@ -496,15 +494,15 @@ describe('NestedRouter lifecycle element scope', () => {
       clickOn('child-b')
       await sleepAsync(100)
 
-      // onLeave should receive the child-a element, not the full wrapper
+      // onLeave should fire for child-a with its element id captured at callback time
       expect(leaveElements).toHaveLength(1)
       expect(leaveElements[0].route).toBe('child-a')
-      expect((leaveElements[0].element as HTMLElement).id).toBe('child-a-content')
+      expect(leaveElements[0].elementId).toBe('child-a-content')
 
-      // onVisit should receive the child-b element, not the full wrapper
+      // onVisit should fire for child-b with its element id
       expect(visitElements).toHaveLength(1)
       expect(visitElements[0].route).toBe('child-b')
-      expect((visitElements[0].element as HTMLElement).id).toBe('child-b-content')
+      expect(visitElements[0].elementId).toBe('child-b-content')
     })
   })
 })

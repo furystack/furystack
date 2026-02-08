@@ -16,7 +16,7 @@ describe('createShadesMicroFrontend', () => {
 
   it('should return a CreateMicroFrontendService instance', () => {
     const TestComponent = Shade<{ value: string }>({
-      shadowDomName: 'test-mfe-return-type',
+      tagName: 'test-mfe-return-type',
       render: ({ props }) => <div>{props.value}</div>,
     })
 
@@ -29,7 +29,7 @@ describe('createShadesMicroFrontend', () => {
 
   it('should create a child injector when create is called', async () => {
     const TestComponent = Shade<{ value: string }>({
-      shadowDomName: 'test-mfe-child-injector',
+      tagName: 'test-mfe-child-injector',
       render: ({ props }) => <div>{props.value}</div>,
     })
 
@@ -55,7 +55,7 @@ describe('createShadesMicroFrontend', () => {
     const testValue = crypto.randomUUID()
 
     const TestComponent = Shade<{ value: string }>({
-      shadowDomName: 'test-mfe-render-props',
+      tagName: 'test-mfe-render-props',
       render: ({ props }) => <div data-testid="content">Value: {props.value}</div>,
     })
 
@@ -77,7 +77,7 @@ describe('createShadesMicroFrontend', () => {
 
   it('should render the component into the provided root element', async () => {
     const TestComponent = Shade<object>({
-      shadowDomName: 'test-mfe-root-element',
+      tagName: 'test-mfe-root-element',
       render: () => <span>MFE Content</span>,
     })
 
@@ -108,7 +108,7 @@ describe('createShadesMicroFrontend', () => {
     const clickHandler = vi.fn()
 
     const TestComponent = Shade<ComplexApi>({
-      shadowDomName: 'test-mfe-complex-api',
+      tagName: 'test-mfe-complex-api',
       render: ({ props }) => (
         <div>
           <span data-testid="user-name">{props.user.name}</span>
@@ -148,7 +148,7 @@ describe('createShadesMicroFrontend', () => {
     let capturedInjector: Injector | undefined
 
     const TestComponent = Shade<object>({
-      shadowDomName: 'test-mfe-injector-capture',
+      tagName: 'test-mfe-injector-capture',
       render: ({ injector }) => {
         capturedInjector = injector
         return <div>Test</div>

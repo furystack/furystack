@@ -9,7 +9,7 @@ const MailIcon = () => <span style={{ fontSize: '24px', lineHeight: '1', display
 const NotificationIcon = () => <span style={{ fontSize: '24px', lineHeight: '1', display: 'inline-flex' }}>🔔</span>
 
 export const BadgePage = Shade({
-  shadowDomName: 'shades-badge-page',
+  tagName: 'shades-badge-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('badge', { count: 5 })
 

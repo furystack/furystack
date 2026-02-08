@@ -13,7 +13,7 @@ export type LinkToRouteProps<T extends object> = {
 /** @deprecated Use `NestedRouteLink` from `nested-route-link` instead */
 export const LinkToRoute: <T extends object>(props: LinkToRouteProps<T>, children?: ChildrenList) => JSX.Element =
   Shade({
-    shadowDomName: 'link-to-route',
+    tagName: 'link-to-route',
     elementBase: HTMLAnchorElement,
     elementBaseName: 'a',
     render: ({ props, element, children }) => {

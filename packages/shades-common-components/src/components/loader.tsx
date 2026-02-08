@@ -25,7 +25,7 @@ interface LoaderProps {
 }
 
 export const Loader = Shade<LoaderProps>({
-  shadowDomName: 'shade-loader',
+  tagName: 'shade-loader',
   css: {
     display: 'inline-block',
     transformOrigin: 'center',

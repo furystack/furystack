@@ -27,7 +27,7 @@ import '@furystack/shades-lottie'
 import { Shade, createComponent } from '@furystack/shades'
 
 const MyComponent = Shade({
-  shadowDomName: 'my-animation',
+  tagName: 'my-animation',
   render: () => (
     <lottie-player
       src="https://assets.lottiefiles.com/packages/lf20_example.json"

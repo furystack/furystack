@@ -8,7 +8,7 @@ export type RouteLinkProps = PartialElement<Omit<HTMLAnchorElement, 'onclick'>>
 
 /** @deprecated Use `NestedRouteLink` from `nested-route-link` instead */
 export const RouteLink = Shade<RouteLinkProps>({
-  shadowDomName: 'route-link',
+  tagName: 'route-link',
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
   css: {

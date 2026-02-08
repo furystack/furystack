@@ -39,7 +39,7 @@ export type RadioGroupProps = {
 }
 
 export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX.Element = Shade<RadioGroupProps>({
-  shadowDomName: 'shade-radio-group',
+  tagName: 'shade-radio-group',
   css: {
     display: 'block',
 

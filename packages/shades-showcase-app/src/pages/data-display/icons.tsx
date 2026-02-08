@@ -120,7 +120,7 @@ const iconCellStyle: Partial<CSSStyleDeclaration> = {
 }
 
 export const IconsPage = Shade({
-  shadowDomName: 'shades-icons-page',
+  tagName: 'shades-icons-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('icons', {
       selectedSize: 'medium' as 'small' | 'medium' | 'large',

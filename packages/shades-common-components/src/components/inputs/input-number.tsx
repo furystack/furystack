@@ -125,7 +125,7 @@ const parseValue = (text: string, parser?: InputNumberProps['parser']): number |
 }
 
 export const InputNumber = Shade<InputNumberProps>({
-  shadowDomName: 'shade-input-number',
+  tagName: 'shade-input-number',
   css: {
     display: 'block',
     marginBottom: '1.25em',

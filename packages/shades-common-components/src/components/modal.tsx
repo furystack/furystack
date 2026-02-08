@@ -10,7 +10,7 @@ export type ModalProps = {
 }
 
 export const Modal = Shade<ModalProps>({
-  shadowDomName: 'shade-modal',
+  tagName: 'shade-modal',
   css: {
     '& .shade-backdrop': {
       width: '100%',

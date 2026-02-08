@@ -10,7 +10,7 @@ export const DataGridFooter: <T>(props: {
   service: CollectionService<T>
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
 }) => JSX.Element = Shade({
-  shadowDomName: 'shade-data-grid-footer',
+  tagName: 'shade-data-grid-footer',
   css: {
     display: 'block',
     '& .pager': {

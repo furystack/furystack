@@ -52,7 +52,7 @@ const hideAnimation = async (el: Element | null) => {
 }
 
 export const Dialog = Shade<DialogProps>({
-  shadowDomName: 'shade-dialog',
+  tagName: 'shade-dialog',
   css: {
     '& .dialog-panel': {
       position: 'relative',

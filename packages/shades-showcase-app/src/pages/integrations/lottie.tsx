@@ -5,7 +5,7 @@ import type { LottiePlayer } from '@lottiefiles/lottie-player'
 import lottieExample from './lottie-example.json' with { type: 'json' }
 
 export const LottiePage = Shade({
-  shadowDomName: 'lottie-page',
+  tagName: 'lottie-page',
   render: () => {
     const example = JSON.stringify(lottieExample)
     return (

@@ -10,7 +10,7 @@ type Api = {
 }
 
 const Component = Shade<Api>({
-  shadowDomName: 'mfe-client',
+  tagName: 'mfe-client',
   render: ({ props }) => {
     const { title } = props
     return (

@@ -12,7 +12,7 @@ export interface NippleComponentProps {
 }
 
 export const NippleComponent = Shade<NippleComponentProps>({
-  shadowDomName: 'shade-nipple',
+  tagName: 'shade-nipple',
   constructed: async ({ element, props }) => {
     const manager = nipplejs.create({
       zone: element,

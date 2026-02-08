@@ -4,7 +4,7 @@ import { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
 
 export const GridPage = Shade({
-  shadowDomName: 'shades-grid-page',
+  tagName: 'shades-grid-page',
   css: {
     height: `100%`,
     boxSizing: 'border-box',

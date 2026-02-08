@@ -4,7 +4,7 @@ import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
 
 export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
-  shadowDomName: 'shade-command-palette-suggestion-list',
+  tagName: 'shade-command-palette-suggestion-list',
   css: {
     '& .suggestion-items-container': {
       borderTop: 'none',

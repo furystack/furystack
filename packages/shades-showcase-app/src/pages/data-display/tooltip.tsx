@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Button, Chip, PageContainer, PageHeader, Paper, Tooltip } from '@furystack/shades-common-components'
 
 export const TooltipPage = Shade({
-  shadowDomName: 'shades-tooltip-page',
+  tagName: 'shades-tooltip-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

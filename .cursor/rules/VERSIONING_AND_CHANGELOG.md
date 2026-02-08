@@ -414,27 +414,24 @@ Don't just describe changes - show them:
 ````markdown
 ✅ Good:
 
-#### New Observable Batching Feature
+#### Automatic Microtask Batching for Shades Components
 
-Batch multiple observable updates to reduce re-renders:
+State changes are now automatically batched via `queueMicrotask()`, reducing unnecessary re-renders:
 
-**Basic Usage:**
+**What Changed:**
 
 ```typescript
-import { ObservableValue, batchUpdates } from '@furystack/utils'
+// Before (v11): each setValue triggers a separate re-render
+const [count, setCount] = useState('count', 0)
+const [name, setName] = useState('name', '')
 
-const count = new ObservableValue(0)
-const name = new ObservableValue('')
+setCount(1) // re-render #1
+setName('John') // re-render #2
 
-// Without batching: 2 separate updates
-count.setValue(1)
-name.setValue('John')
-
-// With batching: single update notification
-batchUpdates(() => {
-  count.setValue(1)
-  name.setValue('John')
-})
+// After (v12): synchronous changes are batched into a single re-render
+setCount(1) // schedules update
+setName('John') // coalesced into same update
+// → only one re-render after microtask flush
 ```
 ````
 

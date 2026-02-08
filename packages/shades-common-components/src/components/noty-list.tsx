@@ -23,7 +23,7 @@ export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
 }
 
 export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>({
-  shadowDomName: 'shade-noty',
+  tagName: 'shade-noty',
   constructed: ({ element }) => {
     setTimeout(() => {
       const height = element.scrollHeight || 60
@@ -132,7 +132,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 })
 
 export const NotyList = Shade({
-  shadowDomName: 'shade-noty-list',
+  tagName: 'shade-noty-list',
   css: {
     position: 'fixed',
     bottom: cssVariableTheme.spacing.md,

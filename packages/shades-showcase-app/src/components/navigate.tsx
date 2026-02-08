@@ -10,7 +10,7 @@ type NavigateProps = {
  * does not pollute the browser's back/forward stack.
  */
 export const Navigate = Shade<NavigateProps>({
-  shadowDomName: 'showcase-navigate',
+  tagName: 'showcase-navigate',
   constructed: ({ props, injector }) => {
     const locationService = injector.getInstance(LocationService)
     const current = locationService.onLocationPathChanged.getValue()

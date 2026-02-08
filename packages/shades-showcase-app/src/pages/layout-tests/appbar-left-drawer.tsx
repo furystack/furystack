@@ -6,7 +6,7 @@ import { PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-
  * Used for E2E visual regression testing
  */
 export const AppBarLeftDrawerTest = Shade({
-  shadowDomName: 'layout-test-appbar-left-drawer',
+  tagName: 'layout-test-appbar-left-drawer',
   render: () => (
     <PageLayout
       appBar={{

@@ -14,7 +14,7 @@ const ShowcaseAppBarLinks = createAppBarLink<typeof appRoutes>()
  * Single-row layout: breadcrumbs, vertical separator, category links, and theme switch.
  */
 export const ShowcaseAppBar = Shade({
-  shadowDomName: 'showcase-app-bar',
+  tagName: 'showcase-app-bar',
   render: () => {
     return (
       <AppBar>

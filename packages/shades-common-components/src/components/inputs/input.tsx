@@ -128,7 +128,7 @@ const getDefaultMessagesForValidityState = (state: ValidityState) => {
 }
 
 export const Input = Shade<TextInputProps>({
-  shadowDomName: 'shade-input',
+  tagName: 'shade-input',
   css: {
     display: 'block',
     marginBottom: '1.25em',

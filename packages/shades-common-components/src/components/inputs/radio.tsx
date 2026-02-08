@@ -54,7 +54,7 @@ const setRadioColors = ({
 }
 
 export const Radio = Shade<RadioProps>({
-  shadowDomName: 'shade-radio',
+  tagName: 'shade-radio',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

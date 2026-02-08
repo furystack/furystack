@@ -4,7 +4,7 @@ import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@fu
 import { ObservableValue } from '@furystack/utils'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
-  shadowDomName: 'wizard-step',
+  tagName: 'wizard-step',
 
   render: ({ props, element, children, useObservable, injector }) => {
     const getResponsiveStyles = (isLargeScreen: boolean) => {
@@ -81,7 +81,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 })
 
 export const Step1 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step1',
+  tagName: 'shades-wiz-step1',
   constructed: ({ element }) => {
     element.querySelector('input')?.focus()
   },
@@ -113,7 +113,7 @@ export const Step1 = Shade<WizardStepProps>({
 })
 
 export const Step2 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step2',
+  tagName: 'shades-wiz-step2',
   render: ({ props }) => {
     return (
       <WizardStep title="Step 2" {...props}>
@@ -146,7 +146,7 @@ export const Step2 = Shade<WizardStepProps>({
 })
 
 export const Step3 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step3',
+  tagName: 'shades-wiz-step3',
   render: ({ props }) => {
     return (
       <WizardStep title="Step 3" {...props}>
@@ -157,7 +157,7 @@ export const Step3 = Shade<WizardStepProps>({
 })
 
 export const WelcomeWizard = Shade({
-  shadowDomName: 'shades-welcome-wizard',
+  tagName: 'shades-welcome-wizard',
   render: ({ useDisposable }) => {
     const isOpened = useDisposable('isOpened', () => new ObservableValue(false))
     return (

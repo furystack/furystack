@@ -25,9 +25,9 @@ class StyleManagerClass {
 
   /**
    * Registers CSS styles for a component.
-   * Styles are only injected once per component (based on shadowDomName).
+   * Styles are only injected once per component (based on tagName).
    *
-   * @param shadowDomName - The unique component identifier (used as CSS selector)
+   * @param tagName - The unique component identifier (used as CSS selector)
    * @param cssObject - The CSSObject containing styles and nested selectors
    * @param elementBaseName - Optional base element name for customized built-in elements (e.g., 'a', 'button').
    *                          When provided, generates selector like `a[is="component-name"]` instead of `component-name`
@@ -49,17 +49,17 @@ class StyleManagerClass {
    * // Generates: a[is="my-link"] { color: blue; }
    * ```
    */
-  public registerComponentStyles(shadowDomName: string, cssObject: CSSObject, elementBaseName?: string): boolean {
-    if (this.registeredComponents.has(shadowDomName)) {
+  public registerComponentStyles(tagName: string, cssObject: CSSObject, elementBaseName?: string): boolean {
+    if (this.registeredComponents.has(tagName)) {
       return false
     }
 
-    const selector = elementBaseName ? `${elementBaseName}[is="${shadowDomName}"]` : shadowDomName
+    const selector = elementBaseName ? `${elementBaseName}[is="${tagName}"]` : tagName
     const css = generateCSS(selector, cssObject)
     if (css) {
       const styleElement = this.getStyleElement()
-      styleElement.textContent += `\n/* ${shadowDomName} */\n${css}\n`
-      this.registeredComponents.add(shadowDomName)
+      styleElement.textContent += `\n/* ${tagName} */\n${css}\n`
+      this.registeredComponents.add(tagName)
       return true
     }
 
@@ -68,11 +68,11 @@ class StyleManagerClass {
 
   /**
    * Checks if a component's styles have already been registered
-   * @param shadowDomName - The component identifier to check
+   * @param tagName - The component identifier to check
    * @returns True if styles are already registered
    */
-  public isRegistered(shadowDomName: string): boolean {
-    return this.registeredComponents.has(shadowDomName)
+  public isRegistered(tagName: string): boolean {
+    return this.registeredComponents.has(tagName)
   }
 
   /**

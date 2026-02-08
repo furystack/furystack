@@ -5,6 +5,8 @@ import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
 import { Shade } from './shade.js'
 
+const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(resolve))
+
 describe('Shade Resources integration tests', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>'
@@ -35,7 +37,7 @@ describe('Shade Resources integration tests', () => {
             </div>
           )
         },
-        shadowDomName: 'shades-example-resource',
+        tagName: 'shades-example-resource',
       })
 
       expect(obs1.getObservers().length).toBe(0)
@@ -56,15 +58,15 @@ describe('Shade Resources integration tests', () => {
       expect(renderCounter).toBeCalledTimes(1)
 
       obs1.setValue(1)
-      expect(document.body.innerHTML).toBe(
-        '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">a</div></div></shades-example-resource></div>',
-      )
+      await flushMicrotasks()
+      expect(document.getElementById('val1')?.textContent).toBe('1')
+      expect(document.getElementById('val2')?.textContent).toBe('a')
       expect(renderCounter).toBeCalledTimes(2)
 
       obs2.setValue('b')
-      expect(document.body.innerHTML).toBe(
-        '<div id="root"><shades-example-resource><div><div id="val1">1</div><div id="val2">b</div></div></shades-example-resource></div>',
-      )
+      await flushMicrotasks()
+      expect(document.getElementById('val1')?.textContent).toBe('1')
+      expect(document.getElementById('val2')?.textContent).toBe('b')
 
       const element = document.querySelector('shades-example-resource') as JSX.Element
       expect(element.getRenderCount()).toBe(3)
@@ -96,7 +98,7 @@ describe('Shade Resources integration tests', () => {
           renderCounter()
           return <div id="val">{value}</div>
         },
-        shadowDomName: 'shades-example-custom-onchange',
+        tagName: 'shades-example-custom-onchange',
       })
 
       initializeShadeRoot({
@@ -159,7 +161,7 @@ describe('Shade Resources integration tests', () => {
           renderCounter()
           return <div id="manual-val">{obs.getValue()}</div>
         },
-        shadowDomName: 'shades-example-manual-dom-update',
+        tagName: 'shades-example-manual-dom-update',
       })
 
       initializeShadeRoot({

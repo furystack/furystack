@@ -15,7 +15,7 @@ import { ObservableValue as OV } from '@furystack/utils'
  * itself without causing a parent re-render.
  */
 const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
-  shadowDomName: 'shade-value-label',
+  tagName: 'shade-value-label',
   css: {
     display: 'inline',
   },
@@ -36,7 +36,7 @@ const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
 })
 
 export const ProgressPage = Shade({
-  shadowDomName: 'progress-page',
+  tagName: 'progress-page',
   render: ({ useDisposable }) => {
     const progressValue = useDisposable('progressValue', () => new OV(40))
 

@@ -5,7 +5,7 @@ import { PageContainer, PageHeader, Pagination, Paper } from '@furystack/shades-
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
 export const PaginationPage = Shade({
-  shadowDomName: 'shades-pagination-page',
+  tagName: 'shades-pagination-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('pagination', {
       basicPage: 1,

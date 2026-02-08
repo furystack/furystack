@@ -57,7 +57,7 @@ export const generateCSSRule = (selector: string, properties: CSSProperties): st
 
 /**
  * Generates complete CSS from a CSSObject for a given component selector
- * @param selector - The base selector (typically the shadowDomName)
+ * @param selector - The base selector (typically the tagName)
  * @param cssObject - The CSSObject containing styles and nested selectors
  * @returns A complete CSS string with all rules
  *

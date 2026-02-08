@@ -3,7 +3,7 @@ import { InputNumber, PageContainer, PageHeader, Paper, Typography } from '@fury
 import { ObservableValue } from '@furystack/utils'
 
 export const InputNumberPage = Shade({
-  shadowDomName: 'input-number-page',
+  tagName: 'input-number-page',
   render: ({ useDisposable, useObservable }) => {
     const controlledValue = useDisposable('controlledValue', () => new ObservableValue<number | undefined>(25))
     const [currentValue] = useObservable('currentValue', controlledValue)

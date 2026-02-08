@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper, Tabs, Typography, type Tab } from '@f
 import { ObservableValue } from '@furystack/utils'
 
 const ControlledTabsDemo = Shade({
-  shadowDomName: 'controlled-tabs-demo',
+  tagName: 'controlled-tabs-demo',
   render: ({ useObservable, useDisposable }) => {
     const activeKeyObs = useDisposable('activeKey', () => new ObservableValue('ctrl-1'))
     const [activeKey] = useObservable('activeKeyVal', activeKeyObs)
@@ -40,7 +40,7 @@ const ControlledTabsDemo = Shade({
 })
 
 const ClosableTabsDemo = Shade({
-  shadowDomName: 'closable-tabs-demo',
+  tagName: 'closable-tabs-demo',
   render: ({ useObservable, useDisposable }) => {
     let nextId = 4
     const tabsObs = useDisposable(
@@ -106,7 +106,7 @@ const ClosableTabsDemo = Shade({
 })
 
 export const TabsPage = Shade({
-  shadowDomName: 'tabs-page',
+  tagName: 'tabs-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

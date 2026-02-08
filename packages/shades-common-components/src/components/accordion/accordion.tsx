@@ -24,7 +24,7 @@ export type AccordionProps = {
  * ```
  */
 export const Accordion = Shade<AccordionProps>({
-  shadowDomName: 'shade-accordion',
+  tagName: 'shade-accordion',
   css: {
     display: 'flex',
     flexDirection: 'column',

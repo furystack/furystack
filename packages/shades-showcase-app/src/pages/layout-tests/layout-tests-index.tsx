@@ -5,7 +5,7 @@ import { AppBar, cssVariableTheme, PageLayout } from '@furystack/shades-common-c
  * Index page for layout tests - lists all available test pages
  */
 export const LayoutTestsIndex = Shade({
-  shadowDomName: 'layout-tests-index',
+  tagName: 'layout-tests-index',
   render: () => {
     const testPages = [
       {

@@ -35,7 +35,7 @@ const TRANSITION_MS = 400
  * keyboard navigation, and swipe gestures.
  */
 export const Carousel = Shade<CarouselProps>({
-  shadowDomName: 'shade-carousel',
+  tagName: 'shade-carousel',
   css: {
     display: 'block',
     position: 'relative',

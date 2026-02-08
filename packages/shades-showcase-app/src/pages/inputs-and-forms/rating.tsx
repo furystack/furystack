@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper, Rating } from '@furystack/shades-common-components'
 
 export const RatingPage = Shade({
-  shadowDomName: 'rating-page',
+  tagName: 'rating-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('rating', { value: 3 })
 

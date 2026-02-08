@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-compo
 import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
-  shadowDomName: 'nipple-page',
+  tagName: 'nipple-page',
   render: ({ element }) => {
     return (
       <PageContainer fullHeight>

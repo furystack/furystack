@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const SearchStatePage = Shade({
-  shadowDomName: 'shades-search-state-page',
+  tagName: 'shades-search-state-page',
   render: ({ useSearchState, renderCount }) => {
     const [searchValue, setSearchValue] = useSearchState('searchValue', '')
 

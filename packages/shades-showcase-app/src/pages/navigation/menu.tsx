@@ -55,7 +55,7 @@ const inlineItems: MenuEntry[] = [
 ]
 
 const HorizontalMenuDemo = Shade({
-  shadowDomName: 'horizontal-menu-demo',
+  tagName: 'horizontal-menu-demo',
   render: ({ useDisposable, useObservable }) => {
     const selected$ = useDisposable('selected', () => new ObservableValue('home'))
     const [selected] = useObservable('selectedValue', selected$)
@@ -77,7 +77,7 @@ const HorizontalMenuDemo = Shade({
 })
 
 const VerticalMenuDemo = Shade({
-  shadowDomName: 'vertical-menu-demo',
+  tagName: 'vertical-menu-demo',
   render: ({ useDisposable, useObservable }) => {
     const selected$ = useDisposable('selected', () => new ObservableValue('dashboard'))
     const [selected] = useObservable('selectedValue', selected$)
@@ -101,7 +101,7 @@ const VerticalMenuDemo = Shade({
 })
 
 const InlineMenuDemo = Shade({
-  shadowDomName: 'inline-menu-demo',
+  tagName: 'inline-menu-demo',
   render: ({ useDisposable, useObservable }) => {
     const selected$ = useDisposable('selected', () => new ObservableValue('inbox'))
     const [selected] = useObservable('selectedValue', selected$)
@@ -120,7 +120,7 @@ const InlineMenuDemo = Shade({
 })
 
 export const MenuPage = Shade({
-  shadowDomName: 'shades-menu-page',
+  tagName: 'shades-menu-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

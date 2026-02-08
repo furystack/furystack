@@ -43,7 +43,7 @@ export interface RouterState {
  * @deprecated Use NestedRouter instead
  */
 export const Router = Shade<RouterProps>({
-  shadowDomName: 'shade-router',
+  tagName: 'shade-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
     const [lock] = useState('lock', new Lock())

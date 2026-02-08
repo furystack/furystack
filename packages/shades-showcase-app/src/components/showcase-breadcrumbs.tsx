@@ -55,7 +55,7 @@ const getBreadcrumbItems = (currentPath: string): Array<BreadcrumbItem<AppRouteP
 const ShowcaseBreadcrumbItem = createBreadcrumb<typeof appRoutes>()
 
 export const ShowcaseBreadcrumbComponent = Shade({
-  shadowDomName: 'showcase-breadcrumb-component',
+  tagName: 'showcase-breadcrumb-component',
   render: ({ injector, useObservable }) => {
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)

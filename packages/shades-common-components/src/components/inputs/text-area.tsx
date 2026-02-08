@@ -10,7 +10,7 @@ export interface TextAreaProps extends PartialElement<HTMLTextAreaElement> {
 }
 
 export const TextArea = Shade<TextAreaProps>({
-  shadowDomName: 'shade-text-area',
+  tagName: 'shade-text-area',
   css: {
     display: 'block',
     marginBottom: '1em',

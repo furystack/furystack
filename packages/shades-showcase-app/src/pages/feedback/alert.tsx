@@ -5,7 +5,7 @@ import { Alert, PageContainer, PageHeader, Paper, Typography } from '@furystack/
 const severities: AlertSeverity[] = ['error', 'warning', 'info', 'success']
 
 export const AlertPage = Shade({
-  shadowDomName: 'shades-alert-page',
+  tagName: 'shades-alert-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('alert', { dismissed: [] as string[] })
 

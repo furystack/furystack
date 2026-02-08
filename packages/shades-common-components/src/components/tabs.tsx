@@ -12,7 +12,7 @@ export type Tab = {
 }
 
 const TabHeader = Shade<{ hash: string }>({
-  shadowDomName: 'shade-tab-header',
+  tagName: 'shade-tab-header',
   css: {
     padding: `${cssVariableTheme.spacing.md} 40px`,
     cursor: 'pointer',
@@ -70,7 +70,7 @@ export const Tabs = Shade<{
   /** Called when the add button is clicked (only shown when this callback is provided) */
   onAdd?: () => void
 }>({
-  shadowDomName: 'shade-tabs',
+  tagName: 'shade-tabs',
   css: {
     width: '100%',
     height: '100%',

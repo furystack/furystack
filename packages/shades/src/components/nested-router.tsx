@@ -175,7 +175,7 @@ export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): 
  * innermost route, then renders inside-out so each parent wraps its child.
  */
 export const NestedRouter = Shade<NestedRouterProps>({
-  shadowDomName: 'shade-nested-router',
+  tagName: 'shade-nested-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
     const [lock] = useState('lock', new Lock())

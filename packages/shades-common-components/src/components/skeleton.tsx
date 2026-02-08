@@ -10,7 +10,7 @@ export type SkeletonProps = {
 }
 
 export const Skeleton = Shade<SkeletonProps>({
-  shadowDomName: 'shade-skeleton',
+  tagName: 'shade-skeleton',
   css: {
     opacity: '0',
     display: 'inline-block',

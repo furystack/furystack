@@ -34,7 +34,7 @@ export type DrawerToggleButtonProps = {
  * ```
  */
 export const DrawerToggleButton = Shade<DrawerToggleButtonProps>({
-  shadowDomName: 'shade-drawer-toggle-button',
+  tagName: 'shade-drawer-toggle-button',
   css: {
     display: 'inline-block',
 

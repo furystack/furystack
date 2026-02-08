@@ -76,7 +76,7 @@ describe('Button', () => {
         const root = document.getElementById('root')!
 
         const TestComponent = Shade<{ variant?: 'contained' | 'outlined' }>({
-          shadowDomName: 'button-test-variant-wrapper',
+          tagName: 'button-test-variant-wrapper',
           render: ({ props }) => <Button variant={props.variant}>Test</Button>,
         })
 

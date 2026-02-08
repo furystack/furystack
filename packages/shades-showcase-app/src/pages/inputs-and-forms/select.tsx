@@ -74,7 +74,7 @@ const programmingLanguages = [
 ]
 
 export const SelectPage = Shade({
-  shadowDomName: 'select-page',
+  tagName: 'select-page',
   render: () => {
     return (
       <PageContainer maxWidth="1200px" centered>

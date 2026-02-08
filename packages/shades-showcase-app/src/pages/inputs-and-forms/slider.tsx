@@ -4,7 +4,7 @@ import { PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack
 import { ObservableValue } from '@furystack/utils'
 
 const BasicSliderDemo = Shade({
-  shadowDomName: 'slider-demo-basic',
+  tagName: 'slider-demo-basic',
   render: ({ useDisposable, useObservable }) => {
     const value = useDisposable('value', () => new ObservableValue(40))
     const [current] = useObservable('current', value)
@@ -21,7 +21,7 @@ const BasicSliderDemo = Shade({
 })
 
 const DiscreteSliderDemo = Shade({
-  shadowDomName: 'slider-demo-discrete',
+  tagName: 'slider-demo-discrete',
   render: ({ useDisposable, useObservable }) => {
     const value = useDisposable('value', () => new ObservableValue(30))
     const [current] = useObservable('current', value)
@@ -43,7 +43,7 @@ const DiscreteSliderDemo = Shade({
 })
 
 const RangeSliderDemo = Shade({
-  shadowDomName: 'slider-demo-range',
+  tagName: 'slider-demo-range',
   render: ({ useDisposable, useObservable }) => {
     const value = useDisposable('value', () => new ObservableValue<[number, number]>([20, 80]))
     const [current] = useObservable('current', value)
@@ -74,7 +74,7 @@ const temperatureMarks: SliderMark[] = [
 ]
 
 export const SliderPage = Shade({
-  shadowDomName: 'slider-page',
+  tagName: 'slider-page',
   render: () => {
     return (
       <PageContainer maxWidth="1200px" centered>

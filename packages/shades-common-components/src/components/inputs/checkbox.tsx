@@ -62,7 +62,7 @@ const setCheckboxColors = ({
 }
 
 export const Checkbox = Shade<CheckboxProps>({
-  shadowDomName: 'shade-checkbox',
+  tagName: 'shade-checkbox',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

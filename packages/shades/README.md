@@ -20,7 +20,7 @@ A shade (component) can be constructed from the following properties:
 
 - `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render.
 - `initialState` – A default state that can be updated during the component lifecycle.
-- `shadowDomName` – Can be specified as the custom element's name in the DOM.
+- `tagName` – Can be specified as the custom element's name in the DOM.
 - `constructed: (options: RenderOptions)=>void` – Optional callback executed after component construction. It can return a cleanup method (e.g., free up resources, dispose value observers, etc.).
 - `onAttach: (options: RenderOptions)=>void` – Executed when the component is attached to the DOM.
 - `onDetach: (options: RenderOptions)=>void` – Executed when the component is detached from the DOM.
@@ -41,7 +41,7 @@ The `style` property applies inline styles to each component instance. Use this 
 
 ```typescript
 const MyComponent = Shade({
-  shadowDomName: 'my-component',
+  tagName: 'my-component',
   style: {
     display: 'flex',
     padding: '16px',
@@ -64,7 +64,7 @@ The `css` property injects CSS rules into a stylesheet once per component type. 
 
 ```typescript
 const Button = Shade({
-  shadowDomName: 'my-button',
+  tagName: 'my-button',
   css: {
     padding: '12px 24px',
     backgroundColor: 'blue',

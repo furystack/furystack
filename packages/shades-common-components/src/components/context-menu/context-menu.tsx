@@ -12,7 +12,7 @@ export type ContextMenuProps<T> = {
 export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   ContextMenuProps<any>
 >({
-  shadowDomName: 'shade-context-menu',
+  tagName: 'shade-context-menu',
   css: {
     '& .context-menu-backdrop': {
       opacity: '0',

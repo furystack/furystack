@@ -27,7 +27,7 @@ export interface SuggestProps<T> {
 export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   SuggestProps<any>
 >({
-  shadowDomName: 'shade-suggest',
+  tagName: 'shade-suggest',
   css: {
     ...searchableInputStyles,
     '& .suggest-wrapper': {

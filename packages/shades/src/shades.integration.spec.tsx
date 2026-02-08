@@ -6,6 +6,8 @@ import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
 import { Shade } from './shade.js'
 
+const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(resolve))
+
 describe('Shades integration tests', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>'
@@ -18,7 +20,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => <div>Hello</div>, shadowDomName: 'shades-example' })
+      const ExampleComponent = Shade({ render: () => <div>Hello</div>, tagName: 'shades-example' })
 
       initializeShadeRoot({
         injector,
@@ -33,7 +35,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => 'Hello', shadowDomName: 'shades-string-render-result' })
+      const ExampleComponent = Shade({ render: () => 'Hello', tagName: 'shades-string-render-result' })
 
       initializeShadeRoot({
         injector,
@@ -50,7 +52,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => null, shadowDomName: 'shades-null-render-result' })
+      const ExampleComponent = Shade({ render: () => null, tagName: 'shades-null-render-result' })
 
       initializeShadeRoot({
         injector,
@@ -74,7 +76,7 @@ describe('Shades integration tests', () => {
             <p>2</p>
           </>
         ),
-        shadowDomName: 'shades-fragment-render-result',
+        tagName: 'shades-fragment-render-result',
       })
 
       initializeShadeRoot({
@@ -101,7 +103,7 @@ describe('Shades integration tests', () => {
             </>
           </p>
         ),
-        shadowDomName: 'shades-fragment-render-result-nested',
+        tagName: 'shades-fragment-render-result-nested',
       })
 
       initializeShadeRoot({
@@ -120,7 +122,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const CustomComponent = Shade({
-        shadowDomName: 'shades-fragment-test-custom-component',
+        tagName: 'shades-fragment-test-custom-component',
         render: () => <p>Hello</p>,
       })
 
@@ -131,7 +133,7 @@ describe('Shades integration tests', () => {
             <CustomComponent />
           </>
         ),
-        shadowDomName: 'shades-fragment-render-result-2',
+        tagName: 'shades-fragment-render-result-2',
       })
 
       initializeShadeRoot({
@@ -151,12 +153,12 @@ describe('Shades integration tests', () => {
 
       const ExampleComponent = Shade({
         render: ({ children }) => <div>{children}</div>,
-        shadowDomName: 'shades-example-2',
+        tagName: 'shades-example-2',
       })
 
       const ExampleSubs = Shade<{ no: number }>({
         render: ({ props }) => <div>{props.no}</div>,
-        shadowDomName: 'shades-example-sub',
+        tagName: 'shades-example-sub',
       })
 
       initializeShadeRoot({
@@ -184,7 +186,7 @@ describe('Shades integration tests', () => {
 
       const ExampleComponent = Shade({
         constructed,
-        shadowDomName: 'example-component-1',
+        tagName: 'example-component-1',
         render: () => <div>Hello</div>,
       })
 
@@ -210,7 +212,7 @@ describe('Shades integration tests', () => {
       const ExampleComponent = Shade({
         onAttach,
         onDetach,
-        shadowDomName: 'example-component-2',
+        tagName: 'example-component-2',
         render: () => <div>Hello</div>,
       })
 
@@ -231,7 +233,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3',
+        tagName: 'example-component-3',
         render: ({ useState }) => {
           const [count, setCount] = useState('count', 0)
           return (
@@ -259,12 +261,16 @@ describe('Shades integration tests', () => {
 
       expectCount(0)
       plus()
+      await flushMicrotasks()
       expectCount(1)
       plus()
+      await flushMicrotasks()
       expectCount(2)
 
       minus()
+      await flushMicrotasks()
       minus()
+      await flushMicrotasks()
       expectCount(0)
     })
   })
@@ -295,7 +301,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3-stored-state',
+        tagName: 'example-component-3-stored-state',
         render: ({ useStoredState }) => {
           const [count, setCount] = useStoredState('count', 0, store)
           return (
@@ -327,15 +333,19 @@ describe('Shades integration tests', () => {
 
       await sleepAsync(100)
       plus()
+      await flushMicrotasks()
       expectCount(1)
       expect(store.getItem('count')).toBe('1')
 
       plus()
+      await flushMicrotasks()
       expectCount(2)
       expect(store.getItem('count')).toBe('2')
 
       minus()
+      await flushMicrotasks()
       minus()
+      await flushMicrotasks()
       expectCount(0)
       expect(store.getItem('count')).toBe('0')
     })
@@ -346,7 +356,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3-search-state',
+        tagName: 'example-component-3-search-state',
         render: ({ useSearchState }) => {
           const [count, setCount] = useSearchState('count', 0)
           return (
@@ -376,15 +386,19 @@ describe('Shades integration tests', () => {
 
       await sleepAsync(100)
       plus()
+      await flushMicrotasks()
       expectCount(1)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 1 })}`)
 
       plus()
+      await flushMicrotasks()
       expectCount(2)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 2 })}`)
 
       minus()
+      await flushMicrotasks()
       minus()
+      await flushMicrotasks()
       expectCount(0)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 0 })}`)
     })
@@ -394,7 +408,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const Parent = Shade({
-        shadowDomName: 'shade-remount-parent',
+        tagName: 'shade-remount-parent',
         render: ({ children, useState }) => {
           const [areChildrenVisible, setAreChildrenVisible] = useState('areChildrenVisible', true)
           return (
@@ -414,7 +428,7 @@ describe('Shades integration tests', () => {
       })
 
       const Child = Shade({
-        shadowDomName: 'example-remount-child',
+        tagName: 'example-remount-child',
         render: ({ useState }) => {
           const [count, setCount] = useState('count', 0)
 
@@ -450,21 +464,26 @@ describe('Shades integration tests', () => {
 
       expectCount(0)
       plus()
+      await flushMicrotasks()
       expectCount(1)
 
       toggleChildren()
+      await flushMicrotasks()
 
       expect(document.getElementById('plus')).toBeNull()
 
       await sleepAsync(10) // Dispose can be async
 
       toggleChildren()
+      await flushMicrotasks()
       expect(document.getElementById('plus')).toBeDefined()
 
       expectCount(0)
       plus()
+      await flushMicrotasks()
       expectCount(1)
       minus()
+      await flushMicrotasks()
       expectCount(0)
     })
   })

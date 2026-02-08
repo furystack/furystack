@@ -18,7 +18,7 @@ const allVariants: TypographyVariant[] = [
 ]
 
 export const TypographyPage = Shade({
-  shadowDomName: 'shades-typography-page',
+  tagName: 'shades-typography-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

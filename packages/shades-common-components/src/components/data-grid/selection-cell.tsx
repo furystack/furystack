@@ -3,7 +3,7 @@ import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 
 export const SelectionCell = Shade<{ entry: any; service: CollectionService<any> }>({
-  shadowDomName: 'shades-data-grid-selection-cell',
+  tagName: 'shades-data-grid-selection-cell',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

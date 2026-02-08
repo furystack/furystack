@@ -18,7 +18,7 @@ const sampleImage2 = 'https://picsum.photos/seed/card-recipe/600/400'
 const sampleImage3 = 'https://picsum.photos/seed/card-travel/600/400'
 
 export const CardPage = Shade({
-  shadowDomName: 'shades-card-page',
+  tagName: 'shades-card-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

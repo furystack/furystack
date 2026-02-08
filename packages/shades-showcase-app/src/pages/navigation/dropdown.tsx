@@ -43,7 +43,7 @@ const withDisabledItems: MenuEntry[] = [
 ]
 
 const BasicDropdownDemo = Shade({
-  shadowDomName: 'basic-dropdown-demo',
+  tagName: 'basic-dropdown-demo',
   render: ({ useDisposable, useObservable }) => {
     const lastSelected$ = useDisposable('lastSelected', () => new ObservableValue(''))
     const [lastSelected] = useObservable('lastSelectedValue', lastSelected$)
@@ -67,7 +67,7 @@ const BasicDropdownDemo = Shade({
 })
 
 export const DropdownPage = Shade({
-  shadowDomName: 'shades-dropdown-page',
+  tagName: 'shades-dropdown-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

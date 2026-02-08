@@ -1,1 +1,5 @@
-export type ChildrenList = Array<string | HTMLElement | JSX.Element | string[] | HTMLElement[] | JSX.Element[]>
+import type { ObservableValue } from '@furystack/utils'
+
+type ChildItem = string | number | HTMLElement | JSX.Element | ObservableValue<unknown>
+
+export type ChildrenList = Array<ChildItem | ChildItem[]>

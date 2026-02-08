@@ -62,7 +62,7 @@ const setSwitchColors = ({
 }
 
 export const Switch = Shade<SwitchProps>({
-  shadowDomName: 'shade-switch',
+  tagName: 'shade-switch',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

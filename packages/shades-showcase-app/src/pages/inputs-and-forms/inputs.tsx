@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Autocomplete, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
-  shadowDomName: 'inputs-page',
+  tagName: 'inputs-page',
   render: () => {
     return (
       <PageContainer maxWidth="1200px" centered>

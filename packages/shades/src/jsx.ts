@@ -9,6 +9,7 @@ declare global {
       injector: Injector
       props: TProps
       updateComponent: () => void
+      scheduleUpdate: () => void
       shadeChildren?: ChildrenList
       callConstructed: () => void
       resourceManager: ResourceManager

@@ -4,7 +4,7 @@ import { Input } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service.js'
 
 export const GridStatus = Shade({
-  shadowDomName: 'shades-grid-status',
+  tagName: 'shades-grid-status',
   render: ({ useObservable, injector }) => {
     const gridService = injector.getInstance(GridPageService)
     const [focusedEntry] = useObservable('focusedEntry', gridService.collectionService.focusedEntry)

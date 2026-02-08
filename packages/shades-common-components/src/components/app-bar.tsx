@@ -2,7 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export const AppBar = Shade({
-  shadowDomName: 'shade-app-bar',
+  tagName: 'shade-app-bar',
   css: {
     width: '100%',
     background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 85%, transparent)`,

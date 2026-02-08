@@ -10,7 +10,7 @@ import {
 } from '@furystack/shades-common-components'
 
 const ToggleDrawerButton = Shade({
-  shadowDomName: 'toggle-drawer-button-collapsible',
+  tagName: 'toggle-drawer-button-collapsible',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -26,7 +26,7 @@ const ToggleDrawerButton = Shade({
  * Used for E2E visual regression testing
  */
 export const CollapsibleDrawerTest = Shade({
-  shadowDomName: 'layout-test-collapsible',
+  tagName: 'layout-test-collapsible',
   render: () => {
     return (
       <PageLayout

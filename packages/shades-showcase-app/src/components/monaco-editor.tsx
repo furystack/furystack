@@ -12,7 +12,7 @@ export interface MonacoEditorProps {
   style?: Partial<CSSStyleDeclaration>
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
-  shadowDomName: 'monaco-editor',
+  tagName: 'monaco-editor',
   constructed: ({ element, props, useDisposable, injector }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
 

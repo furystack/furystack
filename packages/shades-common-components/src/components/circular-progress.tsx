@@ -139,7 +139,7 @@ const createSvgContent = ({
 }
 
 export const CircularProgress = Shade<CircularProgressProps>({
-  shadowDomName: 'shade-circular-progress',
+  tagName: 'shade-circular-progress',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

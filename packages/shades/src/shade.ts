@@ -2,6 +2,8 @@ import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
+import { reconcile } from './reconcile.js'
+import { clearRenderContext, getRenderContext, setRenderContext } from './render-context.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { attachProps, attachStyles } from './shade-component.js'
@@ -9,9 +11,9 @@ import { StyleManager } from './style-manager.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
-   * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
+   * The custom element tag name. Must contain a hyphen (e.g. 'my-component').
    */
-  shadowDomName: string
+  tagName: string
 
   /**
    * Render hook, this method will be executed on each and every render.
@@ -77,7 +79,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
 ) => {
   // register shadow-dom element
-  const customElementName = o.shadowDomName
+  const customElementName = o.tagName
 
   const existing = customElements.get(customElementName)
   if (!existing) {
@@ -132,6 +134,24 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           return o.render(options)
         }
 
+        private _updateScheduled = false
+
+        /**
+         * Schedules a component update via microtask batching.
+         * Multiple synchronous calls result in a single update.
+         */
+        public scheduleUpdate() {
+          if (!this._updateScheduled) {
+            this._updateScheduled = true
+            queueMicrotask(() => {
+              this._updateScheduled = false
+              if (this.isConnected) {
+                this.updateComponent()
+              }
+            })
+          }
+        }
+
         /**
          * @returns values for the current render options
          */
@@ -143,16 +163,16 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             element: this,
             renderCount: this._renderCount,
             useObservable: (key, obesrvable, options) => {
-              const onChange = options?.onChange || (() => this.updateComponent())
+              const onChange = options?.onChange || (() => this.scheduleUpdate())
               return this.resourceManager.useObservable(key, obesrvable, onChange, options)
             },
             useState: (key, initialValue) =>
-              this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
+              this.resourceManager.useState(key, initialValue, this.scheduleUpdate.bind(this)),
             useSearchState: (key, initialValue) =>
               this.resourceManager.useObservable(
                 `useSearchState-${key}`,
                 this.injector.getInstance(LocationService).useSearchParam(key, initialValue),
-                () => this.updateComponent(),
+                () => this.scheduleUpdate(),
               ),
 
             useStoredState: <T>(key: string, initialValue: T, storageArea = localStorage) => {
@@ -207,7 +227,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               observable.subscribe(setToStorage)
 
               return this.resourceManager.useObservable(`useStoredState-${key}`, observable, () =>
-                this.updateComponent(),
+                this.scheduleUpdate(),
               )
             },
             useDisposable: this.resourceManager.useDisposable.bind(this.resourceManager),
@@ -220,21 +240,27 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          * Updates the component in the DOM.
          */
         public updateComponent() {
-          const renderResult = this.render(this.getRenderOptions())
+          const previousContext = getRenderContext()
+          setRenderContext(this.resourceManager)
+          try {
+            // Widen the type to include DocumentFragment (returned by JSX fragments at runtime)
+            const renderResult: JSX.Element | DocumentFragment | string | number | null = this.render(
+              this.getRenderOptions(),
+            ) as JSX.Element | DocumentFragment | string | number | null
 
-          if (renderResult === null || renderResult === undefined) {
-            this.innerHTML = ''
-          }
-
-          if (typeof renderResult === 'string' || typeof renderResult === 'number') {
-            this.innerHTML = renderResult
-          }
-
-          if (renderResult instanceof HTMLElement) {
-            this.replaceChildren(renderResult)
-          }
-          if (renderResult instanceof DocumentFragment) {
-            this.replaceChildren(renderResult)
+            if (renderResult === null || renderResult === undefined) {
+              this.innerHTML = ''
+            } else if (typeof renderResult === 'string' || typeof renderResult === 'number') {
+              this.innerHTML = String(renderResult)
+            } else if (renderResult instanceof HTMLElement || renderResult instanceof DocumentFragment) {
+              reconcile(this, renderResult)
+            }
+          } finally {
+            if (previousContext) {
+              setRenderContext(previousContext)
+            } else {
+              clearRenderContext()
+            }
           }
         }
 
@@ -296,7 +322,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
       o.elementBaseName ? { extends: o.elementBaseName } : undefined,
     )
   } else {
-    throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
+    throw Error(`A custom shade with tag name '${o.tagName}' has already been registered!`)
   }
 
   return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {

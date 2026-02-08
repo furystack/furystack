@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Avatar, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const AvatarPage = Shade({
-  shadowDomName: 'shades-avatar-page',
+  tagName: 'shades-avatar-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

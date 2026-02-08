@@ -55,7 +55,7 @@ const updateDeterminate = (element: HTMLElement, value: number): void => {
 }
 
 export const LinearProgress = Shade<LinearProgressProps>({
-  shadowDomName: 'shade-linear-progress',
+  tagName: 'shade-linear-progress',
   css: {
     display: 'block',
     width: '100%',

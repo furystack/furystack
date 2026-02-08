@@ -90,7 +90,7 @@ const defaultColors = {
 }
 
 export const Pagination = Shade<PaginationProps>({
-  shadowDomName: 'shade-pagination',
+  tagName: 'shade-pagination',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

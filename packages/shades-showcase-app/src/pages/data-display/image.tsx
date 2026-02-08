@@ -21,7 +21,7 @@ const SectionTitle = ({ title }: { title: string }) => (
 )
 
 export const ImagePage = Shade({
-  shadowDomName: 'shades-image-page',
+  tagName: 'shades-image-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

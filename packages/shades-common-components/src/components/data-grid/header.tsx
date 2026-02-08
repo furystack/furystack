@@ -24,7 +24,7 @@ export const OrderButton = Shade<{
   field: string
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
-  shadowDomName: 'data-grid-order-button',
+  tagName: 'data-grid-order-button',
   css: {
     display: 'inline-block',
   },
@@ -69,7 +69,7 @@ const SearchButton = Shade<{
   onclick: () => void
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
-  shadowDomName: 'data-grid-search-button',
+  tagName: 'data-grid-search-button',
   css: {
     display: 'inline-block',
   },
@@ -103,7 +103,7 @@ const SearchForm = Shade<{
   fieldName: string
   findOptions: ObservableValue<FindOptions<any, any[]>>
 }>({
-  shadowDomName: 'data-grid-search-form',
+  tagName: 'data-grid-search-form',
   css: {
     display: 'block',
     '& .search-form': {
@@ -181,7 +181,7 @@ export const DataGridHeader: <T, Column extends string>(
   children: ChildrenList,
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>,
 ) => JSX.Element<any> = Shade({
-  shadowDomName: 'data-grid-header',
+  tagName: 'data-grid-header',
   css: {
     display: 'block',
     '& .header-content': {

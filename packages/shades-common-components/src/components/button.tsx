@@ -65,7 +65,7 @@ const iconWrapperStyle: Partial<CSSStyleDeclaration> = {
 }
 
 export const Button = Shade<ButtonProps>({
-  shadowDomName: 'shade-button',
+  tagName: 'shade-button',
   elementBase: HTMLButtonElement,
   elementBaseName: 'button',
   css: {

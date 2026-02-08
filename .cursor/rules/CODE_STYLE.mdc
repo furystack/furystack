@@ -152,7 +152,7 @@ export const maxRetryCount = 3 // Should be UPPER_SNAKE_CASE for constants
 ```typescript
 // ✅ Good - Shades component with event handlers
 const MyComponent = Shade({
-  shadowDomName: 'my-component',
+  tagName: 'my-component',
   render: ({ props, injector }) => {
     const handleButtonClick = () => {
       // Internal logic
@@ -239,7 +239,7 @@ type UserProfileProps = {
 };
 
 export const UserProfile = Shade<UserProfileProps>({
-  shadowDomName: 'user-profile',
+  tagName: 'user-profile',
   render: ({ props }) => {
     // Component implementation
   },
@@ -505,7 +505,7 @@ const formatDate = (date: Date): string => {
 
 // 5. Main component
 export const UserProfile = Shade<UserProfileProps>({
-  shadowDomName: 'user-profile',
+  tagName: 'user-profile',
   render: ({ props, injector, useObservable, useDisposable }) => {
     // Services
     const userService = injector.getInstance(UserService);

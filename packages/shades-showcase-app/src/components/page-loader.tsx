@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Skeleton } from '@furystack/shades-common-components'
 
 export const PageLoader = Shade({
-  shadowDomName: 'shade-page-loader',
+  tagName: 'shade-page-loader',
   render: () => {
     return (
       <>

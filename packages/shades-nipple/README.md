@@ -19,7 +19,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { NippleComponent } from '@furystack/shades-nipple'
 
 const GameControls = Shade({
-  shadowDomName: 'game-controls',
+  tagName: 'game-controls',
   render: () => (
     <NippleComponent
       managerOptions={{

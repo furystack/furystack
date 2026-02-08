@@ -6,7 +6,7 @@ import { cssVariableTheme } from '../services/css-variable-theme.js'
 export type AppBarLinkProps = NestedRouteLinkProps & { routingOptions?: MatchOptions }
 
 export const AppBarLink = Shade<AppBarLinkProps>({
-  shadowDomName: 'shade-app-bar-link',
+  tagName: 'shade-app-bar-link',
   css: {
     display: 'flex',
     height: '100%',

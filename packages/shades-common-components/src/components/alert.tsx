@@ -36,7 +36,7 @@ const defaultIcons: Record<AlertSeverity, JSX.Element> = {
 }
 
 export const Alert = Shade<AlertProps>({
-  shadowDomName: 'shade-alert',
+  tagName: 'shade-alert',
   css: {
     display: 'flex',
     alignItems: 'flex-start',

@@ -5,7 +5,7 @@ import { Chip, PageContainer, PageHeader, Paper, Typography } from '@furystack/s
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
 export const ChipPage = Shade({
-  shadowDomName: 'shades-chip-page',
+  tagName: 'shades-chip-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('chip', { deletedChips: [] as string[] })
 

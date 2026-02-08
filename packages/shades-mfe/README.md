@@ -27,7 +27,7 @@ type MyMfeApi = {
 }
 
 const MyMfeComponent = Shade<MyMfeApi>({
-  shadowDomName: 'my-mfe-component',
+  tagName: 'my-mfe-component',
   render: ({ props }) => (
     <div>
       <h1>{props.greeting}</h1>
@@ -53,7 +53,7 @@ type MyMfeApi = {
 }
 
 const HostApp = Shade({
-  shadowDomName: 'host-app',
+  tagName: 'host-app',
   render: () => (
     <MicroFrontend<MyMfeApi>
       api={{

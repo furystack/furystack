@@ -33,7 +33,7 @@ const fileTree: FileNode[] = [
 ]
 
 export const TreePage = Shade({
-  shadowDomName: 'shades-tree-page',
+  tagName: 'shades-tree-page',
   render: ({ useDisposable }) => {
     const treeService = useDisposable(
       'treeService',

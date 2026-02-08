@@ -9,7 +9,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const AccordionPage = Shade({
-  shadowDomName: 'shades-accordion-page',
+  tagName: 'shades-accordion-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>
@@ -127,7 +127,7 @@ export const AccordionPage = Shade({
                 }}
               >
                 {`const greeting = Shade({
-  shadowDomName: 'my-greeting',
+  tagName: 'my-greeting',
   render: () => <h1>Hello, World!</h1>,
 })`}
               </pre>

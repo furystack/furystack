@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-compo
 import { MonacoEditor } from '../../components/monaco-editor.js'
 
 export const MonacoEditorPage = Shade({
-  shadowDomName: 'monaco-editor-page',
+  tagName: 'monaco-editor-page',
   css: { height: '100%', display: 'block' },
   render: () => {
     return (

@@ -181,7 +181,7 @@ describe('StyleManager', () => {
   describe('Shade integration', () => {
     it('should register CSS styles when Shade component is created with css property', () => {
       Shade({
-        shadowDomName: 'shade-css-test-component',
+        tagName: 'shade-css-test-component',
         css: {
           color: 'red',
           padding: '10px',
@@ -200,7 +200,7 @@ describe('StyleManager', () => {
 
     it('should register CSS with attribute selector for customized built-in elements', () => {
       Shade({
-        shadowDomName: 'shade-css-test-button',
+        tagName: 'shade-css-test-button',
         elementBase: HTMLButtonElement,
         elementBaseName: 'button',
         css: {
@@ -219,7 +219,7 @@ describe('StyleManager', () => {
 
     it('should not register styles when Shade component has no css property', () => {
       Shade({
-        shadowDomName: 'shade-no-css-component',
+        tagName: 'shade-no-css-component',
         render: () => null,
       })
 

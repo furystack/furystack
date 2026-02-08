@@ -50,7 +50,7 @@ export type PageContainerProps = {
  * ```
  */
 export const PageContainer = Shade<PageContainerProps>({
-  shadowDomName: 'shade-page-container',
+  tagName: 'shade-page-container',
   elementBase: HTMLDivElement,
   elementBaseName: 'div',
   css: {

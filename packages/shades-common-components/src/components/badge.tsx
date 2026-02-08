@@ -25,7 +25,7 @@ const defaultColors = {
 }
 
 export const Badge = Shade<BadgeProps>({
-  shadowDomName: 'shade-badge',
+  tagName: 'shade-badge',
   css: {
     display: 'inline-flex',
     position: 'relative',

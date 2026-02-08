@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper, Switch } from '@furystack/shades-comm
 import { ObservableValue } from '@furystack/utils'
 
 export const SwitchPage = Shade({
-  shadowDomName: 'switch-page',
+  tagName: 'switch-page',
   render: ({ useDisposable, useObservable }) => {
     const controlledValue = useDisposable('controlledValue', () => new ObservableValue(true))
     const [isControlledChecked] = useObservable('isControlledChecked', controlledValue)

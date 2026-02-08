@@ -8,7 +8,7 @@ export const Autocomplete = Shade<{
   strict?: boolean
   onchange?: (value: string) => void
 }>({
-  shadowDomName: 'shade-autocomplete',
+  tagName: 'shade-autocomplete',
   constructed({ element, useState }) {
     const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
     element.querySelector('input')?.setAttribute('list', dataListId)

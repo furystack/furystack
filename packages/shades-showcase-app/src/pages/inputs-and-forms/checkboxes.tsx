@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Checkbox, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const CheckboxesPage = Shade({
-  shadowDomName: 'checkboxes-page',
+  tagName: 'checkboxes-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('disabled', { isDisabled: false })
 

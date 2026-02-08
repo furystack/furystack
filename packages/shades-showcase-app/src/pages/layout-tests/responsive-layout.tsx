@@ -10,7 +10,7 @@ import {
 } from '@furystack/shades-common-components'
 
 const ToggleDrawerButton = Shade({
-  shadowDomName: 'toggle-drawer-button-responsive',
+  tagName: 'toggle-drawer-button-responsive',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -22,7 +22,7 @@ const ToggleDrawerButton = Shade({
 })
 
 const DrawerState = Shade({
-  shadowDomName: 'drawer-state',
+  tagName: 'drawer-state',
   render: ({ injector, useObservable }) => {
     const layoutService = injector.getInstance(LayoutService)
     const [drawerState] = useObservable('drawerState', layoutService.drawerState)
@@ -35,7 +35,7 @@ const DrawerState = Shade({
  * Used for E2E visual regression testing
  */
 export const ResponsiveLayoutTest = Shade({
-  shadowDomName: 'layout-test-responsive',
+  tagName: 'layout-test-responsive',
   render: ({ injector, useObservable }) => {
     const screenService = injector.getInstance(ScreenService)
 

@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Chip, Divider, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const DividerPage = Shade({
-  shadowDomName: 'shades-divider-page',
+  tagName: 'shades-divider-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

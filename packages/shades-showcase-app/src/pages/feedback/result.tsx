@@ -5,7 +5,7 @@ import { Button, PageContainer, PageHeader, Paper, Result, Typography } from '@f
 const semanticStatuses: ResultStatus[] = ['success', 'error', 'warning', 'info']
 
 export const ResultPage = Shade({
-  shadowDomName: 'shades-result-page',
+  tagName: 'shades-result-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

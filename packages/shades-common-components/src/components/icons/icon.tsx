@@ -71,7 +71,7 @@ const createSvg = (icon: IconDefinition, sizePx: number): SVGSVGElement => {
 }
 
 export const Icon = Shade<IconProps>({
-  shadowDomName: 'shade-icon',
+  tagName: 'shade-icon',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

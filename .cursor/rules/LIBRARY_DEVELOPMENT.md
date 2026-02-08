@@ -412,7 +412,7 @@ When creating Shades components, prefer the `css` property over `style` for comp
 ```typescript
 // ✅ Good - use css for component defaults and pseudo-selectors
 const Button = Shade({
-  shadowDomName: 'my-button',
+  tagName: 'my-button',
   css: {
     padding: '12px 24px',
     backgroundColor: 'blue',
@@ -425,7 +425,7 @@ const Button = Shade({
 
 // ❌ Avoid - using useState for hover/active states
 const Button = Shade({
-  shadowDomName: 'my-button',
+  tagName: 'my-button',
   render: ({ useState }) => {
     const [isHovered, setIsHovered] = useState('hover', false)
     return (
@@ -477,7 +477,7 @@ When using theme values in the `css` property, **always import and use `cssVaria
 import { cssVariableTheme } from '@furystack/shades-common-components'
 
 const MyComponent = Shade({
-  shadowDomName: 'my-component',
+  tagName: 'my-component',
   css: {
     color: cssVariableTheme.text.primary, // Type-checked!
     backgroundColor: cssVariableTheme.background.paper,
@@ -492,7 +492,7 @@ const MyComponent = Shade({
 
 // ❌ Avoid - raw strings with no type safety
 const BadComponent = Shade({
-  shadowDomName: 'bad-component',
+  tagName: 'bad-component',
   css: {
     color: 'var(--shades-theme-text-primary)', // No autocomplete, typos not caught
     backgroundColor: 'var(--shades-theme-background-paper)',

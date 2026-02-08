@@ -7,7 +7,7 @@ import type { WizardStepProps } from './index.js'
 import { Wizard } from './index.js'
 
 const Step1 = Shade<WizardStepProps>({
-  shadowDomName: 'wizard-test-step-1',
+  tagName: 'wizard-test-step-1',
   render: ({ props }) => (
     <div className="wizard-step" data-step-name="step1">
       <span className="step-info">
@@ -25,7 +25,7 @@ const Step1 = Shade<WizardStepProps>({
 })
 
 const Step2 = Shade<WizardStepProps>({
-  shadowDomName: 'wizard-test-step-2',
+  tagName: 'wizard-test-step-2',
   render: ({ props }) => (
     <div className="wizard-step" data-step-name="step2">
       <span className="step-info">
@@ -43,7 +43,7 @@ const Step2 = Shade<WizardStepProps>({
 })
 
 const Step3 = Shade<WizardStepProps>({
-  shadowDomName: 'wizard-test-step-3',
+  tagName: 'wizard-test-step-3',
   render: ({ props }) => (
     <div className="wizard-step" data-step-name="step3">
       <span className="step-info">

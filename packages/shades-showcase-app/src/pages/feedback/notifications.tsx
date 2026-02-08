@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Button, NotyList, NotyService, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const NotysPage = Shade({
-  shadowDomName: 'shade-notys',
+  tagName: 'shade-notys',
   render: ({ injector }) => {
     const notyService = injector.getInstance(NotyService)
     return (

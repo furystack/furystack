@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-compo
 import { WelcomeWizard } from '../wizard/home-wizard.js'
 
 export const WizardPage = Shade({
-  shadowDomName: 'shades-showcase-wizard',
+  tagName: 'shades-showcase-wizard',
   render: () => {
     return (
       <PageContainer maxWidth="800px" centered>

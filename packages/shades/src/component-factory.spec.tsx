@@ -62,7 +62,7 @@ describe('Shades Component Factory', () => {
 
   describe('Shade components', () => {
     it('Should render a basic component', () => {
-      const Example = Shade({ shadowDomName: 'example-basic', render: () => <div /> })
+      const Example = Shade({ tagName: 'example-basic', render: () => <div /> })
 
       const component = (
         <div>
@@ -77,7 +77,7 @@ describe('Shades Component Factory', () => {
 
     it('Should render a component with props', () => {
       const Example = Shade<{ foo: string; injector: Injector }>({
-        shadowDomName: 'example-with-props',
+        tagName: 'example-with-props',
         render: ({ props }) => <div>{props.foo}</div>,
       })
 
@@ -99,7 +99,7 @@ describe('Shades Component Factory', () => {
 
     it('Should render a component with state', () => {
       const Example = Shade({
-        shadowDomName: 'example-with-state',
+        tagName: 'example-with-state',
         render: ({ useState }) => {
           useState('foo', 'example')
           return <div />

@@ -4,7 +4,7 @@ import { cssVariableTheme } from '@furystack/shades-common-components'
 import { navigationConfig, type NavCategory, type NavPage } from '../navigation.js'
 
 const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
-  shadowDomName: 'sidebar-page-link',
+  tagName: 'sidebar-page-link',
   css: {
     display: 'block',
     '& a': {
@@ -51,7 +51,7 @@ const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
 })
 
 const SidebarCategory = Shade<{ category: NavCategory }>({
-  shadowDomName: 'sidebar-category',
+  tagName: 'sidebar-category',
   css: {
     display: 'block',
     marginBottom: '2px',
@@ -132,7 +132,7 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
  * and highlights the current page.
  */
 export const SidebarNavigation = Shade({
-  shadowDomName: 'sidebar-navigation',
+  tagName: 'sidebar-navigation',
   css: {
     display: 'block',
     height: '100%',

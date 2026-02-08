@@ -9,7 +9,7 @@ import {
 } from '@furystack/shades-common-components'
 
 const ShowAppBarButton = Shade({
-  shadowDomName: 'show-appbar-button',
+  tagName: 'show-appbar-button',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -21,7 +21,7 @@ const ShowAppBarButton = Shade({
 })
 
 const HideAppBarButton = Shade({
-  shadowDomName: 'hide-appbar-button',
+  tagName: 'hide-appbar-button',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -37,7 +37,7 @@ const HideAppBarButton = Shade({
  * Used for E2E visual regression testing
  */
 export const AutoHideAppBarTest = Shade({
-  shadowDomName: 'layout-test-auto-hide',
+  tagName: 'layout-test-auto-hide',
   render: () => {
     return (
       <PageLayout

@@ -3,7 +3,7 @@ import { PageContainer, PageHeader, Paper, Radio, RadioGroup } from '@furystack/
 import { ObservableValue } from '@furystack/utils'
 
 export const RadioPage = Shade({
-  shadowDomName: 'radio-page',
+  tagName: 'radio-page',
   render: ({ useDisposable, useObservable }) => {
     const selectedColor = useDisposable('selectedColor', () => new ObservableValue<string>(''))
     const [colorValue] = useObservable('colorValue', selectedColor)

@@ -151,7 +151,7 @@ const variantToTag = (variant: TypographyVariant): string => {
  * Maps variants to semantic HTML tags and uses theme typography tokens.
  */
 export const Typography = Shade<TypographyProps>({
-  shadowDomName: 'shade-typography',
+  tagName: 'shade-typography',
   css: {
     display: 'block',
     margin: '0',

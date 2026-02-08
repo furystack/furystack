@@ -26,7 +26,7 @@ const updateComponent = async (element: HTMLElement, isOpened: boolean) => {
 }
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
-  shadowDomName: 'shades-command-palette-input',
+  tagName: 'shades-command-palette-input',
   css: {
     overflow: 'hidden',
     '& input': {

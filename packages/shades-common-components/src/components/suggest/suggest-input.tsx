@@ -3,7 +3,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { SuggestManager } from './suggest-manager.js'
 
 export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
-  shadowDomName: 'shades-suggest-input',
+  tagName: 'shades-suggest-input',
   css: {
     width: '100%',
     overflow: 'hidden',

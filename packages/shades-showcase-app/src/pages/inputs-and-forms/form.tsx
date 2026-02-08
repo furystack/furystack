@@ -39,7 +39,7 @@ type FormAlertProps = {
 }
 
 const FormAlert = Shade<FormAlertProps>({
-  shadowDomName: 'shade-form-alert',
+  tagName: 'shade-form-alert',
   render: ({ props, useObservable }) => {
     const [currentAlert] = useObservable('currentAlert', props.alertState)
 
@@ -74,7 +74,7 @@ const FormAlert = Shade<FormAlertProps>({
 })
 
 const FormStatusMonitor = Shade({
-  shadowDomName: 'shade-form-status-monitor',
+  tagName: 'shade-form-status-monitor',
   render: ({ injector, useObservable }) => {
     const formService = injector.getInstance(FormService)
     const [rawFormData] = useObservable('rawFormData', formService.rawFormData)
@@ -93,7 +93,7 @@ const FormStatusMonitor = Shade({
 })
 
 export const FormPage = Shade({
-  shadowDomName: 'forms-page',
+  tagName: 'forms-page',
   render: ({ useDisposable }) => {
     const alertState = useDisposable('alertState', () => new ObservableValue<'success' | 'error' | null>(null))
 

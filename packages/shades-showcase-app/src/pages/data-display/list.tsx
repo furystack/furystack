@@ -12,7 +12,7 @@ const listEntries: ListEntry[] = [
 ]
 
 const SelectionCountDisplay = Shade<{ selectionCount: ObservableValue<number> }>({
-  shadowDomName: 'shades-selection-count-display',
+  tagName: 'shades-selection-count-display',
   render: ({ props, useObservable }) => {
     const [count] = useObservable('count', props.selectionCount)
     return (
@@ -24,7 +24,7 @@ const SelectionCountDisplay = Shade<{ selectionCount: ObservableValue<number> }>
 })
 
 export const ListPage = Shade({
-  shadowDomName: 'shades-list-page',
+  tagName: 'shades-list-page',
   render: ({ useDisposable }) => {
     const listService = useDisposable('listService', () => new ListService<ListEntry>({ searchField: 'label' }))
     const multiSelectService = useDisposable(

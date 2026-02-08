@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Breadcrumb, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const BreadcrumbPage = Shade({
-  shadowDomName: 'shades-breadcrumb-page',
+  tagName: 'shades-breadcrumb-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

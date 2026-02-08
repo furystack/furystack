@@ -209,7 +209,7 @@ const syncAriaAttributes = (
 }
 
 export const Slider = Shade<SliderProps>({
-  shadowDomName: 'shade-slider',
+  tagName: 'shade-slider',
   css: {
     display: 'block',
     position: 'relative',

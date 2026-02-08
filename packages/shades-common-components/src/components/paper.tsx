@@ -2,7 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
-  shadowDomName: 'shade-paper',
+  tagName: 'shade-paper',
   elementBase: HTMLDivElement,
   elementBaseName: 'div',
   css: {

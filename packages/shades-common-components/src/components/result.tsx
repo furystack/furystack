@@ -64,7 +64,7 @@ const defaultTitles: Record<ResultStatus, string> = {
  * Supports success, error, warning, info statuses and common HTTP error codes (403, 404, 500).
  */
 export const Result = Shade<ResultProps>({
-  shadowDomName: 'shade-result',
+  tagName: 'shade-result',
   css: {
     display: 'flex',
     flexDirection: 'column',

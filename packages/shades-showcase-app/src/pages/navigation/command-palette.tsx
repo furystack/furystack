@@ -11,7 +11,7 @@ const entries: SuggestEntry[] = [
 ]
 
 export const CommandPalettePage = Shade({
-  shadowDomName: 'shades-command-palette-page',
+  tagName: 'shades-command-palette-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

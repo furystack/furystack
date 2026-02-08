@@ -24,7 +24,7 @@ export interface CommandPaletteProps {
 }
 
 export const CommandPalette = Shade<CommandPaletteProps>({
-  shadowDomName: 'shade-command-palette',
+  tagName: 'shade-command-palette',
   css: {
     ...searchableInputStyles,
     '& .command-palette-wrapper': {

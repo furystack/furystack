@@ -20,7 +20,7 @@ export type ButtonGroupProps = PartialElement<HTMLElement> & {
 }
 
 export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => JSX.Element = Shade<ButtonGroupProps>({
-  shadowDomName: 'shade-button-group',
+  tagName: 'shade-button-group',
   css: {
     display: 'inline-flex',
     borderRadius: cssVariableTheme.shape.borderRadius.md,
@@ -103,7 +103,7 @@ export type ToggleButtonProps = PartialElement<HTMLButtonElement> & {
 }
 
 export const ToggleButton = Shade<ToggleButtonProps>({
-  shadowDomName: 'shade-toggle-button',
+  tagName: 'shade-toggle-button',
   elementBase: HTMLButtonElement,
   elementBaseName: 'button',
   css: {
@@ -186,7 +186,7 @@ export type ToggleButtonGroupProps = PartialElement<HTMLElement> & {
 
 export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: ChildrenList) => JSX.Element =
   Shade<ToggleButtonGroupProps>({
-    shadowDomName: 'shade-toggle-button-group',
+    tagName: 'shade-toggle-button-group',
     css: {
       display: 'inline-flex',
       borderRadius: cssVariableTheme.shape.borderRadius.md,
@@ -312,7 +312,7 @@ const defaultSegmentedColors = {
 }
 
 export const SegmentedControl = Shade<SegmentedControlProps>({
-  shadowDomName: 'shade-segmented-control',
+  tagName: 'shade-segmented-control',
   css: {
     display: 'inline-flex',
     borderRadius: cssVariableTheme.shape.borderRadius.md,

@@ -12,7 +12,7 @@ import {
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
 export const TimelinePage = Shade({
-  shadowDomName: 'shades-timeline-page',
+  tagName: 'shades-timeline-page',
   render: () => {
     return (
       <PageContainer maxWidth="900px" centered>

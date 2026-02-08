@@ -3,7 +3,7 @@ import { ObservableValue } from '@furystack/utils'
 import { Button, ConfirmDialog, Dialog, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const DialogPage = Shade({
-  shadowDomName: 'shades-dialog-page',
+  tagName: 'shades-dialog-page',
   render: ({ useDisposable }) => {
     const isBasicOpen = useDisposable('basicDialog', () => new ObservableValue(false))
     const isActionsOpen = useDisposable('actionsDialog', () => new ObservableValue(false))

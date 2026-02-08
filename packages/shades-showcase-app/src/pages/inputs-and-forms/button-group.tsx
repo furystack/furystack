@@ -13,7 +13,7 @@ import {
 import { ObservableValue } from '@furystack/utils'
 
 const ToggleExclusiveDemo = Shade({
-  shadowDomName: 'toggle-exclusive-demo',
+  tagName: 'toggle-exclusive-demo',
   render: ({ useDisposable, useObservable }) => {
     const alignment$ = useDisposable('alignment', () => new ObservableValue('center'))
     const [alignment] = useObservable('alignmentValue', alignment$)
@@ -39,7 +39,7 @@ const ToggleExclusiveDemo = Shade({
 })
 
 const ToggleMultiDemo = Shade({
-  shadowDomName: 'toggle-multi-demo',
+  tagName: 'toggle-multi-demo',
   render: ({ useDisposable, useObservable }) => {
     const formats$ = useDisposable('formats', () => new ObservableValue<string[]>(['bold']))
     const [formats] = useObservable('formatsValue', formats$)
@@ -65,7 +65,7 @@ const ToggleMultiDemo = Shade({
 })
 
 const ToggleVerticalDemo = Shade({
-  shadowDomName: 'toggle-vertical-demo',
+  tagName: 'toggle-vertical-demo',
   render: ({ useDisposable, useObservable }) => {
     const view$ = useDisposable('view', () => new ObservableValue('list'))
     const [view] = useObservable('viewValue', view$)
@@ -92,7 +92,7 @@ const ToggleVerticalDemo = Shade({
 })
 
 const SegmentedControlDemo = Shade({
-  shadowDomName: 'segmented-control-demo',
+  tagName: 'segmented-control-demo',
   render: ({ useDisposable, useObservable }) => {
     const period$ = useDisposable('period', () => new ObservableValue('weekly'))
     const [period] = useObservable('periodValue', period$)
@@ -118,7 +118,7 @@ const SegmentedControlDemo = Shade({
 })
 
 export const ButtonGroupPage = Shade({
-  shadowDomName: 'button-group-page',
+  tagName: 'button-group-page',
   render: () => {
     return (
       <PageContainer maxWidth="800px" centered>

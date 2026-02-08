@@ -33,7 +33,7 @@ export interface WizardProps {
 }
 
 export const Wizard = Shade<WizardProps>({
-  shadowDomName: 'shades-wizard',
+  tagName: 'shades-wizard',
   css: {
     '& .wizard-container': {
       display: 'flex',

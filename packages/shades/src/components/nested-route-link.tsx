@@ -29,7 +29,7 @@ export type TypedNestedRouteLinkProps<TPath extends string> = {
   PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
 
 const _NestedRouteLink = Shade<NestedRouteLinkProps>({
-  shadowDomName: 'nested-route-link',
+  tagName: 'nested-route-link',
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
   css: {

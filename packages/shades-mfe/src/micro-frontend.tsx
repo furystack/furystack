@@ -9,7 +9,7 @@ type MicroFrontendProps<TApi> = {
 }
 
 export const MicroFrontend: <TApi>(props: MicroFrontendProps<TApi>) => JSX.Element = Shade({
-  shadowDomName: 'shade-micro-frontend',
+  tagName: 'shade-micro-frontend',
   constructed: async ({ props, element, injector }) => {
     const tryCreateComponent = async () => {
       const creatorService = await props.loaderCallback()
