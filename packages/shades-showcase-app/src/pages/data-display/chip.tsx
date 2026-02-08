@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { Chip, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Chip, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -26,7 +26,9 @@ export const ChipPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Filled (default)</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Filled (default)
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             <Chip>Default</Chip>
             {paletteColors.map((color) => (
@@ -34,7 +36,9 @@ export const ChipPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Outlined</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Outlined
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             <Chip variant="outlined">Default</Chip>
             {paletteColors.map((color) => (
@@ -44,7 +48,9 @@ export const ChipPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Small size</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Small size
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             <Chip size="small">Default</Chip>
             {paletteColors.map((color) => (
@@ -54,7 +60,9 @@ export const ChipPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Clickable</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Clickable
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             {paletteColors.map((color) => (
               <Chip color={color} clickable onclick={() => alert(`Clicked ${color}`)}>
@@ -63,7 +71,9 @@ export const ChipPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Deletable</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Deletable
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             {paletteColors
               .filter((color) => !state.deletedChips.includes(color))
@@ -79,7 +89,9 @@ export const ChipPage = Shade({
             ) : null}
           </div>
 
-          <h3 style={{ margin: '0' }}>Disabled</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Disabled
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             <Chip disabled>Default</Chip>
             <Chip disabled color="primary">

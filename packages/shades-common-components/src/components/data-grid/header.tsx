@@ -5,6 +5,8 @@ import { ObservableValue, sleepAsync } from '@furystack/utils'
 import { collapse, expand } from '../animations.js'
 import { Button } from '../button.js'
 import { Form } from '../form.js'
+import { Icon } from '../icons/icon.js'
+import { arrowDown, arrowUp, arrowUpDown, close as closeIcon, search as searchIcon } from '../icons/icon-definitions.js'
 import { Input } from '../inputs/input.js'
 
 export interface DataGridHeaderProps<T, Column extends string> {
@@ -51,7 +53,12 @@ export const OrderButton = Shade<{
           })
         }}
       >
-        {(currentOrder === props.field && (currentOrderDirection === 'ASC' ? '⬇' : '⬆')) || '↕'}
+        {(currentOrder === props.field &&
+          (currentOrderDirection === 'ASC' ? (
+            <Icon icon={arrowDown} size={16} />
+          ) : (
+            <Icon icon={arrowUp} size={16} />
+          ))) || <Icon icon={arrowUpDown} size={16} />}
       </Button>
     )
   },
@@ -77,8 +84,14 @@ const SearchButton = Shade<{
       (findOptions.filter?.[props.fieldName] as FilterType<{ [K in typeof props.fieldName]: string }>)?.$regex || ''
 
     return (
-      <Button type="button" title="Filter" variant="outlined" onclick={props.onclick}>
-        {filterValue ? '🔍' : '🔎'}
+      <Button
+        type="button"
+        title="Filter"
+        variant="outlined"
+        color={filterValue ? 'info' : undefined}
+        onclick={props.onclick}
+      >
+        <Icon icon={searchIcon} size={16} />
       </Button>
     )
   },
@@ -152,10 +165,10 @@ const SearchForm = Shade<{
               props.onClear()
             }}
           >
-            ❌
+            <Icon icon={closeIcon} size={16} />
           </Button>
           <Button variant="outlined" type="submit">
-            🔎
+            <Icon icon={searchIcon} size={16} />
           </Button>
         </div>
       </Form>

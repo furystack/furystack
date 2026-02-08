@@ -1,44 +1,11 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
+import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
 
 export type FabProps = PartialElement<HTMLButtonElement> & {
   color?: keyof Palette
-}
-
-// Color mappings for each palette color
-const colorMap: Record<keyof Palette, { main: string; mainContrast: string; dark: string }> = {
-  primary: {
-    main: cssVariableTheme.palette.primary.main,
-    mainContrast: cssVariableTheme.palette.primary.mainContrast,
-    dark: cssVariableTheme.palette.primary.dark,
-  },
-  secondary: {
-    main: cssVariableTheme.palette.secondary.main,
-    mainContrast: cssVariableTheme.palette.secondary.mainContrast,
-    dark: cssVariableTheme.palette.secondary.dark,
-  },
-  error: {
-    main: cssVariableTheme.palette.error.main,
-    mainContrast: cssVariableTheme.palette.error.mainContrast,
-    dark: cssVariableTheme.palette.error.dark,
-  },
-  warning: {
-    main: cssVariableTheme.palette.warning.main,
-    mainContrast: cssVariableTheme.palette.warning.mainContrast,
-    dark: cssVariableTheme.palette.warning.dark,
-  },
-  success: {
-    main: cssVariableTheme.palette.success.main,
-    mainContrast: cssVariableTheme.palette.success.mainContrast,
-    dark: cssVariableTheme.palette.success.dark,
-  },
-  info: {
-    main: cssVariableTheme.palette.info.main,
-    mainContrast: cssVariableTheme.palette.info.mainContrast,
-    dark: cssVariableTheme.palette.info.dark,
-  },
 }
 
 export const Fab = Shade<FabProps>({
@@ -71,11 +38,11 @@ export const Fab = Shade<FabProps>({
     },
     '&:disabled': {
       cursor: 'not-allowed',
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
     },
   },
   render: ({ props, children, element }) => {
-    const colors = colorMap[props.color ?? 'primary']
+    const colors = paletteFullColors[props.color ?? 'primary']
     element.style.setProperty('--fab-color-main', colors.main)
     element.style.setProperty('--fab-color-contrast', colors.mainContrast)
     element.style.setProperty('--fab-color-dark', colors.dark)

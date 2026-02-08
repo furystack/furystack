@@ -2,6 +2,8 @@ import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { FlattenedTreeNode, TreeService } from '../../services/tree-service.js'
+import { Icon } from '../icons/icon.js'
+import { chevronRight } from '../icons/icon-definitions.js'
 import type { TreeItemState } from './tree.js'
 
 export type TreeItemProps<T> = {
@@ -24,7 +26,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     alignItems: 'center',
     cursor: 'default',
     userSelect: 'none',
-    padding: '4px 8px',
+    padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
     gap: '6px',
     transition: buildTransition(
       ['opacity', cssVariableTheme.transitions.duration.fast, 'ease-out'],
@@ -144,12 +146,12 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
           {hasChildren ? (
             <span
               style={{
-                display: 'inline-block',
+                display: 'inline-flex',
                 transition: 'transform 0.2s ease',
                 transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
               }}
             >
-              ▸
+              <Icon icon={chevronRight} size={14} />
             </span>
           ) : (
             ''

@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { ContextMenu, ContextMenuManager, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Button,
+  ContextMenu,
+  ContextMenuManager,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 type MenuAction = { action: string }
 
@@ -17,7 +25,7 @@ export const ContextMenuPage = Shade({
           description="Right-click or button-triggered context menus with icons, descriptions, separators, and disabled items."
         />
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Right-click triggered</h3>
+          <Typography variant="h3">Right-click triggered</Typography>
           <div
             style={{
               padding: '32px',
@@ -53,16 +61,11 @@ export const ContextMenuPage = Shade({
             onItemSelect={(item) => console.log('Selected:', item.action)}
           />
 
-          <h3 style={{ marginTop: '24px' }}>Button triggered</h3>
-          <button
-            style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: '1px solid rgba(128,128,128,0.3)',
-              background: 'transparent',
-              color: 'inherit',
-              cursor: 'pointer',
-            }}
+          <Typography variant="h3" style={{ marginTop: '24px' }}>
+            Button triggered
+          </Typography>
+          <Button
+            variant="outlined"
             onclick={(ev: MouseEvent) => {
               const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect()
               buttonManager.open({
@@ -96,7 +99,7 @@ export const ContextMenuPage = Shade({
             }}
           >
             Open menu
-          </button>
+          </Button>
           <ContextMenu<MenuAction>
             manager={buttonManager}
             onItemSelect={(item) => console.log('Selected:', item.action)}

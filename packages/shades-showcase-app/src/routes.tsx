@@ -159,6 +159,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/button-group': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ButtonGroupPage } = await import('./pages/inputs-and-forms/button-group.js')
+                  return <ButtonGroupPage />
+                }}
+              />
+            ),
+          },
           '/checkboxes': {
             ...withFadeTransition,
             component: () => (
@@ -167,6 +179,18 @@ export const appRoutes = {
                 component={async () => {
                   const { CheckboxesPage } = await import('./pages/inputs-and-forms/checkboxes.js')
                   return <CheckboxesPage />
+                }}
+              />
+            ),
+          },
+          '/input-number': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { InputNumberPage } = await import('./pages/inputs-and-forms/input-number.js')
+                  return <InputNumberPage />
                 }}
               />
             ),
@@ -195,6 +219,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/rating': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { RatingPage } = await import('./pages/inputs-and-forms/rating.js')
+                  return <RatingPage />
+                }}
+              />
+            ),
+          },
           '/select': {
             ...withFadeTransition,
             component: () => (
@@ -203,6 +239,18 @@ export const appRoutes = {
                 component={async () => {
                   const { SelectPage } = await import('./pages/inputs-and-forms/select.js')
                   return <SelectPage />
+                }}
+              />
+            ),
+          },
+          '/slider': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SliderPage } = await import('./pages/inputs-and-forms/slider.js')
+                  return <SliderPage />
                 }}
               />
             ),
@@ -321,6 +369,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/carousel': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CarouselPage } = await import('./pages/data-display/carousel.js')
+                  return <CarouselPage />
+                }}
+              />
+            ),
+          },
           '/chip': {
             ...withFadeTransition,
             component: () => (
@@ -333,6 +393,42 @@ export const appRoutes = {
               />
             ),
           },
+          '/icons': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { IconsPage } = await import('./pages/data-display/icons.js')
+                  return <IconsPage />
+                }}
+              />
+            ),
+          },
+          '/image': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ImagePage } = await import('./pages/data-display/image.js')
+                  return <ImagePage />
+                }}
+              />
+            ),
+          },
+          '/timeline': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TimelinePage } = await import('./pages/data-display/timeline.js')
+                  return <TimelinePage />
+                }}
+              />
+            ),
+          },
           '/tooltip': {
             ...withFadeTransition,
             component: () => (
@@ -341,6 +437,18 @@ export const appRoutes = {
                 component={async () => {
                   const { TooltipPage } = await import('./pages/data-display/tooltip.js')
                   return <TooltipPage />
+                }}
+              />
+            ),
+          },
+          '/typography': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { TypographyPage } = await import('./pages/data-display/typography.js')
+                  return <TypographyPage />
                 }}
               />
             ),
@@ -358,6 +466,30 @@ export const appRoutes = {
                 component={async () => {
                   const { TabsPage } = await import('./pages/navigation/tabs.js')
                   return <TabsPage />
+                }}
+              />
+            ),
+          },
+          '/menu': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { MenuPage } = await import('./pages/navigation/menu.js')
+                  return <MenuPage />
+                }}
+              />
+            ),
+          },
+          '/dropdown': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { DropdownPage } = await import('./pages/navigation/dropdown.js')
+                  return <DropdownPage />
                 }}
               />
             ),
@@ -447,6 +579,18 @@ export const appRoutes = {
                 component={async () => {
                   const { ProgressPage } = await import('./pages/feedback/progress.js')
                   return <ProgressPage />
+                }}
+              />
+            ),
+          },
+          '/result': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ResultPage } = await import('./pages/feedback/result.js')
+                  return <ResultPage />
                 }}
               />
             ),

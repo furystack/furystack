@@ -171,7 +171,7 @@ describe('AccordionItem', () => {
     item.callConstructed()
     const chevron = item.querySelector('.accordion-chevron') as HTMLElement
     expect(chevron).not.toBeNull()
-    expect(chevron.textContent).toBe('▾')
+    expect(chevron.querySelector('shade-icon')).not.toBeNull()
   })
 
   it('should set aria-expanded to false when collapsed', () => {
@@ -302,6 +302,69 @@ describe('AccordionItem', () => {
     header.click()
 
     // The attribute is removed synchronously before the animation awaits
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+  })
+
+  it('should toggle on Enter keydown', () => {
+    const mockAnimation = { finished: Promise.resolve() }
+    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+    const el = (
+      <div>
+        <AccordionItem title="Keyboard Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+    expect(item.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  it('should toggle on Space keydown', () => {
+    const mockAnimation = { finished: Promise.resolve() }
+    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+    const el = (
+      <div>
+        <AccordionItem title="Space Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    expect(item.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  it('should not toggle on unrelated keydown', () => {
+    const el = (
+      <div>
+        <AccordionItem title="No Toggle">
+          <p>Content</p>
+        </AccordionItem>
+      </div>
+    )
+    const item = el.firstElementChild as JSX.Element
+    item.callConstructed()
+
+    expect(item.hasAttribute('data-expanded')).toBe(false)
+
+    const header = item.querySelector('.accordion-header') as HTMLElement
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 

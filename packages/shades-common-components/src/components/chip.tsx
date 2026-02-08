@@ -3,6 +3,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import { Icon } from './icons/icon.js'
+import { close } from './icons/icon-definitions.js'
 
 export type ChipProps = PartialElement<HTMLElement> & {
   variant?: 'filled' | 'outlined'
@@ -58,7 +60,7 @@ export const Chip = Shade<ChipProps>({
 
     // Disabled state
     '&[data-disabled]': {
-      opacity: '0.6',
+      opacity: cssVariableTheme.action.disabledOpacity,
       pointerEvents: 'none',
     },
 
@@ -125,7 +127,7 @@ export const Chip = Shade<ChipProps>({
       marginRight: `calc(-1 * ${cssVariableTheme.spacing.xs})`,
       width: '18px',
       height: '18px',
-      fontSize: '14px',
+      fontSize: cssVariableTheme.typography.fontSize.md,
       lineHeight: '1',
       opacity: '0.7',
       transition: buildTransition(
@@ -196,7 +198,7 @@ export const Chip = Shade<ChipProps>({
               onDelete(ev)
             }}
           >
-            ✕
+            <Icon icon={close} size={14} />
           </span>
         ) : null}
       </>

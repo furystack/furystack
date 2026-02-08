@@ -2,6 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
+import { Icon } from './icons/icon.js'
+import { close } from './icons/icon-definitions.js'
 import { Modal } from './modal.js'
 
 export type DialogProps = {
@@ -158,7 +160,7 @@ export const Dialog = Shade<DialogProps>({
               {title ? <h2 className="dialog-title">{title}</h2> : <span />}
               {onClose ? (
                 <button className="dialog-close" onclick={handleClose} aria-label="Close dialog">
-                  ✕
+                  <Icon icon={close} size="small" />
                 </button>
               ) : null}
             </div>

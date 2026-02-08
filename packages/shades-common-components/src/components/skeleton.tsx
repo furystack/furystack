@@ -1,4 +1,5 @@
 import { Shade } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export type SkeletonProps = {
@@ -13,7 +14,7 @@ export const Skeleton = Shade<SkeletonProps>({
   css: {
     opacity: '0',
     display: 'inline-block',
-    background: 'linear-gradient(-45deg, rgba(128,128,128,0.1), rgba(128,128,128,0.3), rgba(128,128,128,0.1))',
+    background: `linear-gradient(-45deg, color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 30%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent))`,
     backgroundSize: '400% 400%',
     width: '100%',
     height: '100%',

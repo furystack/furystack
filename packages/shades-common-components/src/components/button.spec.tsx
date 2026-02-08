@@ -11,6 +11,7 @@ describe('Button', () => {
 
   afterEach(() => {
     document.body.innerHTML = ''
+    document.querySelector('style[data-shades-button-spinner]')?.remove()
   })
 
   const renderButton = async (props: Parameters<typeof Button>[0] = {}, children?: JSX.Element[]) => {
@@ -61,6 +62,12 @@ describe('Button', () => {
     it('should set data-variant="outlined" for outlined variant', async () => {
       await usingAsync(await renderButton({ variant: 'outlined' }), async ({ button }) => {
         expect(button.getAttribute('data-variant')).toBe('outlined')
+      })
+    })
+
+    it('should have no data-variant for text variant (same as default)', async () => {
+      await usingAsync(await renderButton({ variant: 'text' }), async ({ button }) => {
+        expect(button.getAttribute('data-variant')).toBeNull()
       })
     })
 
@@ -206,6 +213,171 @@ describe('Button', () => {
       await usingAsync(await renderButton({ name: 'my-button' }), async ({ button }) => {
         expect(button.name).toBe('my-button')
       })
+    })
+  })
+
+  describe('size', () => {
+    it('should not set data-size when size is not specified', async () => {
+      await usingAsync(await renderButton(), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should not set data-size for medium size (default)', async () => {
+      await usingAsync(await renderButton({ size: 'medium' }), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should set data-size="small" for small size', async () => {
+      await usingAsync(await renderButton({ size: 'small' }), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBe('small')
+      })
+    })
+
+    it('should set data-size="large" for large size', async () => {
+      await usingAsync(await renderButton({ size: 'large' }), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBe('large')
+      })
+    })
+  })
+
+  describe('danger', () => {
+    it('should use error palette colors when danger is true', async () => {
+      await usingAsync(await renderButton({ danger: true }), async ({ button }) => {
+        expect(button.style.getPropertyValue('--btn-color-main')).toBe('var(--shades-theme-palette-error-main)')
+        expect(button.style.getPropertyValue('--btn-color-main-contrast')).toBe(
+          'var(--shades-theme-palette-error-main-contrast)',
+        )
+      })
+    })
+
+    it('should override color prop when danger is true', async () => {
+      await usingAsync(await renderButton({ danger: true, color: 'primary' }), async ({ button }) => {
+        expect(button.style.getPropertyValue('--btn-color-main')).toBe('var(--shades-theme-palette-error-main)')
+      })
+    })
+
+    it('should use specified color when danger is false', async () => {
+      await usingAsync(await renderButton({ danger: false, color: 'primary' }), async ({ button }) => {
+        expect(button.style.getPropertyValue('--btn-color-main')).toBe('var(--shades-theme-palette-primary-main)')
+      })
+    })
+  })
+
+  describe('loading', () => {
+    it('should set data-loading attribute when loading is true', async () => {
+      await usingAsync(await renderButton({ loading: true }), async ({ button }) => {
+        expect(button.hasAttribute('data-loading')).toBe(true)
+      })
+    })
+
+    it('should disable the button when loading is true', async () => {
+      await usingAsync(await renderButton({ loading: true }), async ({ button }) => {
+        expect(button.disabled).toBe(true)
+      })
+    })
+
+    it('should render a spinner element when loading', async () => {
+      await usingAsync(await renderButton({ loading: true }), async ({ button }) => {
+        const spinner = button.querySelector('.shade-btn-spinner')
+        expect(spinner).toBeTruthy()
+      })
+    })
+
+    it('should not render a spinner when not loading', async () => {
+      await usingAsync(await renderButton({ loading: false }), async ({ button }) => {
+        const spinner = button.querySelector('.shade-btn-spinner')
+        expect(spinner).toBeNull()
+      })
+    })
+
+    it('should inject spinner keyframes stylesheet', async () => {
+      await usingAsync(await renderButton({ loading: true }), async () => {
+        const style = document.querySelector('style[data-shades-button-spinner]')
+        expect(style).toBeTruthy()
+        expect(style?.textContent).toContain('shade-btn-spin')
+      })
+    })
+
+    it('should not set data-loading when loading is false', async () => {
+      await usingAsync(await renderButton({ loading: false }), async ({ button }) => {
+        expect(button.hasAttribute('data-loading')).toBe(false)
+      })
+    })
+  })
+
+  describe('startIcon and endIcon', () => {
+    it('should render startIcon before children', async () => {
+      const icon = (<span className="test-start-icon">★</span>) as unknown as JSX.Element
+      await usingAsync(
+        await renderButton({ startIcon: icon }, ['Label'] as unknown as JSX.Element[]),
+        async ({ button }) => {
+          const startIcon = button.querySelector('.shade-btn-start-icon')
+          expect(startIcon).toBeTruthy()
+          expect(startIcon?.querySelector('.test-start-icon')).toBeTruthy()
+          expect(button.textContent).toContain('Label')
+        },
+      )
+    })
+
+    it('should render endIcon after children', async () => {
+      const icon = (<span className="test-end-icon">→</span>) as unknown as JSX.Element
+      await usingAsync(
+        await renderButton({ endIcon: icon }, ['Label'] as unknown as JSX.Element[]),
+        async ({ button }) => {
+          const endIcon = button.querySelector('.shade-btn-end-icon')
+          expect(endIcon).toBeTruthy()
+          expect(endIcon?.querySelector('.test-end-icon')).toBeTruthy()
+        },
+      )
+    })
+
+    it('should not render startIcon when loading', async () => {
+      const icon = (<span className="test-start-icon">★</span>) as unknown as JSX.Element
+      await usingAsync(await renderButton({ startIcon: icon, loading: true }), async ({ button }) => {
+        expect(button.querySelector('.shade-btn-start-icon')).toBeNull()
+        expect(button.querySelector('.shade-btn-spinner')).toBeTruthy()
+      })
+    })
+
+    it('should not render endIcon when loading', async () => {
+      const icon = (<span className="test-end-icon">→</span>) as unknown as JSX.Element
+      await usingAsync(await renderButton({ endIcon: icon, loading: true }), async ({ button }) => {
+        expect(button.querySelector('.shade-btn-end-icon')).toBeNull()
+      })
+    })
+  })
+
+  describe('combined features', () => {
+    it('should support size with variant and color', async () => {
+      await usingAsync(
+        await renderButton({ size: 'small', variant: 'contained', color: 'primary' }),
+        async ({ button }) => {
+          expect(button.getAttribute('data-size')).toBe('small')
+          expect(button.getAttribute('data-variant')).toBe('contained')
+          expect(button.style.getPropertyValue('--btn-color-main')).toBe('var(--shades-theme-palette-primary-main)')
+        },
+      )
+    })
+
+    it('should support danger with contained variant', async () => {
+      await usingAsync(await renderButton({ danger: true, variant: 'contained' }), async ({ button }) => {
+        expect(button.getAttribute('data-variant')).toBe('contained')
+        expect(button.style.getPropertyValue('--btn-color-main')).toBe('var(--shades-theme-palette-error-main)')
+      })
+    })
+
+    it('should support loading with variant and size', async () => {
+      await usingAsync(
+        await renderButton({ loading: true, variant: 'outlined', size: 'large' }),
+        async ({ button }) => {
+          expect(button.hasAttribute('data-loading')).toBe(true)
+          expect(button.getAttribute('data-variant')).toBe('outlined')
+          expect(button.getAttribute('data-size')).toBe('large')
+          expect(button.disabled).toBe(true)
+        },
+      )
     })
   })
 })

@@ -189,9 +189,27 @@ export type LineHeightScale = {
 }
 
 /**
+ * Letter spacing scale for consistent character spacing.
+ */
+export type LetterSpacingScale = {
+  /** -0.5px - tight spacing for large display text */
+  tight: string
+  /** -0.25px - slightly tight spacing for headings */
+  dense: string
+  /** 0px - default spacing */
+  normal: string
+  /** 0.15px - slightly wider for body text */
+  wide: string
+  /** 0.5px - wider for buttons and labels */
+  wider: string
+  /** 1.5px - widest for overline/caption text */
+  widest: string
+}
+
+/**
  * Typography tokens for text styling.
  */
-export type Typography = {
+export type ThemeTypography = {
   /** Base font family stack */
   fontFamily: string
   /** Font size scale */
@@ -200,6 +218,8 @@ export type Typography = {
   fontWeight: FontWeightScale
   /** Line height scale */
   lineHeight: LineHeightScale
+  /** Letter spacing scale */
+  letterSpacing?: LetterSpacingScale
 }
 
 /**
@@ -253,6 +273,36 @@ export type Spacing = {
 }
 
 /**
+ * Z-index layer scale for consistent stacking context.
+ */
+export type ZIndex = {
+  /** 1000 - drawers and sidebar panels */
+  drawer: string
+  /** 1100 - app bars and sticky headers */
+  appBar: string
+  /** 1200 - modals and dialogs */
+  modal: string
+  /** 1300 - tooltips and popovers */
+  tooltip: string
+  /** 1400 - dropdowns and context menus */
+  dropdown: string
+}
+
+/**
+ * Visual effect tokens for blur and backdrop effects.
+ */
+export type Effects = {
+  /** 4px - subtle blur for glassy surfaces */
+  blurSm: string
+  /** 8px - medium blur for overlays */
+  blurMd: string
+  /** 15px - strong blur for app bar / prominent overlays */
+  blurLg: string
+  /** 20px - heavy blur for command palette / suggestion lists */
+  blurXl: string
+}
+
+/**
  * Complete theme definition containing all design tokens for the application.
  * Themes can be switched at runtime to support light/dark modes or custom branding.
  *
@@ -288,12 +338,16 @@ export interface Theme {
   shape: Shape
   /** Elevation shadow presets */
   shadows: Shadows
-  /** Typography scale (font sizes, weights, line heights) */
-  typography: Typography
+  /** Typography scale (font sizes, weights, line heights, letter spacing) */
+  typography: ThemeTypography
   /** Transition timing tokens */
   transitions: Transitions
   /** Spacing scale */
   spacing: Spacing
+  /** Z-index stacking layers */
+  zIndex?: ZIndex
+  /** Visual effect tokens (blur, backdrop) */
+  effects?: Effects
 }
 
 export class RgbColor {

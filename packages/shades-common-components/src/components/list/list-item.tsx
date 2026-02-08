@@ -1,7 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import type { ListService } from '../../services/list-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import type { ListService } from '../../services/list-service.js'
 import type { ListItemState } from './list.js'
 
 export type ListItemProps<T> = {
@@ -102,7 +102,7 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
           {renderItem(item, state)}
         </span>
         {renderSecondaryActions && (
-          <span className="list-item-actions" style={{ display: 'flex', gap: '4px' }}>
+          <span className="list-item-actions" style={{ display: 'flex', gap: cssVariableTheme.spacing.xs }}>
             {renderSecondaryActions(item).map((action) => action)}
           </span>
         )}

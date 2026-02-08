@@ -25,6 +25,17 @@ describe('Shades Component Factory', () => {
       expect(component.getAttribute('data-testid')).toBe('asd-123')
     })
 
+    it('Should apply aria attributes', () => {
+      const component = (
+        <div aria-label="My label" aria-hidden="true">
+          a
+        </div>
+      )
+      expect(component).toBeInstanceOf(HTMLDivElement)
+      expect(component.getAttribute('aria-label')).toBe('My label')
+      expect(component.getAttribute('aria-hidden')).toBe('true')
+    })
+
     it('Should create a nested component', () => {
       const component = (
         <div style={{ display: 'flex' }}>

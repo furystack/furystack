@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { Badge, Button, Chip, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Badge, Button, Chip, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -22,7 +22,9 @@ export const BadgePage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Basic</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Basic
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Badge count={state.count}>
               <MailIcon />
@@ -44,7 +46,9 @@ export const BadgePage = Shade({
             </Button>
           </div>
 
-          <h3 style={{ margin: '0' }}>Colors</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Colors
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             {paletteColors.map((color) => (
               <Badge count={8} color={color}>
@@ -53,7 +57,9 @@ export const BadgePage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Dot variant</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Dot variant
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Badge dot>
               <MailIcon />
@@ -66,7 +72,9 @@ export const BadgePage = Shade({
             </Badge>
           </div>
 
-          <h3 style={{ margin: '0' }}>Maximum value</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Maximum value
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Badge count={99}>
               <MailIcon />
@@ -79,7 +87,9 @@ export const BadgePage = Shade({
             </Badge>
           </div>
 
-          <h3 style={{ margin: '0' }}>Show zero</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Show zero
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Badge count={0}>
               <MailIcon />
@@ -89,7 +99,9 @@ export const BadgePage = Shade({
             </Badge>
           </div>
 
-          <h3 style={{ margin: '0' }}>Visibility</h3>
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Visibility
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Badge count={5} visible={true}>
               <MailIcon />

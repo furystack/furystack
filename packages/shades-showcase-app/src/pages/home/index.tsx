@@ -1,5 +1,5 @@
 import { createComponent, NestedRouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const CustomHeader = styledElement('h1', {
   color: 'black',
@@ -20,41 +20,41 @@ export const HomePage = Shade({
           description="Explore the component library and learn how to build modern web applications with the Shades framework."
         />
         <Paper elevation={3} style={{ padding: '16px 32px 32px 32px', textAlign: 'justify' }}>
-          <h2>Introduction</h2>
-          <p>
+          <Typography variant="h2">Introduction</Typography>
+          <Typography variant="body1">
             FuryStack Shades is a lightweight, dependency-injection powered UI framework for building modern web
             applications. Built on top of Web Components and Shadow DOM, it provides a familiar JSX syntax while
             offering true encapsulation and framework-agnostic components that work anywhere.
-          </p>
+          </Typography>
 
-          <h2>Core Features</h2>
-          <p>
+          <Typography variant="h2">Core Features</Typography>
+          <Typography variant="body1">
             The framework features a reactive programming model with ObservableValue for state management, automatic
             dependency injection through the Injector system, and a component lifecycle that handles disposal
             automatically. Components are defined using the Shade factory function, which creates custom elements with
             optional Shadow DOM encapsulation.
-          </p>
+          </Typography>
 
-          <h2>Component Library</h2>
-          <p>
+          <Typography variant="h2">Component Library</Typography>
+          <Typography variant="body1">
             This showcase application demonstrates the shades-common-components library, which provides a collection of
             ready-to-use UI components. You'll find form controls like Buttons, Inputs, and Autocomplete fields, layout
             components like PageLayout and Paper, and specialized components for data display, notifications, and more.
-          </p>
+          </Typography>
 
-          <h2>Getting Started</h2>
-          <p>
+          <Typography variant="h2">Getting Started</Typography>
+          <Typography variant="body1">
             Use the navigation bar above to explore different component categories. Each page demonstrates the
             component's usage with live examples and interactive controls. The source code for this showcase app itself
             serves as documentation for how to integrate these components into your own applications.
-          </p>
+          </Typography>
 
-          <h2>Styled Elements Demo</h2>
-          <p>
+          <Typography variant="h2">Styled Elements Demo</Typography>
+          <Typography variant="body1">
             The styled elements demo below shows how to create custom styled components using the styledElement and
             styledShade utilities, allowing you to extend base components with your own styling while maintaining type
             safety.
-          </p>
+          </Typography>
           <hr />
           <CustomHeader style={{ color: 'white' }}>Custom styled elements:</CustomHeader>
           <div>
