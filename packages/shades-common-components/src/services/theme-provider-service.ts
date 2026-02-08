@@ -191,7 +191,7 @@ export type LineHeightScale = {
 /**
  * Typography tokens for text styling.
  */
-export type Typography = {
+export type ThemeTypography = {
   /** Base font family stack */
   fontFamily: string
   /** Font size scale */
@@ -289,7 +289,7 @@ export interface Theme {
   /** Elevation shadow presets */
   shadows: Shadows
   /** Typography scale (font sizes, weights, line heights) */
-  typography: Typography
+  typography: ThemeTypography
   /** Transition timing tokens */
   transitions: Transitions
   /** Spacing scale */

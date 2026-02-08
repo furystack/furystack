@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Tabs, type Tab } from './tabs.js'
 
 describe('Tabs', () => {
@@ -231,6 +231,361 @@ describe('Tabs', () => {
 
       const tabHeaders = document.querySelectorAll('shade-tab-header')
       expect(tabHeaders.length).toBe(0)
+    })
+  })
+
+  describe('controlled mode', () => {
+    it('should display the active tab based on activeKey', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab2" />,
+        })
+
+        await sleepAsync(100)
+
+        expect(document.getElementById('content-2')).toBeTruthy()
+        expect(document.getElementById('content-1')).toBeFalsy()
+        expect(document.getElementById('content-3')).toBeFalsy()
+      })
+    })
+
+    it('should render tab headers as buttons instead of anchors', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
+        })
+
+        await sleepAsync(100)
+
+        const buttons = document.querySelectorAll('.shade-tab-btn')
+        expect(buttons.length).toBe(3)
+        // No anchor-based tab headers in controlled mode
+        const anchors = document.querySelectorAll('a[is="shade-tab-header"]')
+        expect(anchors.length).toBe(0)
+      })
+    })
+
+    it('should mark the active tab button with active class', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab2" />,
+        })
+
+        await sleepAsync(100)
+
+        const buttons = document.querySelectorAll('.shade-tab-btn')
+        expect(buttons[0].classList.contains('active')).toBe(false)
+        expect(buttons[1].classList.contains('active')).toBe(true)
+        expect(buttons[2].classList.contains('active')).toBe(false)
+      })
+    })
+
+    it('should fire onTabChange when a controlled tab is clicked', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+        const onTabChange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" onTabChange={onTabChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const buttons = document.querySelectorAll('.shade-tab-btn')
+        ;(buttons[1] as HTMLButtonElement).click()
+
+        expect(onTabChange).toHaveBeenCalledWith('tab2')
+      })
+    })
+
+    it('should ignore URL hash when activeKey is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        window.location.hash = '#tab3'
+
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
+        })
+
+        await sleepAsync(100)
+
+        // activeKey takes precedence over URL hash
+        expect(document.getElementById('content-1')).toBeTruthy()
+        expect(document.getElementById('content-3')).toBeFalsy()
+      })
+    })
+  })
+
+  describe('type prop', () => {
+    it('should set data-type="card" attribute when type is card', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} type="card" />,
+        })
+
+        await sleepAsync(100)
+
+        const tabsElement = document.querySelector('shade-tabs') as HTMLElement
+        expect(tabsElement.getAttribute('data-type')).toBe('card')
+      })
+    })
+
+    it('should not set data-type attribute when type is line', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} type="line" />,
+        })
+
+        await sleepAsync(100)
+
+        const tabsElement = document.querySelector('shade-tabs') as HTMLElement
+        expect(tabsElement.getAttribute('data-type')).toBeNull()
+      })
+    })
+  })
+
+  describe('orientation prop', () => {
+    it('should set data-orientation="vertical" attribute', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} orientation="vertical" />,
+        })
+
+        await sleepAsync(100)
+
+        const tabsElement = document.querySelector('shade-tabs') as HTMLElement
+        expect(tabsElement.getAttribute('data-orientation')).toBe('vertical')
+      })
+    })
+
+    it('should not set data-orientation attribute when horizontal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} orientation="horizontal" />,
+        })
+
+        await sleepAsync(100)
+
+        const tabsElement = document.querySelector('shade-tabs') as HTMLElement
+        expect(tabsElement.getAttribute('data-orientation')).toBeNull()
+      })
+    })
+  })
+
+  describe('closable tabs', () => {
+    it('should render close button for closable tabs when onClose is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs: Tab[] = [
+          { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
+          { hash: 'tab2', header: <span>Tab 2</span>, component: <div>Content 2</div> },
+        ]
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={() => {}} />,
+        })
+
+        await sleepAsync(100)
+
+        const closeButtons = document.querySelectorAll('.shade-tab-close')
+        expect(closeButtons.length).toBe(1)
+      })
+    })
+
+    it('should not render close button when onClose is not provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs: Tab[] = [
+          { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
+        ]
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
+        })
+
+        await sleepAsync(100)
+
+        const closeButtons = document.querySelectorAll('.shade-tab-close')
+        expect(closeButtons.length).toBe(0)
+      })
+    })
+
+    it('should fire onClose when close button is clicked', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onClose = vi.fn()
+        const tabs: Tab[] = [
+          { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
+          { hash: 'tab2', header: <span>Tab 2</span>, component: <div>Content 2</div>, closable: true },
+        ]
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={onClose} />,
+        })
+
+        await sleepAsync(100)
+
+        const closeButtons = document.querySelectorAll('.shade-tab-close')
+        ;(closeButtons[1] as HTMLElement).click()
+
+        expect(onClose).toHaveBeenCalledWith('tab2')
+      })
+    })
+
+    it('should not fire onTabChange when close button is clicked', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onClose = vi.fn()
+        const onTabChange = vi.fn()
+        const tabs: Tab[] = [
+          { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
+        ]
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={onClose} onTabChange={onTabChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const closeButton = document.querySelector('.shade-tab-close') as HTMLElement
+        closeButton.click()
+
+        expect(onClose).toHaveBeenCalledWith('tab1')
+        expect(onTabChange).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('add button', () => {
+    it('should render add button when onAdd is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} onAdd={() => {}} />,
+        })
+
+        await sleepAsync(100)
+
+        const addButton = document.querySelector('.shade-tab-add')
+        expect(addButton).toBeTruthy()
+        expect(addButton?.textContent?.trim()).toBe('+')
+      })
+    })
+
+    it('should not render add button when onAdd is not provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} />,
+        })
+
+        await sleepAsync(100)
+
+        const addButton = document.querySelector('.shade-tab-add')
+        expect(addButton).toBeFalsy()
+      })
+    })
+
+    it('should fire onAdd when add button is clicked', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+        const onAdd = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} onAdd={onAdd} />,
+        })
+
+        await sleepAsync(100)
+
+        const addButton = document.querySelector('.shade-tab-add') as HTMLButtonElement
+        addButton.click()
+
+        expect(onAdd).toHaveBeenCalledOnce()
+      })
+    })
+  })
+
+  describe('onTabChange callback (hash mode)', () => {
+    it('should fire onTabChange when tab header is clicked in hash mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+        const onTabChange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} onTabChange={onTabChange} />,
+        })
+
+        await sleepAsync(100)
+
+        const tabHeaders = document.querySelectorAll('a[is="shade-tab-header"]')
+        ;(tabHeaders[1] as HTMLElement).click()
+
+        expect(onTabChange).toHaveBeenCalledWith('tab2')
+      })
     })
   })
 })
