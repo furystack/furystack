@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import { Tooltip } from './tooltip.js'
 
@@ -14,7 +14,7 @@ describe('Tooltip', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-tooltip')
   })
 
-  it('should render title content inside the popup', () => {
+  it('should render title content inside the popup', async () => {
     const el = (
       <div>
         <Tooltip title="My Tooltip">
@@ -24,11 +24,12 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup.textContent).toContain('My Tooltip')
   })
 
-  it('should set data-placement when placement prop is provided', () => {
+  it('should set data-placement when placement prop is provided', async () => {
     const el = (
       <div>
         <Tooltip title="Tip" placement="bottom">
@@ -38,10 +39,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.getAttribute('data-placement')).toBe('bottom')
   })
 
-  it('should render a tooltip-popup with role="tooltip"', () => {
+  it('should render a tooltip-popup with role="tooltip"', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -51,13 +53,14 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup).toBeDefined()
     expect(popup).not.toBeNull()
     expect(popup.getAttribute('role')).toBe('tooltip')
   })
 
-  it('should render the title content inside the popup', () => {
+  it('should render the title content inside the popup', async () => {
     const el = (
       <div>
         <Tooltip title="Hello World">
@@ -67,11 +70,12 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     const popup = tooltip.querySelector('.tooltip-popup') as HTMLElement
     expect(popup.textContent).toContain('Hello World')
   })
 
-  it('should render an arrow element', () => {
+  it('should render an arrow element', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -81,11 +85,12 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     const arrow = tooltip.querySelector('.tooltip-arrow')
     expect(arrow).not.toBeNull()
   })
 
-  it('should set data-placement attribute when placement is provided', () => {
+  it('should set data-placement attribute when placement is provided', async () => {
     const el = (
       <div>
         <Tooltip title="Tip" placement="bottom">
@@ -95,10 +100,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.getAttribute('data-placement')).toBe('bottom')
   })
 
-  it('should not set data-placement attribute when placement is not provided', () => {
+  it('should not set data-placement attribute when placement is not provided', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -108,10 +114,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.hasAttribute('data-placement')).toBe(false)
   })
 
-  it('should set data-placement for each valid placement', () => {
+  it('should set data-placement for each valid placement', async () => {
     const placements = ['top', 'bottom', 'left', 'right'] as const
     for (const placement of placements) {
       const el = (
@@ -123,11 +130,12 @@ describe('Tooltip', () => {
       )
       const tooltip = el.firstElementChild as JSX.Element
       tooltip.updateComponent()
+      await flushUpdates()
       expect(tooltip.getAttribute('data-placement')).toBe(placement)
     }
   })
 
-  it('should set data-disabled attribute when disabled', () => {
+  it('should set data-disabled attribute when disabled', async () => {
     const el = (
       <div>
         <Tooltip title="Tip" disabled>
@@ -137,10 +145,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.hasAttribute('data-disabled')).toBe(true)
   })
 
-  it('should not set data-disabled attribute when not disabled', () => {
+  it('should not set data-disabled attribute when not disabled', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -150,10 +159,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.hasAttribute('data-disabled')).toBe(false)
   })
 
-  it('should set --tooltip-delay CSS variable when delay is provided', () => {
+  it('should set --tooltip-delay CSS variable when delay is provided', async () => {
     const el = (
       <div>
         <Tooltip title="Tip" delay={300}>
@@ -163,10 +173,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('300ms')
   })
 
-  it('should not set --tooltip-delay CSS variable when delay is 0', () => {
+  it('should not set --tooltip-delay CSS variable when delay is 0', async () => {
     const el = (
       <div>
         <Tooltip title="Tip" delay={0}>
@@ -176,10 +187,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('')
   })
 
-  it('should not set --tooltip-delay CSS variable when delay is not provided', () => {
+  it('should not set --tooltip-delay CSS variable when delay is not provided', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -189,10 +201,11 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     expect(tooltip.style.getPropertyValue('--tooltip-delay')).toBe('')
   })
 
-  it('should render children as trigger content', () => {
+  it('should render children as trigger content', async () => {
     const el = (
       <div>
         <Tooltip title="Tip">
@@ -202,6 +215,7 @@ describe('Tooltip', () => {
     )
     const tooltip = el.firstElementChild as JSX.Element
     tooltip.updateComponent()
+    await flushUpdates()
     const button = tooltip.querySelector('button')
     expect(button).not.toBeNull()
     expect(button?.textContent).toBe('Click me')

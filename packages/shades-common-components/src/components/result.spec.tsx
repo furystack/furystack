@@ -1,4 +1,4 @@
-import { createComponent } from '@furystack/shades'
+import { createComponent, flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import type { ResultProps, ResultStatus } from './result.js'
 import { Result } from './result.js'
@@ -15,7 +15,7 @@ describe('Result', () => {
     expect(el.tagName?.toLowerCase()).toBe('shade-result')
   })
 
-  it('should set data-status attribute for each status', () => {
+  it('should set data-status attribute for each status', async () => {
     const statuses: ResultStatus[] = ['success', 'error', 'warning', 'info', '403', '404', '500']
     expect(statuses.length).toBe(7)
 
@@ -27,11 +27,12 @@ describe('Result', () => {
       )
       const result = el.firstElementChild as JSX.Element
       result.updateComponent()
+      await flushUpdates()
       expect(result.getAttribute('data-status')).toBe(status)
     }
   })
 
-  it('should render the title text', () => {
+  it('should render the title text', async () => {
     const el = (
       <div>
         <Result status="success" title="Operation Successful" />
@@ -39,12 +40,13 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const titleEl = result.querySelector('.result-title')
     expect(titleEl).not.toBeNull()
     expect(titleEl?.textContent).toBe('Operation Successful')
   })
 
-  it('should render the subtitle when provided', () => {
+  it('should render the subtitle when provided', async () => {
     const el = (
       <div>
         <Result status="info" title="Info" subtitle="Some details here" />
@@ -52,12 +54,13 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).not.toBeNull()
     expect(subtitleEl?.textContent).toBe('Some details here')
   })
 
-  it('should not render the subtitle when not provided', () => {
+  it('should not render the subtitle when not provided', async () => {
     const el = (
       <div>
         <Result status="success" title="Done" />
@@ -65,11 +68,12 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).toBeNull()
   })
 
-  it('should render the default icon for each status', () => {
+  it('should render the default icon for each status', async () => {
     const statuses: ResultStatus[] = ['success', 'error', 'warning', 'info', '403', '404', '500']
     expect(statuses.length).toBe(7)
 
@@ -81,13 +85,14 @@ describe('Result', () => {
       )
       const result = el.firstElementChild as JSX.Element
       result.updateComponent()
+      await flushUpdates()
       const iconEl = result.querySelector('.result-icon')
       expect(iconEl).not.toBeNull()
       expect(iconEl?.querySelector('shade-icon')).not.toBeNull()
     }
   })
 
-  it('should render a custom icon when icon prop is provided', () => {
+  it('should render a custom icon when icon prop is provided', async () => {
     const el = (
       <div>
         <Result status="success" title="Done" icon="🎉" />
@@ -95,12 +100,13 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const iconEl = result.querySelector('.result-icon')
     expect(iconEl).not.toBeNull()
     expect(iconEl?.textContent).toBe('🎉')
   })
 
-  it('should set CSS custom property for status color', () => {
+  it('should set CSS custom property for status color', async () => {
     const el = (
       <div>
         <Result status="success" title="Done" />
@@ -108,10 +114,11 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-success-main)')
   })
 
-  it('should set CSS custom property for error status color', () => {
+  it('should set CSS custom property for error status color', async () => {
     const el = (
       <div>
         <Result status="error" title="Failed" />
@@ -119,10 +126,11 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
-  it('should set CSS custom property for 403 status (warning color)', () => {
+  it('should set CSS custom property for 403 status (warning color)', async () => {
     const el = (
       <div>
         <Result status="403" title="Forbidden" />
@@ -130,10 +138,11 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-warning-main)')
   })
 
-  it('should set CSS custom property for 404 status (info color)', () => {
+  it('should set CSS custom property for 404 status (info color)', async () => {
     const el = (
       <div>
         <Result status="404" title="Not Found" />
@@ -141,10 +150,11 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-info-main)')
   })
 
-  it('should set CSS custom property for 500 status (error color)', () => {
+  it('should set CSS custom property for 500 status (error color)', async () => {
     const el = (
       <div>
         <Result status="500" title="Server Error" />
@@ -152,10 +162,11 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     expect(result.style.getPropertyValue('--result-status-color')).toBe('var(--shades-theme-palette-error-main)')
   })
 
-  it('should render children in the extra area', () => {
+  it('should render children in the extra area', async () => {
     const el = (
       <div>
         <Result status="success" title="Done">
@@ -165,6 +176,7 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const extraEl = result.querySelector('.result-extra')
     expect(extraEl).not.toBeNull()
     const button = extraEl?.querySelector('button')
@@ -172,7 +184,7 @@ describe('Result', () => {
     expect(button?.textContent).toBe('Go Home')
   })
 
-  it('should not render the extra area when no children are provided', () => {
+  it('should not render the extra area when no children are provided', async () => {
     const el = (
       <div>
         <Result status="success" title="Done" />
@@ -180,11 +192,12 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const extraEl = result.querySelector('.result-extra')
     expect(extraEl).toBeNull()
   })
 
-  it('should set the icon role to img', () => {
+  it('should set the icon role to img', async () => {
     const el = (
       <div>
         <Result status="success" title="Done" />
@@ -192,6 +205,7 @@ describe('Result', () => {
     )
     const result = el.firstElementChild as JSX.Element
     result.updateComponent()
+    await flushUpdates()
     const iconEl = result.querySelector('.result-icon')
     expect(iconEl?.getAttribute('role')).toBe('img')
   })

@@ -1,6 +1,9 @@
+const PORTS_PER_WORKER = 200
+const BASE_PORT = 14000
+
 const portGenerator = function* () {
-  const initialPort = 14000 + Math.floor(Math.random() * 2000)
-  let port = initialPort
+  const workerId = parseInt(process.env.VITEST_POOL_ID ?? '0', 10)
+  let port = BASE_PORT + workerId * PORTS_PER_WORKER
   while (true) {
     yield port++
   }
@@ -9,7 +12,9 @@ const portGenerator = function* () {
 const generator = portGenerator()
 
 /**
- * Generates a unique port number for testing purposes
- * @returns the next sequential port number starting from a random base between 14000 and 16000
+ * Generates a unique port number for testing purposes.
+ * Each Vitest worker gets a dedicated range of {@link PORTS_PER_WORKER} ports
+ * based on its VITEST_POOL_ID to avoid collisions between parallel workers.
+ * @returns the next sequential port number
  */
 export const getPort = (): number => generator.next().value

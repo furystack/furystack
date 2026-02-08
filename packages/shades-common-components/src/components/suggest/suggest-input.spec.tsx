@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, using, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SuggestInput } from './suggest-input.js'
 import { SuggestManager } from './suggest-manager.js'
@@ -50,40 +50,44 @@ describe('SuggestInput', () => {
   it('should render with shadow DOM', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
+      const manager = createManager()
 
-      using(createManager(), (manager) => {
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <SuggestInput manager={manager} />,
-        })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const suggestInput = document.querySelector('shades-suggest-input')
       expect(suggestInput).not.toBeNull()
+
+      manager[Symbol.dispose]()
     })
   })
 
   it('should render the inner input element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
+      const manager = createManager()
 
-      using(createManager(), (manager) => {
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <SuggestInput manager={manager} />,
-        })
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
       expect(input).not.toBeNull()
       expect(input.placeholder).toBe('Type to search...')
       expect(input.autofocus).toBe(true)
+
+      manager[Symbol.dispose]()
     })
   })
 
@@ -98,6 +102,7 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -123,6 +128,7 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -151,6 +157,7 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -173,6 +180,7 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
+      await flushUpdates()
       await sleepAsync(50)
 
       const suggestInput = document.querySelector('shades-suggest-input') as HTMLElement

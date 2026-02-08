@@ -11,11 +11,11 @@ export const Autocomplete = Shade<{
   shadowDomName: 'shade-autocomplete',
   render: ({ props, useState, element, useDisposable }) => {
     useDisposable('datalist-binding', () => {
-      queueMicrotask(() => {
+      const timer = setTimeout(() => {
         const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
         element.querySelector('input')?.setAttribute('list', dataListId)
-      })
-      return { [Symbol.dispose]: () => {} }
+      }, 0)
+      return { [Symbol.dispose]: () => clearTimeout(timer) }
     })
 
     const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))

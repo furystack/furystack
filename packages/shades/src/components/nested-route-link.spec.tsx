@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'v
 import { initializeShadeRoot } from '../initialize.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 import type { TypedNestedRouteLinkProps } from './nested-route-link.js'
 import { NestedRouteLink, createNestedRouteLink } from './nested-route-link.js'
 import type { ConcatPaths, ExtractRouteParams, ExtractRoutePaths, UrlTree } from './nested-route-types.js'
@@ -35,6 +36,7 @@ describe('NestedRouteLink', () => {
           </NestedRouteLink>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><a is="nested-route-link" id="link" href="/buttons">Buttons</a></div>',
       )
@@ -57,6 +59,7 @@ describe('NestedRouteLink', () => {
           </NestedRouteLink>
         ),
       })
+      await flushUpdates()
 
       expect(onRouteChange).not.toBeCalled()
       document.getElementById('link')?.click()
@@ -77,6 +80,7 @@ describe('NestedRouteLink', () => {
           </NestedRouteLink>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><a is="nested-route-link" id="link" href="/users/42">User 42</a></div>',
       )
@@ -96,6 +100,7 @@ describe('NestedRouteLink', () => {
           </NestedRouteLink>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><a is="nested-route-link" id="link" href="/users/1/posts/99">Post</a></div>',
       )

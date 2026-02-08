@@ -1,4 +1,5 @@
 import { createComponent } from '@furystack/shades'
+import { flushUpdates } from '@furystack/shades'
 import { describe, expect, it } from 'vitest'
 import type { BadgeProps } from './badge.js'
 import { Badge } from './badge.js'
@@ -29,7 +30,7 @@ describe('Badge', () => {
     expect(el.props.showZero).toBe(true)
   })
 
-  it('should render with a badge indicator', () => {
+  it('should render with a badge indicator', async () => {
     const el = (
       <div>
         <Badge count={5}>
@@ -39,10 +40,11 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     expect(badge.querySelector('.badge-indicator')).not.toBeNull()
   })
 
-  it('should display the count value', () => {
+  it('should display the count value', async () => {
     const el = (
       <div>
         <Badge count={42}>
@@ -52,11 +54,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('42')
   })
 
-  it('should cap count at max and show overflow indicator', () => {
+  it('should cap count at max and show overflow indicator', async () => {
     const el = (
       <div>
         <Badge count={150} max={99}>
@@ -66,11 +69,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('99+')
   })
 
-  it('should use custom max value', () => {
+  it('should use custom max value', async () => {
     const el = (
       <div>
         <Badge count={15} max={10}>
@@ -80,11 +84,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('10+')
   })
 
-  it('should not show overflow when count is within max', () => {
+  it('should not show overflow when count is within max', async () => {
     const el = (
       <div>
         <Badge count={5} max={10}>
@@ -94,11 +99,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.textContent).toBe('5')
   })
 
-  it('should hide when count is 0 and showZero is not set', () => {
+  it('should hide when count is 0 and showZero is not set', async () => {
     const el = (
       <div>
         <Badge count={0}>
@@ -108,11 +114,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
 
-  it('should show when count is 0 and showZero is true', () => {
+  it('should show when count is 0 and showZero is true', async () => {
     const el = (
       <div>
         <Badge count={0} showZero>
@@ -122,11 +129,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(false)
   })
 
-  it('should hide when count is undefined and showZero is not set', () => {
+  it('should hide when count is undefined and showZero is not set', async () => {
     const el = (
       <div>
         <Badge>
@@ -136,11 +144,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
 
-  it('should render a dot badge when dot prop is set', () => {
+  it('should render a dot badge when dot prop is set', async () => {
     const el = (
       <div>
         <Badge dot>
@@ -150,12 +159,13 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-dot')).toBe(true)
     expect(indicator.textContent).toBe('')
   })
 
-  it('should not hide dot badge even without count', () => {
+  it('should not hide dot badge even without count', async () => {
     const el = (
       <div>
         <Badge dot>
@@ -165,11 +175,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(false)
   })
 
-  it('should hide badge when visible is false', () => {
+  it('should hide badge when visible is false', async () => {
     const el = (
       <div>
         <Badge count={5} visible={false}>
@@ -179,11 +190,12 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     const indicator = badge.querySelector('.badge-indicator') as HTMLElement
     expect(indicator.hasAttribute('data-hidden')).toBe(true)
   })
 
-  it('should set CSS custom properties for palette color', () => {
+  it('should set CSS custom properties for palette color', async () => {
     const el = (
       <div>
         <Badge count={5} color="primary">
@@ -193,13 +205,14 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     expect(badge.style.getPropertyValue('--badge-color-main')).toBe('var(--shades-theme-palette-primary-main)')
     expect(badge.style.getPropertyValue('--badge-color-contrast')).toBe(
       'var(--shades-theme-palette-primary-main-contrast)',
     )
   })
 
-  it('should set CSS custom properties for default (error) color when no color prop', () => {
+  it('should set CSS custom properties for default (error) color when no color prop', async () => {
     const el = (
       <div>
         <Badge count={5}>
@@ -209,6 +222,7 @@ describe('Badge', () => {
     )
     const badge = el.firstElementChild as JSX.Element
     badge.updateComponent()
+    await flushUpdates()
     expect(badge.style.getPropertyValue('--badge-color-main')).toBe('var(--shades-theme-palette-error-main)')
   })
 })

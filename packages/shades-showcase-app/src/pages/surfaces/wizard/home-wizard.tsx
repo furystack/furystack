@@ -84,10 +84,10 @@ export const Step1 = Shade<WizardStepProps>({
   shadowDomName: 'shades-wiz-step1',
   render: ({ props, element, useDisposable }) => {
     useDisposable('auto-focus', () => {
-      queueMicrotask(() => {
+      const timer = setTimeout(() => {
         element.querySelector('input')?.focus()
-      })
-      return { [Symbol.dispose]: () => {} }
+      }, 0)
+      return { [Symbol.dispose]: () => clearTimeout(timer) }
     })
 
     return (

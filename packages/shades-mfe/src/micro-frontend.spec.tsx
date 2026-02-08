@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 
-import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createShadesMicroFrontend } from './create-shades-micro-frontend.js'
 import { MicroFrontend } from './micro-frontend.js'
@@ -38,6 +38,7 @@ describe('<MicroFrontend /> component', () => {
         ),
       })
 
+      await flushUpdates()
       await sleepAsync(1)
 
       expect(document.body.innerHTML).toBe(
@@ -71,6 +72,7 @@ describe('<MicroFrontend /> component', () => {
           />
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shade-micro-frontend><div>Loading...</div></shade-micro-frontend></div>',
       )
@@ -98,6 +100,7 @@ describe('<MicroFrontend /> component', () => {
           />
         ),
       })
+      await flushUpdates()
       await sleepAsync(10)
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div>Error...</div></shade-micro-frontend></div>`,
@@ -148,6 +151,7 @@ describe('<MicroFrontend /> component', () => {
         rootElement,
         jsxElement: <Host />,
       })
+      await flushUpdates()
       await sleepAsync(10)
       expect(document.body.innerHTML).toBe(
         '<div id="root"><mfe-test-example-w-destroy-host><button>Remove MFE</button><shade-micro-frontend></shade-micro-frontend></mfe-test-example-w-destroy-host></div>',

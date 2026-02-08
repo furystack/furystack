@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
 import type { ExtractRouteParams, NestedRoute } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
@@ -35,7 +35,7 @@ describe('Breadcrumb', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = rootElement.querySelector('nav[is="shade-breadcrumb"]')
         expect(component).toBeTruthy()
@@ -61,6 +61,8 @@ describe('Breadcrumb', () => {
             />
           ),
         })
+
+        await flushUpdates()
 
         const link = rootElement.querySelector('a[href="/users/123"]')
         expect(link).toBeTruthy()
@@ -89,6 +91,8 @@ describe('Breadcrumb', () => {
           ),
         })
 
+        await flushUpdates()
+
         const activeItem = rootElement.querySelector('[data-active="true"]')
         expect(activeItem).toBeTruthy()
         expect(activeItem?.textContent).toBe('Users')
@@ -113,6 +117,8 @@ describe('Breadcrumb', () => {
           ),
         })
 
+        await flushUpdates()
+
         const separator = rootElement.querySelector('[data-separator="true"]')
         expect(separator?.textContent).toBe(' > ')
       })
@@ -129,6 +135,8 @@ describe('Breadcrumb', () => {
             <Breadcrumb homeItem={{ path: '/', label: 'Home' }} items={[{ path: '/users', label: 'Users' }]} />
           ),
         })
+
+        await flushUpdates()
 
         const breadcrumb = rootElement.querySelector('nav')
         expect(breadcrumb?.textContent).toContain('Home')
@@ -153,6 +161,8 @@ describe('Breadcrumb', () => {
             />
           ),
         })
+
+        await flushUpdates()
 
         const links = rootElement.querySelectorAll('a')
         const spans = rootElement.querySelectorAll('[data-non-clickable="true"]')
@@ -180,6 +190,8 @@ describe('Breadcrumb', () => {
           ),
         })
 
+        await flushUpdates()
+
         const links = rootElement.querySelectorAll('a')
         expect(links.length).toBe(2) // Both items
       })
@@ -204,6 +216,8 @@ describe('Breadcrumb', () => {
             />
           ),
         })
+
+        await flushUpdates()
 
         expect(onRouteChange).not.toBeCalled()
 
@@ -262,6 +276,7 @@ describe('Breadcrumb', () => {
           rootElement,
           jsxElement: <Breadcrumb homeItem={{ path: '/', label: 'Home' }} items={[]} />,
         })
+        await flushUpdates()
 
         const breadcrumb = rootElement.querySelector('nav')
         expect(breadcrumb?.textContent).toContain('Home')
@@ -282,6 +297,8 @@ describe('Breadcrumb', () => {
             />
           ),
         })
+
+        await flushUpdates()
 
         const link = rootElement.querySelector('a[href="/users/1/posts/99"]')
         expect(link).toBeTruthy()

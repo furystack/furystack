@@ -4,7 +4,7 @@ import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
-import { Shade } from './shade.js'
+import { flushUpdates, Shade } from './shade.js'
 
 describe('Shades integration tests', () => {
   beforeEach(() => {
@@ -25,6 +25,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe('<div id="root"><shades-example><div>Hello</div></shades-example></div>')
     })
   })
@@ -40,6 +41,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-string-render-result>Hello</shades-string-render-result></div>',
       )
@@ -57,6 +59,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-null-render-result></shades-null-render-result></div>',
       )
@@ -82,6 +85,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-fragment-render-result><p>1</p><p>2</p></shades-fragment-render-result></div>',
       )
@@ -109,6 +113,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-fragment-render-result-nested><p><p>1</p><p>2</p></p></shades-fragment-render-result-nested></div>',
       )
@@ -139,6 +144,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-fragment-render-result-2><shades-fragment-test-custom-component><p>Hello</p></shades-fragment-test-custom-component><shades-fragment-test-custom-component><p>Hello</p></shades-fragment-test-custom-component></shades-fragment-render-result-2></div>',
       )
@@ -170,6 +176,7 @@ describe('Shades integration tests', () => {
           </ExampleComponent>
         ),
       })
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><shades-example-2><div><shades-example-sub><div>1</div></shades-example-sub><shades-example-sub><div>2</div></shades-example-sub><shades-example-sub><div>3</div></shades-example-sub></div></shades-example-2></div>',
       )
@@ -198,6 +205,7 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
       expect(setup).toBeCalled()
       expect(cleanup).not.toBeCalled()
       document.body.innerHTML = ''
@@ -257,19 +265,26 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
 
-      const plus = () => document.getElementById('plus')?.click()
-      const minus = () => document.getElementById('minus')?.click()
+      const plus = async () => {
+        document.getElementById('plus')?.click()
+        await flushUpdates()
+      }
+      const minus = async () => {
+        document.getElementById('minus')?.click()
+        await flushUpdates()
+      }
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
       expectCount(0)
-      plus()
+      await plus()
       expectCount(1)
-      plus()
+      await plus()
       expectCount(2)
 
-      minus()
-      minus()
+      await minus()
+      await minus()
       expectCount(0)
     })
   })
@@ -321,9 +336,16 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
 
-      const plus = () => document.getElementById('plus')?.click()
-      const minus = () => document.getElementById('minus')?.click()
+      const plus = async () => {
+        document.getElementById('plus')?.click()
+        await flushUpdates()
+      }
+      const minus = async () => {
+        document.getElementById('minus')?.click()
+        await flushUpdates()
+      }
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
       await sleepAsync(100)
@@ -331,16 +353,16 @@ describe('Shades integration tests', () => {
       expectCount(0)
 
       await sleepAsync(100)
-      plus()
+      await plus()
       expectCount(1)
       expect(store.getItem('count')).toBe('1')
 
-      plus()
+      await plus()
       expectCount(2)
       expect(store.getItem('count')).toBe('2')
 
-      minus()
-      minus()
+      await minus()
+      await minus()
       expectCount(0)
       expect(store.getItem('count')).toBe('0')
     })
@@ -372,24 +394,31 @@ describe('Shades integration tests', () => {
         rootElement,
         jsxElement: <ExampleComponent />,
       })
+      await flushUpdates()
 
-      const plus = () => document.getElementById('plus')?.click()
-      const minus = () => document.getElementById('minus')?.click()
+      const plus = async () => {
+        document.getElementById('plus')?.click()
+        await flushUpdates()
+      }
+      const minus = async () => {
+        document.getElementById('minus')?.click()
+        await flushUpdates()
+      }
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
       expectCount(0)
 
       await sleepAsync(100)
-      plus()
+      await plus()
       expectCount(1)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 1 })}`)
 
-      plus()
+      await plus()
       expectCount(2)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 2 })}`)
 
-      minus()
-      minus()
+      await minus()
+      await minus()
       expectCount(0)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 0 })}`)
     })
@@ -446,30 +475,40 @@ describe('Shades integration tests', () => {
           </Parent>
         ),
       })
+      await flushUpdates()
 
-      const plus = () => document.getElementById('plus')?.click()
-      const minus = () => document.getElementById('minus')?.click()
+      const plus = async () => {
+        document.getElementById('plus')?.click()
+        await flushUpdates()
+      }
+      const minus = async () => {
+        document.getElementById('minus')?.click()
+        await flushUpdates()
+      }
 
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
-      const toggleChildren = () => document.getElementById('showHideChildren')?.click()
+      const toggleChildren = async () => {
+        document.getElementById('showHideChildren')?.click()
+        await flushUpdates()
+      }
 
       expectCount(0)
-      plus()
+      await plus()
       expectCount(1)
 
-      toggleChildren()
+      await toggleChildren()
 
       expect(document.getElementById('plus')).toBeNull()
 
       await sleepAsync(10) // Dispose can be async
 
-      toggleChildren()
+      await toggleChildren()
       expect(document.getElementById('plus')).toBeDefined()
 
       expectCount(0)
-      plus()
+      await plus()
       expectCount(1)
-      minus()
+      await minus()
       expectCount(0)
     })
   })
