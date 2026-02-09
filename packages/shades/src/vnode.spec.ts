@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { SVG_NS } from './svg.js'
 import {
   createVNode,
   EXISTING_NODE,
@@ -158,6 +159,29 @@ describe('vnode', () => {
       expect((result[0] as VNode).type).toBe(EXISTING_NODE)
       expect((result[0] as VNode)._el).toBe(el)
     })
+
+    it('should wrap DocumentFragment children as EXISTING_NODE VNodes', () => {
+      const fragment = document.createDocumentFragment()
+      fragment.appendChild(document.createElement('span'))
+      fragment.appendChild(document.createTextNode('text'))
+      const result = toVChildArray(fragment)
+      expect(result).toHaveLength(2)
+      expect((result[0] as VNode).type).toBe(EXISTING_NODE)
+      expect((result[0] as VNode)._el).toBeInstanceOf(HTMLSpanElement)
+      expect((result[1] as VNode).type).toBe(EXISTING_NODE)
+      expect((result[1] as VNode)._el).toBeInstanceOf(Text)
+    })
+
+    it('should convert number to VTextNode', () => {
+      const result = toVChildArray(42)
+      expect(result).toHaveLength(1)
+      expect(isVTextNode(result[0])).toBe(true)
+      expect((result[0] as VTextNode).text).toBe('42')
+    })
+
+    it('should return empty array for undefined', () => {
+      expect(toVChildArray(undefined)).toEqual([])
+    })
   })
 
   describe('mountChild', () => {
@@ -200,6 +224,63 @@ describe('vnode', () => {
       mountChild(child, parent)
       expect(child._el).toBeInstanceOf(Text)
       expect(child._el?.textContent).toBe('hi')
+    })
+
+    it('should create SVG elements with createElementNS', () => {
+      const parent = document.createElement('div')
+      const child = vel('svg', { viewBox: '0 0 100 100' }, vel('circle', { cx: '50', cy: '50', r: '40' }))
+      mountChild(child, parent)
+      const svg = parent.querySelector('svg')
+      expect(svg).toBeInstanceOf(SVGElement)
+      expect(svg?.namespaceURI).toBe(SVG_NS)
+      expect(svg?.getAttribute('viewBox')).toBe('0 0 100 100')
+      const circle = svg?.querySelector('circle')
+      expect(circle).toBeInstanceOf(SVGElement)
+      expect(circle?.namespaceURI).toBe(SVG_NS)
+      expect(circle?.getAttribute('cx')).toBe('50')
+    })
+
+    it('should set className as class attribute on SVG elements', () => {
+      const parent = document.createElement('div')
+      const child = vel('g', { className: 'my-group' })
+      mountChild(child, parent)
+      const g = parent.querySelector('g')
+      expect(g?.getAttribute('class')).toBe('my-group')
+    })
+
+    it('should attach event handlers as properties on SVG elements', () => {
+      const parent = document.createElement('div')
+      const handler = vi.fn()
+      const child = vel('rect', { onclick: handler })
+      mountChild(child, parent)
+      const rect = parent.querySelector('rect')
+      expect((rect as unknown as Record<string, unknown>).onclick).toBe(handler)
+    })
+
+    it('should handle SVG elements with style props', () => {
+      const parent = document.createElement('div')
+      const child = vel('rect', { style: { fill: 'red', strokeWidth: '2px' } })
+      mountChild(child, parent)
+      const rect = parent.querySelector('rect') as SVGElement
+      expect(rect.style.fill).toBe('red')
+      expect(rect.style.strokeWidth).toBe('2px')
+    })
+
+    it('should not mount EXISTING_NODE when _el is undefined', () => {
+      const parent = document.createElement('div')
+      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: null, children: [] }
+      const result = mountChild(child, parent)
+      expect(result).toBeUndefined()
+      expect(parent.childNodes.length).toBe(0)
+    })
+
+    it('should set ref on mounted intrinsic elements', () => {
+      const parent = document.createElement('div')
+      const ref = { current: null } as { current: Element | null }
+      const child = vel('input', { ref })
+      mountChild(child, parent)
+      expect(ref.current).toBeInstanceOf(HTMLInputElement)
+      expect(ref.current).toBe(parent.querySelector('input'))
     })
   })
 
@@ -271,6 +352,50 @@ describe('vnode', () => {
       el.setAttribute('data-testid', 'foo')
       patchProps(el, { 'data-testid': 'foo' }, {})
       expect(el.hasAttribute('data-testid')).toBe(false)
+    })
+
+    describe('SVG elements', () => {
+      it('should set attributes via setAttribute on SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'rect')
+        patchProps(el, null, { width: '100', height: '50', rx: '5' })
+        expect(el.getAttribute('width')).toBe('100')
+        expect(el.getAttribute('height')).toBe('50')
+        expect(el.getAttribute('rx')).toBe('5')
+      })
+
+      it('should set className as class attribute on SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'g')
+        patchProps(el, null, { className: 'my-group' })
+        expect(el.getAttribute('class')).toBe('my-group')
+      })
+
+      it('should remove attributes from SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'circle')
+        el.setAttribute('fill', 'red')
+        patchProps(el, { fill: 'red' }, {})
+        expect(el.hasAttribute('fill')).toBe(false)
+      })
+
+      it('should remove className as class from SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'g')
+        el.setAttribute('class', 'old')
+        patchProps(el, { className: 'old' }, {})
+        expect(el.hasAttribute('class')).toBe(false)
+      })
+
+      it('should remove attributes when value is null/undefined/false on SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'rect')
+        el.setAttribute('fill', 'red')
+        patchProps(el, { fill: 'red' }, { fill: null })
+        expect(el.hasAttribute('fill')).toBe(false)
+      })
+
+      it('should set event handlers as properties on SVG elements', () => {
+        const el = document.createElementNS(SVG_NS, 'rect')
+        const handler = vi.fn()
+        patchProps(el, null, { onclick: handler })
+        expect((el as unknown as Record<string, unknown>).onclick).toBe(handler)
+      })
     })
   })
 
@@ -377,6 +502,33 @@ describe('vnode', () => {
       const updated: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: real }]
       patchChildren(parent, old, updated)
       expect(parent.firstChild).toBe(real)
+    })
+
+    it('should mount new child into parent when types differ and old node is detached', () => {
+      const parent = document.createElement('div')
+      const old: VChild[] = [vel('div', null, vtext('div'))]
+      patchChildren(parent, [], old)
+
+      // Detach old node manually to simulate a detached state
+      const oldNode = old[0]._el!
+      oldNode.parentNode!.removeChild(oldNode)
+
+      const updated: VChild[] = [vel('span', null, vtext('span'))]
+      patchChildren(parent, old, updated)
+
+      expect(parent.children.length).toBe(1)
+      expect(parent.children[0].tagName).toBe('SPAN')
+    })
+
+    it('should clear ref on unmount', () => {
+      const parent = document.createElement('div')
+      const ref = { current: null } as { current: Element | null }
+      const child = vel('input', { ref })
+      patchChildren(parent, [], [child])
+      expect(ref.current).toBeInstanceOf(HTMLInputElement)
+
+      patchChildren(parent, [child], [])
+      expect(ref.current).toBeNull()
     })
 
     describe('Shade component boundaries', () => {

@@ -27,6 +27,10 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    *
    * @param hostProps An object of attribute key-value pairs, optionally including a `style` record
    *
+   * **Note:** Object and function values are assigned as properties on the host element
+   * (not as attributes). This means you can set event handlers (e.g. `onclick`) and
+   * even class properties like `injector` via `useHostProps`.
+   *
    * @example
    * ```typescript
    * useHostProps({
@@ -87,10 +91,11 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    * const [count] = useObservable('count', countObservable)
    *
    * @example
-   * // Custom onChange: no re-render, manual DOM update
+   * // Custom onChange: no re-render, update host element via useHostProps
+   * useHostProps({ 'data-active': count > 0 ? '' : undefined })
    * const [count] = useObservable('count', countObservable, {
-   *   onChange: (newValue) => {
-   *     element.classList.toggle('active', newValue > 0)
+   *   onChange: () => {
+   *     // Triggers a re-render so useHostProps above picks up the new value
    *   }
    * })
    */

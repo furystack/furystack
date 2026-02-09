@@ -55,7 +55,10 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
     const formService = new FormService()
     formInjector.setExplicitInstance(formService)
 
-    // Propagate the scoped injector on the host so child components can find it
+    // Propagate the scoped injector on the host element so child Shade components
+    // can discover it via getInjectorFromParent(). This works because useHostProps
+    // assigns object values as properties on the host element, which sets the
+    // `injector` setter defined on the Shade base class.
     useHostProps({ injector: formInjector })
 
     const changeHandler = (ev: Event, shouldSubmit?: boolean) => {

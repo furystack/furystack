@@ -346,7 +346,7 @@ export const mountChild = (child: VChild, parent: Node | null): Node => {
   // Pre-existing real DOM node (from shadeChildren)
   if (child.type === EXISTING_NODE) {
     if (parent && child._el) parent.appendChild(child._el)
-    return child._el!
+    return child._el as Node
   }
 
   // Shade component
@@ -472,6 +472,8 @@ const patchChild = (_parentEl: Node, oldChild: VChild, newChild: VChild): void =
   if (oldNode && oldNode.parentNode) {
     const newNode = mountChild(newChild, null)
     oldNode.parentNode.replaceChild(newNode, oldNode)
+  } else {
+    mountChild(newChild, _parentEl)
   }
 }
 
@@ -479,6 +481,13 @@ const patchChild = (_parentEl: Node, oldChild: VChild, newChild: VChild): void =
  * Reconciles an array of old VChildren against new VChildren inside a parent
  * DOM element. Patches matching pairs, removes excess old children, and
  * mounts excess new children.
+ *
+ * **Note:** This uses positional (index-based) matching, not key-based
+ * reconciliation. Reordering list items will cause all children from the
+ * reorder point onward to be patched/replaced rather than moved. For
+ * dynamic lists where order changes frequently, wrap each item in its own
+ * Shade component so that the component boundary prevents unnecessary
+ * inner-DOM churn.
  */
 export const patchChildren = (parentEl: Node, oldChildren: VChild[], newChildren: VChild[]): void => {
   const commonLen = Math.min(oldChildren.length, newChildren.length)

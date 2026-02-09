@@ -109,6 +109,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         public async disconnectedCallback() {
+          this._refs.clear()
+          this._prevVTree = null
+          this._prevHostProps = null
           await this.resourceManager[Symbol.asyncDispose]()
         }
 
