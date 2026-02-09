@@ -21,7 +21,7 @@ test.describe('List', () => {
     await firstOption.click()
     await page.keyboard.press('ArrowDown')
     const secondOption = basicList.getByRole('option').nth(1)
-    await expect(secondOption).toHaveClass(/focused/)
+    await expect(secondOption).toHaveAttribute('data-focused', '')
 
     // Verify multi-select tracking
     const selectionCount = content.locator('shades-selection-count-display')

@@ -101,7 +101,7 @@ Check for:
 - Disposable resources (`Symbol.dispose`, `Symbol.asyncDispose`)
 - Package structure and organization
 
-**Shades Styling Patterns:**
+**Shades Patterns:**
 
 - Flag `useState()` used only for CSS-representable states (hover, focus, active)
 - Recommend using `css` property with pseudo-selectors instead:
@@ -116,6 +116,10 @@ Check for:
   ```
 
 - Static `style` props in Shade definitions should use `css` instead
+- Flag usage of `element` in render function destructuring or body -- it was removed, use `useHostProps` or `useRef` instead
+- Flag usage of `onAttach` or `onDetach` in `ShadeOptions` -- they were removed, use `useDisposable` instead
+- Flag direct DOM manipulation inside `render()` that should use `useHostProps` (e.g. `this.setAttribute(...)`, `this.style.xxx = ...`)
+- Recommend `useRef` + `queueMicrotask` for deferred child element access instead of direct DOM queries
 
 **Testing & Coverage:**
 

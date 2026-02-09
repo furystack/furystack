@@ -13,7 +13,7 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🏠"
           title="Welcome to FuryStack Shades"
@@ -23,16 +23,16 @@ export const HomePage = Shade({
           <Typography variant="h2">Introduction</Typography>
           <Typography variant="body1">
             FuryStack Shades is a lightweight, dependency-injection powered UI framework for building modern web
-            applications. Built on top of Web Components and Shadow DOM, it provides a familiar JSX syntax while
-            offering true encapsulation and framework-agnostic components that work anywhere.
+            applications. Built on top of Custom Elements, it provides a familiar JSX syntax with framework-agnostic
+            components that work anywhere.
           </Typography>
 
           <Typography variant="h2">Core Features</Typography>
           <Typography variant="body1">
             The framework features a reactive programming model with ObservableValue for state management, automatic
             dependency injection through the Injector system, and a component lifecycle that handles disposal
-            automatically. Components are defined using the Shade factory function, which creates custom elements with
-            optional Shadow DOM encapsulation.
+            automatically. Components are defined using the Shade factory function, which registers Custom Elements with
+            a VNode-based reconciler for efficient DOM updates.
           </Typography>
 
           <Typography variant="h2">Component Library</Typography>

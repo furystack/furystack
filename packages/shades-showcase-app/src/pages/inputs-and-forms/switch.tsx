@@ -1,15 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper, Switch } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 export const SwitchPage = Shade({
   shadowDomName: 'switch-page',
-  render: ({ useDisposable, useObservable }) => {
-    const controlledValue = useDisposable('controlledValue', () => new ObservableValue(true))
-    const [isControlledChecked] = useObservable('isControlledChecked', controlledValue)
+  render: ({ useState }) => {
+    const [isControlledChecked, setIsControlledChecked] = useState('controlledValue', true)
 
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔀"
           title="Switch"
@@ -58,7 +56,7 @@ export const SwitchPage = Shade({
             <Switch
               checked={isControlledChecked}
               labelTitle={isControlledChecked ? 'On' : 'Off'}
-              onchange={() => controlledValue.setValue(!controlledValue.getValue())}
+              onchange={() => setIsControlledChecked(!isControlledChecked)}
             />
           </div>
         </Paper>

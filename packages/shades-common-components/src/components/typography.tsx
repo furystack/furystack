@@ -44,7 +44,16 @@ export type TypographyProps = PartialElement<HTMLElement> & {
   align?: 'left' | 'center' | 'right' | 'justify'
 }
 
-const variantStyles: Record<TypographyVariant, Record<string, string>> = {
+type VariantDef = {
+  fontSize: string
+  fontWeight: string
+  lineHeight: string
+  letterSpacing: string
+  textTransform?: string
+  scale?: string
+}
+
+const variantDefs: Record<TypographyVariant, VariantDef> = {
   h1: {
     fontSize: cssVariableTheme.typography.fontSize.xl,
     fontWeight: cssVariableTheme.typography.fontWeight.bold,
@@ -78,7 +87,6 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.normal,
-    scale: '1',
   },
   h6: {
     fontSize: cssVariableTheme.typography.fontSize.md,
@@ -92,35 +100,30 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   subtitle2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: '0.1px',
-    scale: '1',
   },
   body1: {
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   body2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   caption: {
     fontSize: cssVariableTheme.typography.fontSize.xs,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: '0.4px',
-    scale: '1',
   },
   overline: {
     fontSize: cssVariableTheme.typography.fontSize.xs,
@@ -128,8 +131,29 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.widest,
     textTransform: 'uppercase',
-    scale: '1',
   },
+}
+
+const buildVariantCssRules = (): Record<string, Record<string, string>> => {
+  const rules: Record<string, Record<string, string>> = {}
+  for (const [variant, def] of Object.entries(variantDefs)) {
+    const rule: Record<string, string> = {
+      fontSize: def.fontSize,
+      fontWeight: def.fontWeight,
+      lineHeight: def.lineHeight,
+      letterSpacing: def.letterSpacing,
+    }
+    if (def.textTransform) {
+      rule.textTransform = def.textTransform
+    }
+    if (def.scale && def.scale !== '1') {
+      rule.transformOrigin = 'left top'
+      rule.transform = `scale(${def.scale})`
+      rule.marginBottom = `calc((${def.scale} - 1) * 1em)`
+    }
+    rules[`&[data-variant="${variant}"]`] = rule
+  }
+  return rules
 }
 
 const colorToVar = (color: TypographyColor): string => {
@@ -158,6 +182,9 @@ export const Typography = Shade<TypographyProps>({
     padding: '0',
     fontFamily: cssVariableTheme.typography.fontFamily,
     color: 'var(--typo-color)',
+
+    // Variant-specific typography styles
+    ...buildVariantCssRules(),
 
     // Gutter bottom
     '&[data-gutter-bottom]': {
@@ -217,77 +244,39 @@ export const Typography = Shade<TypographyProps>({
       background: cssVariableTheme.action.hoverBackground,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps, useRef }) => {
     const { variant = 'body1', color = 'textPrimary', ellipsis, copyable, gutterBottom, align, style } = props
 
-    // Set color CSS variable
-    element.style.setProperty('--typo-color', colorToVar(color))
-
-    // Apply variant styles
-    const vs = variantStyles[variant]
-    element.style.fontSize = vs.fontSize
-    element.style.fontWeight = vs.fontWeight
-    element.style.lineHeight = vs.lineHeight
-    element.style.letterSpacing = vs.letterSpacing
-    if (vs.textTransform) {
-      element.style.textTransform = vs.textTransform
-    } else {
-      element.style.textTransform = ''
+    const hostStyle: Record<string, string> = {
+      '--typo-color': colorToVar(color),
     }
-    if (vs.scale && vs.scale !== '1') {
-      element.style.transformOrigin = 'left top'
-      element.style.transform = `scale(${vs.scale})`
-      element.style.marginBottom = `calc((${vs.scale} - 1) * 1em)`
-    } else {
-      element.style.transform = ''
-      element.style.transformOrigin = ''
-    }
-
-    // Data attributes
-    if (gutterBottom) {
-      element.setAttribute('data-gutter-bottom', '')
-    } else {
-      element.removeAttribute('data-gutter-bottom')
-    }
-
-    if (align) {
-      element.setAttribute('data-align', align)
-    } else {
-      element.removeAttribute('data-align')
-    }
-
-    if (ellipsis === true) {
-      element.setAttribute('data-ellipsis', 'true')
-    } else if (typeof ellipsis === 'number') {
-      element.setAttribute('data-ellipsis', 'multiline')
-    } else {
-      element.removeAttribute('data-ellipsis')
-    }
-
-    element.setAttribute('data-variant', variant)
-
     if (style) {
-      Object.assign(element.style, style)
+      Object.assign(hostStyle, style)
     }
+    useHostProps({
+      'data-gutter-bottom': gutterBottom ? '' : undefined,
+      'data-align': align || undefined,
+      'data-ellipsis': ellipsis === true ? 'true' : typeof ellipsis === 'number' ? 'multiline' : undefined,
+      'data-variant': variant,
+      style: hostStyle,
+    })
 
     const tag = variantToTag(variant)
 
+    const innerRef = useRef<HTMLElement>('inner')
     const handleCopy = () => {
-      const text = element.textContent ?? ''
+      const text = innerRef.current?.textContent ?? ''
       navigator.clipboard.writeText(text).catch(() => {
         // Fallback: do nothing on copy failure
       })
     }
 
-    const inner = children
-      ? createComponent(tag, { className: 'typo-inner' }, ...children)
-      : createComponent(tag, { className: 'typo-inner' })
-
+    const innerProps: Record<string, unknown> = { className: 'typo-inner', ref: innerRef }
     if (typeof ellipsis === 'number') {
-      const innerEl = inner as HTMLElement
-      innerEl.style.setProperty('-webkit-line-clamp', String(ellipsis))
-      innerEl.style.setProperty('-webkit-box-orient', 'vertical')
+      innerProps.style = { webkitLineClamp: String(ellipsis), webkitBoxOrient: 'vertical' }
     }
+
+    const inner = children ? createComponent(tag, innerProps, ...children) : createComponent(tag, innerProps)
 
     return (
       <>

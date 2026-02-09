@@ -330,8 +330,8 @@ describe('List', () => {
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
-        expect(listItems[1]?.classList.contains('focused')).toBe(true)
-        expect(listItems[0]?.classList.contains('focused')).toBe(false)
+        expect(listItems[1]?.hasAttribute('data-focused')).toBe(true)
+        expect(listItems[0]?.hasAttribute('data-focused')).toBe(false)
 
         service[Symbol.dispose]()
       })
@@ -359,9 +359,9 @@ describe('List', () => {
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
-        expect(listItems[0]?.classList.contains('selected')).toBe(true)
-        expect(listItems[1]?.classList.contains('selected')).toBe(false)
-        expect(listItems[2]?.classList.contains('selected')).toBe(true)
+        expect(listItems[0]?.hasAttribute('data-selected')).toBe(true)
+        expect(listItems[1]?.hasAttribute('data-selected')).toBe(false)
+        expect(listItems[2]?.hasAttribute('data-selected')).toBe(true)
 
         service[Symbol.dispose]()
       })

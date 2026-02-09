@@ -8,7 +8,7 @@ export const ResultPage = Shade({
   shadowDomName: 'shades-result-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🏁"
           title="Result"

@@ -9,7 +9,7 @@ export const LottiePage = Shade({
   render: () => {
     const example = JSON.stringify(lottieExample)
     return (
-      <PageContainer maxWidth="600px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🎬"
           title="Lottie Animations"

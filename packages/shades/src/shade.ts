@@ -2,14 +2,20 @@ import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
+import type { RefObject } from './models/render-options.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
-import { attachProps, attachStyles } from './shade-component.js'
+import { attachProps, attachStyles, setRenderMode } from './shade-component.js'
 import { StyleManager } from './style-manager.js'
+import type { VChild } from './vnode.js'
+import { patchChildren, toVChildArray } from './vnode.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
-   * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
+   * The custom element tag name used to register the component.
+   * Must follow the Custom Elements naming convention (lowercase, must contain a hyphen).
+   *
+   * @example 'my-button', 'shade-dialog', 'app-header'
    */
   shadowDomName: string
 
@@ -17,16 +23,6 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
    * Render hook, this method will be executed on each and every render.
    */
   render: (options: RenderOptions<TProps, TElementBase>) => JSX.Element | string | null
-
-  /**
-   * Will be executed when the element is attached to the DOM.
-   */
-  onAttach?: (options: RenderOptions<TProps, TElementBase>) => void
-
-  /**
-   * Will be executed when the element is detached from the DOM.
-   */
-  onDetach?: (options: RenderOptions<TProps, TElementBase>) => void
 
   /**
    * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
@@ -39,19 +35,22 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   elementBase?: Constructable<TElementBase>
 
   /**
-   * A default style that will be applied to the element as inline styles.
-   * Can be overridden by external styles on instances.
+   * Inline styles applied to each component instance.
+   * Use for per-instance dynamic overrides. Prefer `css` for component-level defaults.
    */
   style?: Partial<CSSStyleDeclaration>
 
   /**
    * CSS styles injected as a stylesheet during component registration.
-   * Supports pseudo-selectors (&:hover, &:active) and nested selectors (& .class).
-   * Use this for component-level styling that doesn't need per-instance overrides.
+   * Supports pseudo-selectors (`&:hover`, `&:active`) and nested selectors (`& .class`).
+   *
+   * **Best practice:** Prefer `css` over `style` for component defaults -- styles are injected
+   * once per component type (better performance), and support pseudo-selectors and nesting.
    *
    * @example
    * ```typescript
    * css: {
+   *   display: 'flex',
    *   padding: '16px',
    *   '&:hover': { backgroundColor: '#f0f0f0' },
    *   '& .title': { fontWeight: 'bold' }
@@ -69,7 +68,7 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
 export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
 ) => {
-  // register shadow-dom element
+  // Register custom element
   const customElementName = o.shadowDomName
 
   const existing = customElements.get(customElementName)
@@ -95,13 +94,30 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 
         public resourceManager = new ResourceManager()
 
+        /**
+         * Host props collected during the current render pass via `useHostProps`.
+         * Applied to the host element after each render.
+         */
+        private _pendingHostProps: Array<Record<string, unknown> & { style?: Record<string, string> }> = []
+
+        /**
+         * The host props that were applied in the previous render, used for diffing.
+         */
+        private _prevHostProps: Record<string, unknown> | null = null
+
+        /**
+         * Cached ref objects keyed by the user-provided key string.
+         */
+        private _refs = new Map<string, RefObject<Element>>()
+
         public connectedCallback() {
-          o.onAttach?.(this.getRenderOptions())
           this.updateComponent()
         }
 
         public async disconnectedCallback() {
-          o.onDetach?.(this.getRenderOptions())
+          this._refs.clear()
+          this._prevVTree = null
+          this._prevHostProps = null
           await this.resourceManager[Symbol.asyncDispose]()
         }
 
@@ -132,8 +148,17 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             props: this.props,
             injector: this.injector,
             children: this.shadeChildren,
-            element: this,
             renderCount: this._renderCount,
+            useHostProps: (hostProps) => {
+              this._pendingHostProps.push(hostProps)
+            },
+            useRef: <T extends Element = HTMLElement>(key: string): RefObject<T> => {
+              const existingRef = this._refs.get(key) as RefObject<T> | undefined
+              if (existingRef) return existingRef
+              const refObject = { current: null } as { current: T | null }
+              this._refs.set(key, refObject as unknown as RefObject<Element>)
+              return refObject as RefObject<T>
+            },
             useObservable: (key, obesrvable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
               return this.resourceManager.useObservable(key, obesrvable, onChange, options)
@@ -211,6 +236,12 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         private _updateScheduled = false
 
         /**
+         * The VChild array from the previous render, with `_el` references
+         * pointing to the real DOM nodes. Used to diff against the next render.
+         */
+        private _prevVTree: VChild[] | null = null
+
+        /**
          * Schedules a component update via microtask. Multiple calls before the microtask
          * runs are coalesced into a single render pass.
          */
@@ -225,22 +256,124 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         private _performUpdate() {
-          const renderResult = this.render(this.getRenderOptions())
-
-          if (renderResult === null || renderResult === undefined) {
-            this.innerHTML = ''
+          this._pendingHostProps = []
+          let renderResult: unknown
+          setRenderMode(true)
+          try {
+            renderResult = this.render(this.getRenderOptions())
+          } finally {
+            setRenderMode(false)
           }
 
-          if (typeof renderResult === 'string' || typeof renderResult === 'number') {
-            this.innerHTML = renderResult
+          const newVTree = toVChildArray(renderResult)
+          patchChildren(this, this._prevVTree || [], newVTree)
+          this._prevVTree = newVTree
+
+          this._applyHostProps()
+        }
+
+        /**
+         * Merges all pending host props from the render pass and applies them
+         * to the host element, diffing against the previously applied host props.
+         */
+        private _applyHostProps() {
+          if (this._pendingHostProps.length === 0) {
+            if (this._prevHostProps) {
+              // All host props were removed — clean up
+              for (const key of Object.keys(this._prevHostProps)) {
+                if (key === 'style') continue
+                this.removeAttribute(key)
+              }
+              if (this._prevHostProps.style) {
+                for (const sk of Object.keys(this._prevHostProps.style as Record<string, string>)) {
+                  if (sk.startsWith('--')) {
+                    this.style.removeProperty(sk)
+                  } else {
+                    ;(this.style as unknown as Record<string, string>)[sk] = ''
+                  }
+                }
+              }
+              this._prevHostProps = null
+            }
+            return
           }
 
-          if (renderResult instanceof HTMLElement) {
-            this.replaceChildren(renderResult)
+          // Merge all pending host prop calls into a single object
+          const merged: Record<string, unknown> = {}
+          let mergedStyle: Record<string, string> | undefined
+
+          for (const hp of this._pendingHostProps) {
+            for (const [key, value] of Object.entries(hp)) {
+              if (key === 'style' && typeof value === 'object' && value !== null) {
+                mergedStyle = { ...mergedStyle, ...(value as Record<string, string>) }
+              } else {
+                merged[key] = value
+              }
+            }
           }
-          if (renderResult instanceof DocumentFragment) {
-            this.replaceChildren(renderResult)
+
+          if (mergedStyle) {
+            merged.style = mergedStyle
           }
+
+          const oldHP = this._prevHostProps || {}
+          const newHP = merged
+
+          // Remove attributes no longer present
+          for (const key of Object.keys(oldHP)) {
+            if (key === 'style') continue
+            if (!(key in newHP)) {
+              if (key.startsWith('on') && typeof oldHP[key] === 'function') {
+                ;(this as unknown as Record<string, unknown>)[key] = null
+              } else {
+                this.removeAttribute(key)
+              }
+            }
+          }
+
+          // Apply new/changed attributes
+          for (const [key, value] of Object.entries(newHP)) {
+            if (key === 'style') continue
+            if (oldHP[key] !== value) {
+              if (typeof value === 'function' || (typeof value === 'object' && value !== null)) {
+                ;(this as unknown as Record<string, unknown>)[key] = value
+              } else if (value === null || value === undefined || value === false) {
+                if (key in this) {
+                  ;(this as unknown as Record<string, unknown>)[key] = undefined
+                }
+                this.removeAttribute(key)
+              } else {
+                // eslint-disable-next-line @typescript-eslint/no-base-to-string
+                this.setAttribute(key, String(value))
+              }
+            }
+          }
+
+          // Diff styles
+          const oldStyle = (oldHP.style as Record<string, string>) || {}
+          const newStyle = (mergedStyle as Record<string, string>) || {}
+
+          for (const sk of Object.keys(oldStyle)) {
+            if (!(sk in newStyle)) {
+              if (sk.startsWith('--')) {
+                this.style.removeProperty(sk)
+              } else {
+                ;(this.style as unknown as Record<string, string>)[sk] = ''
+              }
+            }
+          }
+
+          for (const [sk, sv] of Object.entries(newStyle)) {
+            if (oldStyle[sk] !== sv) {
+              if (sk.startsWith('--')) {
+                this.style.setProperty(sk, sv)
+              } else {
+                ;(this.style as unknown as Record<string, string>)[sk] = sv
+              }
+            }
+          }
+
+          this._prevHostProps = merged
         }
 
         private _injector?: Injector
@@ -281,7 +414,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
       o.elementBaseName ? { extends: o.elementBaseName } : undefined,
     )
   } else {
-    throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
+    throw Error(`A custom shade with name '${o.shadowDomName}' has already been registered!`)
   }
 
   return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {

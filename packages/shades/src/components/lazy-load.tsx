@@ -8,37 +8,64 @@ export interface LazyLoadProps {
 
 export const LazyLoad = Shade<LazyLoadProps>({
   shadowDomName: 'lazy-load',
-  render: ({ props, useState, element, useDisposable }) => {
+  render: ({ props, useState, useDisposable }) => {
     const [error, setError] = useState<unknown>('error', undefined)
     const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
 
-    useDisposable('loader', () => {
-      props
-        .component()
+    const tracker = useDisposable('loadTracker', () => {
+      const state: {
+        factory: (() => Promise<JSX.Element>) | null
+        active: boolean
+        [Symbol.dispose](): void
+      } = {
+        factory: null,
+        active: true,
+        [Symbol.dispose]() {
+          state.active = false
+        },
+      }
+      return state
+    })
+
+    const isNewFactory = tracker.factory !== props.component
+
+    if (isNewFactory) {
+      tracker.factory = props.component
+      const factory = props.component
+
+      factory()
         .then((loaded) => {
-          if (element.isConnected) {
+          if (tracker.active && tracker.factory === factory) {
+            setError(undefined)
             setComponent(loaded)
           }
         })
         .catch((err: unknown) => {
-          if (props.error) {
-            if (element.isConnected) {
+          if (tracker.active && tracker.factory === factory) {
+            setComponent(undefined)
+            if (props.error) {
               setError(err)
             }
           }
         })
-      return { [Symbol.dispose]: () => {} }
-    })
+
+      return props.loader
+    }
 
     if (error && props.error) {
       return props.error(error, async () => {
+        const factory = props.component
         try {
           setError(undefined)
           setComponent(undefined)
-          const loaded = await props.component()
-          setComponent(loaded)
+          const loaded = await factory()
+          if (tracker.active && tracker.factory === factory) {
+            setComponent(loaded)
+          }
         } catch (e) {
-          setError(e)
+          if (tracker.active && tracker.factory === factory) {
+            setError(e)
+          }
         }
       })
     }

@@ -20,18 +20,20 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
       letterSpacing: '0.01em',
     },
   },
-  render: ({ element, props, useObservable }) => {
+  render: ({ props, useObservable, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('input')
     useObservable('isOpened', props.manager.isOpened, {
       onChange: (isOpened) => {
-        const input = element.firstChild as HTMLInputElement
-        if (isOpened) {
-          input.focus()
-        } else {
-          input.value = ''
+        if (inputRef.current) {
+          if (isOpened) {
+            inputRef.current.focus()
+          } else {
+            inputRef.current.value = ''
+          }
         }
       },
     })
 
-    return <input autofocus placeholder="Type to search..." />
+    return <input ref={inputRef} autofocus placeholder="Type to search..." />
   },
 })

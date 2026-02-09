@@ -1,5 +1,5 @@
 import type { ChildrenList } from '@furystack/shades'
-import { attachStyles, createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 // ToDo: https://stackoverflow.com/questions/51459971/type-of-generic-stateless-component-react-or-extending-generic-function-interfa
@@ -66,9 +66,9 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
         backgroundColor: cssVariableTheme.action.hoverBackground,
       },
     },
-    render: ({ props, element }) => {
+    render: ({ props, useHostProps }) => {
       if (props.styles?.wrapper) {
-        attachStyles(element, { style: props.styles.wrapper })
+        useHostProps({ style: props.styles.wrapper as Record<string, string> })
       }
 
       return (

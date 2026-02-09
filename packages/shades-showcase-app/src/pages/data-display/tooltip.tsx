@@ -5,7 +5,7 @@ export const TooltipPage = Shade({
   shadowDomName: 'shades-tooltip-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="💬"
           title="Tooltip"

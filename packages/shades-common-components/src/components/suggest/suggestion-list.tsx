@@ -45,27 +45,23 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
         background: cssVariableTheme.action.activeBackground,
       },
     },
-    render: ({ element, props, useObservable }) => {
+    render: ({ props, useObservable, useRef }) => {
       const { manager } = props
+      const containerRef = useRef<HTMLDivElement>('container')
 
       const [suggestions] = useObservable('suggestions', manager.currentSuggestions)
 
-      const [selectedIndex] = useObservable('selectedIndex', manager.selectedIndex, {
-        onChange: (idx) => {
-          ;([...element.querySelectorAll('.suggestion-item')] as HTMLDivElement[]).forEach((s, i) => {
-            s.classList.toggle('selected', i === idx)
-          })
-        },
-      })
+      const [selectedIndex] = useObservable('selectedIndex', manager.selectedIndex)
 
       const [isListOpened] = useObservable('isOpened', manager.isOpened, {
         onChange: (isOpened) => {
-          const container = element.firstElementChild as HTMLDivElement
+          const container = containerRef.current
+          if (!container) return
+          const hostParentWidth =
+            container.closest('shade-suggest-suggestion-list')?.parentElement?.getBoundingClientRect().width || 200
           if (isOpened) {
             container.style.zIndex = '1'
-            container.style.width = `calc(${Math.round(
-              element.parentElement?.getBoundingClientRect().width || 200,
-            )}px - 3em)`
+            container.style.width = `calc(${Math.round(hostParentWidth)}px - 3em)`
             void promisifyAnimation(
               container,
               [
@@ -88,11 +84,16 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
         },
       })
 
+      const hostParentWidth =
+        containerRef.current?.closest('shade-suggest-suggestion-list')?.parentElement?.getBoundingClientRect().width ||
+        200
+
       return (
         <div
+          ref={containerRef}
           className="suggestion-items-container"
           style={{
-            width: `calc(${Math.round(element.parentElement?.getBoundingClientRect().width || 200)}px - 3em)`,
+            width: `calc(${Math.round(hostParentWidth)}px - 3em)`,
           }}
         >
           {suggestions.map((s, i) => (

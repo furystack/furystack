@@ -1,6 +1,6 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
-import { attachStyles, createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
@@ -113,7 +113,9 @@ export const DataGrid: <T, Column extends string>(
       borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
   },
-  render: ({ props, useDisposable, element }) => {
+  render: ({ props, useDisposable, useRef, useHostProps }) => {
+    const wrapperRef = useRef<HTMLDivElement>('gridWrapper')
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
       window.addEventListener('keydown', listener)
@@ -123,17 +125,18 @@ export const DataGrid: <T, Column extends string>(
     useDisposable(
       'clickAway',
       () =>
-        new ClickAwayService(element, () => {
+        new ClickAwayService(wrapperRef, () => {
           props.collectionService.hasFocus.setValue(false)
         }),
     )
 
     if (props.styles?.wrapper) {
-      attachStyles(element, { style: props.styles.wrapper })
+      useHostProps({ style: props.styles.wrapper as Record<string, string> })
     }
 
     return (
       <div
+        ref={wrapperRef}
         className="shade-grid-wrapper"
         onclick={() => {
           props.collectionService.hasFocus.setValue(true)

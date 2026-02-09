@@ -403,9 +403,154 @@ export class Injector {
 }
 ````
 
-## Shades Component Styling
+## Shades Rendering Patterns
 
-### Use `css` Property for Component Styles
+### Removed APIs
+
+The following APIs have been removed. **Do not generate code using them:**
+
+- **`element`** is no longer available in `RenderOptions`. Use `useHostProps` for host element attributes/styles and `useRef` for child DOM access.
+- **`onAttach` / `onDetach`** lifecycle hooks are removed from `ShadeOptions`. Use `useDisposable` to manage resources that need cleanup on unmount.
+
+```typescript
+// ❌ REMOVED - element in render options
+render: ({ element }) => {
+  element.setAttribute('data-active', 'true') // No longer works
+}
+
+// ✅ Use useHostProps instead
+render: ({ useHostProps }) => {
+  useHostProps({ 'data-active': 'true' })
+}
+
+// ❌ REMOVED - onAttach / onDetach
+Shade({
+  onAttach: ({ element }) => {
+    /* ... */
+  },
+  onDetach: ({ element }) => {
+    /* ... */
+  },
+})
+
+// ✅ Use useDisposable instead
+render: ({ useDisposable }) => {
+  useDisposable('myResource', () => {
+    // Setup code runs once
+    return {
+      [Symbol.dispose]: () => {
+        /* Cleanup on unmount */
+      },
+    }
+  })
+}
+```
+
+### `useHostProps` -- Declarative Host Element Attributes
+
+`useHostProps` declaratively sets attributes and styles on the host custom element. Can be called multiple times per render; each call merges into the previous values.
+
+```typescript
+render: ({ props, useHostProps }) => {
+  useHostProps({
+    'data-variant': props.variant,
+    role: 'progressbar',
+    'aria-valuenow': String(props.value),
+    style: {
+      '--btn-color-main': props.color,
+      display: 'flex',
+      gap: '8px',
+    },
+  })
+
+  return <div>{props.children}</div>
+}
+```
+
+**Key behaviors:**
+
+- String/boolean/null values are set as HTML attributes via `setAttribute`
+- Object and function values are assigned as properties on the host element (not attributes)
+- Event handlers can be set: `useHostProps({ onclick: handleClick })`
+- CSS custom properties (e.g. `--my-color`) are applied via `setProperty`
+- Class properties like `injector` can be set to propagate scoped injectors to child components
+
+### `useRef` -- DOM Element Access
+
+`useRef` creates a mutable ref object that captures a child DOM element. Refs are cached by key and stable across renders.
+
+```typescript
+render: ({ useRef }) => {
+  const inputRef = useRef<HTMLInputElement>('input')
+
+  // Refs are null during the first synchronous render pass.
+  // Use queueMicrotask for deferred access after mount.
+  queueMicrotask(() => {
+    inputRef.current?.focus()
+  })
+
+  return <input ref={inputRef} type="text" />
+}
+```
+
+The `ref` prop is available on all intrinsic JSX elements (`div`, `input`, `span`, SVG elements, etc.).
+
+**Only create refs when you need direct DOM access** (focus, scroll, measurements, animations, form registration, third-party library integration). Do not create refs that are only assigned to elements but never read from -- this is dead code. For imperative DOM mutations like `classList.add` or `style.display` toggling, prefer `useState` with declarative JSX instead.
+
+```typescript
+// ❌ Bad - ref used only for classList manipulation
+const backdropRef = useRef<HTMLDivElement>('backdrop')
+requestAnimationFrame(() => backdropRef.current?.classList.add('visible'))
+return <div ref={backdropRef} className="backdrop">...</div>
+
+// ✅ Good - declarative state controls the class
+const [isVisible, setIsVisible] = useState('isVisible', false)
+requestAnimationFrame(() => setIsVisible(true))
+return <div className={`backdrop${isVisible ? ' visible' : ''}`}>...</div>
+```
+
+### Anti-pattern: `useDisposable` + `ObservableValue` for Local State
+
+When you need local component state that triggers re-renders, use `useState` directly. Do not manually create an `ObservableValue` with `useDisposable` and subscribe with `useObservable` -- this is exactly what `useState` does internally.
+
+```typescript
+// ❌ Bad - manual ObservableValue + useObservable for local state
+const obs = useDisposable('count', () => new ObservableValue(0))
+const [count] = useObservable('count', obs)
+
+// ✅ Good - useState handles this internally
+const [count, setCount] = useState('count', 0)
+```
+
+Reserve `useDisposable` + `ObservableValue` for cases where the observable must be passed to a service or shared across component boundaries (not just parent-to-child). For parent-to-child state, prefer plain props.
+
+### VNode Reconciliation
+
+Shades uses a VNode-based reconciler with **positional (index-based) child matching**. There is no key-based reconciliation. When list items reorder, all children from the reorder point onward are patched or replaced.
+
+```typescript
+// ❌ Risky - reordering raw intrinsic elements in a dynamic list
+// causes unnecessary DOM churn and potential state loss
+render: ({ props }) => {
+  return <ul>{props.items.map(item => <li>{item.name}</li>)}</ul>
+}
+
+// ✅ Better - wrap each item in a Shade component
+// The component boundary prevents inner-DOM churn on reorder
+render: ({ props }) => {
+  return <ul>{props.items.map(item => <ListItem item={item} />)}</ul>
+}
+```
+
+### Microtask Batching
+
+Multiple state changes within the same synchronous execution are coalesced into a single render pass via `queueMicrotask`. This means DOM updates are not synchronous after calling `setState` or `observable.setValue()`.
+
+In tests, use `await flushUpdates()` to wait for batched renders to complete before asserting DOM state.
+
+### Component Styling
+
+#### Use `css` Property for Component Styles
 
 When creating Shades components, prefer the `css` property over `style` for component-level styling:
 
@@ -441,7 +586,7 @@ const Button = Shade({
 })
 ```
 
-### When to Use `style` vs `css`
+#### When to Use `style` vs `css`
 
 | Use Case                  | `style` | `css` |
 | ------------------------- | ------- | ----- |
@@ -451,7 +596,7 @@ const Button = Shade({
 | Dynamic values from props | ✅      | ❌    |
 | Component defaults        | ⚠️      | ✅    |
 
-### Anti-pattern: useState for CSS States
+#### Anti-pattern: useState for CSS States
 
 **Do not** use `useState` to track CSS states like hover, focus, or active. Use `css` pseudo-selectors instead:
 
@@ -468,7 +613,35 @@ css: {
 }
 ```
 
-### Type-Safe Theme Variables with `cssVariableTheme`
+#### Anti-pattern: `useHostProps({ style })` for Static or Attribute-Driven Styles
+
+If a style is static (same every render) or varies based on a data attribute that is already set, define it in the `css` block instead of using `useHostProps({ style })`.
+
+```typescript
+// ❌ Bad - static style in useHostProps
+useHostProps({ style: { display: 'contents' } })
+
+// ✅ Good - in css block
+css: { display: 'contents' }
+
+// ❌ Bad - style toggled by an attribute the component already sets
+useHostProps({
+  'data-opened': isOpen ? '' : undefined,
+  style: { width: isOpen ? '100%' : '0%' },
+})
+
+// ✅ Good - CSS rule on the data attribute
+css: {
+  width: '0%',
+  '&[data-opened]': { width: '100%' },
+}
+// render:
+useHostProps({ ...(isOpen ? { 'data-opened': '' } : {}) })
+```
+
+Use `useHostProps({ style })` only for truly dynamic values (CSS custom properties from themes/props, consumer-provided style overrides).
+
+#### Type-Safe Theme Variables with `cssVariableTheme`
 
 When using theme values in the `css` property, **always import and use `cssVariableTheme`** instead of raw CSS variable strings. This provides type safety and autocomplete:
 

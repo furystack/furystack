@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { Icon } from './icons/icon.js'
 import { chevronDown, chevronLeft, chevronRight, chevronUp } from './icons/icon-definitions.js'
@@ -48,6 +47,9 @@ export const Carousel = Shade<CarouselProps>({
       overflow: 'hidden',
       width: '100%',
     },
+    '&[data-vertical] .carousel-viewport': {
+      height: '100%',
+    },
 
     // Slide-effect track: width: 100% gives a definite size so child
     // percentage flex-basis resolves correctly.
@@ -61,11 +63,15 @@ export const Carousel = Shade<CarouselProps>({
     },
     '&[data-vertical] .carousel-track': {
       flexDirection: 'column',
+      height: '100%',
     },
 
     '& .carousel-slide': {
       flexShrink: '0',
       overflow: 'hidden',
+    },
+    '&[data-vertical] .carousel-slide': {
+      height: '100%',
     },
 
     // Fade-effect layers
@@ -177,7 +183,7 @@ export const Carousel = Shade<CarouselProps>({
       background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 75%, transparent)`,
     },
   },
-  render: ({ props, element, useDisposable }) => {
+  render: ({ props, useState, useDisposable, useHostProps }) => {
     const {
       slides,
       autoplay = false,
@@ -190,148 +196,73 @@ export const Carousel = Shade<CarouselProps>({
       style,
     } = props
 
-    if (vertical) {
-      element.setAttribute('data-vertical', '')
-    } else {
-      element.removeAttribute('data-vertical')
-    }
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
-
-    element.setAttribute('role', 'region')
-    element.setAttribute('aria-roledescription', 'carousel')
-    element.setAttribute('tabindex', '0')
+    useHostProps({
+      'data-vertical': vertical ? '' : undefined,
+      role: 'region',
+      'aria-roledescription': 'carousel',
+      tabindex: '0',
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
     const initial = Math.max(0, Math.min(defaultActiveIndex, slides.length - 1))
 
-    const activeIndex = useDisposable('activeIndex', () => new ObservableValue(initial))
+    const [current, setCurrent] = useState('activeIndex', initial)
+
+    // Mutable ref for the autoplay timer to access the latest index
+    const indexRef = useDisposable('indexRef', () => ({ current: initial, [Symbol.dispose]: () => {} }))
+    indexRef.current = current
 
     const goTo = (index: number) => {
-      if (slides.length === 0 || activeIndex.isDisposed) return
+      if (slides.length === 0) return
       const clamped = ((index % slides.length) + slides.length) % slides.length
-      activeIndex.setValue(clamped)
+      setCurrent(clamped)
       onChange?.(clamped)
     }
 
-    const goNext = () => {
-      if (activeIndex.isDisposed) return
-      goTo(activeIndex.getValue() + 1)
-    }
-    const goPrev = () => {
-      if (activeIndex.isDisposed) return
-      goTo(activeIndex.getValue() - 1)
-    }
+    const goNext = () => goTo(current + 1)
+    const goPrev = () => goTo(current - 1)
 
     // Keyboard navigation
-    element.onkeydown = (e: KeyboardEvent) => {
-      const nextKey = vertical ? 'ArrowDown' : 'ArrowRight'
-      const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft'
-      if (e.key === nextKey) {
-        e.preventDefault()
-        goNext()
-      } else if (e.key === prevKey) {
-        e.preventDefault()
-        goPrev()
-      }
-    }
+    useHostProps({
+      onkeydown: (e: KeyboardEvent) => {
+        const nextKey = vertical ? 'ArrowDown' : 'ArrowRight'
+        const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft'
+        if (e.key === nextKey) {
+          e.preventDefault()
+          goNext()
+        } else if (e.key === prevKey) {
+          e.preventDefault()
+          goPrev()
+        }
+      },
+      ontouchstart: (e: TouchEvent) => {
+        touchStartX = e.touches[0].clientX
+        touchStartY = e.touches[0].clientY
+      },
+      ontouchend: (e: TouchEvent) => {
+        const dx = e.changedTouches[0].clientX - touchStartX
+        const dy = e.changedTouches[0].clientY - touchStartY
+
+        const threshold = 50
+        if (vertical) {
+          if (dy < -threshold) goNext()
+          else if (dy > threshold) goPrev()
+        } else {
+          if (dx < -threshold) goNext()
+          else if (dx > threshold) goPrev()
+        }
+      },
+    })
 
     // Touch / swipe support
     let touchStartX = 0
     let touchStartY = 0
 
-    element.ontouchstart = (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX
-      touchStartY = e.touches[0].clientY
-    }
-
-    element.ontouchend = (e: TouchEvent) => {
-      const dx = e.changedTouches[0].clientX - touchStartX
-      const dy = e.changedTouches[0].clientY - touchStartY
-
-      const threshold = 50
-      if (vertical) {
-        if (dy < -threshold) goNext()
-        else if (dy > threshold) goPrev()
-      } else {
-        if (dx < -threshold) goNext()
-        else if (dx > threshold) goPrev()
-      }
-    }
-
-    // Autoplay
+    // Autoplay (uses mutable indexRef to avoid stale closure)
     if (autoplay && slides.length > 1) {
-      const timer = setInterval(goNext, autoplayInterval)
-      element.addEventListener(
-        'shades-disconnect',
-        () => {
-          clearInterval(timer)
-        },
-        { once: true },
-      )
-    }
-
-    const current = activeIndex.getValue()
-
-    /**
-     * Imperatively updates the DOM when the active slide changes.
-     * This avoids a full re-render which would destroy/recreate child elements
-     * and break CSS transitions.
-     */
-    const updateDOM = (newIndex: number) => {
-      if (effect === 'slide') {
-        const track = element.querySelector<HTMLElement>('.carousel-track')
-        if (track) {
-          if (vertical) {
-            const slideHeight = element.offsetHeight
-            track.style.transform = `translateY(-${newIndex * slideHeight}px)`
-          } else {
-            track.style.transform = `translateX(-${newIndex * 100}%)`
-          }
-        }
-      } else {
-        const fadeSlides = element.querySelectorAll<HTMLElement>('.carousel-fade-slide')
-        fadeSlides.forEach((s, i) => {
-          const isActive = i === newIndex
-          s.toggleAttribute('data-active', isActive)
-          s.style.opacity = isActive ? '1' : '0'
-          s.style.pointerEvents = isActive ? 'auto' : 'none'
-        })
-      }
-
-      const dotEls = element.querySelectorAll('.carousel-dot')
-      dotEls.forEach((d, i) => {
-        d.toggleAttribute('data-active', i === newIndex)
-      })
-    }
-
-    // Subscribe to index changes and update DOM imperatively
-    const observer = activeIndex.subscribe(updateDOM)
-    element.addEventListener(
-      'shades-disconnect',
-      () => {
-        observer[Symbol.dispose]()
-      },
-      { once: true },
-    )
-
-    // For vertical slide mode: after render, measure the host height and
-    // size each slide to exactly that height so translateY works correctly.
-    if (vertical && effect === 'slide') {
-      requestAnimationFrame(() => {
-        const hostHeight = element.offsetHeight
-        if (!hostHeight) return
-        const slideEls = element.querySelectorAll<HTMLElement>('.carousel-slide')
-        slideEls.forEach((s) => {
-          s.style.height = `${hostHeight}px`
-        })
-        if (current > 0) {
-          const track = element.querySelector<HTMLElement>('.carousel-track')
-          if (track) {
-            track.style.transform = `translateY(-${current * hostHeight}px)`
-          }
-        }
+      useDisposable('autoplay-timer', () => {
+        const timer = setInterval(() => goTo(indexRef.current + 1), autoplayInterval)
+        return { [Symbol.dispose]: () => clearInterval(timer) }
       })
     }
 
@@ -341,7 +272,6 @@ export const Carousel = Shade<CarouselProps>({
       slide instanceof Node ? (slide.cloneNode(true) as typeof slide) : slide,
     )
 
-    // Build JSX — rendered once, then updated imperatively
     const slideContent =
       effect === 'fade' ? (
         <div className="carousel-fade-container">
@@ -375,7 +305,7 @@ export const Carousel = Shade<CarouselProps>({
             display: 'flex',
             flexDirection: vertical ? 'column' : 'row',
             transition: `transform ${TRANSITION_MS}ms ease-in-out`,
-            transform: vertical ? 'translateY(0)' : `translateX(-${current * 100}%)`,
+            transform: vertical ? `translateY(-${current * 100}%)` : `translateX(-${current * 100}%)`,
           }}
         >
           {clonedSlides.map((slide, i) => (
@@ -396,7 +326,7 @@ export const Carousel = Shade<CarouselProps>({
     const nextIcon = vertical ? chevronDown : chevronRight
 
     return (
-      <>
+      <div style={{ display: 'contents' }}>
         <div className="carousel-viewport">{slideContent}</div>
 
         {slides.length > 1 && (
@@ -440,7 +370,7 @@ export const Carousel = Shade<CarouselProps>({
             ))}
           </div>
         )}
-      </>
+      </div>
     )
   },
 })

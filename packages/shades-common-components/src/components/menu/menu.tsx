@@ -1,5 +1,4 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { MenuEntry, MenuMode } from './menu-types.js'
 import { getNavigableKeys } from './menu-types.js'
@@ -18,11 +17,11 @@ export type MenuProps = {
 const renderItems = (
   items: MenuEntry[],
   options: {
-    rootElement: HTMLElement
     selectedKey?: string
+    focusedKey: string
     expandedGroups: string[]
     onSelect?: (key: string) => void
-    focusedKeyObservable: ObservableValue<string>
+    setFocusedKey: (key: string) => void
     onToggleGroup: (key: string) => void
     isInline: boolean
   },
@@ -60,8 +59,14 @@ const renderItems = (
     }
 
     const isSelected = options.selectedKey === item.key
+    const isFocused = options.focusedKey === item.key
 
-    const classNames = ['menu-item', isSelected ? 'selected' : '', item.disabled ? 'disabled' : '']
+    const classNames = [
+      'menu-item',
+      isSelected ? 'selected' : '',
+      item.disabled ? 'disabled' : '',
+      isFocused ? 'focused' : '',
+    ]
       .filter(Boolean)
       .join(' ')
 
@@ -80,7 +85,7 @@ const renderItems = (
         }}
         onmouseenter={() => {
           if (!item.disabled) {
-            options.focusedKeyObservable.setValue(item.key)
+            options.setFocusedKey(item.key)
           }
         }}
       >
@@ -236,110 +241,86 @@ export const Menu = Shade<MenuProps>({
       paddingLeft: cssVariableTheme.spacing.md,
     },
   },
-  render: ({ props, element, useDisposable, useObservable }) => {
+  render: ({ props, useState, useHostProps }) => {
     const { items, mode = 'vertical', selectedKey, onSelect } = props
 
-    const focusedKeyObservable = useDisposable('focusedKey', () => new ObservableValue(''))
-    const expandedGroupsObservable = useDisposable('expandedGroups', () => new ObservableValue<string[]>([]))
+    const [focusedKey, setFocusedKey] = useState('focusedKey', '')
+    const [expandedGroups, setExpandedGroups] = useState<string[]>('expandedGroups', [])
 
-    const updateFocusedItem = (newKey: string) => {
-      element.querySelectorAll('.menu-item.focused').forEach((el) => el.classList.remove('focused'))
-      if (newKey) {
-        element.querySelector(`[data-key="${newKey}"]`)?.classList.add('focused')
-      }
-    }
+    useHostProps({
+      role: mode === 'horizontal' ? 'menubar' : 'menu',
+      'data-mode': mode,
+      tabindex: '0',
+    })
 
-    useObservable('focusedKey', focusedKeyObservable, { onChange: updateFocusedItem })
+    useHostProps({
+      onkeydown: (ev: KeyboardEvent) => {
+        const navigableKeys = getNavigableKeys(items)
+        if (navigableKeys.length === 0) return
 
-    // Imperatively toggle expanded group children without re-rendering
-    useDisposable('expandedGroupsSub', () =>
-      expandedGroupsObservable.subscribe((expanded) => {
-        const groups = element.querySelectorAll<HTMLElement>('.menu-group[data-group-key]')
-        groups.forEach((group) => {
-          const key = group.getAttribute('data-group-key')
-          if (!key) return
-          const isExpanded = expanded.includes(key)
-          const children = group.querySelector<HTMLElement>('.menu-group-children')
-          const arrow = group.querySelector<HTMLElement>('.menu-group-arrow')
-          if (children) children.style.display = isExpanded ? '' : 'none'
-          if (arrow) arrow.classList.toggle('expanded', isExpanded)
-        })
-      }),
-    )
+        const isHorizontal = mode === 'horizontal'
+        const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown'
+        const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp'
 
-    element.setAttribute('role', mode === 'horizontal' ? 'menubar' : 'menu')
-    element.setAttribute('data-mode', mode)
-    element.setAttribute('tabindex', '0')
-
-    element.onkeydown = (ev: KeyboardEvent) => {
-      const navigableKeys = getNavigableKeys(items)
-      if (navigableKeys.length === 0) return
-
-      const isHorizontal = mode === 'horizontal'
-      const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown'
-      const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp'
-
-      const currentFocusedKey = focusedKeyObservable.getValue()
-
-      switch (ev.key) {
-        case nextKey: {
-          ev.preventDefault()
-          const currentIndex = navigableKeys.indexOf(currentFocusedKey)
-          const nextIndex = currentIndex < navigableKeys.length - 1 ? currentIndex + 1 : 0
-          focusedKeyObservable.setValue(navigableKeys[nextIndex])
-          break
-        }
-        case prevKey: {
-          ev.preventDefault()
-          const currentIndex = navigableKeys.indexOf(currentFocusedKey)
-          const prevIndex = currentIndex > 0 ? currentIndex - 1 : navigableKeys.length - 1
-          focusedKeyObservable.setValue(navigableKeys[prevIndex])
-          break
-        }
-        case 'Home': {
-          ev.preventDefault()
-          focusedKeyObservable.setValue(navigableKeys[0])
-          break
-        }
-        case 'End': {
-          ev.preventDefault()
-          focusedKeyObservable.setValue(navigableKeys[navigableKeys.length - 1])
-          break
-        }
-        case 'Enter':
-        case ' ': {
-          ev.preventDefault()
-          if (currentFocusedKey) {
-            onSelect?.(currentFocusedKey)
+        switch (ev.key) {
+          case nextKey: {
+            ev.preventDefault()
+            const currentIndex = navigableKeys.indexOf(focusedKey)
+            const nextIndex = currentIndex < navigableKeys.length - 1 ? currentIndex + 1 : 0
+            setFocusedKey(navigableKeys[nextIndex])
+            break
           }
-          break
+          case prevKey: {
+            ev.preventDefault()
+            const currentIndex = navigableKeys.indexOf(focusedKey)
+            const prevIndex = currentIndex > 0 ? currentIndex - 1 : navigableKeys.length - 1
+            setFocusedKey(navigableKeys[prevIndex])
+            break
+          }
+          case 'Home': {
+            ev.preventDefault()
+            setFocusedKey(navigableKeys[0])
+            break
+          }
+          case 'End': {
+            ev.preventDefault()
+            setFocusedKey(navigableKeys[navigableKeys.length - 1])
+            break
+          }
+          case 'Enter':
+          case ' ': {
+            ev.preventDefault()
+            if (focusedKey) {
+              onSelect?.(focusedKey)
+            }
+            break
+          }
+          default:
+            break
         }
-        default:
-          break
-      }
-    }
+      },
+    })
 
     const handleToggleGroup = (key: string) => {
-      const currentExpanded = expandedGroupsObservable.getValue()
-      if (currentExpanded.includes(key)) {
-        expandedGroupsObservable.setValue(currentExpanded.filter((k) => k !== key))
+      if (expandedGroups.includes(key)) {
+        setExpandedGroups(expandedGroups.filter((k) => k !== key))
       } else {
-        expandedGroupsObservable.setValue([...currentExpanded, key])
+        setExpandedGroups([...expandedGroups, key])
       }
     }
 
     return (
-      <>
+      <div style={{ display: 'contents' }}>
         {renderItems(items, {
-          rootElement: element,
           selectedKey,
-          expandedGroups: expandedGroupsObservable.getValue(),
+          focusedKey,
+          expandedGroups,
           onSelect,
-          focusedKeyObservable,
+          setFocusedKey,
           onToggleGroup: handleToggleGroup,
           isInline: mode === 'inline',
         })}
-      </>
+      </div>
     )
   },
 })

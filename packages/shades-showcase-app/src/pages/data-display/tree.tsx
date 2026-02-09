@@ -45,7 +45,7 @@ export const TreePage = Shade({
     )
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🌲"
           title="Tree"

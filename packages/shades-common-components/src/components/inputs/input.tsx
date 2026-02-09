@@ -1,10 +1,11 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
+
+const emptyValidity = {} as ValidityState
 
 export type ValidInputValidationResult = { isValid: true }
 
@@ -72,27 +73,6 @@ export type TextInputState = {
   value: string
   focused: boolean
   validity: ValidityState
-  element: JSX.Element<TextInputProps>
-}
-
-/**
- * Sets CSS custom properties for dynamic color values.
- * State-based styling (focus, error, disabled) is handled by CSS selectors.
- * Background colors use CSS color-mix() for automatic theme adaptation.
- */
-const setInputColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: TextInputProps
-}): void => {
-  // Only set the color variables - backgrounds use CSS color-mix()
-  const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
-  element.style.setProperty('--input-primary-color', primaryColor)
-  element.style.setProperty('--input-error-color', themeProvider.theme.palette.error.main)
 }
 
 const getDefaultMessagesForValidityState = (state: ValidityState) => {
@@ -243,140 +223,111 @@ export const Input = Shade<TextInputProps>({
       fontSize: cssVariableTheme.typography.fontSize.lg,
     },
   },
-  render: ({ props, injector, useObservable, element, useDisposable }) => {
+  render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    // Set data attributes for CSS styling
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
+    const [focused, setFocused] = useState('focused', props.autofocus || false)
+    const [validity, setValidity] = useState('validity', inputRef.current?.validity || emptyValidity)
+
+    // Derive state from props + local state (value is props-driven or read from native input)
+    const state: TextInputState = {
+      value: props.value ?? inputRef.current?.value ?? '',
+      focused,
+      validity,
     }
 
-    // Set dynamic color CSS variables (only needs to happen once per render)
-    setInputColors({ element, themeProvider, props })
-
-    const updateState = (newState: TextInputState) => {
-      const input = element.querySelector('input') as HTMLInputElement
-
-      newState.value = input?.value || newState.value
-      newState.validity = input?.validity || newState.validity
-      newState.validity.toJSON = () => {
-        return {
-          valid: newState.validity.valid,
-          valueMissing: newState.validity.valueMissing,
-          typeMismatch: newState.validity.typeMismatch,
-          patternMismatch: newState.validity.patternMismatch,
-          tooLong: newState.validity.tooLong,
-          tooShort: newState.validity.tooShort,
-          rangeUnderflow: newState.validity.rangeUnderflow,
-          rangeOverflow: newState.validity.rangeOverflow,
-          stepMismatch: newState.validity.stepMismatch,
-          badInput: newState.validity.badInput,
-        }
-      }
-
-      const validationResult = props.getValidationResult?.({ state: newState })
-
-      // Set data-invalid attribute for CSS styling
-      if (validationResult?.isValid === false || newState.validity?.valid === false) {
-        element.setAttribute('data-invalid', '')
-      } else {
-        element.removeAttribute('data-invalid')
-      }
-
-      const helper = element.querySelector<HTMLSpanElement>('span.helperText')
-      const helperNode =
-        (validationResult?.isValid === false && validationResult?.message) ||
-        props.getHelperText?.({ state: newState, validationResult }) ||
-        getDefaultMessagesForValidityState(newState.validity) ||
-        ''
-      if (helper) {
-        helper.replaceChildren(helperNode)
-      }
-
-      const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
-      if (startIcon) {
-        startIcon.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
-      }
-
-      const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
-      if (endIcon) {
-        endIcon.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
-      }
-
-      if (injector.cachedSingletons.has(FormService)) {
-        const formService = injector.getInstance(FormService)
-        formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, newState.validity)
-      }
+    // Enrich validity with toJSON for serialization
+    if (validity && !validity.toJSON) {
+      validity.toJSON = () => ({
+        valid: validity.valid,
+        valueMissing: validity.valueMissing,
+        typeMismatch: validity.typeMismatch,
+        patternMismatch: validity.patternMismatch,
+        tooLong: validity.tooLong,
+        tooShort: validity.tooShort,
+        rangeUnderflow: validity.rangeUnderflow,
+        rangeOverflow: validity.rangeOverflow,
+        stepMismatch: validity.stepMismatch,
+        badInput: validity.badInput,
+      })
     }
 
-    const [state, setState] = useObservable<TextInputState>(
-      'inputState',
-      new ObservableValue({
-        value: props.value || '',
-        focused: props.autofocus || false,
-        validity: element.querySelector('input')?.validity || ({} as ValidityState),
-        element,
-      }),
-      { onChange: updateState },
-    )
+    const validationResult = props.getValidationResult?.({ state })
+    const isInvalid = validationResult?.isValid === false || validity?.valid === false
+
+    const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-invalid': isInvalid ? '' : undefined,
+      style: {
+        '--input-primary-color': primaryColor,
+        '--input-error-color': themeProvider.theme.palette.error.main,
+      },
+    })
+
+    if (injector.cachedSingletons.has(FormService)) {
+      const formService = injector.getInstance(FormService)
+      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, validity)
+    }
+
+    const helperNode =
+      (validationResult?.isValid === false && validationResult?.message) ||
+      props.getHelperText?.({ state, validationResult }) ||
+      getDefaultMessagesForValidityState(validity) ||
+      ''
 
     return (
       <label {...props.labelProps}>
         {props.labelTitle}
 
         <div className="input-row">
-          {props.getStartIcon ? <span className="startIcon">{props.getStartIcon?.({ state })}</span> : null}
+          {props.getStartIcon ? (
+            <span className="startIcon">{props.getStartIcon({ state, validationResult })}</span>
+          ) : null}
           <input
+            ref={inputRef}
             oninvalid={(ev) => {
               ev.preventDefault()
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, validity: el.validity })
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             onchange={function (ev) {
               const el = ev.target as HTMLInputElement
-              const newValue = el.value
-              setState({ ...state, value: newValue, validity: el?.validity })
-              props.onTextChange?.(newValue)
+              setValidity(el.validity)
+              props.onTextChange?.(el.value)
               props?.onchange?.call(this, ev)
             }}
             onfocus={(ev) => {
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, value: el.value, focused: true, validity: el.validity })
+              setFocused(true)
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             onblur={(ev) => {
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, value: el.value, focused: false, validity: el.validity })
+              setFocused(false)
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             {...props}
             style={props.style}
-            value={state.value}
+            {...(props.value !== undefined ? { value: props.value } : {})}
           />
-          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
+          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state, validationResult })}</span> : null}
         </div>
-        <span className="helperText">{props.getHelperText?.({ state })}</span>
+        <span className="helperText">{helperNode}</span>
       </label>
     )
   },

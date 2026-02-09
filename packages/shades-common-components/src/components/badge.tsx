@@ -73,16 +73,17 @@ export const Badge = Shade<BadgeProps>({
       opacity: '0',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { count, dot, color, max = 99, showZero, visible = true, style } = props
 
     const colors = color ? paletteMainColors[color] : defaultColors
-    element.style.setProperty('--badge-color-main', colors.main)
-    element.style.setProperty('--badge-color-contrast', colors.mainContrast)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      style: {
+        '--badge-color-main': colors.main,
+        '--badge-color-contrast': colors.mainContrast,
+        ...(style as Record<string, string>),
+      },
+    })
 
     const shouldHide = !visible || (!dot && !showZero && (count === undefined || count === 0))
     const displayValue = dot ? '' : count !== undefined && count > max ? `${max}+` : (count?.toString() ?? '')

@@ -48,19 +48,6 @@ export type CheckboxProps = {
   labelProps?: PartialElement<HTMLLabelElement>
 }
 
-const setCheckboxColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: CheckboxProps
-}): void => {
-  const color = themeProvider.theme.palette[props.color || 'primary'].main
-  element.style.setProperty('--checkbox-color', color)
-}
-
 export const Checkbox = Shade<CheckboxProps>({
   shadowDomName: 'shade-checkbox',
   css: {
@@ -156,43 +143,36 @@ export const Checkbox = Shade<CheckboxProps>({
       cursor: 'not-allowed',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input[type="checkbox"]') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (props.indeterminate) {
-      element.setAttribute('data-indeterminate', '')
-    } else {
-      element.removeAttribute('data-indeterminate')
-    }
-
-    setCheckboxColors({ element, themeProvider, props })
+    const color = themeProvider.theme.palette[props.color || 'primary'].main
+    useHostProps({
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-indeterminate': props.indeterminate ? '' : undefined,
+      style: { '--checkbox-color': color },
+    })
 
     const handleChange = function (this: GlobalEventHandlers, ev: Event) {
-      if (props.indeterminate) {
-        const input = element.querySelector('input[type="checkbox"]') as HTMLInputElement
-        input.indeterminate = true
+      ev.stopPropagation()
+      if (props.indeterminate && inputRef.current) {
+        inputRef.current.indeterminate = true
       }
       props.onchange?.call(this, ev)
     }
@@ -201,6 +181,7 @@ export const Checkbox = Shade<CheckboxProps>({
       <label {...props.labelProps}>
         <span className="checkbox-control">
           <input
+            ref={inputRef}
             type="checkbox"
             checked={props.checked}
             disabled={props.disabled}

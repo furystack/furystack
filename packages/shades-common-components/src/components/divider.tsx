@@ -123,41 +123,20 @@ export const Divider = Shade<DividerProps>({
       marginBottom: cssVariableTheme.spacing.lg,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { orientation, variant, textAlign, style } = props
-
-    if (orientation === 'vertical') {
-      element.setAttribute('data-orientation', 'vertical')
-      element.setAttribute('role', 'separator')
-      element.setAttribute('aria-orientation', 'vertical')
-    } else {
-      element.removeAttribute('data-orientation')
-      element.setAttribute('role', 'separator')
-    }
-
-    if (variant && variant !== 'full') {
-      element.setAttribute('data-variant', variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-
+    const isVertical = orientation === 'vertical'
     const hasChildren = children && (Array.isArray(children) ? children.length > 0 : true)
 
-    if (hasChildren) {
-      element.setAttribute('data-has-children', '')
-    } else {
-      element.removeAttribute('data-has-children')
-    }
-
-    if (textAlign && textAlign !== 'center') {
-      element.setAttribute('data-text-align', textAlign)
-    } else {
-      element.removeAttribute('data-text-align')
-    }
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      role: 'separator',
+      'data-orientation': isVertical ? 'vertical' : undefined,
+      'aria-orientation': isVertical ? 'vertical' : undefined,
+      'data-variant': variant && variant !== 'full' ? variant : undefined,
+      'data-has-children': hasChildren ? '' : undefined,
+      'data-text-align': textAlign && textAlign !== 'center' ? textAlign : undefined,
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
     if (hasChildren) {
       return <span className="divider-text">{children}</span>

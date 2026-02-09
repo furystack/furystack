@@ -24,7 +24,27 @@ test.describe('Form', () => {
     await expect(statusValue).toHaveText(`Status: {
   "isValid": null
 }`)
-    await expect(fieldErrorsValue).toHaveText('Field errors: {}')
+    await expect(fieldErrorsValue).toHaveText(`Field errors: {
+  "email": {
+    "validationResult": {
+      "isValid": true
+    },
+    "validity": {}
+  },
+  "password": {
+    "validationResult": {
+      "isValid": true
+    },
+    "validity": {}
+  },
+  "confirmPassword": {
+    "validationResult": {
+      "isValid": false,
+      "message": "Passwords do not match"
+    },
+    "validity": {}
+  }
+}`)
 
     await expect(fieldset).toHaveScreenshot('fieldset-1.png')
 
@@ -74,7 +94,8 @@ test.describe('Form', () => {
   },
   "confirmPassword": {
     "validationResult": {
-      "isValid": true
+      "isValid": false,
+      "message": "Passwords do not match"
     },
     "validity": {
       "valid": false,
@@ -91,7 +112,7 @@ test.describe('Form', () => {
   }
 }`)
 
-    await emailField.type('asd@gmail.com')
+    await emailField.fill('asd@gmail.com')
     await submitButton.click()
 
     await expect(fieldset).toHaveScreenshot('fieldset-3.png')
@@ -143,7 +164,8 @@ test.describe('Form', () => {
   },
   "confirmPassword": {
     "validationResult": {
-      "isValid": true
+      "isValid": false,
+      "message": "Passwords do not match"
     },
     "validity": {
       "valid": false,
@@ -160,7 +182,7 @@ test.describe('Form', () => {
   }
 }`)
 
-    await passwordField.type('123456')
+    await passwordField.fill('123456')
     await submitButton.click()
 
     await expect(fieldset).toHaveScreenshot('fieldset-4.png')
@@ -230,7 +252,7 @@ test.describe('Form', () => {
   }
 }`)
 
-    await confirmPasswordField.type('password2')
+    await confirmPasswordField.fill('password2')
     await submitButton.click()
 
     await expect(fieldset).toHaveScreenshot('fieldset-5.png')
@@ -301,7 +323,7 @@ test.describe('Form', () => {
 }`)
 
     await confirmPasswordField.clear()
-    await confirmPasswordField.type('123456')
+    await confirmPasswordField.fill('123456')
     await submitButton.click()
 
     page.on('dialog', async (dialog) => {

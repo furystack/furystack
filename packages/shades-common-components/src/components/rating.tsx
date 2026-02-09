@@ -142,7 +142,7 @@ export const Rating = Shade<RatingProps>({
       transform: 'none',
     },
   },
-  render: ({ props, injector, element }) => {
+  render: ({ props, injector, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const max = props.max ?? 5
     const precision = props.precision ?? 1
@@ -152,41 +152,64 @@ export const Rating = Shade<RatingProps>({
     const isInteractive = !props.disabled && !props.readOnly
 
     const color = themeProvider.theme.palette[props.color || 'warning'].main
-    element.style.setProperty('--rating-color', color)
 
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-      element.setAttribute('aria-disabled', 'true')
-    } else {
-      element.removeAttribute('data-disabled')
-      element.removeAttribute('aria-disabled')
-    }
+    const containerRef = useRef<HTMLDivElement>('container')
 
-    if (props.readOnly) {
-      element.setAttribute('data-readonly', '')
-      element.setAttribute('aria-readonly', 'true')
-    } else {
-      element.removeAttribute('data-readonly')
-      element.removeAttribute('aria-readonly')
-    }
+    useHostProps({
+      'data-size': props.size || 'medium',
+      style: { '--rating-color': color },
+      ...(props.disabled ? { 'data-disabled': '', 'aria-disabled': 'true' } : {}),
+      ...(props.readOnly ? { 'data-readonly': '', 'aria-readonly': 'true' } : {}),
+      ...(isInteractive
+        ? {
+            role: 'slider',
+            tabindex: '0',
+            'aria-valuenow': String(value),
+            'aria-valuemin': '0',
+            'aria-valuemax': String(max),
+            'aria-label': 'Rating',
+            onkeydown: (ev: KeyboardEvent) => {
+              const step = precision === 0.5 ? 0.5 : 1
+              let newValue: number
 
-    element.setAttribute('data-size', props.size || 'medium')
+              switch (ev.key) {
+                case 'ArrowRight':
+                case 'ArrowUp':
+                  ev.preventDefault()
+                  newValue = Math.min(value + step, max)
+                  break
+                case 'ArrowLeft':
+                case 'ArrowDown':
+                  ev.preventDefault()
+                  newValue = Math.max(value - step, 0)
+                  break
+                case 'Home':
+                  ev.preventDefault()
+                  newValue = 0
+                  break
+                case 'End':
+                  ev.preventDefault()
+                  newValue = max
+                  break
+                default:
+                  return
+              }
 
-    if (isInteractive) {
-      element.setAttribute('role', 'slider')
-      element.setAttribute('tabindex', '0')
-      element.setAttribute('aria-valuenow', String(value))
-      element.setAttribute('aria-valuemin', '0')
-      element.setAttribute('aria-valuemax', String(max))
-      element.setAttribute('aria-label', 'Rating')
-    } else {
-      element.setAttribute('role', 'img')
-      element.removeAttribute('tabindex')
-      element.setAttribute('aria-label', `Rating: ${value} out of ${max}`)
-    }
+              if (newValue !== value) {
+                props.onValueChange?.(newValue)
+              }
+            },
+          }
+        : {
+            role: 'img',
+            'aria-label': `Rating: ${value} out of ${max}`,
+          }),
+    })
 
     const updateStarVisuals = (displayValue: number) => {
-      const starEls = element.querySelectorAll('.rating-star')
+      const container = containerRef.current
+      if (!container) return
+      const starEls = container.querySelectorAll('.rating-star')
       starEls.forEach((starEl, index) => {
         const starValue = index + 1
         const filled = starEl.querySelector('.star-filled') as HTMLElement
@@ -214,7 +237,8 @@ export const Rating = Shade<RatingProps>({
 
     const handleClick = (ev: MouseEvent, index: number) => {
       if (!isInteractive) return
-      element.focus()
+      const hostEl = containerRef.current?.closest('shade-rating') as HTMLElement | null
+      hostEl?.focus()
       const newValue = getValueFromMouseEvent(ev, index)
       props.onValueChange?.(newValue)
     }
@@ -229,40 +253,6 @@ export const Rating = Shade<RatingProps>({
       if (!isInteractive) return
       updateStarVisuals(value)
     }
-
-    element.onkeydown = isInteractive
-      ? (ev: KeyboardEvent) => {
-          const step = precision === 0.5 ? 0.5 : 1
-          let newValue: number
-
-          switch (ev.key) {
-            case 'ArrowRight':
-            case 'ArrowUp':
-              ev.preventDefault()
-              newValue = Math.min(value + step, max)
-              break
-            case 'ArrowLeft':
-            case 'ArrowDown':
-              ev.preventDefault()
-              newValue = Math.max(value - step, 0)
-              break
-            case 'Home':
-              ev.preventDefault()
-              newValue = 0
-              break
-            case 'End':
-              ev.preventDefault()
-              newValue = max
-              break
-            default:
-              return
-          }
-
-          if (newValue !== value) {
-            props.onValueChange?.(newValue)
-          }
-        }
-      : null
 
     const stars = Array.from({ length: max }, (_, i) => {
       const starValue = i + 1
@@ -287,7 +277,7 @@ export const Rating = Shade<RatingProps>({
     })
 
     return (
-      <div className="rating-container" onmouseleave={handleMouseLeave}>
+      <div ref={containerRef} className="rating-container" onmouseleave={handleMouseLeave}>
         {stars}
         {props.name ? <input type="hidden" name={props.name} value={String(value)} /> : null}
       </div>

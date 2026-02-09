@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
@@ -252,85 +251,40 @@ export const InputNumber = Shade<InputNumberProps>({
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, useObservable, useDisposable, element }) => {
+  render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
     const primaryColor = themeProvider.theme.palette[props.color || 'primary'].main
-    element.style.setProperty('--input-number-color', primaryColor)
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+      style: { '--input-number-color': primaryColor },
+    })
 
     const step = props.step ?? 1
 
     type InputNumberState = { value: number | undefined; displayValue: string }
 
-    /**
-     * Imperatively updates the DOM elements to reflect the current state.
-     * Using onChange prevents a full re-render (which would cause flicker).
-     */
-    const syncDom = (newState: InputNumberState) => {
-      const inputEl = element.querySelector('input')
-      if (inputEl) {
-        inputEl.value = newState.displayValue
-
-        if (newState.value !== undefined) {
-          inputEl.setAttribute('aria-valuenow', String(newState.value))
-        } else {
-          inputEl.removeAttribute('aria-valuenow')
-        }
-      }
-
-      const buttons = element.querySelectorAll<HTMLButtonElement>('.step-button')
-      const isDecDisabled =
-        props.disabled ||
-        props.readOnly ||
-        (props.min !== undefined && newState.value !== undefined && newState.value <= props.min)
-      const isIncDisabled =
-        props.disabled ||
-        props.readOnly ||
-        (props.max !== undefined && newState.value !== undefined && newState.value >= props.max)
-
-      if (buttons[0]) buttons[0].disabled = !!isDecDisabled
-      if (buttons[1]) buttons[1].disabled = !!isIncDisabled
-    }
-
-    const observable = useDisposable(
-      'inputNumberObservable',
-      () =>
-        new ObservableValue<InputNumberState>({
-          value: props.value,
-          displayValue: formatValue(props.value, props.precision, props.formatter),
-        }),
-    )
-
-    const [initialState] = useObservable('inputNumberState', observable, { onChange: syncDom })
-
-    const getCurrentValue = () => observable.getValue().value
+    const [state, setState] = useState<InputNumberState>('inputNumberState', {
+      value: props.value,
+      displayValue: formatValue(props.value, props.precision, props.formatter),
+    })
 
     const updateValue = (newValue: number | undefined) => {
       if (newValue !== undefined) {
@@ -338,49 +292,30 @@ export const InputNumber = Shade<InputNumberProps>({
         newValue = clampValue(newValue, props.min, props.max)
       }
       const displayValue = formatValue(newValue, props.precision, props.formatter)
-      observable.setValue({ value: newValue, displayValue })
+      setState({ value: newValue, displayValue })
       props.onValueChange?.(newValue)
     }
 
     const handleIncrement = () => {
       if (props.disabled || props.readOnly) return
-      const current = getCurrentValue() ?? props.min ?? 0
+      const current = state.value ?? props.min ?? 0
       updateValue(current + step)
     }
 
     const handleDecrement = () => {
       if (props.disabled || props.readOnly) return
-      const current = getCurrentValue() ?? props.min ?? 0
+      const current = state.value ?? props.min ?? 0
       updateValue(current - step)
     }
 
     const isDecrementDisabled =
       props.disabled ||
       props.readOnly ||
-      (props.min !== undefined && initialState.value !== undefined && initialState.value <= props.min)
+      (props.min !== undefined && state.value !== undefined && state.value <= props.min)
     const isIncrementDisabled =
       props.disabled ||
       props.readOnly ||
-      (props.max !== undefined && initialState.value !== undefined && initialState.value >= props.max)
-
-    // Set ARIA attributes imperatively (JSX doesn't reliably set hyphenated attributes)
-    requestAnimationFrame(() => {
-      const inputEl = element.querySelector('input')
-      if (inputEl) {
-        inputEl.setAttribute('role', 'spinbutton')
-        if (props.min !== undefined) inputEl.setAttribute('aria-valuemin', String(props.min))
-        if (props.max !== undefined) inputEl.setAttribute('aria-valuemax', String(props.max))
-        if (initialState.value !== undefined) {
-          inputEl.setAttribute('aria-valuenow', String(initialState.value))
-        } else {
-          inputEl.removeAttribute('aria-valuenow')
-        }
-      }
-
-      const buttons = element.querySelectorAll('.step-button')
-      if (buttons[0]) buttons[0].setAttribute('aria-label', 'Decrease value')
-      if (buttons[1]) buttons[1].setAttribute('aria-label', 'Increase value')
-    })
+      (props.max !== undefined && state.value !== undefined && state.value >= props.max)
 
     return (
       <label {...props.labelProps}>
@@ -389,6 +324,7 @@ export const InputNumber = Shade<InputNumberProps>({
           <button
             type="button"
             className="step-button"
+            aria-label="Decrease value"
             disabled={isDecrementDisabled}
             onclick={handleDecrement}
             tabIndex={-1}
@@ -396,10 +332,15 @@ export const InputNumber = Shade<InputNumberProps>({
             −
           </button>
           <input
+            ref={inputRef}
             type="text"
             inputMode="decimal"
+            role="spinbutton"
+            aria-valuemin={props.min !== undefined ? String(props.min) : undefined}
+            aria-valuemax={props.max !== undefined ? String(props.max) : undefined}
+            aria-valuenow={state.value !== undefined ? String(state.value) : undefined}
             name={props.name}
-            value={initialState.displayValue}
+            value={state.displayValue}
             placeholder={props.placeholder}
             disabled={props.disabled}
             readOnly={props.readOnly}
@@ -415,7 +356,7 @@ export const InputNumber = Shade<InputNumberProps>({
             }}
             oninput={(ev: Event) => {
               const el = ev.target as HTMLInputElement
-              observable.setValue({ ...observable.getValue(), displayValue: el.value })
+              setState({ ...state, displayValue: el.value })
             }}
             onblur={(ev: Event) => {
               const el = ev.target as HTMLInputElement
@@ -431,6 +372,7 @@ export const InputNumber = Shade<InputNumberProps>({
           <button
             type="button"
             className="step-button"
+            aria-label="Increase value"
             disabled={isIncrementDisabled}
             onclick={handleIncrement}
             tabIndex={-1}

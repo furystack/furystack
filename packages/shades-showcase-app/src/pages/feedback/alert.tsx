@@ -18,7 +18,7 @@ export const AlertPage = Shade({
     }
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🚨"
           title="Alert"

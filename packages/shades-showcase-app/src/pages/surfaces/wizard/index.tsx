@@ -6,7 +6,7 @@ export const WizardPage = Shade({
   shadowDomName: 'shades-showcase-wizard',
   render: () => {
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🧙"
           title="Wizard"

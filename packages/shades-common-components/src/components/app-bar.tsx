@@ -16,17 +16,23 @@ export const AppBar = Shade({
     position: 'fixed',
     zIndex: '1',
     color: cssVariableTheme.text.primary,
-    '&.visible': {
+    '&[data-visible]': {
       opacity: '1',
     },
   },
-  render: ({ children, element, useDisposable }) => {
+  render: ({ children, useHostProps, useDisposable, useState }) => {
+    const [isVisible, setVisible] = useState('isVisible', false)
+
     useDisposable('enter-animation', () => {
       requestAnimationFrame(() => {
-        element.classList.add('visible')
+        setVisible(true)
       })
       return { [Symbol.dispose]: () => {} }
     })
+
+    if (isVisible) {
+      useHostProps({ 'data-visible': '' })
+    }
 
     return <>{children}</>
   },

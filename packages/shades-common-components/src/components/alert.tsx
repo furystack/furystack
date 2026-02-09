@@ -143,26 +143,21 @@ export const Alert = Shade<AlertProps>({
       background: 'color-mix(in srgb, currentColor 15%, transparent)',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { severity = 'info', variant, title, onClose, icon, style } = props
 
-    if (variant) {
-      element.setAttribute('data-variant', variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-
-    element.setAttribute('data-severity', severity)
-    element.setAttribute('role', 'alert')
-
     const colors = severityColorMap[severity]
-    element.style.setProperty('--alert-color-main', colors.main)
-    element.style.setProperty('--alert-color-main-contrast', colors.mainContrast)
-    element.style.setProperty('--alert-color-light', colors.light)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-variant': variant || undefined,
+      'data-severity': severity,
+      role: 'alert',
+      style: {
+        '--alert-color-main': colors.main,
+        '--alert-color-main-contrast': colors.mainContrast,
+        '--alert-color-light': colors.light,
+        ...(style as Record<string, string>),
+      },
+    })
 
     const displayIcon = icon ?? defaultIcons[severity]
 

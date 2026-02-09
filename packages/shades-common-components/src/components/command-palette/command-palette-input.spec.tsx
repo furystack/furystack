@@ -47,7 +47,7 @@ describe('CommandPaletteInput', () => {
     return new CommandPaletteManager([])
   }
 
-  it('should render with shadow DOM', async () => {
+  it('should render as custom element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const manager = createManager()
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -104,7 +104,7 @@ describe('CommandPaletteInput', () => {
       await sleepAsync(50)
 
       const component = document.querySelector('shades-command-palette-input') as HTMLElement
-      expect(component.style.width).toBe('0%')
+      expect(component.hasAttribute('data-opened')).toBe(false)
 
       manager[Symbol.dispose]()
     })
@@ -125,7 +125,7 @@ describe('CommandPaletteInput', () => {
       await sleepAsync(50)
 
       const component = document.querySelector('shades-command-palette-input') as HTMLElement
-      expect(component.style.width).toBe('100%')
+      expect(component.hasAttribute('data-opened')).toBe(true)
 
       manager[Symbol.dispose]()
     })

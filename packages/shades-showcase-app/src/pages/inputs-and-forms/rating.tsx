@@ -7,7 +7,7 @@ export const RatingPage = Shade({
     const [state, setState] = useSearchState('rating', { value: 3 })
 
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⭐"
           title="Rating"

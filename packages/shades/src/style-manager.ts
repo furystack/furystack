@@ -25,9 +25,9 @@ class StyleManagerClass {
 
   /**
    * Registers CSS styles for a component.
-   * Styles are only injected once per component (based on shadowDomName).
+   * Styles are only injected once per component (based on the custom element name).
    *
-   * @param shadowDomName - The unique component identifier (used as CSS selector)
+   * @param shadowDomName - The custom element tag name (used as CSS selector)
    * @param cssObject - The CSSObject containing styles and nested selectors
    * @param elementBaseName - Optional base element name for customized built-in elements (e.g., 'a', 'button').
    *                          When provided, generates selector like `a[is="component-name"]` instead of `component-name`

@@ -48,19 +48,6 @@ export type SwitchProps = {
   labelProps?: PartialElement<HTMLLabelElement>
 }
 
-const setSwitchColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: SwitchProps
-}): void => {
-  const color = themeProvider.theme.palette[props.color || 'primary'].main
-  element.style.setProperty('--switch-color', color)
-}
-
 export const Switch = Shade<SwitchProps>({
   shadowDomName: 'shade-switch',
   css: {
@@ -180,43 +167,37 @@ export const Switch = Shade<SwitchProps>({
       pointerEvents: 'none',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input[type="checkbox"]') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (props.size === 'small') {
-      element.setAttribute('data-size', 'small')
-    } else {
-      element.removeAttribute('data-size')
-    }
-
-    setSwitchColors({ element, themeProvider, props })
+    const color = themeProvider.theme.palette[props.color || 'primary'].main
+    useHostProps({
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-size': props.size === 'small' ? 'small' : undefined,
+      style: { '--switch-color': color },
+    })
 
     return (
       <label {...props.labelProps}>
         <span className="switch-control">
           <input
+            ref={inputRef}
             type="checkbox"
             role="switch"
             checked={props.checked}

@@ -2,7 +2,7 @@ import { compileRoute } from '../compile-route.js'
 import type { ChildrenList } from '../models/children-list.js'
 import type { PartialElement } from '../models/partial-element.js'
 import { LocationService } from '../services/location-service.js'
-import { attachProps, createComponent } from '../shade-component.js'
+import { createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
 import type { ExtractRouteParams, ExtractRoutePaths } from './nested-route-types.js'
 import type { NestedRoute } from './nested-router.js'
@@ -36,12 +36,11 @@ const _NestedRouteLink = Shade<NestedRouteLinkProps>({
     color: 'inherit',
     textDecoration: 'inherit',
   },
-  render: ({ children, props, injector, element }) => {
-    const { href, params, ...anchorProps } = props
+  render: ({ children, props, injector, useHostProps }) => {
+    const { href, params } = props
     const resolvedUrl = params ? compileRoute(href, params) : href
 
-    attachProps(element, {
-      ...anchorProps,
+    useHostProps({
       href: resolvedUrl,
       onclick: (ev: MouseEvent) => {
         ev.preventDefault()

@@ -1,6 +1,48 @@
 import type { Injector } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from './models/index.js'
 import type { ResourceManager } from './services/resource-manager.js'
+import type {
+  SvgAnimateAttributes,
+  SvgAnimateMotionAttributes,
+  SvgAnimateTransformAttributes,
+  SvgCircleAttributes,
+  SvgClipPathAttributes,
+  SvgCoreAttributes,
+  SvgDefsAttributes,
+  SvgDescAttributes,
+  SvgEllipseAttributes,
+  SvgFeBlendAttributes,
+  SvgFeColorMatrixAttributes,
+  SvgFeCompositeAttributes,
+  SvgFeFloodAttributes,
+  SvgFeGaussianBlurAttributes,
+  SvgFeMergeAttributes,
+  SvgFeMergeNodeAttributes,
+  SvgFeOffsetAttributes,
+  SvgFilterAttributes,
+  SvgForeignObjectAttributes,
+  SvgGAttributes,
+  SvgImageAttributes,
+  SvgLinearGradientAttributes,
+  SvgLineAttributes,
+  SvgMarkerAttributes,
+  SvgMaskAttributes,
+  SvgPathAttributes,
+  SvgPatternAttributes,
+  SvgPolygonAttributes,
+  SvgPolylineAttributes,
+  SvgRadialGradientAttributes,
+  SvgRectAttributes,
+  SvgSetAttributes,
+  SvgStopAttributes,
+  SvgSvgAttributes,
+  SvgSymbolAttributes,
+  SvgTextAttributes,
+  SvgTextPathAttributes,
+  SvgTitleAttributes,
+  SvgTspanAttributes,
+  SvgUseAttributes,
+} from './svg-types.js'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -422,7 +464,7 @@ declare global {
        * The <svg> tag defines a container for SVG graphics.
        * SVG has several methods for drawing paths, boxes, circles, text, and graphic images.
        */
-      svg: PartialElement<SVGElement>
+      svg: SvgSvgAttributes
       /**
        * The <table> tag defines an HTML table.
        * An HTML table consists of the <table> element and one or more <tr>, <th>, and <td> elements.
@@ -518,6 +560,92 @@ declare global {
        * Tip: When a word is too long, or you are afraid that the browser will break your lines at the wrong place, you can use the <wbr> element to add word break opportunities.
        */
       wbr: PartialElement<HTMLElement>
+
+      // -------------------------------------------------------------------
+      // SVG Elements
+      // -------------------------------------------------------------------
+
+      /** The `<g>` element groups SVG elements together. */
+      g: SvgGAttributes
+      /** The `<defs>` element stores graphical objects for later reuse. */
+      defs: SvgDefsAttributes
+      /** The `<symbol>` element defines a reusable graphical template. */
+      symbol: SvgSymbolAttributes
+      /** The `<use>` element references another element for rendering. */
+      use: SvgUseAttributes
+      /** The `<path>` element defines a shape via SVG path commands. */
+      path: SvgPathAttributes
+      /** The `<rect>` element draws a rectangle. */
+      rect: SvgRectAttributes
+      /** The `<circle>` element draws a circle. */
+      circle: SvgCircleAttributes
+      /** The `<ellipse>` element draws an ellipse. */
+      ellipse: SvgEllipseAttributes
+      /** The `<line>` element draws a straight line between two points. */
+      line: SvgLineAttributes
+      /** The `<polyline>` element draws connected straight line segments. */
+      polyline: SvgPolylineAttributes
+      /** The `<polygon>` element draws a closed shape of connected line segments. */
+      polygon: SvgPolygonAttributes
+      /** The `<text>` element renders text in SVG. */
+      text: SvgTextAttributes
+      /** The `<tspan>` element defines a subtext within a `<text>` element. */
+      tspan: SvgTspanAttributes
+      /** The `<textPath>` element renders text along a path. */
+      textPath: SvgTextPathAttributes
+      /** The `<clipPath>` element defines a clipping region. */
+      clipPath: SvgClipPathAttributes
+      /** The `<mask>` element defines an alpha mask for compositing. */
+      mask: SvgMaskAttributes
+      /** The `<linearGradient>` element defines a linear color gradient. */
+      linearGradient: SvgLinearGradientAttributes
+      /** The `<radialGradient>` element defines a radial color gradient. */
+      radialGradient: SvgRadialGradientAttributes
+      /** The `<stop>` element defines a color stop in a gradient. */
+      stop: SvgStopAttributes
+      /** The `<pattern>` element defines a repeating graphic pattern. */
+      pattern: SvgPatternAttributes
+      /** The `<marker>` element defines a graphic for drawing on edges of shapes. */
+      marker: SvgMarkerAttributes
+      /** The `<filter>` element defines a set of filter operations. */
+      filter: SvgFilterAttributes
+      /** The `<feGaussianBlur>` filter primitive blurs the input image. */
+      feGaussianBlur: SvgFeGaussianBlurAttributes
+      /** The `<feBlend>` filter primitive composites two inputs. */
+      feBlend: SvgFeBlendAttributes
+      /** The `<feColorMatrix>` filter primitive applies a matrix color transform. */
+      feColorMatrix: SvgFeColorMatrixAttributes
+      /** The `<feOffset>` filter primitive offsets the input image. */
+      feOffset: SvgFeOffsetAttributes
+      /** The `<feFlood>` filter primitive fills with a solid color. */
+      feFlood: SvgFeFloodAttributes
+      /** The `<feMerge>` filter primitive composites multiple inputs. */
+      feMerge: SvgFeMergeAttributes
+      /** The `<feMergeNode>` element defines an input for `<feMerge>`. */
+      feMergeNode: SvgFeMergeNodeAttributes
+      /** The `<feComposite>` filter primitive combines images using Porter-Duff operations. */
+      feComposite: SvgFeCompositeAttributes
+      /** The `<image>` element (SVG) embeds a raster image. */
+      image: SvgImageAttributes
+      /** The `<foreignObject>` element embeds external XML (e.g. HTML) in SVG. */
+      foreignObject: SvgForeignObjectAttributes
+      /** The `<animate>` element animates an attribute over time. */
+      animate: SvgAnimateAttributes
+      /** The `<animateMotion>` element animates an element along a path. */
+      animateMotion: SvgAnimateMotionAttributes
+      /** The `<animateTransform>` element animates a transformation attribute. */
+      animateTransform: SvgAnimateTransformAttributes
+      /** The `<set>` element sets an attribute to a value for a duration. */
+      set: SvgSetAttributes
+      /** The `<title>` element (SVG) provides an accessible title. */
+      title: SvgTitleAttributes
+      /** The `<desc>` element provides an accessible description. */
+      desc: SvgDescAttributes
+      /**
+       * Catch-all for SVG filter primitives and other SVG elements
+       * not explicitly listed above.
+       */
+      [key: `fe${string}`]: SvgCoreAttributes
     }
   }
 }

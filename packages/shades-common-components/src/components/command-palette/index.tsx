@@ -1,7 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
-import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import { Icon } from '../icons/icon.js'
 import { close } from '../icons/icon-definitions.js'
 import { Loader } from '../loader.js'
@@ -36,55 +34,37 @@ export const CommandPalette = Shade<CommandPaletteProps>({
       height: '20px',
       opacity: '0',
     },
-    '&.loading .loader-container': {
+    '&[data-loading] .loader-container': {
       opacity: '1',
     },
   },
-  render: ({ props, injector, element, useState, useDisposable, useObservable }) => {
+  render: ({ props, injector, useState, useDisposable, useObservable, useHostProps, useRef }) => {
     const [manager] = useState('manager', new CommandPaletteManager(props.commandProviders))
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
 
-    useDisposable('clickAwayService', () => new ClickAwayService(element, () => manager.isOpened.setValue(false)))
-
-    useObservable('isLoading', manager.isLoading, {
-      onChange: (isLoading) => {
-        element.classList.toggle('loading', isLoading)
-      },
-    })
-
-    const [isOpenedAtRender, setIsOpened] = useObservable('isOpened', manager.isOpened, {
-      onChange: (isOpened) => {
-        element.classList.toggle('opened', isOpened)
-        const inputContainer = element.querySelector('.input-container') as HTMLDivElement
-        if (isOpened) {
-          void promisifyAnimation(
-            inputContainer,
-            [{ background: 'transparent' }, { background: cssVariableTheme.background.default }],
-            {
-              duration: 500,
-              fill: 'forwards',
-              easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
-            },
-          )
-        } else {
-          void promisifyAnimation(
-            inputContainer,
-            [{ background: cssVariableTheme.background.default }, { background: 'transparent' }],
-            {
-              duration: 300,
-              fill: 'forwards',
-              easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
-            },
-          )
+    useDisposable('clickAwayService', () => {
+      // Defer to next microtask so the ref is populated after mount
+      let clickAway: ClickAwayService | null = null
+      queueMicrotask(() => {
+        const hostEl = wrapperRef.current?.closest('shade-command-palette') as HTMLElement | null
+        if (hostEl) {
+          clickAway = new ClickAwayService(hostEl, () => manager.isOpened.setValue(false))
         }
-      },
+      })
+      return { [Symbol.dispose]: () => clickAway?.[Symbol.dispose]() }
     })
 
-    if (isOpenedAtRender) {
-      element.classList.add('opened')
-    }
+    const [isLoading] = useObservable('isLoading', manager.isLoading)
+    const [isOpenedAtRender, setIsOpened] = useObservable('isOpened', manager.isOpened)
+
+    useHostProps({
+      ...(isLoading ? { 'data-loading': '' } : {}),
+      ...(isOpenedAtRender ? { 'data-opened': '' } : {}),
+    })
 
     return (
       <div
+        ref={wrapperRef}
         className="command-palette-wrapper"
         onkeyup={(ev) => {
           if (ev.key === 'Enter') {

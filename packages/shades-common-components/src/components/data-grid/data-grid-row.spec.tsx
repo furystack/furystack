@@ -142,7 +142,7 @@ describe('DataGridRow', () => {
         const entry = { id: 1, name: 'Test' }
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(false)
+          expect(row?.hasAttribute('data-selected')).toBe(false)
         })
       })
     })
@@ -153,7 +153,7 @@ describe('DataGridRow', () => {
         service.selection.setValue([entry])
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(true)
+          expect(row?.hasAttribute('data-selected')).toBe(true)
         })
       })
     })
@@ -163,15 +163,15 @@ describe('DataGridRow', () => {
         const entry = { id: 1, name: 'Test' }
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(false)
+          expect(row?.hasAttribute('data-selected')).toBe(false)
 
           service.selection.setValue([entry])
           await sleepAsync(50)
-          expect(row?.classList.contains('selected')).toBe(true)
+          expect(row?.hasAttribute('data-selected')).toBe(true)
 
           service.selection.setValue([])
           await sleepAsync(50)
-          expect(row?.classList.contains('selected')).toBe(false)
+          expect(row?.hasAttribute('data-selected')).toBe(false)
         })
       })
     })
@@ -232,7 +232,7 @@ describe('DataGridRow', () => {
         const entry = { id: 1, name: 'Test' }
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('focused')).toBe(false)
+          expect(row?.hasAttribute('data-focused')).toBe(false)
         })
       })
     })
@@ -243,7 +243,7 @@ describe('DataGridRow', () => {
         service.focusedEntry.setValue(entry)
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('focused')).toBe(true)
+          expect(row?.hasAttribute('data-focused')).toBe(true)
         })
       })
     })
@@ -253,15 +253,15 @@ describe('DataGridRow', () => {
         const entry = { id: 1, name: 'Test' }
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('focused')).toBe(false)
+          expect(row?.hasAttribute('data-focused')).toBe(false)
 
           service.focusedEntry.setValue(entry)
           await sleepAsync(50)
-          expect(row?.classList.contains('focused')).toBe(true)
+          expect(row?.hasAttribute('data-focused')).toBe(true)
 
           service.focusedEntry.setValue(undefined)
           await sleepAsync(50)
-          expect(row?.classList.contains('focused')).toBe(false)
+          expect(row?.hasAttribute('data-focused')).toBe(false)
         })
       })
     })
@@ -308,7 +308,7 @@ describe('DataGridRow', () => {
         service.focusedEntry.setValue(otherEntry)
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('focused')).toBe(false)
+          expect(row?.hasAttribute('data-focused')).toBe(false)
         })
       })
     })
@@ -372,8 +372,8 @@ describe('DataGridRow', () => {
         service.focusedEntry.setValue(entry)
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(true)
-          expect(row?.classList.contains('focused')).toBe(true)
+          expect(row?.hasAttribute('data-selected')).toBe(true)
+          expect(row?.hasAttribute('data-focused')).toBe(true)
         })
       })
     })
@@ -386,8 +386,8 @@ describe('DataGridRow', () => {
         service.focusedEntry.setValue(otherEntry)
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(true)
-          expect(row?.classList.contains('focused')).toBe(false)
+          expect(row?.hasAttribute('data-selected')).toBe(true)
+          expect(row?.hasAttribute('data-focused')).toBe(false)
         })
       })
     })
@@ -398,8 +398,8 @@ describe('DataGridRow', () => {
         service.focusedEntry.setValue(entry)
         await usingAsync(await renderRow({ entry, service }), async ({ getRow }) => {
           const row = getRow()
-          expect(row?.classList.contains('selected')).toBe(false)
-          expect(row?.classList.contains('focused')).toBe(true)
+          expect(row?.hasAttribute('data-selected')).toBe(false)
+          expect(row?.hasAttribute('data-focused')).toBe(true)
         })
       })
     })

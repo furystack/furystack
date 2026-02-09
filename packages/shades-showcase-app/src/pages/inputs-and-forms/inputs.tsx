@@ -5,7 +5,7 @@ export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
   render: () => {
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📝"
           title="Input Fields"

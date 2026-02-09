@@ -1,17 +1,37 @@
 import type { ChildrenList, ShadeComponent } from './models/index.js'
 import { isShadeComponent } from './models/shade-component.js'
+import { SVG_NS, isSvgTag } from './svg.js'
+import { createVNode } from './vnode.js'
+
+// ---------------------------------------------------------------------------
+// Render-mode toggle
+// ---------------------------------------------------------------------------
+
+let renderMode = false
 
 /**
- * Appends a list of items to a HTML element
+ * When true, the JSX factory produces VNode descriptors instead of real DOM elements.
+ * Set to true by `_performUpdate` before calling `render()`, then back to false after.
+ */
+export const setRenderMode = (mode: boolean): void => {
+  renderMode = mode
+}
+
+// ---------------------------------------------------------------------------
+// Real-DOM helpers (used outside render mode)
+// ---------------------------------------------------------------------------
+
+/**
+ * Appends a list of items to an element
  * @param el the root element
  * @param children array of items to append
  */
-export const appendChild = (el: HTMLElement | DocumentFragment, children: ChildrenList) => {
+export const appendChild = (el: Element | DocumentFragment, children: ChildrenList) => {
   for (const child of children) {
     if (typeof child === 'string' || typeof child === 'number') {
       el.appendChild(document.createTextNode(child))
     } else {
-      if (child instanceof HTMLElement || child instanceof DocumentFragment) {
+      if (child instanceof Element || child instanceof DocumentFragment) {
         el.appendChild(child)
       } else if (child instanceof Array) {
         appendChild(el, child)
@@ -69,6 +89,32 @@ export const attachProps = <TProps extends object>(el: HTMLElement, props: TProp
   attachDataAttributes(el, props)
 }
 
+/**
+ * Attaches properties to an SVG element via setAttribute.
+ * SVG attributes are XML-based and must be set via setAttribute,
+ * not via property assignment like HTML elements.
+ * @param el The target SVG element
+ * @param props The props to attach
+ */
+export const attachSvgProps = <TProps extends object>(el: Element, props: TProps) => {
+  if (!props) {
+    return
+  }
+  for (const [key, value] of Object.entries(props)) {
+    if (key === 'style' && typeof value === 'object' && value !== null) {
+      for (const [sk, sv] of Object.entries(value as Record<string, string>)) {
+        ;((el as HTMLElement).style as unknown as Record<string, string>)[sk] = sv
+      }
+    } else if (key === 'className') {
+      el.setAttribute('class', String(value))
+    } else if (key.startsWith('on') && typeof value === 'function') {
+      ;(el as unknown as Record<string, unknown>)[key] = value
+    } else if (value !== null && value !== undefined && value !== false) {
+      el.setAttribute(key, String(value))
+    }
+  }
+}
+
 type CreateComponentArgs<TProps> = [
   elementType: string | ShadeComponent<TProps>,
   props: TProps,
@@ -83,9 +129,14 @@ export const createComponentInner = <TProps extends object>(
   ...[elementType, props, ...children]: CreateComponentArgs<TProps>
 ) => {
   if (typeof elementType === 'string') {
-    const el = document.createElement(elementType)
+    const isSvg = isSvgTag(elementType)
+    const el = isSvg ? document.createElementNS(SVG_NS, elementType) : document.createElement(elementType)
 
-    attachProps(el, props)
+    if (isSvg) {
+      attachSvgProps(el, props)
+    } else {
+      attachProps(el as HTMLElement, props)
+    }
 
     if (children) {
       appendChild(el, children)
@@ -108,6 +159,21 @@ export const createFragmentInner = (...[_props, ...children]: CreateFragmentArgs
 }
 
 export const createComponent = <TProps extends object>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
+  // In render mode, produce VNode descriptors instead of real DOM elements
+  if (renderMode) {
+    const [type, props, ...children] = args
+    // When jsxFragmentFactory === jsxFactory (both "createComponent"), the compiler
+    // passes createComponent itself as the first arg for fragments: createComponent(createComponent, null, ...)
+    if (type === null || (type as unknown) === createComponent) {
+      return createVNode(null, null, ...children) as unknown as ReturnType<typeof createComponentInner>
+    }
+    return createVNode(
+      type as string | ((...a: unknown[]) => unknown),
+      props as Record<string, unknown> | null,
+      ...children,
+    ) as unknown as ReturnType<typeof createComponentInner>
+  }
+
   if (args[0] === null) {
     return createFragmentInner(...args)
   }

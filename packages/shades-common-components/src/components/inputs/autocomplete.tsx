@@ -9,11 +9,13 @@ export const Autocomplete = Shade<{
   onchange?: (value: string) => void
 }>({
   shadowDomName: 'shade-autocomplete',
-  render: ({ props, useState, element, useDisposable }) => {
+  render: ({ props, useState, useDisposable, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+
     useDisposable('datalist-binding', () => {
       const timer = setTimeout(() => {
         const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
-        element.querySelector('input')?.setAttribute('list', dataListId)
+        wrapperRef.current?.querySelector('input')?.setAttribute('list', dataListId)
       }, 0)
       return { [Symbol.dispose]: () => clearTimeout(timer) }
     })
@@ -21,7 +23,7 @@ export const Autocomplete = Shade<{
     const [dataListId] = useState('dataListId', (Math.random() + 1).toString(36).substring(3))
 
     return (
-      <>
+      <div ref={wrapperRef} style={{ display: 'contents' }}>
         <Input
           {...props.inputProps}
           onchange={(ev) => {
@@ -40,7 +42,7 @@ export const Autocomplete = Shade<{
             <option value={s} />
           ))}
         </datalist>
-      </>
+      </div>
     )
   },
 })

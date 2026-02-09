@@ -49,17 +49,11 @@ export const TextArea = Shade<TextAreaProps>({
       boxShadow: `0px 3px 0px ${cssVariableTheme.palette.primary.main}`,
     },
   },
-  render: ({ props, element }) => {
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
+  render: ({ props, useHostProps }) => {
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+    })
 
     return (
       <label {...props.labelProps} style={props.labelProps?.style}>

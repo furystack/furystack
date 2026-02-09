@@ -7,7 +7,7 @@ export const StoredStatePage = Shade({
     const [searchValue, setSearchValue] = useStoredState('storedStateValue', '', sessionStorage)
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="💾"
           title="Stored State"

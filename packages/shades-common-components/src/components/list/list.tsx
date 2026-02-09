@@ -27,7 +27,9 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  render: ({ props, useDisposable, element }) => {
+  render: ({ props, useDisposable, useHostProps, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('listWrapper')
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
         props.listService.handleKeyDown(ev)
@@ -48,7 +50,7 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     useDisposable(
       'clickAway',
       () =>
-        new ClickAwayService(element, () => {
+        new ClickAwayService(wrapperRef, () => {
           props.listService.hasFocus.setValue(false)
         }),
     )
@@ -62,12 +64,13 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
       )
     }
 
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    }
+    useHostProps({
+      'data-variant': props.variant || undefined,
+    })
 
     return (
       <div
+        ref={wrapperRef}
         role="listbox"
         ariaMultiSelectable="true"
         className="shade-list-wrapper"

@@ -1,19 +1,17 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { SliderMark } from '@furystack/shades-common-components'
 import { PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 const BasicSliderDemo = Shade({
   shadowDomName: 'slider-demo-basic',
-  render: ({ useDisposable, useObservable }) => {
-    const value = useDisposable('value', () => new ObservableValue(40))
-    const [current] = useObservable('current', value)
+  render: ({ useState }) => {
+    const [current, setCurrent] = useState('value', 40)
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <span style={{ minWidth: '32px' }}>{current}</span>
         <div style={{ flex: '1' }}>
-          <Slider value={current} onValueChange={(v: number | [number, number]) => value.setValue(v as number)} />
+          <Slider value={current} onValueChange={(v: number | [number, number]) => setCurrent(v as number)} />
         </div>
       </div>
     )
@@ -22,9 +20,8 @@ const BasicSliderDemo = Shade({
 
 const DiscreteSliderDemo = Shade({
   shadowDomName: 'slider-demo-discrete',
-  render: ({ useDisposable, useObservable }) => {
-    const value = useDisposable('value', () => new ObservableValue(30))
-    const [current] = useObservable('current', value)
+  render: ({ useState }) => {
+    const [current, setCurrent] = useState('value', 30)
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -34,7 +31,7 @@ const DiscreteSliderDemo = Shade({
             value={current}
             step={10}
             marks={true}
-            onValueChange={(v: number | [number, number]) => value.setValue(v as number)}
+            onValueChange={(v: number | [number, number]) => setCurrent(v as number)}
           />
         </div>
       </div>
@@ -44,9 +41,8 @@ const DiscreteSliderDemo = Shade({
 
 const RangeSliderDemo = Shade({
   shadowDomName: 'slider-demo-range',
-  render: ({ useDisposable, useObservable }) => {
-    const value = useDisposable('value', () => new ObservableValue<[number, number]>([20, 80]))
-    const [current] = useObservable('current', value)
+  render: ({ useState }) => {
+    const [current, setCurrent] = useState<[number, number]>('value', [20, 80])
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -56,7 +52,7 @@ const RangeSliderDemo = Shade({
         <div style={{ flex: '1' }}>
           <Slider
             value={current}
-            onValueChange={(v: number | [number, number]) => value.setValue(v as [number, number])}
+            onValueChange={(v: number | [number, number]) => setCurrent(v as [number, number])}
             color="secondary"
           />
         </div>
@@ -77,7 +73,7 @@ export const SliderPage = Shade({
   shadowDomName: 'slider-page',
   render: () => {
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🎚️"
           title="Slider"

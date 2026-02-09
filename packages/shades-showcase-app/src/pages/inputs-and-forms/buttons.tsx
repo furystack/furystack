@@ -12,7 +12,7 @@ export const ButtonsPage = Shade({
     }
 
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔘"
           title="Buttons"

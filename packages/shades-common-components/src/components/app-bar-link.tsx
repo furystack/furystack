@@ -18,17 +18,19 @@ export const AppBarLink = Shade<AppBarLinkProps>({
     color: cssVariableTheme.text.secondary,
     opacity: '0.8',
     transform: 'scale(0.9)',
-    '&.active': {
+    '&[data-active]': {
       color: cssVariableTheme.text.primary,
       opacity: '1',
       transform: 'scale(1)',
     },
   },
-  render: ({ children, props, useObservable, injector, element }) => {
+  render: ({ children, props, useObservable, injector, useHostProps }) => {
     const [currentUrl] = useObservable('locationChange', injector.getInstance(LocationService).onLocationPathChanged)
 
     const isActive = !!match(props.href, props.routingOptions)(currentUrl)
-    element.classList.toggle('active', isActive)
+    if (isActive) {
+      useHostProps({ 'data-active': '' })
+    }
 
     return <NestedRouteLink {...props}>{children}</NestedRouteLink>
   },

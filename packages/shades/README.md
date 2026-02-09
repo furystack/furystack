@@ -19,9 +19,7 @@ You can check the [@furystack/boilerplate](https://github.com/furystack/boilerpl
 A shade (component) can be constructed from the following properties:
 
 - `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render. Use `useDisposable` within render for one-time setup that needs cleanup.
-- `shadowDomName` – Can be specified as the custom element's name in the DOM.
-- `onAttach: (options: RenderOptions)=>void` – Executed when the component is attached to the DOM.
-- `onDetach: (options: RenderOptions)=>void` – Executed when the component is detached from the DOM.
+- `shadowDomName` – The custom element tag name. Must follow Custom Elements naming convention (lowercase, must contain a hyphen).
 - `style` – Optional inline styles applied to each component instance. Use for per-instance overrides.
 - `css` – Optional CSS styles injected as a stylesheet during component registration. Supports pseudo-selectors and nested selectors.
 
@@ -111,15 +109,19 @@ Both properties can be used together. Inline `style` will override `css` due to 
 
 ### Render Options
 
-The lifecycle methods receive the following options as a parameter:
+The `render` function receives a `RenderOptions` object with these hooks:
 
-- `props` – The current readonly props object for the element. As props are passed from the parent, it is read-only.
-- `getState()` – Returns the current state. The state object is also read-only and immutable and can be updated only with a corresponding method.
-- `updateState(newState: TState, skipRender?: boolean)` – Updates (patches) the component state. An optional flag can indicate that this state change shouldn't trigger a re-render (e.g., form input fields change, etc.).
-- `injector` – An injector instance. It can be retrieved from the closest parent or specified on the state or props.
+- `props` – The current readonly props object. Passed from the parent, treat as immutable.
+- `injector` – The injector instance, inherited from the closest parent or set explicitly.
 - `children` – The children element(s) of the component.
-- `element` – A reference to the current component's custom element (root).
-- `logger` – A specified logger instance with a pre-defined scope.
+- `renderCount` – How many times this component has rendered.
+- `useState(key, initialValue)` – Local state that triggers re-renders on change.
+- `useObservable(key, observable, options?)` – Subscribes to an `ObservableValue`; re-renders on change by default. Provide a custom `onChange` to skip re-renders.
+- `useSearchState(key, initialValue)` – State synced with URL search parameters.
+- `useStoredState(key, initialValue, storageArea?)` – State persisted to `localStorage` or `sessionStorage`.
+- `useDisposable(key, factory)` – Creates a resource that is automatically disposed when the component unmounts.
+- `useHostProps(hostProps)` – Declaratively sets attributes, styles, and CSS variables on the host element. Prefer this over direct DOM manipulation.
+- `useRef(key)` – Creates a ref object for imperative access to child DOM elements.
 
 ### Bundled Goodies
 

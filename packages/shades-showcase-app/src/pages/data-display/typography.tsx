@@ -21,7 +21,7 @@ export const TypographyPage = Shade({
   shadowDomName: 'shades-typography-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔤"
           title="Typography"
@@ -29,14 +29,10 @@ export const TypographyPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <Typography variant="h3" style={{ margin: '0' }}>
-            Variants
-          </Typography>
+          <Typography variant="h3">Variants</Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {allVariants.map((variant) => (
-              <Typography variant={variant} gutterBottom>
-                {variant} — The quick brown fox jumps over the lazy dog
-              </Typography>
+              <Typography variant={variant}>{variant} — The quick brown fox jumps over the lazy dog</Typography>
             ))}
           </div>
         </Paper>

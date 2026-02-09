@@ -93,9 +93,12 @@ describe('Breadcrumb', () => {
 
         await flushUpdates()
 
-        const activeItem = rootElement.querySelector('[data-active="true"]')
+        // The active item is the last non-clickable span with data-active attribute
+        // (boolean values are rendered as empty string by the framework's setProp)
+        const activeItem = rootElement.querySelector('[data-non-clickable="true"]')
         expect(activeItem).toBeTruthy()
         expect(activeItem?.textContent).toBe('Users')
+        expect(activeItem?.hasAttribute('data-active')).toBe(true)
       })
     })
 

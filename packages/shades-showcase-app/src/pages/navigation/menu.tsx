@@ -1,7 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
 import { Menu, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 const horizontalItems: MenuEntry[] = [
   { key: 'home', label: 'Home', icon: <span>🏠</span> },
@@ -56,18 +55,12 @@ const inlineItems: MenuEntry[] = [
 
 const HorizontalMenuDemo = Shade({
   shadowDomName: 'horizontal-menu-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const selected$ = useDisposable('selected', () => new ObservableValue('home'))
-    const [selected] = useObservable('selectedValue', selected$)
+  render: ({ useState }) => {
+    const [selected, setSelected] = useState('selected', 'home')
 
     return (
       <div>
-        <Menu
-          items={horizontalItems}
-          mode="horizontal"
-          selectedKey={selected}
-          onSelect={(key) => selected$.setValue(key)}
-        />
+        <Menu items={horizontalItems} mode="horizontal" selectedKey={selected} onSelect={(key) => setSelected(key)} />
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}
         </Typography>
@@ -78,19 +71,13 @@ const HorizontalMenuDemo = Shade({
 
 const VerticalMenuDemo = Shade({
   shadowDomName: 'vertical-menu-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const selected$ = useDisposable('selected', () => new ObservableValue('dashboard'))
-    const [selected] = useObservable('selectedValue', selected$)
+  render: ({ useState }) => {
+    const [selected, setSelected] = useState('selected', 'dashboard')
 
     return (
       <div>
         <div style={{ maxWidth: '280px' }}>
-          <Menu
-            items={verticalItems}
-            mode="vertical"
-            selectedKey={selected}
-            onSelect={(key) => selected$.setValue(key)}
-          />
+          <Menu items={verticalItems} mode="vertical" selectedKey={selected} onSelect={(key) => setSelected(key)} />
         </div>
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}
@@ -102,14 +89,13 @@ const VerticalMenuDemo = Shade({
 
 const InlineMenuDemo = Shade({
   shadowDomName: 'inline-menu-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const selected$ = useDisposable('selected', () => new ObservableValue('inbox'))
-    const [selected] = useObservable('selectedValue', selected$)
+  render: ({ useState }) => {
+    const [selected, setSelected] = useState('selected', 'inbox')
 
     return (
       <div>
         <div style={{ maxWidth: '280px' }}>
-          <Menu items={inlineItems} mode="inline" selectedKey={selected} onSelect={(key) => selected$.setValue(key)} />
+          <Menu items={inlineItems} mode="inline" selectedKey={selected} onSelect={(key) => setSelected(key)} />
         </div>
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}
@@ -123,7 +109,7 @@ export const MenuPage = Shade({
   shadowDomName: 'shades-menu-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="Menu"

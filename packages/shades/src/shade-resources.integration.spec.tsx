@@ -149,19 +149,22 @@ describe('Shade Resources integration tests', () => {
       const obs = new ObservableValue(0)
 
       const ExampleComponent = Shade({
-        render: ({ useObservable, element }) => {
+        render: ({ useObservable, useRef }) => {
+          const valRef = useRef<HTMLDivElement>('manualVal')
           useObservable('obs', obs, {
             onChange: (newValue) => {
-              // Manually update the DOM without triggering a re-render
-              const valueElement = element.querySelector('#manual-val')
-              if (valueElement) {
-                valueElement.textContent = String(newValue)
+              if (valRef.current) {
+                valRef.current.textContent = String(newValue)
               }
             },
           })
 
           renderCounter()
-          return <div id="manual-val">{obs.getValue()}</div>
+          return (
+            <div ref={valRef} id="manual-val">
+              {obs.getValue()}
+            </div>
+          )
         },
         shadowDomName: 'shades-example-manual-dom-update',
       })

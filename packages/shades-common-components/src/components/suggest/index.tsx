@@ -1,6 +1,5 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import { Icon } from '../icons/icon.js'
 import { close } from '../icons/icon-definitions.js'
@@ -35,37 +34,25 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
       flexDirection: 'column',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useRef, useHostProps, useObservable }) => {
     const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
-    manager.element = element
-    manager.isOpened.subscribe((isOpened) => {
-      element.classList.toggle('opened', isOpened)
-      const inputContainer = element.querySelector('.input-container') as HTMLDivElement
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+    const loaderRef = useRef<HTMLSpanElement>('loader')
 
-      if (isOpened) {
-        void promisifyAnimation(
-          inputContainer,
-          [{ background: 'transparent' }, { background: cssVariableTheme.background.default }],
-          {
-            duration: 500,
-            fill: 'forwards',
-            easing: 'cubic-bezier(0.050, 0.570, 0.840, 1.005)',
-          },
-        )
-      } else {
-        void promisifyAnimation(
-          inputContainer,
-          [{ background: cssVariableTheme.background.default }, { background: 'transparent' }],
-          {
-            duration: 300,
-            fill: 'forwards',
-            easing: 'cubic-bezier(0.000, 0.245, 0.190, 0.790)',
-          },
-        )
-      }
+    // Keep manager.element in sync for click-outside detection
+    queueMicrotask(() => {
+      const hostEl = wrapperRef.current?.closest('shade-suggest') as HTMLElement | null
+      if (hostEl) manager.element = hostEl
+    })
+
+    const [isOpened] = useObservable('isOpened', manager.isOpened)
+
+    useHostProps({
+      'data-opened': isOpened ? '' : undefined,
     })
     manager.isLoading.subscribe((isLoading) => {
-      const loader = element.querySelector('shade-loader')
+      const loader = loaderRef.current
+      if (!loader) return
       if (isLoading) {
         void promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
           duration: 100,
@@ -81,6 +68,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
     useDisposable('onSelectSuggestion', () => manager.subscribe('onSelectSuggestion', props.onSelectSuggestion))
     return (
       <div
+        ref={wrapperRef}
         className="suggest-wrapper"
         onkeyup={(ev) => {
           if (ev.key === 'Enter') {
@@ -108,11 +96,13 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           </div>
           <SuggestInput manager={manager} />
           <div className="post-controls">
-            <Loader
-              style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
-              delay={0}
-              borderWidth={4}
-            />
+            <span ref={loaderRef} style={{ display: 'inline-flex' }}>
+              <Loader
+                style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
+                delay={0}
+                borderWidth={4}
+              />
+            </span>
             <div className="close-suggestions" onclick={() => manager.isOpened.setValue(false)}>
               <Icon icon={close} size={14} />
             </div>

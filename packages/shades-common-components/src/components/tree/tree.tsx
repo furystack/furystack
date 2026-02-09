@@ -1,7 +1,6 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
-import { ClickAwayService } from '../../services/click-away-service.js'
 import type { TreeService } from '../../services/tree-service.js'
 import { TreeItem } from './tree-item.js'
 
@@ -30,7 +29,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  render: ({ props, useDisposable, useObservable, element }) => {
+  render: ({ props, useDisposable, useObservable, useHostProps }) => {
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
         props.treeService.handleKeyDown(ev)
@@ -51,13 +50,23 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
       props.treeService.updateFlattenedNodes()
     }
 
-    useDisposable(
-      'clickAway',
-      () =>
-        new ClickAwayService(element, () => {
+    const treeInstanceId = useDisposable('treeInstanceId', () => ({
+      value: Math.random().toString(36).slice(2),
+      [Symbol.dispose]() {},
+    }))
+
+    useDisposable('clickAway', () => {
+      const listener = (ev: MouseEvent) => {
+        const isInside = ev
+          .composedPath()
+          .some((el) => el instanceof HTMLElement && el.dataset.treeInstanceId === treeInstanceId.value)
+        if (!isInside) {
           props.treeService.hasFocus.setValue(false)
-        }),
-    )
+        }
+      }
+      window.addEventListener('click', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('click', listener, true) }
+    })
 
     if (props.onSelectionChange) {
       const { onSelectionChange } = props
@@ -68,9 +77,13 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
       )
     }
 
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    }
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-tree-instance-id': treeInstanceId.value,
+      role: 'tree',
+      'aria-multiselectable': 'true',
+      onclick: () => props.treeService.hasFocus.setValue(true),
+    })
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)
 
@@ -80,12 +93,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     previousItemsRef.setValue(currentItems)
 
     return (
-      <div
-        role="tree"
-        ariaMultiSelectable="true"
-        className="shade-tree-wrapper"
-        onclick={() => props.treeService.hasFocus.setValue(true)}
-      >
+      <>
         {flattenedNodes.map((nodeInfo) => (
           <TreeItem
             item={nodeInfo.item}
@@ -97,7 +105,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
             onActivate={props.onItemActivate}
           />
         ))}
-      </div>
+      </>
     )
   },
 })

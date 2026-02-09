@@ -7,7 +7,7 @@ export const SearchStatePage = Shade({
     const [searchValue, setSearchValue] = useSearchState('searchValue', '')
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔎"
           title="Search State"

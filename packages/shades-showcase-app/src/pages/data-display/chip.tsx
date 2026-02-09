@@ -18,7 +18,7 @@ export const ChipPage = Shade({
     }
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🏷️"
           title="Chip"

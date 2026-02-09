@@ -5,7 +5,7 @@ export const AvatarPage = Shade({
   shadowDomName: 'shades-avatar-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="👤"
           title="Avatar"

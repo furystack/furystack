@@ -19,18 +19,14 @@ const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
   css: {
     display: 'inline',
   },
-  render: ({ props, element, useDisposable }) => {
-    useDisposable('value-subscription', () =>
-      props.value.subscribe((v) => {
-        element.textContent = `${v}${props.suffix ?? ''}`
-      }),
-    )
+  render: ({ props, useObservable }) => {
+    const [v] = useObservable('value', props.value)
 
     return (
-      <>
-        {props.value.getValue()}
+      <span>
+        {v}
         {props.suffix ?? ''}
-      </>
+      </span>
     )
   },
 })
@@ -41,7 +37,7 @@ export const ProgressPage = Shade({
     const progressValue = useDisposable('progressValue', () => new OV(40))
 
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⏳"
           title="Progress"

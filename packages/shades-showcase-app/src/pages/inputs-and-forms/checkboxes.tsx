@@ -7,7 +7,7 @@ export const CheckboxesPage = Shade({
     const [state, setState] = useSearchState('disabled', { isDisabled: false })
 
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="☑️"
           title="Checkboxes"

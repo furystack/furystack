@@ -1,18 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper, Radio, RadioGroup } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 export const RadioPage = Shade({
   shadowDomName: 'radio-page',
-  render: ({ useDisposable, useObservable }) => {
-    const selectedColor = useDisposable('selectedColor', () => new ObservableValue<string>(''))
-    const [colorValue] = useObservable('colorValue', selectedColor)
-
-    const selectedSize = useDisposable('selectedSize', () => new ObservableValue<string>(''))
-    const [sizeValue] = useObservable('sizeValue', selectedSize)
+  render: ({ useState }) => {
+    const [colorValue, setColorValue] = useState('selectedColor', '')
+    const [sizeValue, setSizeValue] = useState('selectedSize', '')
 
     return (
-      <PageContainer maxWidth="1000px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔘"
           title="Radio / RadioGroup"
@@ -35,7 +31,7 @@ export const RadioPage = Shade({
                 name="color-group"
                 labelTitle="Favorite Color"
                 defaultValue="blue"
-                onValueChange={(value) => selectedColor.setValue(value)}
+                onValueChange={(value) => setColorValue(value)}
               >
                 <Radio value="red" labelTitle="Red" />
                 <Radio value="green" labelTitle="Green" />
@@ -56,7 +52,7 @@ export const RadioPage = Shade({
                 name="size-group"
                 labelTitle="Size"
                 orientation="horizontal"
-                onValueChange={(value) => selectedSize.setValue(value)}
+                onValueChange={(value) => setSizeValue(value)}
               >
                 <Radio value="small" labelTitle="Small" />
                 <Radio value="medium" labelTitle="Medium" />

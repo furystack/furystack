@@ -423,7 +423,8 @@ export const Image = Shade<ImageProps>({
       transform: 'translate(-50%, -50%) scale(1)',
     },
   },
-  render: ({ props, element }) => {
+  render: ({ props, useHostProps, useRef, useState }) => {
+    const imageHostRef = useRef<HTMLElement>('imageHost')
     const {
       src,
       alt = '',
@@ -436,64 +437,53 @@ export const Image = Shade<ImageProps>({
       style: styleOverrides,
     } = props
 
-    if (preview) {
-      element.setAttribute('data-preview', '')
-    } else {
-      element.removeAttribute('data-preview')
-    }
+    useHostProps({
+      'data-preview': preview ? '' : undefined,
+      'data-src': src,
+      'data-alt': alt,
+      ...(styleOverrides ? { style: styleOverrides as Record<string, string> } : {}),
+    })
 
-    if (styleOverrides) {
-      Object.assign(element.style, styleOverrides)
-    }
-
-    const isInGroup = element.closest('shade-image-group') !== null
+    const [hasError, setHasError] = useState('hasError', false)
 
     const handleClick = () => {
       if (!preview) return
 
-      if (isInGroup) {
-        const group = element.closest('shade-image-group')
-        if (group) {
-          const images = Array.from(group.querySelectorAll('shade-image'))
-          const groupSrcs = images.map((img) => ({
-            src: img.getAttribute('data-src') || '',
-            alt: img.getAttribute('data-alt') || '',
-          }))
-          const index = images.indexOf(element)
-          createLightbox(src, alt, groupSrcs, index >= 0 ? index : 0)
-          return
-        }
+      const host = imageHostRef.current?.closest('shade-image-group')
+      if (host) {
+        const images = Array.from(host.querySelectorAll('shade-image'))
+        const groupSrcs = images.map((img) => ({
+          src: img.getAttribute('data-src') || '',
+          alt: img.getAttribute('data-alt') || '',
+        }))
+        const self = imageHostRef.current?.closest('shade-image')
+        const index = self ? images.indexOf(self) : -1
+        createLightbox(src, alt, groupSrcs, index >= 0 ? index : 0)
+        return
       }
 
       createLightbox(src, alt)
     }
 
-    element.setAttribute('data-src', src)
-    element.setAttribute('data-alt', alt)
-
     return (
-      <>
+      <div ref={imageHostRef} style={{ display: 'contents' }}>
         <img
           src={src}
           alt={alt}
           loading={lazy ? 'lazy' : undefined}
           style={{
+            display: hasError ? 'none' : 'block',
             width: width || '100%',
             height: height || 'auto',
             objectFit,
           }}
           onclick={handleClick}
-          onerror={() => {
-            const img = element.querySelector('img')
-            if (img) img.style.display = 'none'
-            const fallbackEl = element.querySelector<HTMLElement>('.image-fallback')
-            if (fallbackEl) fallbackEl.style.display = 'flex'
-          }}
+          onerror={() => setHasError(true)}
         />
         <div
           className="image-fallback"
           style={{
-            display: 'none',
+            display: hasError ? 'flex' : 'none',
             width: width || '200px',
             height: height || '150px',
           }}
@@ -505,7 +495,7 @@ export const Image = Shade<ImageProps>({
             <Icon icon={search} size="small" />
           </div>
         ) : null}
-      </>
+      </div>
     )
   },
 })
@@ -521,9 +511,9 @@ export const ImageGroup = Shade<ImageGroupProps>({
     flexWrap: 'wrap',
     alignItems: 'flex-start',
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { gap = cssVariableTheme.spacing.sm } = props
-    element.style.gap = gap
+    useHostProps({ style: { gap } })
 
     return <>{children}</>
   },

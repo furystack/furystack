@@ -31,21 +31,27 @@ export const Loader = Shade<LoaderProps>({
     transformOrigin: 'center',
     opacity: '0',
   },
-  render: ({ element, props, injector }) => {
+  render: ({ props, injector, useRef }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
+    const spinnerRef = useRef<HTMLDivElement>('spinner')
 
     const { delay = 500 } = props
     const { borderWidth = 15 } = props
     const { borderColor = theme.palette.primary.main } = props
 
     setTimeout(() => {
-      void promisifyAnimation(element, [{ opacity: '0' }, { opacity: '1' }], {
-        duration: 500,
-        delay,
-        fill: 'forwards',
-      })
+      const spinner = spinnerRef.current
+      if (!spinner) return
+      const host = spinner.parentElement
+      if (host) {
+        void promisifyAnimation(host, [{ opacity: '0' }, { opacity: '1' }], {
+          duration: 500,
+          delay,
+          fill: 'forwards',
+        })
+      }
       void promisifyAnimation(
-        element.firstElementChild,
+        spinner,
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }, { transform: 'rotate(360deg)' }],
         {
           duration: 1500,
@@ -56,6 +62,7 @@ export const Loader = Shade<LoaderProps>({
     }, 1)
     return (
       <div
+        ref={spinnerRef}
         style={{
           position: 'relative',
           width: `calc(100% - ${borderWidth * 2}px)`,

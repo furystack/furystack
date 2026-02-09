@@ -1,7 +1,8 @@
 import type { FilterType, FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue, sleepAsync } from '@furystack/utils'
+import type { ObservableValue } from '@furystack/utils'
+import { sleepAsync } from '@furystack/utils'
 import { collapse, expand } from '../animations.js'
 import { Button } from '../button.js'
 import { Form } from '../form.js'
@@ -203,24 +204,33 @@ export const DataGridHeader: <T, Column extends string>(
       gap: '4px',
     },
   },
-  render: ({ props, element, useObservable }) => {
-    const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), {
-      onChange: (newValue) => {
-        const searchForm = element.querySelector('.search-form') as HTMLElement
-        const headerContent = element.querySelector('.header-content') as HTMLElement
-        if (!newValue) {
-          void collapse(searchForm)
-          void expand(headerContent)
-        } else {
-          searchForm.style.display = 'flex'
-          void expand(searchForm).then(async () => {
-            await sleepAsync(100)
-            searchForm.querySelector('input')?.focus()
-          })
-          void collapse(headerContent)
-        }
-      },
-    })
+  render: ({ props, useObservable, useState, useRef }) => {
+    const searchFormRef = useRef<HTMLElement>('searchForm')
+    const headerContentRef = useRef<HTMLDivElement>('headerContent')
+
+    const [, setIsSearchOpened] = useState('isSearchOpened', false)
+
+    const openSearch = () => {
+      setIsSearchOpened(true)
+      const searchForm = searchFormRef.current?.querySelector('.search-form') as HTMLElement | null
+      const headerContent = headerContentRef.current
+      if (!searchForm || !headerContent) return
+      searchForm.style.display = 'flex'
+      void expand(searchForm).then(async () => {
+        await sleepAsync(100)
+        searchForm.querySelector('input')?.focus()
+      })
+      void collapse(headerContent)
+    }
+
+    const closeSearch = () => {
+      setIsSearchOpened(false)
+      const searchForm = searchFormRef.current?.querySelector('.search-form') as HTMLElement | null
+      const headerContent = headerContentRef.current
+      if (!searchForm || !headerContent) return
+      void collapse(searchForm)
+      void expand(headerContent)
+    }
 
     const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
 
@@ -239,27 +249,23 @@ export const DataGridHeader: <T, Column extends string>(
         setFindOptions({ ...findOptions, filter: newFilter })
       }
 
-      setIsSearchOpened(false)
+      closeSearch()
     }
 
     return (
       <>
-        <SearchForm
-          onSubmit={updateSearchValue}
-          onClear={updateSearchValue}
-          fieldName={props.field}
-          findOptions={props.findOptions}
-        />
-        <div className="header-content">
+        <div ref={searchFormRef} style={{ display: 'contents' }}>
+          <SearchForm
+            onSubmit={updateSearchValue}
+            onClear={updateSearchValue}
+            fieldName={props.field}
+            findOptions={props.findOptions}
+          />
+        </div>
+        <div ref={headerContentRef} className="header-content">
           <div className="header-field-name">{props.field}</div>
           <div className="header-controls">
-            <SearchButton
-              onclick={() => {
-                setIsSearchOpened(true)
-              }}
-              findOptions={props.findOptions}
-              fieldName={props.field}
-            />
+            <SearchButton onclick={openSearch} findOptions={props.findOptions} fieldName={props.field} />
 
             <OrderButton field={props.field} findOptions={props.findOptions} />
           </div>

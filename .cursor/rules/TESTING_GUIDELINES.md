@@ -208,6 +208,29 @@ yarn test --coverage
 # - Lines: > 80%
 ```
 
+## Testing Shade Components
+
+### Microtask Batching and `flushUpdates()`
+
+Shade component renders are batched via `queueMicrotask`. After triggering a state change (e.g. `setState`, `observable.setValue()`), the DOM is **not updated synchronously**. Tests must await `flushUpdates()` before asserting DOM state:
+
+```typescript
+import { flushUpdates } from '@furystack/shades'
+
+it('should update the DOM after state change', async () => {
+  // ... trigger a state change that causes a re-render ...
+  await flushUpdates()
+  // Now safe to assert DOM state
+  expect(element.textContent).toBe('updated')
+})
+```
+
+If a render itself triggers further `updateComponent()` calls (e.g. via observable subscriptions), an additional `await flushUpdates()` may be needed to process the cascaded updates.
+
+### Testing with `usingAsync` and Injectors
+
+When testing components that use dependency injection, always wrap the `Injector` in `usingAsync()` to ensure proper disposal. This is already documented in the Resource Disposal section above.
+
 ## Summary
 
 **Key Principles:**
@@ -219,6 +242,7 @@ yarn test --coverage
 5. **Minimal mocking** - Test real implementations
 6. **Clear test structure** - describe > describe > it
 7. **Test behavior** - Not implementation details
+8. **Flush microtasks** - Use `await flushUpdates()` for Shade component tests
 
 **Testing Checklist:**
 

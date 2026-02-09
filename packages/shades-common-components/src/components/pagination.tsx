@@ -183,28 +183,19 @@ export const Pagination = Shade<PaginationProps>({
       pointerEvents: 'none',
     },
   },
-  render: ({ props, element }) => {
+  render: ({ props, useHostProps }) => {
     const { count, page, onPageChange, siblingCount = 1, boundaryCount = 1, disabled, size, color, style } = props
 
-    if (size) {
-      element.setAttribute('data-size', size)
-    } else {
-      element.removeAttribute('data-size')
-    }
-
-    if (disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
     const colors = color ? paletteMainColors[color] : defaultColors
-    element.style.setProperty('--pagination-color-main', colors.main)
-    element.style.setProperty('--pagination-color-contrast', colors.mainContrast)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-size': size || undefined,
+      'data-disabled': disabled ? '' : undefined,
+      style: {
+        '--pagination-color-main': colors.main,
+        '--pagination-color-contrast': colors.mainContrast,
+        ...(style as Record<string, string>),
+      },
+    })
 
     const items = getPaginationRange(count, page, siblingCount, boundaryCount)
 

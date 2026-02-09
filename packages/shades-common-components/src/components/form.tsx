@@ -1,6 +1,6 @@
 import { Injectable } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from '@furystack/shades'
-import { Shade, attachProps, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import type { InputValidationResult } from './inputs/input.js'
 
@@ -50,11 +50,16 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-form',
   elementBase: HTMLFormElement,
   elementBaseName: 'form',
-  render: ({ props, children, useDisposable, element, injector }) => {
-    const formInjector = useDisposable('formInjector', () => injector.createChild({ owner: element }))
-    element.injector = formInjector
+  render: ({ props, children, useDisposable, injector, useHostProps }) => {
+    const formInjector = useDisposable('formInjector', () => injector.createChild())
     const formService = new FormService()
     formInjector.setExplicitInstance(formService)
+
+    // Propagate the scoped injector on the host element so child Shade components
+    // can discover it via getInjectorFromParent(). This works because useHostProps
+    // assigns object values as properties on the host element, which sets the
+    // `injector` setter defined on the Shade base class.
+    useHostProps({ injector: formInjector })
 
     const changeHandler = (ev: Event, shouldSubmit?: boolean) => {
       formService.inputs.forEach((i) => {
@@ -82,9 +87,7 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       }
     }
 
-    attachProps(element, {
-      injector: formInjector,
-      ...props,
+    useHostProps({
       oninvalid: (ev: Event) => {
         changeHandler(ev)
       },

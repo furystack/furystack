@@ -123,18 +123,19 @@ export const Result = Shade<ResultProps>({
       justifyContent: 'center',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { status, title, subtitle, icon, style } = props
 
     const displayIcon = icon ?? defaultIcons[status]
     const statusColor = statusColorMap[status]
 
-    element.setAttribute('data-status', status)
-    element.style.setProperty('--result-status-color', statusColor)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-status': status,
+      style: {
+        '--result-status-color': statusColor,
+        ...(style as Record<string, string>),
+      },
+    })
 
     const hasChildren = children && (Array.isArray(children) ? children.length > 0 : true)
 

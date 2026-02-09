@@ -24,7 +24,7 @@ export const ImagePage = Shade({
   shadowDomName: 'shades-image-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🖼️"
           title="Image"

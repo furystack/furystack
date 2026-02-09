@@ -485,10 +485,10 @@ describe('NestedRouter lifecycle element scope', () => {
       expect(visitElements).toHaveLength(2)
       // Parent's onVisit element should be the full tree (parent wrapping child)
       expect(visitElements[0].route).toBe('parent')
-      expect((visitElements[0].element as HTMLElement).id).toBe('wrapper')
+      expect((visitElements[0].element as HTMLElement).getAttribute('id')).toBe('wrapper')
       // Child-a's onVisit element should be just the child element, not the wrapper
       expect(visitElements[1].route).toBe('child-a')
-      expect((visitElements[1].element as HTMLElement).id).toBe('child-a-content')
+      expect((visitElements[1].element as HTMLElement).getAttribute('id')).toBe('child-a-content')
 
       // --- Switch to child-b: parent stays, only child lifecycle fires ---
       visitElements.length = 0
@@ -499,12 +499,12 @@ describe('NestedRouter lifecycle element scope', () => {
       // onLeave should receive the child-a element, not the full wrapper
       expect(leaveElements).toHaveLength(1)
       expect(leaveElements[0].route).toBe('child-a')
-      expect((leaveElements[0].element as HTMLElement).id).toBe('child-a-content')
+      expect((leaveElements[0].element as HTMLElement).getAttribute('id')).toBe('child-a-content')
 
       // onVisit should receive the child-b element, not the full wrapper
       expect(visitElements).toHaveLength(1)
       expect(visitElements[0].route).toBe('child-b')
-      expect((visitElements[0].element as HTMLElement).id).toBe('child-b-content')
+      expect((visitElements[0].element as HTMLElement).getAttribute('id')).toBe('child-b-content')
     })
   })
 })

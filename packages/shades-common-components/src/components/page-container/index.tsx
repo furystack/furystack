@@ -60,22 +60,20 @@ export const PageContainer = Shade<PageContainerProps>({
     color: cssVariableTheme.text.primary,
     position: 'relative',
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { maxWidth = '100%', centered = false, padding = '24px', gap = '16px', fullHeight = true } = props
 
-    // Apply styles directly to the element for proper behavior
-    element.style.maxWidth = maxWidth
-    element.style.padding = padding
-    element.style.gap = gap
-    element.style.height = fullHeight ? '100%' : 'auto'
-
-    if (centered) {
-      element.style.marginLeft = 'auto'
-      element.style.marginRight = 'auto'
-    } else {
-      element.style.marginLeft = ''
-      element.style.marginRight = ''
+    const hostStyle: Record<string, string> = {
+      maxWidth,
+      padding,
+      gap,
+      height: fullHeight ? '100%' : 'auto',
     }
+    if (centered) {
+      hostStyle.marginLeft = 'auto'
+      hostStyle.marginRight = 'auto'
+    }
+    useHostProps({ style: hostStyle })
 
     return <>{children}</>
   },

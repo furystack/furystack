@@ -3,12 +3,81 @@ import type { ObservableValue, ValueObserverOptions } from '@furystack/utils'
 import type { ChildrenList } from './children-list.js'
 import type { PartialElement } from './partial-element.js'
 
+/**
+ * A reference object returned by `useRef`.
+ * `current` is set to the DOM element when it is mounted, and `null` when unmounted.
+ * The `readonly` modifier ensures covariance so that `RefObject<HTMLInputElement>`
+ * is assignable to `RefObject<Element>`.
+ */
+export type RefObject<T extends Element = HTMLElement> = {
+  readonly current: T | null
+}
+
+/**
+ * Options provided to a Shade component's `render` function.
+ * Contains the current props, injector, children, and hooks for managing state, side effects, and host element attributes.
+ * @typeParam TProps - The component's props type
+ * @typeParam TElementBase - The base HTML element type (defaults to HTMLElement)
+ */
 export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
   readonly props: TProps & PartialElement<TElementBase>
   renderCount: number
   injector: Injector
   children?: ChildrenList
-  element: JSX.Element<TProps>
+  /**
+   * Declaratively sets attributes and styles on the host custom element.
+   * Can be called multiple times per render; each call merges into the previous values.
+   *
+   * CSS custom properties (e.g. `--my-color`) are applied via `setProperty`.
+   * The `style` property accepts both standard camelCase properties and CSS custom properties.
+   *
+   * **Best practice:** Use `useHostProps` for data attributes, ARIA attributes, CSS variables,
+   * and event handlers on the host element instead of imperative DOM manipulation.
+   *
+   * @param hostProps An object of attribute key-value pairs, optionally including a `style` record
+   *
+   * **Note:** Object and function values are assigned as properties on the host element
+   * (not as attributes). This means you can set event handlers (e.g. `onclick`) and
+   * even class properties like `injector` via `useHostProps`.
+   *
+   * @example
+   * ```typescript
+   * useHostProps({
+   *   'data-variant': props.variant,
+   *   role: 'progressbar',
+   *   'aria-valuenow': String(value),
+   *   style: {
+   *     '--btn-color-main': colors.main,
+   *     display: 'flex',
+   *   },
+   * })
+   * ```
+   */
+  useHostProps: (hostProps: Record<string, unknown> & { style?: Record<string, string> }) => void
+
+  /**
+   * Creates a mutable ref object that can be attached to intrinsic JSX elements via the `ref` prop.
+   * The ref's `current` property will be set to the DOM element after mount and `null` on unmount.
+   *
+   * Refs are cached by key, so calling `useRef` with the same key returns the same object across renders.
+   *
+   * **Best practice:** Prefer declarative JSX and `useHostProps` when possible.
+   * Use refs sparingly for imperative needs like focus management or measuring elements.
+   *
+   * @param key A unique key for caching the ref object
+   * @returns A ref object with a `current` property
+   *
+   * @example
+   * ```typescript
+   * const inputRef = useRef<HTMLInputElement>('input')
+   * // In JSX:
+   * <input ref={inputRef} />
+   * // Later:
+   * inputRef.current?.focus()
+   * ```
+   */
+  useRef: <T extends Element = HTMLElement>(key: string) => RefObject<T>
+
   /**
    * Creates and disposes a resource after the component has been detached from the DOM
    * @param key The key for caching the disposable resource
@@ -34,10 +103,11 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    * const [count] = useObservable('count', countObservable)
    *
    * @example
-   * // Custom onChange: no re-render, manual DOM update
+   * // Custom onChange: no re-render, update host element via useHostProps
+   * useHostProps({ 'data-active': count > 0 ? '' : undefined })
    * const [count] = useObservable('count', countObservable, {
-   *   onChange: (newValue) => {
-   *     element.classList.toggle('active', newValue > 0)
+   *   onChange: () => {
+   *     // Triggers a re-render so useHostProps above picks up the new value
    *   }
    * })
    */

@@ -17,8 +17,8 @@ export interface Route<TMatchResult = unknown> {
     match: MatchResult<TMatchResult extends object ? TMatchResult : object>
   }) => JSX.Element
   routingOptions?: MatchOptions
-  onVisit?: (options: RenderOptions<unknown>) => Promise<void>
-  onLeave?: (options: RenderOptions<unknown>) => Promise<void>
+  onVisit?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
+  onLeave?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
 }
 
 /**

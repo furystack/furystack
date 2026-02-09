@@ -16,11 +16,11 @@ export const LinkToRoute: <T extends object>(props: LinkToRouteProps<T>, childre
     shadowDomName: 'link-to-route',
     elementBase: HTMLAnchorElement,
     elementBaseName: 'a',
-    render: ({ props, element, children }) => {
+    render: ({ props, useHostProps, children }) => {
       const { route, params } = props
 
       const url = compileRoute(route.url, params)
-      element.setAttribute('href', url)
+      useHostProps({ href: url })
       return <>{children}</>
     },
   })

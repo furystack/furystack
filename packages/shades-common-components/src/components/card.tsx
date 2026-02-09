@@ -68,21 +68,15 @@ export const Card = Shade<CardProps>({
       borderColor: cssVariableTheme.text.secondary,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { elevation = 1, variant = 'elevation', clickable, style, ...rest } = props
 
-    element.setAttribute('data-variant', variant)
-    element.setAttribute('data-elevation', elevation.toString())
-
-    if (clickable || rest.onclick) {
-      element.setAttribute('data-clickable', '')
-    } else {
-      element.removeAttribute('data-clickable')
-    }
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-variant': variant,
+      'data-elevation': elevation.toString(),
+      'data-clickable': clickable || rest.onclick ? '' : undefined,
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
     return <>{children}</>
   },
@@ -225,10 +219,10 @@ export const CardMedia = Shade<CardMediaProps>({
       objectPosition: 'center',
     },
   },
-  render: ({ props, element }) => {
+  render: ({ props, useHostProps }) => {
     const { image, alt = '', height = '200px' } = props
 
-    element.style.height = height
+    useHostProps({ style: { height } })
 
     return <img src={image} alt={alt} />
   },
@@ -257,14 +251,10 @@ export const CardActions = Shade<CardActionsProps>({
       justifyContent: 'flex-end',
     },
   },
-  render: ({ props, children, element }) => {
-    const { disableSpacing } = props
-
-    if (disableSpacing) {
-      element.setAttribute('data-disable-spacing', '')
-    } else {
-      element.removeAttribute('data-disable-spacing')
-    }
+  render: ({ props, children, useHostProps }) => {
+    useHostProps({
+      'data-disable-spacing': props.disableSpacing ? '' : undefined,
+    })
 
     return <>{children}</>
   },

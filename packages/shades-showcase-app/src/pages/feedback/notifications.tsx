@@ -6,7 +6,7 @@ export const NotysPage = Shade({
   render: ({ injector }) => {
     const notyService = injector.getInstance(NotyService)
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔔"
           title="Notifications"

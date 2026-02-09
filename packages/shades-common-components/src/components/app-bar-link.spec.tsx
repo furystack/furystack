@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AppBarLink } from './app-bar-link.js'
@@ -81,7 +81,7 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(true)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(true)
       })
     })
 
@@ -100,7 +100,7 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(false)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(false)
       })
     })
 
@@ -119,15 +119,16 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(false)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(false)
 
         // Navigate to matching route
         history.pushState(null, '', '/dashboard')
         injector.getInstance(LocationService).updateState()
 
         await sleepAsync(50)
+        await flushUpdates()
 
-        expect(appBarLink?.classList.contains('active')).toBe(true)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(true)
       })
     })
 
@@ -146,15 +147,16 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(true)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(true)
 
         // Navigate away
         history.pushState(null, '', '/other')
         injector.getInstance(LocationService).updateState()
 
         await sleepAsync(50)
+        await flushUpdates()
 
-        expect(appBarLink?.classList.contains('active')).toBe(false)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(false)
       })
     })
 
@@ -173,7 +175,7 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(true)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(true)
       })
     })
 
@@ -196,7 +198,7 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(true)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(true)
       })
     })
 
@@ -215,7 +217,7 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const appBarLink = document.querySelector('shade-app-bar-link')
-        expect(appBarLink?.classList.contains('active')).toBe(false)
+        expect(appBarLink?.hasAttribute('data-active')).toBe(false)
       })
     })
   })
@@ -242,9 +244,9 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const links = document.querySelectorAll('shade-app-bar-link')
-        expect(links[0]?.classList.contains('active')).toBe(false)
-        expect(links[1]?.classList.contains('active')).toBe(true)
-        expect(links[2]?.classList.contains('active')).toBe(false)
+        expect(links[0]?.hasAttribute('data-active')).toBe(false)
+        expect(links[1]?.hasAttribute('data-active')).toBe(true)
+        expect(links[2]?.hasAttribute('data-active')).toBe(false)
       })
     })
 
@@ -268,17 +270,18 @@ describe('AppBarLink component', () => {
         await sleepAsync(50)
 
         const links = document.querySelectorAll('shade-app-bar-link')
-        expect(links[0]?.classList.contains('active')).toBe(true)
-        expect(links[1]?.classList.contains('active')).toBe(false)
+        expect(links[0]?.hasAttribute('data-active')).toBe(true)
+        expect(links[1]?.hasAttribute('data-active')).toBe(false)
 
         // Navigate to settings
         history.pushState(null, '', '/settings')
         injector.getInstance(LocationService).updateState()
 
         await sleepAsync(50)
+        await flushUpdates()
 
-        expect(links[0]?.classList.contains('active')).toBe(false)
-        expect(links[1]?.classList.contains('active')).toBe(true)
+        expect(links[0]?.hasAttribute('data-active')).toBe(false)
+        expect(links[1]?.hasAttribute('data-active')).toBe(true)
       })
     })
   })

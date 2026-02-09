@@ -33,6 +33,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     display: 'flex',
     flexDirection: 'column',
     height: '0px',
+    backgroundColor: 'var(--noty-bg)',
+    color: 'var(--noty-text)',
     '& .noty-header': {
       display: 'flex',
       justifyContent: 'space-between',
@@ -68,12 +70,16 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+
     useDisposable('enter-animation', () => {
       setTimeout(() => {
-        const height = element.scrollHeight || 60
+        const hostEl = wrapperRef.current?.closest('shade-noty') as HTMLElement | null
+        if (!hostEl) return
+        const height = hostEl.scrollHeight || 60
         void promisifyAnimation(
-          element,
+          hostEl,
           [
             { opacity: '0', height: '0px' },
             { opacity: '1', height: `${height}px` },
@@ -93,10 +99,11 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     const textColor = themeProvider.getTextColor(colors.main)
 
     const removeSelf = async () => {
+      const hostEl = wrapperRef.current?.closest('shade-noty') as HTMLElement | null
       await promisifyAnimation(
-        element,
+        hostEl,
         [
-          { opacity: '1', height: `${element?.scrollHeight || 0}px`, margin: '6px 6px' },
+          { opacity: '1', height: `${hostEl?.scrollHeight || 0}px`, margin: '6px 6px' },
           { opacity: '0', height: '0px', margin: '0px 6px' },
         ],
         {
@@ -113,22 +120,23 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       setTimeout(() => void removeSelf(), timeout)
     }
 
-    element.className = `noty ${props.model.type}`
-    element.style.backgroundColor = colors.main
-    element.style.color = textColor
+    useHostProps({
+      'data-noty-type': props.model.type,
+      style: { '--noty-bg': colors.main, '--noty-text': textColor },
+    })
 
     return (
-      <>
+      <div ref={wrapperRef} style={{ display: 'contents' }}>
         <div className="noty-header">
           <span className="noty-title" title={props.model.title}>
             {props.model.title}
           </span>
-          <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: textColor }}>
+          <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: 'inherit' }}>
             <Icon icon={close} size={14} />
           </button>
         </div>
         <div className="noty-body">{props.model.body}</div>
-      </>
+      </div>
     )
   },
 })
@@ -142,20 +150,24 @@ export const NotyList = Shade({
     display: 'flex',
     flexDirection: 'column',
   },
-  render: ({ useDisposable, injector, element }) => {
+  render: ({ useDisposable, injector, useRef }) => {
     const notyService = injector.getInstance(NotyService)
+    const containerRef = useRef<HTMLDivElement>('container')
 
     const currentNotys = notyService.getNotyList()
 
     useDisposable('addNoty', () =>
       notyService.subscribe('onNotyAdded', (n) =>
-        element.append(<NotyComponent model={n} onDismiss={() => notyService.emit('onNotyRemoved', n)} />),
+        containerRef.current?.append(
+          <NotyComponent model={n} onDismiss={() => notyService.emit('onNotyRemoved', n)} />,
+        ),
       ),
     )
 
     useDisposable('removeNoty', () =>
       notyService.subscribe('onNotyRemoved', (n) => {
-        element.querySelectorAll('shade-noty').forEach((e) => {
+        const notys = containerRef.current?.querySelectorAll('shade-noty') || []
+        notys.forEach((e) => {
           if ((e as JSX.Element<{ model?: NotyModel }>).props.model === n) {
             e.remove()
           }
@@ -164,11 +176,11 @@ export const NotyList = Shade({
     )
 
     return (
-      <>
+      <div ref={containerRef} style={{ display: 'contents' }}>
         {currentNotys.map((n) => (
           <NotyComponent model={n} onDismiss={() => injector.getInstance(NotyService).emit('onNotyRemoved', n)} />
         ))}
-      </>
+      </div>
     )
   },
 })
