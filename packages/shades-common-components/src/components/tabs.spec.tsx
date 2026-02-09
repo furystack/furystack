@@ -158,12 +158,13 @@ describe('Tabs', () => {
 
       await sleepAsync(100)
 
-      // The tab header with tab2 hash should have active class
-      const html = document.body.innerHTML
       // Verify the active tab content is shown
       expect(document.getElementById('content-2')).toBeTruthy()
-      // Check for active class in the tab-header element containing Tab 2
-      expect(html).toMatch(/shade-tab-header[^>]*class="active"[^>]*href="#tab2"/)
+      // Check for data-active attribute on the tab-header element containing Tab 2
+      const tabHeaders = document.querySelectorAll('a[is="shade-tab-header"]')
+      const activeTab = Array.from(tabHeaders).find((el) => el.hasAttribute('data-active'))
+      expect(activeTab).toBeTruthy()
+      expect(activeTab?.getAttribute('href')).toBe('#tab2')
     })
   })
 
@@ -184,7 +185,10 @@ describe('Tabs', () => {
 
       // Verify tab1 is active
       expect(document.getElementById('content-1')).toBeTruthy()
-      expect(document.body.innerHTML).toMatch(/shade-tab-header[^>]*class="active"[^>]*href="#tab1"/)
+      let tabHeaders = document.querySelectorAll('a[is="shade-tab-header"]')
+      let activeTab = Array.from(tabHeaders).find((el) => el.hasAttribute('data-active'))
+      expect(activeTab).toBeTruthy()
+      expect(activeTab?.getAttribute('href')).toBe('#tab1')
 
       // Change hash
       window.location.hash = '#tab2'
@@ -195,7 +199,10 @@ describe('Tabs', () => {
       // Verify tab2 is now active
       expect(document.getElementById('content-2')).toBeTruthy()
       expect(document.getElementById('content-1')).toBeFalsy()
-      expect(document.body.innerHTML).toMatch(/shade-tab-header[^>]*class="active"[^>]*href="#tab2"/)
+      tabHeaders = document.querySelectorAll('a[is="shade-tab-header"]')
+      activeTab = Array.from(tabHeaders).find((el) => el.hasAttribute('data-active'))
+      expect(activeTab).toBeTruthy()
+      expect(activeTab?.getAttribute('href')).toBe('#tab2')
     })
   })
 

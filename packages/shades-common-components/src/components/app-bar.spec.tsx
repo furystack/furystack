@@ -97,7 +97,7 @@ describe('AppBar component', () => {
   describe('fade-in animation', () => {
     it('should add visible class after construction', async () => {
       await usingAsync(await renderAppBar(<span>Content</span>), async ({ appBar }) => {
-        expect(appBar.classList.contains('visible')).toBe(true)
+        expect(appBar.hasAttribute('data-visible')).toBe(true)
       })
     })
 

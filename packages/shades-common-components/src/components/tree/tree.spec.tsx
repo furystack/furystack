@@ -397,8 +397,8 @@ describe('Tree', () => {
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
-        expect(treeItems[1]?.classList.contains('focused')).toBe(true)
-        expect(treeItems[0]?.classList.contains('focused')).toBe(false)
+        expect(treeItems[1]?.hasAttribute('data-focused')).toBe(true)
+        expect(treeItems[0]?.hasAttribute('data-focused')).toBe(false)
 
         service[Symbol.dispose]()
       })
@@ -431,9 +431,9 @@ describe('Tree', () => {
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
-        expect(treeItems[0]?.classList.contains('selected')).toBe(true)
-        expect(treeItems[1]?.classList.contains('selected')).toBe(false)
-        expect(treeItems[2]?.classList.contains('selected')).toBe(true)
+        expect(treeItems[0]?.hasAttribute('data-selected')).toBe(true)
+        expect(treeItems[1]?.hasAttribute('data-selected')).toBe(false)
+        expect(treeItems[2]?.hasAttribute('data-selected')).toBe(true)
 
         service[Symbol.dispose]()
       })

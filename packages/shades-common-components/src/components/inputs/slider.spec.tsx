@@ -671,8 +671,9 @@ describe('Slider', () => {
         await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 150, clientY: 2, bubbles: true }))
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 150, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
@@ -702,14 +703,15 @@ describe('Slider', () => {
         await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
-          expect(slider.hasAttribute('data-dragging')).toBe(true)
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
+          expect(root.hasAttribute('data-dragging')).toBe(true)
 
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
-          expect(slider.hasAttribute('data-dragging')).toBe(false)
+          expect(root.hasAttribute('data-dragging')).toBe(false)
         },
       )
     })
@@ -747,9 +749,10 @@ describe('Slider', () => {
         }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
           // Click at 90% (180px) → closer to thumb at 80%
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 180, clientY: 2, bubbles: true }))
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 180, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
@@ -773,10 +776,11 @@ describe('Slider', () => {
         }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
           // Click at 20% (40px), closer to start thumb at 40%.
           // New val for thumb[0]=20. 20 < 60, no swap.
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 40, clientY: 2, bubbles: true }))
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 40, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
@@ -826,9 +830,10 @@ describe('Slider', () => {
         await renderSlider({ value: 50, min: 0, max: 100, step: 1, vertical: true, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { top: 0, height: 200, bottom: 200, left: 0, width: 4 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
           // Click at bottom-50px (bottom=200, clientY=150 → (200-150)/200=25%)
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 2, clientY: 150, bubbles: true }))
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 2, clientY: 150, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
@@ -845,9 +850,10 @@ describe('Slider', () => {
         await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
           // Click far to the right beyond the track
-          slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 400, clientY: 2, bubbles: true }))
+          root.dispatchEvent(new MouseEvent('mousedown', { clientX: 400, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)
 
@@ -884,9 +890,10 @@ describe('Slider', () => {
         await renderSlider({ value: 50, min: 0, max: 100, step: 1, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
-          const touch = { clientX: 100, clientY: 2, identifier: 0, target: slider }
-          slider.dispatchEvent(new TouchEvent('touchstart', { touches: [touch as unknown as Touch] }))
+          const touch = { clientX: 100, clientY: 2, identifier: 0, target: root }
+          root.dispatchEvent(new TouchEvent('touchstart', { touches: [touch as unknown as Touch] }))
           document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [touch as unknown as Touch] }))
           await sleepAsync(50)
 
@@ -903,9 +910,10 @@ describe('Slider', () => {
         await renderSlider({ value: 0, min: 0, max: 100, step: 1, onValueChange }),
         async ({ slider }) => {
           mockSliderRoot(slider, { left: 0, width: 200 })
+          const root = slider.querySelector('.slider-root') as HTMLElement
 
-          const startTouch = { clientX: 0, clientY: 2, identifier: 0, target: slider }
-          slider.dispatchEvent(new TouchEvent('touchstart', { touches: [startTouch as unknown as Touch] }))
+          const startTouch = { clientX: 0, clientY: 2, identifier: 0, target: root }
+          root.dispatchEvent(new TouchEvent('touchstart', { touches: [startTouch as unknown as Touch] }))
 
           const moveTouch = { clientX: 150, clientY: 2, identifier: 0, target: slider }
           document.dispatchEvent(
@@ -963,7 +971,7 @@ describe('Slider', () => {
 
           // During drag, syncVisuals updates positions directly
           expect(slider.querySelector('.slider-track')).not.toBeNull()
-          expect(slider.hasAttribute('data-dragging')).toBe(true)
+          expect(root!.hasAttribute('data-dragging')).toBe(true)
 
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
           await sleepAsync(50)

@@ -297,6 +297,7 @@ describe('AccordionItem', () => {
 
     const header = item.querySelector('.accordion-header') as HTMLElement
     header.click()
+    await flushUpdates()
 
     // The attribute is set synchronously before the animation awaits
     expect(item.hasAttribute('data-expanded')).toBe(true)
@@ -321,6 +322,7 @@ describe('AccordionItem', () => {
 
     const header = item.querySelector('.accordion-header') as HTMLElement
     header.click()
+    await flushUpdates()
 
     // The attribute is removed synchronously before the animation awaits
     expect(item.hasAttribute('data-expanded')).toBe(false)
@@ -345,6 +347,7 @@ describe('AccordionItem', () => {
 
     const header = item.querySelector('.accordion-header') as HTMLElement
     header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
@@ -368,6 +371,7 @@ describe('AccordionItem', () => {
 
     const header = item.querySelector('.accordion-header') as HTMLElement
     header.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    await flushUpdates()
 
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })

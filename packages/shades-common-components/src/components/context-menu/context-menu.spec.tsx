@@ -263,9 +263,9 @@ describe('ContextMenu', () => {
         await sleepAsync(10)
 
         const items = getMenuItems()
-        expect(items[0].classList.contains('focused')).toBe(false)
-        expect(items[1].classList.contains('focused')).toBe(true)
-        expect(items[2].classList.contains('focused')).toBe(false)
+        expect(items[0].hasAttribute('data-focused')).toBe(false)
+        expect(items[1].hasAttribute('data-focused')).toBe(true)
+        expect(items[2].hasAttribute('data-focused')).toBe(false)
       })
     })
 

@@ -258,15 +258,12 @@ export const Typography = Shade<TypographyProps>({
       })
     }
 
-    const inner = children
-      ? createComponent(tag, { className: 'typo-inner', ref: innerRef }, ...children)
-      : createComponent(tag, { className: 'typo-inner', ref: innerRef })
-
+    const innerProps: Record<string, unknown> = { className: 'typo-inner', ref: innerRef }
     if (typeof ellipsis === 'number') {
-      const innerEl = inner as HTMLElement
-      innerEl.style.setProperty('-webkit-line-clamp', String(ellipsis))
-      innerEl.style.setProperty('-webkit-box-orient', 'vertical')
+      innerProps.style = { webkitLineClamp: String(ellipsis), webkitBoxOrient: 'vertical' }
     }
+
+    const inner = children ? createComponent(tag, innerProps, ...children) : createComponent(tag, innerProps)
 
     return (
       <>

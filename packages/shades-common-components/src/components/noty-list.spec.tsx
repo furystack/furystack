@@ -123,8 +123,7 @@ describe('NotyComponent', () => {
 
       const noty = document.querySelector('shade-noty') as HTMLElement
       expect(noty).not.toBeNull()
-      expect(noty.classList.contains('noty')).toBe(true)
-      expect(noty.classList.contains('error')).toBe(true)
+      expect(noty.getAttribute('data-noty-type')).toBe('error')
     })
   })
 
@@ -368,8 +367,7 @@ describe('NotyComponent', () => {
 
         const noty = document.querySelector('shade-noty') as HTMLElement
         expect(noty).not.toBeNull()
-        expect(noty.classList.contains('noty')).toBe(true)
-        expect(noty.classList.contains(type)).toBe(true)
+        expect(noty.getAttribute('data-noty-type')).toBe(type)
       })
     }
   })
