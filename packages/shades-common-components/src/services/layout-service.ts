@@ -148,14 +148,20 @@ export class LayoutService implements Disposable {
   private sideGapSubscription: ValueObserver<string> | null = null
 
   /**
-   * Creates a new LayoutService instance scoped to the given element.
+   * Creates a new LayoutService instance scoped to the given element or ref.
    *
-   * @param targetElement - The element to set CSS variables on (typically the PageLayout host).
+   * @param targetElement - The element (or ref) to set CSS variables on (typically the PageLayout host).
    *                        If undefined (e.g., in SSR), CSS variables won't be set.
    */
-  constructor(private targetElement?: HTMLElement) {
+  constructor(private targetElement?: HTMLElement | { readonly current: HTMLElement | null }) {
     this.setupCssVariableSync()
     this.updateCssVariables()
+  }
+
+  private getTarget(): HTMLElement | undefined {
+    if (!this.targetElement) return undefined
+    if (this.targetElement instanceof HTMLElement) return this.targetElement
+    return this.targetElement.current ?? undefined
   }
 
   /**
@@ -281,7 +287,8 @@ export class LayoutService implements Disposable {
    * Called automatically when drawer state, AppBar height, variant, or gap values change.
    */
   private updateCssVariables(): void {
-    if (!this.targetElement) return
+    const target = this.getTarget()
+    if (!target) return
 
     const state = this.drawerState.getValue()
     const appBarHeight = this.appBarHeight.getValue()
@@ -290,36 +297,36 @@ export class LayoutService implements Disposable {
     const sideGap = this.sideGap.getValue()
 
     // AppBar and gap values
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
 
     // Content padding top:
     // - For 'permanent' appbar: appBarHeight + topGap (content pushed below appbar)
     // - For 'auto-hide' appbar: just topGap (appbar overlays content when visible)
     const contentPaddingTop = appBarVariant === 'auto-hide' ? topGap : `calc(${appBarHeight} + ${topGap})`
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, contentPaddingTop)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, contentPaddingTop)
 
     // Legacy content margin top (deprecated, kept for backward compatibility)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
 
     // Left drawer
     const leftConfiguredWidth = state.left?.width ?? '0px'
     const leftWidth = state.left?.open ? state.left.width : '0px'
     const leftContentMargin = this.getContentMarginForDrawer(state.left)
 
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
 
     // Right drawer
     const rightConfiguredWidth = state.right?.width ?? '0px'
     const rightWidth = state.right?.open ? state.right.width : '0px'
     const rightContentMargin = this.getContentMarginForDrawer(state.right)
 
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
-    this.targetElement.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
   }
 
   /**

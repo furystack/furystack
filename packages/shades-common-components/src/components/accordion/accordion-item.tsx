@@ -1,4 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import { collapse, expand } from '../animations.js'
 import { Icon } from '../icons/icon.js'
@@ -126,33 +127,27 @@ export const AccordionItem = Shade<AccordionItemProps>({
     },
   },
 
-  render: ({ props, element, children }) => {
-    // Initialize expanded state on first render
-    if (!element.hasAttribute('data-initialized')) {
-      element.setAttribute('data-initialized', '')
-      if (props.defaultExpanded) {
-        element.setAttribute('data-expanded', '')
-      }
-    }
+  render: ({ props, children, useHostProps, useRef, useDisposable, useObservable }) => {
+    const expandedObs = useDisposable('expanded', () => new ObservableValue<boolean>(!!props.defaultExpanded))
+    const [isExpanded] = useObservable('expanded', expandedObs)
 
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
+    useHostProps({
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-expanded': isExpanded ? '' : undefined,
+    })
 
-    const isExpanded = element.hasAttribute('data-expanded')
+    const contentRef = useRef<HTMLDivElement>('content')
 
     const handleToggle = async () => {
       if (props.disabled) return
-      const content = element.querySelector('.accordion-content')
+      const content = contentRef.current
       if (!content) return
 
-      if (element.hasAttribute('data-expanded')) {
-        element.removeAttribute('data-expanded')
+      if (expandedObs.getValue()) {
+        expandedObs.setValue(false)
         await collapse(content, { duration: 250 })
       } else {
-        element.setAttribute('data-expanded', '')
+        expandedObs.setValue(true)
         await expand(content, { duration: 250 })
       }
     }
@@ -189,6 +184,7 @@ export const AccordionItem = Shade<AccordionItemProps>({
       <>
         {headerEl}
         <div
+          ref={contentRef}
           className="accordion-content"
           style={{
             height: isExpanded ? undefined : '0px',

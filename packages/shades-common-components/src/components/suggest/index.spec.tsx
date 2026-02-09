@@ -484,7 +484,7 @@ describe('Suggest', () => {
 
         await advanceTimers(50)
 
-        expect(suggest?.classList.contains('opened')).toBe(true)
+        expect(suggest?.hasAttribute('data-opened')).toBe(true)
       })
     })
 
@@ -519,7 +519,7 @@ describe('Suggest', () => {
 
         await advanceTimers(50)
 
-        expect(suggest?.classList.contains('opened')).toBe(false)
+        expect(suggest?.hasAttribute('data-opened')).toBe(false)
       })
     })
 
@@ -790,7 +790,7 @@ describe('Suggest', () => {
 
         await advanceTimers(300)
 
-        expect(suggest?.classList.contains('opened')).toBe(true)
+        expect(suggest?.hasAttribute('data-opened')).toBe(true)
 
         const enterEvent = new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
         Object.defineProperty(enterEvent, 'target', { value: input })
@@ -798,7 +798,7 @@ describe('Suggest', () => {
 
         await advanceTimers(50)
 
-        expect(suggest?.classList.contains('opened')).toBe(false)
+        expect(suggest?.hasAttribute('data-opened')).toBe(false)
       })
     })
   })

@@ -1,6 +1,5 @@
 import type { NestedRoute } from '@furystack/shades'
 import { createComponent, LazyLoad } from '@furystack/shades'
-import { fadeIn, fadeOut } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 import { Navigate } from './components/navigate.js'
@@ -8,12 +7,14 @@ import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 
 const withFadeTransition = {
-  onVisit: async ({ element }: { element: JSX.Element }) => {
-    await fadeIn(element, {})
+  /*
+  !!!TODO!!!
+  onVisit: async (options: RenderOptions<unknown>) => {
+    // await fadeIn(options, {})
   },
-  onLeave: async ({ element }: { element: JSX.Element }) => {
-    await fadeOut(element, {})
-  },
+  onLeave: async (options: RenderOptions<unknown>) => {
+    // await fadeOut(options, {})
+  },*/
 }
 
 /**

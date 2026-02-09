@@ -29,41 +29,26 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
       flexDirection: 'column',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps, useRef }) => {
     const { orientation = 'horizontal', disabled, variant, color, style } = props
     const radius = cssVariableTheme.shape.borderRadius.md
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
 
-    element.setAttribute('role', 'group')
-    element.setAttribute('data-orientation', orientation)
-
-    if (variant) {
-      element.setAttribute('data-variant', variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-
-    if (disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (color) {
-      element.setAttribute('data-color', color)
-    } else {
-      element.removeAttribute('data-color')
-    }
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      role: 'group',
+      'data-orientation': orientation,
+      'data-variant': variant || undefined,
+      'data-disabled': disabled ? '' : undefined,
+      'data-color': color || undefined,
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
     // Apply inline styles to child elements so they appear joined.
     // Inline styles are needed because child Button components have their
     // own scoped CSS for margin and borderRadius that can't be overridden
     // from the parent's shadow DOM stylesheet alone.
     requestAnimationFrame(() => {
-      const childElements = Array.from(element.children) as HTMLElement[]
+      const childElements = Array.from(wrapperRef.current?.children ?? []) as HTMLElement[]
       const isVertical = orientation === 'vertical'
 
       childElements.forEach((child, index) => {
@@ -87,7 +72,11 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
       })
     })
 
-    return <>{children}</>
+    return (
+      <div ref={wrapperRef} style={{ display: 'contents' }}>
+        {children}
+      </div>
+    )
   },
 })
 
@@ -152,11 +141,11 @@ export const ToggleButton = Shade<ToggleButtonProps>({
       transform: 'scale(0.96)',
     },
   },
-  render: ({ props, children, element }) => {
-    if (props.value) {
-      element.setAttribute('data-value', props.value)
-    }
-    element.setAttribute('type', 'button')
+  render: ({ props, children, useHostProps }) => {
+    useHostProps({
+      'data-value': props.value || undefined,
+      type: 'button',
+    })
 
     return <>{children}</>
   },
@@ -195,7 +184,9 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
         flexDirection: 'column',
       },
     },
-    render: ({ props, children, element, useDisposable }) => {
+    render: ({ props, children, useDisposable, useHostProps, useRef }) => {
+      const groupRef = useRef<HTMLDivElement>('group')
+
       useDisposable('click-handler', () => {
         const handleClick = (ev: Event) => {
           const target = (ev.target as HTMLElement).closest('button[data-value]')
@@ -221,28 +212,29 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
           }
         }
 
-        element.addEventListener('click', handleClick)
-        return { [Symbol.dispose]: () => element.removeEventListener('click', handleClick) }
+        const el = groupRef.current
+        el?.addEventListener('click', handleClick)
+        return { [Symbol.dispose]: () => el?.removeEventListener('click', handleClick) }
       })
 
       const { orientation = 'horizontal', disabled, color, style } = props
       const selectedValues = Array.isArray(props.value) ? props.value : props.value ? [props.value] : ([] as string[])
 
-      element.setAttribute('role', 'group')
-      element.setAttribute('data-orientation', orientation)
-
       const colors = color ? paletteFullColors[color] : defaultToggleColors
-      element.style.setProperty('--toggle-color-main', colors.main)
-
-      if (style) {
-        Object.assign(element.style, style)
-      }
+      useHostProps({
+        role: 'group',
+        'data-orientation': orientation,
+        style: {
+          '--toggle-color-main': colors.main,
+          ...(style as Record<string, string>),
+        },
+      })
 
       const radius = cssVariableTheme.shape.borderRadius.md
 
       // Update child toggle button states and apply grouping styles
       requestAnimationFrame(() => {
-        const buttons = Array.from(element.querySelectorAll('button[data-value]'))
+        const buttons = Array.from(groupRef.current?.querySelectorAll('button[data-value]') ?? [])
         const isVertical = orientation === 'vertical'
 
         buttons.forEach((btn, index) => {
@@ -274,7 +266,11 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
         })
       })
 
-      return <>{children}</>
+      return (
+        <div ref={groupRef} style={{ display: 'contents' }}>
+          {children}
+        </div>
+      )
     },
   })
 
@@ -365,27 +361,22 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
       fontSize: cssVariableTheme.typography.fontSize.sm,
     },
   },
-  render: ({ props, element }) => {
+  render: ({ props, useHostProps }) => {
     const { options, value, onValueChange, color, disabled, size, style } = props
-
-    element.setAttribute('role', 'radiogroup')
-
-    if (size === 'small') {
-      element.setAttribute('data-size', 'small')
-    } else {
-      element.removeAttribute('data-size')
-    }
 
     const colors = color
       ? { main: paletteFullColors[color].main, mainContrast: paletteFullColors[color].mainContrast }
       : defaultSegmentedColors
 
-    element.style.setProperty('--seg-color-main', colors.main)
-    element.style.setProperty('--seg-color-main-contrast', colors.mainContrast)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      role: 'radiogroup',
+      'data-size': size === 'small' ? 'small' : undefined,
+      style: {
+        '--seg-color-main': colors.main,
+        '--seg-color-main-contrast': colors.mainContrast,
+        ...(style as Record<string, string>),
+      },
+    })
 
     const buttons = options.map((option) => {
       const isSelected = value === option.value

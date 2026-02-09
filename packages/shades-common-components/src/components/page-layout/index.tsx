@@ -112,14 +112,14 @@ export const PageLayout = Shade<PageLayoutProps>({
       height: `var(${LAYOUT_CSS_VARIABLES.appBarHeight})`,
     },
 
-    // Auto-hide AppBar styles (controlled via host class)
-    '&.appbar-auto-hide .page-layout-appbar': {
+    // Auto-hide AppBar styles (controlled via host data attributes)
+    '&[data-appbar-auto-hide] .page-layout-appbar': {
       top: 'calc(-1 * var(--layout-appbar-height, 48px))',
     },
-    '&.appbar-auto-hide .page-layout-appbar:hover': {
+    '&[data-appbar-auto-hide] .page-layout-appbar:hover': {
       top: '0',
     },
-    '&.appbar-auto-hide.appbar-visible .page-layout-appbar': {
+    '&[data-appbar-auto-hide][data-appbar-visible] .page-layout-appbar': {
       top: '0',
     },
 
@@ -146,12 +146,12 @@ export const PageLayout = Shade<PageLayoutProps>({
       transform: 'translateX(0)',
     },
 
-    // Drawer closed states (controlled via host classes)
-    '&.drawer-left-closed .page-layout-drawer-left': {
+    // Drawer closed states (controlled via host data attributes)
+    '&[data-drawer-left-closed] .page-layout-drawer-left': {
       transform: 'translateX(-100%)',
       pointerEvents: 'none',
     },
-    '&.drawer-right-closed .page-layout-drawer-right': {
+    '&[data-drawer-right-closed] .page-layout-drawer-right': {
       transform: 'translateX(100%)',
       pointerEvents: 'none',
     },
@@ -169,7 +169,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       pointerEvents: 'none',
       transition: `opacity ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
-    '&.backdrop-visible .page-layout-drawer-backdrop': {
+    '&[data-backdrop-visible] .page-layout-drawer-backdrop': {
       opacity: '1',
       pointerEvents: 'auto',
     },
@@ -189,9 +189,11 @@ export const PageLayout = Shade<PageLayoutProps>({
     },
   },
 
-  render: ({ props, children, injector, element, useObservable, useDisposable }) => {
-    // Create scoped LayoutService with the element as target for CSS variables
-    const layoutService = useDisposable('layoutService', () => new LayoutService(element))
+  render: ({ props, children, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+    const layoutRef = useRef<HTMLDivElement>('layoutRoot')
+
+    // Create scoped LayoutService with a ref as target for CSS variables
+    const layoutService = useDisposable('layoutService', () => new LayoutService(layoutRef))
 
     // Create a child injector with the scoped LayoutService
     // This allows child components (like DrawerToggleButton) to access it
@@ -201,8 +203,15 @@ export const PageLayout = Shade<PageLayoutProps>({
       return child
     })
 
-    // Set the child injector on the element so children can find it
-    element.injector = childInjector
+    // Propagate the child injector so descendants can find it
+    useDisposable('injector-propagation', () => {
+      queueMicrotask(() => {
+        if (layoutRef.current) {
+          ;(layoutRef.current as unknown as { injector: typeof childInjector }).injector = childInjector
+        }
+      })
+      return { [Symbol.dispose]: () => {} }
+    })
 
     const screenService = injector.getInstance(ScreenService)
 
@@ -302,39 +311,23 @@ export const PageLayout = Shade<PageLayoutProps>({
       return { [Symbol.dispose]: () => {} }
     })
 
-    // Helper to update host element classes for animations (no re-render needed)
-    const updateHostClasses = () => {
-      const state = layoutService.drawerState.getValue()
-      const isAppBarVisible = layoutService.appBarVisible.getValue()
+    // Subscribe to drawer state and appbar visibility - re-render to update host props
+    const [drawerState] = useObservable('drawerState', layoutService.drawerState)
+    const [isAppBarVisible] = useObservable('appBarVisible', layoutService.appBarVisible)
 
-      // Drawer classes
-      element.classList.toggle('drawer-left-closed', !state.left?.open)
-      element.classList.toggle('drawer-right-closed', !state.right?.open)
+    // Set host classes via useHostProps for CSS-based animations
+    const isLeftOpen = drawerState.left?.open ?? false
+    const isRightOpen = drawerState.right?.open ?? false
+    const isLeftTemporaryOpen = props.drawer?.left?.variant === 'temporary' && isLeftOpen
+    const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && isRightOpen
 
-      // AppBar classes
-      if (props.appBar?.variant === 'auto-hide') {
-        element.classList.add('appbar-auto-hide')
-        element.classList.toggle('appbar-visible', isAppBarVisible)
-      }
-
-      // Backdrop visibility (for temporary drawers)
-      const isLeftTemporaryOpen = props.drawer?.left?.variant === 'temporary' && state.left?.open
-      const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && state.right?.open
-      element.classList.toggle('backdrop-visible', isLeftTemporaryOpen || isRightTemporaryOpen)
-    }
-
-    // Subscribe to drawer state with custom onChange (no re-render, just update classes)
-    useObservable('drawerState', layoutService.drawerState, {
-      onChange: updateHostClasses,
+    useHostProps({
+      ...(!isLeftOpen ? { 'data-drawer-left-closed': '' } : {}),
+      ...(!isRightOpen ? { 'data-drawer-right-closed': '' } : {}),
+      ...(props.appBar?.variant === 'auto-hide' ? { 'data-appbar-auto-hide': '' } : {}),
+      ...(props.appBar?.variant === 'auto-hide' && isAppBarVisible ? { 'data-appbar-visible': '' } : {}),
+      ...(isLeftTemporaryOpen || isRightTemporaryOpen ? { 'data-backdrop-visible': '' } : {}),
     })
-
-    // Subscribe to AppBar visibility with custom onChange (no re-render, just update classes)
-    useObservable('appBarVisible', layoutService.appBarVisible, {
-      onChange: updateHostClasses,
-    })
-
-    // Set initial host classes
-    updateHostClasses()
 
     // Handle temporary drawer backdrop click
     const handleBackdropClick = () => {
@@ -348,7 +341,7 @@ export const PageLayout = Shade<PageLayoutProps>({
     }
 
     return (
-      <>
+      <div ref={layoutRef} style={{ display: 'contents' }}>
         {/* AppBar */}
         {props.appBar && (
           <div className="page-layout-appbar" data-testid="page-layout-appbar">
@@ -377,7 +370,7 @@ export const PageLayout = Shade<PageLayoutProps>({
         <main className="page-layout-content" data-testid="page-layout-content">
           {children}
         </main>
-      </>
+      </div>
     )
   },
 })

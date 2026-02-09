@@ -20,8 +20,8 @@ export type NestedRoute<TMatchResult = unknown> = {
     outlet?: JSX.Element
   }) => JSX.Element
   routingOptions?: MatchOptions
-  onVisit?: (options: RenderOptions<unknown>) => Promise<void>
-  onLeave?: (options: RenderOptions<unknown>) => Promise<void>
+  onVisit?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
+  onLeave?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
   children?: Record<string, NestedRoute<any>>
 }
 

@@ -30,7 +30,9 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  render: ({ props, useDisposable, useObservable, element }) => {
+  render: ({ props, useDisposable, useObservable, useHostProps, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('treeWrapper')
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
         props.treeService.handleKeyDown(ev)
@@ -54,7 +56,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     useDisposable(
       'clickAway',
       () =>
-        new ClickAwayService(element, () => {
+        new ClickAwayService(wrapperRef, () => {
           props.treeService.hasFocus.setValue(false)
         }),
     )
@@ -68,9 +70,9 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
       )
     }
 
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    }
+    useHostProps({
+      'data-variant': props.variant || undefined,
+    })
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)
 
@@ -81,6 +83,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
 
     return (
       <div
+        ref={wrapperRef}
         role="tree"
         ariaMultiSelectable="true"
         className="shade-tree-wrapper"

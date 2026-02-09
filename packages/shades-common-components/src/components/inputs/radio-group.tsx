@@ -65,7 +65,9 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
       flexWrap: 'wrap',
     },
   },
-  render: ({ props, children, element, useDisposable }) => {
+  render: ({ props, children, useDisposable, useHostProps, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+
     useDisposable('change-handler', () => {
       const handleChange = (ev: Event) => {
         const target = ev.target as HTMLInputElement
@@ -74,40 +76,30 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
         }
       }
 
-      element.addEventListener('change', handleChange)
+      const el = wrapperRef.current
+      el?.addEventListener('change', handleChange)
 
-      return { [Symbol.dispose]: () => element.removeEventListener('change', handleChange) }
+      return { [Symbol.dispose]: () => el?.removeEventListener('change', handleChange) }
     })
 
     const orientation = props.orientation || 'vertical'
-    element.setAttribute('data-orientation', orientation)
-    element.setAttribute('role', 'radiogroup')
 
     // Expose group-level props as data attributes so child Radio components
     // can read them synchronously during their own render cycle.
-    element.setAttribute('data-group-name', props.name)
-
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (props.value !== undefined) {
-      element.setAttribute('data-group-value', props.value)
-    } else {
-      element.removeAttribute('data-group-value')
-    }
-
-    if (props.defaultValue !== undefined) {
-      element.setAttribute('data-group-default-value', props.defaultValue)
-    }
+    useHostProps({
+      'data-orientation': orientation,
+      role: 'radiogroup',
+      'data-group-name': props.name,
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-group-value': props.value !== undefined ? props.value : undefined,
+      'data-group-default-value': props.defaultValue !== undefined ? props.defaultValue : undefined,
+    })
 
     return (
-      <>
+      <div ref={wrapperRef} style={{ display: 'contents' }}>
         {props.labelTitle ? <span className="radio-group-label">{props.labelTitle}</span> : null}
         <div className="radio-group-items">{children}</div>
-      </>
+      </div>
     )
   },
 })

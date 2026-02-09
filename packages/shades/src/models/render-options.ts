@@ -3,12 +3,65 @@ import type { ObservableValue, ValueObserverOptions } from '@furystack/utils'
 import type { ChildrenList } from './children-list.js'
 import type { PartialElement } from './partial-element.js'
 
+/**
+ * A reference object returned by `useRef`.
+ * `current` is set to the DOM element when it is mounted, and `null` when unmounted.
+ * The `readonly` modifier ensures covariance so that `RefObject<HTMLInputElement>`
+ * is assignable to `RefObject<Element>`.
+ */
+export type RefObject<T extends Element = HTMLElement> = {
+  readonly current: T | null
+}
+
 export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
   readonly props: TProps & PartialElement<TElementBase>
   renderCount: number
   injector: Injector
   children?: ChildrenList
-  element: JSX.Element<TProps>
+  /**
+   * Declaratively sets attributes and styles on the host custom element.
+   * Can be called multiple times per render; each call merges into the previous values.
+   *
+   * CSS custom properties (e.g. `--my-color`) are applied via `setProperty`.
+   * The `style` property accepts both standard camelCase properties and CSS custom properties.
+   *
+   * @param hostProps An object of attribute key-value pairs, optionally including a `style` record
+   *
+   * @example
+   * ```typescript
+   * useHostProps({
+   *   'data-variant': props.variant,
+   *   role: 'progressbar',
+   *   'aria-valuenow': String(value),
+   *   style: {
+   *     '--btn-color-main': colors.main,
+   *     display: 'flex',
+   *   },
+   * })
+   * ```
+   */
+  useHostProps: (hostProps: Record<string, unknown> & { style?: Record<string, string> }) => void
+
+  /**
+   * Creates a mutable ref object that can be attached to intrinsic JSX elements via the `ref` prop.
+   * The ref's `current` property will be set to the DOM element after mount and `null` on unmount.
+   *
+   * Refs are cached by key, so calling `useRef` with the same key returns the same object across renders.
+   *
+   * @param key A unique key for caching the ref object
+   * @returns A ref object with a `current` property
+   *
+   * @example
+   * ```typescript
+   * const inputRef = useRef<HTMLInputElement>('input')
+   * // In JSX:
+   * <input ref={inputRef} />
+   * // Later:
+   * inputRef.current?.focus()
+   * ```
+   */
+  useRef: <T extends Element = HTMLElement>(key: string) => RefObject<T>
+
   /**
    * Creates and disposes a resource after the component has been detached from the DOM
    * @param key The key for caching the disposable resource

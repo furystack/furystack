@@ -26,47 +26,41 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
         ['transform', cssVariableTheme.transitions.duration.fast, 'ease-out'],
         ['background-color', cssVariableTheme.transitions.duration.fast, 'ease'],
       ),
-      '&.visible': {
+      '&[data-visible]': {
         opacity: '1',
         transform: 'translateY(0)',
       },
-      '&:not(.disabled):hover, &.focused': {
+      '&:not([data-disabled]):hover, &[data-focused]': {
         backgroundColor: cssVariableTheme.action.hoverBackground,
       },
-      '&.disabled': {
+      '&[data-disabled]': {
         opacity: '0.5',
         cursor: 'not-allowed',
       },
     },
-    render: ({ props, element, useObservable, useDisposable }) => {
+    render: ({ props, useObservable, useDisposable, useHostProps, useState }) => {
+      const [isVisible, setVisible] = useState('isVisible', false)
+
       useDisposable('enter-animation', () => {
-        const timer = setTimeout(() => element.classList.add('visible'), props.index * 30)
+        const timer = setTimeout(() => setVisible(true), props.index * 30)
         return { [Symbol.dispose]: () => clearTimeout(timer) }
       })
 
       const { item, index, manager } = props
 
-      element.setAttribute('role', 'menuitem')
+      const [focusedIndex] = useObservable('focusedIndex', manager.focusedIndex)
 
-      if (item.disabled) {
-        element.classList.add('disabled')
-        element.setAttribute('aria-disabled', 'true')
-      }
-
-      element.onclick = () => {
-        if (!item.disabled) {
-          manager.selectItem(index)
-        }
-      }
-
-      const updateFocusState = (focusedIndex: number) => {
-        element.classList.toggle('focused', focusedIndex === index)
-      }
-
-      const [focusedIndex] = useObservable('focusedIndex', manager.focusedIndex, {
-        onChange: updateFocusState,
+      useHostProps({
+        role: 'menuitem',
+        onclick: () => {
+          if (!item.disabled) {
+            manager.selectItem(index)
+          }
+        },
+        ...(isVisible ? { 'data-visible': '' } : {}),
+        ...(item.disabled ? { 'data-disabled': '', 'aria-disabled': 'true' } : {}),
+        ...(focusedIndex === index ? { 'data-focused': '' } : {}),
       })
-      updateFocusState(focusedIndex)
 
       return (
         <>

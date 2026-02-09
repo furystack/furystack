@@ -22,7 +22,8 @@ export const searchableInputStyles: CSSObject = {
     transition: `all ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
   },
 
-  '&.opened .input-container': {
+  '&[data-opened] .input-container': {
+    background: cssVariableTheme.background.default,
     border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     boxShadow: cssVariableTheme.shadows.md,
   },
@@ -49,7 +50,7 @@ export const searchableInputStyles: CSSObject = {
     overflow: 'hidden',
   },
 
-  '&.opened .post-controls': {
+  '&[data-opened] .post-controls': {
     width: '50px',
   },
 
@@ -69,7 +70,7 @@ export const searchableInputStyles: CSSObject = {
     transform: 'scale(1)',
   },
 
-  '&.opened .close-suggestions': {
+  '&[data-opened] .close-suggestions': {
     opacity: '1',
   },
 

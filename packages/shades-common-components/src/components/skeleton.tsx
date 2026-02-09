@@ -1,4 +1,4 @@
-import { Shade } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 
@@ -20,17 +20,20 @@ export const Skeleton = Shade<SkeletonProps>({
     height: '100%',
     minHeight: '1em',
   },
-  render: ({ element, props }) => {
+  render: ({ props, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
     const { delay = 1500 } = props
     setTimeout(() => {
-      void promisifyAnimation(element, [{ opacity: 0 }, { opacity: 1 }], {
+      const el = wrapperRef.current
+      if (!el) return
+      void promisifyAnimation(el, [{ opacity: 0 }, { opacity: 1 }], {
         fill: 'forwards',
         duration: 300,
         easing: 'ease-out',
         delay,
       }).then(() => {
         void promisifyAnimation(
-          element,
+          el,
           [{ backgroundPosition: '0% 50%' }, { backgroundPosition: '100% 50%' }, { backgroundPosition: '0% 50%' }],
           {
             duration: 10000,
@@ -40,6 +43,19 @@ export const Skeleton = Shade<SkeletonProps>({
       })
     })
 
-    return null
+    return (
+      <div
+        ref={wrapperRef}
+        style={{
+          opacity: '0',
+          display: 'inline-block',
+          background: 'inherit',
+          backgroundSize: 'inherit',
+          width: '100%',
+          height: '100%',
+          minHeight: '1em',
+        }}
+      />
+    )
   },
 })

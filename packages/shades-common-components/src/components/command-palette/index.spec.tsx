@@ -334,7 +334,7 @@ describe('CommandPalette', () => {
         termIcon.click()
         await sleepAsync(100) // Wait longer for the opened state to propagate
 
-        expect(commandPalette.classList.contains('opened')).toBe(true)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
@@ -349,7 +349,7 @@ describe('CommandPalette', () => {
         await sleepAsync(100)
 
         // Clicking a suggestion should close the palette
-        expect(commandPalette.classList.contains('opened')).toBe(false)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
     })
 
@@ -374,7 +374,7 @@ describe('CommandPalette', () => {
         termIcon.click()
         await sleepAsync(50)
 
-        expect(commandPalette.classList.contains('opened')).toBe(true)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
@@ -386,7 +386,7 @@ describe('CommandPalette', () => {
         triggerKeyup(input, 'Enter')
         await sleepAsync(50)
 
-        expect(commandPalette.classList.contains('opened')).toBe(false)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
     })
   })
@@ -512,13 +512,13 @@ describe('CommandPalette', () => {
         await sleepAsync(50)
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
-        expect(commandPalette.classList.contains('opened')).toBe(false)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(false)
 
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
         await sleepAsync(50)
 
-        expect(commandPalette.classList.contains('opened')).toBe(true)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(true)
       })
     })
 
@@ -540,14 +540,14 @@ describe('CommandPalette', () => {
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
         await sleepAsync(50)
-        expect(commandPalette.classList.contains('opened')).toBe(true)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         // Close
         const closeButton = commandPalette.querySelector('.close-suggestions') as HTMLElement
         closeButton.click()
         await sleepAsync(50)
 
-        expect(commandPalette.classList.contains('opened')).toBe(false)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
     })
 
@@ -580,11 +580,11 @@ describe('CommandPalette', () => {
 
         await sleepAsync(260) // After debounce but before provider resolves
 
-        expect(commandPalette.classList.contains('loading')).toBe(true)
+        expect(commandPalette.hasAttribute('data-loading')).toBe(true)
 
         await sleepAsync(200) // Wait for provider to resolve
 
-        expect(commandPalette.classList.contains('loading')).toBe(false)
+        expect(commandPalette.hasAttribute('data-loading')).toBe(false)
       })
     })
   })
@@ -613,14 +613,14 @@ describe('CommandPalette', () => {
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
         await sleepAsync(50)
-        expect(commandPalette.classList.contains('opened')).toBe(true)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         // Click outside
         const outsideElement = document.getElementById('outside') as HTMLElement
         outsideElement.dispatchEvent(new MouseEvent('click', { bubbles: true }))
         await sleepAsync(50)
 
-        expect(commandPalette.classList.contains('opened')).toBe(false)
+        expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
     })
   })

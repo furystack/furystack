@@ -41,11 +41,15 @@ export const Fab = Shade<FabProps>({
       opacity: cssVariableTheme.action.disabledOpacity,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const colors = paletteFullColors[props.color ?? 'primary']
-    element.style.setProperty('--fab-color-main', colors.main)
-    element.style.setProperty('--fab-color-contrast', colors.mainContrast)
-    element.style.setProperty('--fab-color-dark', colors.dark)
+    useHostProps({
+      style: {
+        '--fab-color-main': colors.main,
+        '--fab-color-contrast': colors.mainContrast,
+        '--fab-color-dark': colors.dark,
+      },
+    })
 
     return <>{children}</>
   },

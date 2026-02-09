@@ -203,11 +203,15 @@ export const DataGridHeader: <T, Column extends string>(
       gap: '4px',
     },
   },
-  render: ({ props, element, useObservable }) => {
+  render: ({ props, useObservable, useRef }) => {
+    const searchFormRef = useRef<HTMLElement>('searchForm')
+    const headerContentRef = useRef<HTMLDivElement>('headerContent')
+
     const [, setIsSearchOpened] = useObservable('isSearchOpened', new ObservableValue(false), {
       onChange: (newValue) => {
-        const searchForm = element.querySelector('.search-form') as HTMLElement
-        const headerContent = element.querySelector('.header-content') as HTMLElement
+        const searchForm = searchFormRef.current?.querySelector('.search-form') as HTMLElement | null
+        const headerContent = headerContentRef.current
+        if (!searchForm || !headerContent) return
         if (!newValue) {
           void collapse(searchForm)
           void expand(headerContent)
@@ -244,13 +248,15 @@ export const DataGridHeader: <T, Column extends string>(
 
     return (
       <>
-        <SearchForm
-          onSubmit={updateSearchValue}
-          onClear={updateSearchValue}
-          fieldName={props.field}
-          findOptions={props.findOptions}
-        />
-        <div className="header-content">
+        <div ref={searchFormRef} style={{ display: 'contents' }}>
+          <SearchForm
+            onSubmit={updateSearchValue}
+            onClear={updateSearchValue}
+            fieldName={props.field}
+            findOptions={props.findOptions}
+          />
+        </div>
+        <div ref={headerContentRef} className="header-content">
           <div className="header-field-name">{props.field}</div>
           <div className="header-controls">
             <SearchButton

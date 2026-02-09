@@ -30,7 +30,7 @@ const TabHeader = Shade<{ hash: string }>({
     alignItems: 'center',
     gap: cssVariableTheme.spacing.sm,
     textDecoration: 'none',
-    '&.active': {
+    '&[data-active]': {
       fontWeight: 'bolder',
       background: cssVariableTheme.background.paper,
       color: cssVariableTheme.text.primary,
@@ -39,14 +39,16 @@ const TabHeader = Shade<{ hash: string }>({
   },
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
-  render: ({ children, element, injector, props, useObservable }) => {
+  render: ({ children, injector, props, useObservable, useHostProps }) => {
     const locationService = injector.getInstance(LocationService)
 
     const [hash] = useObservable('updateLocation', locationService.onLocationHashChanged)
     const isActive = hash === props.hash
 
-    element.classList.toggle('active', isActive)
-    element.setAttribute('href', `#${props.hash}`)
+    useHostProps({
+      href: `#${props.hash}`,
+      ...(isActive ? { 'data-active': '' } : {}),
+    })
 
     return <>{children}</>
   },
@@ -162,7 +164,7 @@ export const Tabs = Shade<{
       flexDirection: 'column',
       borderRadius: `${cssVariableTheme.shape.borderRadius.md} 0 0 ${cssVariableTheme.shape.borderRadius.md}`,
     },
-    '&[data-orientation="vertical"] a[is="shade-tab-header"].active, &[data-orientation="vertical"] .shade-tab-btn.active':
+    '&[data-orientation="vertical"] a[is="shade-tab-header"][data-active], &[data-orientation="vertical"] .shade-tab-btn.active':
       {
         boxShadow: `inset -2px 0 0 ${cssVariableTheme.palette.primary.main}`,
       },
@@ -181,7 +183,7 @@ export const Tabs = Shade<{
       marginBottom: '-1px',
       background: 'transparent',
     },
-    '&[data-type="card"] a[is="shade-tab-header"].active, &[data-type="card"] .shade-tab-btn.active': {
+    '&[data-type="card"] a[is="shade-tab-header"][data-active], &[data-type="card"] .shade-tab-btn.active': {
       boxShadow: 'none',
       background: cssVariableTheme.background.paper,
       border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
@@ -201,7 +203,7 @@ export const Tabs = Shade<{
         marginRight: '-1px',
         marginBottom: '0',
       },
-    '&[data-type="card"][data-orientation="vertical"] a[is="shade-tab-header"].active, &[data-type="card"][data-orientation="vertical"] .shade-tab-btn.active':
+    '&[data-type="card"][data-orientation="vertical"] a[is="shade-tab-header"][data-active], &[data-type="card"][data-orientation="vertical"] .shade-tab-btn.active':
       {
         boxShadow: 'none',
         background: cssVariableTheme.background.paper,
@@ -209,22 +211,12 @@ export const Tabs = Shade<{
         borderRight: `1px solid ${cssVariableTheme.background.paper}`,
       },
   },
-  render: ({ props, element, useObservable, injector }) => {
-    if (props.containerStyle) {
-      Object.assign(element.style, props.containerStyle)
-    }
-
-    if (props.orientation === 'vertical') {
-      element.setAttribute('data-orientation', 'vertical')
-    } else {
-      element.removeAttribute('data-orientation')
-    }
-
-    if (props.type === 'card') {
-      element.setAttribute('data-type', 'card')
-    } else {
-      element.removeAttribute('data-type')
-    }
+  render: ({ props, useObservable, injector, useHostProps }) => {
+    useHostProps({
+      ...(props.containerStyle ? { style: props.containerStyle as Record<string, string> } : {}),
+      ...(props.orientation === 'vertical' ? { 'data-orientation': 'vertical' } : {}),
+      ...(props.type === 'card' ? { 'data-type': 'card' } : {}),
+    })
 
     const isControlled = props.activeKey !== undefined
 

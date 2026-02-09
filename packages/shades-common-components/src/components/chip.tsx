@@ -148,43 +148,24 @@ export const Chip = Shade<ChipProps>({
       whiteSpace: 'nowrap',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { variant, color, size, disabled, clickable, onDelete, style, ...rest } = props
 
-    if (variant) {
-      element.setAttribute('data-variant', variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-
-    if (size === 'small') {
-      element.setAttribute('data-size', 'small')
-    } else {
-      element.removeAttribute('data-size')
-    }
-
-    if (disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (clickable || rest.onclick) {
-      element.setAttribute('data-clickable', '')
-    } else {
-      element.removeAttribute('data-clickable')
-    }
-
     const colors = color ? paletteFullColors[color] : defaultColors
-    element.style.setProperty('--chip-color-main', colors.main)
-    element.style.setProperty('--chip-color-main-contrast', colors.mainContrast)
-    element.style.setProperty('--chip-color-light', colors.light)
-    element.style.setProperty('--chip-color-dark', colors.dark)
-    element.style.setProperty('--chip-color-dark-contrast', colors.darkContrast)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-variant': variant || undefined,
+      'data-size': size === 'small' ? 'small' : undefined,
+      'data-disabled': disabled ? '' : undefined,
+      'data-clickable': clickable || rest.onclick ? '' : undefined,
+      style: {
+        '--chip-color-main': colors.main,
+        '--chip-color-main-contrast': colors.mainContrast,
+        '--chip-color-light': colors.light,
+        '--chip-color-dark': colors.dark,
+        '--chip-color-dark-contrast': colors.darkContrast,
+        ...(style as Record<string, string>),
+      },
+    })
 
     return (
       <>

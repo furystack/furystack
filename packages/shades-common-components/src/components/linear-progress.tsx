@@ -32,28 +32,6 @@ export type LinearProgressProps = {
 
 const clampValue = (v: number) => Math.max(0, Math.min(100, v))
 
-const setProgressColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: LinearProgressProps
-}): void => {
-  const color = themeProvider.theme.palette[props.color || 'primary'].main
-  element.style.setProperty('--progress-color', color)
-}
-
-const updateDeterminate = (element: HTMLElement, value: number): void => {
-  const clamped = clampValue(value)
-  const bar = element.querySelector<HTMLElement>('.progress-bar')
-  if (bar) {
-    bar.style.width = `${clamped}%`
-  }
-  element.setAttribute('aria-valuenow', String(clamped))
-}
-
 export const LinearProgress = Shade<LinearProgressProps>({
   shadowDomName: 'shade-linear-progress',
   css: {
@@ -89,40 +67,46 @@ export const LinearProgress = Shade<LinearProgressProps>({
       transition: 'none',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
+    const barRef = useRef<HTMLElement>('progressBar')
     const variant = props.variant || 'indeterminate'
 
     if (variant === 'determinate' && props.value) {
-      useDisposable('value-subscription', () => props.value!.subscribe((next) => updateDeterminate(element, next)))
+      useDisposable('value-subscription', () =>
+        props.value!.subscribe((next) => {
+          const clamped = Math.max(0, Math.min(100, next))
+          if (barRef.current) {
+            barRef.current.style.width = `${clamped}%`
+          }
+        }),
+      )
     }
     const value = clampValue(props.value?.getValue() ?? 0)
 
-    if (props.size === 'small') {
-      element.setAttribute('data-size', 'small')
-    } else {
-      element.removeAttribute('data-size')
-    }
-
-    element.setAttribute('role', 'progressbar')
-    if (variant === 'determinate') {
-      element.setAttribute('aria-valuenow', String(value))
-      element.setAttribute('aria-valuemin', '0')
-      element.setAttribute('aria-valuemax', '100')
-    } else {
-      element.removeAttribute('aria-valuenow')
-    }
-
-    setProgressColors({ element, themeProvider, props })
+    const color = themeProvider.theme.palette[props.color || 'primary'].main
+    useHostProps({
+      'data-size': props.size === 'small' ? 'small' : undefined,
+      role: 'progressbar',
+      ...(variant === 'determinate'
+        ? {
+            'aria-valuenow': String(value),
+            'aria-valuemin': '0',
+            'aria-valuemax': '100',
+          }
+        : {
+            'aria-valuenow': undefined,
+          }),
+      style: { '--progress-color': color },
+    })
 
     const barWidth = variant === 'determinate' ? `${value}%` : '40%'
 
     if (variant === 'indeterminate') {
       setTimeout(() => {
-        const bar = element.querySelector<HTMLElement>('.progress-bar')
-        if (bar) {
+        if (barRef.current) {
           void promisifyAnimation(
-            bar,
+            barRef.current,
             [
               { left: '-40%', width: '40%' },
               { left: '60%', width: '40%' },
@@ -140,6 +124,7 @@ export const LinearProgress = Shade<LinearProgressProps>({
 
     return (
       <div
+        ref={barRef}
         className="progress-bar"
         style={{ width: barWidth }}
         {...(variant === 'indeterminate' ? { 'data-indeterminate': '' } : {})}

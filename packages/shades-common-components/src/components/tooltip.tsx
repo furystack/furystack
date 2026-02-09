@@ -131,26 +131,16 @@ export const Tooltip = Shade<TooltipProps>({
       marginTop: '-4px',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { placement, delay, disabled } = props
 
-    if (placement) {
-      element.setAttribute('data-placement', placement)
-    } else {
-      element.removeAttribute('data-placement')
-    }
-
-    if (disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    if (delay !== undefined && delay > 0) {
-      element.style.setProperty('--tooltip-delay', `${delay}ms`)
-    } else {
-      element.style.removeProperty('--tooltip-delay')
-    }
+    useHostProps({
+      'data-placement': placement || undefined,
+      'data-disabled': disabled ? '' : undefined,
+      style: {
+        ...(delay !== undefined && delay > 0 ? { '--tooltip-delay': `${delay}ms` } : {}),
+      },
+    })
 
     return (
       <>

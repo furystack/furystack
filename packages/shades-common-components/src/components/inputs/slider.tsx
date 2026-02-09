@@ -102,22 +102,23 @@ const resolveMarks = (
 const isRangeValue = (value: unknown): value is [number, number] =>
   Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number'
 
-/** Stores props for each Slider element so the constructed handler can access them without re-renders */
-const sliderPropsMap = new WeakMap<HTMLElement, SliderProps>()
+/** Stores props for each Slider ref so the constructed handler can access them without re-renders */
+const sliderPropsMap = new WeakMap<object, SliderProps>()
 
 /**
  * Directly updates DOM positions and aria-valuenow on thumb/track elements.
  * Used during drag for smooth updates without triggering a full re-render.
  */
 const syncVisuals = (
-  element: HTMLElement,
+  track: HTMLElement | null,
+  thumb0: HTMLElement | null,
+  thumb1: HTMLElement | null,
   value: number | [number, number],
   min: number,
   max: number,
   vertical: boolean,
 ): void => {
-  const track = element.querySelector<HTMLElement>('.slider-track')
-  const thumbs = element.querySelectorAll<HTMLElement>('.slider-thumb')
+  const thumbs = [thumb0, thumb1].filter(Boolean) as HTMLElement[]
 
   if (isRangeValue(value)) {
     const startPct = valueToPercent(value[0], min, max)
@@ -182,14 +183,15 @@ const syncVisuals = (
  * Sets all ARIA attributes on thumb elements after render.
  */
 const syncAriaAttributes = (
-  element: HTMLElement,
+  thumb0: HTMLElement | null,
+  thumb1: HTMLElement | null,
   value: number | [number, number],
   min: number,
   max: number,
   vertical: boolean,
   disabled: boolean,
 ): void => {
-  const thumbs = element.querySelectorAll<HTMLElement>('.slider-thumb')
+  const thumbs = [thumb0, thumb1].filter(Boolean) as HTMLElement[]
   thumbs.forEach((thumb, i) => {
     thumb.setAttribute('role', 'slider')
     thumb.setAttribute('aria-valuemin', String(min))
@@ -360,7 +362,12 @@ export const Slider = Shade<SliderProps>({
     },
   },
 
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+    const sliderRootRef = useRef<HTMLDivElement>('sliderRoot')
+    const trackRef = useRef<HTMLElement>('sliderTrack')
+    const thumb0Ref = useRef<HTMLElement>('sliderThumb0')
+    const thumb1Ref = useRef<HTMLElement>('sliderThumb1')
+
     useDisposable('interaction-handler', () => {
       let isDragging = false
       let activeThumbIdx = 0
@@ -371,7 +378,7 @@ export const Slider = Shade<SliderProps>({
       let pendingValue: number | [number, number] | null = null
 
       const getProps = (): SliderProps & { min: number; max: number; step: number } => {
-        const p = sliderPropsMap.get(element)
+        const p = sliderPropsMap.get(sliderRootRef)
         return {
           ...p,
           min: p?.min ?? 0,
@@ -381,8 +388,8 @@ export const Slider = Shade<SliderProps>({
       }
 
       const getValueFromPointer = (clientX: number, clientY: number): number | null => {
-        if (!element.isConnected) return null
-        const root = element.querySelector('.slider-root')
+        if (!sliderRootRef.current?.isConnected) return null
+        const root = sliderRootRef.current
         if (!root) return null
         const rect = root.getBoundingClientRect()
         if (rect.width === 0 && rect.height === 0) return null
@@ -399,7 +406,7 @@ export const Slider = Shade<SliderProps>({
 
       const applyVisual = (newValue: number | [number, number]): void => {
         const { min, max, vertical } = getProps()
-        syncVisuals(element, newValue, min, max, vertical ?? false)
+        syncVisuals(trackRef.current, thumb0Ref.current, thumb1Ref.current, newValue, min, max, vertical ?? false)
       }
 
       const emitToParent = (newValue: number | [number, number]): void => {
@@ -448,10 +455,10 @@ export const Slider = Shade<SliderProps>({
         }
 
         isDragging = true
-        element.setAttribute('data-dragging', '')
+        sliderRootRef.current?.setAttribute('data-dragging', '')
 
         const handlePointerMove = (moveEvt: MouseEvent | TouchEvent): void => {
-          if (!isDragging || !element.isConnected) {
+          if (!isDragging || !sliderRootRef.current?.isConnected) {
             endDrag()
             return
           }
@@ -479,7 +486,7 @@ export const Slider = Shade<SliderProps>({
 
         const endDrag = (): void => {
           isDragging = false
-          element.removeAttribute('data-dragging')
+          sliderRootRef.current?.removeAttribute('data-dragging')
           document.removeEventListener('mousemove', handlePointerMove)
           document.removeEventListener('mouseup', endDrag)
           document.removeEventListener('touchmove', handlePointerMove)
@@ -563,15 +570,16 @@ export const Slider = Shade<SliderProps>({
         emitToParent(updated)
       }
 
-      element.addEventListener('mousedown', handlePointerDown)
-      element.addEventListener('touchstart', handlePointerDown, { passive: false })
-      element.addEventListener('keydown', handleKeyDown)
+      const root = sliderRootRef.current
+      root?.addEventListener('mousedown', handlePointerDown)
+      root?.addEventListener('touchstart', handlePointerDown, { passive: false })
+      root?.addEventListener('keydown', handleKeyDown)
 
       return {
         [Symbol.dispose]: () => {
-          element.removeEventListener('mousedown', handlePointerDown)
-          element.removeEventListener('touchstart', handlePointerDown)
-          element.removeEventListener('keydown', handleKeyDown)
+          root?.removeEventListener('mousedown', handlePointerDown)
+          root?.removeEventListener('touchstart', handlePointerDown)
+          root?.removeEventListener('keydown', handleKeyDown)
           cleanupDrag?.()
         },
       }
@@ -587,27 +595,26 @@ export const Slider = Shade<SliderProps>({
     const rangeMode = isRangeValue(value)
 
     // Store props for interaction event handlers
-    sliderPropsMap.set(element, props)
-
-    // Data attributes for CSS
-    if (vertical) element.setAttribute('data-vertical', '')
-    else element.removeAttribute('data-vertical')
-
-    if (disabled) element.setAttribute('data-disabled', '')
-    else element.removeAttribute('data-disabled')
+    sliderPropsMap.set(sliderRootRef, props)
 
     // Theme color
     const color = themeProvider.theme.palette[props.color || 'primary'].main
-    element.style.setProperty('--slider-color', color)
 
     // Resolve marks
     const marks = resolveMarks(props.marks, min, max, step)
     const hasLabels = marks.some((m) => m.label)
-    if (hasLabels) element.setAttribute('data-has-labels', '')
-    else element.removeAttribute('data-has-labels')
+
+    useHostProps({
+      style: { '--slider-color': color },
+      ...(vertical ? { 'data-vertical': '' } : {}),
+      ...(disabled ? { 'data-disabled': '' } : {}),
+      ...(hasLabels ? { 'data-has-labels': '' } : {}),
+    })
 
     // Set ARIA attributes on thumbs after render
-    setTimeout(() => syncAriaAttributes(element, value, min, max, vertical, disabled), 0)
+    queueMicrotask(() => {
+      syncAriaAttributes(thumb0Ref.current, thumb1Ref.current, value, min, max, vertical, disabled)
+    })
 
     // Calculate positions
     const renderMarks = (activeCheck: (markValue: number) => boolean) =>
@@ -642,11 +649,23 @@ export const Slider = Shade<SliderProps>({
       const thumbEndStyle: Partial<CSSStyleDeclaration> = vertical ? { bottom: `${endPct}%` } : { left: `${endPct}%` }
 
       return (
-        <div className="slider-root">
+        <div ref={sliderRootRef} className="slider-root">
           <div className="slider-rail" />
-          <div className="slider-track" style={trackStyle} />
-          <div className="slider-thumb" data-index="0" tabIndex={disabled ? -1 : 0} style={thumbStartStyle} />
-          <div className="slider-thumb" data-index="1" tabIndex={disabled ? -1 : 0} style={thumbEndStyle} />
+          <div ref={trackRef} className="slider-track" style={trackStyle} />
+          <div
+            ref={thumb0Ref}
+            className="slider-thumb"
+            data-index="0"
+            tabIndex={disabled ? -1 : 0}
+            style={thumbStartStyle}
+          />
+          <div
+            ref={thumb1Ref}
+            className="slider-thumb"
+            data-index="1"
+            tabIndex={disabled ? -1 : 0}
+            style={thumbEndStyle}
+          />
           {renderMarks((v) => v >= value[0] && v <= value[1])}
         </div>
       )
@@ -662,10 +681,10 @@ export const Slider = Shade<SliderProps>({
     const thumbStyle: Partial<CSSStyleDeclaration> = vertical ? { bottom: `${pct}%` } : { left: `${pct}%` }
 
     return (
-      <div className="slider-root">
+      <div ref={sliderRootRef} className="slider-root">
         <div className="slider-rail" />
-        <div className="slider-track" style={trackStyle} />
-        <div className="slider-thumb" data-index="0" tabIndex={disabled ? -1 : 0} style={thumbStyle} />
+        <div ref={trackRef} className="slider-track" style={trackStyle} />
+        <div ref={thumb0Ref} className="slider-thumb" data-index="0" tabIndex={disabled ? -1 : 0} style={thumbStyle} />
         {renderMarks((v) => v <= value)}
         {props.name ? <input type="hidden" name={props.name} value={String(value)} /> : null}
       </div>

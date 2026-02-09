@@ -13,30 +13,36 @@ export interface NippleComponentProps {
 
 export const NippleComponent = Shade<NippleComponentProps>({
   shadowDomName: 'shade-nipple',
-  render: ({ children, element, props, useDisposable }) => {
+  render: ({ children, props, useDisposable, useRef }) => {
+    const zoneRef = useRef<HTMLDivElement>('zone')
+
     useDisposable('nipple-init', () => {
-      const manager = nipplejs.create({
-        zone: element,
-        ...props.managerOptions,
+      let manager: ReturnType<typeof nipplejs.create> | undefined
+      queueMicrotask(() => {
+        if (!zoneRef.current) return
+        manager = nipplejs.create({
+          zone: zoneRef.current,
+          ...props.managerOptions,
+        })
+        if (props.onStart) {
+          manager.on('start', props.onStart)
+        }
+        if (props.onEnd) {
+          manager.on('end', props.onEnd)
+        }
+        if (props.onDir) {
+          manager.on('dir', props.onDir)
+        }
+        if (props.onMove) {
+          manager.on('move', props.onMove)
+        }
       })
-      if (props.onStart) {
-        manager.on('start', props.onStart)
-      }
-      if (props.onEnd) {
-        manager.on('end', props.onEnd)
-      }
-      if (props.onDir) {
-        manager.on('dir', props.onDir)
-      }
-      if (props.onMove) {
-        manager.on('move', props.onMove)
-      }
-      return { [Symbol.dispose]: () => manager.destroy() }
+      return { [Symbol.dispose]: () => manager?.destroy() }
     })
 
     if (children) {
-      return <>{children}</>
+      return <div ref={zoneRef}>{children}</div>
     }
-    return <div />
+    return <div ref={zoneRef} />
   },
 })

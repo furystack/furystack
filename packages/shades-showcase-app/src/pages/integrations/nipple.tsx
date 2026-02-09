@@ -4,7 +4,9 @@ import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
   shadowDomName: 'nipple-page',
-  render: ({ element }) => {
+  render: ({ useRef }) => {
+    const outputRef = useRef<HTMLElement>('output')
+
     return (
       <PageContainer fullHeight>
         <PageHeader
@@ -14,6 +16,7 @@ export const NipplePage = Shade({
         />
         <Paper elevation={3} style={{ flex: '1', position: 'relative', overflow: 'auto' }}>
           <code
+            ref={outputRef}
             className="nipple-container"
             style={{
               position: 'absolute',
@@ -37,11 +40,9 @@ export const NipplePage = Shade({
               position: { left: '50%', top: '50%' },
             }}
             onMove={(_evt, newData) => {
-              ;(element.querySelector('.nipple-container') as HTMLDivElement).textContent = JSON.stringify(
-                newData,
-                undefined,
-                2,
-              )
+              if (outputRef.current) {
+                outputRef.current.textContent = JSON.stringify(newData, undefined, 2)
+              }
             }}
           />
         </Paper>

@@ -8,6 +8,7 @@
  */
 
 import type { ChildrenList } from './models/children-list.js'
+import type { RefObject } from './models/render-options.js'
 import { SVG_NS, isSvgTag } from './svg.js'
 
 // ---------------------------------------------------------------------------
@@ -216,6 +217,7 @@ export const toVChildArray = (renderResult: unknown): VChild[] => {
 // ---------------------------------------------------------------------------
 
 const setProp = (el: Element, key: string, value: unknown): void => {
+  if (key === 'ref') return
   if (key === 'style' && typeof value === 'object' && value !== null) {
     for (const [sk, sv] of Object.entries(value as Record<string, string>)) {
       ;((el as HTMLElement).style as unknown as Record<string, string>)[sk] = sv
@@ -245,6 +247,7 @@ const setProp = (el: Element, key: string, value: unknown): void => {
 }
 
 const removeProp = (el: Element, key: string): void => {
+  if (key === 'ref') return
   if (el instanceof SVGElement) {
     el.removeAttribute(key === 'className' ? 'class' : key)
     return
@@ -366,6 +369,13 @@ export const mountChild = (child: VChild, parent: Node | null): Node => {
   }
 
   if (parent) parent.appendChild(el)
+
+  // Set ref after the element is fully created and appended
+  const ref = child.props?.ref as RefObject<Element> | undefined
+  if (ref) {
+    ;(ref as { current: Element | null }).current = el
+  }
+
   return el
 }
 
@@ -377,6 +387,11 @@ export const mountChild = (child: VChild, parent: Node | null): Node => {
  * Removes the DOM node associated with a VChild from its parent.
  */
 export const unmountChild = (child: VChild): void => {
+  // Clear ref before removing from DOM
+  if (child._brand === VNODE_BRAND && child.props?.ref) {
+    ;(child.props.ref as { current: Element | null }).current = null
+  }
+
   const node = child._el
   if (node?.parentNode) {
     node.parentNode.removeChild(node)
@@ -441,6 +456,14 @@ const patchChild = (_parentEl: Node, oldChild: VChild, newChild: VChild): void =
     newChild._el = el
     patchProps(el, oldChild.props, newChild.props)
     patchChildren(el, oldChild.children, newChild.children)
+
+    // Update refs: clear old ref if different, set new ref
+    const oldRef = oldChild.props?.ref as RefObject<Element> | undefined
+    const newRef = newChild.props?.ref as RefObject<Element> | undefined
+    if (oldRef !== newRef) {
+      if (oldRef) (oldRef as { current: Element | null }).current = null
+      if (newRef) (newRef as { current: Element | null }).current = el
+    }
     return
   }
 

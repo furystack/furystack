@@ -113,17 +113,18 @@ export const TimelineItem = Shade<TimelineItemProps>({
       visibility: 'hidden',
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { color = 'primary', dot, label, style } = props
 
     const colors = paletteMainColors[color]
-    element.style.setProperty('--timeline-dot-color', colors.main)
+    useHostProps({
+      style: {
+        '--timeline-dot-color': colors.main,
+        ...(style as Record<string, string>),
+      },
+    })
 
-    if (style) {
-      Object.assign(element.style, style)
-    }
-
-    const isPending = element.hasAttribute('data-pending')
+    const isPending = (props as Record<string, unknown>)['data-pending'] !== undefined
 
     return (
       <>
@@ -164,14 +165,13 @@ export const Timeline = Shade<TimelineProps>({
     listStyle: 'none',
     fontFamily: cssVariableTheme.typography.fontFamily,
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { mode = 'left', pending, style } = props
 
-    element.setAttribute('data-mode', mode)
-
-    if (style) {
-      Object.assign(element.style, style)
-    }
+    useHostProps({
+      'data-mode': mode,
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
     const items = (Array.isArray(children) ? children.flat() : children ? [children] : []) as JSX.Element[]
     const totalItems = pending ? items.length + 1 : items.length

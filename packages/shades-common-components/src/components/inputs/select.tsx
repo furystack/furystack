@@ -66,20 +66,6 @@ export type SelectProps = {
   getHelperText?: (options: { state: SelectState; validationResult?: InputValidationResult }) => JSX.Element | string
 }
 
-const setSelectColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: SelectProps
-}): void => {
-  const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
-  element.style.setProperty('--select-primary-color', primaryColor)
-  element.style.setProperty('--select-error-color', themeProvider.theme.palette.error.main)
-}
-
 /** Flattens optionGroups + options into a single flat list */
 const getAllOptions = (props: SelectProps): SelectOption[] => {
   const flatOptions = props.options || []
@@ -355,44 +341,28 @@ export const Select = Shade<SelectProps>({
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, useObservable, element, useDisposable }) => {
+  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+    const selectRootRef = useRef<HTMLDivElement>('selectRoot')
+    const hiddenInputRef = useRef<HTMLInputElement>('hiddenInput')
+    const searchInputRef = useRef<HTMLInputElement>('searchInput')
+    const dropdownRef = useRef<HTMLUListElement>('dropdown')
+
     useDisposable('form-registration', () => {
-      let hiddenInput: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          hiddenInput = element.querySelector<HTMLInputElement>('input[type="hidden"]')
-          if (hiddenInput) formService.inputs.add(hiddenInput)
+          if (hiddenInputRef.current) formService.inputs.add(hiddenInputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (hiddenInput && formService) formService.inputs.delete(hiddenInput)
+          if (hiddenInputRef.current && formService) formService.inputs.delete(hiddenInputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
     const isMultiple = props.mode === 'multiple'
-
-    // Set variant attribute
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-    if (isMultiple) {
-      element.setAttribute('data-multiple', '')
-    } else {
-      element.removeAttribute('data-multiple')
-    }
-
-    setSelectColors({ element, themeProvider, props })
 
     const allOptions = getAllOptions(props)
 
@@ -415,21 +385,21 @@ export const Select = Shade<SelectProps>({
 
     const [state, setState] = useObservable<SelectState>('selectState', new ObservableValue(initialState))
 
-    // Imperative data-attribute updates (run on every render)
-    if (state.isOpen && !props.disabled) {
-      element.setAttribute('data-open', '')
-      element.setAttribute('data-focused', '')
-    } else {
-      element.removeAttribute('data-open')
-    }
-
     const validationResult = props.getValidationResult?.({ state })
 
-    if (validationResult?.isValid === false) {
-      element.setAttribute('data-invalid', '')
-    } else {
-      element.removeAttribute('data-invalid')
-    }
+    const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-multiple': isMultiple ? '' : undefined,
+      'data-open': state.isOpen && !props.disabled ? '' : undefined,
+      'data-focused': state.isOpen && !props.disabled ? '' : undefined,
+      'data-invalid': validationResult?.isValid === false ? '' : undefined,
+      style: {
+        '--select-primary-color': primaryColor,
+        '--select-error-color': themeProvider.theme.palette.error.main,
+      },
+    })
 
     if (injector.cachedSingletons.has(FormService)) {
       const formService = injector.getInstance(FormService)
@@ -590,23 +560,21 @@ export const Select = Shade<SelectProps>({
     if (state.isOpen) {
       queueMicrotask(() => {
         if (props.showSearch) {
-          const searchInput = element.querySelector<HTMLInputElement>('.dropdown-search')
-          if (searchInput && element.ownerDocument.activeElement !== searchInput) {
-            searchInput.focus()
+          if (searchInputRef.current && document.activeElement !== searchInputRef.current) {
+            searchInputRef.current.focus()
           }
         }
 
-        const dropdown = element.querySelector<HTMLElement>('.dropdown')
-        if (dropdown) {
-          const rect = element.getBoundingClientRect()
+        if (dropdownRef.current) {
+          const rect = selectRootRef.current?.getBoundingClientRect() ?? new DOMRect()
           const spaceBelow = window.innerHeight - rect.bottom
-          const dropdownHeight = dropdown.scrollHeight
+          const dropdownHeight = dropdownRef.current.scrollHeight
           const spaceAbove = rect.top
 
           if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-            dropdown.setAttribute('data-direction', 'up')
+            dropdownRef.current.setAttribute('data-direction', 'up')
           } else {
-            dropdown.removeAttribute('data-direction')
+            dropdownRef.current.removeAttribute('data-direction')
           }
         }
       })
@@ -732,8 +700,8 @@ export const Select = Shade<SelectProps>({
     }
 
     return (
-      <div>
-        <input type="hidden" name={props.name} value={hiddenValue} required={props.required} />
+      <div ref={selectRootRef}>
+        <input ref={hiddenInputRef} type="hidden" name={props.name} value={hiddenValue} required={props.required} />
         <label {...props.labelProps}>
           {props.labelTitle}
           <div
@@ -755,12 +723,12 @@ export const Select = Shade<SelectProps>({
             onkeydown={handleKeyDown}
             onfocus={() => {
               if (!props.disabled) {
-                element.setAttribute('data-focused', '')
+                selectRootRef.current?.setAttribute('data-focused', '')
               }
             }}
             onblur={() => {
               if (!state.isOpen) {
-                element.removeAttribute('data-focused')
+                selectRootRef.current?.removeAttribute('data-focused')
               }
             }}
           >
@@ -778,10 +746,16 @@ export const Select = Shade<SelectProps>({
                 closeDropdown()
               }}
             />
-            <ul className="dropdown" role="listbox" aria-multiselectable={isMultiple ? 'true' : undefined}>
+            <ul
+              ref={dropdownRef}
+              className="dropdown"
+              role="listbox"
+              aria-multiselectable={isMultiple ? 'true' : undefined}
+            >
               {props.showSearch ? (
                 <li role="presentation">
                   <input
+                    ref={searchInputRef}
                     className="dropdown-search"
                     type="text"
                     placeholder="Search..."

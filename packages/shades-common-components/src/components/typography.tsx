@@ -217,71 +217,50 @@ export const Typography = Shade<TypographyProps>({
       background: cssVariableTheme.action.hoverBackground,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps, useRef }) => {
     const { variant = 'body1', color = 'textPrimary', ellipsis, copyable, gutterBottom, align, style } = props
 
-    // Set color CSS variable
-    element.style.setProperty('--typo-color', colorToVar(color))
-
-    // Apply variant styles
+    // Build host styles
     const vs = variantStyles[variant]
-    element.style.fontSize = vs.fontSize
-    element.style.fontWeight = vs.fontWeight
-    element.style.lineHeight = vs.lineHeight
-    element.style.letterSpacing = vs.letterSpacing
+    const hostStyle: Record<string, string> = {
+      '--typo-color': colorToVar(color),
+      fontSize: vs.fontSize,
+      fontWeight: vs.fontWeight,
+      lineHeight: vs.lineHeight,
+      letterSpacing: vs.letterSpacing,
+    }
     if (vs.textTransform) {
-      element.style.textTransform = vs.textTransform
-    } else {
-      element.style.textTransform = ''
+      hostStyle.textTransform = vs.textTransform
     }
     if (vs.scale && vs.scale !== '1') {
-      element.style.transformOrigin = 'left top'
-      element.style.transform = `scale(${vs.scale})`
-      element.style.marginBottom = `calc((${vs.scale} - 1) * 1em)`
-    } else {
-      element.style.transform = ''
-      element.style.transformOrigin = ''
+      hostStyle.transformOrigin = 'left top'
+      hostStyle.transform = `scale(${vs.scale})`
+      hostStyle.marginBottom = `calc((${vs.scale} - 1) * 1em)`
     }
-
-    // Data attributes
-    if (gutterBottom) {
-      element.setAttribute('data-gutter-bottom', '')
-    } else {
-      element.removeAttribute('data-gutter-bottom')
-    }
-
-    if (align) {
-      element.setAttribute('data-align', align)
-    } else {
-      element.removeAttribute('data-align')
-    }
-
-    if (ellipsis === true) {
-      element.setAttribute('data-ellipsis', 'true')
-    } else if (typeof ellipsis === 'number') {
-      element.setAttribute('data-ellipsis', 'multiline')
-    } else {
-      element.removeAttribute('data-ellipsis')
-    }
-
-    element.setAttribute('data-variant', variant)
-
     if (style) {
-      Object.assign(element.style, style)
+      Object.assign(hostStyle, style)
     }
+    useHostProps({
+      'data-gutter-bottom': gutterBottom ? '' : undefined,
+      'data-align': align || undefined,
+      'data-ellipsis': ellipsis === true ? 'true' : typeof ellipsis === 'number' ? 'multiline' : undefined,
+      'data-variant': variant,
+      style: hostStyle,
+    })
 
     const tag = variantToTag(variant)
 
+    const innerRef = useRef<HTMLElement>('inner')
     const handleCopy = () => {
-      const text = element.textContent ?? ''
+      const text = innerRef.current?.textContent ?? ''
       navigator.clipboard.writeText(text).catch(() => {
         // Fallback: do nothing on copy failure
       })
     }
 
     const inner = children
-      ? createComponent(tag, { className: 'typo-inner' }, ...children)
-      : createComponent(tag, { className: 'typo-inner' })
+      ? createComponent(tag, { className: 'typo-inner', ref: innerRef }, ...children)
+      : createComponent(tag, { className: 'typo-inner', ref: innerRef })
 
     if (typeof ellipsis === 'number') {
       const innerEl = inner as HTMLElement

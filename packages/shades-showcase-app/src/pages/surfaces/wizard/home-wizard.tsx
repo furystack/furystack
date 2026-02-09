@@ -6,7 +6,12 @@ import { ObservableValue } from '@furystack/utils'
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
 
-  render: ({ props, element, children, useObservable, injector }) => {
+  render: ({ props, children, useObservable, injector, useRef }) => {
+    const h1Ref = useRef<HTMLHeadingElement>('h1')
+    const contentRef = useRef<HTMLDivElement>('content')
+    const actionsRef = useRef<HTMLDivElement>('actions')
+    const formRef = useRef<HTMLFormElement>('form')
+
     const getResponsiveStyles = (isLargeScreen: boolean) => {
       return {
         padding: '16px',
@@ -16,9 +21,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
     }
 
     setTimeout(() => {
-      void showParallax(element.querySelector('h1'))
-      void showParallax(element.querySelector('div.content'), { delay: 200, duration: 600 })
-      void showParallax(element.querySelector('div.actions'), { delay: 400, duration: 2000 })
+      void showParallax(h1Ref.current)
+      void showParallax(contentRef.current, { delay: 200, duration: 600 })
+      void showParallax(actionsRef.current, { delay: 400, duration: 2000 })
     }, 1)
 
     const [isLargeScreenInitial] = useObservable(
@@ -26,9 +31,8 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
       injector.getInstance(ScreenService).screenSize.atLeast.md,
       {
         onChange: (isLargeScreen) => {
-          const form = element.querySelector('form')
-          if (form) {
-            attachStyles(form, { style: getResponsiveStyles(isLargeScreen) })
+          if (formRef.current) {
+            attachStyles(formRef.current, { style: getResponsiveStyles(isLargeScreen) })
           }
         },
       },
@@ -36,6 +40,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 
     return (
       <form
+        ref={formRef}
         onsubmit={(ev) => {
           ev.preventDefault()
           props.onNext?.()
@@ -49,11 +54,18 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
           ...getResponsiveStyles(isLargeScreenInitial),
         }}
       >
-        <h1 style={{ opacity: '0' }}>{props.title}</h1>
-        <div style={{ opacity: '0', flexShrink: '1', overflow: 'auto', padding: '0 .1em' }} className="content">
+        <h1 ref={h1Ref} style={{ opacity: '0' }}>
+          {props.title}
+        </h1>
+        <div
+          ref={contentRef}
+          style={{ opacity: '0', flexShrink: '1', overflow: 'auto', padding: '0 .1em' }}
+          className="content"
+        >
           {children}
         </div>
         <div
+          ref={actionsRef}
           className="actions"
           style={{
             display: 'flex',
@@ -82,17 +94,19 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 
 export const Step1 = Shade<WizardStepProps>({
   shadowDomName: 'shades-wiz-step1',
-  render: ({ props, element, useDisposable }) => {
+  render: ({ props, useDisposable, useRef }) => {
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+
     useDisposable('auto-focus', () => {
       const timer = setTimeout(() => {
-        element.querySelector('input')?.focus()
+        wrapperRef.current?.querySelector('input')?.focus()
       }, 0)
       return { [Symbol.dispose]: () => clearTimeout(timer) }
     })
 
     return (
       <WizardStep title="Step 1" {...props}>
-        <div>
+        <div ref={wrapperRef}>
           <p>Welcome in the Wizard Component Demo. Please enter your name and click on the "Next" button to continue</p>
           <Input
             labelTitle="Name"

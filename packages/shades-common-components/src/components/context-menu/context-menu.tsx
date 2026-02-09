@@ -32,7 +32,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
       transform: 'scale(1) translateY(0)',
     },
   },
-  render: ({ props, useObservable, useDisposable, element }) => {
+  render: ({ props, useObservable, useDisposable, useRef }) => {
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
         props.manager.handleKeyDown(ev)
@@ -49,17 +49,21 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
     const [items] = useObservable('items', manager.items)
     const [position] = useObservable('position', manager.position)
 
+    const backdropRef = useRef<HTMLDivElement>('backdrop')
+    const containerRef = useRef<HTMLDivElement>('container')
+
     if (!isOpened) {
       return null
     }
 
     requestAnimationFrame(() => {
-      element.querySelector('.context-menu-backdrop')?.classList.add('visible')
-      element.querySelector('.context-menu-container')?.classList.add('visible')
+      backdropRef.current?.classList.add('visible')
+      containerRef.current?.classList.add('visible')
     })
 
     return (
       <div
+        ref={backdropRef}
         className="context-menu-backdrop"
         style={{
           position: 'fixed',
@@ -76,6 +80,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
         }}
       >
         <div
+          ref={containerRef}
           role="menu"
           className="context-menu-container"
           style={{

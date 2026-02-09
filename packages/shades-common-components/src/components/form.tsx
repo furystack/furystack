@@ -1,6 +1,6 @@
 import { Injectable } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from '@furystack/shades'
-import { Shade, attachProps, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import type { InputValidationResult } from './inputs/input.js'
 
@@ -50,11 +50,21 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-form',
   elementBase: HTMLFormElement,
   elementBaseName: 'form',
-  render: ({ props, children, useDisposable, element, injector }) => {
-    const formInjector = useDisposable('formInjector', () => injector.createChild({ owner: element }))
-    element.injector = formInjector
+  render: ({ props, children, useDisposable, useRef, injector, useHostProps }) => {
+    const formRef = useRef<HTMLDivElement>('formWrapper')
+    const formInjector = useDisposable('formInjector', () => injector.createChild())
     const formService = new FormService()
     formInjector.setExplicitInstance(formService)
+
+    // Propagate the scoped injector so child components can find it
+    useDisposable('injector-propagation', () => {
+      queueMicrotask(() => {
+        if (formRef.current) {
+          ;(formRef.current as unknown as { injector: typeof formInjector }).injector = formInjector
+        }
+      })
+      return { [Symbol.dispose]: () => {} }
+    })
 
     const changeHandler = (ev: Event, shouldSubmit?: boolean) => {
       formService.inputs.forEach((i) => {
@@ -82,9 +92,7 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       }
     }
 
-    attachProps(element, {
-      injector: formInjector,
-      ...props,
+    useHostProps({
       oninvalid: (ev: Event) => {
         changeHandler(ev)
       },
@@ -102,6 +110,10 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       },
     })
 
-    return <>{children}</>
+    return (
+      <div ref={formRef} style={{ display: 'contents' }}>
+        {children}
+      </div>
+    )
   },
 })

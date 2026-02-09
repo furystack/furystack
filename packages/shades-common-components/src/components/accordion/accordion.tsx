@@ -40,12 +40,10 @@ export const Accordion = Shade<AccordionProps>({
       background: cssVariableTheme.background.paper,
     },
   },
-  render: ({ props, element, children }) => {
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
+  render: ({ props, useHostProps, children }) => {
+    useHostProps({
+      'data-variant': props.variant || undefined,
+    })
 
     return <>{children}</>
   },

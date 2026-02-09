@@ -2,6 +2,7 @@ import type { Constructable } from '@furystack/inject'
 import { hasInjectorReference, Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
+import type { RefObject } from './models/render-options.js'
 import { LocationService } from './services/location-service.js'
 import { ResourceManager } from './services/resource-manager.js'
 import { attachProps, attachStyles, setRenderMode } from './shade-component.js'
@@ -97,6 +98,22 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 
         public resourceManager = new ResourceManager()
 
+        /**
+         * Host props collected during the current render pass via `useHostProps`.
+         * Applied to the host element after each render.
+         */
+        private _pendingHostProps: Array<Record<string, unknown> & { style?: Record<string, string> }> = []
+
+        /**
+         * The host props that were applied in the previous render, used for diffing.
+         */
+        private _prevHostProps: Record<string, unknown> | null = null
+
+        /**
+         * Cached ref objects keyed by the user-provided key string.
+         */
+        private _refs = new Map<string, RefObject<Element>>()
+
         public connectedCallback() {
           o.onAttach?.(this.getRenderOptions())
           this.updateComponent()
@@ -134,8 +151,17 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             props: this.props,
             injector: this.injector,
             children: this.shadeChildren,
-            element: this,
             renderCount: this._renderCount,
+            useHostProps: (hostProps) => {
+              this._pendingHostProps.push(hostProps)
+            },
+            useRef: <T extends Element = HTMLElement>(key: string): RefObject<T> => {
+              const existingRef = this._refs.get(key) as RefObject<T> | undefined
+              if (existingRef) return existingRef
+              const refObject = { current: null } as { current: T | null }
+              this._refs.set(key, refObject as unknown as RefObject<Element>)
+              return refObject as RefObject<T>
+            },
             useObservable: (key, obesrvable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
               return this.resourceManager.useObservable(key, obesrvable, onChange, options)
@@ -233,6 +259,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         }
 
         private _performUpdate() {
+          this._pendingHostProps = []
           let renderResult: unknown
           setRenderMode(true)
           try {
@@ -244,6 +271,109 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           const newVTree = toVChildArray(renderResult)
           patchChildren(this, this._prevVTree || [], newVTree)
           this._prevVTree = newVTree
+
+          this._applyHostProps()
+        }
+
+        /**
+         * Merges all pending host props from the render pass and applies them
+         * to the host element, diffing against the previously applied host props.
+         */
+        private _applyHostProps() {
+          if (this._pendingHostProps.length === 0) {
+            if (this._prevHostProps) {
+              // All host props were removed — clean up
+              for (const key of Object.keys(this._prevHostProps)) {
+                if (key === 'style') continue
+                this.removeAttribute(key)
+              }
+              if (this._prevHostProps.style) {
+                for (const sk of Object.keys(this._prevHostProps.style as Record<string, string>)) {
+                  if (sk.startsWith('--')) {
+                    this.style.removeProperty(sk)
+                  } else {
+                    ;(this.style as unknown as Record<string, string>)[sk] = ''
+                  }
+                }
+              }
+              this._prevHostProps = null
+            }
+            return
+          }
+
+          // Merge all pending host prop calls into a single object
+          const merged: Record<string, unknown> = {}
+          let mergedStyle: Record<string, string> | undefined
+
+          for (const hp of this._pendingHostProps) {
+            for (const [key, value] of Object.entries(hp)) {
+              if (key === 'style' && typeof value === 'object' && value !== null) {
+                mergedStyle = { ...mergedStyle, ...(value as Record<string, string>) }
+              } else {
+                merged[key] = value
+              }
+            }
+          }
+
+          if (mergedStyle) {
+            merged.style = mergedStyle
+          }
+
+          const oldHP = this._prevHostProps || {}
+          const newHP = merged
+
+          // Remove attributes no longer present
+          for (const key of Object.keys(oldHP)) {
+            if (key === 'style') continue
+            if (!(key in newHP)) {
+              if (key.startsWith('on') && typeof oldHP[key] === 'function') {
+                ;(this as unknown as Record<string, unknown>)[key] = null
+              } else {
+                this.removeAttribute(key)
+              }
+            }
+          }
+
+          // Apply new/changed attributes
+          for (const [key, value] of Object.entries(newHP)) {
+            if (key === 'style') continue
+            if (oldHP[key] !== value) {
+              if (key.startsWith('on') && typeof value === 'function') {
+                ;(this as unknown as Record<string, unknown>)[key] = value
+              } else if (value === null || value === undefined || value === false) {
+                this.removeAttribute(key)
+              } else {
+                // eslint-disable-next-line @typescript-eslint/no-base-to-string
+                this.setAttribute(key, String(value))
+              }
+            }
+          }
+
+          // Diff styles
+          const oldStyle = (oldHP.style as Record<string, string>) || {}
+          const newStyle = (mergedStyle as Record<string, string>) || {}
+
+          for (const sk of Object.keys(oldStyle)) {
+            if (!(sk in newStyle)) {
+              if (sk.startsWith('--')) {
+                this.style.removeProperty(sk)
+              } else {
+                ;(this.style as unknown as Record<string, string>)[sk] = ''
+              }
+            }
+          }
+
+          for (const [sk, sv] of Object.entries(newStyle)) {
+            if (oldStyle[sk] !== sv) {
+              if (sk.startsWith('--')) {
+                this.style.setProperty(sk, sv)
+              } else {
+                ;(this.style as unknown as Record<string, string>)[sk] = sv
+              }
+            }
+          }
+
+          this._prevHostProps = merged
         }
 
         private _injector?: Injector

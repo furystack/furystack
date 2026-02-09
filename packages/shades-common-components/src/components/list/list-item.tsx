@@ -24,45 +24,52 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
     gap: cssVariableTheme.spacing.sm,
     transition: `background-color ${cssVariableTheme.transitions.duration.fast} ease, box-shadow ${cssVariableTheme.transitions.duration.fast} ${cssVariableTheme.transitions.easing.easeInOut}`,
     borderLeft: '3px solid transparent',
-    '&:not(.selected):hover': {
+    '&:not([data-selected]):hover': {
       backgroundColor: cssVariableTheme.action.hoverBackground,
     },
-    '&.selected': {
+    '&[data-selected]': {
       backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
-    '&.focused': {
+    '&[data-focused]': {
       boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },
   },
-  render: ({ props, element, useObservable }) => {
+  render: ({ props, useObservable, useHostProps, useRef }) => {
     const { item, listService, renderItem, renderIcon, renderSecondaryActions, onActivate } = props
 
-    element.setAttribute('role', 'option')
+    const [selection] = useObservable('selection', listService.selection)
+    const [focusedItem] = useObservable('focusedItem', listService.focusedItem)
 
-    element.onclick = (ev: MouseEvent) => {
-      listService.handleItemClick(item, ev)
-    }
-    element.ondblclick = () => {
-      listService.handleItemDoubleClick(item)
-      onActivate?.(item)
-    }
+    const isFocused = focusedItem === item
+    const isSelected = selection.includes(item)
 
-    const updateSelectionState = (selection: unknown[]) => {
-      const isSelected = selection.includes(item)
-      element.classList.toggle('selected', isSelected)
-      element.setAttribute('aria-selected', isSelected.toString())
-    }
+    useHostProps({
+      role: 'option',
+      'aria-selected': isSelected.toString(),
+      onclick: (ev: MouseEvent) => {
+        listService.handleItemClick(item, ev)
+      },
+      ondblclick: () => {
+        listService.handleItemDoubleClick(item)
+        onActivate?.(item)
+      },
+      ...(isSelected ? { 'data-selected': '' } : {}),
+      ...(isFocused ? { 'data-focused': '' } : {}),
+    })
 
-    const updateFocusState = (focusedItem?: unknown) => {
-      const isFocused = focusedItem === item
-      element.classList.toggle('focused', isFocused)
+    const wrapperRef = useRef<HTMLElement>('wrapper')
 
-      if (isFocused) {
-        const scrollContainer = element.closest('shade-list') as HTMLElement
+    if (isFocused) {
+      queueMicrotask(() => {
+        const el = wrapperRef.current
+        if (!el) return
+        const scrollContainer = el.closest('shade-list') as HTMLElement
         if (scrollContainer) {
           const containerRect = scrollContainer.getBoundingClientRect()
-          const itemRect = element.getBoundingClientRect()
+          const hostEl = el.closest('shade-list-item') as HTMLElement
+          if (!hostEl) return
+          const itemRect = hostEl.getBoundingClientRect()
           const itemTopInContainer = itemRect.top - containerRect.top
           const itemBottomInContainer = itemRect.bottom - containerRect.top
 
@@ -78,25 +85,12 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
             })
           }
         }
-      }
+      })
     }
-
-    const [selection] = useObservable('selection', listService.selection, {
-      onChange: updateSelectionState,
-    })
-    updateSelectionState(selection)
-
-    const [focusedItem] = useObservable('focusedItem', listService.focusedItem, {
-      onChange: updateFocusState,
-    })
-    updateFocusState(focusedItem)
-
-    const isFocused = focusedItem === item
-    const isSelected = selection.includes(item)
     const state: ListItemState = { isFocused, isSelected }
 
     return (
-      <>
+      <span ref={wrapperRef} style={{ display: 'contents' }}>
         {renderIcon && <span className="list-item-icon">{renderIcon(item)}</span>}
         <span className="list-item-content" style={{ flex: '1' }}>
           {renderItem(item, state)}
@@ -106,7 +100,7 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
             {renderSecondaryActions(item).map((action) => action)}
           </span>
         )}
-      </>
+      </span>
     )
   },
 })

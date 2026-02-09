@@ -1,5 +1,5 @@
 import type { ChildrenList } from '@furystack/shades'
-import { attachStyles, createComponent, Shade } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { DataRowCells } from './data-grid.js'
@@ -32,14 +32,14 @@ export const DataGridRow: <T, Column extends string>(
       ['transform', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.easeInOut],
     ),
     borderLeft: '3px solid transparent',
-    '&:not(.selected):hover': {
+    '&:not([data-selected]):hover': {
       backgroundColor: cssVariableTheme.action.hoverBackground,
     },
-    '&.selected': {
+    '&[data-selected]': {
       backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
-    '&.focused': {
+    '&[data-focused]': {
       boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset, 0 2px 8px 0px rgba(0,0,0,0.15)`,
       fontWeight: '500',
       transform: 'scale(1.002)',
@@ -52,80 +52,79 @@ export const DataGridRow: <T, Column extends string>(
       lineHeight: '1.5',
     },
   },
-  render: ({ props, element, useObservable }) => {
+  render: ({ props, useObservable, useHostProps, useRef }) => {
     const { entry, rowComponents, columns, service } = props
 
-    const updateSelectionState = (selection: unknown[]) => {
-      const isSelected = selection.includes(entry)
-      element.classList.toggle('selected', isSelected)
-      element.setAttribute('aria-selected', isSelected.toString())
+    const [selection] = useObservable('isSelected', service.selection)
+    const [focus] = useObservable('focus', service.focusedEntry)
 
-      if (props.selectedRowStyle && isSelected) {
-        attachStyles(element, { style: props.selectedRowStyle })
-      } else if (props.unselectedRowStyle && !isSelected) {
-        attachStyles(element, { style: props.unselectedRowStyle })
-      }
+    const isSelected = selection.includes(entry)
+    const isFocused = focus === entry
+
+    const rowStyle: Record<string, string> = {}
+    if (props.selectedRowStyle && isSelected) {
+      Object.assign(rowStyle, props.selectedRowStyle)
+    } else if (props.unselectedRowStyle && !isSelected) {
+      Object.assign(rowStyle, props.unselectedRowStyle)
+    }
+    if (isFocused && props.focusedRowStyle) {
+      Object.assign(rowStyle, props.focusedRowStyle)
+    } else if (!isFocused && props.unfocusedRowStyle) {
+      Object.assign(rowStyle, props.unfocusedRowStyle)
     }
 
-    const updateFocusState = (focusedEntry?: unknown) => {
-      const isFocused = focusedEntry === entry
-      element.classList.toggle('focused', isFocused)
+    useHostProps({
+      'aria-selected': isSelected.toString(),
+      ...(isSelected ? { 'data-selected': '' } : {}),
+      ...(isFocused ? { 'data-focused': '' } : {}),
+      ...(Object.keys(rowStyle).length > 0 ? { style: rowStyle } : {}),
+    })
 
-      if (isFocused) {
-        if (props.focusedRowStyle) {
-          attachStyles(element, { style: props.focusedRowStyle })
-        }
+    const wrapperRef = useRef<HTMLElement>('wrapper')
 
-        const scrollContainer = element.closest('shade-data-grid') as HTMLElement
+    if (isFocused) {
+      queueMicrotask(() => {
+        const el = wrapperRef.current
+        if (!el) return
+        const hostEl = el.closest('shades-data-grid-row') as HTMLElement
+        if (!hostEl) return
+        const scrollContainer = hostEl.closest('shade-data-grid') as HTMLElement
         if (!scrollContainer) return
 
-        const headerHeight = element.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
+        const headerHeight = hostEl.closest('table')?.querySelector('th')?.getBoundingClientRect().height || 42
         const footerHeight =
           scrollContainer.querySelector('shade-data-grid-footer')?.getBoundingClientRect().height || 42
 
-        // Use getBoundingClientRect for accurate visual positions
         const containerRect = scrollContainer.getBoundingClientRect()
-        const rowRect = element.getBoundingClientRect()
+        const rowRect = hostEl.getBoundingClientRect()
 
-        // Row position relative to container's visible area
         const rowTopInContainer = rowRect.top - containerRect.top
         const rowBottomInContainer = rowRect.bottom - containerRect.top
 
-        // Scroll up if row is above visible area (below the sticky header)
         if (rowTopInContainer < headerHeight) {
           const scrollAdjustment = rowTopInContainer - headerHeight
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
             behavior: 'smooth',
           })
-        }
-        // Scroll down if row is below visible area (above the footer)
-        else if (rowBottomInContainer > scrollContainer.clientHeight - footerHeight) {
+        } else if (rowBottomInContainer > scrollContainer.clientHeight - footerHeight) {
           const scrollAdjustment = rowBottomInContainer - (scrollContainer.clientHeight - footerHeight)
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
             behavior: 'smooth',
           })
         }
-      } else if (props.unfocusedRowStyle) {
-        attachStyles(element, { style: props.unfocusedRowStyle })
-      }
+      })
     }
-
-    const [selection] = useObservable('isSelected', service.selection, {
-      onChange: updateSelectionState,
-    })
-    updateSelectionState(selection)
-
-    const [focus] = useObservable('focus', service.focusedEntry, {
-      onChange: updateFocusState,
-    })
-    updateFocusState(focus)
 
     return (
       <>
-        {columns.map((column) => (
-          <td onclick={(ev) => props.onRowClick?.(entry, ev)} ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}>
+        {columns.map((column, colIdx) => (
+          <td
+            {...(colIdx === 0 ? { ref: wrapperRef } : {})}
+            onclick={(ev) => props.onRowClick?.(entry, ev)}
+            ondblclick={(ev) => props.onRowDoubleClick?.(entry, ev)}
+          >
             {rowComponents?.[column]?.(entry, { selection, focus }) ||
               rowComponents?.default?.(entry, { selection, focus }) || (
                 <span>

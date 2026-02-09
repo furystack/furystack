@@ -188,28 +188,9 @@ export const Button = Shade<ButtonProps>({
       opacity: '0.7',
     },
   },
-  render: ({ props, children, element }) => {
-    // Set data attributes for CSS styling
-    if (props.variant && props.variant !== 'text') {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-
-    // Handle size
-    if (props.size && props.size !== 'medium') {
-      element.setAttribute('data-size', props.size)
-    } else {
-      element.removeAttribute('data-size')
-    }
-
-    // Handle loading
+  render: ({ props, children, useHostProps }) => {
     if (props.loading) {
-      element.setAttribute('data-loading', '')
-      element.setAttribute('disabled', '')
       ensureSpinnerKeyframes()
-    } else {
-      element.removeAttribute('data-loading')
     }
 
     // Danger overrides color to error
@@ -217,16 +198,20 @@ export const Button = Shade<ButtonProps>({
 
     // Set CSS custom properties for the button colors
     const colors = effectiveColor ? paletteFullColors[effectiveColor] : defaultColors
-    element.style.setProperty('--btn-color-main', colors.main)
-    element.style.setProperty('--btn-color-main-contrast', colors.mainContrast)
-    element.style.setProperty('--btn-color-light', colors.light)
-    element.style.setProperty('--btn-color-dark', colors.dark)
-    element.style.setProperty('--btn-color-dark-contrast', colors.darkContrast)
-
-    // Apply any custom styles from props
-    if (props.style) {
-      Object.assign(element.style, props.style)
-    }
+    useHostProps({
+      'data-variant': props.variant && props.variant !== 'text' ? props.variant : undefined,
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
+      'data-loading': props.loading ? '' : undefined,
+      disabled: props.loading ? '' : undefined,
+      style: {
+        '--btn-color-main': colors.main,
+        '--btn-color-main-contrast': colors.mainContrast,
+        '--btn-color-light': colors.light,
+        '--btn-color-dark': colors.dark,
+        '--btn-color-dark-contrast': colors.darkContrast,
+        ...(props.style as Record<string, string>),
+      },
+    })
 
     return (
       <>

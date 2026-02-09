@@ -19,18 +19,22 @@ const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
   css: {
     display: 'inline',
   },
-  render: ({ props, element, useDisposable }) => {
+  render: ({ props, useDisposable, useRef }) => {
+    const spanRef = useRef<HTMLSpanElement>('label')
+
     useDisposable('value-subscription', () =>
       props.value.subscribe((v) => {
-        element.textContent = `${v}${props.suffix ?? ''}`
+        if (spanRef.current) {
+          spanRef.current.textContent = `${v}${props.suffix ?? ''}`
+        }
       }),
     )
 
     return (
-      <>
+      <span ref={spanRef}>
         {props.value.getValue()}
         {props.suffix ?? ''}
-      </>
+      </span>
     )
   },
 })

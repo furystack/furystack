@@ -63,39 +63,30 @@ export const Icon = Shade<IconProps>({
       height: '32px',
     },
   },
-  render: ({ props, element }) => {
+  render: ({ props, useHostProps }) => {
     const { icon, size = 'medium', color, ariaLabel, style } = props
 
     const sizeName = typeof size === 'string' ? size : undefined
     const sizePx = typeof size === 'number' ? size : SIZE_MAP[size]
 
-    if (sizeName) {
-      element.setAttribute('data-size', sizeName)
-    } else {
-      element.removeAttribute('data-size')
-      element.style.width = `${sizePx}px`
-      element.style.height = `${sizePx}px`
+    const hostStyle: Record<string, string> = {}
+    if (!sizeName) {
+      hostStyle.width = `${sizePx}px`
+      hostStyle.height = `${sizePx}px`
     }
-
     if (color) {
-      const colors = paletteMainColors[color]
-      element.style.setProperty('--icon-color', colors.main)
-    } else {
-      element.style.removeProperty('--icon-color')
+      hostStyle['--icon-color'] = paletteMainColors[color].main
     }
-
-    element.setAttribute('role', 'img')
-    if (ariaLabel) {
-      element.setAttribute('aria-label', ariaLabel)
-      element.removeAttribute('aria-hidden')
-    } else {
-      element.removeAttribute('aria-label')
-      element.setAttribute('aria-hidden', 'true')
-    }
-
     if (style) {
-      Object.assign(element.style, style)
+      Object.assign(hostStyle, style)
     }
+    useHostProps({
+      'data-size': sizeName || undefined,
+      role: 'img',
+      'aria-label': ariaLabel || undefined,
+      'aria-hidden': ariaLabel ? undefined : 'true',
+      style: hostStyle,
+    })
 
     const viewBox = icon.viewBox ?? '0 0 24 24'
     const isStroke = (icon.style ?? 'stroke') === 'stroke'

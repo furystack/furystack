@@ -18,7 +18,6 @@ export type MenuProps = {
 const renderItems = (
   items: MenuEntry[],
   options: {
-    rootElement: HTMLElement
     selectedKey?: string
     expandedGroups: string[]
     onSelect?: (key: string) => void
@@ -236,16 +235,17 @@ export const Menu = Shade<MenuProps>({
       paddingLeft: cssVariableTheme.spacing.md,
     },
   },
-  render: ({ props, element, useDisposable, useObservable }) => {
+  render: ({ props, useDisposable, useObservable, useHostProps, useRef }) => {
     const { items, mode = 'vertical', selectedKey, onSelect } = props
 
     const focusedKeyObservable = useDisposable('focusedKey', () => new ObservableValue(''))
     const expandedGroupsObservable = useDisposable('expandedGroups', () => new ObservableValue<string[]>([]))
+    const menuRef = useRef<HTMLDivElement>('menu')
 
     const updateFocusedItem = (newKey: string) => {
-      element.querySelectorAll('.menu-item.focused').forEach((el) => el.classList.remove('focused'))
+      menuRef.current?.querySelectorAll('.menu-item.focused').forEach((el) => el.classList.remove('focused'))
       if (newKey) {
-        element.querySelector(`[data-key="${newKey}"]`)?.classList.add('focused')
+        menuRef.current?.querySelector(`[data-key="${newKey}"]`)?.classList.add('focused')
       }
     }
 
@@ -254,8 +254,8 @@ export const Menu = Shade<MenuProps>({
     // Imperatively toggle expanded group children without re-rendering
     useDisposable('expandedGroupsSub', () =>
       expandedGroupsObservable.subscribe((expanded) => {
-        const groups = element.querySelectorAll<HTMLElement>('.menu-group[data-group-key]')
-        groups.forEach((group) => {
+        const groups = menuRef.current?.querySelectorAll<HTMLElement>('.menu-group[data-group-key]')
+        groups?.forEach((group) => {
           const key = group.getAttribute('data-group-key')
           if (!key) return
           const isExpanded = expanded.includes(key)
@@ -267,57 +267,61 @@ export const Menu = Shade<MenuProps>({
       }),
     )
 
-    element.setAttribute('role', mode === 'horizontal' ? 'menubar' : 'menu')
-    element.setAttribute('data-mode', mode)
-    element.setAttribute('tabindex', '0')
+    useHostProps({
+      role: mode === 'horizontal' ? 'menubar' : 'menu',
+      'data-mode': mode,
+      tabindex: '0',
+    })
 
-    element.onkeydown = (ev: KeyboardEvent) => {
-      const navigableKeys = getNavigableKeys(items)
-      if (navigableKeys.length === 0) return
+    useHostProps({
+      onkeydown: (ev: KeyboardEvent) => {
+        const navigableKeys = getNavigableKeys(items)
+        if (navigableKeys.length === 0) return
 
-      const isHorizontal = mode === 'horizontal'
-      const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown'
-      const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp'
+        const isHorizontal = mode === 'horizontal'
+        const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown'
+        const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp'
 
-      const currentFocusedKey = focusedKeyObservable.getValue()
+        const currentFocusedKey = focusedKeyObservable.getValue()
 
-      switch (ev.key) {
-        case nextKey: {
-          ev.preventDefault()
-          const currentIndex = navigableKeys.indexOf(currentFocusedKey)
-          const nextIndex = currentIndex < navigableKeys.length - 1 ? currentIndex + 1 : 0
-          focusedKeyObservable.setValue(navigableKeys[nextIndex])
-          break
-        }
-        case prevKey: {
-          ev.preventDefault()
-          const currentIndex = navigableKeys.indexOf(currentFocusedKey)
-          const prevIndex = currentIndex > 0 ? currentIndex - 1 : navigableKeys.length - 1
-          focusedKeyObservable.setValue(navigableKeys[prevIndex])
-          break
-        }
-        case 'Home': {
-          ev.preventDefault()
-          focusedKeyObservable.setValue(navigableKeys[0])
-          break
-        }
-        case 'End': {
-          ev.preventDefault()
-          focusedKeyObservable.setValue(navigableKeys[navigableKeys.length - 1])
-          break
-        }
-        case 'Enter':
-        case ' ': {
-          ev.preventDefault()
-          if (currentFocusedKey) {
-            onSelect?.(currentFocusedKey)
+        switch (ev.key) {
+          case nextKey: {
+            ev.preventDefault()
+            const currentIndex = navigableKeys.indexOf(currentFocusedKey)
+            const nextIndex = currentIndex < navigableKeys.length - 1 ? currentIndex + 1 : 0
+            focusedKeyObservable.setValue(navigableKeys[nextIndex])
+            break
           }
-          break
+          case prevKey: {
+            ev.preventDefault()
+            const currentIndex = navigableKeys.indexOf(currentFocusedKey)
+            const prevIndex = currentIndex > 0 ? currentIndex - 1 : navigableKeys.length - 1
+            focusedKeyObservable.setValue(navigableKeys[prevIndex])
+            break
+          }
+          case 'Home': {
+            ev.preventDefault()
+            focusedKeyObservable.setValue(navigableKeys[0])
+            break
+          }
+          case 'End': {
+            ev.preventDefault()
+            focusedKeyObservable.setValue(navigableKeys[navigableKeys.length - 1])
+            break
+          }
+          case 'Enter':
+          case ' ': {
+            ev.preventDefault()
+            if (currentFocusedKey) {
+              onSelect?.(currentFocusedKey)
+            }
+            break
+          }
+          default:
+            break
         }
-        default:
-          break
-      }
-    }
+      },
+    })
 
     const handleToggleGroup = (key: string) => {
       const currentExpanded = expandedGroupsObservable.getValue()
@@ -329,9 +333,8 @@ export const Menu = Shade<MenuProps>({
     }
 
     return (
-      <>
+      <div ref={menuRef} style={{ display: 'contents' }}>
         {renderItems(items, {
-          rootElement: element,
           selectedKey,
           expandedGroups: expandedGroupsObservable.getValue(),
           onSelect,
@@ -339,7 +342,7 @@ export const Menu = Shade<MenuProps>({
           onToggleGroup: handleToggleGroup,
           isInline: mode === 'inline',
         })}
-      </>
+      </div>
     )
   },
 })

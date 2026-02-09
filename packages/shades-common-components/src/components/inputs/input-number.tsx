@@ -252,38 +252,33 @@ export const InputNumber = Shade<InputNumberProps>({
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, useObservable, useDisposable, element }) => {
+  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+    const decButtonRef = useRef<HTMLButtonElement>('decButton')
+    const incButtonRef = useRef<HTMLButtonElement>('incButton')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
     const primaryColor = themeProvider.theme.palette[props.color || 'primary'].main
-    element.style.setProperty('--input-number-color', primaryColor)
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+      style: { '--input-number-color': primaryColor },
+    })
 
     const step = props.step ?? 1
 
@@ -294,7 +289,7 @@ export const InputNumber = Shade<InputNumberProps>({
      * Using onChange prevents a full re-render (which would cause flicker).
      */
     const syncDom = (newState: InputNumberState) => {
-      const inputEl = element.querySelector('input')
+      const inputEl = inputRef.current
       if (inputEl) {
         inputEl.value = newState.displayValue
 
@@ -305,7 +300,6 @@ export const InputNumber = Shade<InputNumberProps>({
         }
       }
 
-      const buttons = element.querySelectorAll<HTMLButtonElement>('.step-button')
       const isDecDisabled =
         props.disabled ||
         props.readOnly ||
@@ -315,8 +309,8 @@ export const InputNumber = Shade<InputNumberProps>({
         props.readOnly ||
         (props.max !== undefined && newState.value !== undefined && newState.value >= props.max)
 
-      if (buttons[0]) buttons[0].disabled = !!isDecDisabled
-      if (buttons[1]) buttons[1].disabled = !!isIncDisabled
+      if (decButtonRef.current) decButtonRef.current.disabled = !!isDecDisabled
+      if (incButtonRef.current) incButtonRef.current.disabled = !!isIncDisabled
     }
 
     const observable = useDisposable(
@@ -365,7 +359,7 @@ export const InputNumber = Shade<InputNumberProps>({
 
     // Set ARIA attributes imperatively (JSX doesn't reliably set hyphenated attributes)
     requestAnimationFrame(() => {
-      const inputEl = element.querySelector('input')
+      const inputEl = inputRef.current
       if (inputEl) {
         inputEl.setAttribute('role', 'spinbutton')
         if (props.min !== undefined) inputEl.setAttribute('aria-valuemin', String(props.min))
@@ -377,9 +371,8 @@ export const InputNumber = Shade<InputNumberProps>({
         }
       }
 
-      const buttons = element.querySelectorAll('.step-button')
-      if (buttons[0]) buttons[0].setAttribute('aria-label', 'Decrease value')
-      if (buttons[1]) buttons[1].setAttribute('aria-label', 'Increase value')
+      if (decButtonRef.current) decButtonRef.current.setAttribute('aria-label', 'Decrease value')
+      if (incButtonRef.current) incButtonRef.current.setAttribute('aria-label', 'Increase value')
     })
 
     return (
@@ -387,6 +380,7 @@ export const InputNumber = Shade<InputNumberProps>({
         {props.labelTitle}
         <div className="input-number-row">
           <button
+            ref={decButtonRef}
             type="button"
             className="step-button"
             disabled={isDecrementDisabled}
@@ -396,6 +390,7 @@ export const InputNumber = Shade<InputNumberProps>({
             −
           </button>
           <input
+            ref={inputRef}
             type="text"
             inputMode="decimal"
             name={props.name}
@@ -429,6 +424,7 @@ export const InputNumber = Shade<InputNumberProps>({
             }}
           />
           <button
+            ref={incButtonRef}
             type="button"
             className="step-button"
             disabled={isIncrementDisabled}

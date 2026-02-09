@@ -131,7 +131,8 @@ export const FormPage = Shade({
                   required
                   type="password"
                   getValidationResult={({ state }) => {
-                    const password = new FormData(state.element.closest('form') as HTMLFormElement).get('password')
+                    const form = document.querySelector<HTMLFormElement>('shade-form') // TODO
+                    const password = form ? new FormData(form).get('password') : null
                     if (password !== state.value) {
                       return { isValid: false, message: 'Passwords do not match' }
                     }

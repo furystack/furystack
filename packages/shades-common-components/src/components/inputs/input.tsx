@@ -72,27 +72,6 @@ export type TextInputState = {
   value: string
   focused: boolean
   validity: ValidityState
-  element: JSX.Element<TextInputProps>
-}
-
-/**
- * Sets CSS custom properties for dynamic color values.
- * State-based styling (focus, error, disabled) is handled by CSS selectors.
- * Background colors use CSS color-mix() for automatic theme adaptation.
- */
-const setInputColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: TextInputProps
-}): void => {
-  // Only set the color variables - backgrounds use CSS color-mix()
-  const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
-  element.style.setProperty('--input-primary-color', primaryColor)
-  element.style.setProperty('--input-error-color', themeProvider.theme.palette.error.main)
 }
 
 const getDefaultMessagesForValidityState = (state: ValidityState) => {
@@ -243,42 +222,44 @@ export const Input = Shade<TextInputProps>({
       fontSize: cssVariableTheme.typography.fontSize.lg,
     },
   },
-  render: ({ props, injector, useObservable, element, useDisposable }) => {
+  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+    const helperRef = useRef<HTMLSpanElement>('helperText')
+    const startIconRef = useRef<HTMLSpanElement>('startIcon')
+    const endIconRef = useRef<HTMLSpanElement>('endIcon')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
       if (formService) {
         queueMicrotask(() => {
-          input = element.querySelector('input') as HTMLInputElement
-          if (input) formService.inputs.add(input)
+          if (inputRef.current) formService.inputs.add(inputRef.current)
         })
       }
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    // Set data attributes for CSS styling
-    if (props.variant) {
-      element.setAttribute('data-variant', props.variant)
-    } else {
-      element.removeAttribute('data-variant')
-    }
-    if (props.disabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
+    const isInvalidObs = useDisposable('isInvalid', () => new ObservableValue(false))
+    const [isInvalid] = useObservable('isInvalid', isInvalidObs)
 
-    // Set dynamic color CSS variables (only needs to happen once per render)
-    setInputColors({ element, themeProvider, props })
+    const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
+    useHostProps({
+      'data-variant': props.variant || undefined,
+      'data-disabled': props.disabled ? '' : undefined,
+      'data-invalid': isInvalid ? '' : undefined,
+      style: {
+        '--input-primary-color': primaryColor,
+        '--input-error-color': themeProvider.theme.palette.error.main,
+      },
+    })
 
     const updateState = (newState: TextInputState) => {
-      const input = element.querySelector('input') as HTMLInputElement
+      const input = inputRef.current
 
       newState.value = input?.value || newState.value
       newState.validity = input?.validity || newState.validity
@@ -299,14 +280,13 @@ export const Input = Shade<TextInputProps>({
 
       const validationResult = props.getValidationResult?.({ state: newState })
 
-      // Set data-invalid attribute for CSS styling
-      if (validationResult?.isValid === false || newState.validity?.valid === false) {
-        element.setAttribute('data-invalid', '')
-      } else {
-        element.removeAttribute('data-invalid')
+      // Update invalid state (triggers re-render to update host attribute via useHostProps)
+      const invalid = validationResult?.isValid === false || newState.validity?.valid === false
+      if (invalid !== isInvalidObs.getValue()) {
+        isInvalidObs.setValue(invalid)
       }
 
-      const helper = element.querySelector<HTMLSpanElement>('span.helperText')
+      const helper = helperRef.current
       const helperNode =
         (validationResult?.isValid === false && validationResult?.message) ||
         props.getHelperText?.({ state: newState, validationResult }) ||
@@ -316,12 +296,12 @@ export const Input = Shade<TextInputProps>({
         helper.replaceChildren(helperNode)
       }
 
-      const startIcon = element.querySelector<HTMLSpanElement>('span.startIcon')
+      const startIcon = startIconRef.current
       if (startIcon) {
         startIcon.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
       }
 
-      const endIcon = element.querySelector<HTMLSpanElement>('span.endIcon')
+      const endIcon = endIconRef.current
       if (endIcon) {
         endIcon.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
       }
@@ -337,8 +317,7 @@ export const Input = Shade<TextInputProps>({
       new ObservableValue({
         value: props.value || '',
         focused: props.autofocus || false,
-        validity: element.querySelector('input')?.validity || ({} as ValidityState),
-        element,
+        validity: inputRef.current?.validity || ({} as ValidityState),
       }),
       { onChange: updateState },
     )
@@ -348,8 +327,13 @@ export const Input = Shade<TextInputProps>({
         {props.labelTitle}
 
         <div className="input-row">
-          {props.getStartIcon ? <span className="startIcon">{props.getStartIcon?.({ state })}</span> : null}
+          {props.getStartIcon ? (
+            <span className="startIcon" ref={startIconRef}>
+              {props.getStartIcon?.({ state })}
+            </span>
+          ) : null}
           <input
+            ref={inputRef}
             oninvalid={(ev) => {
               ev.preventDefault()
               const el = ev.target as HTMLInputElement
@@ -374,9 +358,15 @@ export const Input = Shade<TextInputProps>({
             style={props.style}
             value={state.value}
           />
-          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state })}</span> : null}
+          {props.getEndIcon ? (
+            <span className="endIcon" ref={endIconRef}>
+              {props.getEndIcon({ state })}
+            </span>
+          ) : null}
         </div>
-        <span className="helperText">{props.getHelperText?.({ state })}</span>
+        <span className="helperText" ref={helperRef}>
+          {props.getHelperText?.({ state })}
+        </span>
       </label>
     )
   },

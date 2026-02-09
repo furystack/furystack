@@ -23,9 +23,9 @@ export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
       boxShadow: cssVariableTheme.shadows.lg,
     },
   },
-  render: ({ props, children, element }) => {
+  render: ({ props, children, useHostProps }) => {
     const { elevation = 1 } = props
-    element.setAttribute('data-elevation', elevation.toString())
+    useHostProps({ 'data-elevation': elevation.toString() })
 
     return <>{children}</>
   },

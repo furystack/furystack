@@ -21,18 +21,22 @@ export const Modal = Shade<ModalProps>({
       left: '0',
     },
   },
-  render: ({ props, children, useObservable, element }) => {
+  render: ({ props, children, useObservable, useRef }) => {
     const [isVisible] = useObservable('isVisible', props.isVisible)
+    const backdropRef = useRef<HTMLDivElement>('backdrop')
 
     if (isVisible) {
-      void props.showAnimation?.(element)
+      queueMicrotask(() => {
+        void props.showAnimation?.(backdropRef.current)
+      })
     }
 
     return isVisible ? (
       <div
+        ref={backdropRef}
         className="shade-backdrop"
         onclick={async () => {
-          await props.hideAnimation?.(element)
+          await props.hideAnimation?.(backdropRef.current)
           props.onClose?.()
         }}
         style={props.backdropStyle}

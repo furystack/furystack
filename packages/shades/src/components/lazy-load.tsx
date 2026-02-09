@@ -8,26 +8,32 @@ export interface LazyLoadProps {
 
 export const LazyLoad = Shade<LazyLoadProps>({
   shadowDomName: 'lazy-load',
-  render: ({ props, useState, element, useDisposable }) => {
+  render: ({ props, useState, useDisposable }) => {
     const [error, setError] = useState<unknown>('error', undefined)
     const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)
+
+    let isConnected = true
 
     useDisposable('loader', () => {
       props
         .component()
         .then((loaded) => {
-          if (element.isConnected) {
+          if (isConnected) {
             setComponent(loaded)
           }
         })
         .catch((err: unknown) => {
           if (props.error) {
-            if (element.isConnected) {
+            if (isConnected) {
               setError(err)
             }
           }
         })
-      return { [Symbol.dispose]: () => {} }
+      return {
+        [Symbol.dispose]: () => {
+          isConnected = false
+        },
+      }
     })
 
     if (error && props.error) {

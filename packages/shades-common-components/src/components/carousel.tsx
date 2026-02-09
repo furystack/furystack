@@ -177,7 +177,8 @@ export const Carousel = Shade<CarouselProps>({
       background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 75%, transparent)`,
     },
   },
-  render: ({ props, element, useDisposable }) => {
+  render: ({ props, useDisposable, useHostProps, useRef }) => {
+    const hostRef = useRef<HTMLDivElement>('carouselHost')
     const {
       slides,
       autoplay = false,
@@ -190,19 +191,17 @@ export const Carousel = Shade<CarouselProps>({
       style,
     } = props
 
-    if (vertical) {
-      element.setAttribute('data-vertical', '')
-    } else {
-      element.removeAttribute('data-vertical')
-    }
+    useHostProps({
+      'data-vertical': vertical ? '' : undefined,
+      role: 'region',
+      'aria-roledescription': 'carousel',
+      tabindex: '0',
+      ...(style ? { style: style as Record<string, string> } : {}),
+    })
 
-    if (style) {
-      Object.assign(element.style, style)
-    }
-
-    element.setAttribute('role', 'region')
-    element.setAttribute('aria-roledescription', 'carousel')
-    element.setAttribute('tabindex', '0')
+    const viewportRef = useRef<HTMLDivElement>('viewport')
+    const trackRef = useRef<HTMLElement>('track')
+    const dotsRef = useRef<HTMLDivElement>('dots')
 
     const initial = Math.max(0, Math.min(defaultActiveIndex, slides.length - 1))
 
@@ -225,51 +224,47 @@ export const Carousel = Shade<CarouselProps>({
     }
 
     // Keyboard navigation
-    element.onkeydown = (e: KeyboardEvent) => {
-      const nextKey = vertical ? 'ArrowDown' : 'ArrowRight'
-      const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft'
-      if (e.key === nextKey) {
-        e.preventDefault()
-        goNext()
-      } else if (e.key === prevKey) {
-        e.preventDefault()
-        goPrev()
-      }
-    }
+    useHostProps({
+      onkeydown: (e: KeyboardEvent) => {
+        const nextKey = vertical ? 'ArrowDown' : 'ArrowRight'
+        const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft'
+        if (e.key === nextKey) {
+          e.preventDefault()
+          goNext()
+        } else if (e.key === prevKey) {
+          e.preventDefault()
+          goPrev()
+        }
+      },
+      ontouchstart: (e: TouchEvent) => {
+        touchStartX = e.touches[0].clientX
+        touchStartY = e.touches[0].clientY
+      },
+      ontouchend: (e: TouchEvent) => {
+        const dx = e.changedTouches[0].clientX - touchStartX
+        const dy = e.changedTouches[0].clientY - touchStartY
+
+        const threshold = 50
+        if (vertical) {
+          if (dy < -threshold) goNext()
+          else if (dy > threshold) goPrev()
+        } else {
+          if (dx < -threshold) goNext()
+          else if (dx > threshold) goPrev()
+        }
+      },
+    })
 
     // Touch / swipe support
     let touchStartX = 0
     let touchStartY = 0
 
-    element.ontouchstart = (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX
-      touchStartY = e.touches[0].clientY
-    }
-
-    element.ontouchend = (e: TouchEvent) => {
-      const dx = e.changedTouches[0].clientX - touchStartX
-      const dy = e.changedTouches[0].clientY - touchStartY
-
-      const threshold = 50
-      if (vertical) {
-        if (dy < -threshold) goNext()
-        else if (dy > threshold) goPrev()
-      } else {
-        if (dx < -threshold) goNext()
-        else if (dx > threshold) goPrev()
-      }
-    }
-
     // Autoplay
     if (autoplay && slides.length > 1) {
-      const timer = setInterval(goNext, autoplayInterval)
-      element.addEventListener(
-        'shades-disconnect',
-        () => {
-          clearInterval(timer)
-        },
-        { once: true },
-      )
+      useDisposable('autoplay-timer', () => {
+        const timer = setInterval(goNext, autoplayInterval)
+        return { [Symbol.dispose]: () => clearInterval(timer) }
+      })
     }
 
     const current = activeIndex.getValue()
@@ -281,17 +276,18 @@ export const Carousel = Shade<CarouselProps>({
      */
     const updateDOM = (newIndex: number) => {
       if (effect === 'slide') {
-        const track = element.querySelector<HTMLElement>('.carousel-track')
+        const track = trackRef.current
         if (track) {
           if (vertical) {
-            const slideHeight = element.offsetHeight
+            const slideHeight = hostRef.current?.offsetHeight ?? 0
             track.style.transform = `translateY(-${newIndex * slideHeight}px)`
           } else {
             track.style.transform = `translateX(-${newIndex * 100}%)`
           }
         }
       } else {
-        const fadeSlides = element.querySelectorAll<HTMLElement>('.carousel-fade-slide')
+        const fadeContainer = trackRef.current
+        const fadeSlides = fadeContainer?.querySelectorAll<HTMLElement>('.carousel-fade-slide') ?? []
         fadeSlides.forEach((s, i) => {
           const isActive = i === newIndex
           s.toggleAttribute('data-active', isActive)
@@ -300,34 +296,27 @@ export const Carousel = Shade<CarouselProps>({
         })
       }
 
-      const dotEls = element.querySelectorAll('.carousel-dot')
+      const dotEls = dotsRef.current?.querySelectorAll('.carousel-dot') ?? []
       dotEls.forEach((d, i) => {
         d.toggleAttribute('data-active', i === newIndex)
       })
     }
 
     // Subscribe to index changes and update DOM imperatively
-    const observer = activeIndex.subscribe(updateDOM)
-    element.addEventListener(
-      'shades-disconnect',
-      () => {
-        observer[Symbol.dispose]()
-      },
-      { once: true },
-    )
+    useDisposable('index-observer', () => activeIndex.subscribe(updateDOM))
 
     // For vertical slide mode: after render, measure the host height and
     // size each slide to exactly that height so translateY works correctly.
     if (vertical && effect === 'slide') {
       requestAnimationFrame(() => {
-        const hostHeight = element.offsetHeight
+        const hostHeight = hostRef.current?.offsetHeight ?? 0
         if (!hostHeight) return
-        const slideEls = element.querySelectorAll<HTMLElement>('.carousel-slide')
+        const slideEls = trackRef.current?.querySelectorAll<HTMLElement>('.carousel-slide') ?? []
         slideEls.forEach((s) => {
           s.style.height = `${hostHeight}px`
         })
         if (current > 0) {
-          const track = element.querySelector<HTMLElement>('.carousel-track')
+          const track = trackRef.current
           if (track) {
             track.style.transform = `translateY(-${current * hostHeight}px)`
           }
@@ -344,7 +333,7 @@ export const Carousel = Shade<CarouselProps>({
     // Build JSX — rendered once, then updated imperatively
     const slideContent =
       effect === 'fade' ? (
-        <div className="carousel-fade-container">
+        <div ref={trackRef} className="carousel-fade-container">
           {clonedSlides.map((slide, i) => {
             const isFirst = i === 0
             const isActive = i === current
@@ -370,6 +359,7 @@ export const Carousel = Shade<CarouselProps>({
         </div>
       ) : (
         <div
+          ref={trackRef}
           className="carousel-track"
           style={{
             display: 'flex',
@@ -396,8 +386,10 @@ export const Carousel = Shade<CarouselProps>({
     const nextIcon = vertical ? chevronDown : chevronRight
 
     return (
-      <>
-        <div className="carousel-viewport">{slideContent}</div>
+      <div ref={hostRef} style={{ display: 'contents' }}>
+        <div ref={viewportRef} className="carousel-viewport">
+          {slideContent}
+        </div>
 
         {slides.length > 1 && (
           <button
@@ -426,7 +418,7 @@ export const Carousel = Shade<CarouselProps>({
         )}
 
         {dots && slides.length > 1 && (
-          <div className="carousel-dots">
+          <div ref={dotsRef} className="carousel-dots">
             {slides.map((_, i) => (
               <button
                 className="carousel-dot"
@@ -440,7 +432,7 @@ export const Carousel = Shade<CarouselProps>({
             ))}
           </div>
         )}
-      </>
+      </div>
     )
   },
 })

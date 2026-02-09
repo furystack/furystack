@@ -1,5 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
-import { Shade, attachProps, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & PartialElement<HTMLDivElement>
@@ -45,14 +45,11 @@ export const Avatar = Shade<AvatarProps>({
       lineHeight: '1',
     },
   },
-  render: ({ props, element }) => {
-    const { avatarUrl, ...containerProps } = props
+  render: ({ props, useHostProps }) => {
+    const { style } = props
 
-    attachProps(element, {
-      ...containerProps,
-      style: {
-        ...containerProps?.style,
-      },
+    useHostProps({
+      ...(style ? { style: style as Record<string, string> } : {}),
     })
 
     return (

@@ -40,19 +40,6 @@ export type RadioProps = {
   labelProps?: PartialElement<HTMLLabelElement>
 }
 
-const setRadioColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: RadioProps
-}): void => {
-  const color = themeProvider.theme.palette[props.color || 'primary'].main
-  element.style.setProperty('--radio-color', color)
-}
-
 export const Radio = Shade<RadioProps>({
   shadowDomName: 'shade-radio',
   css: {
@@ -128,33 +115,33 @@ export const Radio = Shade<RadioProps>({
       cursor: 'not-allowed',
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+    const inputRef = useRef<HTMLInputElement>('formInput')
+
     useDisposable('form-registration', () => {
-      let input: HTMLInputElement | null = null
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
 
       queueMicrotask(() => {
-        input = element.querySelector('input[type="radio"]') as HTMLInputElement
-        if (input && formService) {
-          formService.inputs.add(input)
+        if (inputRef.current && formService) {
+          formService.inputs.add(inputRef.current)
         }
 
         // Read group-level overrides from parent RadioGroup
-        const group = element.closest('shade-radio-group')
-        if (group && input) {
+        const group = inputRef.current?.closest('shade-radio-group')
+        if (group && inputRef.current) {
           const groupName = group.getAttribute('data-group-name')
-          if (groupName) input.name = groupName
+          if (groupName) inputRef.current.name = groupName
 
           const groupDisabled = group.hasAttribute('data-disabled')
-          if (groupDisabled) input.disabled = true
+          if (groupDisabled) inputRef.current.disabled = true
 
           const groupValue = group.getAttribute('data-group-value')
           if (groupValue !== null) {
-            input.checked = props.value === groupValue
+            inputRef.current.checked = props.value === groupValue
           } else {
             const groupDefaultValue = group.getAttribute('data-group-default-value')
             if (groupDefaultValue !== null && props.checked === undefined) {
-              input.checked = props.value === groupDefaultValue
+              inputRef.current.checked = props.value === groupDefaultValue
             }
           }
         }
@@ -162,15 +149,15 @@ export const Radio = Shade<RadioProps>({
 
       return {
         [Symbol.dispose]: () => {
-          if (input && formService) formService.inputs.delete(input)
+          if (inputRef.current && formService) formService.inputs.delete(inputRef.current)
         },
       }
     })
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    // Read group-level overrides from parent RadioGroup when element is connected
-    const group = element.isConnected ? element.closest('shade-radio-group') : null
+    // Read group-level overrides from parent RadioGroup (inputRef is set after first mount)
+    const group = inputRef.current ? inputRef.current.closest('shade-radio-group') : null
     const groupName = group?.getAttribute('data-group-name')
     const groupDisabled = group?.hasAttribute('data-disabled') ?? false
     const groupValue = group?.getAttribute('data-group-value')
@@ -186,18 +173,17 @@ export const Radio = Shade<RadioProps>({
       isChecked = props.value === groupDefaultValue
     }
 
-    if (isDisabled) {
-      element.setAttribute('data-disabled', '')
-    } else {
-      element.removeAttribute('data-disabled')
-    }
-
-    setRadioColors({ element, themeProvider, props })
+    const color = themeProvider.theme.palette[props.color || 'primary'].main
+    useHostProps({
+      'data-disabled': isDisabled ? '' : undefined,
+      style: { '--radio-color': color },
+    })
 
     return (
       <label {...props.labelProps}>
         <span className="radio-control">
           <input
+            ref={inputRef}
             type="radio"
             value={props.value}
             checked={isChecked}

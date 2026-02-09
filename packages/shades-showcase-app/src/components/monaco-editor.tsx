@@ -1,4 +1,4 @@
-import { Shade } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import type { editor as editorTypes } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main.js'
@@ -20,20 +20,22 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
     width: '100%',
     position: 'relative',
   },
-  render: ({ element, props, useDisposable, injector }) => {
+  render: ({ props, useDisposable, injector, useHostProps, useRef }) => {
+    const containerRef = useRef<HTMLDivElement>('editorContainer')
+
     if (props.style) {
-      Object.assign(element.style, props.style)
+      useHostProps({ style: props.style as Record<string, string> })
     }
 
     useDisposable('editor-init', () => {
       let editorInstance: editorTypes.IStandaloneCodeEditor | undefined
       let themeSub: Disposable | undefined
 
-      // Defer creation to after updateComponent finishes clearing innerHTML
       queueMicrotask(() => {
+        if (!containerRef.current) return
         const themeProvider = injector.getInstance(ThemeProviderService)
 
-        editorInstance = editor.create(element as HTMLElement, {
+        editorInstance = editor.create(containerRef.current, {
           theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
           ...props.options,
         })
@@ -60,6 +62,6 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       }
     })
 
-    return null
+    return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
   },
 })

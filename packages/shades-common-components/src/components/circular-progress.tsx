@@ -40,29 +40,6 @@ const DEFAULT_THICKNESS = 3.6
 
 const clampValue = (v: number) => Math.max(0, Math.min(100, v))
 
-const setCircularColors = ({
-  element,
-  themeProvider,
-  props,
-}: {
-  element: HTMLElement
-  themeProvider: ThemeProviderService
-  props: CircularProgressProps
-}): void => {
-  const color = themeProvider.theme.palette[props.color || 'primary'].main
-  element.style.setProperty('--circular-progress-color', color)
-}
-
-const updateDeterminate = (element: HTMLElement, circumference: number, value: number): void => {
-  const clamped = clampValue(value)
-  const circle = element.querySelector<SVGCircleElement>('.progress-circle')
-  if (circle) {
-    const dashOffset = circumference - (clamped / 100) * circumference
-    circle.style.strokeDashoffset = `${dashOffset}`
-  }
-  element.setAttribute('aria-valuenow', String(clamped))
-}
-
 export const CircularProgress = Shade<CircularProgressProps>({
   shadowDomName: 'shade-circular-progress',
   css: {
@@ -87,8 +64,9 @@ export const CircularProgress = Shade<CircularProgressProps>({
       transition: `stroke-dashoffset ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
-  render: ({ props, injector, element, useDisposable }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
+    const circleRef = useRef<SVGCircleElement>('progressCircle')
     const variant = props.variant || 'indeterminate'
     const value = clampValue(props.value?.getValue() ?? 0)
     const size = props.size ?? DEFAULT_SIZE
@@ -100,20 +78,30 @@ export const CircularProgress = Shade<CircularProgressProps>({
 
     if (variant === 'determinate' && props.value) {
       useDisposable('value-subscription', () =>
-        props.value!.subscribe((next) => updateDeterminate(element, circumference, next)),
+        props.value!.subscribe((next) => {
+          const clamped = Math.max(0, Math.min(100, next))
+          if (circleRef.current) {
+            const dashOffset = circumference - (clamped / 100) * circumference
+            circleRef.current.style.strokeDashoffset = `${dashOffset}`
+          }
+        }),
       )
     }
 
-    element.setAttribute('role', 'progressbar')
-    if (variant === 'determinate') {
-      element.setAttribute('aria-valuenow', String(value))
-      element.setAttribute('aria-valuemin', '0')
-      element.setAttribute('aria-valuemax', '100')
-    } else {
-      element.removeAttribute('aria-valuenow')
-    }
-
-    setCircularColors({ element, themeProvider, props })
+    const color = themeProvider.theme.palette[props.color || 'primary'].main
+    useHostProps({
+      role: 'progressbar',
+      ...(variant === 'determinate'
+        ? {
+            'aria-valuenow': String(value),
+            'aria-valuemin': '0',
+            'aria-valuemax': '100',
+          }
+        : {
+            'aria-valuenow': undefined,
+          }),
+      style: { '--circular-progress-color': color },
+    })
 
     const dashOffset = variant === 'determinate' ? circumference - (value / 100) * circumference : 0
     const center = SVG_SIZE / 2
@@ -148,6 +136,7 @@ export const CircularProgress = Shade<CircularProgressProps>({
         )}
         <circle className="progress-track" cx={center} cy={center} r={radius} stroke-width={thickness} />
         <circle
+          ref={circleRef}
           className="progress-circle"
           cx={center}
           cy={center}

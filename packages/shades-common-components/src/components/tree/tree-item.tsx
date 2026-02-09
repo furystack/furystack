@@ -35,62 +35,62 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
       ['box-shadow', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.easeInOut],
     ),
     borderLeft: '3px solid transparent',
-    '&.animate-in': {
+    '&[data-animate-in]': {
       opacity: '0',
       transform: 'translateY(-6px)',
     },
-    '&:not(.selected):hover': {
+    '&:not([data-selected]):hover': {
       backgroundColor: cssVariableTheme.action.hoverBackground,
     },
-    '&.selected': {
+    '&[data-selected]': {
       backgroundColor: cssVariableTheme.action.selectedBackground,
       borderLeft: `3px solid ${cssVariableTheme.palette.primary.main}`,
     },
-    '&.focused': {
+    '&[data-focused]': {
       boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },
   },
-  render: ({ props, element, useObservable }) => {
+  render: ({ props, useObservable, useHostProps, useRef }) => {
     const { item, treeService, nodeInfo, isNew, renderItem, renderIcon, onActivate } = props
     const { level, hasChildren, isExpanded } = nodeInfo
 
-    if (isNew) {
-      element.classList.add('animate-in')
-      requestAnimationFrame(() => element.classList.remove('animate-in'))
-    }
+    const [selection] = useObservable('selection', treeService.selection)
+    const [focusedItem] = useObservable('focusedItem', treeService.focusedItem)
 
-    element.setAttribute('role', 'treeitem')
-    element.setAttribute('aria-level', (level + 1).toString())
-    if (hasChildren) {
-      element.setAttribute('aria-expanded', isExpanded.toString())
-    }
+    const isFocused = focusedItem === item
+    const isSelected = selection.includes(item)
 
-    element.onclick = (ev: MouseEvent) => {
-      treeService.handleItemClick(item, ev)
-    }
+    useHostProps({
+      role: 'treeitem',
+      'aria-level': (level + 1).toString(),
+      'aria-selected': isSelected.toString(),
+      ...(hasChildren ? { 'aria-expanded': isExpanded.toString() } : {}),
+      onclick: (ev: MouseEvent) => {
+        treeService.handleItemClick(item, ev)
+      },
+      ondblclick: () => {
+        treeService.handleItemDoubleClick(item)
+        if (!hasChildren) {
+          onActivate?.(item)
+        }
+      },
+      ...(isNew ? { 'data-animate-in': '' } : {}),
+      ...(isSelected ? { 'data-selected': '' } : {}),
+      ...(isFocused ? { 'data-focused': '' } : {}),
+    })
 
-    element.ondblclick = () => {
-      treeService.handleItemDoubleClick(item)
-      if (!hasChildren) {
-        onActivate?.(item)
-      }
-    }
+    const wrapperRef = useRef<HTMLElement>('wrapper')
 
-    const updateSelectionState = (selection: unknown[]) => {
-      const isSelected = selection.includes(item)
-      element.classList.toggle('selected', isSelected)
-      element.setAttribute('aria-selected', isSelected.toString())
-    }
-
-    const updateFocusState = (focusedItem?: unknown) => {
-      const isFocused = focusedItem === item
-      element.classList.toggle('focused', isFocused)
-
-      if (isFocused) {
-        const scrollContainer = element.closest('shade-tree') as HTMLElement
+    if (isFocused) {
+      queueMicrotask(() => {
+        const el = wrapperRef.current
+        if (!el) return
+        const scrollContainer = el.closest('shade-tree') as HTMLElement
         if (scrollContainer) {
+          const hostEl = el.closest('shade-tree-item') as HTMLElement
+          if (!hostEl) return
           const containerRect = scrollContainer.getBoundingClientRect()
-          const itemRect = element.getBoundingClientRect()
+          const itemRect = hostEl.getBoundingClientRect()
           const itemTopInContainer = itemRect.top - containerRect.top
           const itemBottomInContainer = itemRect.bottom - containerRect.top
 
@@ -106,21 +106,8 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
             })
           }
         }
-      }
+      })
     }
-
-    const [selection] = useObservable('selection', treeService.selection, {
-      onChange: updateSelectionState,
-    })
-    updateSelectionState(selection)
-
-    const [focusedItem] = useObservable('focusedItem', treeService.focusedItem, {
-      onChange: updateFocusState,
-    })
-    updateFocusState(focusedItem)
-
-    const isFocused = focusedItem === item
-    const isSelected = selection.includes(item)
     const state: TreeItemState = { isFocused, isSelected, level, hasChildren, isExpanded }
 
     const handleExpandClick = (ev: MouseEvent) => {
@@ -129,7 +116,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     }
 
     return (
-      <>
+      <span ref={wrapperRef} style={{ display: 'contents' }}>
         <span style={{ width: `${level * INDENT_PX}px`, flexShrink: '0' }} />
         <span
           className="tree-item-expand"
@@ -161,7 +148,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
         <span className="tree-item-content" style={{ flex: '1' }}>
           {renderItem(item, state)}
         </span>
-      </>
+      </span>
     )
   },
 })

@@ -157,12 +157,23 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
       userSelect: 'none',
     },
   },
-  render: ({ props, children, element, useDisposable }) => {
+  render: ({ props, children, useDisposable, useRef, useHostProps, useObservable }) => {
+    const triggerRef = useRef<HTMLDivElement>('trigger')
+    const panelRef = useRef<HTMLDivElement>('panel')
+    const backdropRef = useRef<HTMLDivElement>('backdrop')
+
+    const isOpen = useDisposable('isOpen', () => new ObservableValue(false))
+    const [isOpenValue] = useObservable('isOpenObs', isOpen)
+
+    useHostProps({
+      'data-open': isOpenValue ? '' : undefined,
+    })
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
-        if (!element.hasAttribute('data-open')) return
+        if (!isOpen.getValue()) return
 
-        const panel = element.querySelector('.dropdown-panel')
+        const panel = panelRef.current
         if (!panel) return
 
         const allItems = Array.from(panel.querySelectorAll<HTMLElement>('.dropdown-item:not(.disabled)'))
@@ -170,7 +181,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
         switch (ev.key) {
           case 'Escape': {
             ev.preventDefault()
-            element.querySelector('.dropdown-backdrop')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+            backdropRef.current?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
             break
           }
           case 'ArrowDown': {
@@ -210,13 +221,11 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
 
     const { items, placement = 'bottomLeft', disabled, onSelect } = props
 
-    const isOpen = useDisposable('isOpen', () => new ObservableValue(false))
-
     const positionAndShowPanel = () => {
       requestAnimationFrame(() => {
-        const trigger = element.querySelector('.dropdown-trigger')
-        const panel = element.querySelector<HTMLElement>('.dropdown-panel')
-        const backdrop = element.querySelector<HTMLElement>('.dropdown-backdrop')
+        const trigger = triggerRef.current
+        const panel = panelRef.current
+        const backdrop = backdropRef.current
         if (!trigger || !panel || !backdrop) return
 
         const { top: rectTop, bottom: rectBottom, left: rectLeft, right: rectRight } = trigger.getBoundingClientRect()
@@ -262,16 +271,14 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     const openDropdown = () => {
       if (isOpen.isDisposed || isOpen.getValue()) return
       isOpen.setValue(true)
-      element.setAttribute('data-open', '')
       positionAndShowPanel()
     }
 
     const closeDropdown = () => {
       if (isOpen.isDisposed || !isOpen.getValue()) return
       isOpen.setValue(false)
-      element.removeAttribute('data-open')
-      const backdrop = element.querySelector<HTMLElement>('.dropdown-backdrop')
-      const panel = element.querySelector<HTMLElement>('.dropdown-panel')
+      const backdrop = backdropRef.current
+      const panel = panelRef.current
       backdrop?.classList.remove('visible')
       panel?.classList.remove('visible')
       panel?.querySelectorAll('.dropdown-item.focused').forEach((el) => el.classList.remove('focused'))
@@ -293,16 +300,16 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
 
     // If re-rendered while open (e.g. parent prop change), restore visual state
     if (!isOpen.isDisposed && isOpen.getValue()) {
-      element.setAttribute('data-open', '')
       positionAndShowPanel()
     }
 
     return (
       <>
-        <div className={`dropdown-trigger${disabled ? ' disabled' : ''}`} onclick={handleTriggerClick}>
+        <div ref={triggerRef} className={`dropdown-trigger${disabled ? ' disabled' : ''}`} onclick={handleTriggerClick}>
           {children}
         </div>
         <div
+          ref={backdropRef}
           className="dropdown-backdrop"
           style={{
             position: 'fixed',
@@ -315,6 +322,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
           onclick={closeDropdown}
         >
           <div
+            ref={panelRef}
             role="menu"
             className="dropdown-panel"
             style={{

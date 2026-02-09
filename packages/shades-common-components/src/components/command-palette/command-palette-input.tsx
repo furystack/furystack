@@ -1,21 +1,27 @@
+import type { RefObject } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
 
-const updateComponent = async (element: HTMLElement, isOpened: boolean) => {
-  const input = element.firstChild as HTMLInputElement | null
-  if (input) {
+const animateOpenState = async (
+  wrapperRef: RefObject<HTMLDivElement>,
+  inputRef: RefObject<HTMLInputElement>,
+  isOpened: boolean,
+) => {
+  const wrapper = wrapperRef.current
+  const input = inputRef.current
+  if (wrapper && input) {
     if (isOpened) {
       input.value = ''
-      await promisifyAnimation(element, [{ width: '0%' }, { width: '100%' }], {
+      await promisifyAnimation(wrapper, [{ width: '0%' }, { width: '100%' }], {
         duration: 300,
         fill: 'forwards',
         easing: 'cubic-bezier(0.595, 0.425, 0.415, 0.845)',
       })
       input.focus()
     } else {
-      await promisifyAnimation(element, [{ width: '100%' }, { width: '0%' }], {
+      await promisifyAnimation(wrapper, [{ width: '100%' }, { width: '0%' }], {
         duration: 300,
         fill: 'forwards',
         easing: 'cubic-bezier(0.595, 0.425, 0.415, 0.845)',
@@ -42,14 +48,20 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
       letterSpacing: '0.01em',
     },
   },
-  render: ({ element, props, useObservable }) => {
+  render: ({ props, useObservable, useRef, useHostProps }) => {
     const { manager } = props
+    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+    const inputRef = useRef<HTMLInputElement>('input')
 
     const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, {
-      onChange: (newValue) => void updateComponent(element, newValue),
+      onChange: (newValue) => void animateOpenState(wrapperRef, inputRef, newValue),
     })
-    element.style.width = isCurrentlyOpened ? '100%' : '0%'
+    useHostProps({ style: { width: isCurrentlyOpened ? '100%' : '0%' } })
 
-    return <input autofocus placeholder="Type to search commands..." />
+    return (
+      <div ref={wrapperRef} style={{ width: isCurrentlyOpened ? '100%' : '0%', overflow: 'hidden' }}>
+        <input ref={inputRef} autofocus placeholder="Type to search commands..." />
+      </div>
+    )
   },
 })

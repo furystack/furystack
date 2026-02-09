@@ -6,6 +6,8 @@
  * attribute-based API rather than the DOM property interfaces.
  */
 
+import type { RefObject } from './models/render-options.js'
+
 /**
  * Common event handlers available on SVG elements.
  */
@@ -87,6 +89,7 @@ export type SvgCoreAttributes = {
   className?: string
   style?: Partial<CSSStyleDeclaration>
   tabIndex?: number
+  ref?: RefObject<Element>
 } & SvgPresentationAttributes &
   SvgEventHandlers
 
