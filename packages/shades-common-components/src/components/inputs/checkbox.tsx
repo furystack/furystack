@@ -170,6 +170,7 @@ export const Checkbox = Shade<CheckboxProps>({
     })
 
     const handleChange = function (this: GlobalEventHandlers, ev: Event) {
+      ev.stopPropagation()
       if (props.indeterminate && inputRef.current) {
         inputRef.current.indeterminate = true
       }

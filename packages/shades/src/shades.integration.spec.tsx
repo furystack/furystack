@@ -487,4 +487,57 @@ describe('Shades integration tests', () => {
       expectCount(0)
     })
   })
+
+  it('Should propagate changed props from parent to child Shade component', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      const ChildComponent = Shade<{ isDisabled: boolean }>({
+        shadowDomName: 'shade-prop-child',
+        render: ({ props }) => {
+          return <input type="checkbox" disabled={props.isDisabled} data-testid="inner-input" />
+        },
+      })
+
+      const ParentComponent = Shade({
+        shadowDomName: 'shade-prop-parent',
+        render: ({ useState }) => {
+          const [isDisabled, setIsDisabled] = useState('isDisabled', false)
+          return (
+            <div>
+              <button id="toggle-disabled" onclick={() => setIsDisabled(!isDisabled)}>
+                Toggle
+              </button>
+              <ChildComponent isDisabled={isDisabled} />
+            </div>
+          )
+        },
+      })
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <ParentComponent />,
+      })
+
+      await flushUpdates()
+      await flushUpdates()
+
+      const innerInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement
+      expect(innerInput).toBeTruthy()
+      expect(innerInput.disabled).toBe(false)
+
+      // Click the toggle button
+      const toggleBtn = document.getElementById('toggle-disabled') as HTMLButtonElement
+      toggleBtn.click()
+
+      // Wait for parent re-render + child re-render (two microtask levels)
+      await flushUpdates()
+      await flushUpdates()
+      await flushUpdates()
+
+      const updatedInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement
+      expect(updatedInput.disabled).toBe(true)
+    })
+  })
 })
