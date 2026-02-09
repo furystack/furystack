@@ -77,7 +77,7 @@ export const SelectPage = Shade({
   shadowDomName: 'select-page',
   render: () => {
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="Select"

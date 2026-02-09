@@ -21,7 +21,7 @@ export const CardPage = Shade({
   shadowDomName: 'shades-card-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🃏"
           title="Card"

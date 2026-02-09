@@ -109,7 +109,7 @@ export const MenuPage = Shade({
   shadowDomName: 'shades-menu-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="Menu"

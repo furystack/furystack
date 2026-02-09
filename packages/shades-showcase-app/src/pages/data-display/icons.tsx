@@ -1,7 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { Palette } from '@furystack/shades-common-components'
+import type { IconDefinition, Palette } from '@furystack/shades-common-components'
 import { Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
-import type { IconDefinition } from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -131,7 +130,7 @@ export const IconsPage = Shade({
     const color = (state.selectedColor || undefined) as keyof Palette | undefined
 
     return (
-      <PageContainer maxWidth="1100px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⭐"
           title="Icons"

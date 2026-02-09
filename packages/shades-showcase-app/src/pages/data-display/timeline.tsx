@@ -15,7 +15,7 @@ export const TimelinePage = Shade({
   shadowDomName: 'shades-timeline-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📅"
           title="Timeline"

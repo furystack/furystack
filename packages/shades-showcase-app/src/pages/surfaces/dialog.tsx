@@ -12,7 +12,7 @@ export const DialogPage = Shade({
     const [isCustomConfirmOpen, setCustomConfirmOpen] = useState('customConfirmDialog', false)
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="💬"
           title="Dialog"

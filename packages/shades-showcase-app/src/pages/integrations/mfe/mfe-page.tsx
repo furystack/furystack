@@ -18,7 +18,7 @@ export const MFEPage = Shade({
     const [mfeClients, setMfeClients] = useState<MfeClientState[]>('mfeClients', [])
 
     return (
-      <PageContainer maxWidth="1000px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🧩"
           title="Micro Frontends"

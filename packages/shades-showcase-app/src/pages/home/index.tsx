@@ -13,7 +13,7 @@ export const HomePage = Shade({
   shadowDomName: 'shades-showcase-home',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🏠"
           title="Welcome to FuryStack Shades"

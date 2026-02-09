@@ -8,7 +8,7 @@ export const RadioPage = Shade({
     const [sizeValue, setSizeValue] = useState('selectedSize', '')
 
     return (
-      <PageContainer maxWidth="1000px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔘"
           title="Radio / RadioGroup"

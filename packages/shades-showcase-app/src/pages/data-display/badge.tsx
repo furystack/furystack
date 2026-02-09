@@ -14,7 +14,7 @@ export const BadgePage = Shade({
     const [state, setState] = useSearchState('badge', { count: 5 })
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔢"
           title="Badge"

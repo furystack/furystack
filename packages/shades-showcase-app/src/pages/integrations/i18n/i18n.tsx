@@ -33,7 +33,7 @@ export const I18NPage = Shade({
   shadowDomName: 'i18n-page',
   render: () => {
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🌐"
           title="Internationalization"

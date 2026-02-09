@@ -37,7 +37,7 @@ export const ProgressPage = Shade({
     const progressValue = useDisposable('progressValue', () => new OV(40))
 
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⏳"
           title="Progress"

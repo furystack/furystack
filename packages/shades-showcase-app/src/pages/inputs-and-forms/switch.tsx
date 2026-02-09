@@ -7,7 +7,7 @@ export const SwitchPage = Shade({
     const [isControlledChecked, setIsControlledChecked] = useState('controlledValue', true)
 
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔀"
           title="Switch"

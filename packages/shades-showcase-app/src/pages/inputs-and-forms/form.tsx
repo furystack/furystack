@@ -338,7 +338,7 @@ export const FormPage = Shade({
   shadowDomName: 'forms-page',
   render: () => {
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="Form Handling"

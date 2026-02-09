@@ -98,7 +98,7 @@ export const TabsPage = Shade({
   shadowDomName: 'tabs-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📑"
           title="Tabs"

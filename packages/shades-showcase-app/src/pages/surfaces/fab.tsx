@@ -5,7 +5,7 @@ export const FabPage = Shade({
   shadowDomName: 'shades-fab-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⭕"
           title="FAB"

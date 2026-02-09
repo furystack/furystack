@@ -14,7 +14,7 @@ export const CommandPalettePage = Shade({
   shadowDomName: 'shades-command-palette-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="⌨️"
           title="Command Palette"

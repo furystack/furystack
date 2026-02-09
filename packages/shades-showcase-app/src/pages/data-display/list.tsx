@@ -32,7 +32,7 @@ export const ListPage = Shade({
     const [selectionCount, setSelectionCount] = useState('selectionCount', 0)
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="List"

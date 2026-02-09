@@ -111,7 +111,7 @@ export const ButtonGroupPage = Shade({
   shadowDomName: 'button-group-page',
   render: () => {
     return (
-      <PageContainer maxWidth="800px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔗"
           title="Button Group"

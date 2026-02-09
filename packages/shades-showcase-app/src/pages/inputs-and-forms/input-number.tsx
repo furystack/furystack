@@ -7,7 +7,7 @@ export const InputNumberPage = Shade({
     const [currentValue, setCurrentValue] = useState<number | undefined>('controlledValue', 25)
 
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔢"
           title="Input Number"

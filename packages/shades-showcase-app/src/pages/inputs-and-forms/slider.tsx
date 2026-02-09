@@ -73,7 +73,7 @@ export const SliderPage = Shade({
   shadowDomName: 'slider-page',
   render: () => {
     return (
-      <PageContainer maxWidth="1200px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🎚️"
           title="Slider"

@@ -18,7 +18,7 @@ export const ContextMenuPage = Shade({
     const buttonManager = useDisposable('buttonManager', () => new ContextMenuManager<MenuAction>())
 
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="📋"
           title="Context Menu"

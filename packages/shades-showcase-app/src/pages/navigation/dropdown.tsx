@@ -68,7 +68,7 @@ export const DropdownPage = Shade({
   shadowDomName: 'shades-dropdown-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🔽"
           title="Dropdown"

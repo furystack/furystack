@@ -5,7 +5,7 @@ export const BreadcrumbPage = Shade({
   shadowDomName: 'shades-breadcrumb-page',
   render: () => {
     return (
-      <PageContainer maxWidth="900px" centered>
+      <PageContainer centered>
         <PageHeader
           icon="🍞"
           title="Breadcrumb"
