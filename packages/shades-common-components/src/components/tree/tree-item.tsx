@@ -1,5 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
+import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { FlattenedTreeNode, TreeService } from '../../services/tree-service.js'
 import { Icon } from '../icons/icon.js'
@@ -50,12 +51,25 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
       boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },
   },
-  render: ({ props, useObservable, useHostProps, useRef }) => {
+  render: ({ props, useObservable, useDisposable, useHostProps, useRef }) => {
     const { item, treeService, nodeInfo, isNew, renderItem, renderIcon, onActivate } = props
     const { level, hasChildren, isExpanded } = nodeInfo
 
     const [selection] = useObservable('selection', treeService.selection)
     const [focusedItem] = useObservable('focusedItem', treeService.focusedItem)
+
+    const animateInState = useDisposable('animateIn', () => {
+      const obs = new ObservableValue(isNew)
+      if (isNew) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            obs.setValue(false)
+          })
+        })
+      }
+      return obs
+    })
+    const [isAnimatingIn] = useObservable('isAnimatingIn', animateInState)
 
     const isFocused = focusedItem === item
     const isSelected = selection.includes(item)
@@ -74,7 +88,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
           onActivate?.(item)
         }
       },
-      ...(isNew ? { 'data-animate-in': '' } : {}),
+      ...(isAnimatingIn ? { 'data-animate-in': '' } : {}),
       ...(isSelected ? { 'data-selected': '' } : {}),
       ...(isFocused ? { 'data-focused': '' } : {}),
     })
