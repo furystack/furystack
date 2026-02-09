@@ -47,6 +47,9 @@ export const Carousel = Shade<CarouselProps>({
       overflow: 'hidden',
       width: '100%',
     },
+    '&[data-vertical] .carousel-viewport': {
+      height: '100%',
+    },
 
     // Slide-effect track: width: 100% gives a definite size so child
     // percentage flex-basis resolves correctly.
@@ -60,11 +63,15 @@ export const Carousel = Shade<CarouselProps>({
     },
     '&[data-vertical] .carousel-track': {
       flexDirection: 'column',
+      height: '100%',
     },
 
     '& .carousel-slide': {
       flexShrink: '0',
       overflow: 'hidden',
+    },
+    '&[data-vertical] .carousel-slide': {
+      height: '100%',
     },
 
     // Fade-effect layers
@@ -263,25 +270,6 @@ export const Carousel = Shade<CarouselProps>({
       })
     }
 
-    // For vertical slide mode: after render, measure the host height and
-    // size each slide to exactly that height so translateY works correctly.
-    if (vertical && effect === 'slide') {
-      requestAnimationFrame(() => {
-        const hostHeight = hostRef.current?.offsetHeight ?? 0
-        if (!hostHeight) return
-        const slideEls = trackRef.current?.querySelectorAll<HTMLElement>('.carousel-slide') ?? []
-        slideEls.forEach((s) => {
-          s.style.height = `${hostHeight}px`
-        })
-        if (current > 0) {
-          const track = trackRef.current
-          if (track) {
-            track.style.transform = `translateY(-${current * hostHeight}px)`
-          }
-        }
-      })
-    }
-
     // Clone each slide so the same element array can be safely passed to
     // multiple Carousel instances (DOM nodes can only have one parent).
     const clonedSlides = slides.map((slide) =>
@@ -322,7 +310,7 @@ export const Carousel = Shade<CarouselProps>({
             display: 'flex',
             flexDirection: vertical ? 'column' : 'row',
             transition: `transform ${TRANSITION_MS}ms ease-in-out`,
-            transform: vertical ? 'translateY(0)' : `translateX(-${current * 100}%)`,
+            transform: vertical ? `translateY(-${current * 100}%)` : `translateX(-${current * 100}%)`,
           }}
         >
           {clonedSlides.map((slide, i) => (
