@@ -506,9 +506,18 @@ const formatDate = (date: Date): string => {
 // 5. Main component
 export const UserProfile = Shade<UserProfileProps>({
   shadowDomName: 'user-profile',
-  render: ({ props, injector, useObservable, useDisposable }) => {
+  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
     // Services
     const userService = injector.getInstance(UserService);
+
+    // Host element attributes/styles
+    useHostProps({
+      'data-testid': 'user-profile',
+      'data-user-id': props.userId,
+    });
+
+    // Refs for child DOM access
+    const bioRef = useRef<HTMLTextAreaElement>('bio');
 
     // Observable subscriptions
     const [user] = useObservable('user', userService.getUserById(props.userId));
@@ -520,11 +529,13 @@ export const UserProfile = Shade<UserProfileProps>({
     const handleEditClick = () => {
       isEditing.setValue(true);
       props.onEdit?.();
+      queueMicrotask(() => bioRef.current?.focus());
     };
 
     // Render
     return (
-      <div data-testid="user-profile">
+      <div>
+        <textarea ref={bioRef} />
         {/* Component content */}
       </div>
     );
