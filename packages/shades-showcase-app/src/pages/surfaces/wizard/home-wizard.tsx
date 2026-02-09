@@ -1,6 +1,15 @@
 import { attachStyles, createComponent, ScreenService, Shade } from '@furystack/shades'
 import type { WizardStepProps } from '@furystack/shades-common-components'
-import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@furystack/shades-common-components'
+import {
+  Button,
+  cssVariableTheme,
+  fadeIn,
+  fadeOut,
+  Input,
+  Modal,
+  showParallax,
+  Wizard,
+} from '@furystack/shades-common-components'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
@@ -188,6 +197,7 @@ export const WelcomeWizard = Shade({
           backdropStyle={{
             backdropFilter: 'blur(10px)',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: cssVariableTheme.zIndex.modal,
           }}
           showAnimation={(el) => fadeIn(el)}
           hideAnimation={(el) => fadeOut(el)}
