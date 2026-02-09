@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0] - 2026-02-09
+
+### ⬆️ Dependencies
+
+- Updated peer dependency `@furystack/shades` to latest minor version
+- Updated peer dependency `@furystack/shades` to new major version
+- Updated `@furystack/shades` dependency with microtask-based batched rendering
+- Updated `@furystack/*` dependencies
+- Peer dependency on `@furystack/shades` bumped to new major version
+- Updated `@furystack/shades` dependency
+
+### 💥 Breaking Changes
+
+### Requires `@furystack/shades` v3
+
+This package now depends on the new major version of `@furystack/shades` which removed the `constructed` callback from the Shade API.
+
+### Peer Dependency Bump
+
+Updated peer dependency on `@furystack/shades` to the new major version with VNode-based rendering. No API changes in this package.
+
 ## [1.0.28] - 2026-02-01
 
 ### ⬆️ Dependencies

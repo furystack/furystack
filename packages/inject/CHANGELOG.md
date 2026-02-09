@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.0.29] - 2026-02-09
+
+### 🧪 Tests
+
+- Refactored `Injected` and `Injector` tests to use `usingAsync` for proper `Injector` disposal
+
 ## [12.0.28] - 2026-01-26
 
 ### 🔧 Chores

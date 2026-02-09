@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.28] - 2026-02-09
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/*` dependencies
+
 ## [1.0.27] - 2026-01-26
 
 ### 🔧 Chores

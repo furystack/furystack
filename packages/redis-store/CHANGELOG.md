@@ -1,5 +1,15 @@
 # Changelog
 
+## [10.0.35] - 2026-02-09
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` dependency
+
+### 🧪 Tests
+
+- Refactored `RedisStore` tests to use `usingAsync` for proper `Injector` disposal
+
 ## [10.0.34] - 2026-01-26
 
 ### 🔧 Chores

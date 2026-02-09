@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.0.29] - 2026-02-09
+
+### 🧪 Tests
+
+- Replaced `sleepAsync` with Vitest fake timers (`vi.useFakeTimers` / `vi.advanceTimersByTimeAsync`) in async cache tests to make them deterministic and faster
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/*` dependencies
+
 ## [5.0.28] - 2026-01-26
 
 ### 🔧 Chores

@@ -1,5 +1,15 @@
 # Changelog
 
+## [15.0.35] - 2026-02-09
+
+### 🐛 Bug Fixes
+
+- Fixed `getPort()` to assign deterministic port ranges per Vitest worker using `VITEST_POOL_ID` instead of a random base port, preventing port collisions in parallel test runs
+
+### 🧪 Tests
+
+- Refactored `globalDisposable` tests to use `usingAsync` for proper `Injector` disposal
+
 ## [15.0.34] - 2026-01-26
 
 ### 🔧 Chores

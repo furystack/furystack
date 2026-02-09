@@ -1,5 +1,42 @@
 # Changelog
 
+## [8.0.0] - 2026-02-09
+
+### 🔧 Chores
+
+- Updated workspace dependencies for layout system feature
+- Workspace version bump for `@furystack/shades-common-components` minor release (List, Tree, and ContextMenu components)
+- Version bump for showcase app refactoring
+
+### ⬆️ Dependencies
+
+- Updated shades-related workspace packages to new major versions
+- Updated `@furystack/shades` dependency with microtask-based batched rendering
+- Updated `@furystack/shades-common-components` with new Breadcrumb component
+- Updated `@furystack/shades-showcase-app` with breadcrumb integration
+- Updated `@furystack/shades` and `@furystack/shades-common-components` dependencies
+
+### 📚 Documentation
+
+### Updated Cursor IDE Rules
+
+Enhanced the Cursor IDE coding guidelines for better AI assistance:
+
+- **CODE_STYLE.mdc** - Expanded code style guidelines with detailed examples for naming conventions, import ordering, JSX formatting, and component structure patterns
+- **TYPESCRIPT_GUIDELINES.mdc** - Improved TypeScript guidelines with clearer type inference recommendations, stricter `any` prohibition examples, and better utility type documentation
+
+- Consolidated Cursor rules into focused Markdown files for library development and testing guidelines
+
+### 💥 Breaking Changes
+
+### Major Version Bump for Shades Rendering Engine Overhaul
+
+The `@furystack/shades` package has been rewritten with a VNode-based reconciliation engine, removing the `element` render option, `onAttach`/`onDetach` hooks, and introducing `useHostProps` and `useRef`. All dependent shades packages have been updated accordingly.
+
+### 📦 Build
+
+- Updated workspace dependency versions for the shades major version bump
+
 ## [7.0.38] - 2026-02-01
 
 ### 📚 Documentation

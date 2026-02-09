@@ -1,5 +1,15 @@
 # Changelog
 
+## [13.1.7] - 2026-02-09
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` dependency
+
+### 🧪 Tests
+
+- Refactored WebSocket integration tests to use `usingAsync` for proper `Injector` disposal
+
 ## [13.1.6] - 2026-01-26
 
 ### 🔧 Chores
