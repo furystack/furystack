@@ -1,7 +1,6 @@
 import { attachStyles, createComponent, ScreenService, Shade } from '@furystack/shades'
 import type { WizardStepProps } from '@furystack/shades-common-components'
 import { Button, fadeIn, fadeOut, Input, Modal, showParallax, Wizard } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
@@ -176,16 +175,16 @@ export const Step3 = Shade<WizardStepProps>({
 
 export const WelcomeWizard = Shade({
   shadowDomName: 'shades-welcome-wizard',
-  render: ({ useDisposable }) => {
-    const isOpened = useDisposable('isOpened', () => new ObservableValue(false))
+  render: ({ useState }) => {
+    const [isOpened, setIsOpened] = useState('isOpened', false)
     return (
       <>
-        <Button type="button" onclick={() => isOpened.setValue(true)}>
+        <Button type="button" onclick={() => setIsOpened(true)}>
           Open Wizard
         </Button>
         <Modal
           isVisible={isOpened}
-          onClose={() => isOpened.setValue(false)}
+          onClose={() => setIsOpened(false)}
           backdropStyle={{
             backdropFilter: 'blur(10px)',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -193,7 +192,7 @@ export const WelcomeWizard = Shade({
           showAnimation={(el) => fadeIn(el)}
           hideAnimation={(el) => fadeOut(el)}
         >
-          <Wizard steps={[Step1, Step2, Step3]} onFinish={() => isOpened.setValue(false)} />
+          <Wizard steps={[Step1, Step2, Step3]} onFinish={() => setIsOpened(false)} />
         </Modal>
       </>
     )

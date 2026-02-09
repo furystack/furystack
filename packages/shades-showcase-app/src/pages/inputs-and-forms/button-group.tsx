@@ -10,13 +10,10 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
-
 const ToggleExclusiveDemo = Shade({
   shadowDomName: 'toggle-exclusive-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const alignment$ = useDisposable('alignment', () => new ObservableValue('center'))
-    const [alignment] = useObservable('alignmentValue', alignment$)
+  render: ({ useState }) => {
+    const [alignment, setAlignment] = useState('alignment', 'center')
 
     return (
       <div>
@@ -26,7 +23,7 @@ const ToggleExclusiveDemo = Shade({
         <ToggleButtonGroup
           exclusive
           value={alignment}
-          onValueChange={(val) => alignment$.setValue(val as string)}
+          onValueChange={(val) => setAlignment(val as string)}
           color="primary"
         >
           <ToggleButton value="left">⫷ Left</ToggleButton>
@@ -40,20 +37,15 @@ const ToggleExclusiveDemo = Shade({
 
 const ToggleMultiDemo = Shade({
   shadowDomName: 'toggle-multi-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const formats$ = useDisposable('formats', () => new ObservableValue<string[]>(['bold']))
-    const [formats] = useObservable('formatsValue', formats$)
+  render: ({ useState }) => {
+    const [formats, setFormats] = useState<string[]>('formats', ['bold'])
 
     return (
       <div>
         <div style={{ marginBottom: '8px', fontSize: '0.85rem', opacity: '0.7' }}>
           <span>Multi-select (selected: {formats.join(', ') || 'none'})</span>
         </div>
-        <ToggleButtonGroup
-          value={formats}
-          onValueChange={(val) => formats$.setValue(val as string[])}
-          color="secondary"
-        >
+        <ToggleButtonGroup value={formats} onValueChange={(val) => setFormats(val as string[])} color="secondary">
           <ToggleButton value="bold">𝐁</ToggleButton>
           <ToggleButton value="italic">𝐼</ToggleButton>
           <ToggleButton value="underline">U̲</ToggleButton>
@@ -66,9 +58,8 @@ const ToggleMultiDemo = Shade({
 
 const ToggleVerticalDemo = Shade({
   shadowDomName: 'toggle-vertical-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const view$ = useDisposable('view', () => new ObservableValue('list'))
-    const [view] = useObservable('viewValue', view$)
+  render: ({ useState }) => {
+    const [view, setView] = useState('view', 'list')
 
     return (
       <div>
@@ -79,7 +70,7 @@ const ToggleVerticalDemo = Shade({
           exclusive
           orientation="vertical"
           value={view}
-          onValueChange={(val) => view$.setValue(val as string)}
+          onValueChange={(val) => setView(val as string)}
           color="info"
         >
           <ToggleButton value="list">☰ List</ToggleButton>
@@ -93,9 +84,8 @@ const ToggleVerticalDemo = Shade({
 
 const SegmentedControlDemo = Shade({
   shadowDomName: 'segmented-control-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const period$ = useDisposable('period', () => new ObservableValue('weekly'))
-    const [period] = useObservable('periodValue', period$)
+  render: ({ useState }) => {
+    const [period, setPeriod] = useState('period', 'weekly')
 
     return (
       <div>
@@ -110,7 +100,7 @@ const SegmentedControlDemo = Shade({
             { value: 'yearly', label: 'Yearly' },
           ]}
           value={period}
-          onValueChange={(val) => period$.setValue(val)}
+          onValueChange={(val) => setPeriod(val)}
         />
       </div>
     )

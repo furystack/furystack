@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { initializeShadeRoot, createComponent } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { initializeShadeRoot, createComponent, Shade, flushUpdates } from '@furystack/shades'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Modal } from './modal.js'
 
@@ -17,13 +17,12 @@ describe('Modal', () => {
     it('should render when isVisible is true', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible}>
+            <Modal isVisible={true}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -38,13 +37,12 @@ describe('Modal', () => {
     it('should not render when isVisible is false', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(false)
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible}>
+            <Modal isVisible={false}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -57,24 +55,30 @@ describe('Modal', () => {
     })
 
     it('should show modal when isVisible changes from false to true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(false)
+      let setVisible!: (v: boolean) => void
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <Modal isVisible={isVisible}>
+      const Wrapper = Shade({
+        shadowDomName: 'modal-visibility-test-show',
+        render: ({ useState }) => {
+          const [visible, setter] = useState('visible', false)
+          setVisible = setter
+          return (
+            <Modal isVisible={visible}>
               <div id="modal-content">Modal Content</div>
             </Modal>
-          ),
-        })
+          )
+        },
+      })
 
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
         await sleepAsync(50)
         expect(document.body.innerHTML).not.toContain('modal-content')
 
-        isVisible.setValue(true)
+        setVisible(true)
+        await flushUpdates()
         await sleepAsync(50)
 
         expect(document.body.innerHTML).toContain('shade-backdrop')
@@ -83,24 +87,30 @@ describe('Modal', () => {
     })
 
     it('should hide modal when isVisible changes from true to false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
+      let setVisible!: (v: boolean) => void
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <Modal isVisible={isVisible}>
+      const Wrapper = Shade({
+        shadowDomName: 'modal-visibility-test-hide',
+        render: ({ useState }) => {
+          const [visible, setter] = useState('visible', true)
+          setVisible = setter
+          return (
+            <Modal isVisible={visible}>
               <div id="modal-content">Modal Content</div>
             </Modal>
-          ),
-        })
+          )
+        },
+      })
 
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
         await sleepAsync(50)
         expect(document.body.innerHTML).toContain('modal-content')
 
-        isVisible.setValue(false)
+        setVisible(false)
+        await flushUpdates()
         await sleepAsync(50)
 
         expect(document.body.innerHTML).not.toContain('shade-backdrop')
@@ -113,14 +123,13 @@ describe('Modal', () => {
     it('should call onClose when backdrop is clicked', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
         const onClose = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible} onClose={onClose}>
+            <Modal isVisible={true} onClose={onClose}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -140,7 +149,6 @@ describe('Modal', () => {
     it('should call hideAnimation before onClose when backdrop is clicked', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
         const callOrder: string[] = []
         const hideAnimation = vi.fn(async () => {
           callOrder.push('hideAnimation')
@@ -153,7 +161,7 @@ describe('Modal', () => {
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible} onClose={onClose} hideAnimation={hideAnimation}>
+            <Modal isVisible={true} onClose={onClose} hideAnimation={hideAnimation}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -175,14 +183,13 @@ describe('Modal', () => {
     it('should call showAnimation when modal becomes visible', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
         const showAnimation = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible} showAnimation={showAnimation}>
+            <Modal isVisible={true} showAnimation={showAnimation}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -194,25 +201,31 @@ describe('Modal', () => {
     })
 
     it('should call showAnimation with element when visibility changes to true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(false)
-        const showAnimation = vi.fn()
+      let setVisible!: (v: boolean) => void
+      const showAnimation = vi.fn()
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <Modal isVisible={isVisible} showAnimation={showAnimation}>
+      const Wrapper = Shade({
+        shadowDomName: 'modal-show-animation-test',
+        render: ({ useState }) => {
+          const [visible, setter] = useState('visible', false)
+          setVisible = setter
+          return (
+            <Modal isVisible={visible} showAnimation={showAnimation}>
               <div id="modal-content">Modal Content</div>
             </Modal>
-          ),
-        })
+          )
+        },
+      })
 
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
         await sleepAsync(50)
         expect(showAnimation).not.toHaveBeenCalled()
 
-        isVisible.setValue(true)
+        setVisible(true)
+        await flushUpdates()
         await sleepAsync(50)
 
         expect(showAnimation).toHaveBeenCalled()
@@ -223,14 +236,13 @@ describe('Modal', () => {
     it('should call hideAnimation with element on backdrop click', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
         const hideAnimation = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible} hideAnimation={hideAnimation}>
+            <Modal isVisible={true} hideAnimation={hideAnimation}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -251,7 +263,6 @@ describe('Modal', () => {
     it('should apply custom backdropStyle', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
         const backdropStyle: Partial<CSSStyleDeclaration> = {
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: '1000',
@@ -261,7 +272,7 @@ describe('Modal', () => {
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible} backdropStyle={backdropStyle}>
+            <Modal isVisible={true} backdropStyle={backdropStyle}>
               <div id="modal-content">Modal Content</div>
             </Modal>
           ),
@@ -280,13 +291,12 @@ describe('Modal', () => {
     it('should render children inside the backdrop', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const isVisible = new ObservableValue(true)
 
         initializeShadeRoot({
           injector,
           rootElement,
           jsxElement: (
-            <Modal isVisible={isVisible}>
+            <Modal isVisible={true}>
               <div id="child-1">First Child</div>
               <div id="child-2">Second Child</div>
             </Modal>

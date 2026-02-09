@@ -1,12 +1,10 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { InputNumber, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 export const InputNumberPage = Shade({
   shadowDomName: 'input-number-page',
-  render: ({ useDisposable, useObservable }) => {
-    const controlledValue = useDisposable('controlledValue', () => new ObservableValue<number | undefined>(25))
-    const [currentValue] = useObservable('currentValue', controlledValue)
+  render: ({ useState }) => {
+    const [currentValue, setCurrentValue] = useState<number | undefined>('controlledValue', 25)
 
     return (
       <PageContainer maxWidth="1200px" centered>
@@ -162,7 +160,7 @@ export const InputNumberPage = Shade({
                 value={currentValue}
                 min={0}
                 max={100}
-                onValueChange={(v: number | undefined) => controlledValue.setValue(v)}
+                onValueChange={(v: number | undefined) => setCurrentValue(v)}
                 helperText={`Current value: ${currentValue ?? 'empty'}`}
               />
             </div>

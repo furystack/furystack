@@ -1,16 +1,15 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { Button, ConfirmDialog, Dialog, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const DialogPage = Shade({
   shadowDomName: 'shades-dialog-page',
-  render: ({ useDisposable }) => {
-    const isBasicOpen = useDisposable('basicDialog', () => new ObservableValue(false))
-    const isActionsOpen = useDisposable('actionsDialog', () => new ObservableValue(false))
-    const isFullWidthOpen = useDisposable('fullWidthDialog', () => new ObservableValue(false))
-    const isScrollOpen = useDisposable('scrollDialog', () => new ObservableValue(false))
-    const isConfirmOpen = useDisposable('confirmDialog', () => new ObservableValue(false))
-    const isCustomConfirmOpen = useDisposable('customConfirmDialog', () => new ObservableValue(false))
+  render: ({ useState }) => {
+    const [isBasicOpen, setBasicOpen] = useState('basicDialog', false)
+    const [isActionsOpen, setActionsOpen] = useState('actionsDialog', false)
+    const [isFullWidthOpen, setFullWidthOpen] = useState('fullWidthDialog', false)
+    const [isScrollOpen, setScrollOpen] = useState('scrollDialog', false)
+    const [isConfirmOpen, setConfirmOpen] = useState('confirmDialog', false)
+    const [isCustomConfirmOpen, setCustomConfirmOpen] = useState('customConfirmDialog', false)
 
     return (
       <PageContainer maxWidth="900px" centered>
@@ -24,11 +23,11 @@ export const DialogPage = Shade({
           <h3 style={{ margin: '0' }}>Basic Dialog</h3>
           <p style={{ margin: '0', opacity: '0.7' }}>A simple dialog with a title and close button.</p>
           <div>
-            <Button variant="contained" color="primary" onclick={() => isBasicOpen.setValue(true)}>
+            <Button variant="contained" color="primary" onclick={() => setBasicOpen(true)}>
               Open Basic Dialog
             </Button>
           </div>
-          <Dialog isVisible={isBasicOpen} title="Basic Dialog" onClose={() => isBasicOpen.setValue(false)}>
+          <Dialog isVisible={isBasicOpen} title="Basic Dialog" onClose={() => setBasicOpen(false)}>
             <p style={{ margin: '0' }}>
               This is a basic dialog with a title and a close button. Click the X or the backdrop to close it.
             </p>
@@ -37,18 +36,18 @@ export const DialogPage = Shade({
           <h3 style={{ margin: '0' }}>Dialog with Actions</h3>
           <p style={{ margin: '0', opacity: '0.7' }}>A dialog with custom action buttons in the footer.</p>
           <div>
-            <Button variant="contained" color="primary" onclick={() => isActionsOpen.setValue(true)}>
+            <Button variant="contained" color="primary" onclick={() => setActionsOpen(true)}>
               Open Actions Dialog
             </Button>
           </div>
           <Dialog
             isVisible={isActionsOpen}
             title="Save Changes?"
-            onClose={() => isActionsOpen.setValue(false)}
+            onClose={() => setActionsOpen(false)}
             actions={
               <>
-                <Button onclick={() => isActionsOpen.setValue(false)}>Discard</Button>
-                <Button variant="contained" color="primary" onclick={() => isActionsOpen.setValue(false)}>
+                <Button onclick={() => setActionsOpen(false)}>Discard</Button>
+                <Button variant="contained" color="primary" onclick={() => setActionsOpen(false)}>
                   Save
                 </Button>
               </>
@@ -62,18 +61,18 @@ export const DialogPage = Shade({
             A dialog that stretches to fill the available width up to maxWidth.
           </p>
           <div>
-            <Button variant="contained" color="primary" onclick={() => isFullWidthOpen.setValue(true)}>
+            <Button variant="contained" color="primary" onclick={() => setFullWidthOpen(true)}>
               Open Full Width Dialog
             </Button>
           </div>
           <Dialog
             isVisible={isFullWidthOpen}
             title="Full Width Dialog"
-            onClose={() => isFullWidthOpen.setValue(false)}
+            onClose={() => setFullWidthOpen(false)}
             fullWidth
             maxWidth="700px"
             actions={
-              <Button variant="contained" color="primary" onclick={() => isFullWidthOpen.setValue(false)}>
+              <Button variant="contained" color="primary" onclick={() => setFullWidthOpen(false)}>
                 Close
               </Button>
             }
@@ -86,18 +85,18 @@ export const DialogPage = Shade({
           <h3 style={{ margin: '0' }}>Scrollable Content</h3>
           <p style={{ margin: '0', opacity: '0.7' }}>When content exceeds the viewport, the dialog body scrolls.</p>
           <div>
-            <Button variant="contained" color="primary" onclick={() => isScrollOpen.setValue(true)}>
+            <Button variant="contained" color="primary" onclick={() => setScrollOpen(true)}>
               Open Scrollable Dialog
             </Button>
           </div>
           <Dialog
             isVisible={isScrollOpen}
             title="Terms and Conditions"
-            onClose={() => isScrollOpen.setValue(false)}
+            onClose={() => setScrollOpen(false)}
             actions={
               <>
-                <Button onclick={() => isScrollOpen.setValue(false)}>Decline</Button>
-                <Button variant="contained" color="primary" onclick={() => isScrollOpen.setValue(false)}>
+                <Button onclick={() => setScrollOpen(false)}>Decline</Button>
+                <Button variant="contained" color="primary" onclick={() => setScrollOpen(false)}>
                   Accept
                 </Button>
               </>
@@ -116,7 +115,7 @@ export const DialogPage = Shade({
             A pre-built confirm dialog using the <code>ConfirmDialog</code> helper function.
           </p>
           <div>
-            <Button variant="contained" color="error" onclick={() => isConfirmOpen.setValue(true)}>
+            <Button variant="contained" color="error" onclick={() => setConfirmOpen(true)}>
               Delete Item
             </Button>
           </div>
@@ -127,13 +126,15 @@ export const DialogPage = Shade({
             cancelText: 'Cancel',
             onConfirm: () => {
               console.log('Item deleted')
+              setConfirmOpen(false)
             },
+            onCancel: () => setConfirmOpen(false),
           })}
 
           <h3 style={{ margin: '0' }}>Confirm Dialog with JSX Message</h3>
           <p style={{ margin: '0', opacity: '0.7' }}>The confirm dialog also accepts JSX as the message content.</p>
           <div>
-            <Button variant="contained" color="warning" onclick={() => isCustomConfirmOpen.setValue(true)}>
+            <Button variant="contained" color="warning" onclick={() => setCustomConfirmOpen(true)}>
               Reset Settings
             </Button>
           </div>
@@ -153,7 +154,9 @@ export const DialogPage = Shade({
             cancelText: 'Keep Settings',
             onConfirm: () => {
               console.log('Settings reset')
+              setCustomConfirmOpen(false)
             },
+            onCancel: () => setCustomConfirmOpen(false),
           })}
         </Paper>
       </PageContainer>

@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
 import { Icon } from './icons/icon.js'
@@ -7,7 +6,7 @@ import { close } from './icons/icon-definitions.js'
 import { Modal } from './modal.js'
 
 export type DialogProps = {
-  isVisible: ObservableValue<boolean>
+  isVisible: boolean
   title?: string
   onClose?: () => void
   actions?: JSX.Element
@@ -189,33 +188,31 @@ export type ConfirmDialogOptions = {
  * Renders a pre-built confirm dialog with confirm/cancel buttons.
  * Returns a JSX element that should be placed in the component tree.
  *
- * @param isVisible - An ObservableValue controlling the dialog visibility
+ * @param isVisible - Boolean controlling the dialog visibility
  * @param options - Configuration for the confirm dialog
  * @returns A Dialog JSX element
  *
  * @example
  * ```tsx
- * const isConfirmOpen = useDisposable('confirmOpen', () => new ObservableValue(false))
+ * const [isConfirmOpen, setConfirmOpen] = useState('confirmOpen', false)
  * // ...
  * {ConfirmDialog(isConfirmOpen, {
  *   title: 'Delete Item',
  *   message: 'Are you sure you want to delete this item?',
- *   onConfirm: () => { deleteItem(); isConfirmOpen.setValue(false) },
- *   onCancel: () => isConfirmOpen.setValue(false),
+ *   onConfirm: () => { deleteItem(); setConfirmOpen(false) },
+ *   onCancel: () => setConfirmOpen(false),
  * })}
  * ```
  */
-export const ConfirmDialog = (isVisible: ObservableValue<boolean>, options: ConfirmDialogOptions): JSX.Element => {
+export const ConfirmDialog = (isVisible: boolean, options: ConfirmDialogOptions): JSX.Element => {
   const { title, message, confirmText = 'Confirm', cancelText = 'Cancel', onConfirm, onCancel } = options
 
   const handleCancel = () => {
     onCancel?.()
-    isVisible.setValue(false)
   }
 
   const handleConfirm = () => {
     onConfirm()
-    isVisible.setValue(false)
   }
 
   return (

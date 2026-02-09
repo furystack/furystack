@@ -1,9 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 
 export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>
-  isVisible: ObservableValue<boolean>
+  isVisible: boolean
   onClose?: () => void
   showAnimation?: (el: Element | null) => Promise<unknown>
   hideAnimation?: (el: Element | null) => Promise<unknown>
@@ -21,8 +20,8 @@ export const Modal = Shade<ModalProps>({
       left: '0',
     },
   },
-  render: ({ props, children, useObservable, useRef }) => {
-    const [isVisible] = useObservable('isVisible', props.isVisible)
+  render: ({ props, children, useRef }) => {
+    const { isVisible } = props
     const backdropRef = useRef<HTMLDivElement>('backdrop')
 
     if (isVisible) {

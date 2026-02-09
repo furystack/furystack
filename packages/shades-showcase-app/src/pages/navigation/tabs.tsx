@@ -1,12 +1,10 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, PageHeader, Paper, Tabs, Typography, type Tab } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 const ControlledTabsDemo = Shade({
   shadowDomName: 'controlled-tabs-demo',
-  render: ({ useObservable, useDisposable }) => {
-    const activeKeyObs = useDisposable('activeKey', () => new ObservableValue('ctrl-1'))
-    const [activeKey] = useObservable('activeKeyVal', activeKeyObs)
+  render: ({ useState }) => {
+    const [activeKey, setActiveKey] = useState('activeKey', 'ctrl-1')
 
     return (
       <div>
@@ -15,7 +13,7 @@ const ControlledTabsDemo = Shade({
         </div>
         <Tabs
           activeKey={activeKey}
-          onTabChange={(key) => activeKeyObs.setValue(key)}
+          onTabChange={(key) => setActiveKey(key)}
           tabs={[
             {
               hash: 'ctrl-1',
@@ -41,56 +39,47 @@ const ControlledTabsDemo = Shade({
 
 const ClosableTabsDemo = Shade({
   shadowDomName: 'closable-tabs-demo',
-  render: ({ useObservable, useDisposable }) => {
+  render: ({ useState }) => {
     let nextId = 4
-    const tabsObs = useDisposable(
-      'tabs',
-      () =>
-        new ObservableValue<Tab[]>([
-          {
-            hash: 'file-1',
-            header: <span>index.ts</span>,
-            component: <Paper style={{ padding: '16px' }}>Content of index.ts</Paper>,
-            closable: true,
-          },
-          {
-            hash: 'file-2',
-            header: <span>app.tsx</span>,
-            component: <Paper style={{ padding: '16px' }}>Content of app.tsx</Paper>,
-            closable: true,
-          },
-          {
-            hash: 'file-3',
-            header: <span>styles.css</span>,
-            component: <Paper style={{ padding: '16px' }}>Content of styles.css</Paper>,
-            closable: true,
-          },
-        ]),
-    )
-    const activeKeyObs = useDisposable('activeKey', () => new ObservableValue('file-1'))
-
-    const [tabs] = useObservable('tabsVal', tabsObs)
-    const [activeKey] = useObservable('activeKeyVal', activeKeyObs)
+    const [tabs, setTabs] = useState<Tab[]>('tabs', [
+      {
+        hash: 'file-1',
+        header: <span>index.ts</span>,
+        component: <Paper style={{ padding: '16px' }}>Content of index.ts</Paper>,
+        closable: true,
+      },
+      {
+        hash: 'file-2',
+        header: <span>app.tsx</span>,
+        component: <Paper style={{ padding: '16px' }}>Content of app.tsx</Paper>,
+        closable: true,
+      },
+      {
+        hash: 'file-3',
+        header: <span>styles.css</span>,
+        component: <Paper style={{ padding: '16px' }}>Content of styles.css</Paper>,
+        closable: true,
+      },
+    ])
+    const [activeKey, setActiveKey] = useState('activeKey', 'file-1')
 
     return (
       <Tabs
         type="card"
         activeKey={activeKey}
-        onTabChange={(key) => activeKeyObs.setValue(key)}
+        onTabChange={(key) => setActiveKey(key)}
         tabs={tabs}
         onClose={(key) => {
-          const current = tabsObs.getValue()
-          const updated = current.filter((t) => t.hash !== key)
-          tabsObs.setValue(updated)
+          const updated = tabs.filter((t) => t.hash !== key)
+          setTabs(updated)
           if (activeKey === key && updated.length > 0) {
-            activeKeyObs.setValue(updated[0].hash)
+            setActiveKey(updated[0].hash)
           }
         }}
         onAdd={() => {
           const id = `file-${nextId++}`
-          const current = tabsObs.getValue()
-          tabsObs.setValue([
-            ...current,
+          setTabs([
+            ...tabs,
             {
               hash: id,
               header: <span>new-file-{id}</span>,
@@ -98,7 +87,7 @@ const ClosableTabsDemo = Shade({
               closable: true,
             },
           ])
-          activeKeyObs.setValue(id)
+          setActiveKey(id)
         }}
       />
     )

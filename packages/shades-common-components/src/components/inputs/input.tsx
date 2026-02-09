@@ -5,6 +5,8 @@ import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
 
+const emptyValidity = {} as ValidityState
+
 export type ValidInputValidationResult = { isValid: true }
 
 export type InvalidInputValidationResult = { isValid: false; message: string }
@@ -240,30 +242,34 @@ export const Input = Shade<TextInputProps>({
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    const [state, setState] = useState<TextInputState>('inputState', {
-      value: props.value || '',
-      focused: props.autofocus || false,
-      validity: inputRef.current?.validity || ({} as ValidityState),
-    })
+    const [focused, setFocused] = useState('focused', props.autofocus || false)
+    const [validity, setValidity] = useState('validity', inputRef.current?.validity || emptyValidity)
+
+    // Derive state from props + local state (value is props-driven or read from native input)
+    const state: TextInputState = {
+      value: props.value ?? inputRef.current?.value ?? '',
+      focused,
+      validity,
+    }
 
     // Enrich validity with toJSON for serialization
-    if (state.validity && !state.validity.toJSON) {
-      state.validity.toJSON = () => ({
-        valid: state.validity.valid,
-        valueMissing: state.validity.valueMissing,
-        typeMismatch: state.validity.typeMismatch,
-        patternMismatch: state.validity.patternMismatch,
-        tooLong: state.validity.tooLong,
-        tooShort: state.validity.tooShort,
-        rangeUnderflow: state.validity.rangeUnderflow,
-        rangeOverflow: state.validity.rangeOverflow,
-        stepMismatch: state.validity.stepMismatch,
-        badInput: state.validity.badInput,
+    if (validity && !validity.toJSON) {
+      validity.toJSON = () => ({
+        valid: validity.valid,
+        valueMissing: validity.valueMissing,
+        typeMismatch: validity.typeMismatch,
+        patternMismatch: validity.patternMismatch,
+        tooLong: validity.tooLong,
+        tooShort: validity.tooShort,
+        rangeUnderflow: validity.rangeUnderflow,
+        rangeOverflow: validity.rangeOverflow,
+        stepMismatch: validity.stepMismatch,
+        badInput: validity.badInput,
       })
     }
 
     const validationResult = props.getValidationResult?.({ state })
-    const isInvalid = validationResult?.isValid === false || state.validity?.valid === false
+    const isInvalid = validationResult?.isValid === false || validity?.valid === false
 
     const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
     useHostProps({
@@ -278,13 +284,13 @@ export const Input = Shade<TextInputProps>({
 
     if (injector.cachedSingletons.has(FormService)) {
       const formService = injector.getInstance(FormService)
-      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, state.validity)
+      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, validity)
     }
 
     const helperNode =
       (validationResult?.isValid === false && validationResult?.message) ||
       props.getHelperText?.({ state, validationResult }) ||
-      getDefaultMessagesForValidityState(state.validity) ||
+      getDefaultMessagesForValidityState(validity) ||
       ''
 
     return (
@@ -299,27 +305,25 @@ export const Input = Shade<TextInputProps>({
             ref={inputRef}
             oninvalid={(ev) => {
               ev.preventDefault()
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, validity: el.validity })
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             onchange={function (ev) {
               const el = ev.target as HTMLInputElement
-              const newValue = el.value
-              setState({ ...state, value: newValue, validity: el?.validity })
-              props.onTextChange?.(newValue)
+              setValidity(el.validity)
+              props.onTextChange?.(el.value)
               props?.onchange?.call(this, ev)
             }}
             onfocus={(ev) => {
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, value: el.value, focused: true, validity: el.validity })
+              setFocused(true)
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             onblur={(ev) => {
-              const el = ev.target as HTMLInputElement
-              setState({ ...state, value: el.value, focused: false, validity: el.validity })
+              setFocused(false)
+              setValidity((ev.target as HTMLInputElement).validity)
             }}
             {...props}
             style={props.style}
-            value={state.value}
+            {...(props.value !== undefined ? { value: props.value } : {})}
           />
           {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state, validationResult })}</span> : null}
         </div>

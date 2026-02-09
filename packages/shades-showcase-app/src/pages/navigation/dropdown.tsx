@@ -1,7 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
 import { Button, Dropdown, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 const basicItems: MenuEntry[] = [
   { key: 'cut', label: 'Cut', icon: <span>✂️</span> },
@@ -44,17 +43,16 @@ const withDisabledItems: MenuEntry[] = [
 
 const BasicDropdownDemo = Shade({
   shadowDomName: 'basic-dropdown-demo',
-  render: ({ useDisposable, useObservable }) => {
-    const lastSelected$ = useDisposable('lastSelected', () => new ObservableValue(''))
-    const [lastSelected] = useObservable('lastSelectedValue', lastSelected$)
+  render: ({ useState }) => {
+    const [lastSelected, setLastSelected] = useState('lastSelected', '')
 
     return (
       <div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Dropdown items={basicItems} onSelect={(key) => lastSelected$.setValue(key)}>
+          <Dropdown items={basicItems} onSelect={(key) => setLastSelected(key)}>
             <Button variant="outlined">Actions</Button>
           </Dropdown>
-          <Dropdown items={basicItems} onSelect={(key) => lastSelected$.setValue(key)} placement="bottomRight">
+          <Dropdown items={basicItems} onSelect={(key) => setLastSelected(key)} placement="bottomRight">
             <Button variant="outlined">Bottom Right</Button>
           </Dropdown>
         </div>

@@ -1,5 +1,4 @@
 import { createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 import type { DialogProps } from './dialog.js'
 import { ConfirmDialog, Dialog } from './dialog.js'
@@ -11,58 +10,50 @@ describe('Dialog', () => {
   })
 
   it('should create a dialog element', () => {
-    const isVisible = new ObservableValue(true)
-    const el = (<Dialog isVisible={isVisible} />) as unknown as HTMLElement
+    const el = (<Dialog isVisible={true} />) as unknown as HTMLElement
     expect(el).toBeDefined()
     expect(el.tagName?.toLowerCase()).toBe('shade-dialog')
   })
 
   it('should pass title prop', () => {
-    const isVisible = new ObservableValue(true)
-    const el = (<Dialog isVisible={isVisible} title="Test Title" />) as unknown as { props: DialogProps }
+    const el = (<Dialog isVisible={true} title="Test Title" />) as unknown as { props: DialogProps }
     expect(el.props.title).toBe('Test Title')
   })
 
   it('should pass onClose prop', () => {
-    const isVisible = new ObservableValue(true)
     const onClose = vi.fn()
-    const el = (<Dialog isVisible={isVisible} onClose={onClose} />) as unknown as { props: DialogProps }
+    const el = (<Dialog isVisible={true} onClose={onClose} />) as unknown as { props: DialogProps }
     expect(el.props.onClose).toBe(onClose)
   })
 
   it('should pass actions prop', () => {
-    const isVisible = new ObservableValue(true)
     const actions = <button>OK</button>
-    const el = (<Dialog isVisible={isVisible} actions={actions} />) as unknown as { props: DialogProps }
+    const el = (<Dialog isVisible={true} actions={actions} />) as unknown as { props: DialogProps }
     expect(el.props.actions).toBeDefined()
   })
 
   it('should pass maxWidth prop', () => {
-    const isVisible = new ObservableValue(true)
-    const el = (<Dialog isVisible={isVisible} maxWidth="800px" />) as unknown as { props: DialogProps }
+    const el = (<Dialog isVisible={true} maxWidth="800px" />) as unknown as { props: DialogProps }
     expect(el.props.maxWidth).toBe('800px')
   })
 
   it('should pass fullWidth prop', () => {
-    const isVisible = new ObservableValue(true)
-    const el = (<Dialog isVisible={isVisible} fullWidth />) as unknown as { props: DialogProps }
+    const el = (<Dialog isVisible={true} fullWidth />) as unknown as { props: DialogProps }
     expect(el.props.fullWidth).toBe(true)
   })
 
   it('should pass children as dialog content', () => {
-    const isVisible = new ObservableValue(true)
     const el = (
-      <Dialog isVisible={isVisible}>
+      <Dialog isVisible={true}>
         <p>Dialog content</p>
       </Dialog>
     ) as unknown as HTMLElement
     expect(el).toBeDefined()
   })
 
-  it('should accept isVisible observable', () => {
-    const isVisible = new ObservableValue(false)
-    const el = (<Dialog isVisible={isVisible} />) as unknown as { props: DialogProps }
-    expect(el.props.isVisible).toBe(isVisible)
+  it('should accept isVisible boolean', () => {
+    const el = (<Dialog isVisible={false} />) as unknown as { props: DialogProps }
+    expect(el.props.isVisible).toBe(false)
   })
 })
 
@@ -73,9 +64,8 @@ describe('ConfirmDialog', () => {
   })
 
   it('should create a confirm dialog element', () => {
-    const isVisible = new ObservableValue(true)
     const onConfirm = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Confirm',
       message: 'Are you sure?',
       onConfirm,
@@ -85,9 +75,8 @@ describe('ConfirmDialog', () => {
   })
 
   it('should pass the title to the dialog', () => {
-    const isVisible = new ObservableValue(true)
     const onConfirm = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Delete Item',
       message: 'Are you sure?',
       onConfirm,
@@ -96,9 +85,8 @@ describe('ConfirmDialog', () => {
   })
 
   it('should render with default button texts', () => {
-    const isVisible = new ObservableValue(true)
     const onConfirm = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Confirm',
       message: 'Are you sure?',
       onConfirm,
@@ -107,9 +95,8 @@ describe('ConfirmDialog', () => {
   })
 
   it('should accept custom button texts', () => {
-    const isVisible = new ObservableValue(true)
     const onConfirm = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Confirm',
       message: 'Are you sure?',
       confirmText: 'Yes, delete',
@@ -120,9 +107,8 @@ describe('ConfirmDialog', () => {
   })
 
   it('should accept JSX as message', () => {
-    const isVisible = new ObservableValue(true)
     const onConfirm = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Confirm',
       message: (
         <div>
@@ -134,10 +120,9 @@ describe('ConfirmDialog', () => {
     expect(el).toBeDefined()
   })
 
-  it('should set isVisible to false when onCancel is triggered via onClose', () => {
-    const isVisible = new ObservableValue(true)
+  it('should call onCancel when onClose is triggered', () => {
     const onCancel = vi.fn()
-    const el = ConfirmDialog(isVisible, {
+    const el = ConfirmDialog(true, {
       title: 'Confirm',
       message: 'Are you sure?',
       onConfirm: vi.fn(),
@@ -146,6 +131,5 @@ describe('ConfirmDialog', () => {
 
     el.props.onClose?.()
     expect(onCancel).toHaveBeenCalledOnce()
-    expect(isVisible.getValue()).toBe(false)
   })
 })
