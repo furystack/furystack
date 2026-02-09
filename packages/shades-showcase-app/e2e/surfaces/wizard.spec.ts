@@ -28,7 +28,7 @@ test.describe('Wizard', () => {
 
     const input = wizard.locator('input[name=username]')
     await expect(input).toBeFocused()
-    await input.type('PlaywrightBot')
+    await input.fill('PlaywrightBot')
 
     const nextButton = wizard.locator('button', { hasText: 'Next' })
     await nextButton.click()

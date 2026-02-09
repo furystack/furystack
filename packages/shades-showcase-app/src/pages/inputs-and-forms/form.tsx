@@ -55,14 +55,16 @@ const FormStatusMonitor = Shade({
 
 const EmailInput = Shade({
   shadowDomName: 'shade-email-input',
-  render: () => {
+  render: ({ useHostProps }) => {
+    useHostProps({ style: { display: 'contents' } })
     return <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
   },
 })
 
 const PasswordInputs = Shade({
   shadowDomName: 'shade-password-inputs',
-  render: ({ injector }) => {
+  render: ({ injector, useHostProps }) => {
+    useHostProps({ style: { display: 'contents' } })
     const formService = injector.getInstance(FormService)
 
     return (
