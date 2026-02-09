@@ -12,7 +12,10 @@ import { patchChildren, toVChildArray } from './vnode.js'
 
 export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   /**
-   * Explicit shadow dom name. Will fall back to 'shade-{guid}' if not provided
+   * The custom element tag name used to register the component.
+   * Must follow the Custom Elements naming convention (lowercase, must contain a hyphen).
+   *
+   * @example 'my-button', 'shade-dialog', 'app-header'
    */
   shadowDomName: string
 
@@ -32,19 +35,22 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   elementBase?: Constructable<TElementBase>
 
   /**
-   * A default style that will be applied to the element as inline styles.
-   * Can be overridden by external styles on instances.
+   * Inline styles applied to each component instance.
+   * Use for per-instance dynamic overrides. Prefer `css` for component-level defaults.
    */
   style?: Partial<CSSStyleDeclaration>
 
   /**
    * CSS styles injected as a stylesheet during component registration.
-   * Supports pseudo-selectors (&:hover, &:active) and nested selectors (& .class).
-   * Use this for component-level styling that doesn't need per-instance overrides.
+   * Supports pseudo-selectors (`&:hover`, `&:active`) and nested selectors (`& .class`).
+   *
+   * **Best practice:** Prefer `css` over `style` for component defaults -- styles are injected
+   * once per component type (better performance), and support pseudo-selectors and nesting.
    *
    * @example
    * ```typescript
    * css: {
+   *   display: 'flex',
    *   padding: '16px',
    *   '&:hover': { backgroundColor: '#f0f0f0' },
    *   '& .title': { fontWeight: 'bold' }
@@ -62,7 +68,7 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
 export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
 ) => {
-  // register shadow-dom element
+  // Register custom element
   const customElementName = o.shadowDomName
 
   const existing = customElements.get(customElementName)
@@ -408,7 +414,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
       o.elementBaseName ? { extends: o.elementBaseName } : undefined,
     )
   } else {
-    throw Error(`A custom shade with shadow DOM name '${o.shadowDomName}' has already been registered!`)
+    throw Error(`A custom shade with name '${o.shadowDomName}' has already been registered!`)
   }
 
   return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {

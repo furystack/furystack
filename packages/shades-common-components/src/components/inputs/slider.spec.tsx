@@ -32,7 +32,7 @@ describe('Slider', () => {
   }
 
   describe('rendering', () => {
-    it('should render with shadow DOM', async () => {
+    it('should render as custom element', async () => {
       await usingAsync(await renderSlider(), async ({ slider }) => {
         expect(slider).not.toBeNull()
       })

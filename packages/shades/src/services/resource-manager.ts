@@ -8,6 +8,13 @@ import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/uti
 export class ResourceManager implements AsyncDisposable {
   private readonly disposables = new Map<string, Disposable | AsyncDisposable>()
 
+  /**
+   * Returns an existing disposable resource by key, or creates and caches a new one.
+   * Resources are automatically disposed when the component is removed from the DOM.
+   * @param key Unique key for caching this resource
+   * @param factory Factory function called once to create the resource
+   * @returns The cached or newly created resource
+   */
   public useDisposable<T extends Disposable | AsyncDisposable>(key: string, factory: () => T): T {
     const existing = this.disposables.get(key)
     if (!existing) {
@@ -20,6 +27,15 @@ export class ResourceManager implements AsyncDisposable {
 
   public readonly observers = new Map<string, ValueObserver<any>>()
 
+  /**
+   * Subscribes to an observable value by key. If the observable changes between renders,
+   * the previous subscription is disposed and a new one is created.
+   * @param key Unique key for caching this subscription
+   * @param observable The observable to subscribe to
+   * @param onChange Callback invoked when the value changes
+   * @param options Additional observer options
+   * @returns Tuple of [currentValue, setValue]
+   */
   public useObservable = <T>(
     key: string,
     observable: ObservableValue<T>,
@@ -43,6 +59,14 @@ export class ResourceManager implements AsyncDisposable {
 
   public readonly stateObservers = new Map<string, ObservableValue<any>>()
 
+  /**
+   * Creates or retrieves a local state observable by key.
+   * State is persisted across re-renders and disposed with the component.
+   * @param key Unique key for caching this state
+   * @param initialValue Initial value used on first call
+   * @param callback Callback invoked when the state changes
+   * @returns Tuple of [currentValue, setValue]
+   */
   public useState = <T>(
     key: string,
     initialValue: T,

@@ -46,7 +46,7 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
     // Apply inline styles to child elements so they appear joined.
     // Inline styles are needed because child Button components have their
     // own scoped CSS for margin and borderRadius that can't be overridden
-    // from the parent's shadow DOM stylesheet alone.
+    // from the parent's stylesheet alone.
     requestAnimationFrame(() => {
       const childElements = Array.from(wrapperRef.current?.children ?? []) as HTMLElement[]
       const isVertical = orientation === 'vertical'

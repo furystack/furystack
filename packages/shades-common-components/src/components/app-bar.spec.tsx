@@ -40,9 +40,9 @@ describe('AppBar component', () => {
       })
     })
 
-    it('should render children in shadow DOM', async () => {
+    it('should render children in custom element', async () => {
       await usingAsync(await renderAppBar(<span id="child-content">Test Content</span>), async ({ appBar }) => {
-        // Children are rendered inside shadow DOM - verify via the element itself
+        // Children are rendered inside the custom element
         expect(appBar).not.toBeNull()
       })
     })

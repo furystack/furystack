@@ -13,6 +13,12 @@ export type RefObject<T extends Element = HTMLElement> = {
   readonly current: T | null
 }
 
+/**
+ * Options provided to a Shade component's `render` function.
+ * Contains the current props, injector, children, and hooks for managing state, side effects, and host element attributes.
+ * @typeParam TProps - The component's props type
+ * @typeParam TElementBase - The base HTML element type (defaults to HTMLElement)
+ */
 export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement> = {
   readonly props: TProps & PartialElement<TElementBase>
   renderCount: number
@@ -24,6 +30,9 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    *
    * CSS custom properties (e.g. `--my-color`) are applied via `setProperty`.
    * The `style` property accepts both standard camelCase properties and CSS custom properties.
+   *
+   * **Best practice:** Use `useHostProps` for data attributes, ARIA attributes, CSS variables,
+   * and event handlers on the host element instead of imperative DOM manipulation.
    *
    * @param hostProps An object of attribute key-value pairs, optionally including a `style` record
    *
@@ -51,6 +60,9 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
    * The ref's `current` property will be set to the DOM element after mount and `null` on unmount.
    *
    * Refs are cached by key, so calling `useRef` with the same key returns the same object across renders.
+   *
+   * **Best practice:** Prefer declarative JSX and `useHostProps` when possible.
+   * Use refs sparingly for imperative needs like focus management or measuring elements.
    *
    * @param key A unique key for caching the ref object
    * @returns A ref object with a `current` property

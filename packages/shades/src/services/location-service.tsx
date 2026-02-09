@@ -4,6 +4,10 @@ import {
   serializeToQueryString as defaultSerializeToQueryString,
 } from '@furystack/rest'
 import { ObservableValue } from '@furystack/utils'
+/**
+ * Singleton service that tracks browser location changes (pathname, search, hash)
+ * and exposes them as observable values for reactive routing and URL-driven state.
+ */
 @Injectable({ lifetime: 'singleton' })
 export class LocationService implements Disposable {
   constructor(
@@ -119,6 +123,13 @@ export class LocationService implements Disposable {
   }).bind(this)
 }
 
+/**
+ * Configures custom serialization for URL search state.
+ * Must be called **before** `LocationService` is first instantiated by the injector.
+ * @param injector The root injector
+ * @param serialize Function to serialize state to a query string
+ * @param deserialize Function to deserialize a query string to state
+ */
 export const useCustomSearchStateSerializer = (
   injector: Injector,
   serialize: typeof defaultSerializeToQueryString,
