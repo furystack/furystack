@@ -4,11 +4,11 @@ import { expect, test } from '@playwright/test'
 const getPageLayoutHost = (page: Page) => page.locator('shade-page-layout')
 
 const expectDrawerOpen = async (page: Page, position: 'left' | 'right') => {
-  await expect(getPageLayoutHost(page)).not.toHaveClass(new RegExp(`drawer-${position}-closed`))
+  await expect(getPageLayoutHost(page)).not.toHaveAttribute(`data-drawer-${position}-closed`)
 }
 
 const expectDrawerClosed = async (page: Page, position: 'left' | 'right') => {
-  await expect(getPageLayoutHost(page)).toHaveClass(new RegExp(`drawer-${position}-closed`))
+  await expect(getPageLayoutHost(page)).toHaveAttribute(`data-drawer-${position}-closed`, '')
 }
 
 test.describe('PageLayout E2E Tests', () => {
@@ -111,12 +111,12 @@ test.describe('PageLayout E2E Tests', () => {
 
       const showButton = page.getByRole('button', { name: /Show AppBar/i })
       await showButton.click()
-      await expect(getPageLayoutHost(page)).toHaveClass(/appbar-visible/)
+      await expect(getPageLayoutHost(page)).toHaveAttribute('data-appbar-visible', '')
       await expect(page.getByTestId('test-appbar')).toBeVisible()
 
       const hideButton = page.getByRole('button', { name: /Hide AppBar/i })
       await hideButton.click()
-      await expect(getPageLayoutHost(page)).not.toHaveClass(/appbar-visible/)
+      await expect(getPageLayoutHost(page)).not.toHaveAttribute('data-appbar-visible')
     })
   })
 
@@ -160,7 +160,7 @@ test.describe('PageLayout E2E Tests', () => {
       await page.getByRole('button', { name: /Open Left/i }).click()
       await expectDrawerOpen(page, 'left')
       await expect(page.getByTestId('test-drawer-left')).toBeVisible()
-      await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
+      await expect(getPageLayoutHost(page)).toHaveAttribute('data-backdrop-visible', '')
       await expect(page).toHaveScreenshot('layout-temporary-drawer-left-open.png')
 
       // Close left drawer via backdrop (click at right edge to avoid drawer overlay on mobile)
@@ -169,13 +169,13 @@ test.describe('PageLayout E2E Tests', () => {
         await page.mouse.click(backdropBox.x + backdropBox.width - 10, backdropBox.y + backdropBox.height / 2)
       }
       await expectDrawerClosed(page, 'left')
-      await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
+      await expect(getPageLayoutHost(page)).not.toHaveAttribute('data-backdrop-visible')
 
       // Open right drawer
       await page.getByRole('button', { name: /Open Right/i }).click()
       await expectDrawerOpen(page, 'right')
       await expect(page.getByTestId('test-drawer-right')).toBeVisible()
-      await expect(getPageLayoutHost(page)).toHaveClass(/backdrop-visible/)
+      await expect(getPageLayoutHost(page)).toHaveAttribute('data-backdrop-visible', '')
       await expect(page).toHaveScreenshot('layout-temporary-drawer-right-open.png')
 
       // Close right drawer via backdrop (click at left edge to avoid drawer overlay on mobile)
@@ -184,7 +184,7 @@ test.describe('PageLayout E2E Tests', () => {
         await page.mouse.click(backdropBox2.x + 10, backdropBox2.y + backdropBox2.height / 2)
       }
       await expectDrawerClosed(page, 'right')
-      await expect(getPageLayoutHost(page)).not.toHaveClass(/backdrop-visible/)
+      await expect(getPageLayoutHost(page)).not.toHaveAttribute('data-backdrop-visible')
     })
   })
 

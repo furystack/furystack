@@ -5,17 +5,17 @@ test.describe('Data Grid component', () => {
   test.skip(({ isMobile }) => isMobile, 'Desktop-only tests (requires keyboard interaction)')
 
   const expectRowHasFocus = async (page: Page, rowNumber: number) => {
-    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/focused/)
+    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveAttribute('data-focused', '')
   }
 
   const expectRowIsSelected = async (page: Page, ...rowNumbers: number[]) => {
     for (const rowNumber of rowNumbers) {
-      await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveClass(/selected/)
+      await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).toHaveAttribute('data-selected', '')
     }
   }
 
   const expectRowIsUnselected = async (page: Page, rowNumber: number) => {
-    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveClass(/selected/)
+    await expect(page.locator(`shades-data-grid-row:nth-child(${rowNumber})`)).not.toHaveAttribute('data-selected')
   }
 
   const expectSelectionCount = async (page: Page, count: number) => {
