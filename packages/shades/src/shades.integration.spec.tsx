@@ -214,31 +214,6 @@ describe('Shades integration tests', () => {
     })
   })
 
-  it('Should execute the onAttach and onDetach callbacks', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const onAttach = vi.fn()
-      const onDetach = vi.fn()
-
-      const ExampleComponent = Shade({
-        onAttach,
-        onDetach,
-        shadowDomName: 'example-component-2',
-        render: () => <div>Hello</div>,
-      })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <ExampleComponent />,
-      })
-      expect(onAttach).toBeCalled()
-      expect(onDetach).not.toBeCalled()
-      document.body.innerHTML = ''
-      expect(onDetach).toBeCalled()
-    })
-  })
-
   it('Should update state', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement

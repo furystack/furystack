@@ -22,16 +22,6 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
   render: (options: RenderOptions<TProps, TElementBase>) => JSX.Element | string | null
 
   /**
-   * Will be executed when the element is attached to the DOM.
-   */
-  onAttach?: (options: RenderOptions<TProps, TElementBase>) => void
-
-  /**
-   * Will be executed when the element is detached from the DOM.
-   */
-  onDetach?: (options: RenderOptions<TProps, TElementBase>) => void
-
-  /**
    * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
    */
   elementBaseName?: string
@@ -115,12 +105,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         private _refs = new Map<string, RefObject<Element>>()
 
         public connectedCallback() {
-          o.onAttach?.(this.getRenderOptions())
           this.updateComponent()
         }
 
         public async disconnectedCallback() {
-          o.onDetach?.(this.getRenderOptions())
           await this.resourceManager[Symbol.asyncDispose]()
         }
 

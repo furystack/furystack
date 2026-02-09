@@ -20,8 +20,6 @@ A shade (component) can be constructed from the following properties:
 
 - `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render. Use `useDisposable` within render for one-time setup that needs cleanup.
 - `shadowDomName` – Can be specified as the custom element's name in the DOM.
-- `onAttach: (options: RenderOptions)=>void` – Executed when the component is attached to the DOM.
-- `onDetach: (options: RenderOptions)=>void` – Executed when the component is detached from the DOM.
 - `style` – Optional inline styles applied to each component instance. Use for per-instance overrides.
 - `css` – Optional CSS styles injected as a stylesheet during component registration. Supports pseudo-selectors and nested selectors.
 
