@@ -27,7 +27,7 @@ describe('Shade edge cases', () => {
           shadowDomName: 'shade-duplicate-test',
           render: () => <div>Second</div>,
         })
-      }).toThrow("A custom shade with shadow DOM name 'shade-duplicate-test' has already been registered!")
+      }).toThrow("A custom shade with name 'shade-duplicate-test' has already been registered!")
     })
 
     it('should include the duplicate name in the error message', () => {
