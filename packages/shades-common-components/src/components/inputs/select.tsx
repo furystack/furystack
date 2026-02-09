@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
@@ -341,7 +340,7 @@ export const Select = Shade<SelectProps>({
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
     const selectRootRef = useRef<HTMLDivElement>('selectRoot')
     const hiddenInputRef = useRef<HTMLInputElement>('hiddenInput')
     const searchInputRef = useRef<HTMLInputElement>('searchInput')
@@ -383,7 +382,7 @@ export const Select = Shade<SelectProps>({
       searchText: '',
     }
 
-    const [state, setState] = useObservable<SelectState>('selectState', new ObservableValue(initialState))
+    const [state, setState] = useState<SelectState>('selectState', initialState)
 
     const validationResult = props.getValidationResult?.({ state })
 

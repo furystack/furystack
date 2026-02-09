@@ -45,20 +45,11 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
       if (hostEl) manager.element = hostEl
     })
 
-    const [isOpened] = useObservable('isOpened', manager.isOpened, {
-      onChange: (opened) => {
-        const hostEl = wrapperRef.current?.closest('shade-suggest') as HTMLElement | null
-        if (opened) {
-          hostEl?.setAttribute('data-opened', '')
-        } else {
-          hostEl?.removeAttribute('data-opened')
-        }
-      },
-    })
+    const [isOpened] = useObservable('isOpened', manager.isOpened)
 
-    if (isOpened) {
-      useHostProps({ 'data-opened': '' })
-    }
+    useHostProps({
+      'data-opened': isOpened ? '' : undefined,
+    })
     manager.isLoading.subscribe((isLoading) => {
       const loader = loaderRef.current
       if (!loader) return

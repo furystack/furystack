@@ -338,9 +338,12 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           for (const [key, value] of Object.entries(newHP)) {
             if (key === 'style') continue
             if (oldHP[key] !== value) {
-              if (key.startsWith('on') && typeof value === 'function') {
+              if (typeof value === 'function' || (typeof value === 'object' && value !== null)) {
                 ;(this as unknown as Record<string, unknown>)[key] = value
               } else if (value === null || value === undefined || value === false) {
+                if (key in this) {
+                  ;(this as unknown as Record<string, unknown>)[key] = undefined
+                }
                 this.removeAttribute(key)
               } else {
                 // eslint-disable-next-line @typescript-eslint/no-base-to-string

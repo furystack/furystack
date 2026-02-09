@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
@@ -252,10 +251,8 @@ export const InputNumber = Shade<InputNumberProps>({
       lineHeight: '1.4',
     },
   },
-  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('formInput')
-    const decButtonRef = useRef<HTMLButtonElement>('decButton')
-    const incButtonRef = useRef<HTMLButtonElement>('incButton')
 
     useDisposable('form-registration', () => {
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
@@ -284,47 +281,10 @@ export const InputNumber = Shade<InputNumberProps>({
 
     type InputNumberState = { value: number | undefined; displayValue: string }
 
-    /**
-     * Imperatively updates the DOM elements to reflect the current state.
-     * Using onChange prevents a full re-render (which would cause flicker).
-     */
-    const syncDom = (newState: InputNumberState) => {
-      const inputEl = inputRef.current
-      if (inputEl) {
-        inputEl.value = newState.displayValue
-
-        if (newState.value !== undefined) {
-          inputEl.setAttribute('aria-valuenow', String(newState.value))
-        } else {
-          inputEl.removeAttribute('aria-valuenow')
-        }
-      }
-
-      const isDecDisabled =
-        props.disabled ||
-        props.readOnly ||
-        (props.min !== undefined && newState.value !== undefined && newState.value <= props.min)
-      const isIncDisabled =
-        props.disabled ||
-        props.readOnly ||
-        (props.max !== undefined && newState.value !== undefined && newState.value >= props.max)
-
-      if (decButtonRef.current) decButtonRef.current.disabled = !!isDecDisabled
-      if (incButtonRef.current) incButtonRef.current.disabled = !!isIncDisabled
-    }
-
-    const observable = useDisposable(
-      'inputNumberObservable',
-      () =>
-        new ObservableValue<InputNumberState>({
-          value: props.value,
-          displayValue: formatValue(props.value, props.precision, props.formatter),
-        }),
-    )
-
-    const [initialState] = useObservable('inputNumberState', observable, { onChange: syncDom })
-
-    const getCurrentValue = () => observable.getValue().value
+    const [state, setState] = useState<InputNumberState>('inputNumberState', {
+      value: props.value,
+      displayValue: formatValue(props.value, props.precision, props.formatter),
+    })
 
     const updateValue = (newValue: number | undefined) => {
       if (newValue !== undefined) {
@@ -332,57 +292,39 @@ export const InputNumber = Shade<InputNumberProps>({
         newValue = clampValue(newValue, props.min, props.max)
       }
       const displayValue = formatValue(newValue, props.precision, props.formatter)
-      observable.setValue({ value: newValue, displayValue })
+      setState({ value: newValue, displayValue })
       props.onValueChange?.(newValue)
     }
 
     const handleIncrement = () => {
       if (props.disabled || props.readOnly) return
-      const current = getCurrentValue() ?? props.min ?? 0
+      const current = state.value ?? props.min ?? 0
       updateValue(current + step)
     }
 
     const handleDecrement = () => {
       if (props.disabled || props.readOnly) return
-      const current = getCurrentValue() ?? props.min ?? 0
+      const current = state.value ?? props.min ?? 0
       updateValue(current - step)
     }
 
     const isDecrementDisabled =
       props.disabled ||
       props.readOnly ||
-      (props.min !== undefined && initialState.value !== undefined && initialState.value <= props.min)
+      (props.min !== undefined && state.value !== undefined && state.value <= props.min)
     const isIncrementDisabled =
       props.disabled ||
       props.readOnly ||
-      (props.max !== undefined && initialState.value !== undefined && initialState.value >= props.max)
-
-    // Set ARIA attributes imperatively (JSX doesn't reliably set hyphenated attributes)
-    requestAnimationFrame(() => {
-      const inputEl = inputRef.current
-      if (inputEl) {
-        inputEl.setAttribute('role', 'spinbutton')
-        if (props.min !== undefined) inputEl.setAttribute('aria-valuemin', String(props.min))
-        if (props.max !== undefined) inputEl.setAttribute('aria-valuemax', String(props.max))
-        if (initialState.value !== undefined) {
-          inputEl.setAttribute('aria-valuenow', String(initialState.value))
-        } else {
-          inputEl.removeAttribute('aria-valuenow')
-        }
-      }
-
-      if (decButtonRef.current) decButtonRef.current.setAttribute('aria-label', 'Decrease value')
-      if (incButtonRef.current) incButtonRef.current.setAttribute('aria-label', 'Increase value')
-    })
+      (props.max !== undefined && state.value !== undefined && state.value >= props.max)
 
     return (
       <label {...props.labelProps}>
         {props.labelTitle}
         <div className="input-number-row">
           <button
-            ref={decButtonRef}
             type="button"
             className="step-button"
+            aria-label="Decrease value"
             disabled={isDecrementDisabled}
             onclick={handleDecrement}
             tabIndex={-1}
@@ -393,8 +335,12 @@ export const InputNumber = Shade<InputNumberProps>({
             ref={inputRef}
             type="text"
             inputMode="decimal"
+            role="spinbutton"
+            aria-valuemin={props.min !== undefined ? String(props.min) : undefined}
+            aria-valuemax={props.max !== undefined ? String(props.max) : undefined}
+            aria-valuenow={state.value !== undefined ? String(state.value) : undefined}
             name={props.name}
-            value={initialState.displayValue}
+            value={state.displayValue}
             placeholder={props.placeholder}
             disabled={props.disabled}
             readOnly={props.readOnly}
@@ -410,7 +356,7 @@ export const InputNumber = Shade<InputNumberProps>({
             }}
             oninput={(ev: Event) => {
               const el = ev.target as HTMLInputElement
-              observable.setValue({ ...observable.getValue(), displayValue: el.value })
+              setState({ ...state, displayValue: el.value })
             }}
             onblur={(ev: Event) => {
               const el = ev.target as HTMLInputElement
@@ -424,9 +370,9 @@ export const InputNumber = Shade<InputNumberProps>({
             }}
           />
           <button
-            ref={incButtonRef}
             type="button"
             className="step-button"
+            aria-label="Increase value"
             disabled={isIncrementDisabled}
             onclick={handleIncrement}
             tabIndex={-1}

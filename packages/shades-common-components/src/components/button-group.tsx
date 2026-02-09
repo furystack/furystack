@@ -212,8 +212,11 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
           }
         }
 
-        const el = groupRef.current
-        el?.addEventListener('click', handleClick)
+        let el: HTMLElement | null = null
+        queueMicrotask(() => {
+          el = groupRef.current
+          el?.addEventListener('click', handleClick)
+        })
         return { [Symbol.dispose]: () => el?.removeEventListener('click', handleClick) }
       })
 

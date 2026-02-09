@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import { collapse, expand } from '../animations.js'
 import { Icon } from '../icons/icon.js'
@@ -127,9 +126,8 @@ export const AccordionItem = Shade<AccordionItemProps>({
     },
   },
 
-  render: ({ props, children, useHostProps, useRef, useDisposable, useObservable }) => {
-    const expandedObs = useDisposable('expanded', () => new ObservableValue<boolean>(!!props.defaultExpanded))
-    const [isExpanded] = useObservable('expanded', expandedObs)
+  render: ({ props, children, useHostProps, useRef, useState }) => {
+    const [isExpanded, setIsExpanded] = useState('expanded', !!props.defaultExpanded)
 
     useHostProps({
       'data-disabled': props.disabled ? '' : undefined,
@@ -143,11 +141,11 @@ export const AccordionItem = Shade<AccordionItemProps>({
       const content = contentRef.current
       if (!content) return
 
-      if (expandedObs.getValue()) {
-        expandedObs.setValue(false)
+      if (isExpanded) {
+        setIsExpanded(false)
         await collapse(content, { duration: 250 })
       } else {
-        expandedObs.setValue(true)
+        setIsExpanded(true)
         await expand(content, { duration: 250 })
       }
     }

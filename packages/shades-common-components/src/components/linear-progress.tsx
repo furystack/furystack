@@ -67,20 +67,13 @@ export const LinearProgress = Shade<LinearProgressProps>({
       transition: 'none',
     },
   },
-  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useObservable, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const barRef = useRef<HTMLElement>('progressBar')
     const variant = props.variant || 'indeterminate'
 
     if (variant === 'determinate' && props.value) {
-      useDisposable('value-subscription', () =>
-        props.value!.subscribe((next) => {
-          const clamped = Math.max(0, Math.min(100, next))
-          if (barRef.current) {
-            barRef.current.style.width = `${clamped}%`
-          }
-        }),
-      )
+      useObservable('progressValue', props.value)
     }
     const value = clampValue(props.value?.getValue() ?? 0)
 

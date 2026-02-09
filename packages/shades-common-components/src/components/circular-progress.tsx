@@ -64,7 +64,7 @@ export const CircularProgress = Shade<CircularProgressProps>({
       transition: `stroke-dashoffset ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
-  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useObservable, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const circleRef = useRef<SVGCircleElement>('progressCircle')
     const variant = props.variant || 'indeterminate'
@@ -77,15 +77,7 @@ export const CircularProgress = Shade<CircularProgressProps>({
     const circumference = 2 * Math.PI * radius
 
     if (variant === 'determinate' && props.value) {
-      useDisposable('value-subscription', () =>
-        props.value!.subscribe((next) => {
-          const clamped = Math.max(0, Math.min(100, next))
-          if (circleRef.current) {
-            const dashOffset = circumference - (clamped / 100) * circumference
-            circleRef.current.style.strokeDashoffset = `${dashOffset}`
-          }
-        }),
-      )
+      useObservable('ariaValue', props.value)
     }
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main

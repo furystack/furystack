@@ -33,22 +33,25 @@ export const Loader = Shade<LoaderProps>({
   },
   render: ({ props, injector, useRef }) => {
     const { theme } = injector.getInstance(ThemeProviderService)
-    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+    const spinnerRef = useRef<HTMLDivElement>('spinner')
 
     const { delay = 500 } = props
     const { borderWidth = 15 } = props
     const { borderColor = theme.palette.primary.main } = props
 
     setTimeout(() => {
-      const wrapper = wrapperRef.current
-      if (!wrapper) return
-      void promisifyAnimation(wrapper, [{ opacity: '0' }, { opacity: '1' }], {
-        duration: 500,
-        delay,
-        fill: 'forwards',
-      })
+      const spinner = spinnerRef.current
+      if (!spinner) return
+      const host = spinner.parentElement
+      if (host) {
+        void promisifyAnimation(host, [{ opacity: '0' }, { opacity: '1' }], {
+          duration: 500,
+          delay,
+          fill: 'forwards',
+        })
+      }
       void promisifyAnimation(
-        wrapper.firstElementChild,
+        spinner,
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }, { transform: 'rotate(360deg)' }],
         {
           duration: 1500,
@@ -59,20 +62,16 @@ export const Loader = Shade<LoaderProps>({
     }, 1)
     return (
       <div
-        ref={wrapperRef}
-        style={{ display: 'inline-block', transformOrigin: 'center', opacity: '0', width: '100%', height: '100%' }}
-      >
-        <div
-          style={{
-            position: 'relative',
-            width: `calc(100% - ${borderWidth * 2}px)`,
-            height: `calc(100% - ${borderWidth * 2}px)`,
-            border: `${borderWidth}px solid ${cssVariableTheme.action.subtleBorder}`,
-            borderBottom: `${borderWidth}px solid ${borderColor}`,
-            borderRadius: cssVariableTheme.shape.borderRadius.full,
-          }}
-        />
-      </div>
+        ref={spinnerRef}
+        style={{
+          position: 'relative',
+          width: `calc(100% - ${borderWidth * 2}px)`,
+          height: `calc(100% - ${borderWidth * 2}px)`,
+          border: `${borderWidth}px solid ${cssVariableTheme.action.subtleBorder}`,
+          borderBottom: `${borderWidth}px solid ${borderColor}`,
+          borderRadius: cssVariableTheme.shape.borderRadius.full,
+        }}
+      />
     )
   },
 })

@@ -160,8 +160,8 @@ export class LayoutService implements Disposable {
 
   private getTarget(): HTMLElement | undefined {
     if (!this.targetElement) return undefined
-    if (this.targetElement instanceof HTMLElement) return this.targetElement
-    return this.targetElement.current ?? undefined
+    if ('current' in this.targetElement) return this.targetElement.current ?? undefined
+    return this.targetElement
   }
 
   /**
@@ -265,6 +265,10 @@ export class LayoutService implements Disposable {
    * @param drawerState - The drawer state (may be undefined)
    * @returns The margin value to use
    */
+  public getContentMarginForPosition(position: 'left' | 'right'): string {
+    return this.getContentMarginForDrawer(this.drawerState.getValue()[position])
+  }
+
   private getContentMarginForDrawer(drawerState: DrawerSideState | undefined): string {
     if (!drawerState) return '0px'
 

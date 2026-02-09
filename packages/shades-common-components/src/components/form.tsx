@@ -50,21 +50,13 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-form',
   elementBase: HTMLFormElement,
   elementBaseName: 'form',
-  render: ({ props, children, useDisposable, useRef, injector, useHostProps }) => {
-    const formRef = useRef<HTMLDivElement>('formWrapper')
+  render: ({ props, children, useDisposable, injector, useHostProps }) => {
     const formInjector = useDisposable('formInjector', () => injector.createChild())
     const formService = new FormService()
     formInjector.setExplicitInstance(formService)
 
-    // Propagate the scoped injector so child components can find it
-    useDisposable('injector-propagation', () => {
-      queueMicrotask(() => {
-        if (formRef.current) {
-          ;(formRef.current as unknown as { injector: typeof formInjector }).injector = formInjector
-        }
-      })
-      return { [Symbol.dispose]: () => {} }
-    })
+    // Propagate the scoped injector on the host so child components can find it
+    useHostProps({ injector: formInjector })
 
     const changeHandler = (ev: Event, shouldSubmit?: boolean) => {
       formService.inputs.forEach((i) => {
@@ -110,10 +102,6 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
       },
     })
 
-    return (
-      <div ref={formRef} style={{ display: 'contents' }}>
-        {children}
-      </div>
-    )
+    return <>{children}</>
   },
 })

@@ -15,20 +15,12 @@ export const SelectionCell = Shade<{ entry: any; service: CollectionService<any>
       accentColor: cssVariableTheme.palette.primary.main,
     },
   },
-  render: ({ props, useObservable, useRef }) => {
-    const checkboxRef = useRef<HTMLInputElement>('checkbox')
-    const [selection] = useObservable('selection', props.service.selection, {
-      onChange: (newSelection) => {
-        if (checkboxRef.current) {
-          checkboxRef.current.checked = newSelection.includes(props.entry)
-        }
-      },
-    })
+  render: ({ props, useObservable }) => {
+    const [selection] = useObservable('selection', props.service.selection)
     const isSelected = selection.includes(props.entry)
 
     return (
       <input
-        ref={checkboxRef}
         onchange={() => {
           props.service.toggleSelection(props.entry)
         }}

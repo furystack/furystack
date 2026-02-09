@@ -76,8 +76,11 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
         }
       }
 
-      const el = wrapperRef.current
-      el?.addEventListener('change', handleChange)
+      let el: HTMLElement | null = null
+      queueMicrotask(() => {
+        el = wrapperRef.current
+        el?.addEventListener('change', handleChange)
+      })
 
       return { [Symbol.dispose]: () => el?.removeEventListener('change', handleChange) }
     })

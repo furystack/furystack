@@ -1,6 +1,5 @@
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import type { MenuEntry } from './menu/menu-types.js'
 import { getNavigableKeys } from './menu/menu-types.js'
@@ -157,13 +156,12 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
       userSelect: 'none',
     },
   },
-  render: ({ props, children, useDisposable, useRef, useHostProps, useObservable }) => {
+  render: ({ props, children, useState, useDisposable, useRef, useHostProps }) => {
     const triggerRef = useRef<HTMLDivElement>('trigger')
     const panelRef = useRef<HTMLDivElement>('panel')
     const backdropRef = useRef<HTMLDivElement>('backdrop')
 
-    const isOpen = useDisposable('isOpen', () => new ObservableValue(false))
-    const [isOpenValue] = useObservable('isOpenObs', isOpen)
+    const [isOpenValue, setIsOpen] = useState('isOpen', false)
 
     useHostProps({
       'data-open': isOpenValue ? '' : undefined,
@@ -171,7 +169,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
 
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
-        if (!isOpen.getValue()) return
+        if (!backdropRef.current?.classList.contains('visible')) return
 
         const panel = panelRef.current
         if (!panel) return
@@ -269,14 +267,13 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     const openDropdown = () => {
-      if (isOpen.isDisposed || isOpen.getValue()) return
-      isOpen.setValue(true)
+      if (isOpenValue) return
+      setIsOpen(true)
       positionAndShowPanel()
     }
 
     const closeDropdown = () => {
-      if (isOpen.isDisposed || !isOpen.getValue()) return
-      isOpen.setValue(false)
+      setIsOpen(false)
       const backdrop = backdropRef.current
       const panel = panelRef.current
       backdrop?.classList.remove('visible')
@@ -285,8 +282,8 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     const handleTriggerClick = () => {
-      if (disabled || isOpen.isDisposed) return
-      if (isOpen.getValue()) {
+      if (disabled) return
+      if (backdropRef.current?.classList.contains('visible')) {
         closeDropdown()
       } else {
         openDropdown()
@@ -299,7 +296,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
     }
 
     // If re-rendered while open (e.g. parent prop change), restore visual state
-    if (!isOpen.isDisposed && isOpen.getValue()) {
+    if (isOpenValue) {
       positionAndShowPanel()
     }
 

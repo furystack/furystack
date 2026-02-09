@@ -570,10 +570,13 @@ export const Slider = Shade<SliderProps>({
         emitToParent(updated)
       }
 
-      const root = sliderRootRef.current
-      root?.addEventListener('mousedown', handlePointerDown)
-      root?.addEventListener('touchstart', handlePointerDown, { passive: false })
-      root?.addEventListener('keydown', handleKeyDown)
+      let root: HTMLElement | null = null
+      queueMicrotask(() => {
+        root = sliderRootRef.current
+        root?.addEventListener('mousedown', handlePointerDown)
+        root?.addEventListener('touchstart', handlePointerDown, { passive: false })
+        root?.addEventListener('keydown', handleKeyDown)
+      })
 
       return {
         [Symbol.dispose]: () => {

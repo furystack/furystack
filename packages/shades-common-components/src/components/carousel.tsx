@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { Icon } from './icons/icon.js'
 import { chevronDown, chevronLeft, chevronRight, chevronUp } from './icons/icon-definitions.js'
@@ -177,7 +176,7 @@ export const Carousel = Shade<CarouselProps>({
       background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 75%, transparent)`,
     },
   },
-  render: ({ props, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, useState, useDisposable, useHostProps, useRef }) => {
     const hostRef = useRef<HTMLDivElement>('carouselHost')
     const {
       slides,
@@ -201,27 +200,24 @@ export const Carousel = Shade<CarouselProps>({
 
     const viewportRef = useRef<HTMLDivElement>('viewport')
     const trackRef = useRef<HTMLElement>('track')
-    const dotsRef = useRef<HTMLDivElement>('dots')
 
     const initial = Math.max(0, Math.min(defaultActiveIndex, slides.length - 1))
 
-    const activeIndex = useDisposable('activeIndex', () => new ObservableValue(initial))
+    const [current, setCurrent] = useState('activeIndex', initial)
+
+    // Mutable ref for the autoplay timer to access the latest index
+    const indexRef = useDisposable('indexRef', () => ({ current: initial, [Symbol.dispose]: () => {} }))
+    indexRef.current = current
 
     const goTo = (index: number) => {
-      if (slides.length === 0 || activeIndex.isDisposed) return
+      if (slides.length === 0) return
       const clamped = ((index % slides.length) + slides.length) % slides.length
-      activeIndex.setValue(clamped)
+      setCurrent(clamped)
       onChange?.(clamped)
     }
 
-    const goNext = () => {
-      if (activeIndex.isDisposed) return
-      goTo(activeIndex.getValue() + 1)
-    }
-    const goPrev = () => {
-      if (activeIndex.isDisposed) return
-      goTo(activeIndex.getValue() - 1)
-    }
+    const goNext = () => goTo(current + 1)
+    const goPrev = () => goTo(current - 1)
 
     // Keyboard navigation
     useHostProps({
@@ -259,51 +255,13 @@ export const Carousel = Shade<CarouselProps>({
     let touchStartX = 0
     let touchStartY = 0
 
-    // Autoplay
+    // Autoplay (uses mutable indexRef to avoid stale closure)
     if (autoplay && slides.length > 1) {
       useDisposable('autoplay-timer', () => {
-        const timer = setInterval(goNext, autoplayInterval)
+        const timer = setInterval(() => goTo(indexRef.current + 1), autoplayInterval)
         return { [Symbol.dispose]: () => clearInterval(timer) }
       })
     }
-
-    const current = activeIndex.getValue()
-
-    /**
-     * Imperatively updates the DOM when the active slide changes.
-     * This avoids a full re-render which would destroy/recreate child elements
-     * and break CSS transitions.
-     */
-    const updateDOM = (newIndex: number) => {
-      if (effect === 'slide') {
-        const track = trackRef.current
-        if (track) {
-          if (vertical) {
-            const slideHeight = hostRef.current?.offsetHeight ?? 0
-            track.style.transform = `translateY(-${newIndex * slideHeight}px)`
-          } else {
-            track.style.transform = `translateX(-${newIndex * 100}%)`
-          }
-        }
-      } else {
-        const fadeContainer = trackRef.current
-        const fadeSlides = fadeContainer?.querySelectorAll<HTMLElement>('.carousel-fade-slide') ?? []
-        fadeSlides.forEach((s, i) => {
-          const isActive = i === newIndex
-          s.toggleAttribute('data-active', isActive)
-          s.style.opacity = isActive ? '1' : '0'
-          s.style.pointerEvents = isActive ? 'auto' : 'none'
-        })
-      }
-
-      const dotEls = dotsRef.current?.querySelectorAll('.carousel-dot') ?? []
-      dotEls.forEach((d, i) => {
-        d.toggleAttribute('data-active', i === newIndex)
-      })
-    }
-
-    // Subscribe to index changes and update DOM imperatively
-    useDisposable('index-observer', () => activeIndex.subscribe(updateDOM))
 
     // For vertical slide mode: after render, measure the host height and
     // size each slide to exactly that height so translateY works correctly.
@@ -330,7 +288,6 @@ export const Carousel = Shade<CarouselProps>({
       slide instanceof Node ? (slide.cloneNode(true) as typeof slide) : slide,
     )
 
-    // Build JSX — rendered once, then updated imperatively
     const slideContent =
       effect === 'fade' ? (
         <div ref={trackRef} className="carousel-fade-container">
@@ -418,7 +375,7 @@ export const Carousel = Shade<CarouselProps>({
         )}
 
         {dots && slides.length > 1 && (
-          <div ref={dotsRef} className="carousel-dots">
+          <div className="carousel-dots">
             {slides.map((_, i) => (
               <button
                 className="carousel-dot"

@@ -28,6 +28,12 @@ export class ResourceManager implements AsyncDisposable {
   ): [value: T, setValue: (newValue: T) => void] => {
     const alreadyUsed = this.observers.get(key) as ValueObserver<T> | undefined
     if (alreadyUsed) {
+      if (alreadyUsed.observable !== observable) {
+        alreadyUsed[Symbol.dispose]()
+        const observer = observable.subscribe(onChange, options)
+        this.observers.set(key, observer)
+        return [observable.getValue(), observable.setValue.bind(observable)]
+      }
       return [alreadyUsed.observable.getValue(), alreadyUsed.observable.setValue.bind(alreadyUsed.observable)]
     }
     const observer = observable.subscribe(onChange, options)

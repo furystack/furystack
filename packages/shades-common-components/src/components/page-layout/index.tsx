@@ -192,8 +192,8 @@ export const PageLayout = Shade<PageLayoutProps>({
   render: ({ props, children, injector, useObservable, useDisposable, useHostProps, useRef }) => {
     const layoutRef = useRef<HTMLDivElement>('layoutRoot')
 
-    // Create scoped LayoutService with a ref as target for CSS variables
-    const layoutService = useDisposable('layoutService', () => new LayoutService(layoutRef))
+    // Create scoped LayoutService (CSS variables are set on the host via useHostProps)
+    const layoutService = useDisposable('layoutService', () => new LayoutService())
 
     // Create a child injector with the scoped LayoutService
     // This allows child components (like DrawerToggleButton) to access it
@@ -203,15 +203,8 @@ export const PageLayout = Shade<PageLayoutProps>({
       return child
     })
 
-    // Propagate the child injector so descendants can find it
-    useDisposable('injector-propagation', () => {
-      queueMicrotask(() => {
-        if (layoutRef.current) {
-          ;(layoutRef.current as unknown as { injector: typeof childInjector }).injector = childInjector
-        }
-      })
-      return { [Symbol.dispose]: () => {} }
-    })
+    // Propagate the child injector on the host so descendants can find it
+    useHostProps({ injector: childInjector })
 
     const screenService = injector.getInstance(ScreenService)
 
@@ -321,12 +314,36 @@ export const PageLayout = Shade<PageLayoutProps>({
     const isLeftTemporaryOpen = props.drawer?.left?.variant === 'temporary' && isLeftOpen
     const isRightTemporaryOpen = props.drawer?.right?.variant === 'temporary' && isRightOpen
 
+    // Compute CSS variables from LayoutService state
+    const appBarHeightVal = layoutService.appBarHeight.getValue()
+    const appBarVariantVal = layoutService.appBarVariant.getValue()
+    const topGapVal = layoutService.topGap.getValue()
+    const sideGapVal = layoutService.sideGap.getValue()
+    const contentPaddingTop = appBarVariantVal === 'auto-hide' ? topGapVal : `calc(${appBarHeightVal} + ${topGapVal})`
+    const leftWidth = drawerState.left?.open ? (drawerState.left.width ?? '0px') : '0px'
+    const rightWidth = drawerState.right?.open ? (drawerState.right.width ?? '0px') : '0px'
+    const leftContentMargin = layoutService.getContentMarginForPosition('left')
+    const rightContentMargin = layoutService.getContentMarginForPosition('right')
+
     useHostProps({
       ...(!isLeftOpen ? { 'data-drawer-left-closed': '' } : {}),
       ...(!isRightOpen ? { 'data-drawer-right-closed': '' } : {}),
       ...(props.appBar?.variant === 'auto-hide' ? { 'data-appbar-auto-hide': '' } : {}),
       ...(props.appBar?.variant === 'auto-hide' && isAppBarVisible ? { 'data-appbar-visible': '' } : {}),
       ...(isLeftTemporaryOpen || isRightTemporaryOpen ? { 'data-backdrop-visible': '' } : {}),
+      style: {
+        '--layout-appbar-height': appBarHeightVal,
+        '--layout-top-gap': topGapVal,
+        '--layout-side-gap': sideGapVal,
+        '--layout-content-padding-top': contentPaddingTop,
+        '--layout-content-margin-top': appBarHeightVal,
+        '--layout-drawer-left-configured-width': drawerState.left?.width ?? '0px',
+        '--layout-drawer-left-width': leftWidth,
+        '--layout-content-margin-left': leftContentMargin,
+        '--layout-drawer-right-configured-width': drawerState.right?.width ?? '0px',
+        '--layout-drawer-right-width': rightWidth,
+        '--layout-content-margin-right': rightContentMargin,
+      },
     })
 
     // Handle temporary drawer backdrop click

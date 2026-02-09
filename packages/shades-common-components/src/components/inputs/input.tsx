@@ -1,6 +1,5 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
@@ -222,11 +221,8 @@ export const Input = Shade<TextInputProps>({
       fontSize: cssVariableTheme.typography.fontSize.lg,
     },
   },
-  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('formInput')
-    const helperRef = useRef<HTMLSpanElement>('helperText')
-    const startIconRef = useRef<HTMLSpanElement>('startIcon')
-    const endIconRef = useRef<HTMLSpanElement>('endIcon')
 
     useDisposable('form-registration', () => {
       const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
@@ -244,8 +240,30 @@ export const Input = Shade<TextInputProps>({
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    const isInvalidObs = useDisposable('isInvalid', () => new ObservableValue(false))
-    const [isInvalid] = useObservable('isInvalid', isInvalidObs)
+    const [state, setState] = useState<TextInputState>('inputState', {
+      value: props.value || '',
+      focused: props.autofocus || false,
+      validity: inputRef.current?.validity || ({} as ValidityState),
+    })
+
+    // Enrich validity with toJSON for serialization
+    if (state.validity && !state.validity.toJSON) {
+      state.validity.toJSON = () => ({
+        valid: state.validity.valid,
+        valueMissing: state.validity.valueMissing,
+        typeMismatch: state.validity.typeMismatch,
+        patternMismatch: state.validity.patternMismatch,
+        tooLong: state.validity.tooLong,
+        tooShort: state.validity.tooShort,
+        rangeUnderflow: state.validity.rangeUnderflow,
+        rangeOverflow: state.validity.rangeOverflow,
+        stepMismatch: state.validity.stepMismatch,
+        badInput: state.validity.badInput,
+      })
+    }
+
+    const validationResult = props.getValidationResult?.({ state })
+    const isInvalid = validationResult?.isValid === false || state.validity?.valid === false
 
     const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
     useHostProps({
@@ -258,69 +276,16 @@ export const Input = Shade<TextInputProps>({
       },
     })
 
-    const updateState = (newState: TextInputState) => {
-      const input = inputRef.current
-
-      newState.value = input?.value || newState.value
-      newState.validity = input?.validity || newState.validity
-      newState.validity.toJSON = () => {
-        return {
-          valid: newState.validity.valid,
-          valueMissing: newState.validity.valueMissing,
-          typeMismatch: newState.validity.typeMismatch,
-          patternMismatch: newState.validity.patternMismatch,
-          tooLong: newState.validity.tooLong,
-          tooShort: newState.validity.tooShort,
-          rangeUnderflow: newState.validity.rangeUnderflow,
-          rangeOverflow: newState.validity.rangeOverflow,
-          stepMismatch: newState.validity.stepMismatch,
-          badInput: newState.validity.badInput,
-        }
-      }
-
-      const validationResult = props.getValidationResult?.({ state: newState })
-
-      // Update invalid state (triggers re-render to update host attribute via useHostProps)
-      const invalid = validationResult?.isValid === false || newState.validity?.valid === false
-      if (invalid !== isInvalidObs.getValue()) {
-        isInvalidObs.setValue(invalid)
-      }
-
-      const helper = helperRef.current
-      const helperNode =
-        (validationResult?.isValid === false && validationResult?.message) ||
-        props.getHelperText?.({ state: newState, validationResult }) ||
-        getDefaultMessagesForValidityState(newState.validity) ||
-        ''
-      if (helper) {
-        helper.replaceChildren(helperNode)
-      }
-
-      const startIcon = startIconRef.current
-      if (startIcon) {
-        startIcon.replaceChildren(props.getStartIcon?.({ state: newState, validationResult }) || '')
-      }
-
-      const endIcon = endIconRef.current
-      if (endIcon) {
-        endIcon.replaceChildren(props.getEndIcon?.({ state: newState, validationResult }) || '')
-      }
-
-      if (injector.cachedSingletons.has(FormService)) {
-        const formService = injector.getInstance(FormService)
-        formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, newState.validity)
-      }
+    if (injector.cachedSingletons.has(FormService)) {
+      const formService = injector.getInstance(FormService)
+      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, state.validity)
     }
 
-    const [state, setState] = useObservable<TextInputState>(
-      'inputState',
-      new ObservableValue({
-        value: props.value || '',
-        focused: props.autofocus || false,
-        validity: inputRef.current?.validity || ({} as ValidityState),
-      }),
-      { onChange: updateState },
-    )
+    const helperNode =
+      (validationResult?.isValid === false && validationResult?.message) ||
+      props.getHelperText?.({ state, validationResult }) ||
+      getDefaultMessagesForValidityState(state.validity) ||
+      ''
 
     return (
       <label {...props.labelProps}>
@@ -328,9 +293,7 @@ export const Input = Shade<TextInputProps>({
 
         <div className="input-row">
           {props.getStartIcon ? (
-            <span className="startIcon" ref={startIconRef}>
-              {props.getStartIcon?.({ state })}
-            </span>
+            <span className="startIcon">{props.getStartIcon({ state, validationResult })}</span>
           ) : null}
           <input
             ref={inputRef}
@@ -358,15 +321,9 @@ export const Input = Shade<TextInputProps>({
             style={props.style}
             value={state.value}
           />
-          {props.getEndIcon ? (
-            <span className="endIcon" ref={endIconRef}>
-              {props.getEndIcon({ state })}
-            </span>
-          ) : null}
+          {props.getEndIcon ? <span className="endIcon">{props.getEndIcon({ state, validationResult })}</span> : null}
         </div>
-        <span className="helperText" ref={helperRef}>
-          {props.getHelperText?.({ state })}
-        </span>
+        <span className="helperText">{helperNode}</span>
       </label>
     )
   },
