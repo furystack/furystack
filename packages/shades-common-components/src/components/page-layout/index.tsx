@@ -212,10 +212,11 @@ export const PageLayout = Shade<PageLayoutProps>({
     const appBarHeight = props.appBar?.height ?? DEFAULT_APPBAR_HEIGHT
     if (props.appBar) {
       layoutService.appBarHeight.setValue(appBarHeight)
-      layoutService.appBarVariant.setValue(props.appBar.variant)
 
-      // For auto-hide variant, start with appbar hidden
-      if (props.appBar.variant === 'auto-hide') {
+      // Only reset appBarVisible when transitioning to auto-hide (not on every render)
+      const prevVariant = layoutService.appBarVariant.getValue()
+      layoutService.appBarVariant.setValue(props.appBar.variant)
+      if (props.appBar.variant === 'auto-hide' && prevVariant !== 'auto-hide') {
         layoutService.appBarVisible.setValue(false)
       }
     } else {

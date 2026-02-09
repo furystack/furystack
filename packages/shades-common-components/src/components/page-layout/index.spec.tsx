@@ -818,15 +818,12 @@ describe('PageLayout component', () => {
         expect(pageLayout.hasAttribute('data-appbar-visible')).toBe(false)
         expect(layoutService.appBarVisible.getValue()).toBe(false)
 
-        // The component's render function resets appBarVisible to false for auto-hide variant
-        // on every re-render, so an external setValue(true) triggers a re-render but the
-        // initialization code resets it back to false in the subsequent render pass.
+        // Setting appBarVisible to true should persist across re-renders
         layoutService.appBarVisible.setValue(true)
         await sleepAsync(50)
 
-        // After re-renders settle, the value is reset back to false
-        expect(layoutService.appBarVisible.getValue()).toBe(false)
-        expect(pageLayout.hasAttribute('data-appbar-visible')).toBe(false)
+        expect(layoutService.appBarVisible.getValue()).toBe(true)
+        expect(pageLayout.hasAttribute('data-appbar-visible')).toBe(true)
       })
     })
   })

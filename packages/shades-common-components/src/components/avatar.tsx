@@ -45,12 +45,21 @@ export const Avatar = Shade<AvatarProps>({
       lineHeight: '1',
     },
   },
-  render: ({ props, useHostProps }) => {
+  render: ({ props, useHostProps, useState }) => {
     const { style } = props
+    const [hasError, setHasError] = useState('hasError', false)
 
     useHostProps({
       ...(style ? { style: style as Record<string, string> } : {}),
     })
+
+    if (hasError) {
+      return (
+        <div className="avatar-fallback-container">
+          <div className="avatar-fallback-icon">{props.fallback || '🛑'}</div>
+        </div>
+      )
+    }
 
     return (
       <img
@@ -63,12 +72,8 @@ export const Avatar = Shade<AvatarProps>({
         }}
         alt={'avatar image'}
         src={props.avatarUrl}
-        onerror={(ev) => {
-          ;((ev as Event).target as HTMLImageElement).replaceWith(
-            <div className="avatar-fallback-container">
-              <div className="avatar-fallback-icon">{props.fallback || '🛑'}</div>
-            </div>,
-          )
+        onerror={() => {
+          setHasError(true)
         }}
       />
     )
