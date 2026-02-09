@@ -118,9 +118,9 @@ describe('Tree', () => {
         await sleepAsync(50)
 
         const tree = document.querySelector('shade-tree')
-        const treeContainer = tree?.querySelector('[role="tree"]')
-        expect(treeContainer).not.toBeNull()
-        expect(treeContainer?.getAttribute('aria-multiselectable')).toBe('true')
+        expect(tree).not.toBeNull()
+        expect(tree?.getAttribute('role')).toBe('tree')
+        expect(tree?.getAttribute('aria-multiselectable')).toBe('true')
 
         service[Symbol.dispose]()
       })
@@ -295,9 +295,8 @@ describe('Tree', () => {
 
         await sleepAsync(50)
 
-        const tree = document.querySelector('shade-tree')
-        const wrapper = tree?.querySelector('.shade-tree-wrapper') as HTMLElement
-        wrapper?.click()
+        const tree = document.querySelector('shade-tree') as HTMLElement
+        tree?.click()
 
         expect(service.hasFocus.getValue()).toBe(true)
 
@@ -328,9 +327,8 @@ describe('Tree', () => {
 
         await sleepAsync(50)
 
-        const tree = document.querySelector('shade-tree')
-        const wrapper = tree?.querySelector('.shade-tree-wrapper') as HTMLElement
-        wrapper?.click()
+        const tree = document.querySelector('shade-tree') as HTMLElement
+        tree?.click()
         expect(service.hasFocus.getValue()).toBe(true)
 
         const outside = document.querySelector('[data-testid="outside"]') as HTMLElement
