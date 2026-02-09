@@ -4,7 +4,7 @@ import { match } from 'path-to-regexp'
 import { Lock } from 'semaphore-async-await'
 import type { RenderOptions } from '../models/render-options.js'
 import { LocationService } from '../services/location-service.js'
-import { createComponent } from '../shade-component.js'
+import { createComponent, setRenderMode } from '../shade-component.js'
 import { Shade } from '../shade.js'
 
 /**
@@ -206,12 +206,18 @@ export const NestedRouter = Shade<NestedRouterProps>({
               await lastChainEntries[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
             }
 
-            const { jsx: newJsx, chainElements: newChainElements } = renderMatchChain(newChain, currentUrl)
-            setState({ matchChain: newChain, jsx: newJsx, chainElements: newChainElements })
+            let newResult: RenderMatchChainResult
+            setRenderMode(true)
+            try {
+              newResult = renderMatchChain(newChain, currentUrl)
+            } finally {
+              setRenderMode(false)
+            }
+            setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
 
             // Call onVisit for routes that are being entered (from divergence point to end of new chain)
             for (let i = divergeIndex; i < newChain.length; i++) {
-              await newChain[i].route.onVisit?.({ ...options, element: newChainElements[i] })
+              await newChain[i].route.onVisit?.({ ...options, element: newResult.chainElements[i] })
             }
           }
         } else if (lastChain !== null) {
