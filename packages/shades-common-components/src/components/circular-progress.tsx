@@ -64,9 +64,8 @@ export const CircularProgress = Shade<CircularProgressProps>({
       transition: `stroke-dashoffset ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
-  render: ({ props, injector, useObservable, useHostProps, useRef }) => {
+  render: ({ props, injector, useObservable, useHostProps }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const circleRef = useRef<SVGCircleElement>('progressCircle')
     const variant = props.variant || 'indeterminate'
     const value = clampValue(props.value?.getValue() ?? 0)
     const size = props.size ?? DEFAULT_SIZE
@@ -128,7 +127,6 @@ export const CircularProgress = Shade<CircularProgressProps>({
         )}
         <circle className="progress-track" cx={center} cy={center} r={radius} stroke-width={thickness} />
         <circle
-          ref={circleRef}
           className="progress-circle"
           cx={center}
           cy={center}

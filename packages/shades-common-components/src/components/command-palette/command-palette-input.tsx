@@ -34,7 +34,11 @@ const animateOpenState = async (
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
   shadowDomName: 'shades-command-palette-input',
   css: {
+    width: '0%',
     overflow: 'hidden',
+    '&[data-opened]': {
+      width: '100%',
+    },
     '& input': {
       color: cssVariableTheme.text.primary,
       outline: 'none',
@@ -56,7 +60,7 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
     const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, {
       onChange: (newValue) => void animateOpenState(wrapperRef, inputRef, newValue),
     })
-    useHostProps({ style: { width: isCurrentlyOpened ? '100%' : '0%' } })
+    useHostProps({ ...(isCurrentlyOpened ? { 'data-opened': '' } : {}) })
 
     return (
       <div ref={wrapperRef} style={{ width: isCurrentlyOpened ? '100%' : '0%', overflow: 'hidden' }}>

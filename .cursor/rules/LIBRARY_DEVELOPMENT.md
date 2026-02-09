@@ -415,7 +415,7 @@ The following APIs have been removed. **Do not generate code using them:**
 ```typescript
 // ❌ REMOVED - element in render options
 render: ({ element }) => {
-  element.setAttribute('data-active', 'true')  // No longer works
+  element.setAttribute('data-active', 'true') // No longer works
 }
 
 // ✅ Use useHostProps instead
@@ -425,15 +425,23 @@ render: ({ useHostProps }) => {
 
 // ❌ REMOVED - onAttach / onDetach
 Shade({
-  onAttach: ({ element }) => { /* ... */ },
-  onDetach: ({ element }) => { /* ... */ },
+  onAttach: ({ element }) => {
+    /* ... */
+  },
+  onDetach: ({ element }) => {
+    /* ... */
+  },
 })
 
 // ✅ Use useDisposable instead
 render: ({ useDisposable }) => {
   useDisposable('myResource', () => {
     // Setup code runs once
-    return { [Symbol.dispose]: () => { /* Cleanup on unmount */ } }
+    return {
+      [Symbol.dispose]: () => {
+        /* Cleanup on unmount */
+      },
+    }
   })
 }
 ```
@@ -486,6 +494,35 @@ render: ({ useRef }) => {
 ```
 
 The `ref` prop is available on all intrinsic JSX elements (`div`, `input`, `span`, SVG elements, etc.).
+
+**Only create refs when you need direct DOM access** (focus, scroll, measurements, animations, form registration, third-party library integration). Do not create refs that are only assigned to elements but never read from -- this is dead code. For imperative DOM mutations like `classList.add` or `style.display` toggling, prefer `useState` with declarative JSX instead.
+
+```typescript
+// ❌ Bad - ref used only for classList manipulation
+const backdropRef = useRef<HTMLDivElement>('backdrop')
+requestAnimationFrame(() => backdropRef.current?.classList.add('visible'))
+return <div ref={backdropRef} className="backdrop">...</div>
+
+// ✅ Good - declarative state controls the class
+const [isVisible, setIsVisible] = useState('isVisible', false)
+requestAnimationFrame(() => setIsVisible(true))
+return <div className={`backdrop${isVisible ? ' visible' : ''}`}>...</div>
+```
+
+### Anti-pattern: `useDisposable` + `ObservableValue` for Local State
+
+When you need local component state that triggers re-renders, use `useState` directly. Do not manually create an `ObservableValue` with `useDisposable` and subscribe with `useObservable` -- this is exactly what `useState` does internally.
+
+```typescript
+// ❌ Bad - manual ObservableValue + useObservable for local state
+const obs = useDisposable('count', () => new ObservableValue(0))
+const [count] = useObservable('count', obs)
+
+// ✅ Good - useState handles this internally
+const [count, setCount] = useState('count', 0)
+```
+
+Reserve `useDisposable` + `ObservableValue` for cases where the observable must be passed to a service or shared across component boundaries (not just parent-to-child). For parent-to-child state, prefer plain props.
 
 ### VNode Reconciliation
 
@@ -575,6 +612,34 @@ css: {
   '&:active': { /* active styles */ },
 }
 ```
+
+#### Anti-pattern: `useHostProps({ style })` for Static or Attribute-Driven Styles
+
+If a style is static (same every render) or varies based on a data attribute that is already set, define it in the `css` block instead of using `useHostProps({ style })`.
+
+```typescript
+// ❌ Bad - static style in useHostProps
+useHostProps({ style: { display: 'contents' } })
+
+// ✅ Good - in css block
+css: { display: 'contents' }
+
+// ❌ Bad - style toggled by an attribute the component already sets
+useHostProps({
+  'data-opened': isOpen ? '' : undefined,
+  style: { width: isOpen ? '100%' : '0%' },
+})
+
+// ✅ Good - CSS rule on the data attribute
+css: {
+  width: '0%',
+  '&[data-opened]': { width: '100%' },
+}
+// render:
+useHostProps({ ...(isOpen ? { 'data-opened': '' } : {}) })
+```
+
+Use `useHostProps({ style })` only for truly dynamic values (CSS custom properties from themes/props, consumer-provided style overrides).
 
 #### Type-Safe Theme Variables with `cssVariableTheme`
 

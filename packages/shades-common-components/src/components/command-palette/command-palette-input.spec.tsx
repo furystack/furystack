@@ -104,7 +104,7 @@ describe('CommandPaletteInput', () => {
       await sleepAsync(50)
 
       const component = document.querySelector('shades-command-palette-input') as HTMLElement
-      expect(component.style.width).toBe('0%')
+      expect(component.hasAttribute('data-opened')).toBe(false)
 
       manager[Symbol.dispose]()
     })
@@ -125,7 +125,7 @@ describe('CommandPaletteInput', () => {
       await sleepAsync(50)
 
       const component = document.querySelector('shades-command-palette-input') as HTMLElement
-      expect(component.style.width).toBe('100%')
+      expect(component.hasAttribute('data-opened')).toBe(true)
 
       manager[Symbol.dispose]()
     })

@@ -1,6 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { List, ListService, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 type ListEntry = { label: string; icon: string }
 const listEntries: ListEntry[] = [
@@ -11,13 +10,12 @@ const listEntries: ListEntry[] = [
   { label: 'Downloads', icon: '📥' },
 ]
 
-const SelectionCountDisplay = Shade<{ selectionCount: ObservableValue<number> }>({
+const SelectionCountDisplay = Shade<{ count: number }>({
   shadowDomName: 'shades-selection-count-display',
-  render: ({ props, useObservable }) => {
-    const [count] = useObservable('count', props.selectionCount)
+  render: ({ props }) => {
     return (
       <Typography variant="body1" style={{ marginTop: '8px', opacity: '0.7' }}>
-        Selected: {count} item(s)
+        Selected: {props.count} item(s)
       </Typography>
     )
   },
@@ -25,13 +23,13 @@ const SelectionCountDisplay = Shade<{ selectionCount: ObservableValue<number> }>
 
 export const ListPage = Shade({
   shadowDomName: 'shades-list-page',
-  render: ({ useDisposable }) => {
+  render: ({ useDisposable, useState }) => {
     const listService = useDisposable('listService', () => new ListService<ListEntry>({ searchField: 'label' }))
     const multiSelectService = useDisposable(
       'multiSelectService',
       () => new ListService<ListEntry>({ searchField: 'label' }),
     )
-    const selectionCount = useDisposable('selectionCount', () => new ObservableValue(0))
+    const [selectionCount, setSelectionCount] = useState('selectionCount', 0)
 
     return (
       <PageContainer maxWidth="900px" centered>
@@ -66,10 +64,10 @@ export const ListPage = Shade({
               listService={multiSelectService}
               renderIcon={(item) => <span>{item.icon}</span>}
               renderItem={(item) => <span>{item.label}</span>}
-              onSelectionChange={(selected) => selectionCount.setValue(selected.length)}
+              onSelectionChange={(selected) => setSelectionCount(selected.length)}
             />
           </div>
-          <SelectionCountDisplay selectionCount={selectionCount} />
+          <SelectionCountDisplay count={selectionCount} />
         </Paper>
       </PageContainer>
     )

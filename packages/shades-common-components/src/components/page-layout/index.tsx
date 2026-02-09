@@ -189,9 +189,7 @@ export const PageLayout = Shade<PageLayoutProps>({
     },
   },
 
-  render: ({ props, children, injector, useObservable, useDisposable, useHostProps, useRef }) => {
-    const layoutRef = useRef<HTMLDivElement>('layoutRoot')
-
+  render: ({ props, children, injector, useObservable, useDisposable, useHostProps }) => {
     // Create scoped LayoutService (CSS variables are set on the host via useHostProps)
     const layoutService = useDisposable('layoutService', () => new LayoutService())
 
@@ -359,7 +357,7 @@ export const PageLayout = Shade<PageLayoutProps>({
     }
 
     return (
-      <div ref={layoutRef} style={{ display: 'contents' }}>
+      <div style={{ display: 'contents' }}>
         {/* AppBar */}
         {props.appBar && (
           <div className="page-layout-appbar" data-testid="page-layout-appbar">

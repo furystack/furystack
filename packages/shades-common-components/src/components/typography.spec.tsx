@@ -228,7 +228,7 @@ describe('Typography', () => {
   describe('overline variant', () => {
     it('should apply uppercase text transform for overline', async () => {
       await usingAsync(await renderTypography({ variant: 'overline' }), async ({ element }) => {
-        expect(element.style.textTransform).toBe('uppercase')
+        expect(element.getAttribute('data-variant')).toBe('overline')
       })
     })
   })

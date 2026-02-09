@@ -44,7 +44,16 @@ export type TypographyProps = PartialElement<HTMLElement> & {
   align?: 'left' | 'center' | 'right' | 'justify'
 }
 
-const variantStyles: Record<TypographyVariant, Record<string, string>> = {
+type VariantDef = {
+  fontSize: string
+  fontWeight: string
+  lineHeight: string
+  letterSpacing: string
+  textTransform?: string
+  scale?: string
+}
+
+const variantDefs: Record<TypographyVariant, VariantDef> = {
   h1: {
     fontSize: cssVariableTheme.typography.fontSize.xl,
     fontWeight: cssVariableTheme.typography.fontWeight.bold,
@@ -78,7 +87,6 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.normal,
-    scale: '1',
   },
   h6: {
     fontSize: cssVariableTheme.typography.fontSize.md,
@@ -92,35 +100,30 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   subtitle2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: '0.1px',
-    scale: '1',
   },
   body1: {
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   body2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1',
   },
   caption: {
     fontSize: cssVariableTheme.typography.fontSize.xs,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: '0.4px',
-    scale: '1',
   },
   overline: {
     fontSize: cssVariableTheme.typography.fontSize.xs,
@@ -128,8 +131,29 @@ const variantStyles: Record<TypographyVariant, Record<string, string>> = {
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.widest,
     textTransform: 'uppercase',
-    scale: '1',
   },
+}
+
+const buildVariantCssRules = (): Record<string, Record<string, string>> => {
+  const rules: Record<string, Record<string, string>> = {}
+  for (const [variant, def] of Object.entries(variantDefs)) {
+    const rule: Record<string, string> = {
+      fontSize: def.fontSize,
+      fontWeight: def.fontWeight,
+      lineHeight: def.lineHeight,
+      letterSpacing: def.letterSpacing,
+    }
+    if (def.textTransform) {
+      rule.textTransform = def.textTransform
+    }
+    if (def.scale && def.scale !== '1') {
+      rule.transformOrigin = 'left top'
+      rule.transform = `scale(${def.scale})`
+      rule.marginBottom = `calc((${def.scale} - 1) * 1em)`
+    }
+    rules[`&[data-variant="${variant}"]`] = rule
+  }
+  return rules
 }
 
 const colorToVar = (color: TypographyColor): string => {
@@ -158,6 +182,9 @@ export const Typography = Shade<TypographyProps>({
     padding: '0',
     fontFamily: cssVariableTheme.typography.fontFamily,
     color: 'var(--typo-color)',
+
+    // Variant-specific typography styles
+    ...buildVariantCssRules(),
 
     // Gutter bottom
     '&[data-gutter-bottom]': {
@@ -220,22 +247,8 @@ export const Typography = Shade<TypographyProps>({
   render: ({ props, children, useHostProps, useRef }) => {
     const { variant = 'body1', color = 'textPrimary', ellipsis, copyable, gutterBottom, align, style } = props
 
-    // Build host styles
-    const vs = variantStyles[variant]
     const hostStyle: Record<string, string> = {
       '--typo-color': colorToVar(color),
-      fontSize: vs.fontSize,
-      fontWeight: vs.fontWeight,
-      lineHeight: vs.lineHeight,
-      letterSpacing: vs.letterSpacing,
-    }
-    if (vs.textTransform) {
-      hostStyle.textTransform = vs.textTransform
-    }
-    if (vs.scale && vs.scale !== '1') {
-      hostStyle.transformOrigin = 'left top'
-      hostStyle.transform = `scale(${vs.scale})`
-      hostStyle.marginBottom = `calc((${vs.scale} - 1) * 1em)`
     }
     if (style) {
       Object.assign(hostStyle, style)

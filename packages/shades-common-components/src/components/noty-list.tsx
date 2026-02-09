@@ -33,6 +33,8 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
     display: 'flex',
     flexDirection: 'column',
     height: '0px',
+    backgroundColor: 'var(--noty-bg)',
+    color: 'var(--noty-text)',
     '& .noty-header': {
       display: 'flex',
       justifyContent: 'space-between',
@@ -120,7 +122,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     useHostProps({
       'data-noty-type': props.model.type,
-      style: { backgroundColor: colors.main, color: textColor },
+      style: { '--noty-bg': colors.main, '--noty-text': textColor },
     })
 
     return (
@@ -129,7 +131,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
           <span className="noty-title" title={props.model.title}>
             {props.model.title}
           </span>
-          <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: textColor }}>
+          <button className="dismiss-button" onclick={removeSelf} title="Close" style={{ color: 'inherit' }}>
             <Icon icon={close} size={14} />
           </button>
         </div>

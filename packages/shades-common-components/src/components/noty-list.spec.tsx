@@ -388,8 +388,9 @@ describe('NotyComponent', () => {
 
       const noty = document.querySelector('shade-noty') as HTMLElement
       expect(noty).not.toBeNull()
-      // The component sets backgroundColor via style
-      expect(noty.style.backgroundColor).toBeTruthy()
+      // The component sets background color via CSS custom property
+      expect(noty.style.getPropertyValue('--noty-bg')).toBeTruthy()
+      expect(noty.style.getPropertyValue('--noty-text')).toBeTruthy()
     })
   })
 })

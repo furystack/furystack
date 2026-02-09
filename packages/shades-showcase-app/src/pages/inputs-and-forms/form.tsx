@@ -18,8 +18,6 @@ import {
   Tooltip,
   Typography,
 } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
-
 type FormDataType = {
   email: string
   password: string
@@ -55,16 +53,16 @@ const FormStatusMonitor = Shade({
 
 const EmailInput = Shade({
   shadowDomName: 'shade-email-input',
-  render: ({ useHostProps }) => {
-    useHostProps({ style: { display: 'contents' } })
+  css: { display: 'contents' },
+  render: () => {
     return <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
   },
 })
 
 const PasswordInputs = Shade({
   shadowDomName: 'shade-password-inputs',
-  render: ({ injector, useHostProps }) => {
-    useHostProps({ style: { display: 'contents' } })
+  css: { display: 'contents' },
+  render: ({ injector }) => {
     const formService = injector.getInstance(FormService)
 
     return (
@@ -138,34 +136,33 @@ const PasswordsForm = Shade({
 })
 
 type FormAlertProps = {
-  alertState: ObservableValue<'success' | 'error' | null>
+  currentAlert: 'success' | 'error' | null
+  onClose: () => void
 }
 
 const FormAlert = Shade<FormAlertProps>({
   shadowDomName: 'shade-form-alert',
-  render: ({ props, useObservable }) => {
-    const [currentAlert] = useObservable('currentAlert', props.alertState)
-
-    if (currentAlert === 'success') {
+  render: ({ props }) => {
+    if (props.currentAlert === 'success') {
       return (
         <Alert
           severity="success"
           title="Registration Successful"
           variant="filled"
-          onClose={() => props.alertState.setValue(null)}
+          onClose={props.onClose}
           style={{ marginBottom: '16px' }}
         >
           Your event registration has been submitted.
         </Alert>
       )
     }
-    if (currentAlert === 'error') {
+    if (props.currentAlert === 'error') {
       return (
         <Alert
           severity="error"
           title="Validation Failed"
           variant="filled"
-          onClose={() => props.alertState.setValue(null)}
+          onClose={props.onClose}
           style={{ marginBottom: '16px' }}
         >
           Please fix the errors below and try again.
@@ -178,8 +175,8 @@ const FormAlert = Shade<FormAlertProps>({
 
 const AdvancedForm = Shade({
   shadowDomName: 'shade-advanced-form',
-  render: ({ useDisposable }) => {
-    const alertState = useDisposable('alertState', () => new ObservableValue<'success' | 'error' | null>(null))
+  render: ({ useState }) => {
+    const [alertState, setAlertState] = useState<'success' | 'error' | null>('alertState', null)
 
     return (
       <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
@@ -191,11 +188,11 @@ const AdvancedForm = Shade({
           feedback alerts.
         </Typography>
 
-        <FormAlert alertState={alertState} />
+        <FormAlert currentAlert={alertState} onClose={() => setAlertState(null)} />
 
         <Form<AdvancedFormData>
           onSubmit={() => {
-            alertState.setValue('success')
+            setAlertState('success')
           }}
           validate={(formData): formData is AdvancedFormData => {
             const data = formData as Partial<AdvancedFormData>
@@ -208,7 +205,7 @@ const AdvancedForm = Shade({
               data.acceptTerms === 'yes'
             )
             if (!isValid) {
-              alertState.setValue('error')
+              setAlertState('error')
             }
             return isValid
           }}

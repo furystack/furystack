@@ -183,8 +183,7 @@ export const Carousel = Shade<CarouselProps>({
       background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 75%, transparent)`,
     },
   },
-  render: ({ props, useState, useDisposable, useHostProps, useRef }) => {
-    const hostRef = useRef<HTMLDivElement>('carouselHost')
+  render: ({ props, useState, useDisposable, useHostProps }) => {
     const {
       slides,
       autoplay = false,
@@ -204,9 +203,6 @@ export const Carousel = Shade<CarouselProps>({
       tabindex: '0',
       ...(style ? { style: style as Record<string, string> } : {}),
     })
-
-    const viewportRef = useRef<HTMLDivElement>('viewport')
-    const trackRef = useRef<HTMLElement>('track')
 
     const initial = Math.max(0, Math.min(defaultActiveIndex, slides.length - 1))
 
@@ -278,7 +274,7 @@ export const Carousel = Shade<CarouselProps>({
 
     const slideContent =
       effect === 'fade' ? (
-        <div ref={trackRef} className="carousel-fade-container">
+        <div className="carousel-fade-container">
           {clonedSlides.map((slide, i) => {
             const isFirst = i === 0
             const isActive = i === current
@@ -304,7 +300,6 @@ export const Carousel = Shade<CarouselProps>({
         </div>
       ) : (
         <div
-          ref={trackRef}
           className="carousel-track"
           style={{
             display: 'flex',
@@ -331,10 +326,8 @@ export const Carousel = Shade<CarouselProps>({
     const nextIcon = vertical ? chevronDown : chevronRight
 
     return (
-      <div ref={hostRef} style={{ display: 'contents' }}>
-        <div ref={viewportRef} className="carousel-viewport">
-          {slideContent}
-        </div>
+      <div style={{ display: 'contents' }}>
+        <div className="carousel-viewport">{slideContent}</div>
 
         {slides.length > 1 && (
           <button

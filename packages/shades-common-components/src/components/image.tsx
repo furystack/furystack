@@ -423,7 +423,7 @@ export const Image = Shade<ImageProps>({
       transform: 'translate(-50%, -50%) scale(1)',
     },
   },
-  render: ({ props, useHostProps, useRef }) => {
+  render: ({ props, useHostProps, useRef, useState }) => {
     const imageHostRef = useRef<HTMLElement>('imageHost')
     const {
       src,
@@ -444,8 +444,7 @@ export const Image = Shade<ImageProps>({
       ...(styleOverrides ? { style: styleOverrides as Record<string, string> } : {}),
     })
 
-    const imgRef = useRef<HTMLImageElement>('img')
-    const fallbackRef = useRef<HTMLElement>('fallback')
+    const [hasError, setHasError] = useState('hasError', false)
 
     const handleClick = () => {
       if (!preview) return
@@ -473,22 +472,18 @@ export const Image = Shade<ImageProps>({
           alt={alt}
           loading={lazy ? 'lazy' : undefined}
           style={{
+            display: hasError ? 'none' : 'block',
             width: width || '100%',
             height: height || 'auto',
             objectFit,
           }}
           onclick={handleClick}
-          ref={imgRef}
-          onerror={() => {
-            if (imgRef.current) imgRef.current.style.display = 'none'
-            if (fallbackRef.current) fallbackRef.current.style.display = 'flex'
-          }}
+          onerror={() => setHasError(true)}
         />
         <div
-          ref={fallbackRef}
           className="image-fallback"
           style={{
-            display: 'none',
+            display: hasError ? 'flex' : 'none',
             width: width || '200px',
             height: height || '150px',
           }}
