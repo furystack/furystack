@@ -187,6 +187,13 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
     render: ({ props, children, useDisposable, useHostProps, useRef }) => {
       const groupRef = useRef<HTMLDivElement>('group')
 
+      // Mutable container so the click handler always reads the latest props
+      const state = useDisposable('state', () => ({
+        props,
+        [Symbol.dispose]: () => {},
+      }))
+      state.props = props
+
       useDisposable('click-handler', () => {
         const handleClick = (ev: Event) => {
           const target = (ev.target as HTMLElement).closest('button[data-value]')
@@ -195,20 +202,21 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
           const clickedValue = target.getAttribute('data-value')
           if (!clickedValue) return
 
-          if (props.exclusive) {
-            const currentValue = Array.isArray(props.value) ? props.value[0] : props.value
+          const currentProps = state.props
+          if (currentProps.exclusive) {
+            const currentValue = Array.isArray(currentProps.value) ? currentProps.value[0] : currentProps.value
             const newValue = currentValue === clickedValue ? '' : clickedValue
-            props.onValueChange?.(newValue)
+            currentProps.onValueChange?.(newValue)
           } else {
-            const currentValues = Array.isArray(props.value)
-              ? props.value
-              : props.value
-                ? [props.value]
+            const currentValues = Array.isArray(currentProps.value)
+              ? currentProps.value
+              : currentProps.value
+                ? [currentProps.value]
                 : ([] as string[])
             const newValues = currentValues.includes(clickedValue)
               ? currentValues.filter((v) => v !== clickedValue)
               : [...currentValues, clickedValue]
-            props.onValueChange?.(newValues)
+            currentProps.onValueChange?.(newValues)
           }
         }
 
