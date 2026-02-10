@@ -78,7 +78,12 @@ export class ResourceManager implements AsyncDisposable {
       newObservable.subscribe(callback)
     }
     const observable = this.stateObservers.get(key) as ObservableValue<T>
-    return [observable.getValue(), observable.setValue.bind(observable)]
+    const setValue = (newValue: T) => {
+      if (!observable.isDisposed) {
+        observable.setValue(newValue)
+      }
+    }
+    return [observable.getValue(), setValue]
   }
 
   public async [Symbol.asyncDispose]() {
