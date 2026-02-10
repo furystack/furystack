@@ -125,25 +125,61 @@ describe('Cache types', () => {
 
 ## Resource Disposal
 
-### Use `usingAsync()` for Injector Cleanup
+### Wrap All Disposable Resources in `using()` / `usingAsync()`
 
-Always wrap `Injector` instances in `usingAsync()` to ensure proper disposal of singletons (e.g. `LocationService`, stores, caches) after the test completes. This prevents leaked global state (such as monkeypatched `history.pushState`) from affecting subsequent tests.
+All disposable resources created in tests **must** be wrapped in `using()` (sync) or `usingAsync()` (async) blocks. This ensures cleanup runs even when a test assertion fails or an exception is thrown mid-test. **Never** rely on manual `[Symbol.dispose]()` / `[Symbol.asyncDispose]()` calls at the end of a test -- if the test throws before reaching that line, the resource leaks.
+
+Common disposable types in FuryStack:
+
+- `Injector` (AsyncDisposable)
+- `ObservableValue` (Disposable)
+- `Cache` (Disposable)
+- `ListService`, `TreeService`, `CollectionService` (Disposable)
+- `LayoutService`, `ContextMenuManager`, `CommandPaletteManager`, `SuggestManager` (Disposable)
+- `DataGridService` (Disposable)
+- `InMemoryStore`, `FileSystemStore`, and other `PhysicalStore` subclasses (Disposable / AsyncDisposable)
+- `EventHub` (Disposable)
+- `ValueObserver` (Disposable)
 
 ```typescript
-import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { using, usingAsync } from '@furystack/utils'
 
+// ✅ Good - sync disposable wrapped in using()
+it('should cache values', () => {
+  using(new Cache({ load: (a: number) => Promise.resolve(a) }), (cache) => {
+    // cache is automatically disposed when this callback returns or throws
+    expect(cache.has(1)).toBe(false)
+  })
+})
+
+// ✅ Good - async disposable wrapped in usingAsync()
 it('should work with injected services', async () => {
   await usingAsync(new Injector(), async (injector) => {
-    // The injector and all its singletons are automatically
-    // disposed when this callback returns or throws
     const service = injector.getInstance(MyService)
     expect(service.getData()).toBe('expected')
   })
 })
+
+// ❌ Bad - manual dispose can be skipped if test throws
+it('should cache values', () => {
+  const cache = new Cache({ load: (a: number) => Promise.resolve(a) })
+  expect(cache.has(1)).toBe(false) // if this throws, dispose never runs
+  cache[Symbol.dispose]()
+})
 ```
 
-**Why this matters:** `Injector` implements `AsyncDisposable`. Services like `LocationService` modify global state in their constructor (e.g. wrapping `history.pushState`). Without proper disposal, these modifications leak across tests causing hangs or flaky failures.
+**Exception:** When the test's purpose is to verify disposal behavior itself (e.g. "should throw after dispose", "dispose should clear the cache"), manual disposal control is acceptable.
+
+```typescript
+// ✅ OK - testing post-disposal behavior requires manual control
+it('should throw on setValue after dispose', () => {
+  const v = new ObservableValue(1)
+  v[Symbol.dispose]()
+  expect(() => v.setValue(2)).toThrowError('Observable already disposed')
+})
+```
+
+**Why this matters:** `Injector` and services like `LocationService` modify global state (e.g. wrapping `history.pushState`). Stores hold data. Observables hold observer references. Without proper disposal, these leak across tests causing hangs, flaky failures, or memory growth.
 
 ## Vitest Patterns
 
@@ -243,6 +279,7 @@ When testing components that use dependency injection, always wrap the `Injector
 6. **Clear test structure** - describe > describe > it
 7. **Test behavior** - Not implementation details
 8. **Flush microtasks** - Use `await flushUpdates()` for Shade component tests
+9. **Dispose resources** - Wrap all disposables in `using()` / `usingAsync()`
 
 **Testing Checklist:**
 
@@ -253,6 +290,7 @@ When testing components that use dependency injection, always wrap the `Injector
 - [ ] Error paths tested
 - [ ] Coverage > 80% for public APIs
 - [ ] Breaking changes have migration tests
+- [ ] All disposable resources wrapped in `using()` / `usingAsync()`
 
 **Tools:**
 

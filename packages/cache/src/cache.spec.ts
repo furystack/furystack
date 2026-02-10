@@ -1,122 +1,130 @@
-import { sleepAsync } from '@furystack/utils'
+import { sleepAsync, using, usingAsync } from '@furystack/utils'
 import { Cache } from './cache.js'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
-    const cache = new Cache({ load: () => Promise.resolve(1) })
-    cache[Symbol.dispose]()
+    using(new Cache({ load: () => Promise.resolve(1) }), () => {
+      // Constructed and disposed automatically
+    })
   })
 
   it('Should return values as observables', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
+    await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
+      const obs = cache.getObservable(1, 2)
+      expect(obs.getValue().status).toEqual('uninitialized')
 
-    const obs = cache.getObservable(1, 2)
-    expect(obs.getValue().status).toEqual('uninitialized')
+      await sleepAsync(10)
 
-    await sleepAsync(10)
-
-    expect(obs.getValue().status).toEqual('loaded')
-    expect(obs.getValue().value).toEqual(3)
-
-    cache[Symbol.dispose]()
+      expect(obs.getValue().status).toEqual('loaded')
+      expect(obs.getValue().value).toEqual(3)
+    })
   })
 
   it('Should trigger loader only if the value is not in the cache when getting an observable', async () => {
     const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-    const cache = new Cache({ load: loader })
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      const obs = cache.getObservable(1, 2)
+      expect(obs.getValue().status).toEqual('uninitialized')
 
-    const obs = cache.getObservable(1, 2)
-    expect(obs.getValue().status).toEqual('uninitialized')
+      const result = await cache.get(1, 2)
+      expect(result).toEqual(3)
 
-    const result = await cache.get(1, 2)
-    expect(result).toEqual(3)
+      expect(obs.getValue().status).toEqual('loaded')
 
-    expect(obs.getValue().status).toEqual('loaded')
+      const obs2 = cache.getObservable(1, 2)
+      expect(obs2.getValue().status).toEqual('loaded')
 
-    const obs2 = cache.getObservable(1, 2)
-    expect(obs2.getValue().status).toEqual('loaded')
-
-    expect(loader).toHaveBeenCalledTimes(1)
-
-    cache[Symbol.dispose]()
+      expect(loader).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('Should remove the oldest entry when capacity limit is reached', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), capacity: 2 })
-    await cache.get(1, 2)
-    await cache.get(1, 3)
-    await cache.get(1, 4)
-    expect(cache.getCount()).toEqual(2)
-    cache[Symbol.dispose]()
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), capacity: 2 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await cache.get(1, 3)
+        await cache.get(1, 4)
+        expect(cache.getCount()).toEqual(2)
+      },
+    )
   })
 
   it('Should mark the value as obsolete after the stale time has passed', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 })
-    await cache.get(1, 2)
-    await sleepAsync(200)
-    const obs = cache.getObservable(1, 2)
-    expect(obs.getValue().status).toEqual('obsolete')
-    cache[Symbol.dispose]()
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await sleepAsync(200)
+        const obs = cache.getObservable(1, 2)
+        expect(obs.getValue().status).toEqual('obsolete')
+      },
+    )
   })
 
   it('Should swallow errors when stale time has passed and try to set stale state for a non-loaded value', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 })
-    await cache.get(1, 2)
-    cache.remove(1, 2) // The "Cannot set obsolete state for a non-loaded value" error should be swallowed when the stale time has passed
-    await sleepAsync(200)
-    cache[Symbol.dispose]()
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        cache.remove(1, 2)
+        await sleepAsync(200)
+      },
+    )
   })
 
   it('Should remove the value from the cache after the cache time has passed', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 })
-    await cache.get(1, 2)
-    cache.remove(1, 2)
-    await sleepAsync(200)
-    expect(cache.has(1, 2)).toEqual(false)
-    cache[Symbol.dispose]()
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        cache.remove(1, 2)
+        await sleepAsync(200)
+        expect(cache.has(1, 2)).toEqual(false)
+      },
+    )
   })
 
   it('Should remove value from the cache', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
-    await cache.get(1, 2)
-    await cache.get(1, 3)
-    expect(cache.getCount()).toEqual(2)
-    cache.remove(1, 2)
-    expect(cache.getCount()).toEqual(1)
-    cache[Symbol.dispose]()
+    await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
+      await cache.get(1, 2)
+      await cache.get(1, 3)
+      expect(cache.getCount()).toEqual(2)
+      cache.remove(1, 2)
+      expect(cache.getCount()).toEqual(1)
+    })
   })
 
   it('Should remove a value from the cache, based on a predicate', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
-    await cache.get(1, 2)
-    await cache.get(1, 3)
-    expect(cache.getCount()).toEqual(2)
-    cache.removeRange((v) => v === 3)
-    expect(cache.getCount()).toEqual(1)
-    cache[Symbol.dispose]()
+    await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
+      await cache.get(1, 2)
+      await cache.get(1, 3)
+      expect(cache.getCount()).toEqual(2)
+      cache.removeRange((v) => v === 3)
+      expect(cache.getCount()).toEqual(1)
+    })
   })
 
   it('Should remove all values from the cache', async () => {
-    const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
-    await cache.get(1, 2)
-    await cache.get(1, 3)
-    expect(cache.getCount()).toEqual(2)
-    cache.flushAll()
-    expect(cache.getCount()).toEqual(0)
-    cache[Symbol.dispose]()
+    await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
+      await cache.get(1, 2)
+      await cache.get(1, 3)
+      expect(cache.getCount()).toEqual(2)
+      cache.flushAll()
+      expect(cache.getCount()).toEqual(0)
+    })
   })
 
   it('Should set an explicit value', async () => {
     const load = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-    const cache = new Cache({ load })
-    cache.setExplicitValue({ loadArgs: [1, 2], value: { status: 'loaded', value: 3, updatedAt: new Date() } })
-    expect(cache.getCount()).toEqual(1)
+    await usingAsync(new Cache({ load }), async (cache) => {
+      cache.setExplicitValue({ loadArgs: [1, 2], value: { status: 'loaded', value: 3, updatedAt: new Date() } })
+      expect(cache.getCount()).toEqual(1)
 
-    const result = await cache.get(1, 2)
-    expect(result).toEqual(3)
-    expect(load).not.toHaveBeenCalled()
-
-    cache[Symbol.dispose]()
+      const result = await cache.get(1, 2)
+      expect(result).toEqual(3)
+      expect(load).not.toHaveBeenCalled()
+    })
   })
 
   describe('Loading, locking and reloading', () => {
@@ -131,25 +139,24 @@ describe('Cache', () => {
     it('should store and retrieve results based on the arguments', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
-      const cache = new Cache({ load: loader })
-      const result = await cache.get(1, 2)
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const result = await cache.get(1, 2)
 
-      expect(result).toEqual(3)
+        expect(result).toEqual(3)
 
-      const result2 = await cache.get(1, 2)
-      expect(result2).toEqual(3)
+        const result2 = await cache.get(1, 2)
+        expect(result2).toEqual(3)
 
-      expect(loader).toHaveBeenCalledTimes(1)
+        expect(loader).toHaveBeenCalledTimes(1)
 
-      const result3 = await cache.get(1, 3)
-      expect(result3).toEqual(4)
+        const result3 = await cache.get(1, 3)
+        expect(result3).toEqual(4)
 
-      const result3_2 = await cache.get(1, 3)
-      expect(result3_2).toEqual(4)
+        const result3_2 = await cache.get(1, 3)
+        expect(result3_2).toEqual(4)
 
-      expect(loader).toHaveBeenCalledTimes(2)
-
-      cache[Symbol.dispose]()
+        expect(loader).toHaveBeenCalledTimes(2)
+      })
     })
 
     it('Should return the cached value after the lock resolves', async () => {
@@ -162,17 +169,17 @@ describe('Cache', () => {
           ),
       )
 
-      const cache = new Cache({ load: loader })
-      const resultPromise = cache.get(1, 2)
-      await vi.advanceTimersByTimeAsync(100)
-      const result2Promise = cache.get(1, 2)
-      await vi.advanceTimersByTimeAsync(1000)
-      const result = await resultPromise
-      const result2 = await result2Promise
-      expect(result).toStrictEqual(result2)
-      expect(result).toEqual(3)
-      expect(loader).toHaveBeenCalledTimes(1)
-      cache[Symbol.dispose]()
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const resultPromise = cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(100)
+        const result2Promise = cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(1000)
+        const result = await resultPromise
+        const result2 = await result2Promise
+        expect(result).toStrictEqual(result2)
+        expect(result).toEqual(3)
+        expect(loader).toHaveBeenCalledTimes(1)
+      })
     })
 
     it('Should reload regardless of the already loaded state', async () => {
@@ -185,17 +192,17 @@ describe('Cache', () => {
           ),
       )
 
-      const cache = new Cache({ load: loader })
-      const resultPromise = cache.get(1, 2)
-      await vi.advanceTimersByTimeAsync(1000)
-      const result = await resultPromise
-      const result2Promise = cache.reload(1, 2)
-      await vi.advanceTimersByTimeAsync(1000)
-      const result2 = await result2Promise
-      expect(result).toStrictEqual(result2)
-      expect(result).toEqual(3)
-      expect(loader).toHaveBeenCalledTimes(2)
-      cache[Symbol.dispose]()
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const resultPromise = cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(1000)
+        const result = await resultPromise
+        const result2Promise = cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(1000)
+        const result2 = await result2Promise
+        expect(result).toStrictEqual(result2)
+        expect(result).toEqual(3)
+        expect(loader).toHaveBeenCalledTimes(2)
+      })
     })
 
     it('Reload should create a lock', async () => {
@@ -208,17 +215,17 @@ describe('Cache', () => {
           ),
       )
 
-      const cache = new Cache({ load: loader })
-      const reloadPromise = cache.reload(1, 2)
-      await vi.advanceTimersByTimeAsync(100)
-      const resultPromise = cache.get(1, 2)
-      await vi.advanceTimersByTimeAsync(1000)
-      const reloaded = await reloadPromise
-      const loaded = await resultPromise
-      expect(reloaded).toStrictEqual(loaded)
-      expect(reloaded).toEqual(3)
-      expect(loader).toHaveBeenCalledTimes(1)
-      cache[Symbol.dispose]()
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const reloadPromise = cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(100)
+        const resultPromise = cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(1000)
+        const reloaded = await reloadPromise
+        const loaded = await resultPromise
+        expect(reloaded).toStrictEqual(loaded)
+        expect(reloaded).toEqual(3)
+        expect(loader).toHaveBeenCalledTimes(1)
+      })
     })
 
     it('Reload should be able to set an error state', async () => {
@@ -231,16 +238,15 @@ describe('Cache', () => {
           ),
       )
 
-      const cache = new Cache({ load: loader })
-      const reloadPromise = cache.reload(1, 2)
-      const expectation = expect(reloadPromise).rejects.toThrow('Failed')
-      await vi.advanceTimersByTimeAsync(1000)
-      await expectation
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const reloadPromise = cache.reload(1, 2)
+        const expectation = expect(reloadPromise).rejects.toThrow('Failed')
+        await vi.advanceTimersByTimeAsync(1000)
+        await expectation
 
-      const actualValue = cache.getObservable(1, 2).getValue()
-      expect(actualValue.status).toEqual('failed')
-
-      cache[Symbol.dispose]()
+        const actualValue = cache.getObservable(1, 2).getValue()
+        expect(actualValue.status).toEqual('failed')
+      })
     })
   })
 
@@ -248,69 +254,66 @@ describe('Cache', () => {
     it('Should reload the value for obsolete states', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
-      const cache = new Cache({ load: loader })
-      const result = await cache.get(1, 2)
-      expect(result).toEqual(3)
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const result = await cache.get(1, 2)
+        expect(result).toEqual(3)
 
-      cache.setObsolete(1, 2)
+        cache.setObsolete(1, 2)
 
-      const result2 = await cache.get(1, 2)
-      expect(result2).toEqual(3)
+        const result2 = await cache.get(1, 2)
+        expect(result2).toEqual(3)
 
-      expect(loader).toHaveBeenCalledTimes(2)
-
-      cache[Symbol.dispose]()
+        expect(loader).toHaveBeenCalledTimes(2)
+      })
     })
 
     it('Should skip setting for already obsolete values', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
-      const cache = new Cache({ load: loader })
-      const result = await cache.get(1, 2)
-      expect(result).toEqual(3)
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const result = await cache.get(1, 2)
+        expect(result).toEqual(3)
 
-      const subscription = vi.fn()
-      cache.getObservable(1, 2).subscribe(subscription)
+        const subscription = vi.fn()
+        cache.getObservable(1, 2).subscribe(subscription)
 
-      cache.setObsolete(1, 2)
-      cache.setObsolete(1, 2)
+        cache.setObsolete(1, 2)
+        cache.setObsolete(1, 2)
 
-      expect(subscription).toHaveBeenCalledTimes(1)
-
-      cache[Symbol.dispose]()
+        expect(subscription).toHaveBeenCalledTimes(1)
+      })
     })
 
     it('Should throw an error when trying to set obsolete for a non-loaded value', () => {
-      const cache = new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) })
-      expect(() => cache.setObsolete(1, 2)).toThrow()
-      cache[Symbol.dispose]()
+      using(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), (cache) => {
+        expect(() => cache.setObsolete(1, 2)).toThrow()
+      })
     })
 
     it('Should set an obsolete state based on a predicate', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
-      const cache = new Cache({ load: loader })
-      const result = await cache.get(1, 2)
-      expect(result).toEqual(3)
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        const result = await cache.get(1, 2)
+        expect(result).toEqual(3)
 
-      cache.obsoleteRange((v) => v === 3)
+        cache.obsoleteRange((v) => v === 3)
 
-      const result2 = await cache.get(1, 2)
-      expect(result2).toEqual(3)
+        const result2 = await cache.get(1, 2)
+        expect(result2).toEqual(3)
 
-      expect(loader).toHaveBeenCalledTimes(2)
-
-      cache[Symbol.dispose]()
+        expect(loader).toHaveBeenCalledTimes(2)
+      })
     })
   })
 
   describe('Error state', () => {
-    it('Should reject and set error state when loading fails', () => {
+    it('Should reject and set error state when loading fails', async () => {
       const loader = vi.fn((_a: number, _b: number) => Promise.reject(new Error('Failed')))
 
-      const cache = new Cache({ load: loader })
-
-      return expect(cache.get(1, 2)).rejects.toThrow('Failed')
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await expect(cache.get(1, 2)).rejects.toThrow('Failed')
+      })
     })
 
     it('Should reload the value for failed states', async () => {
@@ -323,19 +326,18 @@ describe('Cache', () => {
         return Promise.resolve(a + b)
       })
 
-      const cache = new Cache({ load: loader })
-      try {
-        await cache.get(1, 2)
-      } catch (error) {
-        // Should fail
-      }
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        try {
+          await cache.get(1, 2)
+        } catch (error) {
+          // Should fail
+        }
 
-      const result2 = await cache.get(1, 2)
-      expect(result2).toEqual(3)
+        const result2 = await cache.get(1, 2)
+        expect(result2).toEqual(3)
 
-      expect(loader).toHaveBeenCalledTimes(2)
-
-      cache[Symbol.dispose]()
+        expect(loader).toHaveBeenCalledTimes(2)
+      })
     })
   })
 })
