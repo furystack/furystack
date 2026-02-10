@@ -29,12 +29,27 @@ describe('DataGrid', () => {
     return service
   }
 
+  const withTestGrid = async (
+    fn: (ctx: {
+      injector: Injector
+      service: CollectionService<TestEntry>
+      findOptions: ObservableValue<any>
+    }) => Promise<void>,
+    opts?: { createService?: () => CollectionService<TestEntry> },
+  ) => {
+    await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(opts?.createService?.() ?? createTestService(), async (service) => {
+        await usingAsync(new ObservableValue<any>({}), async (findOptions) => {
+          await fn({ injector, service, findOptions })
+        })
+      })
+    })
+  }
+
   describe('rendering', () => {
     it('should render with columns', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -58,17 +73,12 @@ describe('DataGrid', () => {
 
         const headers = grid?.querySelectorAll('th')
         expect(headers?.length).toBe(2)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should render table structure', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -95,17 +105,12 @@ describe('DataGrid', () => {
         expect(table).not.toBeNull()
         expect(thead).not.toBeNull()
         expect(tbody).not.toBeNull()
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should render custom header components when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -130,17 +135,12 @@ describe('DataGrid', () => {
         const customHeader = grid?.querySelector('[data-testid="custom-header-id"]')
         expect(customHeader).not.toBeNull()
         expect(customHeader?.textContent).toBe('Custom ID Header')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should render default header components from headerComponents.default', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -167,17 +167,12 @@ describe('DataGrid', () => {
 
         expect(defaultHeaderId?.textContent).toBe('Default: id')
         expect(defaultHeaderName?.textContent).toBe('Default: name')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should render DataGridHeader when no custom header is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -199,19 +194,14 @@ describe('DataGrid', () => {
         const grid = document.querySelector('shade-data-grid')
         const defaultHeaders = grid?.querySelectorAll('data-grid-header')
         expect(defaultHeaders?.length).toBe(2)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
   })
 
   describe('focus management', () => {
     it('should set focus on click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         expect(service.hasFocus.getValue()).toBe(false)
 
@@ -238,17 +228,12 @@ describe('DataGrid', () => {
         wrapper?.click()
 
         expect(service.hasFocus.getValue()).toBe(true)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should lose focus on click outside', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -280,19 +265,14 @@ describe('DataGrid', () => {
         outside?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
         expect(service.hasFocus.getValue()).toBe(false)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
   })
 
   describe('keyboard navigation', () => {
     it('should handle ArrowDown to move focus to next entry', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
@@ -318,17 +298,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 2, name: 'Second' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle ArrowUp to move focus to previous entry', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
         service.focusedEntry.setValue(service.data.getValue().entries[1])
@@ -354,17 +329,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle Home to move focus to first entry', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
         service.focusedEntry.setValue(service.data.getValue().entries[2])
@@ -390,17 +360,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle End to move focus to last entry', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
@@ -426,17 +391,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 3, name: 'Third' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle Tab to toggle focus', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
 
@@ -461,17 +421,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.hasFocus.getValue()).toBe(false)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle Escape to clear selection and search', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         const { entries } = service.data.getValue()
         service.hasFocus.setValue(true)
@@ -500,17 +455,12 @@ describe('DataGrid', () => {
 
         expect(service.selection.getValue()).toEqual([])
         expect(service.searchTerm.getValue()).toBe('')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle Space to toggle selection of focused entry', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         const { entries } = service.data.getValue()
         service.hasFocus.setValue(true)
@@ -540,17 +490,12 @@ describe('DataGrid', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
         expect(service.selection.getValue()).not.toContain(entries[0])
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle + to select all entries', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
 
@@ -575,17 +520,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.selection.getValue().length).toBe(3)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle - to deselect all entries', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         const { entries } = service.data.getValue()
         service.hasFocus.setValue(true)
@@ -612,17 +552,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.selection.getValue().length).toBe(0)
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle * to invert selection', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         const { entries } = service.data.getValue()
         service.hasFocus.setValue(true)
@@ -652,17 +587,12 @@ describe('DataGrid', () => {
         expect(selection).not.toContain(entries[0])
         expect(selection).toContain(entries[1])
         expect(selection).toContain(entries[2])
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should not handle keyboard when not focused', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(false)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
@@ -688,17 +618,12 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should handle Insert to toggle selection and move to next', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         const { entries } = service.data.getValue()
         service.hasFocus.setValue(true)
@@ -726,19 +651,14 @@ describe('DataGrid', () => {
 
         expect(service.selection.getValue()).toContain(entries[0])
         expect(service.focusedEntry.getValue()).toEqual(entries[1])
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
   })
 
   describe('styles', () => {
     it('should apply wrapper styles when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -761,17 +681,12 @@ describe('DataGrid', () => {
 
         const grid = document.querySelector('shade-data-grid') as HTMLElement
         expect(grid?.style.backgroundColor).toBe('red')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
 
     it('should apply header styles when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         initializeShadeRoot({
           injector,
@@ -795,138 +710,127 @@ describe('DataGrid', () => {
         const grid = document.querySelector('shade-data-grid')
         const headers = grid?.querySelectorAll('th') as NodeListOf<HTMLElement>
         expect(headers?.[0]?.style.color).toBe('blue')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
   })
 
   describe('empty and loading states', () => {
     it('should show empty component when no data', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = new CollectionService<TestEntry>()
-        const findOptions = new ObservableValue<any>({})
+      await withTestGrid(
+        async ({ injector, service, findOptions }) => {
+          const rootElement = document.getElementById('root') as HTMLDivElement
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <DataGrid<TestEntry, 'id' | 'name'>
-              columns={['id', 'name']}
-              collectionService={service}
-              findOptions={findOptions}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
-              emptyComponent={<div data-testid="empty-state">No data available</div>}
-            />
-          ),
-        })
+          initializeShadeRoot({
+            injector,
+            rootElement,
+            jsxElement: (
+              <DataGrid<TestEntry, 'id' | 'name'>
+                columns={['id', 'name']}
+                collectionService={service}
+                findOptions={findOptions}
+                styles={{}}
+                headerComponents={{}}
+                rowComponents={{}}
+                emptyComponent={<div data-testid="empty-state">No data available</div>}
+              />
+            ),
+          })
 
-        await sleepAsync(50)
+          await sleepAsync(50)
 
-        const grid = document.querySelector('shade-data-grid')
-        const emptyState = grid?.querySelector('[data-testid="empty-state"]')
-        expect(emptyState).not.toBeNull()
-        expect(emptyState?.textContent).toBe('No data available')
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
-      })
+          const grid = document.querySelector('shade-data-grid')
+          const emptyState = grid?.querySelector('[data-testid="empty-state"]')
+          expect(emptyState).not.toBeNull()
+          expect(emptyState?.textContent).toBe('No data available')
+        },
+        { createService: () => new CollectionService<TestEntry>() },
+      )
     })
   })
 
   describe('row interactions', () => {
     it('should pass row click to collectionService', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const onRowClick = vi.fn()
-        const service = new CollectionService<TestEntry>({ onRowClick })
-        const findOptions = new ObservableValue<any>({})
+      const onRowClick = vi.fn()
+      await withTestGrid(
+        async ({ injector, service, findOptions }) => {
+          const rootElement = document.getElementById('root') as HTMLDivElement
 
-        service.data.setValue({
-          count: 1,
-          entries: [{ id: 1, name: 'Test' }],
-        })
+          service.data.setValue({
+            count: 1,
+            entries: [{ id: 1, name: 'Test' }],
+          })
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <DataGrid<TestEntry, 'id' | 'name'>
-              columns={['id', 'name']}
-              collectionService={service}
-              findOptions={findOptions}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
-            />
-          ),
-        })
+          initializeShadeRoot({
+            injector,
+            rootElement,
+            jsxElement: (
+              <DataGrid<TestEntry, 'id' | 'name'>
+                columns={['id', 'name']}
+                collectionService={service}
+                findOptions={findOptions}
+                styles={{}}
+                headerComponents={{}}
+                rowComponents={{}}
+              />
+            ),
+          })
 
-        await sleepAsync(50)
+          await sleepAsync(50)
 
-        const grid = document.querySelector('shade-data-grid')
-        const cell = grid?.querySelector('td') as HTMLTableCellElement
-        cell?.click()
+          const grid = document.querySelector('shade-data-grid')
+          const cell = grid?.querySelector('td') as HTMLTableCellElement
+          cell?.click()
 
-        expect(onRowClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
-      })
+          expect(onRowClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
+        },
+        { createService: () => new CollectionService<TestEntry>({ onRowClick }) },
+      )
     })
 
     it('should pass row double click to collectionService', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const onRowDoubleClick = vi.fn()
-        const service = new CollectionService<TestEntry>({ onRowDoubleClick })
-        const findOptions = new ObservableValue<any>({})
+      const onRowDoubleClick = vi.fn()
+      await withTestGrid(
+        async ({ injector, service, findOptions }) => {
+          const rootElement = document.getElementById('root') as HTMLDivElement
 
-        service.data.setValue({
-          count: 1,
-          entries: [{ id: 1, name: 'Test' }],
-        })
+          service.data.setValue({
+            count: 1,
+            entries: [{ id: 1, name: 'Test' }],
+          })
 
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <DataGrid<TestEntry, 'id' | 'name'>
-              columns={['id', 'name']}
-              collectionService={service}
-              findOptions={findOptions}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
-            />
-          ),
-        })
+          initializeShadeRoot({
+            injector,
+            rootElement,
+            jsxElement: (
+              <DataGrid<TestEntry, 'id' | 'name'>
+                columns={['id', 'name']}
+                collectionService={service}
+                findOptions={findOptions}
+                styles={{}}
+                headerComponents={{}}
+                rowComponents={{}}
+              />
+            ),
+          })
 
-        await sleepAsync(50)
+          await sleepAsync(50)
 
-        const grid = document.querySelector('shade-data-grid')
-        const cell = grid?.querySelector('td') as HTMLTableCellElement
-        const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
-        cell?.dispatchEvent(dblClickEvent)
+          const grid = document.querySelector('shade-data-grid')
+          const cell = grid?.querySelector('td') as HTMLTableCellElement
+          const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
+          cell?.dispatchEvent(dblClickEvent)
 
-        expect(onRowDoubleClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
-      })
+          expect(onRowDoubleClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
+        },
+        { createService: () => new CollectionService<TestEntry>({ onRowDoubleClick }) },
+      )
     })
   })
 
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-        const findOptions = new ObservableValue<any>({})
 
         service.hasFocus.setValue(true)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
@@ -955,9 +859,6 @@ describe('DataGrid', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
-
-        service[Symbol.dispose]()
-        findOptions[Symbol.dispose]()
       })
     })
   })

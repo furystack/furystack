@@ -18,337 +18,327 @@ describe('DataGridBody', () => {
 
   it('should render default empty component when no data', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
-          </table>
-        ),
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        expect(body).not.toBeNull()
+        expect(body?.textContent).toContain('- No Data -')
       })
-
-      await sleepAsync(50)
-
-      const body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      expect(body).not.toBeNull()
-      expect(body?.textContent).toContain('- No Data -')
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should render custom empty component when provided and no data', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'>
-              service={service}
-              columns={['id', 'name']}
-              emptyComponent={<div data-testid="custom-empty">Custom Empty State</div>}
-            />
-          </table>
-        ),
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'>
+                service={service}
+                columns={['id', 'name']}
+                emptyComponent={<div data-testid="custom-empty">Custom Empty State</div>}
+              />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        expect(body).not.toBeNull()
+        expect(body?.querySelector('[data-testid="custom-empty"]')).not.toBeNull()
+        expect(body?.textContent).toContain('Custom Empty State')
       })
-
-      await sleepAsync(50)
-
-      const body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      expect(body).not.toBeNull()
-      expect(body?.querySelector('[data-testid="custom-empty"]')).not.toBeNull()
-      expect(body?.textContent).toContain('Custom Empty State')
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should render rows for each data entry', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      service.data.setValue({
-        count: 2,
-        entries: [
-          { id: 1, name: 'First' },
-          { id: 2, name: 'Second' },
-        ],
+        service.data.setValue({
+          count: 2,
+          entries: [
+            { id: 1, name: 'First' },
+            { id: 2, name: 'Second' },
+          ],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        expect(body).not.toBeNull()
+
+        const rows = body?.querySelectorAll('shades-data-grid-row')
+        expect(rows?.length).toBe(2)
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      expect(body).not.toBeNull()
-
-      const rows = body?.querySelectorAll('shades-data-grid-row')
-      expect(rows?.length).toBe(2)
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should render cell content from entry properties', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      service.data.setValue({
-        count: 1,
-        entries: [{ id: 42, name: 'Test Entry' }],
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 42, name: 'Test Entry' }],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        const cells = body?.querySelectorAll('td')
+
+        expect(cells?.length).toBe(2)
+        expect(cells?.[0]?.textContent).toBe('42')
+        expect(cells?.[1]?.textContent).toBe('Test Entry')
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      const cells = body?.querySelectorAll('td')
-
-      expect(cells?.length).toBe(2)
-      expect(cells?.[0]?.textContent).toBe('42')
-      expect(cells?.[1]?.textContent).toBe('Test Entry')
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should re-render when data observable changes', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
-          </table>
-        ),
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        let body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        expect(body?.textContent).toContain('- No Data -')
+
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 1, name: 'New Entry' }],
+        })
+
+        await sleepAsync(50)
+
+        body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        const rows = body?.querySelectorAll('shades-data-grid-row')
+        expect(rows?.length).toBe(1)
       })
-
-      await sleepAsync(50)
-
-      let body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      expect(body?.textContent).toContain('- No Data -')
-
-      service.data.setValue({
-        count: 1,
-        entries: [{ id: 1, name: 'New Entry' }],
-      })
-
-      await sleepAsync(50)
-
-      body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      const rows = body?.querySelectorAll('shades-data-grid-row')
-      expect(rows?.length).toBe(1)
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should call onRowClick callback when row is clicked', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
-      const onRowClick = vi.fn()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onRowClick = vi.fn()
 
-      const entry = { id: 1, name: 'Clickable' }
-      service.data.setValue({
-        count: 1,
-        entries: [entry],
+        const entry = { id: 1, name: 'Clickable' }
+        service.data.setValue({
+          count: 1,
+          entries: [entry],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'>
+                service={service}
+                columns={['id', 'name']}
+                onRowClick={onRowClick}
+              />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const cell = document.querySelector('td') as HTMLTableCellElement
+        cell.click()
+
+        expect(onRowClick).toHaveBeenCalledWith(entry, expect.any(MouseEvent))
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'>
-              service={service}
-              columns={['id', 'name']}
-              onRowClick={onRowClick}
-            />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const cell = document.querySelector('td') as HTMLTableCellElement
-      cell.click()
-
-      expect(onRowClick).toHaveBeenCalledWith(entry, expect.any(MouseEvent))
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should call onRowDoubleClick callback when row is double-clicked', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
-      const onRowDoubleClick = vi.fn()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onRowDoubleClick = vi.fn()
 
-      const entry = { id: 1, name: 'DoubleClickable' }
-      service.data.setValue({
-        count: 1,
-        entries: [entry],
+        const entry = { id: 1, name: 'DoubleClickable' }
+        service.data.setValue({
+          count: 1,
+          entries: [entry],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'>
+                service={service}
+                columns={['id', 'name']}
+                onRowDoubleClick={onRowDoubleClick}
+              />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const cell = document.querySelector('td') as HTMLTableCellElement
+        const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
+        cell.dispatchEvent(dblClickEvent)
+
+        expect(onRowDoubleClick).toHaveBeenCalledWith(entry, expect.any(MouseEvent))
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'>
-              service={service}
-              columns={['id', 'name']}
-              onRowDoubleClick={onRowDoubleClick}
-            />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const cell = document.querySelector('td') as HTMLTableCellElement
-      const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
-      cell.dispatchEvent(dblClickEvent)
-
-      expect(onRowDoubleClick).toHaveBeenCalledWith(entry, expect.any(MouseEvent))
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should use custom row components when provided', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      service.data.setValue({
-        count: 1,
-        entries: [{ id: 1, name: 'Custom' }],
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 1, name: 'Custom' }],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'>
+                service={service}
+                columns={['id', 'name']}
+                rowComponents={{
+                  id: (entry) => <span data-testid="custom-id">ID: {entry.id}</span>,
+                  name: (entry) => <strong data-testid="custom-name">{entry.name}</strong>,
+                }}
+              />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const customId = document.querySelector('[data-testid="custom-id"]')
+        const customName = document.querySelector('[data-testid="custom-name"]')
+
+        expect(customId?.textContent).toContain('ID: 1')
+        expect(customName?.textContent).toBe('Custom')
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'>
-              service={service}
-              columns={['id', 'name']}
-              rowComponents={{
-                id: (entry) => <span data-testid="custom-id">ID: {entry.id}</span>,
-                name: (entry) => <strong data-testid="custom-name">{entry.name}</strong>,
-              }}
-            />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const customId = document.querySelector('[data-testid="custom-id"]')
-      const customName = document.querySelector('[data-testid="custom-name"]')
-
-      expect(customId?.textContent).toContain('ID: 1')
-      expect(customName?.textContent).toBe('Custom')
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should use default row component when column-specific one is not provided', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      service.data.setValue({
-        count: 1,
-        entries: [{ id: 1, name: 'Default' }],
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 1, name: 'Default' }],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'>
+                service={service}
+                columns={['id', 'name']}
+                rowComponents={{
+                  default: (entry) => <em data-testid="default-cell">{JSON.stringify(entry)}</em>,
+                }}
+              />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const defaultCells = document.querySelectorAll('[data-testid="default-cell"]')
+        expect(defaultCells.length).toBe(2)
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'>
-              service={service}
-              columns={['id', 'name']}
-              rowComponents={{
-                default: (entry) => <em data-testid="default-cell">{JSON.stringify(entry)}</em>,
-              }}
-            />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const defaultCells = document.querySelectorAll('[data-testid="default-cell"]')
-      expect(defaultCells.length).toBe(2)
-
-      service[Symbol.dispose]()
     })
   })
 
   it('should render with empty entries array', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = new CollectionService<TestEntry>()
+      await usingAsync(new CollectionService<TestEntry>(), async (service) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-      service.data.setValue({
-        count: 0,
-        entries: [],
+        service.data.setValue({
+          count: 0,
+          entries: [],
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <table>
+              <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
+            </table>
+          ),
+        })
+
+        await sleepAsync(50)
+
+        const body = document.querySelector('tbody[is="shade-data-grid-body"]')
+        expect(body?.textContent).toContain('- No Data -')
       })
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: (
-          <table>
-            <DataGridBody<TestEntry, 'id' | 'name'> service={service} columns={['id', 'name']} />
-          </table>
-        ),
-      })
-
-      await sleepAsync(50)
-
-      const body = document.querySelector('tbody[is="shade-data-grid-body"]')
-      expect(body?.textContent).toContain('- No Data -')
-
-      service[Symbol.dispose]()
     })
   })
 })

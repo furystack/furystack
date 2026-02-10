@@ -1,7 +1,7 @@
 import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
 import type { Injector } from '@furystack/inject'
-import { sleepAsync } from '@furystack/utils'
+import { sleepAsync, usingAsync } from '@furystack/utils'
 import { promises } from 'fs'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { FileSystemStore } from './filesystem-store.js'
@@ -33,43 +33,48 @@ describe('FileSystemStore', () => {
   it('Should save data on tick', async () => {
     const fileName = `filestore-test-${storeCount++}.json`
     storeNames.push(fileName)
-    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
-    store.saveChanges = vi.fn(store.saveChanges.bind(store))
+    await usingAsync(
+      new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 }),
+      async (store) => {
+        store.saveChanges = vi.fn(store.saveChanges.bind(store))
 
-    await store.add({
-      id: 1,
-      dateValue: new Date(),
-      stringValue1: 'alma',
-      stringValue2: 'korte',
-      booleanValue: false,
-      numberValue1: 1,
-      numberValue2: 2,
-    })
-    await sleepAsync(501)
-    expect(store.saveChanges).toHaveBeenCalled()
-
-    await store[Symbol.asyncDispose]()
+        await store.add({
+          id: 1,
+          dateValue: new Date(),
+          stringValue1: 'alma',
+          stringValue2: 'korte',
+          booleanValue: false,
+          numberValue1: 1,
+          numberValue2: 2,
+        })
+        await sleepAsync(501)
+        expect(store.saveChanges).toHaveBeenCalled()
+      },
+    )
   })
 
   it('Should reload data from disk', async () => {
     const fileName = `filestore-test-${storeCount++}.json`
     storeNames.push(fileName)
-    const store = new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 })
-    await store.add({
-      id: 1,
-      dateValue: new Date(),
-      stringValue1: 'alma',
-      stringValue2: 'korte',
-      booleanValue: false,
-      numberValue1: 1,
-      numberValue2: 2,
-    })
-    await store.saveChanges()
-    await store.remove(1)
-    await store.reloadData()
-    const count = await store.count()
-    expect(count).toBe(1)
-    await store[Symbol.asyncDispose]()
+    await usingAsync(
+      new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id', tickMs: 500 }),
+      async (store) => {
+        await store.add({
+          id: 1,
+          dateValue: new Date(),
+          stringValue1: 'alma',
+          stringValue2: 'korte',
+          booleanValue: false,
+          numberValue1: 1,
+          numberValue2: 2,
+        })
+        await store.saveChanges()
+        await store.remove(1)
+        await store.reloadData()
+        const count = await store.count()
+        expect(count).toBe(1)
+      },
+    )
   })
 
   afterAll(async () => {
