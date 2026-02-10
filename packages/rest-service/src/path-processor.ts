@@ -12,7 +12,9 @@ export class PathProcessor {
     try {
       return new URL(url)
     } catch (error) {
-      throw new Error(`Invalid ${context}: ${url}${error instanceof Error ? ` (${error.message})` : ''}`)
+      throw new Error(`Invalid ${context}: ${url}${error instanceof Error ? ` (${error.message})` : ''}`, {
+        cause: error,
+      })
     }
   }
 
