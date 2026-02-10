@@ -1,3 +1,4 @@
+import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
@@ -33,15 +34,18 @@ describe('DataGrid', () => {
     fn: (ctx: {
       injector: Injector
       service: CollectionService<TestEntry>
-      findOptions: ObservableValue<any>
+      findOptions: ObservableValue<FindOptions<TestEntry, Array<keyof TestEntry>>>
     }) => Promise<void>,
     opts?: { createService?: () => CollectionService<TestEntry> },
   ) => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(opts?.createService?.() ?? createTestService(), async (service) => {
-        await usingAsync(new ObservableValue<any>({}), async (findOptions) => {
-          await fn({ injector, service, findOptions })
-        })
+        await usingAsync(
+          new ObservableValue<FindOptions<TestEntry, Array<keyof TestEntry>>>({}),
+          async (findOptions) => {
+            await fn({ injector, service, findOptions })
+          },
+        )
       })
     })
   }
