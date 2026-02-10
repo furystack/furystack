@@ -196,6 +196,18 @@ describe('ResourceManager', () => {
     expect(disposable[Symbol.dispose]).toHaveBeenCalledTimes(1)
   })
 
+  it('Should silently ignore useState setter calls after disposal', async () => {
+    let setValueFn: (value: number) => void
+
+    await usingAsync(new ResourceManager(), async (rm) => {
+      const [, setValue] = rm.useState<number>('count', 0, vi.fn())
+      setValueFn = setValue
+    })
+
+    // After disposal, calling the setter should not throw
+    expect(() => setValueFn!(42)).not.toThrow()
+  })
+
   it('Should throw an aggregated error when failed to async dispose something', async () => {
     const disposable = {
       [Symbol.asyncDispose]: vi.fn(async () => {
