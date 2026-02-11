@@ -53,6 +53,7 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Timeline', slug: 'timeline' },
       { label: 'Tooltip', slug: 'tooltip' },
       { label: 'Typography', slug: 'typography' },
+      { label: 'Cache View', slug: 'cache-view' },
     ],
   },
   {

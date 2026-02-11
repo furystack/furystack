@@ -21,6 +21,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@furystack/cache": "workspace:^",
     "@furystack/core": "workspace:^",
     "@furystack/i18n": "workspace:^",
     "@furystack/inject": "workspace:^",

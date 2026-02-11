@@ -143,7 +143,7 @@ describe('CacheView', () => {
     })
 
     it('should call cache.reload when retry is invoked', async () => {
-      const loadFn = vi.fn(async () => {
+      const loadFn = vi.fn<(key: string) => Promise<string>>(async () => {
         throw new Error('fail')
       })
       const cache = new Cache<string, [string]>({ load: loadFn })

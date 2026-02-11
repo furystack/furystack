@@ -454,6 +454,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/cache-view': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CacheViewPage } = await import('./pages/data-display/cache-view.js')
+                  return <CacheViewPage />
+                }}
+              />
+            ),
+          },
         },
       },
       '/navigation': {

@@ -60,7 +60,7 @@ export const CacheView: <TData, TArgs extends any[]>(
   props: CacheViewProps<TData, TArgs>,
 ) => JSX.Element = Shade({
   shadowDomName: 'shade-cache-view',
-  render: ({ props, useObservable, useState }) => {
+  render: ({ props, useObservable, useState }): JSX.Element | null => {
     const { cache, args, content, loader, error } = props as CacheViewProps<unknown, any[]>
 
     const argsKey = JSON.stringify(args)
@@ -92,7 +92,7 @@ export const CacheView: <TData, TArgs extends any[]>(
       }
       return createComponent(content as ShadeComponent<{ data: CacheWithValue<unknown> }>, {
         data: result,
-      })
+      }) as unknown as JSX.Element
     }
 
     // 3. Loading last
