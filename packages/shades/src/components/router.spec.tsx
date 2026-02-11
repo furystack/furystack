@@ -15,6 +15,93 @@ describe('Router', () => {
     document.body.innerHTML = ''
   })
 
+  it('should skip intermediate route when navigating rapidly (latest wins)', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      history.pushState(null, '', '/route-a')
+
+      const callOrder: string[] = []
+
+      const onVisitA = vi.fn(async () => {
+        callOrder.push('visit-a')
+      })
+      const onLeaveA = vi.fn(async () => {
+        callOrder.push('leave-a')
+      })
+      const onVisitB = vi.fn(async () => {
+        await sleepAsync(200)
+        callOrder.push('visit-b')
+      })
+      const onLeaveB = vi.fn(async () => {
+        callOrder.push('leave-b')
+      })
+      const onVisitC = vi.fn(async () => {
+        callOrder.push('visit-c')
+      })
+
+      const routeA: Route = {
+        url: '/route-a',
+        component: () => <div id="content">route-a</div>,
+        onVisit: onVisitA,
+        onLeave: onLeaveA,
+      }
+      const routeB: Route = {
+        url: '/route-b',
+        component: () => <div id="content">route-b</div>,
+        onVisit: onVisitB,
+        onLeave: onLeaveB,
+      }
+      const routeC: Route = {
+        url: '/route-c',
+        component: () => <div id="content">route-c</div>,
+        onVisit: onVisitC,
+      }
+
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <RouteLink id="go-a" href="/route-a">
+              a
+            </RouteLink>
+            <RouteLink id="go-b" href="/route-b">
+              b
+            </RouteLink>
+            <RouteLink id="go-c" href="/route-c">
+              c
+            </RouteLink>
+            <Router routes={[routeA, routeB, routeC]} />
+          </div>
+        ),
+      })
+
+      const getContent = () => document.getElementById('content')?.innerHTML
+      const clickOn = (name: string) => document.getElementById(name)?.click()
+
+      // --- Initial load at /route-a ---
+      await sleepAsync(100)
+      expect(getContent()).toBe('route-a')
+      expect(onVisitA).toHaveBeenCalledTimes(1)
+
+      // --- Rapid navigation: click B then immediately C ---
+      callOrder.length = 0
+      clickOn('go-b')
+      clickOn('go-c')
+
+      // Wait long enough for both transitions to settle
+      await sleepAsync(500)
+
+      // The final destination should be route-c
+      expect(getContent()).toBe('route-c')
+      expect(onVisitC).toHaveBeenCalledTimes(1)
+
+      // route-b's onVisit should have been abandoned
+      expect(callOrder).not.toContain('visit-b')
+    })
+  })
+
   it('Shuld display the loader and completed state', async () => {
     await usingAsync(new Injector(), async (injector) => {
       history.pushState(null, '', '/')

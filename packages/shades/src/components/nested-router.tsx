@@ -1,7 +1,6 @@
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 import type { MatchOptions, MatchResult } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
-import { Lock } from 'semaphore-async-await'
 import type { RenderOptions } from '../models/render-options.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent, setRenderMode } from '../shade-component.js'
@@ -178,7 +177,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
   shadowDomName: 'shade-nested-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
-    const [lock] = useState('lock', new Lock())
+    const [versionRef] = useState('navVersion', { current: 0 })
     const [state, setState] = useState<NestedRouterState>('routerState', {
       matchChain: [],
       jsx: <div />,
@@ -189,7 +188,6 @@ export const NestedRouter = Shade<NestedRouterProps>({
       const [lastState] = useState<NestedRouterState>('routerState', state)
       const { matchChain: lastChain, chainElements: lastChainElements } = lastState
       try {
-        await lock.acquire()
         const newChain = buildMatchChain(options.props.routes, currentUrl)
 
         if (newChain) {
@@ -201,9 +199,12 @@ export const NestedRouter = Shade<NestedRouterProps>({
             lastChainEntries.length !== newChain.length
 
           if (hasChanged) {
+            const version = ++versionRef.current
+
             // Call onLeave for routes that are being left (from divergence point to end of old chain)
             for (let i = lastChainEntries.length - 1; i >= divergeIndex; i--) {
               await lastChainEntries[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
+              if (version !== versionRef.current) return
             }
 
             let newResult: RenderMatchChainResult
@@ -213,18 +214,23 @@ export const NestedRouter = Shade<NestedRouterProps>({
             } finally {
               setRenderMode(false)
             }
+            if (version !== versionRef.current) return
             setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
 
             // Call onVisit for routes that are being entered (from divergence point to end of new chain)
             for (let i = divergeIndex; i < newChain.length; i++) {
               await newChain[i].route.onVisit?.({ ...options, element: newResult.chainElements[i] })
+              if (version !== versionRef.current) return
             }
           }
         } else if (lastChain !== null) {
+          const version = ++versionRef.current
+
           // No match found — call onLeave for all active routes and show notFound.
           // The null sentinel prevents re-entering this block on re-render.
           for (let i = (lastChain?.length ?? 0) - 1; i >= 0; i--) {
             await lastChain[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
+            if (version !== versionRef.current) return
           }
           setState({
             matchChain: null,
@@ -236,8 +242,6 @@ export const NestedRouter = Shade<NestedRouterProps>({
         if (!(e instanceof ObservableAlreadyDisposedError)) {
           throw e
         }
-      } finally {
-        lock?.release()
       }
     }
 
