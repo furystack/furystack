@@ -2,46 +2,22 @@
 
 # @furystack/cache
 
-<!--
-FORMATTING GUIDE:
-
-### Detailed Entry (appears first when merging)
-
-Use h3 (###) and below for detailed entries with paragraphs, code examples, and lists.
-
-### Simple List Items
-
-- Simple changes can be added as list items
-- They are collected together at the bottom of each section
-
-TIP: When multiple changelog drafts are merged, heading-based entries
-appear before simple list items within each section.
--->
-
-## ✨ Features
-
-<!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
-
 ## 🐛 Bug Fixes
 
-- Fixed `obsoleteRange()` throwing `CannotObsoleteUnloadedError` when the cache contains entries in non-loaded states (loading, failed, or uninitialized). Non-loaded entries are now skipped instead of attempting to set them as obsolete.
+- Fixed `obsoleteRange()` throwing `CannotObsoleteUnloadedError` when the cache contains entries in non-loaded states (loading or failed). Non-loaded entries are now skipped instead of attempting to mark them as obsolete.
+- Fixed `removeRange()` throwing when evaluating entries in non-loaded states. Non-loaded entries are now skipped instead of accessing `.value` on them.
+
+## ♻️ Refactoring
+
+- Replaced `CacheLockManager` (backed by `semaphore-async-await`) with a `pendingLoads` Map that deduplicates concurrent `get()` and `reload()` calls by reusing in-flight promises
+- Removed the `UninitializedCacheResult` state — new cache entries now start in `loading` state directly
+- Removed the exported `CacheLockManager` class
 
 ## 🧪 Tests
 
-- Added tests for `obsoleteRange()` verifying that entries in loading, failed, and uninitialized states are correctly skipped
-
-## 📦 Build
-
-<!-- PLACEHOLDER: Describe build system changes (build:) -->
-
-## 👷 CI
-
-<!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
+- Added tests verifying `obsoleteRange()` skips entries in `loading` and `failed` states without throwing
+- Added tests verifying `removeRange()` skips entries in `loading` and `failed` states without throwing
 
 ## ⬆️ Dependencies
 
-<!-- PLACEHOLDER: Describe dependency updates (deps:) -->
-
-## 🔧 Chores
-
-<!-- PLACEHOLDER: Describe other changes (chore:) -->
+- Removed `semaphore-async-await` dependency

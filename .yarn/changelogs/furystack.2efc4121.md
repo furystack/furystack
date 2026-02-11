@@ -2,42 +2,16 @@
 
 # furystack
 
-<!--
-FORMATTING GUIDE:
-
-### Detailed Entry (appears first when merging)
-
-Use h3 (###) and below for detailed entries with paragraphs, code examples, and lists.
-
-### Simple List Items
-
-- Simple changes can be added as list items
-- They are collected together at the bottom of each section
-
-TIP: When multiple changelog drafts are merged, heading-based entries
-appear before simple list items within each section.
--->
-
-## ✨ Features
-
-<!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
-
 ## 🐛 Bug Fixes
 
-- Fixed `obsoleteRange()` in `@furystack/cache` throwing when the cache contains entries in non-loaded states
+- Fixed `obsoleteRange()` and `removeRange()` in `@furystack/cache` throwing when the cache contains entries in non-loaded states
+- Fixed `Router` and `NestedRouter` in `@furystack/shades` not abandoning stale navigations during rapid route changes
+- Fixed `@furystack/sequelize-store` returning the wrong model instance after initialization
 
-## 📦 Build
+## ♻️ Refactoring
 
-<!-- PLACEHOLDER: Describe build system changes (build:) -->
-
-## 👷 CI
-
-<!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
+- Replaced `semaphore-async-await` with native promise deduplication across `@furystack/cache`, `@furystack/filesystem-store`, `@furystack/mongodb-store`, `@furystack/rest-service`, `@furystack/sequelize-store`, and `@furystack/shades`
 
 ## ⬆️ Dependencies
 
-<!-- PLACEHOLDER: Describe dependency updates (deps:) -->
-
-## 🔧 Chores
-
-<!-- PLACEHOLDER: Describe other changes (chore:) -->
+- Removed `semaphore-async-await` from all packages
