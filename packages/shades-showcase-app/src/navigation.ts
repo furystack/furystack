@@ -46,6 +46,7 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Avatar', slug: 'avatar' },
       { label: 'Badge', slug: 'badge' },
       { label: 'Breadcrumb', slug: 'breadcrumb' },
+      { label: 'Cache View', slug: 'cache-view' },
       { label: 'Carousel', slug: 'carousel' },
       { label: 'Chip', slug: 'chip' },
       { label: 'Icons', slug: 'icons' },

@@ -822,7 +822,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/cache@workspace:packages/cache":
+"@furystack/cache@workspace:^, @furystack/cache@workspace:packages/cache":
   version: 0.0.0-use.local
   resolution: "@furystack/cache@workspace:packages/cache"
   dependencies:
@@ -1008,6 +1008,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades-common-components@workspace:packages/shades-common-components"
   dependencies:
+    "@furystack/cache": "workspace:^"
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/shades": "workspace:^"
@@ -1071,6 +1072,7 @@ __metadata:
   resolution: "@furystack/shades-showcase-app@workspace:packages/shades-showcase-app"
   dependencies:
     "@codecov/vite-plugin": "npm:^1.9.1"
+    "@furystack/cache": "workspace:^"
     "@furystack/core": "workspace:^"
     "@furystack/i18n": "workspace:^"
     "@furystack/inject": "workspace:^"

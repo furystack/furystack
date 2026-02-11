@@ -46,7 +46,7 @@ describe('Skeleton', () => {
     vi.restoreAllMocks()
   })
 
-  it('should render with shadow DOM', async () => {
+  it('should render with correct initial state and default delay', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -60,40 +60,13 @@ describe('Skeleton', () => {
 
       const skeleton = document.querySelector('shade-skeleton')
       expect(skeleton).not.toBeNull()
-    })
-  })
 
-  it('should have initial opacity of 0', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
+      const skeletonDiv = document.querySelector('shade-skeleton div') as HTMLElement
+      expect(skeletonDiv).not.toBeNull()
 
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <Skeleton />,
-      })
-
-      await sleepAsync(50)
-
-      const skeleton = document.querySelector('shade-skeleton') as HTMLElement
-      expect(skeleton).not.toBeNull()
-
-      const computedStyle = window.getComputedStyle(skeleton)
+      const computedStyle = window.getComputedStyle(skeletonDiv)
       expect(computedStyle.opacity).toBe('0')
-    })
-  })
-
-  it('should use default delay of 1500ms', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <Skeleton />,
-      })
-
-      await sleepAsync(50)
+      expect(computedStyle.display).toBe('inline-block')
 
       const fadeInCall = animateCalls.find(
         (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'opacity' in kf),
@@ -122,26 +95,6 @@ describe('Skeleton', () => {
 
       expect(fadeInCall).toBeDefined()
       expect((fadeInCall?.options as KeyframeAnimationOptions)?.delay).toBe(500)
-    })
-  })
-
-  it('should have correct css styles applied', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <Skeleton />,
-      })
-
-      await sleepAsync(50)
-
-      const skeleton = document.querySelector('shade-skeleton') as HTMLElement
-      expect(skeleton).not.toBeNull()
-
-      const computedStyle = window.getComputedStyle(skeleton)
-      expect(computedStyle.display).toBe('inline-block')
     })
   })
 
@@ -175,7 +128,7 @@ describe('Skeleton', () => {
     })
   })
 
-  it('should start background animation after fade-in completes', async () => {
+  it('should start background animation with correct keyframes after fade-in completes', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -196,26 +149,6 @@ describe('Skeleton', () => {
       const options = backgroundAnimation?.options as KeyframeAnimationOptions
       expect(options.duration).toBe(10000)
       expect(options.iterations).toBe(Infinity)
-    })
-  })
-
-  it('should have gradient background animation keyframes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const rootElement = document.getElementById('root') as HTMLDivElement
-
-      initializeShadeRoot({
-        injector,
-        rootElement,
-        jsxElement: <Skeleton delay={0} />,
-      })
-
-      await sleepAsync(100)
-
-      const backgroundAnimation = animateCalls.find(
-        (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'backgroundPosition' in kf),
-      )
-
-      expect(backgroundAnimation).toBeDefined()
 
       const keyframes = backgroundAnimation?.keyframes as Keyframe[]
       expect(keyframes).toHaveLength(3)

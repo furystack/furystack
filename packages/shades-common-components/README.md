@@ -150,6 +150,32 @@ import { Tabs } from '@furystack/shades-common-components'
 />
 ```
 
+### CacheView
+
+Renders the state of a cache entry. Takes a `Cache` instance and `args`, subscribes to the observable, and handles loading, error (with retry), and loaded/obsolete states.
+
+```tsx
+import { CacheView } from '@furystack/shades-common-components'
+import type { CacheWithValue } from '@furystack/cache'
+
+const UserContent = Shade<{ data: CacheWithValue<User> }>({
+  shadowDomName: 'user-content',
+  render: ({ props }) => <div>{props.data.value.name}</div>,
+})
+
+// Basic usage
+<CacheView cache={userCache} args={[userId]} content={UserContent} />
+
+// With custom loader and error
+<CacheView
+  cache={userCache}
+  args={[userId]}
+  content={UserContent}
+  loader={<Skeleton />}
+  error={(err, retry) => <Alert severity="error"><Button onclick={retry}>Retry</Button></Alert>}
+/>
+```
+
 ### Loader
 
 A loading spinner component.

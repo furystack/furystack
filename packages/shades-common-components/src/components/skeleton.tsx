@@ -11,15 +11,6 @@ export type SkeletonProps = {
 
 export const Skeleton = Shade<SkeletonProps>({
   shadowDomName: 'shade-skeleton',
-  css: {
-    opacity: '0',
-    display: 'inline-block',
-    background: `linear-gradient(-45deg, color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 30%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent))`,
-    backgroundSize: '400% 400%',
-    width: '100%',
-    height: '100%',
-    minHeight: '1em',
-  },
   render: ({ props, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
     const { delay = 1500 } = props
@@ -49,8 +40,8 @@ export const Skeleton = Shade<SkeletonProps>({
         style={{
           opacity: '0',
           display: 'inline-block',
-          background: 'inherit',
-          backgroundSize: 'inherit',
+          background: `linear-gradient(-45deg, color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 30%, transparent), color-mix(in srgb, ${cssVariableTheme.text.secondary} 10%, transparent))`,
+          backgroundSize: '400% 400%',
           width: '100%',
           height: '100%',
           minHeight: '1em',
