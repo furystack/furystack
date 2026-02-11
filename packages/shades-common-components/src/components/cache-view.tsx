@@ -1,4 +1,4 @@
-import type { Cache, CacheResult, CacheWithValue } from '@furystack/cache'
+import type { Cache, CacheWithValue } from '@furystack/cache'
 import { hasCacheValue, isFailedCacheResult, isObsoleteCacheResult } from '@furystack/cache'
 import type { ShadeComponent } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
@@ -59,12 +59,12 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
 export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData, TArgs>) => JSX.Element = Shade({
   shadowDomName: 'shade-cache-view',
   render: ({ props, useObservable, useState }): JSX.Element | null => {
-    const { cache, args, content, loader, error } = props as CacheViewProps<unknown, any[]>
+    const { cache, args, content, loader, error } = props
 
     const argsKey = JSON.stringify(args)
     const observable = cache.getObservable(...args)
 
-    const [result] = useObservable<CacheResult<unknown>>(`cache-${argsKey}`, observable)
+    const [result] = useObservable(`cache-${argsKey}`, observable)
 
     const [lastReloadedArgsKey, setLastReloadedArgsKey] = useState<string | null>('lastReloadedArgsKey', null)
 
