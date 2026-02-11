@@ -82,11 +82,15 @@ export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData
 
     // 2. Value next
     if (hasCacheValue(result)) {
-      if (isObsoleteCacheResult(result) && lastReloadedArgsKey !== argsKey) {
-        setLastReloadedArgsKey(argsKey)
-        cache.reload(...args).catch(() => {
-          /* error state will be set by cache */
-        })
+      if (isObsoleteCacheResult(result)) {
+        if (lastReloadedArgsKey !== argsKey) {
+          setLastReloadedArgsKey(argsKey)
+          cache.reload(...args).catch(() => {
+            /* error state will be set by cache */
+          })
+        }
+      } else if (lastReloadedArgsKey !== null) {
+        setLastReloadedArgsKey(null)
       }
       return createComponent(content as ShadeComponent<{ data: CacheWithValue<unknown> }>, {
         data: result,
