@@ -122,9 +122,12 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public removeRange(predicate: (value: T, args: TArgs) => boolean) {
     ;[...this.store.entries()].forEach(([key, value]) => {
-      const currentValue = value.getValue().value
+      const currentState = value.getValue()
+      if (!isLoadedCacheResult(currentState)) {
+        return
+      }
       const args = JSON.parse(key) as TArgs
-      if (currentValue && predicate(currentValue, args)) {
+      if (predicate(currentState.value, args)) {
         this.remove(key)
       }
     })

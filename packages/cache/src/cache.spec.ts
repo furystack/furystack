@@ -105,6 +105,60 @@ describe('Cache', () => {
     })
   })
 
+  it('Should skip entries in loading state when calling removeRange', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      await cache.get(1, 2)
+      cache.setExplicitValue({
+        loadArgs: [3, 4],
+        value: { status: 'loading', value: 7, updatedAt: new Date() },
+      })
+      expect(cache.getCount()).toEqual(2)
+
+      cache.removeRange(() => true)
+
+      expect(cache.getCount()).toEqual(1)
+      expect(cache.has(3, 4)).toEqual(true)
+    })
+  })
+
+  it('Should skip entries in failed state when calling removeRange', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      await cache.get(1, 2)
+      cache.setExplicitValue({
+        loadArgs: [3, 4],
+        value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
+      })
+      expect(cache.getCount()).toEqual(2)
+
+      cache.removeRange(() => true)
+
+      expect(cache.getCount()).toEqual(1)
+      expect(cache.has(3, 4)).toEqual(true)
+    })
+  })
+
+  it('Should skip entries in uninitialized state when calling removeRange', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      await cache.get(1, 2)
+      cache.setExplicitValue({
+        loadArgs: [3, 4],
+        value: { status: 'uninitialized', updatedAt: new Date() },
+      })
+      expect(cache.getCount()).toEqual(2)
+
+      cache.removeRange(() => true)
+
+      expect(cache.getCount()).toEqual(1)
+      expect(cache.has(3, 4)).toEqual(true)
+    })
+  })
+
   it('Should remove all values from the cache', async () => {
     await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
       await cache.get(1, 2)
