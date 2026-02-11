@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.1] - 2026-02-11
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+- Updated `@furystack/shades` dependency
+- Updated internal dependencies
+- Updated `@furystack/shades` with fix for `useState` setter disposal error
+
 ## [2.0.0] - 2026-02-09
 
 ### ⬆️ Dependencies

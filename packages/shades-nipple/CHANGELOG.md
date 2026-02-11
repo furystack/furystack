@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.0.1] - 2026-02-11
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Updated `@furystack/shades` dependency
+- Updated internal dependencies
+- Updated `@furystack/shades` with fix for `useState` setter disposal error
+
 ## [8.0.0] - 2026-02-09
 
 ### ⬆️ Dependencies

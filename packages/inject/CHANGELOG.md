@@ -1,5 +1,12 @@
 # Changelog
 
+## [12.0.30] - 2026-02-11
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Updated internal dependencies
+
 ## [12.0.29] - 2026-02-09
 
 ### 🧪 Tests

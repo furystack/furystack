@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-02-11
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+
 ## [1.0.2] - 2026-02-01
 
 ### 📚 Documentation

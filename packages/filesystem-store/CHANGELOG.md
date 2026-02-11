@@ -1,5 +1,21 @@
 # Changelog
 
+## [7.0.36] - 2026-02-11
+
+### ♻️ Refactoring
+
+- Removed semaphore-based file locking from all store operations (`get`, `add`, `find`, `count`, `remove`, `update`, `saveChanges`, `reloadData`). Operations now delegate directly to the in-memory store without lock wrapping.
+
+### 🧪 Tests
+
+- Wrapped `FileSystemStore` instances in `usingAsync()` to ensure cleanup runs even when assertions fail
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+- Removed `semaphore-async-await` dependency
+
 ## [7.0.35] - 2026-02-09
 
 ### ⬆️ Dependencies

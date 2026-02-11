@@ -1,5 +1,31 @@
 # Changelog
 
+## [8.0.1] - 2026-02-11
+
+### 🐛 Bug Fixes
+
+- Fixed `obsoleteRange()` and `removeRange()` in `@furystack/cache` throwing when the cache contains entries in non-loaded states
+- Fixed `Router` and `NestedRouter` in `@furystack/shades` not abandoning stale navigations during rapid route changes
+- Fixed `@furystack/sequelize-store` returning the wrong model instance after initialization
+
+### ♻️ Refactoring
+
+- Replaced `semaphore-async-await` with native promise deduplication across `@furystack/cache`, `@furystack/filesystem-store`, `@furystack/mongodb-store`, `@furystack/rest-service`, `@furystack/sequelize-store`, and `@furystack/shades`
+
+### ⬆️ Dependencies
+
+- Bump `eslint` from `^9.39.2` to `^10.0.0`
+- Bump `@eslint/js` from `^9.39.2` to `^10.0.1`
+- Bump `jsdom` from `^27.4.0` to `^28.0.0`
+- Bump `typescript-eslint` from `^8.53.1` to `^8.55.0`
+- Bump `eslint-plugin-jsdoc` from `^62.3.0` to `^62.5.4`
+- Bump `eslint-plugin-playwright` from `^2.5.0` to `^2.5.1`
+- Bump `ts-json-schema-generator` from `^2.4.0` to `^2.5.0`
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@vitest/coverage-istanbul` from `^4.0.17` to `^4.0.18`
+- Removed `semaphore-async-await` from all packages
+- Updated internal dependencies
+
 ## [8.0.0] - 2026-02-09
 
 ### 🔧 Chores

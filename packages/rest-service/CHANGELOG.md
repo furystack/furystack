@@ -1,5 +1,23 @@
 # Changelog
 
+## [11.0.4] - 2026-02-11
+
+### 🐛 Bug Fixes
+
+- Preserve original error cause in `PathProcessor.validateUrl()` using `{ cause: error }` for better error traceability
+
+### ♻️ Refactoring
+
+- Replaced semaphore-based server creation lock with a `pendingCreates` Map for deduplicating concurrent `getOrCreate()` calls. In-flight server creation promises are now reused instead of serialized behind a semaphore.
+- Simplified `[Symbol.asyncDispose]()` — disposal now awaits pending server creations directly instead of waiting on a semaphore lock with a timeout.
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+- Removed `semaphore-async-await` dependency
+- Updated internal dependencies
+
 ## [11.0.3] - 2026-02-09
 
 ### ⬆️ Dependencies

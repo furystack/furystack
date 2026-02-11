@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.0.37] - 2026-02-11
+
+### ♻️ Refactoring
+
+- Replaced semaphore-based initialization lock with promise deduplication for MongoDB collection setup. Concurrent calls to `getCollection()` now reuse a single in-flight initialization promise instead of queuing behind a semaphore. On initialization failure, the promise is reset to allow retry.
+
+### ⬆️ Dependencies
+
+- Bump `mongodb` from `7.0.0` to `7.1.0`
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+- Removed `semaphore-async-await` dependency
+- Updated internal dependencies
+
 ## [10.0.36] - 2026-02-09
 
 ### ⬆️ Dependencies

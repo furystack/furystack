@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-i18n",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {

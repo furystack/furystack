@@ -1,5 +1,18 @@
 # Changelog
 
+## [12.0.1] - 2026-02-11
+
+### 🧪 Tests
+
+- Wrapped all disposable resources in `using()` / `usingAsync()` across command palette, context menu, data grid, click-away service, list service, and tree service tests to ensure cleanup runs even when assertions fail
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Updated `@furystack/shades` dependency
+- Removed `semaphore-async-await` dependency
+- Updated `@furystack/shades` with fix for `useState` setter disposal error
+
 ## [12.0.0] - 2026-02-09
 
 ### 💥 Breaking Changes

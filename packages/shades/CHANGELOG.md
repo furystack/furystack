@@ -1,5 +1,26 @@
 # Changelog
 
+## [12.0.1] - 2026-02-11
+
+### 🐛 Bug Fixes
+
+- Fixed `Router` and `NestedRouter` not abandoning stale navigations when routes change rapidly. Previously, a semaphore-based lock serialized navigations, allowing intermediate `onVisit`/`onLeave` callbacks to complete even after a newer navigation had been triggered. Now a version counter detects when a newer navigation has started and aborts the stale one, ensuring only the latest destination's lifecycle callbacks execute.
+- Fixed `useState` setter throwing `ObservableAlreadyDisposedError` when called after component unmount (e.g. from async callbacks like image `onerror` or `fetch` responses that resolve after the component is removed from the DOM)
+
+### 🧪 Tests
+
+- Added tests for `Router` verifying that rapid navigation (e.g. clicking route B then immediately route C) skips intermediate route callbacks
+- Added tests for `NestedRouter` verifying that rapid navigation abandons stale `onVisit` callbacks
+- Added test verifying `useState` setter silently ignores calls after disposal
+
+### ⬆️ Dependencies
+
+- Bump `jsdom` from `^27.4.0` to `^28.0.0`
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Bump `@types/node` from `^25.0.10` to `^25.2.3`
+- Removed `semaphore-async-await` dependency
+- Updated internal dependencies
+
 ## [12.0.0] - 2026-02-09
 
 ### 📝 Documentation

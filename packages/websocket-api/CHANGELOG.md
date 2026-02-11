@@ -1,5 +1,13 @@
 # Changelog
 
+## [13.1.8] - 2026-02-11
+
+### ⬆️ Dependencies
+
+- Bump `vitest` from `^4.0.17` to `^4.0.18`
+- Updated `@furystack/rest-service` dependency
+- Updated internal dependencies
+
 ## [13.1.7] - 2026-02-09
 
 ### ⬆️ Dependencies
