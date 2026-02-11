@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.0.2] - 2026-02-11
+
+### ✨ Features
+
+- New page for the new `<CacheView />` component
+
+### ⬆️ Dependencies
+
+- Added `@furystack/cache` (workspace:^) as a new dependency
+
 ## [8.0.1] - 2026-02-11
 
 ### ⬆️ Dependencies

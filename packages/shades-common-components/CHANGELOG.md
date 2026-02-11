@@ -1,5 +1,48 @@
 # Changelog
 
+## [12.1.0] - 2026-02-11
+
+### ✨ Features
+
+### New `CacheView` component
+
+Added a new `CacheView` component that renders the state of a cache entry. It subscribes to a `Cache` instance observable and handles all states automatically:
+
+1. **Error first** — shows error UI with a retry button
+2. **Value next** — renders the content component (triggers reload when obsolete)
+3. **Loading last** — shows a custom loader or nothing by default
+
+```tsx
+import { CacheView } from '@furystack/shades-common-components'
+
+<CacheView cache={userCache} args={[userId]} content={UserContent} />
+
+// With custom loader and error UI
+<CacheView
+  cache={userCache}
+  args={[userId]}
+  content={UserContent}
+  loader={<Skeleton />}
+  error={(err, retry) => (
+    <Alert severity="error">
+      <Button onclick={retry}>Retry</Button>
+    </Alert>
+  )}
+/>
+```
+
+### 🐛 Bug Fixes
+
+- Fixed `Skeleton` component background styles not rendering correctly when used inside Shadow DOM — moved gradient styles from host CSS to inline styles on the inner element
+
+### 📚 Documentation
+
+- Added `CacheView` usage examples to the package README
+
+### ⬆️ Dependencies
+
+- Added `@furystack/cache` (workspace:^) as a new dependency
+
 ## [12.0.1] - 2026-02-11
 
 ### 🧪 Tests

@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.2] - 2026-02-11
+
+### 📚 Documentation
+
+- Added Cursor rules for cache state handling in UI (`CACHE_HANDLING.md`)
+
 ## [8.0.1] - 2026-02-11
 
 ### 🐛 Bug Fixes
