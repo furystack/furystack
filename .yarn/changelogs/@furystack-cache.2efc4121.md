@@ -1,6 +1,12 @@
-<!-- version-type: patch -->
+<!-- version-type: major -->
 
 # @furystack/cache
+
+## 💥 Breaking Changes
+
+- Removed the exported `CacheLockManager` class — if you imported it directly, remove the import (no replacement needed, locking is now handled internally)
+- Removed the `UninitializedCacheResult` type from the `CacheResult` union — replace `status === 'uninitialized'` checks with `status === 'loading'`
+- Cache entries now start in `loading` state instead of `uninitialized`
 
 ## 🐛 Bug Fixes
 
@@ -10,8 +16,6 @@
 ## ♻️ Refactoring
 
 - Replaced `CacheLockManager` (backed by `semaphore-async-await`) with a `pendingLoads` Map that deduplicates concurrent `get()` and `reload()` calls by reusing in-flight promises
-- Removed the `UninitializedCacheResult` state — new cache entries now start in `loading` state directly
-- Removed the exported `CacheLockManager` class
 
 ## 🧪 Tests
 

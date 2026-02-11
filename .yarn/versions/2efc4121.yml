@@ -1,6 +1,6 @@
 releases:
   "@furystack/auth-google": patch
-  "@furystack/cache": patch
+  "@furystack/cache": major
   "@furystack/filesystem-store": patch
   "@furystack/mongodb-store": patch
   "@furystack/rest-service": patch

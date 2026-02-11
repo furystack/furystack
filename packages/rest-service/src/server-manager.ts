@@ -83,37 +83,38 @@ export class ServerManager
   }
 
   private async createServer(url: string, options: ServerOptions): Promise<ServerRecord> {
+    const apis: ServerRecord['apis'] = []
+    const server = createServer((req, res) => {
+      const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
+      if (apiMatch) {
+        apiMatch.onRequest({ req, res }).catch((error) => {
+          this.emit('onRequestFailed', [error, req, res])
+        })
+      } else {
+        res.destroy()
+      }
+    })
+    server.on('upgrade', (req, socket, head) => {
+      const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
+      if (apiMatch?.onUpgrade) {
+        apiMatch.onUpgrade({ req, socket, head }).catch((error) => {
+          this.emit('onRequestFailed', [error, req, {} as ServerResponse])
+          socket.destroy()
+        })
+      } else {
+        socket.destroy()
+      }
+    })
+    server.on('connection', this.onConnection)
     try {
       await new Promise<void>((resolve, reject) => {
-        const apis: ServerRecord['apis'] = []
-        const server = createServer((req, res) => {
-          const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
-          if (apiMatch) {
-            apiMatch.onRequest({ req, res }).catch((error) => {
-              this.emit('onRequestFailed', [error, req, res])
-            })
-          } else {
-            res.destroy()
-          }
-        })
-        server.on('upgrade', (req, socket, head) => {
-          const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
-          if (apiMatch?.onUpgrade) {
-            apiMatch.onUpgrade({ req, socket, head }).catch((error) => {
-              this.emit('onRequestFailed', [error, req, {} as ServerResponse])
-              socket.destroy()
-            })
-          } else {
-            socket.destroy()
-          }
-        })
-        server.on('connection', this.onConnection)
         server.on('listening', () => resolve())
         server.on('error', (err) => reject(err))
         server.listen(options.port, options.hostName)
-        this.servers.set(url, { server, apis })
       })
-      return this.servers.get(url) as ServerRecord
+      const record: ServerRecord = { server, apis }
+      this.servers.set(url, record)
+      return record
     } finally {
       this.pendingCreates.delete(url)
     }

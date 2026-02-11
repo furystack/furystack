@@ -78,7 +78,17 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
 
     const loadPromise = this.loadEntry(index, args)
     this.pendingLoads.set(index, loadPromise)
+    loadPromise.then(
+      () => this.cleanupPendingLoad(index, loadPromise),
+      () => this.cleanupPendingLoad(index, loadPromise),
+    )
     return loadPromise
+  }
+
+  private cleanupPendingLoad(index: string, promise: Promise<TData>) {
+    if (this.pendingLoads.get(index) === promise) {
+      this.pendingLoads.delete(index)
+    }
   }
 
   private async loadEntry(index: string, args: TArgs): Promise<TData> {
@@ -107,8 +117,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error
-    } finally {
-      this.pendingLoads.delete(index)
     }
   }
 
@@ -120,6 +128,10 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     const index = this.getIndex(...args)
     const loadPromise = this.reloadEntry(index, args)
     this.pendingLoads.set(index, loadPromise)
+    loadPromise.then(
+      () => this.cleanupPendingLoad(index, loadPromise),
+      () => this.cleanupPendingLoad(index, loadPromise),
+    )
     return loadPromise
   }
 
@@ -132,8 +144,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error
-    } finally {
-      this.pendingLoads.delete(index)
     }
   }
 

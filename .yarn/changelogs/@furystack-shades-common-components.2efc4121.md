@@ -5,3 +5,4 @@
 ## ⬆️ Dependencies
 
 - Updated `@furystack/shades` dependency
+- Removed `semaphore-async-await` dependency
