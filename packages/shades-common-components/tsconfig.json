@@ -10,5 +10,11 @@
     "jsxFragmentFactory": "createComponent"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../shades" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../cache" },
+    { "path": "../core" },
+    { "path": "../inject" },
+    { "path": "../shades" },
+    { "path": "../utils" }
+  ]
 }
