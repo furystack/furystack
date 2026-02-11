@@ -901,7 +901,6 @@ __metadata:
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^25.2.3"
     mongodb: "npm:7.1.0"
-    semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.0.18"
   languageName: unknown
@@ -960,7 +959,6 @@ __metadata:
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
     path-to-regexp: "npm:^8.3.0"
-    semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.0.18"
     ws: "npm:^8.19.0"
@@ -1000,7 +998,6 @@ __metadata:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^25.2.3"
-    semaphore-async-await: "npm:^1.5.1"
     sequelize: "npm:^6.37.7"
     sqlite3: "npm:5.1.7"
     typescript: "npm:^5.9.3"
@@ -1017,7 +1014,6 @@ __metadata:
     "@furystack/shades": "workspace:^"
     "@furystack/utils": "workspace:^"
     path-to-regexp: "npm:^8.3.0"
-    semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.0.18"
   languageName: unknown

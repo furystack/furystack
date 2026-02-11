@@ -10,7 +10,6 @@ import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, UpdateFilter } from 'mongodb'
 import { ObjectId } from 'mongodb'
-import { Lock } from 'semaphore-async-await'
 
 // Improved type safety for hasObjectId
 const hasObjectId = <T extends { _id?: unknown }>(value: T): value is T & { _id: ObjectId } => {
@@ -34,7 +33,7 @@ export class MongodbStore<
 {
   public readonly primaryKey: TPrimaryKey
   public readonly model: Constructable<T>
-  private initLock = new Lock()
+  private initPromise: Promise<Collection<T>> | null = null
   private collection?: Collection<T>
 
   private createIdFilter(...values: Array<T[TPrimaryKey]>): Filter<T> {
@@ -87,10 +86,13 @@ export class MongodbStore<
     if (this.collection) {
       return this.collection
     }
-    await this.initLock.acquire()
-    if (this.collection) {
-      return this.collection
+    if (!this.initPromise) {
+      this.initPromise = this.initializeCollection()
     }
+    return this.initPromise
+  }
+
+  private async initializeCollection(): Promise<Collection<T>> {
     try {
       const client = this.options.mongoClient()
       const collection = client.db(this.options.db).collection<T>(this.options.collection)
@@ -99,8 +101,9 @@ export class MongodbStore<
       }
       this.collection = collection
       return collection
-    } finally {
-      this.initLock.release()
+    } catch (error) {
+      this.initPromise = null
+      throw error
     }
   }
 

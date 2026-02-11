@@ -41,7 +41,6 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "semaphore-async-await": "^1.5.1",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {

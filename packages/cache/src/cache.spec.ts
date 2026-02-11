@@ -1,6 +1,6 @@
 import { sleepAsync, using, usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Cache } from './cache.js'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
     using(new Cache({ load: () => Promise.resolve(1) }), () => {
