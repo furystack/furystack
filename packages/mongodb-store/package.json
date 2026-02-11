@@ -41,8 +41,7 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "7.1.0",
-    "semaphore-async-await": "^1.5.1"
+    "mongodb": "7.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

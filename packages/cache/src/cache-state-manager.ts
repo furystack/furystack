@@ -26,7 +26,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public getObservable(
     key: string,
-    initialState: CacheResult<T> = { status: 'uninitialized', updatedAt: new Date() },
+    initialState: CacheResult<T> = { status: 'loading', updatedAt: new Date() },
   ): ObservableValue<CacheResult<T>> {
     const oldValue = this.store.get(key)
     if (oldValue) {
@@ -109,9 +109,12 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public obsoleteRange(predicate: (value: T, args: TArgs) => boolean) {
     ;[...this.store.entries()].forEach(([key, value]) => {
-      const currentValue = value.getValue().value
+      const currentState = value.getValue()
+      if (!isLoadedCacheResult(currentState)) {
+        return
+      }
       const args = JSON.parse(key) as TArgs
-      if (currentValue && predicate(currentValue, args)) {
+      if (predicate(currentState.value, args)) {
         this.setObsoleteState(key)
       }
     })
@@ -119,9 +122,12 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public removeRange(predicate: (value: T, args: TArgs) => boolean) {
     ;[...this.store.entries()].forEach(([key, value]) => {
-      const currentValue = value.getValue().value
+      const currentState = value.getValue()
+      if (!isLoadedCacheResult(currentState)) {
+        return
+      }
       const args = JSON.parse(key) as TArgs
-      if (currentValue && predicate(currentValue, args)) {
+      if (predicate(currentState.value, args)) {
         this.remove(key)
       }
     })

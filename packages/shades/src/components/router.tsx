@@ -1,7 +1,6 @@
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 import type { MatchOptions, MatchResult } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
-import { Lock } from 'semaphore-async-await'
 import type { RenderOptions } from '../models/render-options.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
@@ -46,7 +45,7 @@ export const Router = Shade<RouterProps>({
   shadowDomName: 'shade-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
-    const [lock] = useState('lock', new Lock())
+    const [versionRef] = useState('navVersion', { current: 0 })
     const [state, setState] = useState<RouterState>('routerState', {
       jsx: <div />,
     })
@@ -55,23 +54,27 @@ export const Router = Shade<RouterProps>({
       const [lastState] = useState<RouterState>('routerState', state)
       const { activeRoute: lastRoute, activeRouteParams: lastRouteParams, jsx: lastJsx } = lastState
       try {
-        await lock.acquire()
         for (const route of options.props.routes) {
           const matchFn = match(route.url, route.routingOptions)
           const matchResult = matchFn(currentUrl)
           if (matchResult) {
             if (route !== lastRoute || JSON.stringify(lastRouteParams) !== JSON.stringify(matchResult.params)) {
+              const version = ++versionRef.current
               await lastRoute?.onLeave?.({ ...options, element: lastState.jsx })
+              if (version !== versionRef.current) return
               const newJsx = route.component({ currentUrl, match: matchResult })
               setState({ jsx: newJsx, activeRoute: route, activeRouteParams: matchResult.params })
               await route.onVisit?.({ ...options, element: newJsx })
+              if (version !== versionRef.current) return
             }
             return
           }
         }
 
         if (lastRoute !== null) {
+          const version = ++versionRef.current
           await lastRoute?.onLeave?.({ ...options, element: lastJsx })
+          if (version !== versionRef.current) return
           setState({
             jsx: options.props.notFound || <div />,
             activeRoute: null,
@@ -79,12 +82,9 @@ export const Router = Shade<RouterProps>({
           })
         }
       } catch (e) {
-        // path updates can be async, this can be ignored
         if (!(e instanceof ObservableAlreadyDisposedError)) {
           throw e
         }
-      } finally {
-        lock?.release()
       }
     }
 

@@ -1,4 +1,3 @@
-import { CacheLockManager } from './cache-lock-manager.js'
 import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
@@ -32,13 +31,16 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     this.stateManager = new CacheStateManager<TData, TArgs>({ capacity: this.options.capacity })
   }
 
-  private readonly cacheLockManager = new CacheLockManager()
+  /**
+   * Stores in-flight load promises by cache key to deduplicate concurrent loads
+   */
+  private readonly pendingLoads = new Map<string, Promise<TData>>()
 
   /**
    * Disposes the cache
    */
   public [Symbol.dispose]() {
-    this.cacheLockManager[Symbol.dispose]()
+    this.pendingLoads.clear()
     this.stateManager[Symbol.dispose]()
   }
 
@@ -68,12 +70,29 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     if (fromCache && isLoadedCacheResult(fromCache)) {
       return fromCache.value
     }
+
+    const pending = this.pendingLoads.get(index)
+    if (pending) {
+      return pending
+    }
+
+    const loadPromise = this.loadEntry(index, args)
+    this.pendingLoads.set(index, loadPromise)
+    loadPromise.then(
+      () => this.cleanupPendingLoad(index, loadPromise),
+      () => this.cleanupPendingLoad(index, loadPromise),
+    )
+    return loadPromise
+  }
+
+  private cleanupPendingLoad(index: string, promise: Promise<TData>) {
+    if (this.pendingLoads.get(index) === promise) {
+      this.pendingLoads.delete(index)
+    }
+  }
+
+  private async loadEntry(index: string, args: TArgs): Promise<TData> {
     try {
-      await this.cacheLockManager.acquireLock(index)
-      const newCached = observable.getValue()
-      if (isLoadedCacheResult(newCached)) {
-        return newCached.value
-      }
       this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
@@ -98,20 +117,26 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error
-    } finally {
-      this.cacheLockManager.releaseLock(index)
     }
   }
 
   /**
-   *
    * @param args The arguments for getting the entity
    * @returns The reloaded result
    */
   public async reload(...args: TArgs) {
     const index = this.getIndex(...args)
+    const loadPromise = this.reloadEntry(index, args)
+    this.pendingLoads.set(index, loadPromise)
+    loadPromise.then(
+      () => this.cleanupPendingLoad(index, loadPromise),
+      () => this.cleanupPendingLoad(index, loadPromise),
+    )
+    return loadPromise
+  }
+
+  private async reloadEntry(index: string, args: TArgs): Promise<TData> {
     try {
-      await this.cacheLockManager.acquireLock(index)
       this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
@@ -119,8 +144,6 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
     } catch (error) {
       this.stateManager.setFailedState(index, error)
       throw error
-    } finally {
-      this.cacheLockManager.releaseLock(index)
     }
   }
 
@@ -163,14 +186,14 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   public getObservable(...args: TArgs) {
     const index = this.getIndex(...args)
     const observable = this.stateManager.getObservable(index)
-    if (observable.getValue().status === 'uninitialized') {
+    if (observable.getValue().status === 'loading' && !this.pendingLoads.has(index)) {
       this.get(...args)
         .then(() => {
           /** */
         })
         .catch(() => {
           /** */
-        }) // Trigger reload if needed
+        })
     }
     return observable
   }

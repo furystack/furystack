@@ -41,8 +41,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/inject": "workspace:^",
-    "@furystack/utils": "workspace:^",
-    "semaphore-async-await": "^1.5.1"
+    "@furystack/utils": "workspace:^"
   },
   "engines": {
     "node": ">=22.0.0"

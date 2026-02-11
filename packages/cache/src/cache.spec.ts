@@ -1,6 +1,6 @@
 import { sleepAsync, using, usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Cache } from './cache.js'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 describe('Cache', () => {
   it('should be constructed and disposed', () => {
     using(new Cache({ load: () => Promise.resolve(1) }), () => {
@@ -11,7 +11,7 @@ describe('Cache', () => {
   it('Should return values as observables', async () => {
     await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
       const obs = cache.getObservable(1, 2)
-      expect(obs.getValue().status).toEqual('uninitialized')
+      expect(obs.getValue().status).toEqual('loading')
 
       await sleepAsync(10)
 
@@ -24,7 +24,7 @@ describe('Cache', () => {
     const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
     await usingAsync(new Cache({ load: loader }), async (cache) => {
       const obs = cache.getObservable(1, 2)
-      expect(obs.getValue().status).toEqual('uninitialized')
+      expect(obs.getValue().status).toEqual('loading')
 
       const result = await cache.get(1, 2)
       expect(result).toEqual(3)
@@ -102,6 +102,42 @@ describe('Cache', () => {
       expect(cache.getCount()).toEqual(2)
       cache.removeRange((v) => v === 3)
       expect(cache.getCount()).toEqual(1)
+    })
+  })
+
+  it('Should skip entries in loading state when calling removeRange', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      await cache.get(1, 2)
+      cache.setExplicitValue({
+        loadArgs: [3, 4],
+        value: { status: 'loading', value: 7, updatedAt: new Date() },
+      })
+      expect(cache.getCount()).toEqual(2)
+
+      cache.removeRange(() => true)
+
+      expect(cache.getCount()).toEqual(1)
+      expect(cache.has(3, 4)).toEqual(true)
+    })
+  })
+
+  it('Should skip entries in failed state when calling removeRange', async () => {
+    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+    await usingAsync(new Cache({ load: loader }), async (cache) => {
+      await cache.get(1, 2)
+      cache.setExplicitValue({
+        loadArgs: [3, 4],
+        value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
+      })
+      expect(cache.getCount()).toEqual(2)
+
+      cache.removeRange(() => true)
+
+      expect(cache.getCount()).toEqual(1)
+      expect(cache.has(3, 4)).toEqual(true)
     })
   })
 
@@ -303,6 +339,46 @@ describe('Cache', () => {
         expect(result2).toEqual(3)
 
         expect(loader).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('Should skip entries in loading state when calling obsoleteRange', async () => {
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await cache.get(1, 2)
+        cache.setExplicitValue({
+          loadArgs: [3, 4],
+          value: { status: 'loading', value: 7, updatedAt: new Date() },
+        })
+
+        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
+
+        const loadedEntry = cache.getObservable(1, 2).getValue()
+        expect(loadedEntry.status).toEqual('obsolete')
+
+        const loadingEntry = cache.getObservable(3, 4).getValue()
+        expect(loadingEntry.status).toEqual('loading')
+      })
+    })
+
+    it('Should skip entries in failed state when calling obsoleteRange', async () => {
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await cache.get(1, 2)
+        cache.setExplicitValue({
+          loadArgs: [3, 4],
+          value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
+        })
+
+        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
+
+        const loadedEntry = cache.getObservable(1, 2).getValue()
+        expect(loadedEntry.status).toEqual('obsolete')
+
+        const failedEntry = cache.getObservable(3, 4).getValue()
+        expect(failedEntry.status).toEqual('failed')
       })
     })
   })

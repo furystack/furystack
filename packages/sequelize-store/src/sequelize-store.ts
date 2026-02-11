@@ -8,7 +8,6 @@ import type {
 } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
-import { Lock } from 'semaphore-async-await'
 import type { FindAttributeOptions, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
@@ -57,7 +56,7 @@ export class SequelizeStore<
 
   public readonly sequelizeModel: ModelStatic<M>
 
-  private initLock = new Lock()
+  private initPromise: Promise<ModelStatic<M>> | null = null
 
   private initializedModel?: ModelStatic<M>
 
@@ -65,10 +64,13 @@ export class SequelizeStore<
     if (this.initializedModel) {
       return this.initializedModel
     }
-    await this.initLock.acquire()
-    if (this.initializedModel) {
-      return this.initializedModel
+    if (!this.initPromise) {
+      this.initPromise = this.initializeModel()
     }
+    return this.initPromise
+  }
+
+  private async initializeModel(): Promise<ModelStatic<M>> {
     try {
       const client = this.options.getSequelizeClient()
 
@@ -79,10 +81,11 @@ export class SequelizeStore<
 
       const model = client.model(this.options.sequelizeModel.name) as ModelStatic<M>
 
-      this.initializedModel = this.sequelizeModel
+      this.initializedModel = model
       return model
-    } finally {
-      this.initLock.release()
+    } catch (error) {
+      this.initPromise = null
+      throw error
     }
   }
 

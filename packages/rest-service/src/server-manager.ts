@@ -3,7 +3,6 @@ import { EventHub } from '@furystack/utils'
 import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
-import { Lock } from 'semaphore-async-await'
 import type { Duplex } from 'stream'
 
 export interface ServerOptions {
@@ -41,7 +40,7 @@ export class ServerManager
   public static DEFAULT_HOST = 'localhost'
   public servers = new Map<string, ServerRecord>()
   private openedSockets = new Set<Socket>()
-  private readonly listenLock = new Lock()
+  private readonly pendingCreates = new Map<string, Promise<ServerRecord>>()
   private getHostUrl = (options: ServerOptions) =>
     `http://${options.hostName || ServerManager.DEFAULT_HOST}:${options.port}`
 
@@ -50,65 +49,74 @@ export class ServerManager
     socket.once('close', () => this.openedSockets.delete(socket))
   }
   public async [Symbol.asyncDispose]() {
-    try {
-      await this.listenLock.waitFor(5000)
-    } finally {
-      this.openedSockets.forEach((s) => s.destroy())
-      await Promise.allSettled(
-        [...this.servers.values()].map(
-          (s) =>
-            new Promise<void>((resolve, reject) => {
-              s.server.close((err) => (err ? reject(err) : resolve()))
-              s.server.off('connection', this.onConnection)
-            }),
-        ),
-      )
-      this.servers.clear()
-      this.listenLock.release()
-      super[Symbol.dispose]?.()
-    }
+    await Promise.allSettled([...this.pendingCreates.values()])
+    this.openedSockets.forEach((s) => s.destroy())
+    await Promise.allSettled(
+      [...this.servers.values()].map(
+        (s) =>
+          new Promise<void>((resolve, reject) => {
+            s.server.close((err) => (err ? reject(err) : resolve()))
+            s.server.off('connection', this.onConnection)
+          }),
+      ),
+    )
+    this.servers.clear()
+    super[Symbol.dispose]?.()
   }
 
   public async getOrCreate(options: ServerOptions): Promise<ServerRecord> {
     const url = this.getHostUrl(options)
-    if (!this.servers.has(url)) {
-      await this.listenLock.acquire()
-      try {
-        if (!this.servers.has(url)) {
-          await new Promise<void>((resolve, reject) => {
-            const apis: ServerRecord['apis'] = []
-            const server = createServer((req, res) => {
-              const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
-              if (apiMatch) {
-                apiMatch.onRequest({ req, res }).catch((error) => {
-                  this.emit('onRequestFailed', [error, req, res])
-                })
-              } else {
-                res.destroy()
-              }
-            })
-            server.on('upgrade', (req, socket, head) => {
-              const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
-              if (apiMatch?.onUpgrade) {
-                apiMatch.onUpgrade({ req, socket, head }).catch((error) => {
-                  this.emit('onRequestFailed', [error, req, {} as ServerResponse])
-                  socket.destroy()
-                })
-              } else {
-                socket.destroy()
-              }
-            })
-            server.on('connection', this.onConnection)
-            server.on('listening', () => resolve())
-            server.on('error', (err) => reject(err))
-            server.listen(options.port, options.hostName)
-            this.servers.set(url, { server, apis })
-          })
-        }
-      } finally {
-        this.listenLock.release()
-      }
+
+    const existing = this.servers.get(url)
+    if (existing) {
+      return existing
     }
-    return this.servers.get(url) as ServerRecord
+
+    const pending = this.pendingCreates.get(url)
+    if (pending) {
+      return pending
+    }
+
+    const createPromise = this.createServer(url, options)
+    this.pendingCreates.set(url, createPromise)
+    return createPromise
+  }
+
+  private async createServer(url: string, options: ServerOptions): Promise<ServerRecord> {
+    const apis: ServerRecord['apis'] = []
+    const server = createServer((req, res) => {
+      const apiMatch = apis.find((api) => api.shouldExec({ req, res }))
+      if (apiMatch) {
+        apiMatch.onRequest({ req, res }).catch((error) => {
+          this.emit('onRequestFailed', [error, req, res])
+        })
+      } else {
+        res.destroy()
+      }
+    })
+    server.on('upgrade', (req, socket, head) => {
+      const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
+      if (apiMatch?.onUpgrade) {
+        apiMatch.onUpgrade({ req, socket, head }).catch((error) => {
+          this.emit('onRequestFailed', [error, req, {} as ServerResponse])
+          socket.destroy()
+        })
+      } else {
+        socket.destroy()
+      }
+    })
+    server.on('connection', this.onConnection)
+    try {
+      await new Promise<void>((resolve, reject) => {
+        server.on('listening', () => resolve())
+        server.on('error', (err) => reject(err))
+        server.listen(options.port, options.hostName)
+      })
+      const record: ServerRecord = { server, apis }
+      this.servers.set(url, record)
+      return record
+    } finally {
+      this.pendingCreates.delete(url)
+    }
   }
 }
