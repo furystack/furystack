@@ -305,6 +305,63 @@ describe('Cache', () => {
         expect(loader).toHaveBeenCalledTimes(2)
       })
     })
+
+    it('Should skip entries in loading state when calling obsoleteRange', async () => {
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await cache.get(1, 2)
+        cache.setExplicitValue({
+          loadArgs: [3, 4],
+          value: { status: 'loading', value: 7, updatedAt: new Date() },
+        })
+
+        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
+
+        const loadedEntry = cache.getObservable(1, 2).getValue()
+        expect(loadedEntry.status).toEqual('obsolete')
+
+        const loadingEntry = cache.getObservable(3, 4).getValue()
+        expect(loadingEntry.status).toEqual('loading')
+      })
+    })
+
+    it('Should skip entries in failed state when calling obsoleteRange', async () => {
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await cache.get(1, 2)
+        cache.setExplicitValue({
+          loadArgs: [3, 4],
+          value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
+        })
+
+        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
+
+        const loadedEntry = cache.getObservable(1, 2).getValue()
+        expect(loadedEntry.status).toEqual('obsolete')
+
+        const failedEntry = cache.getObservable(3, 4).getValue()
+        expect(failedEntry.status).toEqual('failed')
+      })
+    })
+
+    it('Should skip entries in uninitialized state when calling obsoleteRange', async () => {
+      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+
+      await usingAsync(new Cache({ load: loader }), async (cache) => {
+        await cache.get(1, 2)
+        cache.setExplicitValue({
+          loadArgs: [3, 4],
+          value: { status: 'uninitialized', updatedAt: new Date() },
+        })
+
+        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
+
+        const loadedEntry = cache.getObservable(1, 2).getValue()
+        expect(loadedEntry.status).toEqual('obsolete')
+      })
+    })
   })
 
   describe('Error state', () => {
