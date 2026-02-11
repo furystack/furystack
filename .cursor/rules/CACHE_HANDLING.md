@@ -6,13 +6,13 @@
 
 ### Props
 
-| Prop      | Type                                                             | Required | Default | Description                                                                  |
-| --------- | ---------------------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------------- |
-| `cache`   | `Cache<TData, TArgs>`                                           | Yes      |         | The cache instance to observe                                                |
-| `args`    | `TArgs`                                                         | Yes      |         | Arguments identifying which cache entry to display                           |
-| `content` | `ShadeComponent<{ data: CacheWithValue<TData> }>`               | Yes      |         | Shades component rendered when a value is available (loaded or obsolete)     |
-| `loader`  | `JSX.Element`                                                   | No       | `null`  | Custom loader shown when loading and no value exists                         |
-| `error`   | `(error: unknown, retry: () => void) => JSX.Element`            | No       | Result  | Custom error UI; receives error and retry callback                           |
+| Prop      | Type                                                 | Required | Default | Description                                                              |
+| --------- | ---------------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------ |
+| `cache`   | `Cache<TData, TArgs>`                                | Yes      |         | The cache instance to observe                                            |
+| `args`    | `TArgs`                                              | Yes      |         | Arguments identifying which cache entry to display                       |
+| `content` | `ShadeComponent<{ data: CacheWithValue<TData> }>`    | Yes      |         | Shades component rendered when a value is available (loaded or obsolete) |
+| `loader`  | `JSX.Element`                                        | No       | `null`  | Custom loader shown when loading and no value exists                     |
+| `error`   | `(error: unknown, retry: () => void) => JSX.Element` | No       | Result  | Custom error UI; receives error and retry callback                       |
 
 ### Evaluation Order
 

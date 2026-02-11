@@ -56,9 +56,7 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  * <CacheView cache={userCache} args={[userId]} content={MyContent} />
  * ```
  */
-export const CacheView: <TData, TArgs extends any[]>(
-  props: CacheViewProps<TData, TArgs>,
-) => JSX.Element = Shade({
+export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData, TArgs>) => JSX.Element = Shade({
   shadowDomName: 'shade-cache-view',
   render: ({ props, useObservable, useState }): JSX.Element | null => {
     const { cache, args, content, loader, error } = props as CacheViewProps<unknown, any[]>
