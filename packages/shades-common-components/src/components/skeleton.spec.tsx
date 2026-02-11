@@ -75,7 +75,7 @@ describe('Skeleton', () => {
 
       await sleepAsync(50)
 
-      const skeleton = document.querySelector('shade-skeleton') as HTMLElement
+      const skeleton = document.querySelector('shade-skeleton div') as HTMLElement
       expect(skeleton).not.toBeNull()
 
       const computedStyle = window.getComputedStyle(skeleton)
@@ -137,7 +137,7 @@ describe('Skeleton', () => {
 
       await sleepAsync(50)
 
-      const skeleton = document.querySelector('shade-skeleton') as HTMLElement
+      const skeleton = document.querySelector('shade-skeleton div') as HTMLElement
       expect(skeleton).not.toBeNull()
 
       const computedStyle = window.getComputedStyle(skeleton)
