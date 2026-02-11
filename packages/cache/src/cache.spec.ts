@@ -11,7 +11,7 @@ describe('Cache', () => {
   it('Should return values as observables', async () => {
     await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
       const obs = cache.getObservable(1, 2)
-      expect(obs.getValue().status).toEqual('uninitialized')
+      expect(obs.getValue().status).toEqual('loading')
 
       await sleepAsync(10)
 
@@ -24,7 +24,7 @@ describe('Cache', () => {
     const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
     await usingAsync(new Cache({ load: loader }), async (cache) => {
       const obs = cache.getObservable(1, 2)
-      expect(obs.getValue().status).toEqual('uninitialized')
+      expect(obs.getValue().status).toEqual('loading')
 
       const result = await cache.get(1, 2)
       expect(result).toEqual(3)
@@ -131,24 +131,6 @@ describe('Cache', () => {
       cache.setExplicitValue({
         loadArgs: [3, 4],
         value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
-      })
-      expect(cache.getCount()).toEqual(2)
-
-      cache.removeRange(() => true)
-
-      expect(cache.getCount()).toEqual(1)
-      expect(cache.has(3, 4)).toEqual(true)
-    })
-  })
-
-  it('Should skip entries in uninitialized state when calling removeRange', async () => {
-    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-    await usingAsync(new Cache({ load: loader }), async (cache) => {
-      await cache.get(1, 2)
-      cache.setExplicitValue({
-        loadArgs: [3, 4],
-        value: { status: 'uninitialized', updatedAt: new Date() },
       })
       expect(cache.getCount()).toEqual(2)
 
@@ -397,23 +379,6 @@ describe('Cache', () => {
 
         const failedEntry = cache.getObservable(3, 4).getValue()
         expect(failedEntry.status).toEqual('failed')
-      })
-    })
-
-    it('Should skip entries in uninitialized state when calling obsoleteRange', async () => {
-      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-      await usingAsync(new Cache({ load: loader }), async (cache) => {
-        await cache.get(1, 2)
-        cache.setExplicitValue({
-          loadArgs: [3, 4],
-          value: { status: 'uninitialized', updatedAt: new Date() },
-        })
-
-        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
-
-        const loadedEntry = cache.getObservable(1, 2).getValue()
-        expect(loadedEntry.status).toEqual('obsolete')
       })
     })
   })

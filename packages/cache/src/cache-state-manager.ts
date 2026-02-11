@@ -26,7 +26,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public getObservable(
     key: string,
-    initialState: CacheResult<T> = { status: 'uninitialized', updatedAt: new Date() },
+    initialState: CacheResult<T> = { status: 'loading', updatedAt: new Date() },
   ): ObservableValue<CacheResult<T>> {
     const oldValue = this.store.get(key)
     if (oldValue) {

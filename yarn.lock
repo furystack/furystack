@@ -828,7 +828,6 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/utils": "workspace:^"
-    semaphore-async-await: "npm:^1.5.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.0.18"
   languageName: unknown
