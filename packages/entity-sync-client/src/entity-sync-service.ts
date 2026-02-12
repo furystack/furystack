@@ -1,9 +1,10 @@
+import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
-import type { LiveEntity } from './live-entity.js'
 import type { LiveCollection } from './live-collection.js'
+import type { LiveEntity } from './live-entity.js'
+import type { SyncCacheEntry, SyncCacheStore } from './sync-cache-entry.js'
 
 /**
  * Options for the EntitySyncService
@@ -15,6 +16,8 @@ export type EntitySyncServiceOptions = {
   suspendDelayMs?: number
   /** Optional factory for creating WebSocket instances (useful for testing) */
   createWebSocket?: (url: string) => WebSocket
+  /** Optional local cache store for stale-while-revalidate and delta sync on reconnect */
+  localStore?: SyncCacheStore
 }
 
 /**
@@ -39,6 +42,8 @@ type LiveEntityInternal = {
   modelName: string
   key: unknown
   requestId: string
+  cacheKey: string
+  lastSeq?: number
 }
 
 type LiveCollectionInternal = {
@@ -54,6 +59,8 @@ type LiveCollectionInternal = {
   order?: Record<string, 'ASC' | 'DESC'>
   requestId: string
   primaryKey?: string
+  cacheKey: string
+  lastSeq?: number
 }
 
 type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
@@ -61,6 +68,7 @@ type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
 /**
  * Client-side service for managing entity sync subscriptions over WebSocket.
  * Provides reference-counted LiveEntity and LiveCollection instances with auto-suspend.
+ * Optionally supports local caching for stale-while-revalidate and delta sync on reconnect.
  */
 @Injectable({ lifetime: 'explicit' })
 export class EntitySyncService implements Disposable {
@@ -90,16 +98,7 @@ export class EntitySyncService implements Disposable {
     }
 
     this.ws.onerror = () => {
-      for (const internal of this.liveEntities.values()) {
-        if (!internal.state.isDisposed) {
-          internal.state.setValue({ status: 'error', error: 'WebSocket error' })
-        }
-      }
-      for (const internal of this.liveCollections.values()) {
-        if (!internal.state.isDisposed) {
-          internal.state.setValue({ status: 'error', error: 'WebSocket error' })
-        }
-      }
+      this.handleConnectionLoss()
     }
   }
 
@@ -147,6 +146,8 @@ export class EntitySyncService implements Disposable {
    * Subscribes to a single entity by primary key.
    * Returns a shared LiveEntity -- multiple callers for the same model+key
    * get the same instance (reference counted).
+   * When a local cache store is configured, cached data is shown immediately
+   * while waiting for the server response (stale-while-revalidate).
    * @param model The model class
    * @param key The entity's primary key value
    * @returns A LiveEntity handle (dispose when done)
@@ -170,13 +171,15 @@ export class EntitySyncService implements Disposable {
       const currentState = internal.state.getValue()
       if (currentState.status === 'suspended') {
         internal.requestId = `req-${++this.requestCounter}`
-        internal.state.setValue({ status: 'connecting' })
+        // Show stale data while waiting for server response
+        internal.state.setValue({ status: 'cached', data: currentState.data })
         this.pendingRequests.set(internal.requestId, internal)
         this.send({
           type: 'subscribe-entity',
           requestId: internal.requestId,
           model: modelName,
           key,
+          lastSeq: internal.lastSeq,
         })
       }
 
@@ -192,17 +195,13 @@ export class EntitySyncService implements Disposable {
       modelName,
       key,
       requestId,
+      cacheKey: entityKey,
     }
 
     this.liveEntities.set(entityKey, internal)
     this.pendingRequests.set(requestId, internal)
 
-    this.send({
-      type: 'subscribe-entity',
-      requestId,
-      model: modelName,
-      key,
-    })
+    this.initializeEntitySubscription(internal, modelName, key, requestId)
 
     return this.createLiveEntityHandle<T>(internal, entityKey)
   }
@@ -211,6 +210,8 @@ export class EntitySyncService implements Disposable {
    * Subscribes to a collection of entities matching the given filter.
    * Returns a shared LiveCollection -- multiple callers with the same model+options
    * get the same instance (reference counted).
+   * When a local cache store is configured, cached data is shown immediately
+   * while waiting for the server response (stale-while-revalidate).
    * @param model The model class
    * @param options Optional filter, pagination, and ordering options
    * @returns A LiveCollection handle (dispose when done)
@@ -245,7 +246,8 @@ export class EntitySyncService implements Disposable {
       const currentState = internal.state.getValue()
       if (currentState.status === 'suspended') {
         internal.requestId = `req-${++this.requestCounter}`
-        internal.state.setValue({ status: 'connecting' })
+        // Show stale data while waiting for server response
+        internal.state.setValue({ status: 'cached', data: currentState.data })
         this.pendingRequests.set(internal.requestId, internal)
         this.send({
           type: 'subscribe-collection',
@@ -255,6 +257,7 @@ export class EntitySyncService implements Disposable {
           top: options?.top,
           skip: options?.skip,
           order: options?.order as Record<string, 'ASC' | 'DESC'>,
+          lastSeq: internal.lastSeq,
         })
       }
 
@@ -272,20 +275,18 @@ export class EntitySyncService implements Disposable {
       skip: options?.skip,
       order: options?.order as Record<string, 'ASC' | 'DESC'>,
       requestId,
+      cacheKey: collectionKey,
     }
 
     this.liveCollections.set(collectionKey, internal)
     this.pendingRequests.set(requestId, internal)
 
-    this.send({
-      type: 'subscribe-collection',
+    this.initializeCollectionSubscription(
+      internal,
+      modelName,
+      options as { filter?: FilterType<unknown>; top?: number; skip?: number; order?: Record<string, 'ASC' | 'DESC'> },
       requestId,
-      model: modelName,
-      filter: options?.filter as FilterType<unknown>,
-      top: options?.top,
-      skip: options?.skip,
-      order: options?.order as Record<string, 'ASC' | 'DESC'>,
-    })
+    )
 
     return this.createLiveCollectionHandle<T>(internal, collectionKey)
   }
@@ -374,6 +375,7 @@ export class EntitySyncService implements Disposable {
     const currentState = internal.state.getValue()
     if (currentState.status === 'synced' && 'data' in currentState) {
       internal.state.setValue({ status: 'suspended', data: currentState.data })
+      this.persistToCache(internal.cacheKey, internal.modelName, currentState.data, internal.lastSeq)
     } else {
       // No data to retain, remove the entity
       this.liveEntities.delete(entityKey)
@@ -397,11 +399,113 @@ export class EntitySyncService implements Disposable {
     const currentState = internal.state.getValue()
     if (currentState.status === 'synced' && 'data' in currentState) {
       internal.state.setValue({ status: 'suspended', data: currentState.data })
+      this.persistToCache(internal.cacheKey, internal.modelName, currentState.data, internal.lastSeq)
     } else {
       this.liveCollections.delete(collectionKey)
       if (!internal.state.isDisposed) {
         internal.state[Symbol.dispose]()
       }
+    }
+  }
+
+  /**
+   * Loads cached data from the local store (if configured) and sends the subscribe message.
+   * If cached data is found, the state transitions to 'cached' before the server responds.
+   */
+  private initializeEntitySubscription(
+    internal: LiveEntityInternal,
+    modelName: string,
+    key: unknown,
+    requestId: string,
+  ): void {
+    if (this.options.localStore) {
+      void this.options.localStore.get(internal.cacheKey).then(
+        (cached) => {
+          if (cached && internal.state.getValue().status === 'connecting') {
+            internal.lastSeq = cached.lastSeq
+            internal.state.setValue({ status: 'cached', data: cached.data })
+          }
+          this.send({
+            type: 'subscribe-entity',
+            requestId,
+            model: modelName,
+            key,
+            lastSeq: internal.lastSeq,
+          })
+        },
+        () => {
+          // Cache load failed, proceed without cache
+          this.send({ type: 'subscribe-entity', requestId, model: modelName, key })
+        },
+      )
+    } else {
+      this.send({
+        type: 'subscribe-entity',
+        requestId,
+        model: modelName,
+        key,
+      })
+    }
+  }
+
+  /**
+   * Loads cached data from the local store (if configured) and sends the subscribe message.
+   * If cached data is found, the state transitions to 'cached' before the server responds.
+   */
+  private initializeCollectionSubscription(
+    internal: LiveCollectionInternal,
+    modelName: string,
+    options:
+      | {
+          filter?: FilterType<unknown>
+          top?: number
+          skip?: number
+          order?: Record<string, 'ASC' | 'DESC'>
+        }
+      | undefined,
+    requestId: string,
+  ): void {
+    if (this.options.localStore) {
+      void this.options.localStore.get(internal.cacheKey).then(
+        (cached) => {
+          if (cached && internal.state.getValue().status === 'connecting') {
+            internal.lastSeq = cached.lastSeq
+            internal.state.setValue({ status: 'cached', data: cached.data as unknown[] })
+          }
+          this.send({
+            type: 'subscribe-collection',
+            requestId,
+            model: modelName,
+            filter: options?.filter as FilterType<unknown>,
+            top: options?.top,
+            skip: options?.skip,
+            order: options?.order as Record<string, 'ASC' | 'DESC'>,
+            lastSeq: internal.lastSeq,
+          })
+        },
+        () => {
+          // Cache load failed, proceed without cache
+          this.send({
+            type: 'subscribe-collection',
+            requestId,
+            model: modelName,
+            filter: options?.filter as FilterType<unknown>,
+            top: options?.top,
+            skip: options?.skip,
+            order: options?.order as Record<string, 'ASC' | 'DESC'>,
+          })
+        },
+      )
+    } else {
+      this.send({
+        type: 'subscribe-collection',
+        requestId,
+        model: modelName,
+        filter: options?.filter as FilterType<unknown>,
+        top: options?.top,
+        skip: options?.skip,
+        order: options?.order as Record<string, 'ASC' | 'DESC'>,
+      })
     }
   }
 
@@ -416,7 +520,9 @@ export class EntitySyncService implements Disposable {
 
         if (internal.type === 'entity') {
           if (message.mode === 'snapshot') {
+            internal.lastSeq = message.version.seq
             internal.state.setValue({ status: 'synced', data: message.data })
+            this.persistToCache(internal.cacheKey, internal.modelName, message.data, internal.lastSeq)
           } else if (message.mode === 'delta') {
             const currentState = internal.state.getValue()
             let data: unknown = 'data' in currentState ? currentState.data : undefined
@@ -431,12 +537,47 @@ export class EntitySyncService implements Disposable {
               }
             }
 
+            internal.lastSeq = message.version.seq
             internal.state.setValue({ status: 'synced', data })
+            this.persistToCache(internal.cacheKey, internal.modelName, data, internal.lastSeq)
           }
         } else if (internal.type === 'collection') {
           internal.primaryKey = message.primaryKey
           if (message.mode === 'snapshot') {
+            internal.lastSeq = message.version.seq
             internal.state.setValue({ status: 'synced', data: (message.data as unknown[]) ?? [] })
+            this.persistToCache(
+              internal.cacheKey,
+              internal.modelName,
+              (message.data as unknown[]) ?? [],
+              internal.lastSeq,
+            )
+          } else if (message.mode === 'delta') {
+            const currentState = internal.state.getValue()
+            let data: unknown[] = 'data' in currentState ? currentState.data : []
+
+            for (const change of message.changes) {
+              if (change.type === 'added') {
+                data = [...data, change.entity]
+              } else if (change.type === 'updated' && internal.primaryKey) {
+                data = data.map((item) => {
+                  const pk = (item as Record<string, unknown>)[internal.primaryKey!]
+                  if (pk === change.id) {
+                    return { ...(item as Record<string, unknown>), ...change.change }
+                  }
+                  return item
+                })
+              } else if (change.type === 'removed' && internal.primaryKey) {
+                data = data.filter((item) => {
+                  const pk = (item as Record<string, unknown>)[internal.primaryKey!]
+                  return pk !== change.id
+                })
+              }
+            }
+
+            internal.lastSeq = message.version.seq
+            internal.state.setValue({ status: 'synced', data })
+            this.persistToCache(internal.cacheKey, internal.modelName, data, internal.lastSeq)
           }
         }
         break
@@ -449,7 +590,9 @@ export class EntitySyncService implements Disposable {
           const currentState = sub.state.getValue()
           if ('data' in currentState && currentState.data != null) {
             const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
+            sub.lastSeq = message.version.seq
             sub.state.setValue({ status: 'synced', data: updatedData })
+            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
           }
         } else if (sub.type === 'collection') {
           const currentState = sub.state.getValue()
@@ -461,7 +604,9 @@ export class EntitySyncService implements Disposable {
               }
               return item
             })
+            sub.lastSeq = message.version.seq
             sub.state.setValue({ status: 'synced', data: updatedData })
+            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
           }
         }
         break
@@ -471,11 +616,16 @@ export class EntitySyncService implements Disposable {
         if (!sub) return
 
         if (sub.type === 'entity') {
+          sub.lastSeq = message.version.seq
           sub.state.setValue({ status: 'synced', data: message.entity })
+          this.persistToCache(sub.cacheKey, sub.modelName, message.entity, sub.lastSeq)
         } else if (sub.type === 'collection') {
           const currentState = sub.state.getValue()
           if ('data' in currentState && Array.isArray(currentState.data)) {
-            sub.state.setValue({ status: 'synced', data: [...currentState.data, message.entity] })
+            const updatedData = [...currentState.data, message.entity]
+            sub.lastSeq = message.version.seq
+            sub.state.setValue({ status: 'synced', data: updatedData })
+            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
           }
         }
         break
@@ -485,7 +635,9 @@ export class EntitySyncService implements Disposable {
         if (!sub) return
 
         if (sub.type === 'entity') {
+          sub.lastSeq = message.version.seq
           sub.state.setValue({ status: 'synced', data: undefined })
+          this.persistToCache(sub.cacheKey, sub.modelName, undefined, sub.lastSeq)
         } else if (sub.type === 'collection') {
           const currentState = sub.state.getValue()
           if ('data' in currentState && Array.isArray(currentState.data) && sub.primaryKey) {
@@ -493,7 +645,9 @@ export class EntitySyncService implements Disposable {
               const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
               return entityKey !== message.id
             })
+            sub.lastSeq = message.version.seq
             sub.state.setValue({ status: 'synced', data: filteredData })
+            this.persistToCache(sub.cacheKey, sub.modelName, filteredData, sub.lastSeq)
           }
         }
         break
@@ -512,6 +666,49 @@ export class EntitySyncService implements Disposable {
       default:
         break
     }
+  }
+
+  /**
+   * Handles connection loss by transitioning synced subscriptions to cached state
+   * (stale-while-revalidate) and others to error state.
+   */
+  private handleConnectionLoss(): void {
+    for (const internal of this.liveEntities.values()) {
+      if (internal.state.isDisposed) continue
+      const currentState = internal.state.getValue()
+      if (currentState.status === 'synced' && 'data' in currentState) {
+        internal.state.setValue({ status: 'cached', data: currentState.data })
+      } else if (currentState.status !== 'suspended' && currentState.status !== 'cached') {
+        internal.state.setValue({ status: 'error', error: 'WebSocket error' })
+      }
+    }
+    for (const internal of this.liveCollections.values()) {
+      if (internal.state.isDisposed) continue
+      const currentState = internal.state.getValue()
+      if (currentState.status === 'synced' && 'data' in currentState) {
+        internal.state.setValue({ status: 'cached', data: currentState.data })
+      } else if (currentState.status !== 'suspended' && currentState.status !== 'cached') {
+        internal.state.setValue({ status: 'error', error: 'WebSocket error' })
+      }
+    }
+  }
+
+  /**
+   * Persists subscription data to the local cache store (fire-and-forget).
+   * Errors are silently ignored to avoid disrupting the sync flow.
+   */
+  private persistToCache(cacheKey: string, modelName: string, data: unknown, lastSeq?: number): void {
+    if (!this.options.localStore || lastSeq == null) return
+    const entry: SyncCacheEntry = {
+      subscriptionKey: cacheKey,
+      model: modelName,
+      lastSeq,
+      data,
+      timestamp: new Date().toISOString(),
+    }
+    void this.options.localStore.set(cacheKey, entry).catch(() => {
+      /* ignore persistence errors */
+    })
   }
 
   private findBySubscriptionId(subscriptionId: string): LiveSubscriptionInternal | undefined {
