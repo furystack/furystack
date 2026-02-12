@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.0.3] - 2026-02-12
+
+### ✨ Features
+
+- Added `@furystack/entity-sync`, `@furystack/entity-sync-client`, and `@furystack/entity-sync-service` packages for real-time entity synchronization over WebSocket
+
+### 📦 Build
+
+- Added entity-sync packages to TypeScript project references (`packages/tsconfig.json`)
+- Added entity-sync test globs to vitest configuration (`vitest.config.mts`)
+
 ## [8.0.2] - 2026-02-11
 
 ### 📚 Documentation

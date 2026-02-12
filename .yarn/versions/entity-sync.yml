@@ -1,5 +1,0 @@
-releases:
-  "@furystack/entity-sync": minor
-  "@furystack/entity-sync-client": minor
-  "@furystack/entity-sync-service": minor
-  furystack: patch

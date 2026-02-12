@@ -1,6 +1,6 @@
 {
   "name": "@furystack/entity-sync",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Shared protocol types for FuryStack entity synchronization",
   "type": "module",
   "scripts": {
