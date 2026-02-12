@@ -845,6 +845,45 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/entity-sync-client@workspace:packages/entity-sync-client":
+  version: 0.0.0-use.local
+  resolution: "@furystack/entity-sync-client@workspace:packages/entity-sync-client"
+  dependencies:
+    "@furystack/entity-sync": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    typescript: "npm:^5.9.3"
+    vitest: "npm:^4.0.18"
+  languageName: unknown
+  linkType: soft
+
+"@furystack/entity-sync-service@workspace:packages/entity-sync-service":
+  version: 0.0.0-use.local
+  resolution: "@furystack/entity-sync-service@workspace:packages/entity-sync-service"
+  dependencies:
+    "@furystack/core": "workspace:^"
+    "@furystack/entity-sync": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/repository": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@furystack/websocket-api": "workspace:^"
+    "@types/ws": "npm:^8.18.1"
+    typescript: "npm:^5.9.3"
+    vitest: "npm:^4.0.18"
+    ws: "npm:^8.19.0"
+  languageName: unknown
+  linkType: soft
+
+"@furystack/entity-sync@workspace:^, @furystack/entity-sync@workspace:packages/entity-sync":
+  version: 0.0.0-use.local
+  resolution: "@furystack/entity-sync@workspace:packages/entity-sync"
+  dependencies:
+    "@furystack/core": "workspace:^"
+    typescript: "npm:^5.9.3"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/filesystem-store@workspace:packages/filesystem-store":
   version: 0.0.0-use.local
   resolution: "@furystack/filesystem-store@workspace:packages/filesystem-store"
@@ -1119,7 +1158,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/websocket-api@workspace:packages/websocket-api":
+"@furystack/websocket-api@workspace:^, @furystack/websocket-api@workspace:packages/websocket-api":
   version: 0.0.0-use.local
   resolution: "@furystack/websocket-api@workspace:packages/websocket-api"
   dependencies:

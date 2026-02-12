@@ -1,0 +1,39 @@
+import type { Constructable, Injector } from '@furystack/inject'
+import type { ModelSyncOptions } from './subscription-manager.js'
+import { SubscriptionManager } from './subscription-manager.js'
+
+/**
+ * Configuration for a model to be synced
+ */
+export type EntitySyncModelConfig = {
+  /** The model class (wire name derived from constructor.name) */
+  model: Constructable<unknown>
+  /** The primary key field name */
+  primaryKey: string
+} & ModelSyncOptions
+
+/**
+ * Sets up entity synchronization for the given models.
+ * Registers each model with the SubscriptionManager for change tracking.
+ *
+ * Must be called after the Repository and DataSets are configured.
+ *
+ * @param injector The injector instance
+ * @param options Configuration with models to sync
+ */
+export const useEntitySync = (
+  injector: Injector,
+  options: {
+    models: EntitySyncModelConfig[]
+  },
+): void => {
+  const manager = injector.getInstance(SubscriptionManager)
+  for (const config of options.models) {
+    // Type assertion is safe: primaryKey is validated at runtime by Repository.getDataSetFor
+    ;(
+      manager as unknown as { registerModel: (m: Constructable<unknown>, pk: string, o?: ModelSyncOptions) => void }
+    ).registerModel(config.model, config.primaryKey, {
+      changelogRetentionMs: config.changelogRetentionMs,
+    })
+  }
+}

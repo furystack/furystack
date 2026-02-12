@@ -1,0 +1,58 @@
+{
+  "name": "@furystack/entity-sync-service",
+  "version": "1.0.0",
+  "description": "Server-side entity synchronization for FuryStack",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "entity-sync",
+    "server",
+    "real-time",
+    "WebSocket"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/entity-sync": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/repository": "workspace:^",
+    "@furystack/websocket-api": "workspace:^",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@furystack/core": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
+    "@furystack/utils": "workspace:^",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}
