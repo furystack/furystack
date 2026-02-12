@@ -38,8 +38,18 @@ export class SyncSubscribeAction implements WebSocketAction {
         msg.key,
         msg.lastSeq,
       )
+    } else if (msg.type === 'subscribe-collection') {
+      await this.subscriptionManager.subscribeCollection(
+        options.socket,
+        connectionInjector,
+        msg.requestId,
+        msg.model,
+        msg.filter,
+        msg.top,
+        msg.skip,
+        msg.order,
+      )
     }
-    // subscribe-collection will be implemented in Phase 2
   }
 
   @Injected(SubscriptionManager)

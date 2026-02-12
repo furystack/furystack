@@ -28,12 +28,10 @@ export const useEntitySync = (
   },
 ): void => {
   const manager = injector.getInstance(SubscriptionManager)
-  for (const config of options.models) {
+  for (const { model, primaryKey, ...syncOptions } of options.models) {
     // Type assertion is safe: primaryKey is validated at runtime by Repository.getDataSetFor
     ;(
       manager as unknown as { registerModel: (m: Constructable<unknown>, pk: string, o?: ModelSyncOptions) => void }
-    ).registerModel(config.model, config.primaryKey, {
-      changelogRetentionMs: config.changelogRetentionMs,
-    })
+    ).registerModel(model, primaryKey, syncOptions)
   }
 }

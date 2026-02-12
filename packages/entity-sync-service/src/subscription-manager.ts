@@ -1,3 +1,4 @@
+import type { FilterType } from '@furystack/core'
 import type { Constructable, Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import { Repository } from '@furystack/repository'
@@ -14,6 +15,23 @@ type EntitySubscription = {
   currentSeq: number
 }
 
+type CollectionSubscription = {
+  subscriptionId: string
+  socket: WebSocket
+  clientInjector: Injector
+  modelName: string
+  type: 'collection'
+  filter?: unknown
+  top?: number
+  skip?: number
+  order?: Record<string, 'ASC' | 'DESC'>
+  currentSeq: number
+  /** Tracks which entities are currently in the collection for diffing */
+  currentEntities: Map<unknown, unknown>
+}
+
+type Subscription = EntitySubscription | CollectionSubscription
+
 type ModelRegistration = {
   model: Constructable<unknown>
   modelName: string
@@ -21,8 +39,24 @@ type ModelRegistration = {
   currentSeq: number
   changelog: SyncChangeEntry[]
   changelogRetentionMs: number
+  debounceMs: number
+  queryTtlMs: number
   eventSubscriptions: Disposable[]
   getEntity: (injector: Injector, key: unknown) => Promise<unknown>
+  findEntities: (
+    injector: Injector,
+    options: {
+      filter?: unknown
+      top?: number
+      skip?: number
+      order?: Record<string, 'ASC' | 'DESC'>
+    },
+  ) => Promise<unknown[]>
+}
+
+type QueryCacheEntry = {
+  result: unknown[]
+  timestamp: number
 }
 
 /**
@@ -31,18 +65,27 @@ type ModelRegistration = {
 export type ModelSyncOptions = {
   /** How long to keep change entries for delta sync (default: 5 minutes) */
   changelogRetentionMs?: number
+  /** Debounce window in ms for batching notifications (default: 0 = immediate) */
+  debounceMs?: number
+  /** TTL in ms for cached find() results on collection subscriptions (default: 0 = no cache) */
+  queryTtlMs?: number
 }
 
 /**
- * Manages entity subscriptions and dispatches changes to connected WebSocket clients.
+ * Manages entity and collection subscriptions and dispatches changes to connected WebSocket clients.
  * Tracks a per-model changelog with sequence numbers for delta sync support.
+ * Supports configurable debounce and query caching for collection subscriptions.
  */
 @Injectable({ lifetime: 'singleton' })
 export class SubscriptionManager implements Disposable {
   private readonly modelRegistrations = new Map<string, ModelRegistration>()
-  private readonly subscriptions = new Map<string, EntitySubscription>()
+  private readonly subscriptions = new Map<string, Subscription>()
   private readonly socketSubscriptionIds = new Map<WebSocket, Set<string>>()
   private subscriptionCounter = 0
+
+  private readonly debounceTimers = new Map<string, ReturnType<typeof setTimeout>>()
+  private readonly pendingEntityMessages = new Map<string, ServerSyncMessage[]>()
+  private readonly queryCache = new Map<string, QueryCacheEntry>()
 
   /**
    * Registers a model for entity sync.
@@ -75,8 +118,19 @@ export class SubscriptionManager implements Disposable {
       currentSeq: 0,
       changelog: [],
       changelogRetentionMs: options?.changelogRetentionMs ?? 5 * 60 * 1000,
+      debounceMs: options?.debounceMs ?? 0,
+      queryTtlMs: options?.queryTtlMs ?? 0,
       eventSubscriptions: [],
       getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]),
+      findEntities: async (injector, findOptions) => {
+        const result = await dataSet.find(injector, {
+          filter: findOptions.filter as FilterType<T> | undefined,
+          top: findOptions.top,
+          skip: findOptions.skip,
+          order: findOptions.order as { [P in keyof T]?: 'ASC' | 'DESC' } | undefined,
+        })
+        return result as unknown[]
+      },
     }
 
     registration.eventSubscriptions = [
@@ -122,14 +176,18 @@ export class SubscriptionManager implements Disposable {
     this.pruneChangelog(registration)
 
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName === modelName && sub.type === 'entity' && sub.key === entityKey) {
-        this.sendMessage(sub.socket, {
+      if (sub.modelName !== modelName) continue
+
+      if (sub.type === 'entity' && sub.key === entityKey) {
+        const message: ServerSyncMessage = {
           type: 'entity-added',
           subscriptionId: sub.subscriptionId,
           entity,
           version,
-        })
-        sub.currentSeq = version.seq
+        }
+        this.dispatchEntityNotification(sub, message, registration)
+      } else if (sub.type === 'collection') {
+        this.scheduleCollectionEvaluation(sub, registration)
       }
     }
   }
@@ -143,15 +201,19 @@ export class SubscriptionManager implements Disposable {
     this.pruneChangelog(registration)
 
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName === modelName && sub.type === 'entity' && sub.key === id) {
-        this.sendMessage(sub.socket, {
+      if (sub.modelName !== modelName) continue
+
+      if (sub.type === 'entity' && sub.key === id) {
+        const message: ServerSyncMessage = {
           type: 'entity-updated',
           subscriptionId: sub.subscriptionId,
           id,
           change,
           version,
-        })
-        sub.currentSeq = version.seq
+        }
+        this.dispatchEntityNotification(sub, message, registration)
+      } else if (sub.type === 'collection') {
+        this.scheduleCollectionEvaluation(sub, registration)
       }
     }
   }
@@ -165,16 +227,183 @@ export class SubscriptionManager implements Disposable {
     this.pruneChangelog(registration)
 
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName === modelName && sub.type === 'entity' && sub.key === key) {
+      if (sub.modelName !== modelName) continue
+
+      if (sub.type === 'entity' && sub.key === key) {
+        const message: ServerSyncMessage = {
+          type: 'entity-removed',
+          subscriptionId: sub.subscriptionId,
+          id: key,
+          version,
+        }
+        this.dispatchEntityNotification(sub, message, registration)
+      } else if (sub.type === 'collection') {
+        this.scheduleCollectionEvaluation(sub, registration)
+      }
+    }
+  }
+
+  /**
+   * Dispatches a notification to an entity subscription, respecting debounce settings.
+   */
+  private dispatchEntityNotification(
+    sub: EntitySubscription,
+    message: ServerSyncMessage,
+    registration: ModelRegistration,
+  ): void {
+    if (registration.debounceMs === 0) {
+      this.sendMessage(sub.socket, message)
+      sub.currentSeq = registration.currentSeq
+    } else {
+      if (!this.pendingEntityMessages.has(sub.subscriptionId)) {
+        this.pendingEntityMessages.set(sub.subscriptionId, [])
+      }
+      this.pendingEntityMessages.get(sub.subscriptionId)!.push(message)
+
+      this.scheduleDebounce(sub.subscriptionId, registration.debounceMs, () => {
+        this.flushEntityMessages(sub.subscriptionId)
+      })
+    }
+  }
+
+  /**
+   * Schedules a collection subscription for re-evaluation, respecting debounce settings.
+   */
+  private scheduleCollectionEvaluation(sub: CollectionSubscription, registration: ModelRegistration): void {
+    if (registration.debounceMs === 0) {
+      void this.evaluateCollectionSubscription(sub)
+    } else {
+      this.scheduleDebounce(sub.subscriptionId, registration.debounceMs, () => {
+        void this.evaluateCollectionSubscription(sub)
+      })
+    }
+  }
+
+  private scheduleDebounce(subscriptionId: string, debounceMs: number, callback: () => void): void {
+    const existing = this.debounceTimers.get(subscriptionId)
+    if (existing) {
+      clearTimeout(existing)
+    }
+    this.debounceTimers.set(
+      subscriptionId,
+      setTimeout(() => {
+        this.debounceTimers.delete(subscriptionId)
+        callback()
+      }, debounceMs),
+    )
+  }
+
+  private flushEntityMessages(subscriptionId: string): void {
+    const sub = this.subscriptions.get(subscriptionId)
+    if (!sub || sub.type !== 'entity') return
+
+    const pending = this.pendingEntityMessages.get(subscriptionId)
+    if (pending && pending.length > 0) {
+      for (const msg of pending) {
+        this.sendMessage(sub.socket, msg)
+        if ('version' in msg) {
+          sub.currentSeq = msg.version.seq
+        }
+      }
+      this.pendingEntityMessages.delete(subscriptionId)
+    }
+  }
+
+  /**
+   * Re-evaluates a collection subscription by re-querying the DataSet and diffing against stored state.
+   * Sends entity-added, entity-updated, and entity-removed messages as needed.
+   */
+  private async evaluateCollectionSubscription(sub: CollectionSubscription): Promise<void> {
+    const registration = this.modelRegistrations.get(sub.modelName)
+    if (!registration) return
+
+    if (!this.subscriptions.has(sub.subscriptionId)) return
+
+    const results = await this.queryWithCache(sub, registration)
+
+    const newEntities = new Map<unknown, unknown>()
+    for (const entity of results) {
+      const key = (entity as Record<string, unknown>)[registration.primaryKey]
+      newEntities.set(key, entity)
+    }
+
+    const version: SyncVersion = { seq: registration.currentSeq, timestamp: new Date().toISOString() }
+
+    // Detect removed entities (in old set but not in new set)
+    for (const [key] of sub.currentEntities) {
+      if (!newEntities.has(key)) {
         this.sendMessage(sub.socket, {
           type: 'entity-removed',
           subscriptionId: sub.subscriptionId,
           id: key,
           version,
         })
-        sub.currentSeq = version.seq
       }
     }
+
+    // Detect added and updated entities
+    for (const [key, entity] of newEntities) {
+      const oldEntity = sub.currentEntities.get(key)
+      if (!oldEntity) {
+        this.sendMessage(sub.socket, {
+          type: 'entity-added',
+          subscriptionId: sub.subscriptionId,
+          entity,
+          version,
+        })
+      } else {
+        const change = this.computeShallowDiff(oldEntity as Record<string, unknown>, entity as Record<string, unknown>)
+        if (change) {
+          this.sendMessage(sub.socket, {
+            type: 'entity-updated',
+            subscriptionId: sub.subscriptionId,
+            id: key,
+            change,
+            version,
+          })
+        }
+      }
+    }
+
+    sub.currentEntities = newEntities
+    sub.currentSeq = registration.currentSeq
+  }
+
+  private computeShallowDiff(
+    oldObj: Record<string, unknown>,
+    newObj: Record<string, unknown>,
+  ): Record<string, unknown> | null {
+    const change: Record<string, unknown> = {}
+    let hasChange = false
+    for (const key of Object.keys(newObj)) {
+      if (newObj[key] !== oldObj[key]) {
+        change[key] = newObj[key]
+        hasChange = true
+      }
+    }
+    return hasChange ? change : null
+  }
+
+  private async queryWithCache(sub: CollectionSubscription, registration: ModelRegistration): Promise<unknown[]> {
+    if (registration.queryTtlMs > 0) {
+      const cached = this.queryCache.get(sub.subscriptionId)
+      if (cached && Date.now() - cached.timestamp < registration.queryTtlMs) {
+        return cached.result
+      }
+    }
+
+    const result = await registration.findEntities(sub.clientInjector, {
+      filter: sub.filter,
+      top: sub.top,
+      skip: sub.skip,
+      order: sub.order,
+    })
+
+    if (registration.queryTtlMs > 0) {
+      this.queryCache.set(sub.subscriptionId, { result, timestamp: Date.now() })
+    }
+
+    return result
   }
 
   private sendMessage(socket: WebSocket, message: ServerSyncMessage): void {
@@ -227,7 +456,7 @@ export class SubscriptionManager implements Disposable {
             return entry.id === key
           })
 
-          this.storeSubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
+          this.storeEntitySubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
 
           this.sendMessage(socket, {
             type: 'subscribed',
@@ -245,7 +474,7 @@ export class SubscriptionManager implements Disposable {
       // Full snapshot - fetch entity with authorization
       const entity = await registration.getEntity(clientInjector, key)
 
-      this.storeSubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
+      this.storeEntitySubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
 
       this.sendMessage(socket, {
         type: 'subscribed',
@@ -265,7 +494,92 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  private storeSubscription(
+  /**
+   * Subscribes a client to a collection of entities matching the given filter.
+   * Sends a full snapshot of matching entities on subscribe.
+   * On subsequent changes, re-evaluates the collection and sends diffs.
+   * @param socket The client's WebSocket connection
+   * @param clientInjector The client's scoped injector for authorization
+   * @param requestId The client's request ID for correlation
+   * @param modelName The model wire name (derived from constructor.name)
+   * @param filter Optional filter to match entities
+   * @param top Optional limit on the number of results
+   * @param skip Optional offset for pagination
+   * @param order Optional sort order
+   */
+  public async subscribeCollection(
+    socket: WebSocket,
+    clientInjector: Injector,
+    requestId: string,
+    modelName: string,
+    filter?: unknown,
+    top?: number,
+    skip?: number,
+    order?: Record<string, 'ASC' | 'DESC'>,
+  ): Promise<void> {
+    const registration = this.modelRegistrations.get(modelName)
+    if (!registration) {
+      this.sendMessage(socket, {
+        type: 'subscription-error',
+        requestId,
+        error: `Model '${modelName}' is not registered for sync`,
+      })
+      return
+    }
+
+    try {
+      const subscriptionId = `sub-${++this.subscriptionCounter}`
+
+      const results = await registration.findEntities(clientInjector, {
+        filter,
+        top,
+        skip,
+        order,
+      })
+
+      const currentEntities = new Map<unknown, unknown>()
+      for (const entity of results) {
+        const key = (entity as Record<string, unknown>)[registration.primaryKey]
+        currentEntities.set(key, entity)
+      }
+
+      const subscription: CollectionSubscription = {
+        subscriptionId,
+        socket,
+        clientInjector,
+        modelName,
+        type: 'collection',
+        filter,
+        top,
+        skip,
+        order,
+        currentSeq: registration.currentSeq,
+        currentEntities,
+      }
+
+      this.subscriptions.set(subscriptionId, subscription)
+      this.trackSocket(socket, subscriptionId)
+
+      this.sendMessage(socket, {
+        type: 'subscribed',
+        requestId,
+        subscriptionId,
+        model: modelName,
+        primaryKey: registration.primaryKey,
+        mode: 'snapshot',
+        data: results,
+        version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+      })
+    } catch (error) {
+      this.sendMessage(socket, {
+        type: 'subscription-error',
+        requestId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+  }
+
+  private storeEntitySubscription(
     subscriptionId: string,
     socket: WebSocket,
     clientInjector: Injector,
@@ -301,7 +615,19 @@ export class SubscriptionManager implements Disposable {
           this.socketSubscriptionIds.delete(sub.socket)
         }
       }
+
+      this.cleanupSubscriptionState(subscriptionId)
     }
+  }
+
+  private cleanupSubscriptionState(subscriptionId: string): void {
+    const timer = this.debounceTimers.get(subscriptionId)
+    if (timer) {
+      clearTimeout(timer)
+      this.debounceTimers.delete(subscriptionId)
+    }
+    this.pendingEntityMessages.delete(subscriptionId)
+    this.queryCache.delete(subscriptionId)
   }
 
   private trackSocket(socket: WebSocket, subscriptionId: string): void {
@@ -319,6 +645,7 @@ export class SubscriptionManager implements Disposable {
     if (subs) {
       for (const subId of subs) {
         this.subscriptions.delete(subId)
+        this.cleanupSubscriptionState(subId)
       }
       this.socketSubscriptionIds.delete(socket)
     }
@@ -350,11 +677,17 @@ export class SubscriptionManager implements Disposable {
   /**
    * Returns details of active subscriptions (for testing/debugging)
    */
-  public getActiveSubscriptions(): Array<{ subscriptionId: string; modelName: string; key: unknown }> {
+  public getActiveSubscriptions(): Array<{
+    subscriptionId: string
+    modelName: string
+    type: 'entity' | 'collection'
+    key?: unknown
+  }> {
     return [...this.subscriptions.values()].map((sub) => ({
       subscriptionId: sub.subscriptionId,
       modelName: sub.modelName,
-      key: sub.key,
+      type: sub.type,
+      ...(sub.type === 'entity' ? { key: sub.key } : {}),
     }))
   }
 
@@ -364,9 +697,17 @@ export class SubscriptionManager implements Disposable {
         sub[Symbol.dispose]()
       }
     }
+
+    for (const timer of this.debounceTimers.values()) {
+      clearTimeout(timer)
+    }
+
     this.modelRegistrations.clear()
     this.subscriptions.clear()
     this.socketSubscriptionIds.clear()
+    this.debounceTimers.clear()
+    this.pendingEntityMessages.clear()
+    this.queryCache.clear()
   }
 
   @Injected(Repository)

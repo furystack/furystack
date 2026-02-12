@@ -10,6 +10,8 @@ export type ServerSyncMessage =
       requestId: string
       subscriptionId: string
       model: string
+      /** The primary key field name (included for collection subscriptions) */
+      primaryKey?: string
       mode: 'snapshot'
       data: unknown
       version: SyncVersion
@@ -19,6 +21,8 @@ export type ServerSyncMessage =
       requestId: string
       subscriptionId: string
       model: string
+      /** The primary key field name (included for collection subscriptions) */
+      primaryKey?: string
       mode: 'delta'
       changes: SyncChangeEntry[]
       version: SyncVersion

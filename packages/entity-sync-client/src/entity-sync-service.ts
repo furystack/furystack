@@ -1,8 +1,9 @@
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import type { ClientSyncMessage, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
+import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
 import type { LiveEntity } from './live-entity.js'
+import type { LiveCollection } from './live-collection.js'
 
 /**
  * Options for the EntitySyncService
@@ -30,6 +31,7 @@ type ModelEntry = {
 }
 
 type LiveEntityInternal = {
+  type: 'entity'
   state: ObservableValue<SyncState<unknown>>
   refCount: number
   subscriptionId?: string
@@ -39,16 +41,34 @@ type LiveEntityInternal = {
   requestId: string
 }
 
+type LiveCollectionInternal = {
+  type: 'collection'
+  state: ObservableValue<SyncState<unknown[]>>
+  refCount: number
+  subscriptionId?: string
+  suspendTimer?: ReturnType<typeof setTimeout>
+  modelName: string
+  filter?: unknown
+  top?: number
+  skip?: number
+  order?: Record<string, 'ASC' | 'DESC'>
+  requestId: string
+  primaryKey?: string
+}
+
+type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
+
 /**
  * Client-side service for managing entity sync subscriptions over WebSocket.
- * Provides reference-counted LiveEntity instances with auto-suspend.
+ * Provides reference-counted LiveEntity and LiveCollection instances with auto-suspend.
  */
 @Injectable({ lifetime: 'explicit' })
 export class EntitySyncService implements Disposable {
   private ws: WebSocket | null = null
   private readonly models = new Map<string, ModelEntry>()
   private readonly liveEntities = new Map<string, LiveEntityInternal>()
-  private readonly pendingRequests = new Map<string, LiveEntityInternal>()
+  private readonly liveCollections = new Map<string, LiveCollectionInternal>()
+  private readonly pendingRequests = new Map<string, LiveSubscriptionInternal>()
   private readonly pendingMessages: string[] = []
   private requestCounter = 0
 
@@ -71,6 +91,11 @@ export class EntitySyncService implements Disposable {
 
     this.ws.onerror = () => {
       for (const internal of this.liveEntities.values()) {
+        if (!internal.state.isDisposed) {
+          internal.state.setValue({ status: 'error', error: 'WebSocket error' })
+        }
+      }
+      for (const internal of this.liveCollections.values()) {
         if (!internal.state.isDisposed) {
           internal.state.setValue({ status: 'error', error: 'WebSocket error' })
         }
@@ -161,6 +186,7 @@ export class EntitySyncService implements Disposable {
     // New subscription
     const requestId = `req-${++this.requestCounter}`
     internal = {
+      type: 'entity',
       state: new ObservableValue<SyncState<unknown>>({ status: 'connecting' }),
       refCount: 1,
       modelName,
@@ -181,6 +207,89 @@ export class EntitySyncService implements Disposable {
     return this.createLiveEntityHandle<T>(internal, entityKey)
   }
 
+  /**
+   * Subscribes to a collection of entities matching the given filter.
+   * Returns a shared LiveCollection -- multiple callers with the same model+options
+   * get the same instance (reference counted).
+   * @param model The model class
+   * @param options Optional filter, pagination, and ordering options
+   * @returns A LiveCollection handle (dispose when done)
+   */
+  public subscribeCollection<T>(
+    model: Constructable<T>,
+    options?: {
+      filter?: FilterType<T>
+      top?: number
+      skip?: number
+      order?: { [P in keyof T]?: 'ASC' | 'DESC' }
+    },
+  ): LiveCollection<T> {
+    const modelName = model.name
+    const collectionKey = `${modelName}:collection:${JSON.stringify({
+      filter: options?.filter,
+      top: options?.top,
+      skip: options?.skip,
+      order: options?.order,
+    })}`
+
+    let internal = this.liveCollections.get(collectionKey)
+
+    if (internal) {
+      internal.refCount++
+
+      if (internal.suspendTimer) {
+        clearTimeout(internal.suspendTimer)
+        internal.suspendTimer = undefined
+      }
+
+      const currentState = internal.state.getValue()
+      if (currentState.status === 'suspended') {
+        internal.requestId = `req-${++this.requestCounter}`
+        internal.state.setValue({ status: 'connecting' })
+        this.pendingRequests.set(internal.requestId, internal)
+        this.send({
+          type: 'subscribe-collection',
+          requestId: internal.requestId,
+          model: modelName,
+          filter: options?.filter as FilterType<unknown>,
+          top: options?.top,
+          skip: options?.skip,
+          order: options?.order as Record<string, 'ASC' | 'DESC'>,
+        })
+      }
+
+      return this.createLiveCollectionHandle<T>(internal, collectionKey)
+    }
+
+    const requestId = `req-${++this.requestCounter}`
+    internal = {
+      type: 'collection',
+      state: new ObservableValue<SyncState<unknown[]>>({ status: 'connecting' }),
+      refCount: 1,
+      modelName,
+      filter: options?.filter,
+      top: options?.top,
+      skip: options?.skip,
+      order: options?.order as Record<string, 'ASC' | 'DESC'>,
+      requestId,
+    }
+
+    this.liveCollections.set(collectionKey, internal)
+    this.pendingRequests.set(requestId, internal)
+
+    this.send({
+      type: 'subscribe-collection',
+      requestId,
+      model: modelName,
+      filter: options?.filter as FilterType<unknown>,
+      top: options?.top,
+      skip: options?.skip,
+      order: options?.order as Record<string, 'ASC' | 'DESC'>,
+    })
+
+    return this.createLiveCollectionHandle<T>(internal, collectionKey)
+  }
+
   private createLiveEntityHandle<T>(internal: LiveEntityInternal, entityKey: string): LiveEntity<T> {
     let disposed = false
     return {
@@ -189,6 +298,18 @@ export class EntitySyncService implements Disposable {
         if (disposed) return
         disposed = true
         this.handleEntityDispose(entityKey)
+      },
+    }
+  }
+
+  private createLiveCollectionHandle<T>(internal: LiveCollectionInternal, collectionKey: string): LiveCollection<T> {
+    let disposed = false
+    return {
+      state: internal.state as ObservableValue<SyncState<T[]>>,
+      [Symbol.dispose]: () => {
+        if (disposed) return
+        disposed = true
+        this.handleCollectionDispose(collectionKey)
       },
     }
   }
@@ -210,6 +331,28 @@ export class EntitySyncService implements Disposable {
       } else {
         internal.suspendTimer = setTimeout(() => {
           this.suspendEntity(entityKey)
+        }, suspendDelayMs)
+      }
+    }
+  }
+
+  private handleCollectionDispose(collectionKey: string): void {
+    const internal = this.liveCollections.get(collectionKey)
+    if (!internal) return
+
+    internal.refCount--
+
+    if (internal.refCount <= 0) {
+      const modelEntry = this.models.get(internal.modelName)
+      const suspendDelayMs = modelEntry?.suspendDelayMs ?? this.options.suspendDelayMs ?? 1000
+
+      if (suspendDelayMs === 0) {
+        this.suspendCollection(collectionKey)
+      } else if (suspendDelayMs === Infinity) {
+        // Never suspend
+      } else {
+        internal.suspendTimer = setTimeout(() => {
+          this.suspendCollection(collectionKey)
         }, suspendDelayMs)
       }
     }
@@ -240,6 +383,28 @@ export class EntitySyncService implements Disposable {
     }
   }
 
+  private suspendCollection(collectionKey: string): void {
+    const internal = this.liveCollections.get(collectionKey)
+    if (!internal) return
+
+    if (internal.subscriptionId) {
+      this.send({
+        type: 'unsubscribe',
+        subscriptionId: internal.subscriptionId,
+      })
+    }
+
+    const currentState = internal.state.getValue()
+    if (currentState.status === 'synced' && 'data' in currentState) {
+      internal.state.setValue({ status: 'suspended', data: currentState.data })
+    } else {
+      this.liveCollections.delete(collectionKey)
+      if (!internal.state.isDisposed) {
+        internal.state[Symbol.dispose]()
+      }
+    }
+  }
+
   private handleMessage(message: ServerSyncMessage): void {
     switch (message.type) {
       case 'subscribed': {
@@ -249,54 +414,99 @@ export class EntitySyncService implements Disposable {
 
         internal.subscriptionId = message.subscriptionId
 
-        if (message.mode === 'snapshot') {
-          internal.state.setValue({ status: 'synced', data: message.data })
-        } else if (message.mode === 'delta') {
-          // Apply delta changes on top of existing data
-          const currentState = internal.state.getValue()
-          let data: unknown = 'data' in currentState ? currentState.data : undefined
+        if (internal.type === 'entity') {
+          if (message.mode === 'snapshot') {
+            internal.state.setValue({ status: 'synced', data: message.data })
+          } else if (message.mode === 'delta') {
+            const currentState = internal.state.getValue()
+            let data: unknown = 'data' in currentState ? currentState.data : undefined
 
-          for (const change of message.changes) {
-            if (change.type === 'updated') {
-              data = { ...(data as Record<string, unknown>), ...change.change }
-            } else if (change.type === 'removed') {
-              data = undefined
-            } else if (change.type === 'added') {
-              data = change.entity
+            for (const change of message.changes) {
+              if (change.type === 'updated') {
+                data = { ...(data as Record<string, unknown>), ...change.change }
+              } else if (change.type === 'removed') {
+                data = undefined
+              } else if (change.type === 'added') {
+                data = change.entity
+              }
             }
-          }
 
-          internal.state.setValue({ status: 'synced', data })
+            internal.state.setValue({ status: 'synced', data })
+          }
+        } else if (internal.type === 'collection') {
+          internal.primaryKey = message.primaryKey
+          if (message.mode === 'snapshot') {
+            internal.state.setValue({ status: 'synced', data: (message.data as unknown[]) ?? [] })
+          }
         }
         break
       }
       case 'entity-updated': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
         if (!sub) return
-        const currentState = sub.state.getValue()
-        if ('data' in currentState && currentState.data != null) {
-          const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
-          sub.state.setValue({ status: 'synced', data: updatedData })
+
+        if (sub.type === 'entity') {
+          const currentState = sub.state.getValue()
+          if ('data' in currentState && currentState.data != null) {
+            const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
+            sub.state.setValue({ status: 'synced', data: updatedData })
+          }
+        } else if (sub.type === 'collection') {
+          const currentState = sub.state.getValue()
+          if ('data' in currentState && Array.isArray(currentState.data) && sub.primaryKey) {
+            const updatedData = currentState.data.map((item) => {
+              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
+              if (entityKey === message.id) {
+                return { ...(item as Record<string, unknown>), ...message.change }
+              }
+              return item
+            })
+            sub.state.setValue({ status: 'synced', data: updatedData })
+          }
         }
         break
       }
       case 'entity-added': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
         if (!sub) return
-        sub.state.setValue({ status: 'synced', data: message.entity })
+
+        if (sub.type === 'entity') {
+          sub.state.setValue({ status: 'synced', data: message.entity })
+        } else if (sub.type === 'collection') {
+          const currentState = sub.state.getValue()
+          if ('data' in currentState && Array.isArray(currentState.data)) {
+            sub.state.setValue({ status: 'synced', data: [...currentState.data, message.entity] })
+          }
+        }
         break
       }
       case 'entity-removed': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
         if (!sub) return
-        sub.state.setValue({ status: 'synced', data: undefined })
+
+        if (sub.type === 'entity') {
+          sub.state.setValue({ status: 'synced', data: undefined })
+        } else if (sub.type === 'collection') {
+          const currentState = sub.state.getValue()
+          if ('data' in currentState && Array.isArray(currentState.data) && sub.primaryKey) {
+            const filteredData = currentState.data.filter((item) => {
+              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
+              return entityKey !== message.id
+            })
+            sub.state.setValue({ status: 'synced', data: filteredData })
+          }
+        }
         break
       }
       case 'subscription-error': {
         const internal = this.pendingRequests.get(message.requestId)
         if (!internal) return
         this.pendingRequests.delete(message.requestId)
-        internal.state.setValue({ status: 'error', error: message.error })
+        if (internal.type === 'entity') {
+          internal.state.setValue({ status: 'error', error: message.error })
+        } else if (internal.type === 'collection') {
+          internal.state.setValue({ status: 'error', error: message.error })
+        }
         break
       }
       default:
@@ -304,8 +514,13 @@ export class EntitySyncService implements Disposable {
     }
   }
 
-  private findBySubscriptionId(subscriptionId: string): LiveEntityInternal | undefined {
+  private findBySubscriptionId(subscriptionId: string): LiveSubscriptionInternal | undefined {
     for (const internal of this.liveEntities.values()) {
+      if (internal.subscriptionId === subscriptionId) {
+        return internal
+      }
+    }
+    for (const internal of this.liveCollections.values()) {
       if (internal.subscriptionId === subscriptionId) {
         return internal
       }
@@ -322,7 +537,16 @@ export class EntitySyncService implements Disposable {
         internal.state[Symbol.dispose]()
       }
     }
+    for (const internal of this.liveCollections.values()) {
+      if (internal.suspendTimer) {
+        clearTimeout(internal.suspendTimer)
+      }
+      if (!internal.state.isDisposed) {
+        internal.state[Symbol.dispose]()
+      }
+    }
     this.liveEntities.clear()
+    this.liveCollections.clear()
     this.pendingRequests.clear()
     this.pendingMessages.length = 0
     this.ws?.close()

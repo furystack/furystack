@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
+    "@furystack/core": "workspace:^",
     "@furystack/entity-sync": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
@@ -44,7 +45,6 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@furystack/core": "workspace:^",
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@types/ws": "^8.18.1",
