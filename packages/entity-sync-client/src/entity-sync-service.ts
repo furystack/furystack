@@ -18,6 +18,14 @@ export type EntitySyncServiceOptions = {
   createWebSocket?: (url: string) => WebSocket
   /** Optional local cache store for stale-while-revalidate and delta sync on reconnect */
   localStore?: SyncCacheStore
+  /** Whether to automatically reconnect on WebSocket close/error. Default: true */
+  reconnect?: boolean
+  /** Base delay (ms) for exponential backoff reconnection. Default: 1000 */
+  reconnectBaseMs?: number
+  /** Maximum delay (ms) for exponential backoff reconnection. Default: 30000 */
+  reconnectMaxMs?: number
+  /** Maximum number of reconnection attempts before giving up. Default: Infinity */
+  maxReconnectAttempts?: number
 }
 
 /**
@@ -79,26 +87,41 @@ export class EntitySyncService implements Disposable {
   private readonly pendingRequests = new Map<string, LiveSubscriptionInternal>()
   private readonly pendingMessages: string[] = []
   private requestCounter = 0
+  private reconnectAttempt = 0
+  private reconnectTimer?: ReturnType<typeof setTimeout>
+  private disposed = false
 
   constructor(private readonly options: EntitySyncServiceOptions) {
     this.connect()
   }
 
   private connect(): void {
+    if (this.disposed) return
+
     const createWs = this.options.createWebSocket ?? ((url: string) => new WebSocket(url))
     this.ws = createWs(this.options.wsUrl)
 
     this.ws.onopen = () => {
+      if (this.disposed) return
+      this.reconnectAttempt = 0
+      this.pendingMessages.length = 0
+      this.resubscribeActive()
       this.flushPendingMessages()
     }
 
     this.ws.onmessage = (event: MessageEvent) => {
+      if (this.disposed) return
       const message = JSON.parse(String(event.data)) as ServerSyncMessage
       this.handleMessage(message)
     }
 
     this.ws.onerror = () => {
       this.handleConnectionLoss()
+    }
+
+    this.ws.onclose = () => {
+      this.handleConnectionLoss()
+      this.scheduleReconnect()
     }
   }
 
@@ -116,6 +139,83 @@ export class EntitySyncService implements Disposable {
       this.ws.send(data)
     } else {
       this.pendingMessages.push(data)
+    }
+  }
+
+  /**
+   * Schedules a reconnection attempt with exponential backoff.
+   * Respects `reconnect`, `maxReconnectAttempts`, and the backoff parameters.
+   */
+  private scheduleReconnect(): void {
+    if (this.disposed) return
+    if (!(this.options.reconnect ?? true)) return
+
+    const maxAttempts = this.options.maxReconnectAttempts ?? Infinity
+    if (this.reconnectAttempt >= maxAttempts) return
+
+    const baseMs = this.options.reconnectBaseMs ?? 1000
+    const maxMs = this.options.reconnectMaxMs ?? 30000
+    const delay = Math.min(baseMs * Math.pow(2, this.reconnectAttempt), maxMs)
+
+    this.reconnectAttempt++
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined
+      this.connect()
+    }, delay)
+  }
+
+  /**
+   * Re-subscribes all active (non-suspended) subscriptions after a reconnect.
+   * Generates new requestIds and sends fresh subscribe messages.
+   */
+  private resubscribeActive(): void {
+    for (const internal of this.liveEntities.values()) {
+      if (internal.state.isDisposed) continue
+      const currentState = internal.state.getValue()
+      if (currentState.status === 'suspended') continue
+
+      this.pendingRequests.delete(internal.requestId)
+      internal.subscriptionId = undefined
+      internal.requestId = `req-${++this.requestCounter}`
+      this.pendingRequests.set(internal.requestId, internal)
+
+      if (currentState.status === 'error') {
+        internal.state.setValue({ status: 'connecting' })
+      }
+
+      this.send({
+        type: 'subscribe-entity',
+        requestId: internal.requestId,
+        model: internal.modelName,
+        key: internal.key,
+        lastSeq: internal.lastSeq,
+      })
+    }
+
+    for (const internal of this.liveCollections.values()) {
+      if (internal.state.isDisposed) continue
+      const currentState = internal.state.getValue()
+      if (currentState.status === 'suspended') continue
+
+      this.pendingRequests.delete(internal.requestId)
+      internal.subscriptionId = undefined
+      internal.requestId = `req-${++this.requestCounter}`
+      this.pendingRequests.set(internal.requestId, internal)
+
+      if (currentState.status === 'error') {
+        internal.state.setValue({ status: 'connecting' })
+      }
+
+      this.send({
+        type: 'subscribe-collection',
+        requestId: internal.requestId,
+        model: internal.modelName,
+        filter: internal.filter as FilterType<unknown>,
+        top: internal.top,
+        skip: internal.skip,
+        order: internal.order,
+        lastSeq: internal.lastSeq,
+      })
     }
   }
 
@@ -226,12 +326,7 @@ export class EntitySyncService implements Disposable {
     },
   ): LiveCollection<T> {
     const modelName = model.name
-    const collectionKey = `${modelName}:collection:${JSON.stringify({
-      filter: options?.filter,
-      top: options?.top,
-      skip: options?.skip,
-      order: options?.order,
-    })}`
+    const collectionKey = this.getCollectionKey(modelName, options)
 
     let internal = this.liveCollections.get(collectionKey)
 
@@ -711,6 +806,158 @@ export class EntitySyncService implements Disposable {
     })
   }
 
+  private getCollectionKey(
+    modelName: string,
+    options?: { filter?: unknown; top?: number; skip?: number; order?: unknown },
+  ): string {
+    return `${modelName}:collection:${JSON.stringify({
+      filter: options?.filter,
+      top: options?.top,
+      skip: options?.skip,
+      order: options?.order,
+    })}`
+  }
+
+  /**
+   * Applies an optimistic update to a subscribed entity's local state.
+   * The change is merged into the entity's data immediately.
+   * Returns a rollback function that reverts to the pre-update state,
+   * unless a server update has arrived since (in which case rollback is a no-op).
+   * @param model The model class
+   * @param key The entity's primary key value
+   * @param change Partial fields to merge into the entity
+   * @returns A rollback function, or undefined if the entity is not found or has no data
+   */
+  public applyOptimisticEntityUpdate<T>(
+    model: Constructable<T>,
+    key: unknown,
+    change: Partial<T>,
+  ): (() => void) | undefined {
+    const entityKey = `${model.name}:${String(key)}`
+    const internal = this.liveEntities.get(entityKey)
+    if (!internal || internal.state.isDisposed) return undefined
+
+    const currentState = internal.state.getValue()
+    if (!('data' in currentState) || currentState.data == null) return undefined
+
+    const previousState = currentState
+    const seqAtUpdate = internal.lastSeq
+    const updatedData = { ...(currentState.data as Record<string, unknown>), ...(change as Record<string, unknown>) }
+    internal.state.setValue({ ...currentState, data: updatedData })
+
+    return () => {
+      if (internal.state.isDisposed) return
+      if (internal.lastSeq !== seqAtUpdate) return
+      internal.state.setValue(previousState)
+    }
+  }
+
+  /**
+   * Optimistically adds an entity to a subscribed collection's local state.
+   * The entity is appended immediately. Returns a rollback function.
+   * @param model The model class
+   * @param entity The entity to add
+   * @param options The same collection subscription options used when subscribing
+   * @returns A rollback function, or undefined if the collection is not found or has no data
+   */
+  public applyOptimisticCollectionAdd<T>(
+    model: Constructable<T>,
+    entity: T,
+    options?: { filter?: FilterType<T>; top?: number; skip?: number; order?: { [P in keyof T]?: 'ASC' | 'DESC' } },
+  ): (() => void) | undefined {
+    const collectionKey = this.getCollectionKey(model.name, options)
+    const internal = this.liveCollections.get(collectionKey)
+    if (!internal || internal.state.isDisposed) return undefined
+
+    const currentState = internal.state.getValue()
+    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+
+    const previousState = currentState
+    const seqAtUpdate = internal.lastSeq
+    internal.state.setValue({ ...currentState, data: [...currentState.data, entity as unknown] })
+
+    return () => {
+      if (internal.state.isDisposed) return
+      if (internal.lastSeq !== seqAtUpdate) return
+      internal.state.setValue(previousState)
+    }
+  }
+
+  /**
+   * Optimistically updates an entity within a subscribed collection's local state.
+   * The change is merged into the matching entity immediately. Returns a rollback function.
+   * @param model The model class
+   * @param entityKey The primary key value of the entity to update
+   * @param change Partial fields to merge
+   * @param options The same collection subscription options used when subscribing
+   * @returns A rollback function, or undefined if the collection is not found or has no data
+   */
+  public applyOptimisticCollectionUpdate<T>(
+    model: Constructable<T>,
+    entityKey: unknown,
+    change: Partial<T>,
+    options?: { filter?: FilterType<T>; top?: number; skip?: number; order?: { [P in keyof T]?: 'ASC' | 'DESC' } },
+  ): (() => void) | undefined {
+    const collectionKey = this.getCollectionKey(model.name, options)
+    const internal = this.liveCollections.get(collectionKey)
+    if (!internal || internal.state.isDisposed || !internal.primaryKey) return undefined
+
+    const currentState = internal.state.getValue()
+    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+
+    const previousState = currentState
+    const seqAtUpdate = internal.lastSeq
+    const updatedData = currentState.data.map((item) => {
+      const pk = (item as Record<string, unknown>)[internal.primaryKey!]
+      if (pk === entityKey) {
+        return { ...(item as Record<string, unknown>), ...(change as Record<string, unknown>) }
+      }
+      return item
+    })
+    internal.state.setValue({ ...currentState, data: updatedData })
+
+    return () => {
+      if (internal.state.isDisposed) return
+      if (internal.lastSeq !== seqAtUpdate) return
+      internal.state.setValue(previousState)
+    }
+  }
+
+  /**
+   * Optimistically removes an entity from a subscribed collection's local state.
+   * The entity is filtered out immediately. Returns a rollback function.
+   * @param model The model class
+   * @param entityKey The primary key value of the entity to remove
+   * @param options The same collection subscription options used when subscribing
+   * @returns A rollback function, or undefined if the collection is not found or has no data
+   */
+  public applyOptimisticCollectionRemove<T>(
+    model: Constructable<T>,
+    entityKey: unknown,
+    options?: { filter?: FilterType<T>; top?: number; skip?: number; order?: { [P in keyof T]?: 'ASC' | 'DESC' } },
+  ): (() => void) | undefined {
+    const collectionKey = this.getCollectionKey(model.name, options)
+    const internal = this.liveCollections.get(collectionKey)
+    if (!internal || internal.state.isDisposed || !internal.primaryKey) return undefined
+
+    const currentState = internal.state.getValue()
+    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+
+    const previousState = currentState
+    const seqAtUpdate = internal.lastSeq
+    const filteredData = currentState.data.filter((item) => {
+      const pk = (item as Record<string, unknown>)[internal.primaryKey!]
+      return pk !== entityKey
+    })
+    internal.state.setValue({ ...currentState, data: filteredData })
+
+    return () => {
+      if (internal.state.isDisposed) return
+      if (internal.lastSeq !== seqAtUpdate) return
+      internal.state.setValue(previousState)
+    }
+  }
+
   private findBySubscriptionId(subscriptionId: string): LiveSubscriptionInternal | undefined {
     for (const internal of this.liveEntities.values()) {
       if (internal.subscriptionId === subscriptionId) {
@@ -726,6 +973,13 @@ export class EntitySyncService implements Disposable {
   }
 
   public [Symbol.dispose](): void {
+    this.disposed = true
+
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = undefined
+    }
+
     for (const internal of this.liveEntities.values()) {
       if (internal.suspendTimer) {
         clearTimeout(internal.suspendTimer)

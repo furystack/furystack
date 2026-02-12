@@ -48,18 +48,35 @@ type MockWebSocket = ReturnType<typeof createMockWebSocket>
 const getSentMessages = (ws: MockWebSocket): ClientSyncMessage[] =>
   ws.send.mock.calls.map((call) => JSON.parse(call[0] as string) as ClientSyncMessage)
 
-const setupClient = (options?: { localStore?: SyncCacheStore }) => {
-  const mockWs = createMockWebSocket()
+const setupClient = (options?: {
+  localStore?: SyncCacheStore
+  reconnect?: boolean
+  reconnectBaseMs?: number
+  reconnectMaxMs?: number
+  maxReconnectAttempts?: number
+}) => {
+  const webSockets: MockWebSocket[] = []
   const service = new EntitySyncService({
     wsUrl: 'ws://test',
-    createWebSocket: () => mockWs as unknown as WebSocket,
+    createWebSocket: () => {
+      const ws = createMockWebSocket()
+      webSockets.push(ws)
+      return ws as unknown as WebSocket
+    },
     localStore: options?.localStore,
+    reconnect: options?.reconnect,
+    reconnectBaseMs: options?.reconnectBaseMs,
+    reconnectMaxMs: options?.reconnectMaxMs,
+    maxReconnectAttempts: options?.maxReconnectAttempts,
   })
   service.registerModel(User)
   service.registerModel(ChatMessage)
 
   return {
-    mockWs,
+    get mockWs() {
+      return webSockets.at(-1)!
+    },
+    webSockets,
     service,
     [Symbol.dispose]: () => {
       service[Symbol.dispose]()
@@ -1236,6 +1253,625 @@ describe('EntitySyncService', () => {
       const retrieved = await store.get('User:1')
       expect(retrieved?.lastSeq).toBe(2)
       expect(retrieved?.data).toEqual({ id: '1', name: 'New' })
+    })
+  })
+
+  describe('reconnection', () => {
+    it('should reconnect on WebSocket close with exponential backoff', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100, reconnectMaxMs: 1600 }), async ({ webSockets }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+          firstWs.simulateClose()
+
+          // First reconnect attempt: 100ms
+          vi.advanceTimersByTime(99)
+          expect(webSockets).toHaveLength(1)
+          vi.advanceTimersByTime(1)
+          expect(webSockets).toHaveLength(2)
+
+          // Second attempt: 200ms
+          webSockets[1].simulateClose()
+          vi.advanceTimersByTime(199)
+          expect(webSockets).toHaveLength(2)
+          vi.advanceTimersByTime(1)
+          expect(webSockets).toHaveLength(3)
+
+          // Third attempt: 400ms
+          webSockets[2].simulateClose()
+          vi.advanceTimersByTime(399)
+          expect(webSockets).toHaveLength(3)
+          vi.advanceTimersByTime(1)
+          expect(webSockets).toHaveLength(4)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should cap backoff at reconnectMaxMs', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100, reconnectMaxMs: 300 }), async ({ webSockets }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+          firstWs.simulateClose()
+
+          // First: 100ms
+          vi.advanceTimersByTime(100)
+          expect(webSockets).toHaveLength(2)
+
+          // Second: 200ms
+          webSockets[1].simulateClose()
+          vi.advanceTimersByTime(200)
+          expect(webSockets).toHaveLength(3)
+
+          // Third: capped at 300ms (not 400ms)
+          webSockets[2].simulateClose()
+          vi.advanceTimersByTime(300)
+          expect(webSockets).toHaveLength(4)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should re-subscribe active entities on reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          const liveEntity = service.subscribeEntity(User, '123')
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          expect(liveEntity.state.getValue().status).toBe('synced')
+
+          // Connection drops
+          firstWs.simulateClose()
+          expect(liveEntity.state.getValue().status).toBe('cached')
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          // Should have re-subscribed with lastSeq
+          const sentMsgs = getSentMessages(secondWs)
+          expect(sentMsgs).toHaveLength(1)
+          expect(sentMsgs[0].type).toBe('subscribe-entity')
+          if (sentMsgs[0].type === 'subscribe-entity') {
+            expect(sentMsgs[0].model).toBe('User')
+            expect(sentMsgs[0].key).toBe('123')
+            expect(sentMsgs[0].lastSeq).toBe(5)
+          }
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should re-subscribe active collections on reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          const live = service.subscribeCollection(ChatMessage, { filter: { roomId: { $eq: 'room-1' } } })
+          subscribeCollectionAndRespond(
+            firstWs,
+            'sub-1',
+            [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+            'id',
+            'ChatMessage',
+            3,
+          )
+          expect(live.state.getValue().status).toBe('synced')
+
+          // Connection drops
+          firstWs.simulateClose()
+          expect(live.state.getValue().status).toBe('cached')
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          const sentMsgs = getSentMessages(secondWs)
+          expect(sentMsgs).toHaveLength(1)
+          expect(sentMsgs[0].type).toBe('subscribe-collection')
+          if (sentMsgs[0].type === 'subscribe-collection') {
+            expect(sentMsgs[0].model).toBe('ChatMessage')
+            expect(sentMsgs[0].lastSeq).toBe(3)
+          }
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should not re-subscribe suspended subscriptions on reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          const liveEntity = service.subscribeEntity(User, '123')
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' })
+
+          // Suspend the entity
+          liveEntity[Symbol.dispose]()
+          vi.advanceTimersByTime(1500)
+          expect(liveEntity.state.getValue().status).toBe('suspended')
+
+          // Connection drops
+          firstWs.simulateClose()
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          // Should NOT have re-subscribed
+          const sentMsgs = getSentMessages(secondWs)
+          expect(sentMsgs).toHaveLength(0)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should transition synced to cached then back to synced on reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          const liveEntity = service.subscribeEntity(User, '123')
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          expect(liveEntity.state.getValue().status).toBe('synced')
+
+          // Connection drops
+          firstWs.simulateClose()
+          const cachedState = liveEntity.state.getValue()
+          expect(cachedState.status).toBe('cached')
+          if (cachedState.status === 'cached') {
+            expect(cachedState.data).toEqual({ id: '123', name: 'John' })
+          }
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          // Server responds with snapshot
+          const sentMsg = getSentMessages(secondWs)[0]
+          if (sentMsg.type === 'subscribe-entity') {
+            secondWs.simulateMessage({
+              type: 'subscribed',
+              requestId: sentMsg.requestId,
+              subscriptionId: 'sub-2',
+              model: 'User',
+              mode: 'snapshot',
+              data: { id: '123', name: 'Updated John' },
+              version: { seq: 10, timestamp: new Date().toISOString() },
+            })
+          }
+
+          const syncedState = liveEntity.state.getValue()
+          expect(syncedState.status).toBe('synced')
+          if (syncedState.status === 'synced') {
+            expect(syncedState.data).toEqual({ id: '123', name: 'Updated John' })
+          }
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should reset reconnect attempt counter on successful connection', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+          firstWs.simulateClose()
+
+          // First reconnect: 100ms
+          vi.advanceTimersByTime(100)
+          expect(webSockets).toHaveLength(2)
+
+          // Connection succeeds, then drops again
+          webSockets[1].simulateOpen()
+          webSockets[1].simulateClose()
+
+          // Should reset to base delay (100ms), not continue exponential (200ms)
+          vi.advanceTimersByTime(100)
+          expect(webSockets).toHaveLength(3)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should stop reconnecting after maxReconnectAttempts', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100, maxReconnectAttempts: 2 }), async ({ webSockets }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+          firstWs.simulateClose()
+
+          // First attempt
+          vi.advanceTimersByTime(100)
+          expect(webSockets).toHaveLength(2)
+          webSockets[1].simulateClose()
+
+          // Second attempt
+          vi.advanceTimersByTime(200)
+          expect(webSockets).toHaveLength(3)
+          webSockets[2].simulateClose()
+
+          // Should NOT attempt a third
+          vi.advanceTimersByTime(10000)
+          expect(webSockets).toHaveLength(3)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should not reconnect when reconnect is disabled', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnect: false }), async ({ webSockets }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+          firstWs.simulateClose()
+
+          vi.advanceTimersByTime(60000)
+          expect(webSockets).toHaveLength(1)
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should not reconnect after disposal', async () => {
+      vi.useFakeTimers()
+      try {
+        const client = setupClient({ reconnectBaseMs: 100 })
+        const { webSockets, service } = client
+        const firstWs = webSockets[0]
+        firstWs.simulateOpen()
+        firstWs.simulateClose()
+
+        // Dispose before reconnect timer fires
+        service[Symbol.dispose]()
+        vi.advanceTimersByTime(10000)
+        expect(webSockets).toHaveLength(1)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should handle new subscriptions created while disconnected', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          // Subscribe entity on first connection
+          const live1 = service.subscribeEntity(User, '123')
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+
+          // Connection drops
+          firstWs.simulateClose()
+          expect(live1.state.getValue().status).toBe('cached')
+
+          // Subscribe a new entity while disconnected
+          const live2 = service.subscribeEntity(User, '456')
+          expect(live2.state.getValue().status).toBe('connecting')
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          // Both subscriptions should have been (re-)subscribed
+          const sentMsgs = getSentMessages(secondWs)
+          expect(sentMsgs).toHaveLength(2)
+          const models = sentMsgs.map((m) => (m.type === 'subscribe-entity' ? m.key : undefined))
+          expect(models).toContain('123')
+          expect(models).toContain('456')
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should transition error subscriptions to connecting on reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const firstWs = webSockets[0]
+          firstWs.simulateOpen()
+
+          const liveEntity = service.subscribeEntity(User, '123')
+          // Trigger error (no data yet)
+          firstWs.simulateError()
+          expect(liveEntity.state.getValue().status).toBe('error')
+
+          firstWs.simulateClose()
+
+          // Reconnect
+          vi.advanceTimersByTime(100)
+          const secondWs = webSockets[1]
+          secondWs.simulateOpen()
+
+          expect(liveEntity.state.getValue().status).toBe('connecting')
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  describe('optimistic updates', () => {
+    describe('entity', () => {
+      it('should apply optimistic update immediately', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeEntity(User, '123')
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' })
+
+          service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' } as Partial<User>)
+
+          const state = live.state.getValue()
+          expect(state.status).toBe('synced')
+          if (state.status === 'synced') {
+            expect(state.data).toEqual({ id: '123', name: 'Jane' })
+          }
+        })
+      })
+
+      it('should return rollback function that reverts state', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeEntity(User, '123')
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' })
+
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' } as Partial<User>)
+          expect(rollback).toBeDefined()
+
+          rollback!()
+
+          const state = live.state.getValue()
+          expect(state.status).toBe('synced')
+          if (state.status === 'synced') {
+            expect(state.data).toEqual({ id: '123', name: 'John' })
+          }
+        })
+      })
+
+      it('should not rollback if server has updated since', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeEntity(User, '123')
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 1)
+
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Optimistic' } as Partial<User>)
+
+          // Server sends an update
+          mockWs.simulateMessage({
+            type: 'entity-updated',
+            subscriptionId: 'sub-1',
+            id: '123',
+            change: { name: 'Server Updated' },
+            version: { seq: 2, timestamp: new Date().toISOString() },
+          })
+
+          // Rollback should be a no-op
+          rollback!()
+
+          const state = live.state.getValue()
+          expect(state.status).toBe('synced')
+          if (state.status === 'synced') {
+            expect(state.data).toEqual({ id: '123', name: 'Server Updated' })
+          }
+        })
+      })
+
+      it('should return undefined for non-existent entity', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const rollback = service.applyOptimisticEntityUpdate(User, 'nonexistent', { name: 'X' } as Partial<User>)
+          expect(rollback).toBeUndefined()
+        })
+      })
+
+      it('should return undefined for entity without data', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          service.subscribeEntity(User, '123')
+          // Don't respond to subscription -- no data yet
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'X' } as Partial<User>)
+          expect(rollback).toBeUndefined()
+        })
+      })
+    })
+
+    describe('collection add', () => {
+      it('should add entity to collection immediately', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
+
+          service.applyOptimisticCollectionAdd(ChatMessage, {
+            id: 'msg-temp',
+            text: 'Optimistic',
+            roomId: 'room-1',
+          } as ChatMessage)
+
+          const state = live.state.getValue()
+          expect(state.status).toBe('synced')
+          if (state.status === 'synced') {
+            expect(state.data).toHaveLength(2)
+            expect(state.data[1]).toMatchObject({ id: 'msg-temp', text: 'Optimistic' })
+          }
+        })
+      })
+
+      it('should rollback collection add', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
+
+          const rollback = service.applyOptimisticCollectionAdd(ChatMessage, {
+            id: 'msg-temp',
+            text: 'Optimistic',
+            roomId: 'room-1',
+          } as ChatMessage)
+
+          rollback!()
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data).toHaveLength(1)
+          }
+        })
+      })
+    })
+
+    describe('collection update', () => {
+      it('should update entity in collection immediately', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
+
+          service.applyOptimisticCollectionUpdate(ChatMessage, 'msg-1', {
+            text: 'Updated',
+          } as Partial<ChatMessage>)
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Updated' })
+          }
+        })
+      })
+
+      it('should rollback collection update', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
+
+          const rollback = service.applyOptimisticCollectionUpdate(ChatMessage, 'msg-1', {
+            text: 'Updated',
+          } as Partial<ChatMessage>)
+
+          rollback!()
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
+          }
+        })
+      })
+    })
+
+    describe('collection remove', () => {
+      it('should remove entity from collection immediately', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(
+            mockWs,
+            'sub-1',
+            [
+              { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+              { id: 'msg-2', text: 'World', roomId: 'room-1' },
+            ],
+            'id',
+          )
+
+          service.applyOptimisticCollectionRemove(ChatMessage, 'msg-1')
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data).toHaveLength(1)
+            expect(state.data[0]).toMatchObject({ id: 'msg-2' })
+          }
+        })
+      })
+
+      it('should rollback collection remove', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(
+            mockWs,
+            'sub-1',
+            [
+              { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+              { id: 'msg-2', text: 'World', roomId: 'room-1' },
+            ],
+            'id',
+          )
+
+          const rollback = service.applyOptimisticCollectionRemove(ChatMessage, 'msg-1')
+
+          rollback!()
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data).toHaveLength(2)
+          }
+        })
+      })
+
+      it('should not rollback collection remove after server update', async () => {
+        await usingAsync(setupClient(), async ({ mockWs, service }) => {
+          mockWs.simulateOpen()
+          const live = service.subscribeCollection(ChatMessage)
+          subscribeCollectionAndRespond(
+            mockWs,
+            'sub-1',
+            [
+              { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+              { id: 'msg-2', text: 'World', roomId: 'room-1' },
+            ],
+            'id',
+          )
+
+          const rollback = service.applyOptimisticCollectionRemove(ChatMessage, 'msg-1')
+
+          // Server confirms the removal
+          mockWs.simulateMessage({
+            type: 'entity-removed',
+            subscriptionId: 'sub-1',
+            id: 'msg-1',
+            version: { seq: 2, timestamp: new Date().toISOString() },
+          })
+
+          // Rollback should be a no-op
+          rollback!()
+
+          const state = live.state.getValue()
+          if (state.status === 'synced') {
+            expect(state.data).toHaveLength(1)
+            expect(state.data[0]).toMatchObject({ id: 'msg-2' })
+          }
+        })
+      })
     })
   })
 
