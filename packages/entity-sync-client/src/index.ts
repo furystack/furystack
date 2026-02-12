@@ -1,0 +1,8 @@
+export { EntitySyncService } from './entity-sync-service.js'
+export type { EntitySyncServiceOptions, ModelRegistrationOptions } from './entity-sync-service.js'
+export type { LiveEntity } from './live-entity.js'
+export type { LiveCollection } from './live-collection.js'
+export { createInMemoryCacheStore } from './sync-cache-entry.js'
+export type { SyncCacheEntry, SyncCacheStore } from './sync-cache-entry.js'
+export { useEntitySync, useCollectionSync } from './shades-hooks.js'
+export type { SyncHookContext } from './shades-hooks.js'

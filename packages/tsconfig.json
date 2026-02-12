@@ -73,6 +73,15 @@
     },
     {
       "path": "./cache"
+    },
+    {
+      "path": "./entity-sync"
+    },
+    {
+      "path": "./entity-sync-service"
+    },
+    {
+      "path": "./entity-sync-client"
     }
   ]
 }
