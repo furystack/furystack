@@ -1,4 +1,4 @@
-import { Injectable, getInjectorReference } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import type { WebSocketAction } from '@furystack/websocket-api'
 import type { ClientSyncMessage } from '@furystack/entity-sync'
 import type { IncomingMessage } from 'http'
@@ -28,7 +28,10 @@ export class SyncUnsubscribeAction implements WebSocketAction {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const msg = JSON.parse(options.data.toString()) as ClientSyncMessage
     if (msg.type === 'unsubscribe') {
-      getInjectorReference(this).getInstance(SubscriptionManager).unsubscribe(msg.subscriptionId)
+      this.subscriptionManager.unsubscribe(msg.subscriptionId)
     }
   }
+
+  @Injected(SubscriptionManager)
+  declare private readonly subscriptionManager: SubscriptionManager
 }

@@ -85,6 +85,7 @@ export class EntitySyncService implements Disposable {
   private readonly liveEntities = new Map<string, LiveEntityInternal>()
   private readonly liveCollections = new Map<string, LiveCollectionInternal>()
   private readonly pendingRequests = new Map<string, LiveSubscriptionInternal>()
+  private readonly subscriptionIdIndex = new Map<string, LiveSubscriptionInternal>()
   private readonly pendingMessages: string[] = []
   private requestCounter = 0
   private reconnectAttempt = 0
@@ -175,7 +176,7 @@ export class EntitySyncService implements Disposable {
       if (currentState.status === 'suspended') continue
 
       this.pendingRequests.delete(internal.requestId)
-      internal.subscriptionId = undefined
+      this.setSubscriptionId(internal, undefined)
       internal.requestId = `req-${++this.requestCounter}`
       this.pendingRequests.set(internal.requestId, internal)
 
@@ -198,7 +199,7 @@ export class EntitySyncService implements Disposable {
       if (currentState.status === 'suspended') continue
 
       this.pendingRequests.delete(internal.requestId)
-      internal.subscriptionId = undefined
+      this.setSubscriptionId(internal, undefined)
       internal.requestId = `req-${++this.requestCounter}`
       this.pendingRequests.set(internal.requestId, internal)
 
@@ -465,6 +466,7 @@ export class EntitySyncService implements Disposable {
         subscriptionId: internal.subscriptionId,
       })
     }
+    this.setSubscriptionId(internal, undefined)
 
     // Transition to suspended state if we have data
     const currentState = internal.state.getValue()
@@ -490,6 +492,7 @@ export class EntitySyncService implements Disposable {
         subscriptionId: internal.subscriptionId,
       })
     }
+    this.setSubscriptionId(internal, undefined)
 
     const currentState = internal.state.getValue()
     if (currentState.status === 'synced' && 'data' in currentState) {
@@ -611,7 +614,7 @@ export class EntitySyncService implements Disposable {
         if (!internal) return
         this.pendingRequests.delete(message.requestId)
 
-        internal.subscriptionId = message.subscriptionId
+        this.setSubscriptionId(internal, message.subscriptionId)
 
         if (internal.type === 'entity') {
           if (message.mode === 'snapshot') {
@@ -958,18 +961,18 @@ export class EntitySyncService implements Disposable {
     }
   }
 
+  private setSubscriptionId(internal: LiveSubscriptionInternal, subscriptionId: string | undefined): void {
+    if (internal.subscriptionId) {
+      this.subscriptionIdIndex.delete(internal.subscriptionId)
+    }
+    internal.subscriptionId = subscriptionId
+    if (subscriptionId) {
+      this.subscriptionIdIndex.set(subscriptionId, internal)
+    }
+  }
+
   private findBySubscriptionId(subscriptionId: string): LiveSubscriptionInternal | undefined {
-    for (const internal of this.liveEntities.values()) {
-      if (internal.subscriptionId === subscriptionId) {
-        return internal
-      }
-    }
-    for (const internal of this.liveCollections.values()) {
-      if (internal.subscriptionId === subscriptionId) {
-        return internal
-      }
-    }
-    return undefined
+    return this.subscriptionIdIndex.get(subscriptionId)
   }
 
   public [Symbol.dispose](): void {
@@ -999,6 +1002,7 @@ export class EntitySyncService implements Disposable {
     this.liveEntities.clear()
     this.liveCollections.clear()
     this.pendingRequests.clear()
+    this.subscriptionIdIndex.clear()
     this.pendingMessages.length = 0
     this.ws?.close()
   }

@@ -98,7 +98,14 @@ export class SubscriptionManager implements Disposable {
     model: Constructable<T>,
     primaryKey: TPrimaryKey,
     options?: ModelSyncOptions,
-  ): void {
+  ): void
+  /**
+   * Registers a model for entity sync using a string primary key.
+   * Useful when the model type is not statically known (e.g. from a config array).
+   * The primary key is validated at runtime by Repository.getDataSetFor.
+   */
+  public registerModel(model: Constructable<unknown>, primaryKey: string, options?: ModelSyncOptions): void
+  public registerModel(model: Constructable<unknown>, primaryKey: string, options?: ModelSyncOptions): void {
     const modelName = model.name
 
     if (this.modelRegistrations.has(modelName)) {
@@ -109,25 +116,26 @@ export class SubscriptionManager implements Disposable {
       return
     }
 
-    const dataSet = this.repository.getDataSetFor(model, primaryKey)
+    type AnyEntity = Record<string, unknown>
+    const dataSet = this.repository.getDataSetFor(model as Constructable<AnyEntity>, primaryKey)
 
     const registration: ModelRegistration = {
       model,
       modelName,
-      primaryKey: primaryKey as string,
+      primaryKey,
       currentSeq: 0,
       changelog: [],
       changelogRetentionMs: options?.changelogRetentionMs ?? 5 * 60 * 1000,
       debounceMs: options?.debounceMs ?? 0,
       queryTtlMs: options?.queryTtlMs ?? 0,
       eventSubscriptions: [],
-      getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]),
+      getEntity: (injector, key) => dataSet.get(injector, key),
       findEntities: async (injector, findOptions) => {
         const result = await dataSet.find(injector, {
-          filter: findOptions.filter as FilterType<T> | undefined,
+          filter: findOptions.filter as FilterType<AnyEntity> | undefined,
           top: findOptions.top,
           skip: findOptions.skip,
-          order: findOptions.order as { [P in keyof T]?: 'ASC' | 'DESC' } | undefined,
+          order: findOptions.order as { [P in keyof AnyEntity]?: 'ASC' | 'DESC' } | undefined,
         })
         return result as unknown[]
       },
@@ -138,7 +146,7 @@ export class SubscriptionManager implements Disposable {
         this.handleEntityAdded(
           modelName,
           entity as unknown as Record<string, unknown>,
-          (entity as unknown as Record<string, unknown>)[primaryKey as string],
+          (entity as unknown as Record<string, unknown>)[primaryKey],
         )
       }),
       dataSet.subscribe('onEntityUpdated', ({ id, change }) => {
@@ -271,10 +279,22 @@ export class SubscriptionManager implements Disposable {
    */
   private scheduleCollectionEvaluation(sub: CollectionSubscription, registration: ModelRegistration): void {
     if (registration.debounceMs === 0) {
-      void this.evaluateCollectionSubscription(sub)
+      void this.evaluateCollectionSubscription(sub).catch((error) => {
+        this.sendMessage(sub.socket, {
+          type: 'subscription-error',
+          requestId: sub.subscriptionId,
+          error: error instanceof Error ? error.message : 'Collection evaluation failed',
+        })
+      })
     } else {
       this.scheduleDebounce(sub.subscriptionId, registration.debounceMs, () => {
-        void this.evaluateCollectionSubscription(sub)
+        void this.evaluateCollectionSubscription(sub).catch((error) => {
+          this.sendMessage(sub.socket, {
+            type: 'subscription-error',
+            requestId: sub.subscriptionId,
+            error: error instanceof Error ? error.message : 'Collection evaluation failed',
+          })
+        })
       })
     }
   }
@@ -375,12 +395,21 @@ export class SubscriptionManager implements Disposable {
   ): Record<string, unknown> | null {
     const change: Record<string, unknown> = {}
     let hasChange = false
+
     for (const key of Object.keys(newObj)) {
       if (newObj[key] !== oldObj[key]) {
         change[key] = newObj[key]
         hasChange = true
       }
     }
+
+    for (const key of Object.keys(oldObj)) {
+      if (!(key in newObj)) {
+        change[key] = undefined
+        hasChange = true
+      }
+    }
+
     return hasChange ? change : null
   }
 
