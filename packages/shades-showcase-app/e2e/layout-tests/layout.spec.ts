@@ -83,7 +83,7 @@ test.describe('PageLayout E2E Tests', () => {
       await expect(page.getByTestId('test-drawer-left')).toBeVisible()
 
       // Toggle via header action button (use exact text to avoid matching the AppBar toggle)
-      const headerToggle = page.getByRole('button', { name: '📐 Toggle Drawer' })
+      const headerToggle = page.getByRole('button', { name: 'Toggle Drawer' })
       await headerToggle.click()
       await expectDrawerClosed(page, 'left')
 
