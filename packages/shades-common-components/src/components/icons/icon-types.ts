@@ -45,4 +45,13 @@ export type IconDefinition = {
    * @default 2
    */
   strokeWidth?: number
+
+  /** Human-readable display name (e.g., "Check Circle", "Arrow Left") */
+  name?: string
+  /** Short description of the icon's intended use */
+  description?: string
+  /** Search keywords for filtering (e.g., ['dismiss', 'cancel', 'x'] for close) */
+  keywords?: string[]
+  /** Category for grouping in galleries (e.g., "Actions", "Navigation", "Content") */
+  category?: string
 }
