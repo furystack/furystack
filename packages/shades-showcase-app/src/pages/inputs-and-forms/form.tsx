@@ -1,4 +1,4 @@
-import { Shade, createComponent } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import {
   Alert,
   Button,
