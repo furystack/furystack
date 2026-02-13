@@ -63,7 +63,7 @@ export const ShowcaseBreadcrumbComponent = Shade({
 
     return (
       <ShowcaseBreadcrumbItem
-        homeItem={{ path: '/', label: (<Icon icon={icons.home} size="small" />) as unknown as string }}
+        homeItem={{ path: '/', label: <Icon icon={icons.home} size="small" /> }}
         items={breadcrumbItems}
         separator=" › "
       />

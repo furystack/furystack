@@ -8,6 +8,9 @@ export type IconPath = {
   fillRule?: 'evenodd' | 'nonzero'
 }
 
+/** Category for grouping icons in galleries */
+export type IconCategory = 'Actions' | 'Navigation' | 'Status' | 'Content' | 'UI' | 'Common'
+
 /**
  * Defines an icon as a set of SVG paths with rendering metadata.
  * Icons are lightweight objects containing only path data -- no embedded SVG markup.
@@ -52,6 +55,6 @@ export type IconDefinition = {
   description?: string
   /** Search keywords for filtering (e.g., ['dismiss', 'cancel', 'x'] for close) */
   keywords?: string[]
-  /** Category for grouping in galleries (e.g., "Actions", "Navigation", "Content") */
-  category?: string
+  /** Category for grouping in galleries */
+  category?: IconCategory
 }
