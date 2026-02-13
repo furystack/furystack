@@ -82,8 +82,8 @@ test.describe('PageLayout E2E Tests', () => {
       await expectDrawerOpen(page, 'left')
       await expect(page.getByTestId('test-drawer-left')).toBeVisible()
 
-      // Toggle via header action button (use exact text to avoid matching the AppBar toggle)
-      const headerToggle = page.getByRole('button', { name: 'Toggle Drawer' })
+      // Toggle via header action button (scoped to page-header-actions to avoid matching the AppBar toggle)
+      const headerToggle = page.getByTestId('page-header-actions').getByRole('button', { name: 'Toggle Drawer' })
       await headerToggle.click()
       await expectDrawerClosed(page, 'left')
 
@@ -109,12 +109,12 @@ test.describe('PageLayout E2E Tests', () => {
       // Move mouse away, then use Show/Hide buttons
       await page.getByTestId('test-content').hover()
 
-      const showButton = page.getByRole('button', { name: /Show AppBar/i })
+      const showButton = page.getByTestId('page-header-actions').getByRole('button', { name: /Show AppBar/i })
       await showButton.click()
       await expect(getPageLayoutHost(page)).toHaveAttribute('data-appbar-visible', '')
       await expect(page.getByTestId('test-appbar')).toBeVisible()
 
-      const hideButton = page.getByRole('button', { name: /Hide AppBar/i })
+      const hideButton = page.getByTestId('page-header-actions').getByRole('button', { name: /Hide AppBar/i })
       await hideButton.click()
       await expect(getPageLayoutHost(page)).not.toHaveAttribute('data-appbar-visible')
     })
