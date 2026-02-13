@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Radio, RadioGroup } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Radio, RadioGroup } from '@furystack/shades-common-components'
 
 export const RadioPage = Shade({
   shadowDomName: 'radio-page',
@@ -10,7 +10,7 @@ export const RadioPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔘"
+          icon={<Icon icon={icons.circleDot} />}
           title="Radio / RadioGroup"
           description="Radio buttons allow users to select a single option from a set. Use RadioGroup to group related options and manage selection state. Supports palette colors, disabled state, horizontal/vertical layout, and FormService integration."
         />

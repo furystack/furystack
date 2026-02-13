@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { InputNumber, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  InputNumber,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const InputNumberPage = Shade({
   shadowDomName: 'input-number-page',
@@ -9,7 +17,7 @@ export const InputNumberPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔢"
+          icon={<Icon icon={icons.hash} />}
           title="Input Number"
           description="InputNumber provides a numeric input with increment/decrement buttons, keyboard navigation (ArrowUp/Down), min/max clamping, step control, precision formatting, and custom formatter/parser support."
         />

@@ -16,7 +16,7 @@ export * from './suggestion-list.js'
 export * from './suggestion-result.js'
 
 export interface SuggestProps<T> {
-  defaultPrefix: string
+  defaultPrefix: JSX.Element | string
   getEntries: (term: string) => Promise<T[]>
   getSuggestionEntry: (entry: T) => SuggestionResult
   onSelectSuggestion: (entry: T) => void

@@ -6,8 +6,8 @@ import { Paper } from '../paper.js'
  * Props for the PageHeader component.
  */
 export type PageHeaderProps = {
-  /** Optional icon (emoji or single character) displayed before the title */
-  icon?: string
+  /** Optional icon displayed before the title (string or JSX element such as an Icon component) */
+  icon?: JSX.Element | string
   /** The page title */
   title: string
   /** Optional description text displayed below the title */
@@ -27,9 +27,9 @@ export type PageHeaderProps = {
  *
  * @example
  * ```tsx
- * // Simple header with icon and description
+ * // Header with an Icon component
  * <PageHeader
- *   icon="👥"
+ *   icon={<Icon icon={icons.users} />}
  *   title="Users"
  *   description="Manage user accounts and their roles."
  * />
@@ -39,7 +39,7 @@ export type PageHeaderProps = {
  * ```tsx
  * // Header with action buttons
  * <PageHeader
- *   icon="📁"
+ *   icon={<Icon icon={icons.folder} />}
  *   title="Projects"
  *   description="View and manage your projects."
  *   actions={

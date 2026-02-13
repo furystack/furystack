@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Autocomplete, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Autocomplete, Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
@@ -7,7 +7,7 @@ export const InputsPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📝"
+          icon={<Icon icon={icons.fileText} />}
           title="Input Fields"
           description="Input components provide text entry with built-in validation, helper text, and icon slots. Three variants are available: default, outlined, and contained. Each input supports HTML5 validation attributes like required, pattern, min/max, and provides real-time feedback through customizable helper text and validation icons. The Autocomplete component extends inputs with suggestion dropdown functionality."
         />
@@ -24,7 +24,13 @@ export const InputsPage = Shade({
                   pattern="[a-zA-Z0-9]{3,}"
                   minLength={3}
                   maxLength={15}
-                  getStartIcon={({ state }) => <span>{state.validity.valid ? '✅' : '🛑'}</span>}
+                  getStartIcon={({ state }) =>
+                    state.validity.valid ? (
+                      <Icon icon={icons.checkCircle} size="small" />
+                    ) : (
+                      <Icon icon={icons.stopCircle} size="small" />
+                    )
+                  }
                   getHelperText={({ state }) => {
                     if (!state.validity.valid) {
                       if (state.validity.valueMissing) {
@@ -50,7 +56,13 @@ export const InputsPage = Shade({
                   required
                   minLength={5}
                   type="password"
-                  getEndIcon={({ state }) => <span>{state.validity.valid ? '🔒' : '🔓'}</span>}
+                  getEndIcon={({ state }) =>
+                    state.validity.valid ? (
+                      <Icon icon={icons.lock} size="small" />
+                    ) : (
+                      <Icon icon={icons.unlock} size="small" />
+                    )
+                  }
                   getHelperText={({ state }) => {
                     if (!state.validity.valid) {
                       if (state.validity.valueMissing) {

@@ -1,6 +1,8 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
 import {
+  Icon,
+  icons,
   PageContainer,
   PageHeader,
   Paper,
@@ -17,7 +19,7 @@ export const TimelinePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📅"
+          icon={<Icon icon={icons.calendar} />}
           title="Timeline"
           description="Timelines display a list of events in chronological order. Supports left, right, and alternate layout modes with custom colors, dots, labels, and pending state."
         />
@@ -48,16 +50,16 @@ export const TimelinePage = Shade({
             Custom dots
           </Typography>
           <Timeline>
-            <TimelineItem dot={<span>🎉</span>} color="success">
+            <TimelineItem dot={<Icon icon={icons.partyPopper} size="small" />} color="success">
               Project launched
             </TimelineItem>
-            <TimelineItem dot={<span>🐛</span>} color="error">
+            <TimelineItem dot={<Icon icon={icons.circleDot} size="small" />} color="error">
               Bug reported
             </TimelineItem>
-            <TimelineItem dot={<span>🔧</span>} color="warning">
+            <TimelineItem dot={<Icon icon={icons.wrench} size="small" />} color="warning">
               Fix in progress
             </TimelineItem>
-            <TimelineItem dot={<span>✅</span>} color="success">
+            <TimelineItem dot={<Icon icon={icons.checkCircle} size="small" />} color="success">
               Bug resolved
             </TimelineItem>
           </Timeline>

@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, Form, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Button, Form, Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { MicroFrontend } from '@furystack/shades-mfe'
 
 const importerService = async () => {
@@ -20,7 +20,7 @@ export const MFEPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🧩"
+          icon={<Icon icon={icons.puzzle} />}
           title="Micro Frontends"
           description="The MicroFrontend component from @furystack/shades-mfe enables loading and composing independent frontend applications. Each micro frontend is loaded lazily via a loader callback and receives an API object for communication with the host. This demo shows multiple micro frontends exchanging messages, demonstrating inter-app communication patterns for distributed frontend architectures."
         />

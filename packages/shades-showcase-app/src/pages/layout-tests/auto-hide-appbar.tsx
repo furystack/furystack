@@ -1,6 +1,8 @@
 import { createComponent, Shade } from '@furystack/shades'
 import {
   Button,
+  Icon,
+  icons,
   LayoutService,
   PageContainer,
   PageHeader,
@@ -14,7 +16,7 @@ const ShowAppBarButton = Shade({
     const layoutService = injector.getInstance(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(true)}>
-        👁️ Show AppBar
+        <Icon icon={icons.eye} size="small" /> Show AppBar
       </Button>
     )
   },
@@ -26,7 +28,7 @@ const HideAppBarButton = Shade({
     const layoutService = injector.getInstance(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(false)}>
-        🙈 Hide AppBar
+        <Icon icon={icons.eyeOff} size="small" /> Hide AppBar
       </Button>
     )
   },
@@ -63,7 +65,7 @@ export const AutoHideAppBarTest = Shade({
                 title="Show AppBar"
                 data-testid="show-appbar-button"
               >
-                🔻
+                <Icon icon={icons.chevronDown} size="small" />
               </Button>
               Auto-Hide AppBar (Deep Purple) - Hover to show
             </div>
@@ -78,7 +80,8 @@ export const AutoHideAppBarTest = Shade({
           }}
         >
           <PageHeader
-            title="🙈 Auto-Hide AppBar"
+            icon={<Icon icon={icons.eyeOff} />}
+            title="Auto-Hide AppBar"
             actions={
               <>
                 <ShowAppBarButton />

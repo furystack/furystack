@@ -1,5 +1,12 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, defaultDarkTheme, defaultLightTheme, ThemeProviderService } from '@furystack/shades-common-components'
+import {
+  Button,
+  Icon,
+  icons,
+  defaultDarkTheme,
+  defaultLightTheme,
+  ThemeProviderService,
+} from '@furystack/shades-common-components'
 
 export const ThemeSwitch = Shade({
   shadowDomName: 'theme-switch',
@@ -15,14 +22,14 @@ export const ThemeSwitch = Shade({
             setTheme('dark')
           }}
         >
-          🌜
+          <Icon icon={icons.moon} size="small" />
         </Button>
         <Button
           onclick={() => {
             setTheme('light')
           }}
         >
-          ☀️
+          <Icon icon={icons.sun} size="small" />
         </Button>
       </>
     )

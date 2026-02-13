@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Rating } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Rating } from '@furystack/shades-common-components'
 
 export const RatingPage = Shade({
   shadowDomName: 'rating-page',
@@ -9,7 +9,7 @@ export const RatingPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="⭐"
+          icon={<Icon icon={icons.star} />}
           title="Rating"
           description="The Rating component allows users to provide feedback with star ratings. It supports full and half-star precision, custom icons, multiple sizes, palette colors, read-only and disabled states, hover feedback, and keyboard navigation."
         />
@@ -40,8 +40,18 @@ export const RatingPage = Shade({
           <div>
             <h3 style={{ margin: '0 0 12px 0' }}>Custom Icons</h3>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Rating value={3} icon="❤️" emptyIcon="🤍" readOnly />
-              <Rating value={4} icon="🔥" emptyIcon="💨" readOnly />
+              <Rating
+                value={3}
+                icon={<Icon icon={icons.heart} size="small" />}
+                emptyIcon={<Icon icon={icons.heartOutline} size="small" />}
+                readOnly
+              />
+              <Rating
+                value={4}
+                icon={<Icon icon={icons.flame} size="small" />}
+                emptyIcon={<Icon icon={icons.wind} size="small" />}
+                readOnly
+              />
             </div>
           </div>
 

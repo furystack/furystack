@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, NotyList, NotyService, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Button,
+  Icon,
+  icons,
+  NotyList,
+  NotyService,
+  PageContainer,
+  PageHeader,
+  Paper,
+} from '@furystack/shades-common-components'
 
 export const NotysPage = Shade({
   shadowDomName: 'shade-notys',
@@ -8,7 +17,7 @@ export const NotysPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔔"
+          icon={<Icon icon={icons.bell} />}
           title="Notifications"
           description="The notification system consists of NotyService for dispatching notifications and NotyList for rendering them. Four notification types are available: info, success, warning, and error, each with distinct styling. Notifications appear as toast messages and can include a title and body content. Use notifications to provide feedback for user actions or system events."
         />

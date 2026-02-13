@@ -1,5 +1,5 @@
 import { createComponent, NestedRouteLink, Shade, styledElement, styledShade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const CustomHeader = styledElement('h1', {
   color: 'black',
@@ -15,7 +15,7 @@ export const HomePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🏠"
+          icon={<Icon icon={icons.home} />}
           title="Welcome to FuryStack Shades"
           description="Explore the component library and learn how to build modern web applications with the Shades framework."
         />

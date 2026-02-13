@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Switch } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Switch } from '@furystack/shades-common-components'
 
 export const SwitchPage = Shade({
   shadowDomName: 'switch-page',
@@ -9,7 +9,7 @@ export const SwitchPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔀"
+          icon={<Icon icon={icons.shuffle} />}
           title="Switch"
           description="Switch components provide a toggle control for binary on/off states. They support palette colors, disabled state, two sizes (small and medium), and integrate with the Form component for form handling. Switches use the role='switch' attribute for accessibility."
         />

@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { WelcomeWizard } from '../wizard/home-wizard.js'
 
 export const WizardPage = Shade({
@@ -8,7 +8,7 @@ export const WizardPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🧙"
+          icon={<Icon icon={icons.wand} />}
           title="Wizard"
           description="The Wizard component guides users through multi-step processes with a modal dialog interface. Each step can contain its own form or content, with navigation between steps controlled by Next/Back buttons. Wizards are ideal for onboarding flows, complex form submissions, or any sequential process that benefits from breaking into digestible chunks."
         />

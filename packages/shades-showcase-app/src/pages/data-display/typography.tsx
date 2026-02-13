@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { TypographyVariant } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const allVariants: TypographyVariant[] = [
   'h1',
@@ -23,7 +23,7 @@ export const TypographyPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔤"
+          icon={<Icon icon={icons.type} />}
           title="Typography"
           description="Typography uses consistent text styles across the UI. It maps semantic variants to HTML tags, supports palette and text colors, ellipsis truncation, copyable text, and alignment."
         />

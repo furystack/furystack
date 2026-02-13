@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Tabs, Typography, type Tab } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Tabs,
+  Typography,
+  type Tab,
+} from '@furystack/shades-common-components'
 
 const ControlledTabsDemo = Shade({
   shadowDomName: 'controlled-tabs-demo',
@@ -100,7 +109,7 @@ export const TabsPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📑"
+          icon={<Icon icon={icons.layers} />}
           title="Tabs"
           description="The Tabs component organizes content into switchable panels with a tab header strip. Tabs support hash-based navigation (deep linking), controlled mode, card-style headers, vertical orientation, closable tabs, and an add button."
         />

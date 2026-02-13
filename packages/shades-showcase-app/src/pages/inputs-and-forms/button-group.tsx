@@ -2,6 +2,8 @@ import { createComponent, Shade } from '@furystack/shades'
 import {
   Button,
   ButtonGroup,
+  Icon,
+  icons,
   PageContainer,
   PageHeader,
   Paper,
@@ -113,7 +115,7 @@ export const ButtonGroupPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔗"
+          icon={<Icon icon={icons.link} />}
           title="Button Group"
           description="ButtonGroup groups related buttons together. ToggleButtonGroup adds selection state (exclusive or multi-select). SegmentedControl provides a compact tab-like option selector."
         />

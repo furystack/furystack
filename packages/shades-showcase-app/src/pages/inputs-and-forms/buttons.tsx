@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import { Button, Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
   shadowDomName: 'buttons-page',
@@ -14,7 +14,7 @@ export const ButtonsPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔘"
+          icon={<Icon icon={icons.circleDot} />}
           title="Buttons"
           description="The Button component provides clickable elements with multiple visual variants, sizes, and states. Choose from text, outlined, or contained styles, each available in primary, secondary, error, and default colors. Buttons support disabled states, loading indicators, danger mode, icons, and size variations."
         />
@@ -137,18 +137,28 @@ export const ButtonsPage = Shade({
           {/* Icons */}
           <Typography variant="h3">Icons</Typography>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Button onclick={onclick} variant="contained" color="primary" startIcon={<span>⬅</span>}>
+            <Button
+              onclick={onclick}
+              variant="contained"
+              color="primary"
+              startIcon={<Icon icon={icons.arrowLeft} size="small" />}
+            >
               Start Icon
             </Button>
-            <Button onclick={onclick} variant="contained" color="primary" endIcon={<span>➡</span>}>
+            <Button
+              onclick={onclick}
+              variant="contained"
+              color="primary"
+              endIcon={<Icon icon={icons.arrowRight} size="small" />}
+            >
               End Icon
             </Button>
             <Button
               onclick={onclick}
               variant="outlined"
               color="secondary"
-              startIcon={<span>⬅</span>}
-              endIcon={<span>➡</span>}
+              startIcon={<Icon icon={icons.arrowLeft} size="small" />}
+              endIcon={<Icon icon={icons.arrowRight} size="small" />}
             >
               Both Icons
             </Button>

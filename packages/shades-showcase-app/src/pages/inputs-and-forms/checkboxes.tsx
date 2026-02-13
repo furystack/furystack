@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Checkbox, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Checkbox, Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const CheckboxesPage = Shade({
   shadowDomName: 'checkboxes-page',
@@ -9,7 +9,7 @@ export const CheckboxesPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="☑️"
+          icon={<Icon icon={icons.checkSquare} />}
           title="Checkboxes"
           description="The Checkbox component provides a toggleable input for boolean values. It supports checked, unchecked, and indeterminate states, multiple palette colors, disabled state, and integrates with the Form validation system."
         />

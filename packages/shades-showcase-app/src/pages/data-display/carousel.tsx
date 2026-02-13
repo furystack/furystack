@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Carousel, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Carousel,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const sampleSlides = [
   { bg: '#1a237e', label: 'Slide 1', description: 'Deep indigo backdrop' },
@@ -37,7 +45,7 @@ export const CarouselPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🎠"
+          icon={<Icon icon={icons.images} />}
           title="Carousel"
           description="A carousel component for cycling through slides. Supports autoplay, dot indicators, slide/fade effects, vertical orientation, keyboard navigation, and swipe gestures."
         />

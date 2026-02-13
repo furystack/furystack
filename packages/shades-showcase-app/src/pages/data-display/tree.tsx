@@ -1,35 +1,36 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Tree, TreeService } from '@furystack/shades-common-components'
+import type { IconDefinition } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Tree, TreeService } from '@furystack/shades-common-components'
 
-type FileNode = { name: string; icon: string; children?: FileNode[] }
+type FileNode = { name: string; icon: IconDefinition; children?: FileNode[] }
 const fileTree: FileNode[] = [
   {
     name: 'src',
-    icon: '📁',
+    icon: icons.folder,
     children: [
       {
         name: 'components',
-        icon: '📁',
+        icon: icons.folder,
         children: [
-          { name: 'list.tsx', icon: '📄' },
-          { name: 'tree.tsx', icon: '📄' },
-          { name: 'context-menu.tsx', icon: '📄' },
+          { name: 'list.tsx', icon: icons.file },
+          { name: 'tree.tsx', icon: icons.file },
+          { name: 'context-menu.tsx', icon: icons.file },
         ],
       },
       {
         name: 'services',
-        icon: '📁',
+        icon: icons.folder,
         children: [
-          { name: 'list-service.ts', icon: '📄' },
-          { name: 'tree-service.ts', icon: '📄' },
+          { name: 'list-service.ts', icon: icons.file },
+          { name: 'tree-service.ts', icon: icons.file },
         ],
       },
-      { name: 'index.ts', icon: '📄' },
+      { name: 'index.ts', icon: icons.file },
     ],
   },
-  { name: 'package.json', icon: '📦' },
-  { name: 'tsconfig.json', icon: '⚙️' },
-  { name: 'README.md', icon: '📝' },
+  { name: 'package.json', icon: icons.packageIcon },
+  { name: 'tsconfig.json', icon: icons.settings },
+  { name: 'README.md', icon: icons.fileText },
 ]
 
 export const TreePage = Shade({
@@ -47,7 +48,7 @@ export const TreePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🌲"
+          icon={<Icon icon={icons.treeDeciduous} />}
           title="Tree"
           description="Hierarchical tree view with keyboard navigation and expand/collapse."
         />
@@ -61,7 +62,16 @@ export const TreePage = Shade({
               rootItems={fileTree}
               treeService={treeService}
               renderIcon={(item, isExpanded) => (
-                <span>{item.children && item.children.length > 0 ? (isExpanded ? '📂' : '📁') : item.icon}</span>
+                <Icon
+                  icon={
+                    item.children && item.children.length > 0
+                      ? isExpanded
+                        ? icons.folderOpen
+                        : icons.folder
+                      : item.icon
+                  }
+                  size="small"
+                />
               )}
               renderItem={(item) => <span>{item.name}</span>}
               onItemActivate={(item) => console.log('Activated:', item.name)}

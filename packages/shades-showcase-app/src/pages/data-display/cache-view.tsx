@@ -6,6 +6,8 @@ import {
   Button,
   ButtonGroup,
   CacheView,
+  Icon,
+  icons,
   Loader,
   PageContainer,
   PageHeader,
@@ -53,7 +55,7 @@ export const CacheViewPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📦"
+          icon={<Icon icon={icons.packageIcon} />}
           title="Cache View"
           description="CacheView renders the state of a cache entry. It takes a Cache instance and args, subscribes to the observable, and handles loading, error (with retry), and loaded/obsolete states. Use the buttons below to toggle the cache state and observe the component's behavior."
         />

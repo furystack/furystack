@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, ConfirmDialog, Dialog, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Button,
+  ConfirmDialog,
+  Dialog,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+} from '@furystack/shades-common-components'
 
 export const DialogPage = Shade({
   shadowDomName: 'shades-dialog-page',
@@ -14,7 +23,7 @@ export const DialogPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="💬"
+          icon={<Icon icon={icons.messageCircle} />}
           title="Dialog"
           description="Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks. Built on top of the Modal component."
         />

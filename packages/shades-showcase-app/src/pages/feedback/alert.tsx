@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { AlertSeverity } from '@furystack/shades-common-components'
-import { Alert, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import { Alert, Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const severities: AlertSeverity[] = ['error', 'warning', 'info', 'success']
 
@@ -20,7 +20,7 @@ export const AlertPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🚨"
+          icon={<Icon icon={icons.siren} />}
           title="Alert"
           description="Alerts display short, important messages that attract the user's attention without interrupting their workflow. They support four severity levels and three visual variants."
         />
@@ -72,13 +72,13 @@ export const AlertPage = Shade({
             Custom icon
           </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Alert severity="info" icon="💡">
+            <Alert severity="info" icon={<Icon icon={icons.lightbulb} />}>
               Tip: You can use custom icons for alerts.
             </Alert>
-            <Alert severity="success" icon="🚀">
+            <Alert severity="success" icon={<Icon icon={icons.rocket} />}>
               Your deployment has been completed.
             </Alert>
-            <Alert severity="warning" icon="🔥">
+            <Alert severity="warning" icon={<Icon icon={icons.flame} />}>
               Performance degradation detected.
             </Alert>
           </div>
@@ -95,7 +95,7 @@ export const AlertPage = Shade({
                 </Alert>
               ))}
             {state.dismissed.length > 0 ? (
-              <Alert severity="info" variant="outlined" icon="♻️" onClose={handleReset}>
+              <Alert severity="info" variant="outlined" icon={<Icon icon={icons.refresh} />} onClose={handleReset}>
                 {state.dismissed.length} alert(s) dismissed. Click close to reset.
               </Alert>
             ) : null}

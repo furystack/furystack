@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper, Suggest } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Suggest } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 type SuggestEntry = { title: string; description: string }
@@ -17,7 +17,7 @@ export const SuggestPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔍"
+          icon={<Icon icon={icons.search} />}
           title="Suggest"
           description="Typeahead search functionality with async suggestion loading."
         />
