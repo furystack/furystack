@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Pagination, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Pagination, Paper } from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -19,7 +19,7 @@ export const PaginationPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📄"
+          icon={<Icon icon={icons.file} />}
           title="Pagination"
           description="Pagination lets users navigate through pages of content. It supports palette colors, sizes, and configurable sibling/boundary counts."
         />

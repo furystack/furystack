@@ -30,7 +30,7 @@ export type PageContainerProps = {
  * ```tsx
  * <PageContainer maxWidth="800px" centered padding="48px" gap="24px">
  *   <PageHeader
- *     icon="👥"
+ *     icon={<Icon icon={icons.users} />}
  *     title="Users"
  *     description="Manage user accounts and their roles."
  *   />

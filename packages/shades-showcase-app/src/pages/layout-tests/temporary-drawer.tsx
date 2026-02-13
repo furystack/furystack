@@ -1,6 +1,8 @@
 import { createComponent, Shade } from '@furystack/shades'
 import {
   Button,
+  Icon,
+  icons,
   LayoutService,
   PageContainer,
   PageHeader,
@@ -14,7 +16,7 @@ const OpenLeftDrawerButton = Shade({
     const layoutService = injector.getInstance(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('left', true)}>
-        ◀️ Open Left
+        <Icon icon={icons.chevronLeft} size="small" /> Open Left
       </Button>
     )
   },
@@ -26,7 +28,7 @@ const OpenRightDrawerButton = Shade({
     const layoutService = injector.getInstance(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('right', true)}>
-        ▶️ Open Right
+        <Icon icon={icons.chevronRight} size="small" /> Open Right
       </Button>
     )
   },
@@ -114,7 +116,8 @@ export const TemporaryDrawerTest = Shade({
           }}
         >
           <PageHeader
-            title="🚪 Temporary Drawers"
+            icon={<Icon icon={icons.appWindow} />}
+            title="Temporary Drawers"
             actions={
               <>
                 <OpenLeftDrawerButton />

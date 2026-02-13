@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { CommandPalette, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { CommandPalette, Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 type SuggestEntry = { title: string; description: string }
 const entries: SuggestEntry[] = [
@@ -16,7 +16,7 @@ export const CommandPalettePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="⌨️"
+          icon={<Icon icon={icons.keyboard} />}
           title="Command Palette"
           description="Keyboard-driven command interface similar to VS Code's command palette."
         />

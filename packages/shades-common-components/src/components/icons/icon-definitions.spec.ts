@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import * as allIcons from './icon-definitions.js'
+import type { IconCategory } from './icon-types.js'
 
 const iconEntries = Object.entries(allIcons)
 
+const validCategories: IconCategory[] = ['Actions', 'Navigation', 'Status', 'Content', 'UI', 'Common']
+
 describe('Icon definitions', () => {
-  it('should export at least 50 icons', () => {
-    expect(iconEntries.length).toBeGreaterThanOrEqual(50)
+  it('should export at least 100 icons', () => {
+    expect(iconEntries.length).toBeGreaterThanOrEqual(100)
   })
 
   describe.each(iconEntries)('%s', (_name, icon) => {
@@ -45,6 +48,29 @@ describe('Icon definitions', () => {
           expect(['evenodd', 'nonzero']).toContain(path.fillRule)
         }
       }
+    })
+
+    it('should have a non-empty name', () => {
+      expect(typeof icon.name).toBe('string')
+      expect(icon.name!.length).toBeGreaterThan(0)
+    })
+
+    it('should have a non-empty description', () => {
+      expect(typeof icon.description).toBe('string')
+      expect(icon.description!.length).toBeGreaterThan(0)
+    })
+
+    it('should have at least one keyword', () => {
+      expect(Array.isArray(icon.keywords)).toBe(true)
+      expect(icon.keywords!.length).toBeGreaterThanOrEqual(1)
+      for (const kw of icon.keywords!) {
+        expect(typeof kw).toBe('string')
+        expect(kw.length).toBeGreaterThan(0)
+      }
+    })
+
+    it('should have a valid category', () => {
+      expect(validCategories).toContain(icon.category)
     })
   })
 

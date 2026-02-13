@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Breadcrumb, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Breadcrumb,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const BreadcrumbPage = Shade({
   shadowDomName: 'shades-breadcrumb-page',
@@ -7,7 +15,7 @@ export const BreadcrumbPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🍞"
+          icon={<Icon icon={icons.layers} />}
           title="Breadcrumb"
           description="Breadcrumb navigation with customizable separators and rendering."
         />
@@ -45,7 +53,7 @@ export const BreadcrumbPage = Shade({
                 label: 'Home',
                 render: (item, isActive) => (
                   <span style={{ fontWeight: isActive ? 'bold' : 'normal', color: isActive ? 'var(--primary)' : '' }}>
-                    🏠 {item.label}
+                    <Icon icon={icons.home} size="small" /> {item.label}
                   </span>
                 ),
               },
@@ -54,7 +62,7 @@ export const BreadcrumbPage = Shade({
                 label: 'Breadcrumb',
                 render: (item, isActive) => (
                   <span style={{ fontWeight: isActive ? 'bold' : 'normal', color: isActive ? 'var(--primary)' : '' }}>
-                    🍞 {item.label}
+                    <Icon icon={icons.layers} size="small" /> {item.label}
                   </span>
                 ),
               },

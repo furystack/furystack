@@ -1,6 +1,15 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { ResultStatus } from '@furystack/shades-common-components'
-import { Button, PageContainer, PageHeader, Paper, Result, Typography } from '@furystack/shades-common-components'
+import {
+  Button,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Result,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const semanticStatuses: ResultStatus[] = ['success', 'error', 'warning', 'info']
 
@@ -10,7 +19,7 @@ export const ResultPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🏁"
+          icon={<Icon icon={icons.flag} />}
           title="Result"
           description="Result pages are used to provide feedback about an operation outcome, such as success, error, or access restrictions. Supports semantic statuses and HTTP error codes."
         />
@@ -90,7 +99,7 @@ export const ResultPage = Shade({
               status="success"
               title="Payment Received"
               subtitle="Your payment of $42.00 has been processed."
-              icon="💰"
+              icon={<Icon icon={icons.dollarSign} />}
             >
               <Button variant="contained" onclick={() => alert('View Receipt')}>
                 View Receipt

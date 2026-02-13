@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { Chip, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import { Chip, Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -20,7 +20,7 @@ export const ChipPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🏷️"
+          icon={<Icon icon={icons.tag} />}
           title="Chip"
           description="Chips are compact elements that represent an input, attribute, or action. They support multiple color variants, sizes, and can be made clickable or deletable."
         />

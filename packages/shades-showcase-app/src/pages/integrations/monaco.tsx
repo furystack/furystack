@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { MonacoEditor } from '../../components/monaco-editor.js'
 
 export const MonacoEditorPage = Shade({
@@ -9,7 +9,7 @@ export const MonacoEditorPage = Shade({
     return (
       <PageContainer>
         <PageHeader
-          icon="💻"
+          icon={<Icon icon={icons.code} />}
           title="Monaco Editor"
           description="Monaco Editor is the code editor that powers VS Code, integrated here as a Shades component. It provides syntax highlighting, IntelliSense, and full editor features for TypeScript and many other languages. The editor automatically adapts its layout and supports configuration options like language mode and automatic layout resizing."
         />

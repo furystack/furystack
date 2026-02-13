@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { SelectOptionGroup } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Paper, Select } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Select } from '@furystack/shades-common-components'
 
 const fruitOptions = [
   { value: 'apple', label: 'Apple' },
@@ -79,7 +79,7 @@ export const SelectPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📋"
+          icon={<Icon icon={icons.clipboard} />}
           title="Select"
           description="Select components provide a dropdown menu for choosing options from a list. Supports single and multi-select modes, searchable/filterable dropdowns, option groups, and all visual variants."
         />

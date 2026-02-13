@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, Chip, PageContainer, PageHeader, Paper, Tooltip } from '@furystack/shades-common-components'
+import {
+  Button,
+  Chip,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Tooltip,
+} from '@furystack/shades-common-components'
 
 export const TooltipPage = Shade({
   shadowDomName: 'shades-tooltip-page',
@@ -7,7 +16,7 @@ export const TooltipPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="💬"
+          icon={<Icon icon={icons.messageCircle} />}
           title="Tooltip"
           description="Tooltips display informative text when users hover over, focus on, or tap an element. They support multiple placements, custom delay, and can be disabled."
         />

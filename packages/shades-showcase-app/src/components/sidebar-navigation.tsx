@@ -1,5 +1,5 @@
 import { createComponent, LocationService, Shade } from '@furystack/shades'
-import { cssVariableTheme } from '@furystack/shades-common-components'
+import { cssVariableTheme, Icon, icons } from '@furystack/shades-common-components'
 
 import { navigationConfig, type NavCategory, type NavPage } from '../navigation.js'
 
@@ -111,7 +111,7 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
           onclick={() => setIsExpanded(!isExpanded)}
         >
           <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>
-          <span>{props.category.icon}</span>
+          <Icon icon={props.category.icon} size={16} />
           <span>{props.category.label}</span>
         </div>
         {isExpanded && (
@@ -194,7 +194,7 @@ export const SidebarNavigation = Shade({
             history.pushState({}, '', '/')
           }}
         >
-          <span style={{ fontSize: '1.1rem' }}>🔥</span>
+          <Icon icon={icons.flame} size={18} />
           <span>FuryStack Shades</span>
         </a>
         <div className="sidebar-divider" />

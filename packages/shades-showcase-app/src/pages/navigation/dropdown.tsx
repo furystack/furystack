@@ -1,11 +1,20 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
-import { Button, Dropdown, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Button,
+  Dropdown,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const basicItems: MenuEntry[] = [
-  { key: 'cut', label: 'Cut', icon: <span>✂️</span> },
-  { key: 'copy', label: 'Copy', icon: <span>📋</span> },
-  { key: 'paste', label: 'Paste', icon: <span>📌</span> },
+  { key: 'cut', label: 'Cut', icon: <Icon icon={icons.cut} size="small" /> },
+  { key: 'copy', label: 'Copy', icon: <Icon icon={icons.clipboard} size="small" /> },
+  { key: 'paste', label: 'Paste', icon: <Icon icon={icons.paste} size="small" /> },
   { type: 'divider' },
   { key: 'select-all', label: 'Select All' },
 ]
@@ -16,9 +25,9 @@ const groupedItems: MenuEntry[] = [
     key: 'file-group',
     label: 'File',
     children: [
-      { key: 'new-file', label: 'New File', icon: <span>📄</span> },
-      { key: 'open', label: 'Open', icon: <span>📂</span> },
-      { key: 'save', label: 'Save', icon: <span>💾</span> },
+      { key: 'new-file', label: 'New File', icon: <Icon icon={icons.file} size="small" /> },
+      { key: 'open', label: 'Open', icon: <Icon icon={icons.folderOpen} size="small" /> },
+      { key: 'save', label: 'Save', icon: <Icon icon={icons.save} size="small" /> },
     ],
   },
   { type: 'divider' },
@@ -27,18 +36,18 @@ const groupedItems: MenuEntry[] = [
     key: 'edit-group',
     label: 'Edit',
     children: [
-      { key: 'undo', label: 'Undo', icon: <span>↩️</span> },
-      { key: 'redo', label: 'Redo', icon: <span>↪️</span> },
+      { key: 'undo', label: 'Undo', icon: <Icon icon={icons.undo} size="small" /> },
+      { key: 'redo', label: 'Redo', icon: <Icon icon={icons.redo} size="small" /> },
     ],
   },
 ]
 
 const withDisabledItems: MenuEntry[] = [
-  { key: 'view', label: 'View', icon: <span>👁️</span> },
-  { key: 'edit', label: 'Edit', icon: <span>✏️</span> },
-  { key: 'delete', label: 'Delete', icon: <span>🗑️</span>, disabled: true },
+  { key: 'view', label: 'View', icon: <Icon icon={icons.eye} size="small" /> },
+  { key: 'edit', label: 'Edit', icon: <Icon icon={icons.edit} size="small" /> },
+  { key: 'delete', label: 'Delete', icon: <Icon icon={icons.trash} size="small" />, disabled: true },
   { type: 'divider' },
-  { key: 'share', label: 'Share', icon: <span>🔗</span> },
+  { key: 'share', label: 'Share', icon: <Icon icon={icons.link} size="small" /> },
 ]
 
 const BasicDropdownDemo = Shade({
@@ -70,7 +79,7 @@ export const DropdownPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔽"
+          icon={<Icon icon={icons.chevronDown} />}
           title="Dropdown"
           description="Trigger-anchored dropdown menus. Supports groups, dividers, disabled items, icons, keyboard navigation, and multiple placements."
         />

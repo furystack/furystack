@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Chip, Divider, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Chip,
+  Divider,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const DividerPage = Shade({
   shadowDomName: 'shades-divider-page',
@@ -7,7 +16,7 @@ export const DividerPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="➖"
+          icon={<Icon icon={icons.minus} />}
           title="Divider"
           description="Dividers are thin lines that separate content into clear groups. They support horizontal and vertical orientations, different inset variants, and optional text labels."
         />

@@ -3,6 +3,8 @@ import {
   Button,
   ContextMenu,
   ContextMenuManager,
+  Icon,
+  icons,
   PageContainer,
   PageHeader,
   Paper,
@@ -20,7 +22,7 @@ export const ContextMenuPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📋"
+          icon={<Icon icon={icons.clipboard} />}
           title="Context Menu"
           description="Right-click or button-triggered context menus with icons, descriptions, separators, and disabled items."
         />
@@ -38,15 +40,25 @@ export const ContextMenuPage = Shade({
               ev.preventDefault()
               rightClickManager.open({
                 items: [
-                  { type: 'item', data: { action: 'cut' }, label: 'Cut', icon: <span>✂️</span> },
-                  { type: 'item', data: { action: 'copy' }, label: 'Copy', icon: <span>📋</span> },
-                  { type: 'item', data: { action: 'paste' }, label: 'Paste', icon: <span>📌</span> },
+                  { type: 'item', data: { action: 'cut' }, label: 'Cut', icon: <Icon icon={icons.cut} size="small" /> },
+                  {
+                    type: 'item',
+                    data: { action: 'copy' },
+                    label: 'Copy',
+                    icon: <Icon icon={icons.clipboard} size="small" />,
+                  },
+                  {
+                    type: 'item',
+                    data: { action: 'paste' },
+                    label: 'Paste',
+                    icon: <Icon icon={icons.paste} size="small" />,
+                  },
                   { type: 'separator' },
                   {
                     type: 'item',
                     data: { action: 'delete' },
                     label: 'Delete',
-                    icon: <span>🗑️</span>,
+                    icon: <Icon icon={icons.trash} size="small" />,
                     description: 'Remove permanently',
                   },
                 ],
@@ -74,14 +86,14 @@ export const ContextMenuPage = Shade({
                     type: 'item',
                     data: { action: 'new-file' },
                     label: 'New File',
-                    icon: <span>📄</span>,
+                    icon: <Icon icon={icons.file} size="small" />,
                     description: 'Create an empty file',
                   },
                   {
                     type: 'item',
                     data: { action: 'new-folder' },
                     label: 'New Folder',
-                    icon: <span>📁</span>,
+                    icon: <Icon icon={icons.folder} size="small" />,
                     description: 'Create an empty folder',
                   },
                   { type: 'separator' },
@@ -89,7 +101,7 @@ export const ContextMenuPage = Shade({
                     type: 'item',
                     data: { action: 'import' },
                     label: 'Import...',
-                    icon: <span>📦</span>,
+                    icon: <Icon icon={icons.packageIcon} size="small" />,
                     description: 'Import from external source',
                   },
                   { type: 'item', data: { action: 'disabled' }, label: 'Disabled action', disabled: true },

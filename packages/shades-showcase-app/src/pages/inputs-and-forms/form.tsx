@@ -1,4 +1,4 @@
-import { Shade, createComponent } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import {
   Alert,
   Button,
@@ -6,6 +6,8 @@ import {
   Divider,
   Form,
   FormService,
+  Icon,
+  icons,
   Input,
   PageContainer,
   PageHeader,
@@ -340,7 +342,7 @@ export const FormPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📋"
+          icon={<Icon icon={icons.clipboard} />}
           title="Form Handling"
           description="The Form component wraps native HTML forms with type-safe data handling and validation. It integrates with FormService to provide observable form state, including raw form data, validated data, validation results, and field-level errors. Custom validation functions can be provided to implement complex cross-field validation logic like password confirmation matching."
         />

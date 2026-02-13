@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const SearchStatePage = Shade({
   shadowDomName: 'shades-search-state-page',
@@ -9,7 +9,7 @@ export const SearchStatePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔎"
+          icon={<Icon icon={icons.search} />}
           title="Search State"
           description="Demonstrates useSearchState hook that syncs component state with URL search parameters."
         />

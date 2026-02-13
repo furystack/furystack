@@ -1,5 +1,5 @@
 import { createComponent, LocationService, Shade, type ExtractRoutePaths } from '@furystack/shades'
-import { createBreadcrumb, type BreadcrumbItem } from '@furystack/shades-common-components'
+import { createBreadcrumb, Icon, icons, type BreadcrumbItem } from '@furystack/shades-common-components'
 import type { appRoutes } from '../routes.tsx'
 import { findNavItemByPath } from '../navigation.js'
 
@@ -61,6 +61,12 @@ export const ShowcaseBreadcrumbComponent = Shade({
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
     const breadcrumbItems = getBreadcrumbItems(currentPath)
 
-    return <ShowcaseBreadcrumbItem homeItem={{ path: '/', label: '🏠' }} items={breadcrumbItems} separator=" › " />
+    return (
+      <ShowcaseBreadcrumbItem
+        homeItem={{ path: '/', label: <Icon icon={icons.home} size="small" /> }}
+        items={breadcrumbItems}
+        separator=" › "
+      />
+    )
   },
 })

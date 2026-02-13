@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar with right drawer
@@ -57,7 +57,7 @@ export const AppBarRightDrawerTest = Shade({
           color: 'white',
         }}
       >
-        <PageHeader title="▶️ AppBar + Right Drawer" />
+        <PageHeader icon={<Icon icon={icons.chevronRight} />} title="AppBar + Right Drawer" />
         <Paper>
           <p>This test page shows a layout with AppBar, right drawer, and content area.</p>
         </Paper>

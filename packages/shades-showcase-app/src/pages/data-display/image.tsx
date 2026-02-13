@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Image, ImageGroup, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, Image, ImageGroup, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 const SAMPLE_IMAGES = [
   'https://picsum.photos/seed/shades1/400/300',
@@ -26,7 +26,7 @@ export const ImagePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🖼️"
+          icon={<Icon icon={icons.image} />}
           title="Image"
           description="Image displays images with preview lightbox, zoom/rotate, fallback support, lazy loading, and group navigation."
         />
@@ -66,7 +66,18 @@ export const ImagePage = Shade({
               width="200px"
               height="150px"
               fallback={
-                <span style={{ fontSize: '14px', textAlign: 'center', padding: '8px' }}>⚠️ Image not available</span>
+                <span
+                  style={{
+                    fontSize: '14px',
+                    textAlign: 'center',
+                    padding: '8px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <Icon icon={icons.warning} size="small" /> Image not available
+                </span>
               }
             />
           </div>

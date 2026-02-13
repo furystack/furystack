@@ -36,7 +36,7 @@ describe('Avatar component', () => {
     })
   })
 
-  it('should display default fallback emoji when image fails to load', async () => {
+  it('should display default fallback icon when image fails to load', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -64,9 +64,9 @@ describe('Avatar component', () => {
       const fallbackImg = avatar?.querySelector('img')
       expect(fallbackImg).toBeNull()
 
-      // The fallback div should contain the default emoji
-      const fallbackContent = avatar?.textContent
-      expect(fallbackContent).toContain('🛑')
+      // The fallback div should contain the default Icon component (renders an SVG)
+      const fallbackIcon = avatar?.querySelector('svg')
+      expect(fallbackIcon).not.toBeNull()
     })
   })
 

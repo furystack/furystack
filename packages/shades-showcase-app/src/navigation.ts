@@ -3,6 +3,8 @@
  * Drives routes, sidebar tree, AppBar category links, and breadcrumbs.
  */
 
+import { icons, type IconDefinition } from '@furystack/shades-common-components'
+
 export type NavPage = {
   label: string
   slug: string
@@ -11,7 +13,7 @@ export type NavPage = {
 export type NavCategory = {
   label: string
   slug: string
-  icon: string
+  icon: IconDefinition
   children: NavPage[]
 }
 
@@ -19,7 +21,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Inputs & Forms',
     slug: 'inputs-and-forms',
-    icon: '📝',
+    icon: icons.fileText,
     children: [
       { label: 'Buttons', slug: 'buttons' },
       { label: 'Button Group', slug: 'button-group' },
@@ -37,7 +39,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Data Display',
     slug: 'data-display',
-    icon: '📊',
+    icon: icons.barChart,
     children: [
       { label: 'Grid', slug: 'grid' },
       { label: 'List', slug: 'list' },
@@ -59,7 +61,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Navigation',
     slug: 'navigation',
-    icon: '🧭',
+    icon: icons.compass,
     children: [
       { label: 'Tabs', slug: 'tabs' },
       { label: 'Menu', slug: 'menu' },
@@ -73,7 +75,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Feedback',
     slug: 'feedback',
-    icon: '🔔',
+    icon: icons.bell,
     children: [
       { label: 'Alert', slug: 'alert' },
       { label: 'Notifications', slug: 'notifications' },
@@ -84,13 +86,13 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Layout',
     slug: 'layout',
-    icon: '📐',
+    icon: icons.ruler,
     children: [{ label: 'Divider', slug: 'divider' }],
   },
   {
     label: 'Surfaces',
     slug: 'surfaces',
-    icon: '🪟',
+    icon: icons.appWindow,
     children: [
       { label: 'Card', slug: 'card' },
       { label: 'Wizard', slug: 'wizard' },
@@ -101,7 +103,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Integrations',
     slug: 'integrations',
-    icon: '🔌',
+    icon: icons.plug,
     children: [
       { label: 'Monaco', slug: 'monaco' },
       { label: 'Lottie', slug: 'lottie' },
@@ -113,7 +115,7 @@ export const navigationConfig: NavCategory[] = [
   {
     label: 'Utilities',
     slug: 'utilities',
-    icon: '🔧',
+    icon: icons.wrench,
     children: [
       { label: 'Search State', slug: 'search-state' },
       { label: 'Stored State', slug: 'stored-state' },

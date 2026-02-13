@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Avatar, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Avatar, Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const AvatarPage = Shade({
   shadowDomName: 'shades-avatar-page',
@@ -7,7 +7,7 @@ export const AvatarPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="👤"
+          icon={<Icon icon={icons.user} />}
           title="Avatar"
           description="Avatar displays user images with fallback support for broken URLs."
         />

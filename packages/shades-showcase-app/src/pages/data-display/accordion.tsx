@@ -2,6 +2,8 @@ import { createComponent, Shade } from '@furystack/shades'
 import {
   Accordion,
   AccordionItem,
+  Icon,
+  icons,
   PageContainer,
   PageHeader,
   Paper,
@@ -14,7 +16,7 @@ export const AccordionPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🪗"
+          icon={<Icon icon={icons.layers} />}
           title="Accordion"
           description="Accordions display collapsible sections of content. They are useful for reducing clutter and letting users focus on relevant information."
         />
@@ -49,17 +51,17 @@ export const AccordionPage = Shade({
             With Icons
           </Typography>
           <Accordion>
-            <AccordionItem title="Settings" icon="⚙️">
+            <AccordionItem title="Settings" icon={<Icon icon={icons.settings} size="small" />}>
               <Typography variant="body1" style={{ margin: '0' }}>
                 Configure your application preferences and customize the behavior.
               </Typography>
             </AccordionItem>
-            <AccordionItem title="Notifications" icon="🔔" defaultExpanded>
+            <AccordionItem title="Notifications" icon={<Icon icon={icons.bell} size="small" />} defaultExpanded>
               <Typography variant="body1" style={{ margin: '0' }}>
                 Manage your notification preferences and view recent alerts.
               </Typography>
             </AccordionItem>
-            <AccordionItem title="Security" icon="🔒">
+            <AccordionItem title="Security" icon={<Icon icon={icons.lock} size="small" />}>
               <Typography variant="body1" style={{ margin: '0' }}>
                 Review security settings, manage passwords, and configure two-factor authentication.
               </Typography>
@@ -108,14 +110,14 @@ export const AccordionPage = Shade({
             Rich Content
           </Typography>
           <Accordion>
-            <AccordionItem title="Nested Lists" icon="📋" defaultExpanded>
+            <AccordionItem title="Nested Lists" icon={<Icon icon={icons.clipboard} size="small" />} defaultExpanded>
               <ul style={{ margin: '0', paddingLeft: '20px' }}>
                 <li>First item with some detail text</li>
                 <li>Second item with additional context</li>
                 <li>Third item wrapping up the list</li>
               </ul>
             </AccordionItem>
-            <AccordionItem title="Code Example" icon="💻">
+            <AccordionItem title="Code Example" icon={<Icon icon={icons.code} size="small" />}>
               <pre
                 style={{
                   margin: '0',

@@ -1,6 +1,6 @@
 import { createLanguage, I18NService } from '@furystack/i18n'
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { createI18nComponent } from '@furystack/shades-i18n'
 import de from './de.json' with { type: 'json' }
 import en from './en.json' with { type: 'json' }
@@ -35,7 +35,7 @@ export const I18NPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🌐"
+          icon={<Icon icon={icons.globe} />}
           title="Internationalization"
           description="The I18N system provides multi-language support through the I18NService from @furystack/i18n. Languages can be defined inline or loaded from JSON files, with automatic fallback to the default language for missing translations. The createI18nComponent factory creates reactive translated text components that update automatically when the current language changes."
         />

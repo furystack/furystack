@@ -2,6 +2,8 @@ import { createComponent, Shade } from '@furystack/shades'
 import {
   Button,
   DrawerToggleButton,
+  Icon,
+  icons,
   LayoutService,
   PageContainer,
   PageHeader,
@@ -15,7 +17,7 @@ const ToggleDrawerButton = Shade({
     const layoutService = injector.getInstance(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.toggleDrawer('left')}>
-        📐 Toggle Drawer
+        <Icon icon={icons.ruler} size="small" /> Toggle Drawer
       </Button>
     )
   },
@@ -83,7 +85,7 @@ export const CollapsibleDrawerTest = Shade({
             color: '#333',
           }}
         >
-          <PageHeader title="📐 Collapsible Drawer" actions={<ToggleDrawerButton />} />
+          <PageHeader icon={<Icon icon={icons.ruler} />} title="Collapsible Drawer" actions={<ToggleDrawerButton />} />
           <Paper>
             <p>This test page shows a layout with a collapsible drawer.</p>
             <p>Use the hamburger icon in the AppBar or the button in the header to toggle the drawer.</p>

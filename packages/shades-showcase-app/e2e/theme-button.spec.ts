@@ -6,9 +6,11 @@ test.describe('Theme Button Toggle', () => {
   test('should toggle between dark and light themes', async ({ page }) => {
     await page.goto('http://localhost:8080')
 
-    // Find the moon and sun buttons
-    const moonButton = page.locator('button:has-text("🌜")')
-    const sunButton = page.locator('button:has-text("☀️")')
+    // Find the moon and sun buttons (Icon components render SVGs, locate by shadow DOM component)
+    const themeSwitch = page.locator('theme-switch')
+    const buttons = themeSwitch.locator('button')
+    const moonButton = buttons.first()
+    const sunButton = buttons.last()
 
     // Click moon button and check for dark theme
     await moonButton.click()

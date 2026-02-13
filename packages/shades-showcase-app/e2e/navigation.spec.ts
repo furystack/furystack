@@ -142,7 +142,7 @@ test.describe('Navigation', () => {
     await page.goto('/non-existing-page')
     const notFoundTitle = page.locator('h1', { hasText: '404' })
     await expect(notFoundTitle).toBeVisible()
-    const notFoundContent = page.locator('p', { hasText: 'Have you seen this cat? 😸' })
+    const notFoundContent = page.locator('p', { hasText: 'Page not found' })
     await expect(notFoundContent).toBeVisible()
   })
 })

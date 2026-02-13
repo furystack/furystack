@@ -1,6 +1,8 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
+import { Icon } from './icons/icon.js'
+import { user as userIcon } from './icons/icon-definitions.js'
 
 export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & PartialElement<HTMLDivElement>
 
@@ -56,7 +58,7 @@ export const Avatar = Shade<AvatarProps>({
     if (hasError) {
       return (
         <div className="avatar-fallback-container">
-          <div className="avatar-fallback-icon">{props.fallback || '🛑'}</div>
+          <div className="avatar-fallback-icon">{props.fallback || <Icon icon={userIcon} size={48} />}</div>
         </div>
       )
     }

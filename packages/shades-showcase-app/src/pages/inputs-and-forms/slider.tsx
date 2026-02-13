@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { SliderMark } from '@furystack/shades-common-components'
-import { PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack/shades-common-components'
 
 const BasicSliderDemo = Shade({
   shadowDomName: 'slider-demo-basic',
@@ -75,7 +75,7 @@ export const SliderPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🎚️"
+          icon={<Icon icon={icons.sliders} />}
           title="Slider"
           description="Sliders allow users to select a value or range from a continuous or discrete set. They support single and range modes, marks, vertical orientation, keyboard navigation, and palette colors."
         />

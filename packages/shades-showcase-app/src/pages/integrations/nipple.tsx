@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
@@ -10,7 +10,7 @@ export const NipplePage = Shade({
     return (
       <PageContainer fullHeight>
         <PageHeader
-          icon="🕹️"
+          icon={<Icon icon={icons.gamepad} />}
           title="Virtual Joystick"
           description="NippleComponent provides a virtual joystick control for touch-based interfaces, useful for game controls or directional input on mobile devices. Built on the nipplejs library, it supports static or dynamic positioning, customizable colors, and emits movement events with direction, angle, distance, and force data that can drive application logic."
         />

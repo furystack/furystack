@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const StoredStatePage = Shade({
   shadowDomName: 'shades-stored-state-page',
@@ -9,7 +9,7 @@ export const StoredStatePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="💾"
+          icon={<Icon icon={icons.save} />}
           title="Stored State"
           description="Demonstrates useStoredState hook that persists component state to sessionStorage."
         />

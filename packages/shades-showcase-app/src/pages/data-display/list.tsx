@@ -1,13 +1,23 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { List, ListService, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import type { IconDefinition } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  List,
+  ListService,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
-type ListEntry = { label: string; icon: string }
+type ListEntry = { label: string; icon: IconDefinition }
 const listEntries: ListEntry[] = [
-  { label: 'Documents', icon: '📄' },
-  { label: 'Pictures', icon: '🖼️' },
-  { label: 'Music', icon: '🎵' },
-  { label: 'Videos', icon: '🎬' },
-  { label: 'Downloads', icon: '📥' },
+  { label: 'Documents', icon: icons.file },
+  { label: 'Pictures', icon: icons.image },
+  { label: 'Music', icon: icons.music },
+  { label: 'Videos', icon: icons.film },
+  { label: 'Downloads', icon: icons.download },
 ]
 
 const SelectionCountDisplay = Shade<{ count: number }>({
@@ -34,7 +44,7 @@ export const ListPage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="📋"
+          icon={<Icon icon={icons.clipboard} />}
           title="List"
           description="Keyboard-navigable list with single and multi-select support."
         />
@@ -47,7 +57,7 @@ export const ListPage = Shade({
             <List<ListEntry>
               items={listEntries}
               listService={listService}
-              renderIcon={(item) => <span>{item.icon}</span>}
+              renderIcon={(item) => <Icon icon={item.icon} size="small" />}
               renderItem={(item) => <span>{item.label}</span>}
               onItemActivate={(item) => console.log('Activated:', item.label)}
             />
@@ -62,7 +72,7 @@ export const ListPage = Shade({
             <List<ListEntry>
               items={listEntries}
               listService={multiSelectService}
-              renderIcon={(item) => <span>{item.icon}</span>}
+              renderIcon={(item) => <Icon icon={item.icon} size="small" />}
               renderItem={(item) => <span>{item.label}</span>}
               onSelectionChange={(selected) => setSelectionCount(selected.length)}
             />

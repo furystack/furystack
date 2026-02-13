@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, DataGrid, PageContainer, PageHeader, Paper, SelectionCell } from '@furystack/shades-common-components'
+import {
+  Button,
+  DataGrid,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  SelectionCell,
+} from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
 
@@ -18,7 +27,7 @@ export const GridPage = Shade({
     return (
       <PageContainer>
         <PageHeader
-          icon="📊"
+          icon={<Icon icon={icons.barChart} />}
           title="Data Grid"
           description="DataGrid is a high-performance table component for displaying and interacting with large datasets. It supports column sorting, row selection with SelectionCell, and custom cell renderers for formatting dates, numbers, booleans, and action buttons. The grid integrates with CollectionService for data management and supports pagination through findOptions."
         />
@@ -63,13 +72,19 @@ export const GridPage = Shade({
               }}
               rowComponents={{
                 id: (entry) => <SelectionCell entry={entry} service={gridPageService.collectionService} />,
-                booleanValue: ({ booleanValue }) => <span>{booleanValue ? `✅` : `❌`}</span>,
+                booleanValue: ({ booleanValue }) => (
+                  <span>
+                    {booleanValue ? <Icon icon={icons.check} size="small" /> : <Icon icon={icons.close} size="small" />}
+                  </span>
+                ),
                 dateValue: ({ dateValue }) => <span>{dateValue.toLocaleString()}</span>,
                 numberValue1: ({ numberValue1 }) => <span>{numberValue1.toFixed(2)}</span>,
                 numberValue2: ({ numberValue2 }) => <span>{numberValue2.toFixed(2)}</span>,
                 customAction: () => (
                   <>
-                    <Button>🚀</Button>
+                    <Button>
+                      <Icon icon={icons.rocket} size="small" />
+                    </Button>
                   </>
                 ),
               }}

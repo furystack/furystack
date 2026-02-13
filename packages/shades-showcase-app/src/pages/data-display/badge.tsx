@@ -1,12 +1,22 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { Badge, Button, Chip, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Badge,
+  Button,
+  Chip,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
-const MailIcon = () => <span style={{ fontSize: '24px', lineHeight: '1', display: 'inline-flex' }}>✉️</span>
+const MailIcon = () => <Icon icon={icons.envelope} size="medium" />
 
-const NotificationIcon = () => <span style={{ fontSize: '24px', lineHeight: '1', display: 'inline-flex' }}>🔔</span>
+const NotificationIcon = () => <Icon icon={icons.bell} size="medium" />
 
 export const BadgePage = Shade({
   shadowDomName: 'shades-badge-page',
@@ -16,7 +26,7 @@ export const BadgePage = Shade({
     return (
       <PageContainer centered>
         <PageHeader
-          icon="🔢"
+          icon={<Icon icon={icons.hash} />}
           title="Badge"
           description="Badges generate a small indicator on the top-right corner of their child element. They are useful for showing counts, status indicators, or drawing attention to items."
         />
