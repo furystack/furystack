@@ -1,5 +1,4 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
 import type { MarkdownEditorLayout } from '@furystack/shades-common-components'
 import {
   Button,
@@ -14,6 +13,7 @@ import {
   Paper,
   Typography,
 } from '@furystack/shades-common-components'
+import { ObservableValue } from '@furystack/utils'
 
 const sampleMarkdown = `# Markdown Components
 
@@ -146,10 +146,7 @@ export const MarkdownPage = Shade({
           />
         </Paper>
 
-        <Paper
-          elevation={3}
-          style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', minHeight: '500px' }}
-        >
+        <Paper elevation={3} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
               display: 'flex',

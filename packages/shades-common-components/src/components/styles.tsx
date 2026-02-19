@@ -3,6 +3,7 @@ import { cssVariableTheme } from '../services/css-variable-theme.js'
 declare global {
   interface CSSStyleDeclaration {
     backdropFilter: string
+    fieldSizing: string
   }
 }
 

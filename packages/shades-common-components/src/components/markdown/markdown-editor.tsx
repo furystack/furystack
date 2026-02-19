@@ -49,6 +49,7 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
 
     '& .md-editor-split[data-layout="above-below"]': {
       flexDirection: 'column',
+      minHeight: 'auto',
     },
 
     '& .md-editor-pane': {
@@ -70,6 +71,17 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
 
     '& .md-editor-split[data-layout="above-below"] .md-editor-pane-input': {
       borderBottom: `1px solid ${cssVariableTheme.action.subtleBorder}`,
+    },
+
+    '& .md-editor-split[data-layout="above-below"] .md-editor-pane': {
+      flex: 'none',
+      overflow: 'visible',
+      minHeight: 'auto',
+    },
+
+    '& .md-editor-split[data-layout="above-below"] shade-markdown-input textarea': {
+      overflow: 'hidden',
+      fieldSizing: 'content',
     },
 
     '& .md-editor-pane-preview': {
