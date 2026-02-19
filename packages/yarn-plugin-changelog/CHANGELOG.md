@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `clipanion`
+
 ## [1.0.3] - 2026-02-11
 
 ### ⬆️ Dependencies

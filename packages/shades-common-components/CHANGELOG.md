@@ -1,5 +1,21 @@
 # Changelog
 
+## [12.2.0] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades`
+
+### ✨ Features
+
+### Icon metadata for descriptions, categories, and search keywords
+
+Extended the `IconDefinition` type with optional `name`, `description`, `keywords`, and `category` fields. All existing icons now include this metadata, enabling icon galleries to automatically group icons by category and support keyword-based search.
+
+### 41 new icons
+
+Added 41 new icon definitions covering areas such as communication (`envelope`, `messageCircle`), media (`music`, `film`, `image`, `images`), data visualization (`barChart`), development (`code`, `gamepad`, `puzzle`), and navigation (`arrowLeft`, `arrowRight`, `compass`). The icon set grew from 69 to 110 icons.
+
 ## [12.1.0] - 2026-02-11
 
 ### ✨ Features

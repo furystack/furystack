@@ -1,5 +1,15 @@
 # Changelog
 
+## [12.1.0] - 2026-02-19
+
+### ✨ Features
+
+- Added `navigate(path)` method to `LocationService` for programmatic SPA routing. It calls `history.pushState` and updates the internal routing state in a single step, replacing the need to call `history.pushState` and manually trigger state updates.
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/inject` and `@furystack/utils`
+
 ## [12.0.1] - 2026-02-11
 
 ### 🐛 Bug Fixes

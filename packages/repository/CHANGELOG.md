@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.0.37] - 2026-02-19
+
+### 📚 Documentation
+
+- Expanded JSDoc on `DataSet` class to explain its role as the authorized write gateway with event dispatching
+- Expanded JSDoc on `add()`, `update()`, and `remove()` to document authorization checks, hooks, and emitted events
+- Expanded JSDoc on `getDataSetFor()` with usage examples for server-side writes using `useSystemIdentityContext`
+- Added README section covering server-side writes with the elevated `IdentityContext`, including a warning about bypassing the DataSet layer
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core`
+
 ## [10.0.36] - 2026-02-11
 
 ### ⬆️ Dependencies

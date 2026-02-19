@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.0.4] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated workspace dependencies
+
+### ✨ Features
+
+- Extended the icon system with metadata (`name`, `description`, `keywords`, `category`) and 41 new icons, growing the set from 69 to 110
+- Replaced emoji strings with proper `Icon` components in the showcase app's navigation, sidebar, breadcrumbs, theme switcher, and page headers
+- Added search and category-based filtering to the icons showcase page
+
 ## [8.0.3] - 2026-02-12
 
 ### ✨ Features

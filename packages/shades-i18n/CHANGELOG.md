@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.2] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/i18n` and `@furystack/shades`
+
 ## [2.0.1] - 2026-02-11
 
 ### ⬆️ Dependencies

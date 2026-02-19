@@ -1,5 +1,27 @@
 # Changelog
 
+## [8.0.3] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` and `@furystack/shades-common-components`
+
+### ✨ Features
+
+### Icon gallery now auto-discovers icons with search and filtering
+
+The icons showcase page no longer uses a hardcoded list of icons. It dynamically reads all exported icons and groups them by their `category` metadata. A search input lets users filter icons by name, keyword, description, or category, displaying a live count of matches.
+
+### Replaced emoji strings with `Icon` components across the app
+
+Navigation categories, sidebar branding, breadcrumb home link, theme switcher, page headers, and the 404 page now render proper `Icon` components instead of emoji characters. The `NavCategory.icon` type changed from `string` to `IconDefinition`.
+
+### ♻️ Refactoring
+
+- Replaced inline-styled toggle buttons in the icons page with `ToggleButtonGroup` and `Button` components
+- Extracted size-comparison section into a data-driven `.map()` loop
+- Reorganized imports across ~50 showcase pages to group `@furystack/*` imports consistently
+
 ## [8.0.2] - 2026-02-11
 
 ### ✨ Features

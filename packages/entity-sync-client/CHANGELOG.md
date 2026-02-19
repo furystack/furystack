@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/entity-sync`
+
 ## [0.1.0] - 2026-02-12
 
 ### ✨ Features

@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.37] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` and `redis`
+
 ## [10.0.36] - 2026-02-11
 
 ### ⬆️ Dependencies

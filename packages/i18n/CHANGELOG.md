@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.30] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/inject`
+
 ## [1.0.29] - 2026-02-11
 
 ### ⬆️ Dependencies

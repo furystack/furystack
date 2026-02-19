@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1] - 2026-02-19
+
+### 📚 Documentation
+
+- Expanded JSDoc on `SubscriptionManager.registerModel()` to clarify that only DataSet writes trigger sync notifications, and direct physical store writes are not detected
+- Updated README to emphasize that all writes must go through the DataSet for entity sync to work, and to reference `useSystemIdentityContext` for server-side writes without an HTTP session
+
 ## [0.1.0] - 2026-02-12
 
 ### ✨ Features

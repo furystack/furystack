@@ -1,6 +1,6 @@
 {
   "name": "@furystack/entity-sync-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Client-side entity synchronization for FuryStack",
   "type": "module",
   "scripts": {

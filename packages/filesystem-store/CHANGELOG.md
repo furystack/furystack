@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.37] - 2026-02-19
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core`
+
 ## [7.0.36] - 2026-02-11
 
 ### ♻️ Refactoring
