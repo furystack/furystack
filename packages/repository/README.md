@@ -70,3 +70,27 @@ There is an additional property called `addFilter`, you can use that to add a pr
 ### Getting the Context
 
 All methods above have an _injector instance_ on the call parameter - you can use that injector to get service instances from the right caller context. It means that you can use e.g. HttpUserContext to get the current user.
+
+### Server-side writes and the elevated IdentityContext
+
+The DataSet is the **recommended write gateway** for all entity mutations. Writing through the DataSet ensures that authorization rules, modification hooks, and change events (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`) are all triggered. These events are required for features like [entity sync](./../entity-sync-service/README.md) to work correctly.
+
+> **Warning:** Writing directly to the underlying physical store bypasses the DataSet layer entirely. No authorization checks, hooks, or events will fire, and downstream consumers (such as entity sync) will **not** be notified of the change.
+
+For server-side or background operations that don't originate from an HTTP request (e.g. scheduled jobs, migrations, seed scripts), you won't have a user session. Use `useSystemIdentityContext` from `@furystack/core` to create a scoped child injector with elevated privileges:
+
+```ts
+import { useSystemIdentityContext } from '@furystack/core'
+import { getDataSetFor } from '@furystack/repository'
+import { usingAsync } from '@furystack/utils'
+
+await usingAsync(useSystemIdentityContext({ injector, username: 'background-job' }), async (systemInjector) => {
+  const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
+  await dataSet.add(systemInjector, { value: 'created by background job' })
+})
+// systemInjector is disposed here -- all scoped instances cleaned up
+```
+
+> **Warning:** `useSystemIdentityContext` bypasses **all** authorization checks. Only use it in trusted server-side contexts. Never pass the returned injector to user-facing request handlers.
+
+This pattern ensures that all writes go through the same pipeline, keeping authorization, hooks, and event-driven features consistent regardless of the caller.

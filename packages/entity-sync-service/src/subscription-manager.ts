@@ -89,7 +89,12 @@ export class SubscriptionManager implements Disposable {
 
   /**
    * Registers a model for entity sync.
-   * Subscribes to the model's DataSet events to track changes and maintain a changelog.
+   * Subscribes to the model's **DataSet** events to track changes and maintain a changelog.
+   *
+   * **Important:** Only writes that go through the DataSet (via `dataSet.add()`, `dataSet.update()`,
+   * `dataSet.remove()`) will trigger sync notifications. Writes made directly to the underlying
+   * physical store will **not** be detected. Always use the DataSet as your write gateway.
+   *
    * @param model The model class (wire name derived from constructor.name)
    * @param primaryKey The primary key field of the model
    * @param options Optional configuration

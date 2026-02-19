@@ -54,11 +54,15 @@ type EntitySyncModelConfig = {
 
 The `SubscriptionManager` (singleton) tracks changes to registered models:
 
-1. **Change tracking** -- listens to `onEntityAdded`, `onEntityUpdated`, `onEntityRemoved` events on the model's DataSet
+1. **Change tracking** -- listens to `onEntityAdded`, `onEntityUpdated`, `onEntityRemoved` events on the model's **DataSet**
 2. **Changelog** -- maintains a per-model changelog with sequence numbers for delta sync support
 3. **Subscriptions** -- when a client subscribes, the manager sends an initial snapshot (or delta if `lastSeq` is provided), then pushes incremental changes
 4. **Debouncing** -- optionally batches rapid changes before re-evaluating collection subscriptions
 5. **Query caching** -- optionally caches `find()` results for collection subscriptions to reduce database load
+
+> **Important:** The sync system listens to **DataSet** events, not physical store events. All writes **must** go through the DataSet (via `dataSet.add()`, `dataSet.update()`, `dataSet.remove()`) for changes to be detected and pushed to clients. Writing directly to the physical store will bypass sync entirely.
+>
+> For server-side or background writes that don't have an HTTP user context, use `useSystemIdentityContext` from `@furystack/core` to create a scoped child injector with elevated privileges. See the [@furystack/repository README](../repository/README.md#server-side-writes-and-the-elevated-identitycontext) for a full example.
 
 ## WebSocket Actions
 

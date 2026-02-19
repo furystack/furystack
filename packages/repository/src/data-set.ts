@@ -5,7 +5,33 @@ import { EventHub } from '@furystack/utils'
 import type { DataSetSettings } from './data-set-setting.js'
 
 /**
- * An authorized Repository Store instance
+ * An authorized Repository Store instance that wraps a {@link PhysicalStore} with authorization,
+ * modification hooks, and event dispatching.
+ *
+ * The DataSet is the **recommended write gateway** for all entity mutations. Writing through the DataSet
+ * ensures that authorization rules are enforced, modification hooks are applied, and change events
+ * (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`) are emitted -- which are required for features
+ * like entity sync to function correctly.
+ *
+ * All mutating methods require an `injector` parameter that provides the caller's context (e.g. the current
+ * user's identity). For server-side or background operations that don't originate from an HTTP request,
+ * use {@link useSystemIdentityContext} to create a scoped child injector with elevated privileges.
+ *
+ * @example
+ * ```ts
+ * import { useSystemIdentityContext } from '@furystack/core'
+ * import { getDataSetFor } from '@furystack/repository'
+ * import { usingAsync } from '@furystack/utils'
+ *
+ * // Server-side write with an elevated identity
+ * await usingAsync(
+ *   useSystemIdentityContext({ injector, username: 'background-job' }),
+ *   async (systemInjector) => {
+ *     const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
+ *     await dataSet.add(systemInjector, newEntity)
+ *   },
+ * )
+ * ```
  */
 export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>>
   extends EventHub<{
@@ -21,8 +47,11 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   public primaryKey: TPrimaryKey
 
   /**
-   * Adds an entity to the DataSet
-   * @param injector The injector from the context
+   * Adds an entity to the DataSet.
+   * Runs authorization checks, applies modification hooks, persists to the physical store,
+   * and emits an `onEntityAdded` event for each created entity.
+   * @param injector The injector from the caller's context. For server-side or background operations
+   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
    * @param entities The entities to add
    * @returns The CreateResult with the created entities
    */
@@ -52,8 +81,11 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   }
 
   /**
-   * Updates an entity in the store
-   * @param injector The injector from the context
+   * Updates an entity in the store.
+   * Runs authorization checks, applies modification hooks, persists to the physical store,
+   * and emits an `onEntityUpdated` event.
+   * @param injector The injector from the caller's context. For server-side or background operations
+   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
    * @param id The identifier of the entity
    * @param change The update
    */
@@ -141,8 +173,11 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   }
 
   /**
-   * Removes an entity based on its primary key
-   * @param injector The Injector from the context
+   * Removes an entity based on its primary key.
+   * Runs authorization checks, persists to the physical store,
+   * and emits an `onEntityRemoved` event.
+   * @param injector The injector from the caller's context. For server-side or background operations
+   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
    * @param key The primary key
    * @returns A promise that will be resolved / rejected based on the remove success
    */
