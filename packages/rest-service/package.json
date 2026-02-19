@@ -45,13 +45,13 @@
     "@furystack/rest": "workspace:^",
     "@furystack/security": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "path-to-regexp": "^8.3.0"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
     "@types/ws": "^8.18.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
