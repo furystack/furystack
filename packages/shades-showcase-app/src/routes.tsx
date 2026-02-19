@@ -743,6 +743,18 @@ export const appRoutes = {
               />
             ),
           },
+          '/markdown': {
+            ...withFadeTransition,
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { MarkdownPage } = await import('./pages/integrations/markdown.js')
+                  return <MarkdownPage />
+                }}
+              />
+            ),
+          },
         },
       },
       '/utilities': {
