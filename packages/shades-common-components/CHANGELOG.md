@@ -1,5 +1,31 @@
 # Changelog
 
+## [12.3.0] - 2026-02-19
+
+### ✨ Features
+
+### Markdown Components
+
+A new set of zero-dependency Markdown components for rendering and editing Markdown content.
+
+**`parseMarkdown(source)`** — Converts a Markdown string into a typed AST. Supports headings, paragraphs, ordered/unordered lists, task-list checkboxes, fenced code blocks with language hints, blockquotes, horizontal rules, and inline formatting (bold, italic, inline code, links, images).
+
+**`toggleCheckbox(source, lineIndex)`** — Toggles a checkbox at the given source line index in a raw Markdown string, returning the updated string.
+
+**`MarkdownDisplay`** — Renders a Markdown string as styled HTML using FuryStack Shades components. When `readOnly` is set to `false`, task-list checkboxes become interactive and report changes via an `onChange` callback.
+
+**`MarkdownInput`** — A textarea for editing raw Markdown. Supports pasting images from the clipboard, which are inlined as base64-encoded `![pasted image](data:...)` Markdown images (configurable size limit, defaults to 256 KB).
+
+**`MarkdownEditor`** — A combined editor with an input pane and a live preview pane. Supports three layout modes: `side-by-side`, `tabs` (Edit / Preview), and `above-below`. Checkboxes toggled in the preview pane update the source text.
+
+### 🧪 Tests
+
+- Added unit tests for `parseMarkdown` and `parseInline` covering headings, paragraphs, lists, checkboxes, code blocks, blockquotes, horizontal rules, and inline formatting
+- Added unit tests for `toggleCheckbox` verifying checked/unchecked toggling and out-of-bounds handling
+- Added unit tests for `MarkdownDisplay` rendering and interactive checkbox toggling
+- Added unit tests for `MarkdownEditor` layout switching between side-by-side, tabs, and above-below modes
+- Added unit tests for `MarkdownInput` text input and image paste behavior
+
 ## [12.2.0] - 2026-02-19
 
 ### ⬆️ Dependencies

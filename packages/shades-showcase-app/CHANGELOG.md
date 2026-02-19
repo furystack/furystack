@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.0.4] - 2026-02-19
+
+### ✨ Features
+
+- Added Markdown showcase page at `/integrations/markdown` demonstrating `MarkdownDisplay`, `MarkdownInput`, and `MarkdownEditor` with interactive checkboxes and layout switching
+
+### 🧪 Tests
+
+- Added E2E tests for the Markdown showcase page covering display rendering, checkbox toggling, editor layout switching, and input visibility
+
 ## [8.0.3] - 2026-02-19
 
 ### ⬆️ Dependencies

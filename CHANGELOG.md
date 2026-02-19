@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.5] - 2026-02-19
+
+### ✨ Features
+
+- Added Markdown components to `@furystack/shades-common-components` — see the package changelog for details
+
 ## [8.0.4] - 2026-02-19
 
 ### ⬆️ Dependencies
