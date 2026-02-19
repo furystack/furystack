@@ -50,44 +50,39 @@ type VariantDef = {
   lineHeight: string
   letterSpacing: string
   textTransform?: string
-  scale?: string
   marginTop?: string
   marginBottom?: string
 }
 
 const variantDefs: Record<TypographyVariant, VariantDef> = {
   h1: {
-    fontSize: cssVariableTheme.typography.fontSize.xl,
+    fontSize: cssVariableTheme.typography.fontSize.xxxxl,
     fontWeight: cssVariableTheme.typography.fontWeight.bold,
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.tight,
-    scale: '2',
     marginBottom: '0.3em',
   },
   h2: {
-    fontSize: cssVariableTheme.typography.fontSize.xl,
+    fontSize: cssVariableTheme.typography.fontSize.xxxl,
     fontWeight: cssVariableTheme.typography.fontWeight.bold,
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.dense,
-    scale: '1.6',
     marginTop: '1.5em',
     marginBottom: '0.3em',
   },
   h3: {
-    fontSize: cssVariableTheme.typography.fontSize.xl,
+    fontSize: cssVariableTheme.typography.fontSize.xxl,
     fontWeight: cssVariableTheme.typography.fontWeight.semibold,
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.normal,
-    scale: '1.3',
     marginTop: '1.25em',
     marginBottom: '0.25em',
   },
   h4: {
-    fontSize: cssVariableTheme.typography.fontSize.lg,
+    fontSize: cssVariableTheme.typography.fontSize.xl,
     fontWeight: cssVariableTheme.typography.fontWeight.semibold,
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1.15',
     marginTop: '1em',
     marginBottom: '0.25em',
   },
@@ -104,7 +99,6 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
-    scale: '1.1',
     marginTop: '0.5em',
     marginBottom: '0.2em',
   },
@@ -167,13 +161,7 @@ const buildVariantCssRules = (): Record<string, Record<string, string>> => {
     if (def.marginTop) {
       rule.marginTop = def.marginTop
     }
-    if (def.scale && def.scale !== '1') {
-      rule.transformOrigin = 'left top'
-      rule.transform = `scale(${def.scale})`
-      rule.marginBottom = def.marginBottom
-        ? `calc((${def.scale} - 1) * 1em + ${def.marginBottom})`
-        : `calc((${def.scale} - 1) * 1em)`
-    } else if (def.marginBottom) {
+    if (def.marginBottom) {
       rule.marginBottom = def.marginBottom
     }
     rules[`&[data-variant="${variant}"]`] = rule

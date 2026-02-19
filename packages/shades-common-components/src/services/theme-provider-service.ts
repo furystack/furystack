@@ -158,8 +158,14 @@ export type FontSizeScale = {
   md: string
   /** 16px - large body, icons */
   lg: string
-  /** 24px - page headings */
+  /** 24px - subheadings, large UI elements */
   xl: string
+  /** 30px - small headings (h3) */
+  xxl: string
+  /** 36px - medium headings (h2) */
+  xxxl: string
+  /** 48px - large headings (h1) */
+  xxxxl: string
 }
 
 /**

@@ -102,6 +102,9 @@ export const cssVariableTheme = {
       md: 'var(--shades-theme-typography-font-size-md)',
       lg: 'var(--shades-theme-typography-font-size-lg)',
       xl: 'var(--shades-theme-typography-font-size-xl)',
+      xxl: 'var(--shades-theme-typography-font-size-xxl)',
+      xxxl: 'var(--shades-theme-typography-font-size-xxxl)',
+      xxxxl: 'var(--shades-theme-typography-font-size-xxxxl)',
     },
     fontWeight: {
       normal: 'var(--shades-theme-typography-font-weight-normal)',

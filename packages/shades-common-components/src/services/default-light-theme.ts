@@ -54,6 +54,9 @@ export const defaultLightTheme = {
       md: '14px',
       lg: '16px',
       xl: '24px',
+      xxl: '30px',
+      xxxl: '36px',
+      xxxxl: '48px',
     },
     fontWeight: {
       normal: '400',

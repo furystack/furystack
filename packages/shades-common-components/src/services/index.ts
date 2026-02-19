@@ -1,6 +1,7 @@
 export * from './click-away-service.js'
 export * from './collection-service.js'
 export * from './css-variable-theme.js'
+export * from './default-dark-palette.js'
 export * from './default-dark-theme.js'
 export * from './default-light-theme.js'
 export * from './default-palette.js'
