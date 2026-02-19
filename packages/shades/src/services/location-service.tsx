@@ -75,6 +75,15 @@ export class LocationService implements Disposable {
     this.onLocationSearchChanged.setValue(location.search)
   }).bind(this)
 
+  /**
+   * Navigate to a path. Use this instead of raw history.pushState for SPA routing.
+   * The LocationService interceptor ensures routing state is updated correctly.
+   */
+  public navigate(path: string): void {
+    history.pushState(null, '', path)
+    this.updateState()
+  }
+
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
   /**
