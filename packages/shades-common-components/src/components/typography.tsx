@@ -3,8 +3,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
-import { Icon } from './icons/icon.js'
 import { clipboard } from './icons/icon-definitions.js'
+import { Icon } from './icons/icon.js'
 
 /**
  * Typography variant determines semantic HTML tag and default styles.
@@ -51,6 +51,8 @@ type VariantDef = {
   letterSpacing: string
   textTransform?: string
   scale?: string
+  marginTop?: string
+  marginBottom?: string
 }
 
 const variantDefs: Record<TypographyVariant, VariantDef> = {
@@ -60,6 +62,7 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.tight,
     scale: '2',
+    marginBottom: '0.3em',
   },
   h2: {
     fontSize: cssVariableTheme.typography.fontSize.xl,
@@ -67,6 +70,8 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.dense,
     scale: '1.6',
+    marginTop: '1.5em',
+    marginBottom: '0.3em',
   },
   h3: {
     fontSize: cssVariableTheme.typography.fontSize.xl,
@@ -74,6 +79,8 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.normal,
     scale: '1.3',
+    marginTop: '1.25em',
+    marginBottom: '0.25em',
   },
   h4: {
     fontSize: cssVariableTheme.typography.fontSize.lg,
@@ -81,12 +88,16 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.tight,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
     scale: '1.15',
+    marginTop: '1em',
+    marginBottom: '0.25em',
   },
   h5: {
     fontSize: cssVariableTheme.typography.fontSize.lg,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.normal,
+    marginTop: '0.75em',
+    marginBottom: '0.35em',
   },
   h6: {
     fontSize: cssVariableTheme.typography.fontSize.md,
@@ -94,30 +105,36 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
     scale: '1.1',
+    marginTop: '0.5em',
+    marginBottom: '0.2em',
   },
   subtitle1: {
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
+    marginBottom: '0.35em',
   },
   subtitle2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.medium,
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: '0.1px',
+    marginBottom: '0.25em',
   },
   body1: {
     fontSize: cssVariableTheme.typography.fontSize.md,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
+    marginBottom: '0.75em',
   },
   body2: {
     fontSize: cssVariableTheme.typography.fontSize.sm,
     fontWeight: cssVariableTheme.typography.fontWeight.normal,
     lineHeight: cssVariableTheme.typography.lineHeight.relaxed,
     letterSpacing: cssVariableTheme.typography.letterSpacing.wide,
+    marginBottom: '0.5em',
   },
   caption: {
     fontSize: cssVariableTheme.typography.fontSize.xs,
@@ -131,6 +148,7 @@ const variantDefs: Record<TypographyVariant, VariantDef> = {
     lineHeight: cssVariableTheme.typography.lineHeight.normal,
     letterSpacing: cssVariableTheme.typography.letterSpacing.widest,
     textTransform: 'uppercase',
+    marginBottom: '0.5em',
   },
 }
 
@@ -146,10 +164,17 @@ const buildVariantCssRules = (): Record<string, Record<string, string>> => {
     if (def.textTransform) {
       rule.textTransform = def.textTransform
     }
+    if (def.marginTop) {
+      rule.marginTop = def.marginTop
+    }
     if (def.scale && def.scale !== '1') {
       rule.transformOrigin = 'left top'
       rule.transform = `scale(${def.scale})`
-      rule.marginBottom = `calc((${def.scale} - 1) * 1em)`
+      rule.marginBottom = def.marginBottom
+        ? `calc((${def.scale} - 1) * 1em + ${def.marginBottom})`
+        : `calc((${def.scale} - 1) * 1em)`
+    } else if (def.marginBottom) {
+      rule.marginBottom = def.marginBottom
     }
     rules[`&[data-variant="${variant}"]`] = rule
   }
