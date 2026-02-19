@@ -115,6 +115,9 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
             textarea.setSelectionRange(cursorPos, cursorPos)
             props.onValueChange?.(newValue)
           }
+          reader.onerror = () => {
+            console.warn('Failed to read pasted image file')
+          }
           reader.readAsDataURL(file)
           return
         }

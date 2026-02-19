@@ -63,6 +63,11 @@ const CHECKBOX_CHECKED_RE = /^\[[xX]\]\s+(.*)/
 
 /**
  * Parse inline Markdown formatting into an array of InlineNodes.
+ *
+ * Known limitations:
+ * - Backslash escapes (e.g. `\*`) are not supported; special characters are always interpreted.
+ * - Underscore `_` markers are not restricted to word boundaries, so identifiers like
+ *   `some_variable_name` may produce false italic/bold matches.
  */
 export const parseInline = (text: string): InlineNode[] => {
   const nodes: InlineNode[] = []
@@ -225,8 +230,6 @@ export const parseMarkdown = (source: string): MarkdownNode[] => {
         if (bqLineMatch) {
           bqLines.push(bqLineMatch[1])
           i++
-        } else if (lines[i].trim() === '') {
-          break
         } else {
           break
         }
@@ -308,8 +311,12 @@ export const parseMarkdown = (source: string): MarkdownNode[] => {
   return nodes
 }
 
+const TOGGLE_UNCHECKED_RE = /^(\s*[-*]\s+)\[ \]/
+const TOGGLE_CHECKED_RE = /^(\s*[-*]\s+)\[[xX]\]/
+
 /**
  * Toggle a checkbox at the given source line index in the raw Markdown string.
+ * Only matches checkboxes in unordered list items (`- [ ]` or `* [x]`).
  * Returns the updated string.
  */
 export const toggleCheckbox = (source: string, sourceLineIndex: number): string => {
@@ -317,10 +324,10 @@ export const toggleCheckbox = (source: string, sourceLineIndex: number): string 
   if (sourceLineIndex < 0 || sourceLineIndex >= lines.length) return source
 
   const line = lines[sourceLineIndex]
-  if (line.includes('[ ]')) {
-    lines[sourceLineIndex] = line.replace('[ ]', '[x]')
-  } else if (/\[[xX]\]/.test(line)) {
-    lines[sourceLineIndex] = line.replace(/\[[xX]\]/, '[ ]')
+  if (TOGGLE_UNCHECKED_RE.test(line)) {
+    lines[sourceLineIndex] = line.replace(TOGGLE_UNCHECKED_RE, '$1[x]')
+  } else if (TOGGLE_CHECKED_RE.test(line)) {
+    lines[sourceLineIndex] = line.replace(TOGGLE_CHECKED_RE, '$1[ ]')
   }
   return lines.join('\n')
 }

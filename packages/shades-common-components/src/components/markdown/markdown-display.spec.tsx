@@ -139,6 +139,15 @@ describe('MarkdownDisplay', () => {
       const checkbox = document.querySelector('shade-markdown-display shade-checkbox')
       expect(checkbox).not.toBeNull()
       expect(checkbox?.hasAttribute('data-disabled')).toBe(false)
+
+      const input = checkbox?.querySelector('input[type="checkbox"]') as HTMLInputElement
+      expect(input).not.toBeNull()
+      input.click()
+
+      await sleepAsync(50)
+
+      expect(onChange).toHaveBeenCalledOnce()
+      expect(onChange).toHaveBeenCalledWith('- [x] Task')
     })
   })
 

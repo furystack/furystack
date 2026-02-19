@@ -245,4 +245,14 @@ describe('toggleCheckbox', () => {
     const source = 'Regular text'
     expect(toggleCheckbox(source, 0)).toBe(source)
   })
+
+  it('should not toggle [ ] that appears outside a list item', () => {
+    const source = 'This line has [ ] in it but is not a list item'
+    expect(toggleCheckbox(source, 0)).toBe(source)
+  })
+
+  it('should toggle checkboxes with * list marker', () => {
+    const source = '* [ ] Star item'
+    expect(toggleCheckbox(source, 0)).toBe('* [x] Star item')
+  })
 })

@@ -159,4 +159,116 @@ describe('MarkdownInput', () => {
       expect(textarea.rows).toBe(20)
     })
   })
+
+  describe('image paste', () => {
+    const createPasteEvent = (items: Array<{ type: string; file: File | null }>) => {
+      const pasteEvent = new Event('paste', { bubbles: true, cancelable: true })
+      Object.defineProperty(pasteEvent, 'clipboardData', {
+        value: {
+          items: Object.assign(
+            items.map((item) => ({
+              type: item.type,
+              getAsFile: () => item.file,
+            })),
+            { length: items.length },
+          ),
+        },
+      })
+      return pasteEvent
+    }
+
+    it('should inline a pasted image as base64 Markdown', async () => {
+      const originalFileReader = globalThis.FileReader
+      try {
+        const fakeBase64 = 'data:image/png;base64,dGVzdA=='
+        globalThis.FileReader = class {
+          result: string | null = fakeBase64
+          onload: (() => void) | null = null
+          onerror: (() => void) | null = null
+          public readAsDataURL() {
+            queueMicrotask(() => this.onload?.())
+          }
+        } as unknown as typeof FileReader
+
+        await usingAsync(new Injector(), async (injector) => {
+          const rootElement = document.getElementById('root') as HTMLDivElement
+          const onValueChange = vi.fn()
+
+          initializeShadeRoot({
+            injector,
+            rootElement,
+            jsxElement: <MarkdownInput value="Hello " onValueChange={onValueChange} />,
+          })
+
+          await sleepAsync(50)
+
+          const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
+          textarea.selectionStart = 6
+          textarea.selectionEnd = 6
+
+          const file = new File(['png-data'], 'test.png', { type: 'image/png' })
+          const pasteEvent = createPasteEvent([{ type: 'image/png', file }])
+          textarea.dispatchEvent(pasteEvent)
+
+          await sleepAsync(100)
+
+          expect(onValueChange).toHaveBeenCalledOnce()
+          const result = onValueChange.mock.calls[0][0] as string
+          expect(result).toContain('![pasted image](data:')
+          expect(result.startsWith('Hello ')).toBe(true)
+        })
+      } finally {
+        globalThis.FileReader = originalFileReader
+      }
+    })
+
+    it('should ignore pasted images exceeding maxImageSizeBytes', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onValueChange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownInput value="" onValueChange={onValueChange} maxImageSizeBytes={5} />,
+        })
+
+        await sleepAsync(50)
+
+        const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
+        const file = new File(['this-is-larger-than-5-bytes'], 'big.png', { type: 'image/png' })
+        const pasteEvent = createPasteEvent([{ type: 'image/png', file }])
+        textarea.dispatchEvent(pasteEvent)
+
+        await sleepAsync(100)
+
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+
+    it('should not interfere with non-image paste', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onValueChange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownInput value="" onValueChange={onValueChange} />,
+        })
+
+        await sleepAsync(50)
+
+        const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
+        const file = new File(['text content'], 'note.txt', { type: 'text/plain' })
+        const pasteEvent = createPasteEvent([{ type: 'text/plain', file }])
+        const wasDefaultPrevented = !textarea.dispatchEvent(pasteEvent)
+
+        await sleepAsync(100)
+
+        expect(wasDefaultPrevented).toBe(false)
+        expect(onValueChange).not.toHaveBeenCalled()
+      })
+    })
+  })
 })
