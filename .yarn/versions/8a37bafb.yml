@@ -5,6 +5,7 @@ releases:
   "@furystack/entity-sync-client": patch
   "@furystack/entity-sync-service": patch
   "@furystack/filesystem-store": patch
+  "@furystack/i18n": patch
   "@furystack/mongodb-store": patch
   "@furystack/redis-store": patch
   "@furystack/repository": patch
@@ -21,3 +22,5 @@ releases:
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
   "@furystack/websocket-api": patch
+  "@furystack/yarn-plugin-changelog": patch
+  furystack: patch

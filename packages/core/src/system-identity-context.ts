@@ -43,7 +43,7 @@ export class SystemIdentityContext extends IdentityContext {
   }
 
   public override getCurrentUser<TUser extends User>(): Promise<TUser> {
-    return Promise.resolve({ username: this.username, roles: [] } as TUser)
+    return Promise.resolve({ username: this.username, roles: [] } as unknown as TUser)
   }
 }
 
