@@ -110,6 +110,7 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Nipple', slug: 'nipple' },
       { label: 'MFE', slug: 'mfe' },
       { label: 'I18N', slug: 'i18n' },
+      { label: 'Markdown', slug: 'markdown' },
     ],
   },
   {

@@ -1,4 +1,4 @@
-import { defaultPalette } from './default-palette.js'
+import { defaultDarkPalette } from './default-dark-palette.js'
 import type { Theme } from './theme-provider-service.js'
 
 export const defaultDarkTheme = {
@@ -16,10 +16,10 @@ export const defaultDarkTheme = {
     disabledBackground: 'rgba(255, 255, 255, 0.12)',
   },
   background: {
-    default: '#303030',
-    paper: '#424242',
+    default: '#121212',
+    paper: '#1e1e1e',
   },
-  palette: defaultPalette,
+  palette: defaultDarkPalette,
   divider: 'rgba(255, 255, 255, 0.12)',
   action: {
     hoverBackground: 'rgba(255, 255, 255, 0.08)',
@@ -54,6 +54,9 @@ export const defaultDarkTheme = {
       md: '14px',
       lg: '16px',
       xl: '24px',
+      xxl: '30px',
+      xxxl: '36px',
+      xxxxl: '48px',
     },
     fontWeight: {
       normal: '400',
