@@ -14,7 +14,7 @@ releases:
   "@furystack/rest-service": patch
   "@furystack/security": patch
   "@furystack/sequelize-store": patch
-  "@furystack/shades": patch
+  "@furystack/shades": minor
   "@furystack/shades-common-components": patch
   "@furystack/shades-i18n": patch
   "@furystack/shades-lottie": patch

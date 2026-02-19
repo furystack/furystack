@@ -38,6 +38,17 @@ describe('LocationService', () => {
     })
   })
 
+  it('Should update location path when navigate is called', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const onLocationChanged = vi.fn()
+      const s = i.getInstance(LocationService)
+      s.onLocationPathChanged.subscribe(onLocationChanged)
+      s.navigate('/dashboard')
+      expect(s.onLocationPathChanged.getValue()).toBe('/dashboard')
+      expect(onLocationChanged).toHaveBeenCalledWith('/dashboard')
+    })
+  })
+
   describe('useSearchParam', () => {
     it('Should create observables lazily', async () => {
       await usingAsync(new Injector(), async (i) => {
