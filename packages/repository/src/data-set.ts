@@ -187,12 +187,19 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
    * Removes one or more entities based on their primary keys.
    * Runs authorization checks (all-or-nothing), persists to the physical store,
    * and emits an `onEntityRemoved` event for each removed entity.
+   *
+   * When `authorizeRemoveEntity` is configured, only entities that exist in the store
+   * are authorized. Keys that don't match any entity are silently forwarded to the
+   * physical store's `remove()` call.
    * @param injector The injector from the caller's context. For server-side or background operations
    *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
    * @param keys The primary keys of the entities to remove
    * @returns A promise that will be resolved / rejected based on the remove success
    */
   public async remove(injector: Injector, ...keys: Array<T[TPrimaryKey]>): Promise<void> {
+    if (keys.length === 0) {
+      return
+    }
     if (this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
