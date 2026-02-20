@@ -18,7 +18,7 @@ export const createGetCollectionEndpoint = <T, TPrimaryKey extends keyof T>(opti
   const endpoint: RequestAction<GetCollectionEndpoint<T>> = async ({ injector, getQuery }) => {
     const { findOptions } = getQuery()
     const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
-    const entriesPromise = dataSet.find<any>(injector, findOptions || {})
+    const entriesPromise = dataSet.find(injector, findOptions || {})
     const countPromise = dataSet.count(injector, findOptions?.filter)
     const [entries, count] = await Promise.all([entriesPromise, countPromise])
 

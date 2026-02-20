@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import type { WithOptionalId } from '@furystack/core'
-import { InMemoryStore, addStore } from '@furystack/core'
+import { AuthorizationError, InMemoryStore, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -447,6 +447,36 @@ describe('DataSet', () => {
         }
       })
     })
+
+    it('should pass the full entity to authorizeGetEntity even when select is used', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeGetEntity = vi.fn(async () => ({ isAllowed: true, message: '' }) as AuthorizationResult)
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'asd' })
+        const result = await dataSet.get(i, 1, ['value'])
+        expect(authorizeGetEntity).toHaveBeenCalledTimes(1)
+        const calls = authorizeGetEntity.mock.calls as unknown as Array<[{ entity: TestClass }]>
+        expect(calls[0][0].entity).toEqual({ id: 1, value: 'asd' })
+        expect(result).toEqual({ value: 'asd' })
+        expect(result).not.toHaveProperty('id')
+      })
+    })
+
+    it('should return undefined when authorizeGetEntity is set and entity does not exist', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeGetEntity = vi.fn(async () => ({ isAllowed: true, message: '' }) as AuthorizationResult)
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeGetEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        const result = await dataSet.get(i, 999)
+        expect(result).toBeUndefined()
+        expect(authorizeGetEntity).not.toHaveBeenCalled()
+      })
+    })
   })
   describe('remove', () => {
     it('should remove the entity if no settings are provided', async () => {
@@ -542,6 +572,74 @@ describe('DataSet', () => {
         const dataSet = getDataSetFor(i, TestClass, 'id')
         await dataSet.add(i, { id: 1, value: 'asd' })
         await dataSet.remove(i, 1)
+      })
+    })
+
+    it('should remove multiple entities at once', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id')
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' }, { id: 3, value: 'c' })
+        await dataSet.remove(i, 1, 3)
+        const count = await dataSet.count(i)
+        expect(count).toBe(1)
+        const remaining = await dataSet.get(i, 2)
+        expect(remaining?.value).toBe('b')
+      })
+    })
+
+    it('should emit onEntityRemoved for each key when removing multiple entities', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const removedKeys: number[] = []
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id')
+
+        getRepository(i)
+          .getDataSetFor(TestClass, 'id')
+          .subscribe('onEntityRemoved', ({ key }) => {
+            removedKeys.push(key)
+          })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' })
+        await dataSet.remove(i, 1, 2)
+        expect(removedKeys).toEqual([1, 2])
+      })
+    })
+
+    it('should authorize each entity when removing multiple with authorizeRemoveEntity', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeRemoveEntity = vi.fn(async () => ({ isAllowed: true, message: '' }) as AuthorizationResult)
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' })
+        await dataSet.remove(i, 1, 2)
+        expect(authorizeRemoveEntity).toHaveBeenCalledTimes(2)
+        const count = await dataSet.count(i)
+        expect(count).toBe(0)
+      })
+    })
+
+    it('should not remove any entity if authorizeRemoveEntity fails for one (all-or-nothing)', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeRemoveEntity = vi.fn(async ({ entity }: { entity: TestClass }) => {
+          if (entity.id === 2) {
+            return { isAllowed: false, message: 'forbidden' } as AuthorizationResult
+          }
+          return { isAllowed: true } as AuthorizationResult
+        })
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' }, { id: 3, value: 'c' })
+        await expect(dataSet.remove(i, 1, 2, 3)).rejects.toThrow(AuthorizationError)
+        const count = await dataSet.count(i)
+        expect(count).toBe(3)
       })
     })
   })

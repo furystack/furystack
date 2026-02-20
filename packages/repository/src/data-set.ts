@@ -1,5 +1,5 @@
 import type { CreateResult, FilterType, FindOptions, PartialResult, WithOptionalId } from '@furystack/core'
-import { AuthorizationError } from '@furystack/core'
+import { AuthorizationError, selectFields } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { DataSetSettings } from './data-set-setting.js'
@@ -155,33 +155,51 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
    * @param select A field list used for projection
    * @returns An item with the current unique key or Undefined
    */
-  public async get(injector: Injector, key: T[TPrimaryKey], select?: Array<keyof T>) {
+  public async get<TSelect extends Array<keyof T>>(
+    injector: Injector,
+    key: T[TPrimaryKey],
+    select?: TSelect,
+  ): Promise<PartialResult<T, TSelect> | undefined> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
       if (!result.isAllowed) {
         throw new AuthorizationError(result.message)
       }
     }
-    const instance = await this.settings.physicalStore.get(key, select)
-    if (instance && this.settings && this.settings.authorizeGetEntity) {
-      const result = await this.settings.authorizeGetEntity({ injector, entity: instance })
+    if (this.settings.authorizeGetEntity) {
+      const fullEntity = await this.settings.physicalStore.get(key)
+      if (!fullEntity) {
+        return undefined
+      }
+      const result = await this.settings.authorizeGetEntity({ injector, entity: fullEntity as T })
       if (!result.isAllowed) {
         throw new AuthorizationError(result.message)
       }
+      if (select) {
+        return selectFields(fullEntity as T & object, ...select)
+      }
+      return fullEntity as PartialResult<T, TSelect>
     }
-    return instance
+    return await this.settings.physicalStore.get(key, select)
   }
 
   /**
-   * Removes an entity based on its primary key.
-   * Runs authorization checks, persists to the physical store,
-   * and emits an `onEntityRemoved` event.
+   * Removes one or more entities based on their primary keys.
+   * Runs authorization checks (all-or-nothing), persists to the physical store,
+   * and emits an `onEntityRemoved` event for each removed entity.
+   *
+   * When `authorizeRemoveEntity` is configured, only entities that exist in the store
+   * are authorized. Keys that don't match any entity are silently forwarded to the
+   * physical store's `remove()` call.
    * @param injector The injector from the caller's context. For server-side or background operations
    *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
-   * @param key The primary key
+   * @param keys The primary keys of the entities to remove
    * @returns A promise that will be resolved / rejected based on the remove success
    */
-  public async remove(injector: Injector, key: T[TPrimaryKey]): Promise<void> {
+  public async remove(injector: Injector, ...keys: Array<T[TPrimaryKey]>): Promise<void> {
+    if (keys.length === 0) {
+      return
+    }
     if (this.settings.authorizeRemove) {
       const result = await this.settings.authorizeRemove({ injector })
       if (!result.isAllowed) {
@@ -189,16 +207,20 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       }
     }
     if (this.settings.authorizeRemoveEntity) {
-      const entity = await this.settings.physicalStore.get(key)
-      if (entity) {
-        const removeResult = await this.settings.authorizeRemoveEntity({ injector, entity })
-        if (!removeResult.isAllowed) {
-          throw new AuthorizationError(removeResult.message)
-        }
-      }
+      const entities = await this.settings.physicalStore.find({
+        filter: { [this.primaryKey]: { $in: keys } } as unknown as FilterType<T>,
+      })
+      await Promise.all(
+        entities.map(async (entity) => {
+          const removeResult = await this.settings.authorizeRemoveEntity!({ injector, entity: entity as T })
+          if (!removeResult.isAllowed) {
+            throw new AuthorizationError(removeResult.message)
+          }
+        }),
+      )
     }
-    await this.settings.physicalStore.remove(key)
-    this.emit('onEntityRemoved', { injector, key })
+    await this.settings.physicalStore.remove(...keys)
+    keys.forEach((key) => this.emit('onEntityRemoved', { injector, key }))
   }
 
   constructor(public readonly settings: DataSetSettings<T, TPrimaryKey, TWritableData>) {
