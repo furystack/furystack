@@ -1,5 +1,36 @@
 # Changelog
 
+## [10.1.0] - 2026-02-20
+
+### ✨ Features
+
+### Bulk Remove in DataSet
+
+`DataSet.remove()` now accepts multiple primary keys via rest parameters, allowing removal of several entities in a single call. Authorization checks run against all entities before any are deleted (all-or-nothing), and an `onEntityRemoved` event is emitted for each removed entity.
+
+**Usage:**
+
+```typescript
+// Before - remove one at a time
+await dataSet.remove(injector, key1)
+await dataSet.remove(injector, key2)
+
+// After - remove multiple at once
+await dataSet.remove(injector, key1, key2, key3)
+```
+
+### 🐛 Bug Fixes
+
+- Fixed `DataSet.get()` to fetch the full entity before running `authorizeGetEntity`, then applying field selection afterward. Previously, the entity passed to the authorization callback could have missing fields when `select` was provided.
+
+### ♻️ Refactoring
+
+- `DataSet.get()` return type is now properly generic as `PartialResult<T, TSelect>`, improving type inference for callers that pass a `select` parameter
+
+### 🧪 Tests
+
+- Added tests for bulk removal: removing multiple entities, event emission per key, per-entity authorization, and all-or-nothing rollback when authorization fails
+
 ## [10.0.37] - 2026-02-19
 
 ### 📚 Documentation

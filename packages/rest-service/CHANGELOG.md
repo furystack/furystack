@@ -1,5 +1,11 @@
 # Changelog
 
+## [11.0.6] - 2026-02-20
+
+### ♻️ Refactoring
+
+- Removed `any` type assertion in `createGetCollectionEndpoint`, relying on proper type inference from `DataSet.find()` instead
+
 ## [11.0.5] - 2026-02-19
 
 ### ⬆️ Dependencies

@@ -1,8 +1,0 @@
-releases:
-  "@furystack/auth-google": patch
-  "@furystack/entity-sync-service": patch
-  "@furystack/repository": minor
-  "@furystack/rest-service": patch
-  "@furystack/shades-showcase-app": patch
-  "@furystack/websocket-api": patch
-  furystack: patch
