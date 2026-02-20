@@ -544,5 +544,78 @@ describe('DataSet', () => {
         await dataSet.remove(i, 1)
       })
     })
+
+    it('should remove multiple entities at once', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id')
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' }, { id: 3, value: 'c' })
+        await dataSet.remove(i, 1, 3)
+        const count = await dataSet.count(i)
+        expect(count).toBe(1)
+        const remaining = await dataSet.get(i, 2)
+        expect(remaining?.value).toBe('b')
+      })
+    })
+
+    it('should emit onEntityRemoved for each key when removing multiple entities', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const removedKeys: number[] = []
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id')
+
+        getRepository(i)
+          .getDataSetFor(TestClass, 'id')
+          .subscribe('onEntityRemoved', ({ key }) => {
+            removedKeys.push(key)
+          })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' })
+        await dataSet.remove(i, 1, 2)
+        expect(removedKeys).toEqual([1, 2])
+      })
+    })
+
+    it('should authorize each entity when removing multiple with authorizeRemoveEntity', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeRemoveEntity = vi.fn(async () => ({ isAllowed: true, message: '' }) as AuthorizationResult)
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' })
+        await dataSet.remove(i, 1, 2)
+        expect(authorizeRemoveEntity).toHaveBeenCalledTimes(2)
+        const count = await dataSet.count(i)
+        expect(count).toBe(0)
+      })
+    })
+
+    it('should not remove any entity if authorizeRemoveEntity fails for one (all-or-nothing)', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const authorizeRemoveEntity = vi.fn(async ({ entity }: { entity: TestClass }) => {
+          if (entity.id === 2) {
+            return { isAllowed: false, message: 'forbidden' } as AuthorizationResult
+          }
+          return { isAllowed: true } as AuthorizationResult
+        })
+        addStore(i, new InMemoryStore({ model: TestClass, primaryKey: 'id' }))
+        getRepository(i).createDataSet(TestClass, 'id', { authorizeRemoveEntity })
+
+        const dataSet = getDataSetFor(i, TestClass, 'id')
+        await dataSet.add(i, { id: 1, value: 'a' }, { id: 2, value: 'b' }, { id: 3, value: 'c' })
+        try {
+          await dataSet.remove(i, 1, 2, 3)
+          throw Error('Should throw')
+        } catch (error) {
+          /** */
+        }
+        const count = await dataSet.count(i)
+        expect(count).toBe(3)
+      })
+    })
   })
 })
