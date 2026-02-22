@@ -1,7 +1,7 @@
 import { I18NService } from '@furystack/i18n'
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createI18nComponent } from './create-i18n-component.js'
 
@@ -59,7 +59,7 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Hello')
     })
   })
@@ -85,7 +85,7 @@ describe('createI18nComponent', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Hello World')
     })
   })
@@ -105,15 +105,15 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Hello')
 
       service.currentLanguage = 'hu'
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Szia')
 
       service.currentLanguage = 'de'
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Hallo')
     })
   })
@@ -133,12 +133,12 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="world" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('World')
 
       // German doesn't have 'world' translation, should fallback to English
       service.currentLanguage = 'de'
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('World')
     })
   })
@@ -158,7 +158,7 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       // Rapid language changes
       service.currentLanguage = 'hu'
@@ -166,7 +166,7 @@ describe('createI18nComponent', () => {
       service.currentLanguage = 'en'
       service.currentLanguage = 'hu'
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Szia')
     })
   })
@@ -198,12 +198,12 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(unsubscribeSpy).not.toHaveBeenCalled()
 
       // Unmount by clearing the DOM
       document.body.innerHTML = ''
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(unsubscribeSpy).toHaveBeenCalled()
     })
@@ -224,7 +224,7 @@ describe('createI18nComponent', () => {
         jsxElement: <I18n key="hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       // The component uses elementBaseName: 'span', so it renders as <span is="test-i18n-span">
       const i18nElement = rootElement.querySelector('span[is="test-i18n-span"]')
       expect(i18nElement).toBeInstanceOf(HTMLSpanElement)
@@ -252,11 +252,11 @@ describe('createI18nComponent', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Hello - Goodbye')
 
       service.currentLanguage = 'hu'
-      await sleepAsync(50)
+      await flushUpdates()
       expect(rootElement.textContent).toBe('Szia - Viszlát')
     })
   })

@@ -1,7 +1,7 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from './data-grid.js'
 import { DataGridHeader, OrderButton } from './header.js'
@@ -65,7 +65,7 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const header = document.querySelector('data-grid-header')
         expect(header).not.toBeNull()
@@ -83,7 +83,7 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const header = document.querySelector('data-grid-header')
         const fieldName = header?.querySelector('.header-field-name')
@@ -102,7 +102,7 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const orderButton = document.querySelector('data-grid-order-button')
         expect(orderButton).not.toBeNull()
@@ -120,7 +120,7 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton).toBeNull()
@@ -138,7 +138,7 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton).not.toBeNull()
@@ -158,7 +158,7 @@ describe('DataGridHeader', () => {
           jsxElement: <OrderButton field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const button = document.querySelector('data-grid-order-button')
         expect(button?.querySelector('shade-icon')).not.toBeNull()
@@ -176,12 +176,12 @@ describe('DataGridHeader', () => {
           jsxElement: <OrderButton field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const button = document.querySelector('data-grid-order-button')?.querySelector('button')
         button?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const updatedOptions = findOptions.getValue()
         expect(updatedOptions.order).toEqual({ name: 'ASC' })
@@ -199,12 +199,12 @@ describe('DataGridHeader', () => {
           jsxElement: <OrderButton field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const button = document.querySelector('data-grid-order-button')?.querySelector('button')
         button?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const updatedOptions = findOptions.getValue()
         expect(updatedOptions.order).toEqual({ name: 'DESC' })
@@ -222,12 +222,12 @@ describe('DataGridHeader', () => {
           jsxElement: <OrderButton field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const button = document.querySelector('data-grid-order-button')?.querySelector('button')
         button?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const updatedOptions = findOptions.getValue()
         expect(updatedOptions.order).toEqual({ name: 'ASC' })
@@ -245,13 +245,13 @@ describe('DataGridHeader', () => {
           jsxElement: <OrderButton field="name" findOptions={findOptions} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         let button = document.querySelector('data-grid-order-button')
         expect(button?.querySelector('shade-icon')).not.toBeNull()
 
         findOptions.setValue({ order: { name: 'ASC' } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         button = document.querySelector('data-grid-order-button')
         expect(button?.querySelector('shade-icon')).not.toBeNull()
@@ -271,7 +271,8 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
@@ -289,7 +290,8 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
@@ -334,12 +336,12 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dropdown = document.querySelector('data-grid-filter-dropdown')
         expect(dropdown).not.toBeNull()
@@ -359,12 +361,12 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stringFilter = document.querySelector('data-grid-string-filter')
         expect(stringFilter).not.toBeNull()
@@ -382,12 +384,12 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="id" findOptions={findOptions} filterConfig={{ type: 'number' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const numberFilter = document.querySelector('data-grid-number-filter')
         expect(numberFilter).not.toBeNull()
@@ -405,12 +407,12 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'boolean' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const booleanFilter = document.querySelector('data-grid-boolean-filter')
         expect(booleanFilter).not.toBeNull()
@@ -434,12 +436,12 @@ describe('DataGridHeader', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const enumFilter = document.querySelector('data-grid-enum-filter')
         expect(enumFilter).not.toBeNull()
@@ -457,12 +459,12 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'date' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dateFilter = document.querySelector('data-grid-date-filter')
         expect(dateFilter).not.toBeNull()
@@ -482,19 +484,19 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const orderButton = document.querySelector('data-grid-order-button')?.querySelector('button')
         orderButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(findOptions.getValue().order).toEqual({ name: 'ASC' })
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dropdown = document.querySelector('data-grid-filter-dropdown')
         expect(dropdown).not.toBeNull()

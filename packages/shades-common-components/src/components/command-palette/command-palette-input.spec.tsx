@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CommandPaletteInput } from './command-palette-input.js'
 import { CommandPaletteManager } from './command-palette-manager.js'
@@ -10,6 +10,7 @@ describe('CommandPaletteInput', () => {
   let animateCalls: Array<{ keyframes: unknown; options: unknown }>
 
   beforeEach(() => {
+    vi.useFakeTimers()
     document.body.innerHTML = '<div id="root"></div>'
     animateCalls = []
     originalAnimate = Element.prototype.animate
@@ -38,6 +39,7 @@ describe('CommandPaletteInput', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     document.body.innerHTML = ''
     Element.prototype.animate = originalAnimate
     vi.restoreAllMocks()
@@ -58,7 +60,7 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shades-command-palette-input')
         expect(input).not.toBeNull()
@@ -77,7 +79,7 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         const inputElement = component?.querySelector('input')
@@ -99,7 +101,7 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         expect(component.hasAttribute('data-opened')).toBe(false)
@@ -119,7 +121,7 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         expect(component.hasAttribute('data-opened')).toBe(true)
@@ -139,11 +141,11 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const widthAnimation = animateCalls.find(
           (call) =>
@@ -170,11 +172,11 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const widthAnimation = animateCalls.find(
           (call) =>
@@ -200,14 +202,14 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         const inputElement = component?.querySelector('input') as HTMLInputElement
         inputElement.value = 'some text'
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(inputElement.value).toBe('')
       })
@@ -226,14 +228,16 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         const inputElement = component?.querySelector('input') as HTMLInputElement
         inputElement.value = 'search term'
 
         manager.isOpened.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
+        await vi.advanceTimersByTimeAsync(20)
+        await flushUpdates()
 
         expect(inputElement.value).toBe('')
       })
@@ -251,7 +255,7 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
         const computedStyle = window.getComputedStyle(component)
@@ -272,11 +276,11 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const widthAnimation = animateCalls.find(
           (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'width' in kf),
@@ -302,11 +306,11 @@ describe('CommandPaletteInput', () => {
           jsxElement: <CommandPaletteInput manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const widthAnimation = animateCalls.find(
           (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'width' in kf),

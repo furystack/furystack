@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TreeService } from '../../services/tree-service.js'
 import { Tree } from './tree.js'
@@ -60,7 +60,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         expect(tree).not.toBeNull()
@@ -87,7 +87,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const items = tree?.querySelectorAll('shade-tree-item')
@@ -115,7 +115,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         expect(tree).not.toBeNull()
@@ -144,7 +144,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('[role="treeitem"]')
@@ -173,7 +173,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const icons = tree?.querySelectorAll('[data-testid="icon"]')
@@ -202,7 +202,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree') as HTMLElement
         expect(tree?.getAttribute('data-variant')).toBe('contained')
@@ -229,7 +229,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -259,7 +259,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -293,7 +293,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree') as HTMLElement
         tree?.click()
@@ -325,7 +325,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree') as HTMLElement
         tree?.click()
@@ -358,7 +358,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -388,10 +388,10 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.focusedItem.setValue(treeData[1])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -422,10 +422,10 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([treeData[0], treeData[2]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -455,10 +455,10 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([treeData[0]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree')
         const treeItems = tree?.querySelectorAll('shade-tree-item') as NodeListOf<HTMLElement>
@@ -489,10 +489,10 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([treeData[0]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         expect(onSelectionChange).toHaveBeenCalledWith([treeData[0]])
 
@@ -525,7 +525,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
@@ -558,7 +558,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
@@ -592,7 +592,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
 
@@ -625,7 +625,7 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
@@ -660,12 +660,12 @@ describe('Tree', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tree = document.querySelector('shade-tree') as HTMLElement
         tree.remove()
 
-        await sleepAsync(10)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         expect(service.focusedItem.getValue()).toEqual(treeData[0])

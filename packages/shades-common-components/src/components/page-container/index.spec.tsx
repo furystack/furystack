@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { PageContainer } from './index.js'
 
@@ -24,7 +24,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]')
         expect(element).not.toBeNull()
         expect(element?.tagName.toLowerCase()).toBe('div')
@@ -46,7 +46,7 @@ describe('PageContainer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]')
         expect(element?.textContent).toContain('Child content')
       })
@@ -67,7 +67,7 @@ describe('PageContainer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]')
         expect(element?.textContent).toContain('First')
         expect(element?.textContent).toContain('Second')
@@ -86,7 +86,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.padding).toBe('24px')
       })
@@ -102,7 +102,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.gap).toBe('16px')
       })
@@ -118,7 +118,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.maxWidth).toBe('100%')
       })
@@ -134,7 +134,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.height).toBe('100%')
       })
@@ -150,7 +150,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.marginLeft).toBe('')
         expect(element.style.marginRight).toBe('')
@@ -169,7 +169,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer maxWidth="800px">Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.maxWidth).toBe('800px')
       })
@@ -185,7 +185,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer padding="48px">Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.padding).toBe('48px')
       })
@@ -201,7 +201,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer gap="32px">Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.gap).toBe('32px')
       })
@@ -221,7 +221,7 @@ describe('PageContainer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.marginLeft).toBe('auto')
         expect(element.style.marginRight).toBe('auto')
@@ -238,7 +238,7 @@ describe('PageContainer component', () => {
           jsxElement: <PageContainer fullHeight={false}>Content</PageContainer>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.height).toBe('auto')
       })
@@ -260,7 +260,7 @@ describe('PageContainer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
         expect(element.style.maxWidth).toBe('800px')
         expect(element.style.marginLeft).toBe('auto')

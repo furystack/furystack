@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, ScreenService } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot, ScreenService } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LayoutService } from '../../services/layout-service.js'
 import { Drawer, type DrawerProps } from './index.js'
@@ -48,7 +48,7 @@ describe('Drawer component', () => {
       ),
     })
 
-    await sleepAsync(50)
+    await flushUpdates()
 
     const drawer = document.querySelector('shade-drawer') as HTMLElement
 
@@ -85,7 +85,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).toContain('test-content')
       })
     })
@@ -106,7 +106,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-left')
         expect(container).not.toBeNull()
       })
@@ -128,7 +128,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-right')
         expect(container).not.toBeNull()
       })
@@ -164,7 +164,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-container')
         expect(container?.classList.contains('closed')).toBe(false)
       })
@@ -186,7 +186,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-container')
         expect(container?.getAttribute('data-variant')).toBe('permanent')
       })
@@ -235,7 +235,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-container')
         expect(container?.classList.contains('closed')).toBe(true)
       })
@@ -257,7 +257,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Initially open
         let container = document.querySelector('.drawer-container')
@@ -265,7 +265,7 @@ describe('Drawer component', () => {
 
         // Close via LayoutService
         layoutService.setDrawerOpen('left', false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         container = document.querySelector('.drawer-container')
         expect(container?.classList.contains('closed')).toBe(true)
@@ -315,7 +315,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).toContain('drawer-backdrop')
       })
     })
@@ -336,9 +336,9 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         layoutService.setDrawerOpen('left', true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const backdrop = document.querySelector('.drawer-backdrop')
         expect(backdrop?.classList.contains('visible')).toBe(true)
@@ -361,13 +361,13 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         layoutService.setDrawerOpen('left', true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const backdrop = document.querySelector('.drawer-backdrop') as HTMLElement
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)
       })
@@ -389,7 +389,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // When closed, left drawer should be translated off-screen
         let container = document.querySelector('.drawer-container') as HTMLElement
@@ -398,7 +398,7 @@ describe('Drawer component', () => {
 
         // When opened
         layoutService.setDrawerOpen('left', true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         container = document.querySelector('.drawer-container') as HTMLElement
         expect(container.style.transform).toBe('translateX(0)')
@@ -451,7 +451,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Width should be updated to 300px
         expect(layoutService.drawerState.getValue().left?.width).toBe('300px')
@@ -493,9 +493,9 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         layoutService.setDrawerOpen('right', true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const backdrop = document.querySelector('[data-testid="drawer-backdrop-right"]')
         expect(backdrop).not.toBeNull()
@@ -524,14 +524,14 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Drawer should be open on large screen
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
 
         // Simulate screen becoming smaller
         screenService.screenSize.atLeast.md.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Drawer should now be closed
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)
@@ -558,21 +558,21 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Drawer should be open on large screen
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
 
         // Simulate screen becoming smaller
         screenService.screenSize.atLeast.md.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Drawer should now be closed
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)
 
         // Simulate screen becoming larger again
         screenService.screenSize.atLeast.md.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Drawer should now be open again
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
@@ -599,12 +599,12 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
 
         // Simulate screen becoming larger
         screenService.screenSize.atLeast.md.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Temporary drawer should close when screen is large (switch to desktop layout)
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)
@@ -631,12 +631,12 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
 
         // Simulate screen becoming smaller
         screenService.screenSize.atLeast.md.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Permanent drawer should remain open
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
@@ -661,7 +661,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('.drawer-container')
         expect(container?.getAttribute('data-variant')).toBe('collapsible')
       })
@@ -683,12 +683,12 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         let container = document.querySelector('.drawer-container')
         expect(container?.getAttribute('data-open')).toBe('true')
 
         layoutService.setDrawerOpen('left', false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         container = document.querySelector('.drawer-container')
         expect(container?.getAttribute('data-open')).toBe('false')
@@ -711,7 +711,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const container = document.querySelector('[data-testid="drawer-left"]')
         expect(container).not.toBeNull()
       })
@@ -738,7 +738,7 @@ describe('Drawer component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Should preserve the closed state, not reset to defaultOpen
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)

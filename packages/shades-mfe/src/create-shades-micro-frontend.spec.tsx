@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, Shade } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, Shade } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateMicroFrontendService } from './create-microfrontend-service.js'
 import { createShadesMicroFrontend } from './create-shades-micro-frontend.js'
@@ -69,7 +69,7 @@ describe('createShadesMicroFrontend', () => {
         injector,
       })
 
-      await sleepAsync(10)
+      await flushUpdates()
 
       expect(rootElement.innerHTML).toContain(`Value: ${testValue}`)
     })
@@ -91,7 +91,7 @@ describe('createShadesMicroFrontend', () => {
         injector,
       })
 
-      await sleepAsync(10)
+      await flushUpdates()
 
       expect(rootElement.querySelector('test-mfe-root-element')).toBeTruthy()
       expect(rootElement.innerHTML).toContain('MFE Content')
@@ -132,7 +132,7 @@ describe('createShadesMicroFrontend', () => {
         injector,
       })
 
-      await sleepAsync(10)
+      await flushUpdates()
 
       expect(rootElement.innerHTML).toContain('John Doe')
       expect(rootElement.innerHTML).toContain('3')
@@ -165,7 +165,7 @@ describe('createShadesMicroFrontend', () => {
         injector: parentInjector,
       })
 
-      await sleepAsync(10)
+      await flushUpdates()
 
       expect(capturedInjector).toBeDefined()
       // The component should receive a child injector, not the parent

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MarkdownDisplay } from './markdown-display.js'
 
@@ -24,7 +24,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="Hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const el = document.querySelector('shade-markdown-display')
       expect(el).not.toBeNull()
@@ -41,7 +41,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="# Hello World" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const typography = document.querySelector('shade-markdown-display shade-typography')
       expect(typography).not.toBeNull()
@@ -60,7 +60,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="Just a paragraph." />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const typography = document.querySelector('shade-markdown-display shade-typography[data-variant="body1"]')
       expect(typography).not.toBeNull()
@@ -78,7 +78,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content={'```js\nconsole.log("hi")\n```'} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const codeBlock = document.querySelector('shade-markdown-display .md-code-block')
       expect(codeBlock).not.toBeNull()
@@ -96,7 +96,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content={'- Item A\n- Item B'} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const list = document.querySelector('shade-markdown-display ul')
       expect(list).not.toBeNull()
@@ -115,7 +115,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="- [ ] Task" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const checkbox = document.querySelector('shade-markdown-display shade-checkbox')
       expect(checkbox).not.toBeNull()
@@ -134,7 +134,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="- [ ] Task" readOnly={false} onChange={onChange} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const checkbox = document.querySelector('shade-markdown-display shade-checkbox')
       expect(checkbox).not.toBeNull()
@@ -144,7 +144,7 @@ describe('MarkdownDisplay', () => {
       expect(input).not.toBeNull()
       input.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onChange).toHaveBeenCalledOnce()
       expect(onChange).toHaveBeenCalledWith('- [x] Task')
@@ -161,7 +161,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="> Quote text" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const bq = document.querySelector('shade-markdown-display .md-blockquote')
       expect(bq).not.toBeNull()
@@ -179,7 +179,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="---" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const hr = document.querySelector('shade-markdown-display .md-hr')
       expect(hr).not.toBeNull()
@@ -196,7 +196,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="[Click here](https://example.com)" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const link = document.querySelector('shade-markdown-display .md-link') as HTMLAnchorElement
       expect(link).not.toBeNull()
@@ -215,7 +215,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="![alt text](image.png)" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-markdown-display .md-image') as HTMLImageElement
       expect(img).not.toBeNull()
@@ -233,7 +233,7 @@ describe('MarkdownDisplay', () => {
         jsxElement: <MarkdownDisplay content="" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const root = document.querySelector('shade-markdown-display .md-root')
       expect(root).not.toBeNull()

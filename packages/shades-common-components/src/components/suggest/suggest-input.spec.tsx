@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SuggestInput } from './suggest-input.js'
 import { SuggestManager } from './suggest-manager.js'
@@ -59,7 +59,7 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const suggestInput = document.querySelector('shades-suggest-input')
       expect(suggestInput).not.toBeNull()
@@ -80,7 +80,7 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
       expect(input).not.toBeNull()
@@ -103,13 +103,13 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
       const focusSpy = vi.spyOn(input, 'focus')
 
       manager.isOpened.setValue(true)
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(focusSpy).toHaveBeenCalled()
 
@@ -129,16 +129,16 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
       input.value = 'test query'
 
       manager.isOpened.setValue(true)
-      await sleepAsync(50)
+      await flushUpdates()
 
       manager.isOpened.setValue(false)
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(input.value).toBe('')
 
@@ -158,7 +158,7 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
 
@@ -181,7 +181,7 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const suggestInput = document.querySelector('shades-suggest-input') as HTMLElement
       expect(suggestInput).not.toBeNull()

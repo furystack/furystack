@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { DateFilter } from './date-filter.js'
@@ -30,7 +30,7 @@ describe('DateFilter', () => {
       rootElement,
       jsxElement: <DateFilter field={field} findOptions={findOptions} onClose={onClose} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return { injector, onClose }
   }
 
@@ -55,7 +55,7 @@ describe('DateFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
       expect(filter.$lt).toBeInstanceOf(Date)
@@ -72,7 +72,7 @@ describe('DateFilter', () => {
         'shade-segmented-control button[data-value="after"]',
       ) as HTMLButtonElement
       afterButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('[data-testid="date-filter-value"]') as HTMLInputElement
       input.value = '2025-01-01T00:00'
@@ -80,7 +80,7 @@ describe('DateFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
       expect(filter.$gt).toBeInstanceOf(Date)
@@ -96,7 +96,7 @@ describe('DateFilter', () => {
         'shade-segmented-control button[data-value="between"]',
       ) as HTMLButtonElement
       betweenButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const startInput = document.querySelector('[data-testid="date-filter-value"]') as HTMLInputElement
       startInput.value = '2025-01-01T00:00'
@@ -108,7 +108,7 @@ describe('DateFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
       expect(filter.$gte).toBeInstanceOf(Date)
@@ -123,7 +123,7 @@ describe('DateFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.createdAt).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -140,7 +140,7 @@ describe('DateFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.createdAt).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -155,7 +155,7 @@ describe('DateFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedFilter = findOptions.getValue().filter
       expect(updatedFilter?.createdAt).toBeUndefined()
@@ -173,7 +173,7 @@ describe('DateFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().skip).toBe(0)
     })

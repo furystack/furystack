@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGridBody } from './body.js'
@@ -31,7 +31,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const body = document.querySelector('tbody[is="shade-data-grid-body"]')
         expect(body).not.toBeNull()
@@ -59,7 +59,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const body = document.querySelector('tbody[is="shade-data-grid-body"]')
         expect(body).not.toBeNull()
@@ -92,7 +92,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const body = document.querySelector('tbody[is="shade-data-grid-body"]')
         expect(body).not.toBeNull()
@@ -123,7 +123,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const body = document.querySelector('tbody[is="shade-data-grid-body"]')
         const cells = body?.querySelectorAll('td')
@@ -150,7 +150,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         let body = document.querySelector('tbody[is="shade-data-grid-body"]')
         expect(body?.textContent).toContain('- No Data -')
@@ -160,7 +160,7 @@ describe('DataGridBody', () => {
           entries: [{ id: 1, name: 'New Entry' }],
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         body = document.querySelector('tbody[is="shade-data-grid-body"]')
         const rows = body?.querySelectorAll('shades-data-grid-row')
@@ -195,7 +195,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const cell = document.querySelector('td') as HTMLTableCellElement
         cell.click()
@@ -231,7 +231,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const cell = document.querySelector('td') as HTMLTableCellElement
         const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
@@ -269,7 +269,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const customId = document.querySelector('[data-testid="custom-id"]')
         const customName = document.querySelector('[data-testid="custom-name"]')
@@ -306,7 +306,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const defaultCells = document.querySelectorAll('[data-testid="default-cell"]')
         expect(defaultCells.length).toBe(2)
@@ -334,7 +334,7 @@ describe('DataGridBody', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const body = document.querySelector('tbody[is="shade-data-grid-body"]')
         expect(body?.textContent).toContain('- No Data -')

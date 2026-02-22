@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ButtonGroup,
@@ -28,7 +28,7 @@ describe('ButtonGroup', () => {
       rootElement: root,
       jsxElement: <ButtonGroup {...props}>{children}</ButtonGroup>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       group: root.querySelector('shade-button-group') as HTMLElement,
@@ -149,7 +149,7 @@ describe('ToggleButton', () => {
       rootElement: root,
       jsxElement: <ToggleButton {...props}>Label</ToggleButton>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       button: root.querySelector('button[is="shade-toggle-button"]') as HTMLButtonElement,
@@ -221,7 +221,7 @@ describe('ToggleButtonGroup', () => {
       rootElement: root,
       jsxElement: <ToggleButtonGroup {...props}>{children}</ToggleButtonGroup>,
     })
-    await sleepAsync(100)
+    await flushUpdates()
     return {
       injector,
       group: root.querySelector('shade-toggle-button-group') as HTMLElement,
@@ -329,8 +329,8 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="right">Right</ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          // Wait for requestAnimationFrame
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const centerBtn = group.querySelector('button[data-value="center"]') as HTMLButtonElement
           const leftBtn = group.querySelector('button[data-value="left"]') as HTMLButtonElement
           expect(centerBtn.hasAttribute('data-selected')).toBe(true)
@@ -347,7 +347,8 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="underline">U</ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const boldBtn = group.querySelector('button[data-value="bold"]') as HTMLButtonElement
           const italicBtn = group.querySelector('button[data-value="italic"]') as HTMLButtonElement
           const underlineBtn = group.querySelector('button[data-value="underline"]') as HTMLButtonElement
@@ -395,7 +396,8 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="b">B</ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const buttons = group.querySelectorAll('button[data-value]')
           buttons.forEach((btn) => {
             expect(btn.hasAttribute('data-size')).toBe(false)
@@ -411,7 +413,8 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="b">B</ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const buttons = group.querySelectorAll('button[data-value]')
           buttons.forEach((btn) => {
             expect(btn.getAttribute('data-size')).toBe('small')
@@ -427,7 +430,8 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="b">B</ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const buttons = group.querySelectorAll('button[data-value]')
           buttons.forEach((btn) => {
             expect(btn.getAttribute('data-size')).toBe('large')
@@ -444,7 +448,8 @@ describe('ToggleButtonGroup', () => {
           </ToggleButton>,
         ] as unknown as JSX.Element[]),
         async ({ group }) => {
-          await sleepAsync(50)
+          await flushUpdates()
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
           const btn = group.querySelector('button[data-value]')
           expect(btn?.hasAttribute('data-size')).toBe(false)
         },
@@ -476,7 +481,7 @@ describe('SegmentedControl', () => {
       rootElement: root,
       jsxElement: <SegmentedControl options={defaultOptions} {...props} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       control: root.querySelector('shade-segmented-control') as HTMLElement,
@@ -639,7 +644,7 @@ describe('ToggleButtonGroup edge cases', () => {
       rootElement: root,
       jsxElement: <ToggleButtonGroup {...props}>{children}</ToggleButtonGroup>,
     })
-    await sleepAsync(100)
+    await flushUpdates()
     return {
       injector,
       group: root.querySelector('shade-toggle-button-group') as HTMLElement,
@@ -714,7 +719,8 @@ describe('ToggleButtonGroup edge cases', () => {
         <ToggleButton value="b">B</ToggleButton>,
       ] as unknown as JSX.Element[]),
       async ({ group }) => {
-        await sleepAsync(50)
+        await flushUpdates()
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
         const buttons = group.querySelectorAll('button[data-value]')
         buttons.forEach((btn) => {
           expect(btn.hasAttribute('disabled')).toBe(true)
@@ -730,7 +736,8 @@ describe('ToggleButtonGroup edge cases', () => {
         <ToggleButton value="b">B</ToggleButton>,
       ] as unknown as JSX.Element[]),
       async ({ group }) => {
-        await sleepAsync(50)
+        await flushUpdates()
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
         const buttons = group.querySelectorAll('button[data-value]')
         // First button should have top radius
         expect((buttons[0] as HTMLElement).style.borderRadius).toContain('0 0')

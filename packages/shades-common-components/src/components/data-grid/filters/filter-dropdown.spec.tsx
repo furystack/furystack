@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FilterDropdown } from './filter-dropdown.js'
 
@@ -26,7 +26,7 @@ describe('FilterDropdown', () => {
           </FilterDropdown>
         ),
       })
-      await sleepAsync(50)
+      await flushUpdates()
 
       const dropdown = document.querySelector('data-grid-filter-dropdown')
       expect(dropdown).not.toBeNull()
@@ -53,7 +53,8 @@ describe('FilterDropdown', () => {
           </FilterDropdown>
         ),
       })
-      await sleepAsync(50)
+      await flushUpdates()
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
 
       const panel = document.querySelector('.filter-dropdown-panel')
       expect(panel?.classList.contains('visible')).toBe(true)
@@ -76,11 +77,11 @@ describe('FilterDropdown', () => {
           </div>
         ),
       })
-      await sleepAsync(50)
+      await flushUpdates()
 
       const panel = document.querySelector('.filter-dropdown-panel') as HTMLElement
       panel?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(outerClick).not.toHaveBeenCalled()
     })

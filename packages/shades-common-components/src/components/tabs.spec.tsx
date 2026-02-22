@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Tabs, type Tab } from './tabs.js'
 
@@ -44,7 +44,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.body.innerHTML).toContain('Tab 1')
       expect(document.body.innerHTML).toContain('Tab 2')
@@ -65,7 +65,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.getElementById('content-2')).toBeTruthy()
       expect(document.getElementById('content-1')).toBeFalsy()
@@ -86,7 +86,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.getElementById('content-1')).toBeFalsy()
       expect(document.getElementById('content-2')).toBeFalsy()
@@ -107,7 +107,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.getElementById('content-1')).toBeTruthy()
 
@@ -115,7 +115,7 @@ describe('Tabs', () => {
       window.location.hash = '#tab3'
       injector.getInstance(LocationService).updateState()
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.getElementById('content-3')).toBeTruthy()
       expect(document.getElementById('content-1')).toBeFalsy()
@@ -133,7 +133,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       // Tab headers extend anchor elements
       const html = document.body.innerHTML
@@ -156,7 +156,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       // Verify the active tab content is shown
       expect(document.getElementById('content-2')).toBeTruthy()
@@ -181,7 +181,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       // Verify tab1 is active
       expect(document.getElementById('content-1')).toBeTruthy()
@@ -194,7 +194,7 @@ describe('Tabs', () => {
       window.location.hash = '#tab2'
       injector.getInstance(LocationService).updateState()
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       // Verify tab2 is now active
       expect(document.getElementById('content-2')).toBeTruthy()
@@ -217,7 +217,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={tabs} containerStyle={{ maxWidth: '800px' }} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const tabsElement = document.querySelector('shade-tabs') as HTMLElement
       expect(tabsElement.style.maxWidth).toBe('800px')
@@ -234,7 +234,7 @@ describe('Tabs', () => {
         jsxElement: <Tabs tabs={[]} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const tabHeaders = document.querySelectorAll('shade-tab-header')
       expect(tabHeaders.length).toBe(0)
@@ -253,7 +253,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab2" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         expect(document.getElementById('content-2')).toBeTruthy()
         expect(document.getElementById('content-1')).toBeFalsy()
@@ -272,7 +272,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const buttons = document.querySelectorAll('.shade-tab-btn')
         expect(buttons.length).toBe(3)
@@ -293,7 +293,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab2" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const buttons = document.querySelectorAll('.shade-tab-btn')
         expect(buttons[0].classList.contains('active')).toBe(false)
@@ -314,7 +314,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" onTabChange={onTabChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const buttons = document.querySelectorAll('.shade-tab-btn')
         ;(buttons[1] as HTMLButtonElement).click()
@@ -336,7 +336,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         // activeKey takes precedence over URL hash
         expect(document.getElementById('content-1')).toBeTruthy()
@@ -357,7 +357,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} type="card" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const tabsElement = document.querySelector('shade-tabs') as HTMLElement
         expect(tabsElement.getAttribute('data-type')).toBe('card')
@@ -375,7 +375,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} type="line" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const tabsElement = document.querySelector('shade-tabs') as HTMLElement
         expect(tabsElement.getAttribute('data-type')).toBeNull()
@@ -395,7 +395,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} orientation="vertical" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const tabsElement = document.querySelector('shade-tabs') as HTMLElement
         expect(tabsElement.getAttribute('data-orientation')).toBe('vertical')
@@ -413,7 +413,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} orientation="horizontal" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const tabsElement = document.querySelector('shade-tabs') as HTMLElement
         expect(tabsElement.getAttribute('data-orientation')).toBeNull()
@@ -436,7 +436,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={() => {}} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const closeButtons = document.querySelectorAll('.shade-tab-close')
         expect(closeButtons.length).toBe(1)
@@ -456,7 +456,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const closeButtons = document.querySelectorAll('.shade-tab-close')
         expect(closeButtons.length).toBe(0)
@@ -478,7 +478,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={onClose} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const closeButtons = document.querySelectorAll('.shade-tab-close')
         ;(closeButtons[1] as HTMLElement).click()
@@ -502,7 +502,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} activeKey="tab1" onClose={onClose} onTabChange={onTabChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const closeButton = document.querySelector('.shade-tab-close') as HTMLElement
         closeButton.click()
@@ -525,7 +525,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} onAdd={() => {}} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const addButton = document.querySelector('.shade-tab-add')
         expect(addButton).toBeTruthy()
@@ -544,7 +544,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const addButton = document.querySelector('.shade-tab-add')
         expect(addButton).toBeFalsy()
@@ -563,7 +563,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} onAdd={onAdd} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const addButton = document.querySelector('.shade-tab-add') as HTMLButtonElement
         addButton.click()
@@ -586,7 +586,7 @@ describe('Tabs', () => {
           jsxElement: <Tabs tabs={tabs} onTabChange={onTabChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const tabHeaders = document.querySelectorAll('a[is="shade-tab-header"]')
         ;(tabHeaders[1] as HTMLElement).click()

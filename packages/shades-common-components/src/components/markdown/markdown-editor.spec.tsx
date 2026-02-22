@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MarkdownEditor } from './markdown-editor.js'
 
@@ -24,7 +24,7 @@ describe('MarkdownEditor', () => {
         jsxElement: <MarkdownEditor value="# Hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const el = document.querySelector('shade-markdown-editor')
       expect(el).not.toBeNull()
@@ -42,7 +42,7 @@ describe('MarkdownEditor', () => {
           jsxElement: <MarkdownEditor value="# Hello" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const split = document.querySelector('.md-editor-split') as HTMLElement
         expect(split).not.toBeNull()
@@ -68,7 +68,7 @@ describe('MarkdownEditor', () => {
           jsxElement: <MarkdownEditor value="# Hello" layout="above-below" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const split = document.querySelector('.md-editor-split') as HTMLElement
         expect(split).not.toBeNull()
@@ -88,7 +88,7 @@ describe('MarkdownEditor', () => {
           jsxElement: <MarkdownEditor value="# Hello" layout="tabs" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const tabs = document.querySelector('shade-markdown-editor shade-tabs')
         expect(tabs).not.toBeNull()
@@ -108,7 +108,7 @@ describe('MarkdownEditor', () => {
           jsxElement: <MarkdownEditor value="# Hello" layout="tabs" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-markdown-editor shade-markdown-input')
         expect(input).not.toBeNull()
@@ -127,7 +127,8 @@ describe('MarkdownEditor', () => {
         jsxElement: <MarkdownEditor value={mdContent} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
       expect(textarea.value).toBe(mdContent)

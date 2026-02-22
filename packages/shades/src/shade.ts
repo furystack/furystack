@@ -111,7 +111,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
         private _refs = new Map<string, RefObject<Element>>()
 
         public connectedCallback() {
-          this.updateComponent()
+          this._performUpdate()
         }
 
         public async disconnectedCallback() {
@@ -249,10 +249,21 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           if (!this._updateScheduled) {
             this._updateScheduled = true
             queueMicrotask(() => {
+              if (!this._updateScheduled) return
               this._updateScheduled = false
               this._performUpdate()
             })
           }
+        }
+
+        /**
+         * Performs a synchronous component update, canceling any pending async update.
+         * Used during parent-to-child reconciliation so the entire subtree settles
+         * in a single call frame rather than cascading across microtask ticks.
+         */
+        public updateComponentSync() {
+          this._updateScheduled = false
+          this._performUpdate()
         }
 
         private _performUpdate() {
@@ -265,11 +276,14 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             setRenderMode(false)
           }
 
+          // Apply host props before patching children so that child components
+          // rendered synchronously can discover parent state (e.g. injector)
+          // via getInjectorFromParent().
+          this._applyHostProps()
+
           const newVTree = toVChildArray(renderResult)
           patchChildren(this, this._prevVTree || [], newVTree)
           this._prevVTree = newVTree
-
-          this._applyHostProps()
         }
 
         /**
@@ -441,8 +455,8 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
  * Flushes any pending microtask-based component updates.
  * Useful in tests to wait for batched renders to complete before asserting DOM state.
  *
- * Note: this flushes one level of pending updates. If a render itself triggers new
- * `updateComponent()` calls, an additional `await flushUpdates()` may be needed.
+ * Child component updates during reconciliation are performed synchronously, so a single
+ * `await flushUpdates()` is sufficient to settle the entire component tree after a state change.
  * @returns a promise that resolves after the current microtask queue has been processed
  */
 export const flushUpdates = (): Promise<void> => new Promise<void>((resolve) => queueMicrotask(resolve))

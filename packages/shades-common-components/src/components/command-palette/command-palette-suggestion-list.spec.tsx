@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CommandPaletteManager } from './command-palette-manager.js'
 import { CommandPaletteSuggestionList } from './command-palette-suggestion-list.js'
@@ -65,7 +65,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list')
         expect(component).not.toBeNull()
@@ -84,7 +84,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container')
@@ -105,7 +105,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const items = component?.querySelectorAll('.suggestion-item')
@@ -126,7 +126,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const item = component?.querySelector('.suggestion-item')
@@ -148,7 +148,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const items = component?.querySelectorAll('.suggestion-item')
@@ -171,10 +171,10 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.selectedIndex.setValue(1)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const items = component?.querySelectorAll('.suggestion-item')
@@ -198,7 +198,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const selectSpy = vi.spyOn(manager, 'selectSuggestion')
 
@@ -225,7 +225,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const selectSpy = vi.spyOn(manager, 'selectSuggestion')
 
@@ -250,11 +250,11 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const slideAnimation = animateCalls.find(
           (call) =>
@@ -282,11 +282,11 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         animateCalls = []
 
         manager.isOpened.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const slideAnimation = animateCalls.find(
           (call) =>
@@ -313,10 +313,10 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
@@ -337,10 +337,10 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.isOpened.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
@@ -361,7 +361,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const items = component?.querySelectorAll('.suggestion-item')
@@ -382,7 +382,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} fullScreenSuggestions />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
@@ -404,7 +404,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
@@ -425,7 +425,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
@@ -455,7 +455,7 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const selectSpy = vi.spyOn(manager, 'selectSuggestion')
 
@@ -480,17 +480,17 @@ describe('CommandPaletteSuggestionList', () => {
           jsxElement: <CommandPaletteSuggestionList manager={manager} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.isOpened.setValue(true)
-        await sleepAsync(50)
+        await flushUpdates()
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
         expect(container?.style.zIndex).toBe('1')
 
         manager.isOpened.setValue(false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(container?.style.zIndex).toBe('-1')
       })

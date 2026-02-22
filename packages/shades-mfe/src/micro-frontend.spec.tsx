@@ -39,7 +39,7 @@ describe('<MicroFrontend /> component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(1)
+      await flushUpdates()
 
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><mfe-test-example><div>Loaded: ${value}</div></mfe-test-example></div></shade-micro-frontend></div>`,
@@ -77,6 +77,7 @@ describe('<MicroFrontend /> component', () => {
         '<div id="root"><shade-micro-frontend><div style="display: contents;"><div>Loading...</div></div></shade-micro-frontend></div>',
       )
       await sleepAsync(20)
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><mfe-test-example-w-loader><div>Loaded: ${value}</div></mfe-test-example-w-loader></div></shade-micro-frontend></div>`,
       )
@@ -101,7 +102,7 @@ describe('<MicroFrontend /> component', () => {
         ),
       })
       await flushUpdates()
-      await sleepAsync(10)
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><div>Error...</div></div></shade-micro-frontend></div>`,
       )
@@ -152,12 +153,12 @@ describe('<MicroFrontend /> component', () => {
         jsxElement: <Host />,
       })
       await flushUpdates()
-      await sleepAsync(10)
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><mfe-test-example-w-destroy-host><button>Remove MFE</button><shade-micro-frontend><div style="display: contents;"></div></shade-micro-frontend></mfe-test-example-w-destroy-host></div>',
       )
       document.querySelector('button')!.click()
-      await sleepAsync(10)
+      await flushUpdates()
       expect(destroy).toHaveBeenCalledWith({ api: { value }, injector: expect.any(Injector) as Injector })
       expect(document.body.innerHTML).toBe(
         `<div id="root"><mfe-test-example-w-destroy-host><button>Remove MFE</button></mfe-test-example-w-destroy-host></div>`,

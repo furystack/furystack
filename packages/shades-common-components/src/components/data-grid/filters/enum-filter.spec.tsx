@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { EnumFilter } from './enum-filter.js'
@@ -37,7 +37,7 @@ describe('EnumFilter', () => {
       rootElement,
       jsxElement: <EnumFilter field={field} values={values} findOptions={findOptions} onClose={onClose} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return { injector, onClose }
   }
 
@@ -63,7 +63,7 @@ describe('EnumFilter', () => {
 
       const applyButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Apply')
       applyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ role: { $in: ['admin'] } })
       expect(onClose).toHaveBeenCalled()
@@ -78,7 +78,7 @@ describe('EnumFilter', () => {
         'shade-segmented-control button[data-value="exclude"]',
       ) as HTMLButtonElement
       excludeButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const checkboxes = document.querySelectorAll('shade-checkbox input[type="checkbox"]')
       const guestCheckbox = checkboxes[2] as HTMLInputElement
@@ -87,7 +87,7 @@ describe('EnumFilter', () => {
 
       const applyButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Apply')
       applyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ role: { $nin: ['guest'] } })
       expect(onClose).toHaveBeenCalled()
@@ -105,7 +105,7 @@ describe('EnumFilter', () => {
 
       const applyButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Apply')
       applyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.role).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -118,7 +118,7 @@ describe('EnumFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.role).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -131,7 +131,7 @@ describe('EnumFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedFilter = findOptions.getValue().filter
       expect(updatedFilter?.role).toBeUndefined()
@@ -150,7 +150,7 @@ describe('EnumFilter', () => {
 
       const applyButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Apply')
       applyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().skip).toBe(0)
     })

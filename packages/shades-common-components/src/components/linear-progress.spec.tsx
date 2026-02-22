@@ -178,7 +178,7 @@ describe('LinearProgress', () => {
         expect(bar.style.width).toBe('20%')
 
         value.setValue(80)
-        await sleepAsync(10)
+        await sleepAsync(50)
 
         expect(bar.style.width).toBe('80%')
       })
@@ -201,7 +201,7 @@ describe('LinearProgress', () => {
         expect(el.getAttribute('aria-valuenow')).toBe('30')
 
         value.setValue(90)
-        await sleepAsync(10)
+        await sleepAsync(50)
 
         expect(el.getAttribute('aria-valuenow')).toBe('90')
       })

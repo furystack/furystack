@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { TextArea } from './text-area.js'
 
@@ -23,7 +23,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       expect(textArea).not.toBeNull()
@@ -40,7 +40,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea labelTitle="Test Label" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       expect(textArea).not.toBeNull()
@@ -63,7 +63,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea labelTitle="Test" labelProps={{ className: 'custom-label-class' }} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const label = textArea?.querySelector('label')
@@ -82,7 +82,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea variant="outlined" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()
@@ -100,7 +100,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea variant="contained" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()
@@ -118,7 +118,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()
@@ -136,7 +136,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea disabled />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()
@@ -154,7 +154,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea disabled={false} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()
@@ -172,7 +172,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea value="Test content" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const contentDiv = textArea?.querySelector('.textarea-content')
@@ -192,7 +192,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const contentDiv = textArea?.querySelector('.textarea-content') as HTMLElement
@@ -211,7 +211,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea readOnly />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const contentDiv = textArea?.querySelector('.textarea-content') as HTMLElement
@@ -230,7 +230,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea disabled />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const contentDiv = textArea?.querySelector('.textarea-content') as HTMLElement
@@ -249,7 +249,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea style={{ color: 'red' }} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const contentDiv = textArea?.querySelector('.textarea-content') as HTMLElement
@@ -268,7 +268,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea labelProps={{ style: { backgroundColor: 'blue' } }} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area')
       const label = textArea?.querySelector('label') as HTMLElement
@@ -287,7 +287,7 @@ describe('TextArea', () => {
         jsxElement: <TextArea />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textArea = document.querySelector('shade-text-area') as HTMLElement
       expect(textArea).not.toBeNull()

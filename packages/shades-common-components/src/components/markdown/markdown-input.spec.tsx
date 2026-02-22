@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MarkdownInput } from './markdown-input.js'
 
@@ -24,7 +24,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const el = document.querySelector('shade-markdown-input')
       expect(el).not.toBeNull()
@@ -41,7 +41,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="# Hello" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       expect(textarea).not.toBeNull()
@@ -59,7 +59,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" labelTitle="Markdown Content" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-markdown-input label')
       expect(label?.textContent).toContain('Markdown Content')
@@ -76,7 +76,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" placeholder="Type markdown..." />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       expect(textarea.placeholder).toBe('Type markdown...')
@@ -93,7 +93,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" disabled />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
       expect(wrapper.hasAttribute('data-disabled')).toBe(true)
@@ -113,7 +113,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" readOnly />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       expect(textarea.readOnly).toBe(true)
@@ -131,13 +131,13 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" onValueChange={onValueChange} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       textarea.value = '# New content'
       textarea.dispatchEvent(new Event('input', { bubbles: true }))
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onValueChange).toHaveBeenCalledWith('# New content')
     })
@@ -153,7 +153,7 @@ describe('MarkdownInput', () => {
         jsxElement: <MarkdownInput value="" rows={20} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       expect(textarea.rows).toBe(20)
@@ -200,7 +200,7 @@ describe('MarkdownInput', () => {
             jsxElement: <MarkdownInput value="Hello " onValueChange={onValueChange} />,
           })
 
-          await sleepAsync(50)
+          await flushUpdates()
 
           const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
           textarea.selectionStart = 6
@@ -210,7 +210,7 @@ describe('MarkdownInput', () => {
           const pasteEvent = createPasteEvent([{ type: 'image/png', file }])
           textarea.dispatchEvent(pasteEvent)
 
-          await sleepAsync(100)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalledOnce()
           const result = onValueChange.mock.calls[0][0] as string
@@ -233,14 +233,14 @@ describe('MarkdownInput', () => {
           jsxElement: <MarkdownInput value="" onValueChange={onValueChange} maxImageSizeBytes={5} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
         const file = new File(['this-is-larger-than-5-bytes'], 'big.png', { type: 'image/png' })
         const pasteEvent = createPasteEvent([{ type: 'image/png', file }])
         textarea.dispatchEvent(pasteEvent)
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         expect(onValueChange).not.toHaveBeenCalled()
       })
@@ -257,14 +257,14 @@ describe('MarkdownInput', () => {
           jsxElement: <MarkdownInput value="" onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
         const file = new File(['text content'], 'note.txt', { type: 'text/plain' })
         const pasteEvent = createPasteEvent([{ type: 'text/plain', file }])
         const wasDefaultPrevented = !textarea.dispatchEvent(pasteEvent)
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         expect(wasDefaultPrevented).toBe(false)
         expect(onValueChange).not.toHaveBeenCalled()

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 import { RouteLink } from './route-link.js'
 import { Router, type Route } from './router.js'
 
@@ -81,7 +82,8 @@ describe('Router', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // --- Initial load at /route-a ---
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(onVisitA).toHaveBeenCalledTimes(1)
 
@@ -90,7 +92,7 @@ describe('Router', () => {
       clickOn('go-b')
       clickOn('go-c')
 
-      // Wait long enough for both transitions to settle
+      // Wait long enough for both transitions to settle (onVisitB has 200ms delay)
       await sleepAsync(500)
 
       // The final destination should be route-c
@@ -169,7 +171,8 @@ describe('Router', () => {
 
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
 
       expect(getLocation()).toBe('/')
       expect(getContent()).toBe('home')
@@ -177,37 +180,43 @@ describe('Router', () => {
       expect(onVisit).not.toBeCalled()
 
       clickOn('a')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(getLocation()).toBe('/route-a')
       expect(onRouteChange).toBeCalledTimes(1)
       expect(onVisit).toBeCalledTimes(1)
 
       clickOn('a')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(onVisit).toBeCalledTimes(1)
       expect(onLeave).not.toBeCalled()
 
       clickOn('b')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(onLeave).toBeCalledTimes(1)
 
       expect(getContent()).toBe('route-b')
       expect(getLocation()).toBe('/route-b')
 
       clickOn('b-with-id')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('route-b123')
       expect(getLocation()).toBe('/route-b/123')
 
       clickOn('c')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('route-c')
       expect(getLocation()).toBe('/route-c')
 
       expect(onLastLeave).not.toBeCalled()
       clickOn('x')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('not found')
       expect(getLocation()).toBe('/route-x')
       expect(onLastLeave).toBeCalledTimes(1)

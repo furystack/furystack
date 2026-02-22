@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Dropdown } from './dropdown.js'
@@ -37,7 +37,7 @@ describe('Dropdown', () => {
         </Dropdown>
       ),
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       dropdown: root.querySelector('shade-dropdown') as HTMLElement,
@@ -76,7 +76,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const panel = dropdown.querySelector('.dropdown-panel')
         expect(panel).toBeTruthy()
@@ -87,7 +87,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = dropdown.querySelectorAll('[role="menuitem"]')
         expect(items.length).toBe(3)
@@ -101,7 +101,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dividers = dropdown.querySelectorAll('[role="separator"]')
         expect(dividers.length).toBe(1)
@@ -112,11 +112,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const backdrop = dropdown.querySelector('.dropdown-backdrop') as HTMLElement
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(dropdown.hasAttribute('data-open')).toBe(false)
         const panel = dropdown.querySelector('.dropdown-panel')
@@ -128,11 +128,12 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
         expect(dropdown.hasAttribute('data-open')).toBe(true)
 
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(dropdown.hasAttribute('data-open')).toBe(false)
       })
     })
@@ -144,11 +145,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ onSelect: handleSelect }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const item = dropdown.querySelector('[data-key="copy"]') as HTMLElement
         item.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(handleSelect).toHaveBeenCalledWith('copy')
       })
@@ -158,11 +159,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ onSelect: vi.fn() }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const item = dropdown.querySelector('[data-key="cut"]') as HTMLElement
         item.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(dropdown.hasAttribute('data-open')).toBe(false)
         const panel = dropdown.querySelector('.dropdown-panel')
@@ -176,11 +177,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items, onSelect: handleSelect }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const item = dropdown.querySelector('[data-key="disabled"]') as HTMLElement
         item.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(handleSelect).not.toHaveBeenCalled()
       })
@@ -192,7 +193,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ disabled: true }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(dropdown.hasAttribute('data-open')).toBe(false)
         const panel = dropdown.querySelector('.dropdown-panel')
@@ -231,7 +232,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const group = dropdown.querySelector('[role="group"]')
         expect(group).toBeTruthy()
@@ -248,7 +249,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const icon = dropdown.querySelector('.dropdown-item-icon')
         expect(icon).toBeTruthy()
@@ -261,7 +262,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const icon = dropdown.querySelector('.dropdown-item-icon')
         expect(icon).toBeTruthy()
@@ -275,11 +276,12 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
         expect(dropdown.hasAttribute('data-open')).toBe(true)
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(dropdown.hasAttribute('data-open')).toBe(false)
       })
@@ -289,10 +291,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItems = dropdown.querySelectorAll('.dropdown-item.focused')
         expect(focusedItems.length).toBe(1)
@@ -303,13 +306,14 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         // Move down twice then up once
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItems = dropdown.querySelectorAll('.dropdown-item.focused')
         expect(focusedItems.length).toBe(1)
@@ -321,13 +325,14 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ onSelect: handleSelect }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         // Navigate down then press Enter
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(handleSelect).toHaveBeenCalled()
       })
@@ -341,13 +346,14 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         // Navigate down past the end (2 items + 1 wrap)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItems = dropdown.querySelectorAll('.dropdown-item.focused')
         expect(focusedItems.length).toBe(1)
@@ -362,10 +368,11 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItems = dropdown.querySelectorAll('.dropdown-item.focused')
         expect(focusedItems.length).toBe(1)
@@ -378,7 +385,7 @@ describe('Dropdown', () => {
         // Don't open the dropdown
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(handleSelect).not.toHaveBeenCalled()
         expect(dropdown.hasAttribute('data-open')).toBe(false)
@@ -394,11 +401,12 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ items }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
+        await flushUpdates()
         await sleepAsync(50)
 
         // Navigate to first enabled item
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItems = dropdown.querySelectorAll('.dropdown-item.focused')
         expect(focusedItems.length).toBe(1)
@@ -413,7 +421,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ placement: 'bottomRight' }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const panel = dropdown.querySelector('.dropdown-panel')
         expect(panel).toBeTruthy()
@@ -424,7 +432,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ placement: 'topLeft' }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const panel = dropdown.querySelector('.dropdown-panel')
         expect(panel).toBeTruthy()
@@ -435,7 +443,7 @@ describe('Dropdown', () => {
       await usingAsync(await renderDropdown({ placement: 'topRight' }), async ({ dropdown }) => {
         const trigger = dropdown.querySelector('.dropdown-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const panel = dropdown.querySelector('.dropdown-panel')
         expect(panel).toBeTruthy()

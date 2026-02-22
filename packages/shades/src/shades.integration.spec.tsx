@@ -323,11 +323,11 @@ describe('Shades integration tests', () => {
       }
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expectCount(0)
 
-      await sleepAsync(100)
+      await flushUpdates()
       await plus()
       expectCount(1)
       expect(store.getItem('count')).toBe('1')
@@ -383,7 +383,7 @@ describe('Shades integration tests', () => {
 
       expectCount(0)
 
-      await sleepAsync(100)
+      await flushUpdates()
       await plus()
       expectCount(1)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 1 })}`)

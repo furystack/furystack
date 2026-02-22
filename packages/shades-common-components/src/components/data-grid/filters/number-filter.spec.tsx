@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { NumberFilter } from './number-filter.js'
@@ -30,7 +30,7 @@ describe('NumberFilter', () => {
       rootElement,
       jsxElement: <NumberFilter field={field} findOptions={findOptions} onClose={onClose} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return { injector, onClose }
   }
 
@@ -55,7 +55,7 @@ describe('NumberFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ level: { $eq: 42 } })
       expect(onClose).toHaveBeenCalled()
@@ -68,7 +68,7 @@ describe('NumberFilter', () => {
     await usingAsync(injector, async () => {
       const gtButton = document.querySelector('shade-segmented-control button[data-value="$gt"]') as HTMLButtonElement
       gtButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('[data-testid="number-filter-value"]') as HTMLInputElement
       input.value = '10'
@@ -76,7 +76,7 @@ describe('NumberFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ level: { $gt: 10 } })
       expect(onClose).toHaveBeenCalled()
@@ -89,7 +89,7 @@ describe('NumberFilter', () => {
     await usingAsync(injector, async () => {
       const lteButton = document.querySelector('shade-segmented-control button[data-value="$lte"]') as HTMLButtonElement
       lteButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('[data-testid="number-filter-value"]') as HTMLInputElement
       input.value = '99.5'
@@ -97,7 +97,7 @@ describe('NumberFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ level: { $lte: 99.5 } })
       expect(onClose).toHaveBeenCalled()
@@ -110,7 +110,7 @@ describe('NumberFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.level).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -127,7 +127,7 @@ describe('NumberFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.level).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -140,7 +140,7 @@ describe('NumberFilter', () => {
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedFilter = findOptions.getValue().filter
       expect(updatedFilter?.level).toBeUndefined()
@@ -158,7 +158,7 @@ describe('NumberFilter', () => {
 
       const form = document.querySelector('form') as HTMLFormElement
       form.dispatchEvent(new Event('submit', { bubbles: true }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().skip).toBe(0)
     })

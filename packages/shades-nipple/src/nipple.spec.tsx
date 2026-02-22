@@ -21,7 +21,7 @@ describe('Nipple', () => {
         rootElement,
         jsxElement: <NippleComponent managerOptions={{}} />,
       })
-      expect(document.body.innerHTML).toBe('<div id="root"><shade-nipple></shade-nipple></div>')
+      expect(document.body.innerHTML).toBe('<div id="root"><shade-nipple><div></div></shade-nipple></div>')
     })
   })
 
@@ -41,7 +41,7 @@ describe('Nipple', () => {
           <NippleComponent onStart={onStart} onDir={onDir} onMove={onMove} onEnd={onEnd} managerOptions={{}} />
         ),
       })
-      expect(document.body.innerHTML).toBe('<div id="root"><shade-nipple></shade-nipple></div>')
+      expect(document.body.innerHTML).toBe('<div id="root"><shade-nipple><div></div></shade-nipple></div>')
       const nipple = document.querySelector('shade-nipple') as JSX.Element<NippleComponentProps>
 
       expect(nipple.props.onDir).toBe(onDir)

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { BooleanFilter } from './boolean-filter.js'
@@ -30,7 +30,7 @@ describe('BooleanFilter', () => {
       rootElement,
       jsxElement: <BooleanFilter field={field} findOptions={findOptions} onClose={onClose} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return { injector, onClose }
   }
 
@@ -76,7 +76,7 @@ describe('BooleanFilter', () => {
         'shade-segmented-control button[data-value="true"]',
       ) as HTMLButtonElement
       trueButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ isActive: { $eq: true } })
       expect(onClose).toHaveBeenCalled()
@@ -91,7 +91,7 @@ describe('BooleanFilter', () => {
         'shade-segmented-control button[data-value="false"]',
       ) as HTMLButtonElement
       falseButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter).toEqual({ isActive: { $eq: false } })
       expect(onClose).toHaveBeenCalled()
@@ -104,7 +104,7 @@ describe('BooleanFilter', () => {
     await usingAsync(injector, async () => {
       const anyButton = document.querySelector('shade-segmented-control button[data-value="any"]') as HTMLButtonElement
       anyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().filter?.isActive).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
@@ -117,7 +117,7 @@ describe('BooleanFilter', () => {
     await usingAsync(injector, async () => {
       const anyButton = document.querySelector('shade-segmented-control button[data-value="any"]') as HTMLButtonElement
       anyButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedFilter = findOptions.getValue().filter
       expect(updatedFilter?.isActive).toBeUndefined()
@@ -134,7 +134,7 @@ describe('BooleanFilter', () => {
         'shade-segmented-control button[data-value="true"]',
       ) as HTMLButtonElement
       trueButton?.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(findOptions.getValue().skip).toBe(0)
     })

@@ -3,7 +3,7 @@ import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
-import { Shade } from './shade.js'
+import { flushUpdates, Shade } from './shade.js'
 
 describe('Shade edge cases', () => {
   beforeEach(() => {
@@ -86,7 +86,7 @@ describe('Shade edge cases', () => {
             ),
           })
 
-          await sleepAsync(10)
+          await flushUpdates()
 
           // Parent should use root injector (inherited from parent)
           expect(parentCapturedInjector).toBe(rootInjector)
@@ -129,7 +129,7 @@ describe('Shade edge cases', () => {
           jsxElement: <ExampleComponent />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.getElementById('value')?.textContent).toBe('initial')
 
         // Simulate cross-tab message via BroadcastChannel
@@ -173,7 +173,7 @@ describe('Shade edge cases', () => {
           jsxElement: <ExampleComponent />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.getElementById('value')?.textContent).toBe('initial')
 
         // Simulate cross-tab message with different key
@@ -218,7 +218,7 @@ describe('Shade edge cases', () => {
           jsxElement: <ExampleComponent />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.getElementById('value')?.textContent).toBe('initial')
 
         // Remove the component from DOM

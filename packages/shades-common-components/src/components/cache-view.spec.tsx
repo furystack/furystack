@@ -1,7 +1,7 @@
 import { Cache } from '@furystack/cache'
 import type { CacheResult, CacheWithValue } from '@furystack/cache'
 import { Shade, createComponent, flushUpdates } from '@furystack/shades'
-import { sleepAsync } from '@furystack/utils'
+
 import { describe, expect, it, vi } from 'vitest'
 import { CacheView } from './cache-view.js'
 
@@ -162,7 +162,7 @@ describe('CacheView', () => {
 
       loadFn.mockResolvedValueOnce('recovered')
       capturedRetry!()
-      await sleepAsync(50)
+      await flushUpdates()
 
       const observable = cache.getObservable('test')
       const result = observable.getValue()
@@ -183,7 +183,7 @@ describe('CacheView', () => {
       const contentEl = cacheView.querySelector('test-cache-content')
       expect(contentEl).not.toBeNull()
 
-      await sleepAsync(50)
+      await flushUpdates()
       // reload should have been called (initial load + obsolete reload)
       expect(loadFn).toHaveBeenCalledTimes(2)
       cache[Symbol.dispose]()

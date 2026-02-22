@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { initializeShadeRoot, createComponent, Shade, flushUpdates } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Modal } from './modal.js'
 
@@ -28,7 +28,7 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).toContain('shade-backdrop')
         expect(document.body.innerHTML).toContain('modal-content')
       })
@@ -48,7 +48,7 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).not.toContain('shade-backdrop')
         expect(document.body.innerHTML).not.toContain('modal-content')
       })
@@ -74,12 +74,12 @@ describe('Modal', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).not.toContain('modal-content')
 
         setVisible(true)
         await flushUpdates()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(document.body.innerHTML).toContain('shade-backdrop')
         expect(document.body.innerHTML).toContain('modal-content')
@@ -106,12 +106,12 @@ describe('Modal', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
-        await sleepAsync(50)
+        await flushUpdates()
         expect(document.body.innerHTML).toContain('modal-content')
 
         setVisible(false)
         await flushUpdates()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(document.body.innerHTML).not.toContain('shade-backdrop')
         expect(document.body.innerHTML).not.toContain('modal-content')
@@ -135,12 +135,12 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const backdrop = document.querySelector('.shade-backdrop') as HTMLDivElement
         expect(backdrop).not.toBeNull()
 
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onClose).toHaveBeenCalledTimes(1)
       })
@@ -167,10 +167,10 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const backdrop = document.querySelector('.shade-backdrop') as HTMLDivElement
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(hideAnimation).toHaveBeenCalledTimes(1)
         expect(onClose).toHaveBeenCalledTimes(1)
@@ -195,7 +195,7 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(showAnimation).toHaveBeenCalled()
       })
     })
@@ -221,12 +221,12 @@ describe('Modal', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
-        await sleepAsync(50)
+        await flushUpdates()
         expect(showAnimation).not.toHaveBeenCalled()
 
         setVisible(true)
         await flushUpdates()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(showAnimation).toHaveBeenCalled()
         expect(showAnimation.mock.calls[0][0]).toBeInstanceOf(Element)
@@ -248,10 +248,10 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const backdrop = document.querySelector('.shade-backdrop') as HTMLDivElement
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(hideAnimation).toHaveBeenCalled()
         expect(hideAnimation.mock.calls[0][0]).toBeInstanceOf(Element)
@@ -278,7 +278,7 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const backdrop = document.querySelector('.shade-backdrop') as HTMLDivElement
         expect(backdrop).not.toBeNull()
         expect(backdrop.style.backgroundColor).toBe('rgba(0, 0, 0, 0.5)')
@@ -303,7 +303,7 @@ describe('Modal', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const backdrop = document.querySelector('.shade-backdrop') as HTMLDivElement
         expect(backdrop).not.toBeNull()
         expect(backdrop.innerHTML).toContain('child-1')

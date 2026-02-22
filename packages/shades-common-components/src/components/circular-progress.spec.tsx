@@ -199,7 +199,7 @@ describe('CircularProgress', () => {
         const initialOffset = circle.style.strokeDashoffset
 
         value.setValue(75)
-        await sleepAsync(10)
+        await sleepAsync(50)
 
         const updatedOffset = circle.style.strokeDashoffset
         expect(updatedOffset).not.toBe(initialOffset)
@@ -223,7 +223,7 @@ describe('CircularProgress', () => {
         expect(el.getAttribute('aria-valuenow')).toBe('20')
 
         value.setValue(85)
-        await sleepAsync(10)
+        await sleepAsync(50)
 
         expect(el.getAttribute('aria-valuenow')).toBe('85')
       })

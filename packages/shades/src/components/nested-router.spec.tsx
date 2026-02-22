@@ -3,6 +3,7 @@ import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
+import { flushUpdates } from '../shade.js'
 import {
   buildMatchChain,
   findDivergenceIndex,
@@ -366,7 +367,8 @@ describe('NestedRouter lifecycle hooks', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // --- Initial load at /parent/child-a ---
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('child-a')
       expect(onVisitParent).toBeCalledTimes(1)
       expect(onVisitChildA).toBeCalledTimes(1)
@@ -375,7 +377,8 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Click same route: no lifecycle hooks should fire ---
       callOrder.length = 0
       clickOn('child-a')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(onVisitParent).toBeCalledTimes(1)
       expect(onVisitChildA).toBeCalledTimes(1)
       expect(callOrder).toEqual([])
@@ -383,7 +386,8 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Switch child: only child lifecycle fires, parent stays ---
       callOrder.length = 0
       clickOn('child-b')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('child-b')
       expect(onLeaveChildA).toBeCalledTimes(1)
       expect(onVisitChildB).toBeCalledTimes(1)
@@ -394,7 +398,8 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Navigate to a completely different branch ---
       callOrder.length = 0
       clickOn('other')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('other')
       expect(onLeaveChildB).toBeCalledTimes(1)
       expect(onLeaveParent).toBeCalledTimes(1)
@@ -405,7 +410,8 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Navigate to non-matching URL: onLeave for all active ---
       callOrder.length = 0
       clickOn('nowhere')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('not found')
       expect(onLeaveOther).toBeCalledTimes(1)
       expect(callOrder).toEqual(['leave-other'])
@@ -490,7 +496,8 @@ describe('NestedRouter latest-wins on rapid navigation', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // --- Initial load at /route-a ---
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(onVisitA).toHaveBeenCalledTimes(1)
 
@@ -500,7 +507,7 @@ describe('NestedRouter latest-wins on rapid navigation', () => {
       // Don't await — immediately navigate again
       clickOn('go-c')
 
-      // Wait long enough for both transitions to settle
+      // Wait long enough for both transitions to settle (onVisitB has 200ms delay)
       await sleepAsync(500)
 
       // The final destination should be route-c
@@ -582,7 +589,8 @@ describe('NestedRouter lifecycle element scope', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // --- Initial load at /parent/child-a ---
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(visitElements).toHaveLength(2)
       // Parent's onVisit element should be the full tree (parent wrapping child)
       expect(visitElements[0].route).toBe('parent')
@@ -595,7 +603,8 @@ describe('NestedRouter lifecycle element scope', () => {
       visitElements.length = 0
       leaveElements.length = 0
       clickOn('child-b')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
 
       // onLeave should receive the child-a element, not the full wrapper
       expect(leaveElements).toHaveLength(1)
@@ -653,19 +662,23 @@ describe('NestedRouter flat routes', () => {
       const getContent = () => document.getElementById('content')?.innerHTML
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('home-page')
 
       clickOn('about')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('about-page')
 
       clickOn('contact')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('contact-page')
 
       clickOn('home')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('home-page')
     })
   })
@@ -712,7 +725,8 @@ describe('NestedRouter outlet composition', () => {
         ),
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
 
       // Parent layout should be rendered with child inside
       expect(document.getElementById('header')?.innerHTML).toBe('Dashboard Header')
@@ -753,7 +767,8 @@ describe('NestedRouter outlet composition', () => {
         ),
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
 
       // Parent matched alone, outlet is undefined, so the fallback renders
       expect(document.getElementById('child')?.innerHTML).toBe('dashboard-index')
@@ -814,7 +829,8 @@ describe('NestedRouter route param changes', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // Initial load at /users/1
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('user-1')
       expect(onVisitUser).toHaveBeenCalledTimes(1)
       expect(callOrder).toEqual(['visit-user'])
@@ -822,7 +838,8 @@ describe('NestedRouter route param changes', () => {
       // Navigate to /users/2 — same route, different param → lifecycle should fire
       callOrder.length = 0
       clickOn('user-2')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('user-2')
       expect(onLeaveUser).toHaveBeenCalledTimes(1)
       expect(onVisitUser).toHaveBeenCalledTimes(2)
@@ -831,7 +848,8 @@ describe('NestedRouter route param changes', () => {
       // Navigate to /users/3
       callOrder.length = 0
       clickOn('user-3')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('user-3')
       expect(onLeaveUser).toHaveBeenCalledTimes(2)
       expect(onVisitUser).toHaveBeenCalledTimes(3)
@@ -840,7 +858,8 @@ describe('NestedRouter route param changes', () => {
       // Click same user — no lifecycle change
       callOrder.length = 0
       clickOn('user-3')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(getContent()).toBe('user-3')
       expect(onLeaveUser).toHaveBeenCalledTimes(2)
       expect(onVisitUser).toHaveBeenCalledTimes(3)
@@ -897,7 +916,8 @@ describe('NestedRouter route param changes', () => {
 
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(document.getElementById('org')?.textContent).toContain('org-alpha')
       expect(document.getElementById('child')?.innerHTML).toBe('dashboard')
       expect(onVisitOrg).toHaveBeenCalledTimes(1)
@@ -906,7 +926,8 @@ describe('NestedRouter route param changes', () => {
       // Change parent param: org/alpha → org/beta, child stays /dashboard
       // Both parent and child should get leave/visit since parent diverges
       clickOn('beta-dash')
-      await sleepAsync(100)
+      await flushUpdates()
+      await flushUpdates()
       expect(document.getElementById('org')?.textContent).toContain('org-beta')
       expect(document.getElementById('child')?.innerHTML).toBe('dashboard')
       expect(onLeaveOrg).toHaveBeenCalledTimes(1)

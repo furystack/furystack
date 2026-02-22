@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AppBarLink } from './app-bar-link.js'
 
@@ -24,7 +24,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink).not.toBeNull()
@@ -42,7 +42,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/test">Test Link Text</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(document.body.innerHTML).toContain('Test Link Text')
       })
@@ -58,7 +58,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/my-route">Link</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(document.body.innerHTML).toContain('href="/my-route"')
       })
@@ -78,7 +78,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
@@ -97,7 +97,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(false)
@@ -116,7 +116,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(false)
@@ -125,7 +125,7 @@ describe('AppBarLink component', () => {
         history.pushState(null, '', '/dashboard')
         injector.getInstance(LocationService).updateState()
 
-        await sleepAsync(50)
+        await flushUpdates()
         await flushUpdates()
 
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
@@ -144,7 +144,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
@@ -153,7 +153,7 @@ describe('AppBarLink component', () => {
         history.pushState(null, '', '/other')
         injector.getInstance(LocationService).updateState()
 
-        await sleepAsync(50)
+        await flushUpdates()
         await flushUpdates()
 
         expect(appBarLink?.hasAttribute('data-active')).toBe(false)
@@ -172,7 +172,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/users/:id">Users</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
@@ -195,7 +195,7 @@ describe('AppBarLink component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
@@ -214,7 +214,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/admin">Admin</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link')
         expect(appBarLink?.hasAttribute('data-active')).toBe(false)
@@ -241,7 +241,7 @@ describe('AppBarLink component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const links = document.querySelectorAll('shade-app-bar-link')
         expect(links[0]?.hasAttribute('data-active')).toBe(false)
@@ -267,7 +267,7 @@ describe('AppBarLink component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const links = document.querySelectorAll('shade-app-bar-link')
         expect(links[0]?.hasAttribute('data-active')).toBe(true)
@@ -277,7 +277,7 @@ describe('AppBarLink component', () => {
         history.pushState(null, '', '/settings')
         injector.getInstance(LocationService).updateState()
 
-        await sleepAsync(50)
+        await flushUpdates()
         await flushUpdates()
 
         expect(links[0]?.hasAttribute('data-active')).toBe(false)
@@ -297,7 +297,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link') as HTMLElement
         const computedStyle = window.getComputedStyle(appBarLink)
@@ -315,7 +315,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link') as HTMLElement
         const computedStyle = window.getComputedStyle(appBarLink)
@@ -333,7 +333,7 @@ describe('AppBarLink component', () => {
           jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBarLink = document.querySelector('shade-app-bar-link') as HTMLElement
         const computedStyle = window.getComputedStyle(appBarLink)

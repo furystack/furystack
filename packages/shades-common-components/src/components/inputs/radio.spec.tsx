@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { Form, FormService } from '../form.js'
@@ -26,7 +26,7 @@ describe('Radio', () => {
         jsxElement: <Radio value="option1" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const radio = document.querySelector('shade-radio')
       expect(radio).not.toBeNull()
@@ -43,7 +43,7 @@ describe('Radio', () => {
         jsxElement: <Radio value="option1" name="test-group" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shade-radio input[type="radio"]') as HTMLInputElement
       expect(input).not.toBeNull()
@@ -62,7 +62,7 @@ describe('Radio', () => {
         jsxElement: <Radio value="option1" labelTitle="Option 1" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-radio label') as HTMLLabelElement
       expect(label).not.toBeNull()
@@ -80,7 +80,7 @@ describe('Radio', () => {
         jsxElement: <Radio value="option1" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const labelSpan = document.querySelector('shade-radio .radio-label')
       expect(labelSpan).toBeNull()
@@ -98,7 +98,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" checked />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-radio input[type="radio"]') as HTMLInputElement
         expect(input.checked).toBe(true)
@@ -115,7 +115,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" checked={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-radio input[type="radio"]') as HTMLInputElement
         expect(input.checked).toBe(false)
@@ -134,7 +134,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const radio = document.querySelector('shade-radio') as HTMLElement
         expect(radio.hasAttribute('data-disabled')).toBe(true)
@@ -154,7 +154,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" disabled={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const radio = document.querySelector('shade-radio') as HTMLElement
         expect(radio.hasAttribute('data-disabled')).toBe(false)
@@ -173,7 +173,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const radio = document.querySelector('shade-radio') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -191,7 +191,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" color="secondary" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const radio = document.querySelector('shade-radio') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -212,12 +212,12 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" name="test" onchange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-radio input[type="radio"]') as HTMLInputElement
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalled()
       })
@@ -241,7 +241,8 @@ describe('Radio', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -263,7 +264,7 @@ describe('Radio', () => {
           jsxElement: <Radio value="option1" labelProps={{ className: 'custom-label' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const label = document.querySelector('shade-radio label') as HTMLLabelElement
         expect(label.className).toContain('custom-label')
