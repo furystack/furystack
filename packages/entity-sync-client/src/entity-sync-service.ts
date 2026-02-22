@@ -567,8 +567,11 @@ export class EntitySyncService implements Disposable {
       void this.options.localStore.get(internal.cacheKey).then(
         (cached) => {
           if (cached && internal.state.getValue().status === 'connecting') {
-            internal.lastSeq = cached.lastSeq
-            internal.state.setValue({ status: 'cached', data: cached.data as { entries: unknown[]; count: number } })
+            const { data } = cached
+            if (data && typeof data === 'object' && !Array.isArray(data) && 'entries' in data) {
+              internal.lastSeq = cached.lastSeq
+              internal.state.setValue({ status: 'cached', data: data as { entries: unknown[]; count: number } })
+            }
           }
           this.send({
             type: 'subscribe-collection',
@@ -929,7 +932,7 @@ export class EntitySyncService implements Disposable {
     })
     internal.state.setValue({
       ...currentState,
-      data: { entries: filteredEntries, count: currentState.data.count - 1 },
+      data: { entries: filteredEntries, count: Math.max(0, currentState.data.count - 1) },
     })
 
     return () => {
