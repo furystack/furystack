@@ -1,6 +1,7 @@
 export * from './errors/index.js'
 export * from './models/physical-store.js'
 export * from './models/user.js'
+export * from './filter-items.js'
 export * from './in-memory-store.js'
 export * from './store-manager.js'
 export * from './global-disposables.js'
