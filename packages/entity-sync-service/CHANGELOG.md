@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-02-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` dependency
+
 ## [1.0.0] - 2026-02-22
 
 ### 💥 Breaking Changes
