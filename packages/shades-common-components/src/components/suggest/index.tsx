@@ -15,12 +15,26 @@ export * from './suggest-manager.js'
 export * from './suggestion-list.js'
 export * from './suggestion-result.js'
 
-export interface SuggestProps<T> {
+type SuggestAsyncProps<T> = {
   defaultPrefix: JSX.Element | string
   getEntries: (term: string) => Promise<T[]>
   getSuggestionEntry: (entry: T) => SuggestionResult
   onSelectSuggestion: (entry: T) => void
   style?: Partial<CSSStyleDeclaration>
+}
+
+type SuggestSyncProps = {
+  defaultPrefix: JSX.Element | string
+  /** Static list of string suggestions. Filtered client-side by the search term. When the term is empty, all suggestions are shown. */
+  suggestions: string[]
+  onSelectSuggestion: (entry: string) => void
+  style?: Partial<CSSStyleDeclaration>
+}
+
+export type SuggestProps<T> = SuggestAsyncProps<T> | SuggestSyncProps
+
+const isSyncProps = (props: SuggestProps<unknown>): props is SuggestSyncProps => {
+  return 'suggestions' in props
 }
 
 export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
@@ -35,7 +49,24 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
     },
   },
   render: ({ props, injector, useDisposable, useRef, useHostProps, useObservable }) => {
-    const manager = useDisposable('manager', () => new SuggestManager(props.getEntries, props.getSuggestionEntry))
+    let getEntries: (term: string) => Promise<unknown[]>
+    let getSuggestionEntry: (entry: unknown) => SuggestionResult
+
+    if (isSyncProps(props)) {
+      const { suggestions } = props
+      getEntries = async (term: string) => {
+        const lower = term.toLowerCase()
+        return suggestions.filter((s) => s.toLowerCase().includes(lower))
+      }
+      getSuggestionEntry = (entry: unknown) => ({
+        element: <>{entry as string}</>,
+        score: 1,
+      })
+    } else {
+      ;({ getEntries, getSuggestionEntry } = props)
+    }
+
+    const manager = useDisposable('manager', () => new SuggestManager(getEntries, getSuggestionEntry))
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
     const loaderRef = useRef<HTMLSpanElement>('loader')
 
@@ -65,7 +96,9 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
         })
       }
     })
-    useDisposable('onSelectSuggestion', () => manager.subscribe('onSelectSuggestion', props.onSelectSuggestion))
+    useDisposable('onSelectSuggestion', () =>
+      manager.subscribe('onSelectSuggestion', props.onSelectSuggestion as (entry: unknown) => void),
+    )
     return (
       <div
         ref={wrapperRef}

@@ -3,12 +3,14 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { Pagination } from '../pagination.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
 export const DataGridFooter: <T>(props: {
   service: CollectionService<T>
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+  paginationOptions?: number[]
 }) => JSX.Element = Shade({
   shadowDomName: 'shade-data-grid-footer',
   css: {
@@ -41,7 +43,7 @@ export const DataGridFooter: <T>(props: {
     },
   },
   render: ({ props, useObservable }) => {
-    const { service, findOptions } = props
+    const { service, findOptions, paginationOptions = dataGridItemsPerPage } = props
     const [currentData] = useObservable('dataUpdater', service.data)
     const [currentOptions, setCurrentOptions] = useObservable('optionsUpdater', findOptions, {
       filter: (newValue, oldValue) => {
@@ -54,49 +56,41 @@ export const DataGridFooter: <T>(props: {
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
 
-    const pages = new Array(Math.ceil(currentData.count / (currentOptions.top || Infinity)))
-      .fill(0)
-      .map((_, index) => index)
+    const pageCount = Math.ceil(currentData.count / (currentOptions.top || Infinity))
 
     return (
       <div className="pager">
-        {currentEntriesPerPage !== Infinity && (
+        {currentEntriesPerPage !== Infinity && pageCount > 1 && (
+          <Pagination
+            count={pageCount}
+            page={currentPage + 1}
+            size="small"
+            onPageChange={(newPage) => {
+              setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * (newPage - 1) })
+            }}
+          />
+        )}
+        {paginationOptions.length > 1 && (
           <div className="pager-section">
-            <span>Page</span>
+            <span>Rows per page</span>
             <select
               onchange={(ev) => {
-                const value = parseInt((ev.target as HTMLInputElement).value, 10)
-                setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
+                const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
+                setCurrentOptions({
+                  ...currentOptions,
+                  top: value,
+                  skip: currentPage * value,
+                })
               }}
             >
-              {pages.map((index) => (
-                <option value={index.toString()} selected={currentPage === index}>
-                  {(index + 1).toString()}
+              {paginationOptions.map((no) => (
+                <option value={no.toString()} selected={no === currentEntriesPerPage}>
+                  {no === Infinity ? 'All' : no.toString()}
                 </option>
               ))}
             </select>
-            <span>of {pages.length}</span>
           </div>
         )}
-        <div className="pager-section">
-          <span>Rows per page</span>
-          <select
-            onchange={(ev) => {
-              const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
-              setCurrentOptions({
-                ...currentOptions,
-                top: value,
-                skip: currentPage * value,
-              })
-            }}
-          >
-            {dataGridItemsPerPage.map((no) => (
-              <option value={no.toString()} selected={no === currentEntriesPerPage}>
-                {no === Infinity ? 'All' : no.toString()}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
     )
   },

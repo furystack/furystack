@@ -2,6 +2,9 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { TextInputProps } from './input.js'
 import { Input } from './input.js'
 
+/**
+ * @deprecated Use `Suggest` with the `suggestions` prop instead. This component will be removed in a future version.
+ */
 export const Autocomplete = Shade<{
   inputProps?: TextInputProps
   suggestions: string[]

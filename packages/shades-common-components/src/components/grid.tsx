@@ -23,6 +23,9 @@ export type RowCells<T, Columns extends string> = {
   [TKey in Columns | 'default']?: (element: T, column: Columns) => JSX.Element
 }
 
+/**
+ * @deprecated Use `DataGrid` instead. This component will be removed in a future version.
+ */
 export const Grid: <T, Column extends string>(props: GridProps<T, Column>, children: ChildrenList) => JSX.Element<any> =
   Shade({
     shadowDomName: 'shade-grid',

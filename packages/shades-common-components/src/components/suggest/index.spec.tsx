@@ -882,4 +882,87 @@ describe('Suggest', () => {
       })
     })
   })
+
+  describe('synchronous suggestions mode', () => {
+    it('should render with string[] suggestions', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest
+              defaultPrefix="🔍"
+              suggestions={['Apple', 'Banana', 'Cherry']}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        expect(suggest).not.toBeNull()
+      })
+    })
+
+    it('should render input in sync mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest
+              defaultPrefix="🔍"
+              suggestions={['Apple', 'Banana', 'Cherry']}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        const input = suggest?.querySelector('input')
+        expect(input).not.toBeNull()
+      })
+    })
+
+    it('should show filtered suggestions in sync mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest
+              defaultPrefix="🔍"
+              suggestions={['Apple', 'Apricot', 'Banana']}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        const input = suggest?.querySelector('input') as HTMLInputElement
+
+        input.value = 'ap'
+        input.dispatchEvent(new KeyboardEvent('keyup', { key: 'p', bubbles: true }))
+
+        await advanceTimers(300)
+
+        const suggestionItems = suggest?.querySelectorAll('.suggestion-item')
+        expect(suggestionItems?.length).toBe(2)
+      })
+    })
+  })
 })

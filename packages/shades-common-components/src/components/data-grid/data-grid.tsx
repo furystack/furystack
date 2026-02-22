@@ -54,7 +54,7 @@ export interface DataGridProps<T, Column extends string> {
   /**
    * Optional style overrides for the grid
    */
-  styles: GridProps<T, Column>['styles']
+  styles?: GridProps<T, Column>['styles']
   /**
    * A collection service to use for data source
    */
@@ -108,6 +108,13 @@ export interface DataGridProps<T, Column extends string> {
    * An optional component to show while the data is loading
    */
   loaderComponent?: JSX.Element
+
+  /**
+   * Custom list of items-per-page options shown in the footer selector.
+   * When only one option is provided, the selector is hidden.
+   * @default dataGridItemsPerPage ([10, 20, 25, 50, 100, Infinity])
+   */
+  paginationOptions?: number[]
 }
 
 export const DataGrid: <T, Column extends string>(
@@ -211,7 +218,11 @@ export const DataGrid: <T, Column extends string>(
             loaderComponent={props.loaderComponent}
           />
         </table>
-        <DataGridFooter service={props.collectionService} findOptions={props.findOptions} />
+        <DataGridFooter
+          service={props.collectionService}
+          findOptions={props.findOptions}
+          paginationOptions={props.paginationOptions}
+        />
       </div>
     )
   },
