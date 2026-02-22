@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0] - 2026-02-22
+
+### ✨ Features
+
+- `useCollectionSync` now uses `deps` for `top`, `skip`, and `order` options, keeping only the `filter` in the hook key. This allows the subscription to be re-created when pagination or ordering changes without creating a brand new cache entry.
+
+### 🧪 Tests
+
+- Added tests for `useEntitySync` covering subscription creation and re-creation on key change
+- Added tests for `useCollectionSync` covering subscription creation, re-creation on option changes, and filter-based key partitioning
+
 ## [0.1.1] - 2026-02-19
 
 ### ⬆️ Dependencies

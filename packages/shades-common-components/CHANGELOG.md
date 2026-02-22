@@ -1,5 +1,35 @@
 # Changelog
 
+## [12.4.0] - 2026-02-22
+
+### ✨ Features
+
+### Async form submission support
+
+The `Form` component's `onSubmit` callback now accepts async functions (`() => void | Promise<void>`). New observables on `FormService`: `isSubmitting` tracks whether a submission is in progress, and `submitError` captures any error thrown during submission. When the `disableOnSubmit` prop is enabled, the form element becomes inert during submission, preventing duplicate submits.
+
+**Usage:**
+
+```typescript
+<Form
+  validate={myValidator}
+  onSubmit={async (data) => {
+    await saveToServer(data)
+  }}
+  disableOnSubmit
+>
+  {/* form fields */}
+</Form>
+```
+
+### ♻️ Refactoring
+
+- Changed the `validate` prop type from `any` to `unknown` for stricter type safety
+
+### 🧪 Tests
+
+- Added tests for async `onSubmit` behavior, `isSubmitting` state tracking, `disableOnSubmit` inert toggling, and error handling during async submission
+
 ## [12.3.0] - 2026-02-19
 
 ### ✨ Features

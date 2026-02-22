@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.6] - 2026-02-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` and `@furystack/shades-common-components` to pick up async form submission and dependency tracking in `useDisposable`
+
 ## [8.0.5] - 2026-02-20
 
 ### ⬆️ Dependencies

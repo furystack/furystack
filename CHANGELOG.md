@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.7] - 2026-02-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades`, `@furystack/shades-common-components`, and `@furystack/entity-sync-client`
+
 ## [8.0.6] - 2026-02-20
 
 ### ⬆️ Dependencies

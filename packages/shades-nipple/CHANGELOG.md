@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.3] - 2026-02-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` to pick up dependency tracking support in `useDisposable`
+
 ## [8.0.2] - 2026-02-19
 
 ### ⬆️ Dependencies

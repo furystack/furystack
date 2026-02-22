@@ -1,5 +1,25 @@
 # Changelog
 
+## [12.2.0] - 2026-02-22
+
+### ✨ Features
+
+### Dependency tracking for `useDisposable`
+
+`useDisposable` now accepts an optional `deps` array parameter. When the serialized deps value changes between renders, the old resource is automatically disposed and a new one is created. This enables resources that depend on dynamic parameters (e.g., entity-sync subscriptions with changing query options) to be re-created without encoding all parameters into the cache key.
+
+**Usage:**
+
+```typescript
+const liveEntity = useDisposable('entitySync:MyModel', () => syncService.subscribeEntity(MyModel, currentKey), [
+  currentKey,
+])
+```
+
+### 🧪 Tests
+
+- Added tests for `useDisposable` dependency tracking in `ResourceManager`, covering re-creation on deps change and no-op when deps are unchanged
+
 ## [12.1.0] - 2026-02-19
 
 ### ✨ Features
