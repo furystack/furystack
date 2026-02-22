@@ -44,8 +44,11 @@ export const FilterDropdown: (props: FilterDropdownProps, children: ChildrenList
         }),
     )
 
-    requestAnimationFrame(() => {
-      panelRef.current?.classList.add('visible')
+    useDisposable('animateIn', () => {
+      const id = requestAnimationFrame(() => {
+        panelRef.current?.classList.add('visible')
+      })
+      return { [Symbol.dispose]: () => cancelAnimationFrame(id) }
     })
 
     return (

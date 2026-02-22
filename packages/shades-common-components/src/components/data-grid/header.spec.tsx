@@ -3,6 +3,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { FilterableFindOptions } from './data-grid.js'
 import { DataGridHeader, OrderButton } from './header.js'
 
 type TestItem = { id: number; name: string; email: string }
@@ -44,6 +45,12 @@ describe('DataGridHeader', () => {
     options: Partial<FindOptions<TestItem, Array<keyof TestItem>>> = {},
   ): ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>> => {
     return new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>(options)
+  }
+
+  const createFilterableFindOptions = (
+    options: Partial<FilterableFindOptions> = {},
+  ): ObservableValue<FilterableFindOptions> => {
+    return new ObservableValue<FilterableFindOptions>(options)
   }
 
   describe('rendering', () => {
@@ -143,7 +150,7 @@ describe('DataGridHeader', () => {
     it('should show neutral icon when no order is set', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const findOptions = createFilterableFindOptions()
 
         initializeShadeRoot({
           injector,
@@ -161,7 +168,7 @@ describe('DataGridHeader', () => {
     it('should toggle order to ASC when clicking on unsorted field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const findOptions = createFilterableFindOptions()
 
         initializeShadeRoot({
           injector,
@@ -184,7 +191,7 @@ describe('DataGridHeader', () => {
     it('should toggle order from ASC to DESC when clicking', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ order: { name: 'ASC' } })
+        const findOptions = createFilterableFindOptions({ order: { name: 'ASC' } })
 
         initializeShadeRoot({
           injector,
@@ -207,7 +214,7 @@ describe('DataGridHeader', () => {
     it('should toggle order from DESC to ASC when clicking', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ order: { name: 'DESC' } })
+        const findOptions = createFilterableFindOptions({ order: { name: 'DESC' } })
 
         initializeShadeRoot({
           injector,
@@ -230,7 +237,7 @@ describe('DataGridHeader', () => {
     it('should react to external findOptions changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const findOptions = createFilterableFindOptions()
 
         initializeShadeRoot({
           injector,

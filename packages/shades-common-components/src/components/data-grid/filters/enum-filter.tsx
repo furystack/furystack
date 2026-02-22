@@ -1,4 +1,3 @@
-import type { FindOptions } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { SegmentedControl } from '../../button-group.js'
@@ -6,18 +5,20 @@ import { Button } from '../../button.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
 import { Icon } from '../../icons/icon.js'
 import { Checkbox } from '../../inputs/checkbox.js'
+import type { FilterableFindOptions } from '../data-grid.js'
+import { filterBaseCss } from './filter-styles.js'
 
 type EnumMode = 'include' | 'exclude'
 
 export const EnumFilter = Shade<{
   field: string
   values: Array<{ label: string; value: string }>
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-enum-filter',
   css: {
-    display: 'block',
+    ...filterBaseCss,
     '& .filter-mode': {
       marginBottom: '8px',
     },
@@ -31,11 +32,6 @@ export const EnumFilter = Shade<{
     },
     '& shade-checkbox': {
       marginBottom: '0',
-    },
-    '& .filter-actions': {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '4px',
     },
   },
   render: ({ props, useObservable, useState }) => {

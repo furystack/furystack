@@ -1,42 +1,23 @@
-import type { FindOptions } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
-import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import { SegmentedControl } from '../../button-group.js'
 import { Button } from '../../button.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
 import { Icon } from '../../icons/icon.js'
+import type { FilterableFindOptions } from '../data-grid.js'
+import { filterBaseCss, filterInputCss } from './filter-styles.js'
 
 type DateMode = 'before' | 'after' | 'between'
 
 export const DateFilter = Shade<{
   field: string
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-date-filter',
   css: {
-    display: 'block',
-    '& .filter-row': {
-      display: 'flex',
-      gap: '6px',
-      alignItems: 'center',
-      marginBottom: '8px',
-    },
-    '& input[type="datetime-local"]': {
-      flex: '1',
-      padding: '4px 6px',
-      borderRadius: cssVariableTheme.shape.borderRadius.sm,
-      border: `1px solid ${cssVariableTheme.divider}`,
-      background: cssVariableTheme.background.default,
-      color: cssVariableTheme.text.primary,
-      fontSize: cssVariableTheme.typography.fontSize.xs,
-    },
-    '& .filter-actions': {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '4px',
-    },
+    ...filterBaseCss,
+    '& input[type="datetime-local"]': filterInputCss,
   },
   render: ({ props, useObservable, useState }) => {
     const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)

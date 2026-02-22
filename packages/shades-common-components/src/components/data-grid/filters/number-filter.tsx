@@ -1,11 +1,11 @@
-import type { FindOptions } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { Button } from '../../button.js'
 import { SegmentedControl } from '../../button-group.js'
 import { Icon } from '../../icons/icon.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
-import { cssVariableTheme } from '../../../services/css-variable-theme.js'
+import type { FilterableFindOptions } from '../data-grid.js'
+import { filterBaseCss, filterInputCss } from './filter-styles.js'
 
 type NumberOperator = '$eq' | '$gt' | '$gte' | '$lt' | '$lte'
 
@@ -19,32 +19,13 @@ const operatorLabels: Record<NumberOperator, string> = {
 
 export const NumberFilter = Shade<{
   field: string
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-number-filter',
   css: {
-    display: 'block',
-    '& .filter-row': {
-      display: 'flex',
-      gap: '6px',
-      alignItems: 'center',
-      marginBottom: '8px',
-    },
-    '& input': {
-      flex: '1',
-      padding: '4px 6px',
-      borderRadius: cssVariableTheme.shape.borderRadius.sm,
-      border: `1px solid ${cssVariableTheme.divider}`,
-      background: cssVariableTheme.background.default,
-      color: cssVariableTheme.text.primary,
-      fontSize: cssVariableTheme.typography.fontSize.xs,
-    },
-    '& .filter-actions': {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '4px',
-    },
+    ...filterBaseCss,
+    '& input': filterInputCss,
   },
   render: ({ props, useObservable, useState }) => {
     const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)

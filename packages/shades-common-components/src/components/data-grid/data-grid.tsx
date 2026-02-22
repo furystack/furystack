@@ -26,6 +26,19 @@ export type ColumnFilterConfig =
   | EnumFilterConfig
   | DateFilterConfig
 
+/**
+ * Loosely typed find options used internally by filter components.
+ * Avoids generic entity types while supporting dynamic field access
+ * with explicit casts at each use site.
+ */
+export type FilterableFindOptions = {
+  top?: number
+  skip?: number
+  order?: Record<string, 'ASC' | 'DESC'>
+  filter?: Record<string, unknown>
+  select?: string[]
+}
+
 export type DataHeaderCells<Column extends string> = {
   [TKey in Column | 'default']?: (name: Column) => JSX.Element
 }

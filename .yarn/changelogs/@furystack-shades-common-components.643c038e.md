@@ -61,6 +61,10 @@ All filter components are exported from `@furystack/shades-common-components` vi
 - Footer pager labels changed from "Goto page" / "Show X items per page" to "Page X of Y" / "Rows per page"
 - `ToggleButton` no longer renders a box-shadow by default; the border is only applied when inside a `ToggleButtonGroup` (via `data-grouped` attribute)
 
+## ⚠️ Migration
+
+- Column filter buttons are now **opt-in** via the `columnFilters` prop. Previously, every column showed a regex search button by default. To restore filtering, add a `columnFilters` config mapping for the columns you want to be filterable.
+
 ## 🧪 Tests
 
 - Added unit tests for `ToggleButton` standalone `pressed` and `size` props

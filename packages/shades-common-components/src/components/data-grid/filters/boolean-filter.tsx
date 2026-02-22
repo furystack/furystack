@@ -1,13 +1,13 @@
-import type { FindOptions } from '@furystack/core'
 import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { SegmentedControl } from '../../button-group.js'
+import type { FilterableFindOptions } from '../data-grid.js'
 
 type BooleanFilterValue = 'true' | 'false' | 'any'
 
 export const BooleanFilter = Shade<{
   field: string
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-boolean-filter',

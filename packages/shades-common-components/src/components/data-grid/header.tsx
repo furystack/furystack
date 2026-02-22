@@ -5,7 +5,7 @@ import type { ObservableValue } from '@furystack/utils'
 import { ToggleButton } from '../button-group.js'
 import { arrowDown, arrowUp, arrowUpDown, filter as filterIcon } from '../icons/icon-definitions.js'
 import { Icon } from '../icons/icon.js'
-import type { ColumnFilterConfig } from './data-grid.js'
+import type { ColumnFilterConfig, FilterableFindOptions } from './data-grid.js'
 import { BooleanFilter } from './filters/boolean-filter.js'
 import { DateFilter } from './filters/date-filter.js'
 import { EnumFilter } from './filters/enum-filter.js'
@@ -13,7 +13,7 @@ import { FilterDropdown } from './filters/filter-dropdown.js'
 import { NumberFilter } from './filters/number-filter.js'
 import { StringFilter } from './filters/string-filter.js'
 
-export interface DataGridHeaderProps<T, Column extends string> {
+export type DataGridHeaderProps<T, Column extends string> = {
   field: Column
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
   filterConfig?: ColumnFilterConfig
@@ -21,7 +21,7 @@ export interface DataGridHeaderProps<T, Column extends string> {
 
 export const OrderButton = Shade<{
   field: string
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
 }>({
   shadowDomName: 'data-grid-order-button',
   css: {
@@ -66,7 +66,7 @@ export const OrderButton = Shade<{
 
 const FilterButton = Shade<{
   field: string
-  findOptions: ObservableValue<FindOptions<any, any[]>>
+  findOptions: ObservableValue<FilterableFindOptions>
   onclick: () => void
 }>({
   shadowDomName: 'data-grid-filter-button',
@@ -101,7 +101,7 @@ const FilterButton = Shade<{
 const renderFilterComponent = (
   filterConfig: ColumnFilterConfig,
   field: string,
-  findOptions: ObservableValue<FindOptions<any, any[]>>,
+  findOptions: ObservableValue<FilterableFindOptions>,
   onClose: () => void,
 ): JSX.Element => {
   switch (filterConfig.type) {
@@ -162,13 +162,13 @@ export const DataGridHeader: <T, Column extends string>(
             {props.filterConfig && (
               <FilterButton
                 onclick={() => setIsFilterOpen(!isFilterOpen)}
-                findOptions={props.findOptions as ObservableValue<FindOptions<any, any[]>>}
+                findOptions={props.findOptions as ObservableValue<FilterableFindOptions>}
                 field={props.field}
               />
             )}
             <OrderButton
               field={props.field}
-              findOptions={props.findOptions as ObservableValue<FindOptions<any, any[]>>}
+              findOptions={props.findOptions as ObservableValue<FilterableFindOptions>}
             />
           </div>
         </div>
@@ -177,7 +177,7 @@ export const DataGridHeader: <T, Column extends string>(
             {renderFilterComponent(
               props.filterConfig,
               props.field,
-              props.findOptions as ObservableValue<FindOptions<any, any[]>>,
+              props.findOptions as ObservableValue<FilterableFindOptions>,
               closeFilter,
             )}
           </FilterDropdown>
