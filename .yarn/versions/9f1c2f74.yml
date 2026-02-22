@@ -1,3 +1,6 @@
+declined:
+  - furystack
+
 releases:
   "@furystack/auth-google": patch
   "@furystack/core": minor
