@@ -783,6 +783,179 @@ describe('List', () => {
     })
   })
 
+  describe('pagination', () => {
+    const manyItems: TestItem[] = Array.from({ length: 25 }, (_, i) => ({ id: i + 1, name: `Item ${i + 1}` }))
+
+    it('should render only current page items when pagination is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem>
+              items={manyItems}
+              listService={service}
+              renderItem={(item) => <span>{item.name}</span>}
+              pagination={{ itemsPerPage: 10, page: 1, onPageChange: () => {} }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const list = document.querySelector('shade-list')
+        const listItems = list?.querySelectorAll('shade-list-item')
+        expect(listItems?.length).toBe(10)
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should render the Pagination component', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem>
+              items={manyItems}
+              listService={service}
+              renderItem={(item) => <span>{item.name}</span>}
+              pagination={{ itemsPerPage: 10, page: 1, onPageChange: () => {} }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const pagination = document.querySelector('shade-list shade-pagination')
+        expect(pagination).not.toBeNull()
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should show last page items correctly', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem>
+              items={manyItems}
+              listService={service}
+              renderItem={(item) => <span>{item.name}</span>}
+              pagination={{ itemsPerPage: 10, page: 3, onPageChange: () => {} }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const list = document.querySelector('shade-list')
+        const listItems = list?.querySelectorAll('shade-list-item')
+        expect(listItems?.length).toBe(5)
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should not render Pagination when all items fit on one page', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem>
+              items={testItems}
+              listService={service}
+              renderItem={(item) => <span>{item.name}</span>}
+              pagination={{ itemsPerPage: 10, page: 1, onPageChange: () => {} }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const pagination = document.querySelector('shade-list shade-pagination')
+        expect(pagination).toBeNull()
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should call onPageChange when a pagination button is clicked', async () => {
+      const onPageChange = vi.fn()
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem>
+              items={manyItems}
+              listService={service}
+              renderItem={(item) => <span>{item.name}</span>}
+              pagination={{ itemsPerPage: 10, page: 1, onPageChange }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const nextButton = document.querySelector(
+          'shade-list shade-pagination [aria-label="Go to next page"]',
+        ) as HTMLButtonElement
+        expect(nextButton).not.toBeNull()
+        nextButton.click()
+
+        expect(onPageChange).toHaveBeenCalledWith(2)
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should render all items when pagination is not provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={manyItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+
+        const list = document.querySelector('shade-list')
+        const listItems = list?.querySelectorAll('shade-list-item')
+        expect(listItems?.length).toBe(25)
+
+        const pagination = document.querySelector('shade-list shade-pagination')
+        expect(pagination).toBeNull()
+
+        service[Symbol.dispose]()
+      })
+    })
+  })
+
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
       await usingAsync(new Injector(), async (injector) => {

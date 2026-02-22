@@ -33,7 +33,7 @@ export const SuggestPage = Shade({
                 score: 1,
               }
             }}
-            onSelectSuggestion={(entry) => {
+            onSelectSuggestion={(entry: SuggestEntry) => {
               console.log(entry)
             }}
             defaultPrefix=">"

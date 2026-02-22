@@ -72,13 +72,21 @@ describe('Wizard', () => {
   const renderWizard = async (
     steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element>,
     onFinish?: () => void,
+    options?: { stepLabels?: string[]; showProgress?: boolean },
   ) => {
     const injector = new Injector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
       rootElement: root,
-      jsxElement: <Wizard steps={steps} onFinish={onFinish} />,
+      jsxElement: (
+        <Wizard
+          steps={steps}
+          onFinish={onFinish}
+          stepLabels={options?.stepLabels}
+          showProgress={options?.showProgress}
+        />
+      ),
     })
     await flushUpdates()
 
@@ -212,6 +220,115 @@ describe('Wizard', () => {
         await clickNext()
         expect(getStepName()).toBe('step1')
       })
+    })
+  })
+
+  describe('step indicator', () => {
+    it('should not render step indicator when stepLabels is not provided', async () => {
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ wizard }) => {
+        const indicator = wizard.querySelector('[data-testid="wizard-step-indicator"]')
+        expect(indicator).toBeNull()
+      })
+    })
+
+    it('should render step indicator when stepLabels is provided', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, {
+          stepLabels: ['First', 'Second', 'Third'],
+        }),
+        async ({ wizard }) => {
+          const indicator = wizard.querySelector('[data-testid="wizard-step-indicator"]')
+          expect(indicator).toBeTruthy()
+
+          const circles = indicator?.querySelectorAll('.wizard-step-circle')
+          expect(circles?.length).toBe(3)
+        },
+      )
+    })
+
+    it('should show step labels', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2], undefined, {
+          stepLabels: ['Setup', 'Confirm'],
+        }),
+        async ({ wizard }) => {
+          const labels = wizard.querySelectorAll('.wizard-step-label')
+          expect(labels[0]?.textContent).toBe('Setup')
+          expect(labels[1]?.textContent).toBe('Confirm')
+        },
+      )
+    })
+
+    it('should mark the current step as active', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, {
+          stepLabels: ['A', 'B', 'C'],
+        }),
+        async ({ wizard }) => {
+          const circles = wizard.querySelectorAll('.wizard-step-circle')
+          expect(circles[0]?.hasAttribute('data-active')).toBe(true)
+          expect(circles[1]?.hasAttribute('data-active')).toBe(false)
+        },
+      )
+    })
+
+    it('should update active step on navigation', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, {
+          stepLabels: ['A', 'B', 'C'],
+        }),
+        async ({ wizard, clickNext }) => {
+          await clickNext()
+          const circles = wizard.querySelectorAll('.wizard-step-circle')
+          expect(circles[0]?.hasAttribute('data-completed')).toBe(true)
+          expect(circles[1]?.hasAttribute('data-active')).toBe(true)
+          expect(circles[2]?.hasAttribute('data-active')).toBe(false)
+        },
+      )
+    })
+  })
+
+  describe('progress bar', () => {
+    it('should not render progress bar when showProgress is false', async () => {
+      await usingAsync(await renderWizard([Step1, Step2]), async ({ wizard }) => {
+        const progressBar = wizard.querySelector('[data-testid="wizard-progress-bar"]')
+        expect(progressBar).toBeNull()
+      })
+    })
+
+    it('should render progress bar when showProgress is true', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, { showProgress: true }),
+        async ({ wizard }) => {
+          const progressBar = wizard.querySelector('[data-testid="wizard-progress-bar"]')
+          expect(progressBar).toBeTruthy()
+        },
+      )
+    })
+
+    it('should start at 0% on first step', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, { showProgress: true }),
+        async ({ wizard }) => {
+          const fill = wizard.querySelector('.wizard-progress-fill') as HTMLElement
+          expect(fill?.style.width).toBe('0%')
+        },
+      )
+    })
+
+    it('should update progress on navigation', async () => {
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, { showProgress: true }),
+        async ({ wizard, clickNext }) => {
+          await clickNext()
+          const fill = wizard.querySelector('.wizard-progress-fill') as HTMLElement
+          expect(fill?.style.width).toBe('50%')
+
+          await clickNext()
+          const fill2 = wizard.querySelector('.wizard-progress-fill') as HTMLElement
+          expect(fill2?.style.width).toBe('100%')
+        },
+      )
     })
   })
 

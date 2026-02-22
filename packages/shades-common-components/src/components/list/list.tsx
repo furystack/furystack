@@ -2,11 +2,21 @@ import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import type { ListService } from '../../services/list-service.js'
+import { Pagination } from '../pagination.js'
 import { ListItem } from './list-item.js'
 
 export type ListItemState = {
   isFocused: boolean
   isSelected: boolean
+}
+
+export type ListPaginationProps = {
+  /** Number of items to display per page */
+  itemsPerPage: number
+  /** Current page (1-indexed) */
+  page: number
+  /** Callback fired when the page changes */
+  onPageChange: (page: number) => void
 }
 
 export type ListProps<T> = {
@@ -18,6 +28,8 @@ export type ListProps<T> = {
   variant?: 'contained' | 'outlined'
   onItemActivate?: (item: T) => void
   onSelectionChange?: (selected: T[]) => void
+  /** Optional pagination configuration. When provided, items are sliced and a Pagination control is rendered. */
+  pagination?: ListPaginationProps
 } & PartialElement<HTMLDivElement>
 
 export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
@@ -26,6 +38,11 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     display: 'block',
     width: '100%',
     overflow: 'auto',
+    '& .shade-list-pagination': {
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '8px 0',
+    },
   },
   render: ({ props, useDisposable, useHostProps, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('listWrapper')
@@ -45,7 +62,20 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
       return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
     })
 
-    props.listService.items.setValue(props.items)
+    const { pagination } = props
+    let visibleItems: typeof props.items
+    let pageCount = 1
+
+    if (pagination) {
+      const { itemsPerPage, page } = pagination
+      pageCount = Math.ceil(props.items.length / itemsPerPage)
+      const startIndex = (page - 1) * itemsPerPage
+      visibleItems = props.items.slice(startIndex, startIndex + itemsPerPage)
+    } else {
+      visibleItems = props.items
+    }
+
+    props.listService.items.setValue(visibleItems)
 
     useDisposable(
       'clickAway',
@@ -69,24 +99,31 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     })
 
     return (
-      <div
-        ref={wrapperRef}
-        role="listbox"
-        ariaMultiSelectable="true"
-        className="shade-list-wrapper"
-        onclick={() => props.listService.hasFocus.setValue(true)}
-      >
-        {props.items.map((item) => (
-          <ListItem
-            item={item}
-            listService={props.listService}
-            renderItem={props.renderItem}
-            renderIcon={props.renderIcon}
-            renderSecondaryActions={props.renderSecondaryActions}
-            onActivate={props.onItemActivate}
-          />
-        ))}
-      </div>
+      <>
+        <div
+          ref={wrapperRef}
+          role="listbox"
+          ariaMultiSelectable="true"
+          className="shade-list-wrapper"
+          onclick={() => props.listService.hasFocus.setValue(true)}
+        >
+          {visibleItems.map((item) => (
+            <ListItem
+              item={item}
+              listService={props.listService}
+              renderItem={props.renderItem}
+              renderIcon={props.renderIcon}
+              renderSecondaryActions={props.renderSecondaryActions}
+              onActivate={props.onItemActivate}
+            />
+          ))}
+        </div>
+        {pagination && pageCount > 1 && (
+          <div className="shade-list-pagination">
+            <Pagination count={pageCount} page={pagination.page} onPageChange={pagination.onPageChange} size="small" />
+          </div>
+        )}
+      </>
     )
   },
 })

@@ -54,7 +54,7 @@ export interface DataGridProps<T, Column extends string> {
   /**
    * Optional style overrides for the grid
    */
-  styles: GridProps<T, Column>['styles']
+  styles?: GridProps<T, Column>['styles']
   /**
    * A collection service to use for data source
    */

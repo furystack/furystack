@@ -1,5 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import type { InputValidationResult } from '../inputs/input.js'
+import { FormService } from '../form.js'
 
 const DEFAULT_MAX_IMAGE_SIZE = 256 * 1024
 
@@ -20,6 +22,14 @@ export type MarkdownInputProps = {
   labelTitle?: string
   /** Number of visible text rows */
   rows?: number
+  /** Form field name for FormService integration */
+  name?: string
+  /** Whether the field is required */
+  required?: boolean
+  /** Custom validation callback */
+  getValidationResult?: (options: { value: string }) => InputValidationResult
+  /** Optional helper text callback */
+  getHelperText?: (options: { value: string; validationResult?: InputValidationResult }) => JSX.Element | string
 }
 
 /**
@@ -53,6 +63,11 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
       color: cssVariableTheme.palette.primary.main,
     },
 
+    '&[data-invalid] label': {
+      borderColor: cssVariableTheme.palette.error.main,
+      color: cssVariableTheme.palette.error.main,
+    },
+
     '& textarea': {
       border: 'none',
       backgroundColor: 'transparent',
@@ -71,14 +86,60 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
     '&:focus-within textarea': {
       boxShadow: `0px 3px 0px ${cssVariableTheme.palette.primary.main}`,
     },
+
+    '&[data-invalid]:focus-within textarea': {
+      boxShadow: `0px 3px 0px ${cssVariableTheme.palette.error.main}`,
+    },
+
+    '& .helperText': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+      marginTop: '6px',
+      opacity: '0.85',
+      lineHeight: '1.4',
+    },
   },
-  render: ({ props, useHostProps, useRef }) => {
+  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const maxSize = props.maxImageSizeBytes ?? DEFAULT_MAX_IMAGE_SIZE
     const textareaRef = useRef<HTMLTextAreaElement>('textarea')
 
+    useDisposable('form-registration', () => {
+      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      if (formService) {
+        queueMicrotask(() => {
+          if (textareaRef.current) formService.inputs.add(textareaRef.current as unknown as HTMLInputElement)
+        })
+      }
+      return {
+        [Symbol.dispose]: () => {
+          if (textareaRef.current && formService)
+            formService.inputs.delete(textareaRef.current as unknown as HTMLInputElement)
+        },
+      }
+    })
+
+    const validationResult = props.getValidationResult?.({ value: props.value })
+    const isRequired = props.required && !props.value
+    const isInvalid = validationResult?.isValid === false || isRequired
+
+    if (injector.cachedSingletons.has(FormService) && props.name) {
+      const formService = injector.getInstance(FormService)
+      const fieldResult: InputValidationResult = isRequired
+        ? { isValid: false, message: 'Value is required' }
+        : validationResult || { isValid: true }
+      const validity = textareaRef.current?.validity ?? ({} as ValidityState)
+      formService.setFieldState(props.name as keyof unknown, fieldResult, validity)
+    }
+
     useHostProps({
       'data-disabled': props.disabled ? '' : undefined,
+      'data-invalid': isInvalid ? '' : undefined,
     })
+
+    const helperNode =
+      (validationResult?.isValid === false && validationResult?.message) ||
+      (isRequired && 'Value is required') ||
+      props.getHelperText?.({ value: props.value, validationResult }) ||
+      ''
 
     const handleInput = (ev: Event) => {
       const target = ev.target as HTMLTextAreaElement
@@ -129,6 +190,8 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
         {props.labelTitle ? <span>{props.labelTitle}</span> : null}
         <textarea
           ref={textareaRef}
+          name={props.name}
+          required={props.required}
           value={props.value}
           oninput={handleInput}
           onpaste={handlePaste}
@@ -137,6 +200,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
           placeholder={props.placeholder}
           rows={props.rows ?? 10}
         />
+        {helperNode ? <span className="helperText">{helperNode}</span> : null}
       </label>
     )
   },
