@@ -59,6 +59,7 @@ type ModelRegistration = {
 
 type QueryCacheEntry = {
   result: unknown[]
+  count: number
   timestamp: number
 }
 
@@ -348,10 +349,7 @@ export class SubscriptionManager implements Disposable {
 
     if (!this.subscriptions.has(sub.subscriptionId)) return
 
-    const [results, totalCount] = await Promise.all([
-      this.queryWithCache(sub, registration),
-      registration.countEntities(sub.clientInjector, sub.filter),
-    ])
+    const { result: results, count: totalCount } = await this.queryWithCache(sub, registration)
 
     const newEntities = new Map<unknown, unknown>()
     for (const entity of results) {
@@ -415,26 +413,32 @@ export class SubscriptionManager implements Disposable {
     return hasChange ? change : null
   }
 
-  private async queryWithCache(sub: CollectionSubscription, registration: ModelRegistration): Promise<unknown[]> {
+  private async queryWithCache(
+    sub: CollectionSubscription,
+    registration: ModelRegistration,
+  ): Promise<{ result: unknown[]; count: number }> {
     if (registration.queryTtlMs > 0) {
       const cached = this.queryCache.get(sub.subscriptionId)
       if (cached && Date.now() - cached.timestamp < registration.queryTtlMs) {
-        return cached.result
+        return { result: cached.result, count: cached.count }
       }
     }
 
-    const result = await registration.findEntities(sub.clientInjector, {
-      filter: sub.filter,
-      top: sub.top,
-      skip: sub.skip,
-      order: sub.order,
-    })
+    const [result, count] = await Promise.all([
+      registration.findEntities(sub.clientInjector, {
+        filter: sub.filter,
+        top: sub.top,
+        skip: sub.skip,
+        order: sub.order,
+      }),
+      registration.countEntities(sub.clientInjector, sub.filter),
+    ])
 
     if (registration.queryTtlMs > 0) {
-      this.queryCache.set(sub.subscriptionId, { result, timestamp: Date.now() })
+      this.queryCache.set(sub.subscriptionId, { result, count, timestamp: Date.now() })
     }
 
-    return result
+    return { result, count }
   }
 
   private sendMessage(socket: WebSocket, message: ServerSyncMessage): void {
