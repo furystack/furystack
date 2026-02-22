@@ -89,6 +89,19 @@ export type ToggleButtonProps = PartialElement<HTMLButtonElement> & {
   value: string
   /** Whether the button is disabled */
   disabled?: boolean
+  /**
+   * The size of the toggle button.
+   * @default 'medium'
+   */
+  size?: 'small' | 'medium' | 'large'
+  /**
+   * Whether the button is in a pressed (selected) state.
+   * Use this for standalone toggle buttons or controlled state.
+   * When used inside a `ToggleButtonGroup`, the group manages the
+   * pressed state automatically via its `value` prop and will
+   * override this attribute.
+   */
+  pressed?: boolean
 }
 
 export const ToggleButton = Shade<ToggleButtonProps>({
@@ -111,12 +124,16 @@ export const ToggleButton = Shade<ToggleButtonProps>({
     userSelect: 'none',
     background: 'transparent',
     color: 'var(--toggle-color-main)',
-    boxShadow: '0px 0px 0px 1px var(--toggle-color-main)',
+    boxShadow: 'none',
     transition: buildTransition(
       ['background', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
       ['color', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
       ['box-shadow', cssVariableTheme.transitions.duration.normal, cssVariableTheme.transitions.easing.default],
     ),
+
+    '&[data-grouped]': {
+      boxShadow: '0px 0px 0px 1px var(--toggle-color-main)',
+    },
 
     '&:hover:not(:disabled):not([data-selected])': {
       background: 'color-mix(in srgb, var(--toggle-color-main) 10%, transparent)',
@@ -140,11 +157,27 @@ export const ToggleButton = Shade<ToggleButtonProps>({
     '&:active:not(:disabled)': {
       transform: 'scale(0.96)',
     },
+
+    '&[data-size="small"]': {
+      padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+    },
+
+    '&[data-size="large"]': {
+      padding: `${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.xl}`,
+      fontSize: cssVariableTheme.typography.fontSize.lg,
+    },
   },
   render: ({ props, children, useHostProps }) => {
     useHostProps({
       'data-value': props.value || undefined,
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
+      'data-selected': props.pressed ? '' : undefined,
       type: 'button',
+      style: {
+        '--toggle-color-main': cssVariableTheme.text.secondary,
+        ...(props.style as Record<string, string>),
+      },
     })
 
     return <>{children}</>
@@ -171,6 +204,12 @@ export type ToggleButtonGroupProps = PartialElement<HTMLElement> & {
   orientation?: 'horizontal' | 'vertical'
   /** Whether all toggle buttons are disabled */
   disabled?: boolean
+  /**
+   * Size applied to all toggle buttons in the group.
+   * Individual ToggleButton `size` props are overridden by this value.
+   * @default 'medium'
+   */
+  size?: 'small' | 'medium' | 'large'
 }
 
 export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: ChildrenList) => JSX.Element =
@@ -228,7 +267,7 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
         return { [Symbol.dispose]: () => el?.removeEventListener('click', handleClick) }
       })
 
-      const { orientation = 'horizontal', disabled, color, style } = props
+      const { orientation = 'horizontal', disabled, color, size, style } = props
       const selectedValues = Array.isArray(props.value) ? props.value : props.value ? [props.value] : ([] as string[])
 
       const colors = color ? paletteFullColors[color] : defaultToggleColors
@@ -256,8 +295,16 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
             btn.removeAttribute('data-selected')
           }
 
+          btn.setAttribute('data-grouped', '')
+
           if (disabled) {
             btn.setAttribute('disabled', '')
+          }
+
+          if (size && size !== 'medium') {
+            btn.setAttribute('data-size', size)
+          } else if (size === 'medium') {
+            btn.removeAttribute('data-size')
           }
 
           // Propagate color CSS variable

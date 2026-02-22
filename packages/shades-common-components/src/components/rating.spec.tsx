@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { Rating } from './rating.js'
@@ -25,7 +25,7 @@ describe('Rating', () => {
         jsxElement: <Rating />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const rating = document.querySelector('shade-rating')
       expect(rating).not.toBeNull()
@@ -42,7 +42,7 @@ describe('Rating', () => {
         jsxElement: <Rating />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const stars = document.querySelectorAll('shade-rating .rating-star')
       expect(stars.length).toBe(5)
@@ -59,7 +59,7 @@ describe('Rating', () => {
         jsxElement: <Rating max={10} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const stars = document.querySelectorAll('shade-rating .rating-star')
       expect(stars.length).toBe(10)
@@ -77,7 +77,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
@@ -98,7 +98,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={2.5} precision={0.5} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
@@ -119,7 +119,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={0} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         expect(filledSpans.length).toBe(5)
@@ -142,12 +142,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={0} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stars = document.querySelectorAll('shade-rating .rating-star')
         ;(stars[2] as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(3)
       })
@@ -164,12 +164,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={0} onValueChange={onchange} disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stars = document.querySelectorAll('shade-rating .rating-star')
         ;(stars[2] as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -186,12 +186,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} readOnly />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stars = document.querySelectorAll('shade-rating .rating-star')
         ;(stars[0] as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -210,12 +210,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(4)
       })
@@ -232,12 +232,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(2)
       })
@@ -254,12 +254,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} precision={0.5} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(3.5)
       })
@@ -276,12 +276,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={5} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -298,12 +298,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={0} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -321,7 +321,7 @@ describe('Rating', () => {
           jsxElement: <Rating disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.hasAttribute('data-disabled')).toBe(true)
@@ -339,7 +339,7 @@ describe('Rating', () => {
           jsxElement: <Rating />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.hasAttribute('data-disabled')).toBe(false)
@@ -358,7 +358,7 @@ describe('Rating', () => {
           jsxElement: <Rating readOnly />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.hasAttribute('data-readonly')).toBe(true)
@@ -378,7 +378,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={1} icon="❤️" emptyIcon="🤍" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const emptySpans = document.querySelectorAll('shade-rating .star-empty')
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
@@ -400,7 +400,7 @@ describe('Rating', () => {
           jsxElement: <Rating size="large" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('data-size')).toBe('large')
@@ -417,7 +417,7 @@ describe('Rating', () => {
           jsxElement: <Rating />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('data-size')).toBe('medium')
@@ -436,7 +436,7 @@ describe('Rating', () => {
           jsxElement: <Rating />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -454,7 +454,7 @@ describe('Rating', () => {
           jsxElement: <Rating color="primary" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -474,7 +474,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} max={5} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('role')).toBe('slider')
@@ -495,7 +495,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} max={5} readOnly />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('role')).toBe('img')
@@ -516,7 +516,7 @@ describe('Rating', () => {
           jsxElement: <Rating name="userRating" value={4} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-rating input[type="hidden"]') as HTMLInputElement
         expect(input).not.toBeNull()
@@ -535,7 +535,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={4} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-rating input[type="hidden"]')
         expect(input).toBeNull()
@@ -555,12 +555,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} max={5} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(5)
       })
@@ -577,12 +577,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(0)
       })
@@ -599,12 +599,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={2} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(3)
       })
@@ -621,12 +621,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith(2)
       })
@@ -643,12 +643,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -665,12 +665,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} disabled onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -687,12 +687,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} readOnly onValueChange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const ratingEl = document.querySelector('shade-rating') as HTMLElement
         ratingEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).not.toHaveBeenCalled()
       })
@@ -710,12 +710,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={2} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const container = document.querySelector('shade-rating .rating-container') as HTMLElement
         container.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
@@ -734,7 +734,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={1} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stars = document.querySelectorAll('shade-rating .rating-star')
         const star4 = stars[3] as HTMLElement
@@ -748,7 +748,7 @@ describe('Rating', () => {
           }),
         )
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         // Stars 0-3 should be filled (hover value = 4)
@@ -770,12 +770,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={1} disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const stars = document.querySelectorAll('shade-rating .rating-star')
         ;(stars[3] as HTMLElement).dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 100 }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         // Only first star should be filled (no hover effect)
@@ -794,12 +794,12 @@ describe('Rating', () => {
           jsxElement: <Rating value={2} disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const container = document.querySelector('shade-rating .rating-container') as HTMLElement
         container.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const filledSpans = document.querySelectorAll('shade-rating .star-filled')
         expect((filledSpans[0] as HTMLElement).style.width).toBe('100%')
@@ -820,7 +820,7 @@ describe('Rating', () => {
           jsxElement: <Rating size="small" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('data-size')).toBe('small')
@@ -839,7 +839,7 @@ describe('Rating', () => {
           jsxElement: <Rating readOnly value={3} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.getAttribute('aria-readonly')).toBe('true')
@@ -856,7 +856,7 @@ describe('Rating', () => {
           jsxElement: <Rating value={3} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.hasAttribute('aria-readonly')).toBe(false)

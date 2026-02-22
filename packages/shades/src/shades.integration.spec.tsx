@@ -323,11 +323,11 @@ describe('Shades integration tests', () => {
       }
       const expectCount = (count: number) => expect(document.body.innerHTML).toContain(`Count is ${count}`)
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expectCount(0)
 
-      await sleepAsync(100)
+      await flushUpdates()
       await plus()
       expectCount(1)
       expect(store.getItem('count')).toBe('1')
@@ -383,7 +383,7 @@ describe('Shades integration tests', () => {
 
       expectCount(0)
 
-      await sleepAsync(100)
+      await flushUpdates()
       await plus()
       expectCount(1)
       expect(location.search).toBe(`?${serializeToQueryString({ count: 1 })}`)
@@ -521,7 +521,6 @@ describe('Shades integration tests', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       const innerInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement
       expect(innerInput).toBeTruthy()
@@ -531,9 +530,6 @@ describe('Shades integration tests', () => {
       const toggleBtn = document.getElementById('toggle-disabled') as HTMLButtonElement
       toggleBtn.click()
 
-      // Wait for parent re-render + child re-render (two microtask levels)
-      await flushUpdates()
-      await flushUpdates()
       await flushUpdates()
 
       const updatedInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Skeleton } from './skeleton.js'
 
@@ -56,7 +56,8 @@ describe('Skeleton', () => {
         jsxElement: <Skeleton />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
       const skeleton = document.querySelector('shade-skeleton')
       expect(skeleton).not.toBeNull()
@@ -87,7 +88,8 @@ describe('Skeleton', () => {
         jsxElement: <Skeleton delay={500} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
       const fadeInCall = animateCalls.find(
         (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'opacity' in kf),
@@ -108,7 +110,8 @@ describe('Skeleton', () => {
         jsxElement: <Skeleton delay={100} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
       const fadeInCall = animateCalls.find(
         (call) =>
@@ -138,7 +141,8 @@ describe('Skeleton', () => {
         jsxElement: <Skeleton delay={0} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
+      await new Promise<void>((resolve) => setTimeout(resolve, 50))
 
       const backgroundAnimation = animateCalls.find(
         (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'backgroundPosition' in kf),

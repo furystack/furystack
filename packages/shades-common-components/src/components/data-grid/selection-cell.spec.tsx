@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { SelectionCell } from './selection-cell.js'
@@ -24,7 +24,7 @@ describe('SelectionCell', () => {
       rootElement: root,
       jsxElement: <SelectionCell entry={entry} service={service} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       cell: root.querySelector('shades-data-grid-selection-cell') as HTMLElement,
@@ -76,12 +76,12 @@ describe('SelectionCell', () => {
           expect(getCheckbox()?.checked).toBe(false)
 
           service.selection.setValue([entry])
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(getCheckbox()?.checked).toBe(true)
 
           service.selection.setValue([])
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(getCheckbox()?.checked).toBe(false)
         })
@@ -109,7 +109,7 @@ describe('SelectionCell', () => {
 
           const checkbox = getCheckbox()
           checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(service.selection.getValue()).toContain(entry)
         })
@@ -125,7 +125,7 @@ describe('SelectionCell', () => {
 
           const checkbox = getCheckbox()
           checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(service.selection.getValue()).not.toContain(entry)
         })
@@ -140,7 +140,7 @@ describe('SelectionCell', () => {
         await usingAsync(await renderSelectionCell(entry, service), async ({ getCheckbox }) => {
           const checkbox = getCheckbox()
           checkbox?.dispatchEvent(new Event('change', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(service.selection.getValue()).toContain(entry)
           expect(service.selection.getValue()).toContain(otherEntry)

@@ -20,11 +20,24 @@ export const DataGridFooter: <T>(props: {
       bottom: '0',
       display: 'flex',
       justifyContent: 'flex-end',
-      padding: '1em',
+      padding: '8px 12px',
       alignItems: 'center',
+      gap: '16px',
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '& .pager-section': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
     },
     '& select': {
-      margin: '0 1em',
+      padding: '4px 8px',
+      borderRadius: cssVariableTheme.shape.borderRadius.sm,
+      border: `1px solid ${cssVariableTheme.divider}`,
+      background: cssVariableTheme.background.default,
+      color: cssVariableTheme.text.primary,
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+      cursor: 'pointer',
     },
   },
   render: ({ props, useObservable }) => {
@@ -48,8 +61,8 @@ export const DataGridFooter: <T>(props: {
     return (
       <div className="pager">
         {currentEntriesPerPage !== Infinity && (
-          <div>
-            Goto page
+          <div className="pager-section">
+            <span>Page</span>
             <select
               onchange={(ev) => {
                 const value = parseInt((ev.target as HTMLInputElement).value, 10)
@@ -62,10 +75,11 @@ export const DataGridFooter: <T>(props: {
                 </option>
               ))}
             </select>
+            <span>of {pages.length}</span>
           </div>
         )}
-        <div>
-          Show
+        <div className="pager-section">
+          <span>Rows per page</span>
           <select
             onchange={(ev) => {
               const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
@@ -78,11 +92,10 @@ export const DataGridFooter: <T>(props: {
           >
             {dataGridItemsPerPage.map((no) => (
               <option value={no.toString()} selected={no === currentEntriesPerPage}>
-                {no.toString()}
+                {no === Infinity ? 'All' : no.toString()}
               </option>
             ))}
           </select>
-          items per page
         </div>
       </div>
     )

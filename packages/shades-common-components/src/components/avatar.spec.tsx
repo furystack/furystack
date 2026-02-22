@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Avatar } from './avatar.js'
 
@@ -24,7 +24,7 @@ describe('Avatar component', () => {
         jsxElement: <Avatar avatarUrl={testUrl} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const avatar = document.querySelector('shade-avatar')
       expect(avatar).not.toBeNull()
@@ -46,7 +46,7 @@ describe('Avatar component', () => {
         jsxElement: <Avatar avatarUrl="invalid-url" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const avatar = document.querySelector('shade-avatar')
       expect(avatar).not.toBeNull()
@@ -58,7 +58,7 @@ describe('Avatar component', () => {
       const errorEvent = new Event('error')
       img?.dispatchEvent(errorEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       // After error, img should be replaced with fallback div
       const fallbackImg = avatar?.querySelector('img')
@@ -81,7 +81,7 @@ describe('Avatar component', () => {
         jsxElement: <Avatar avatarUrl="invalid-url" fallback={customFallback} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const avatar = document.querySelector('shade-avatar')
       expect(avatar).not.toBeNull()
@@ -93,7 +93,7 @@ describe('Avatar component', () => {
       const errorEvent = new Event('error')
       img?.dispatchEvent(errorEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       // After error, img should be replaced with fallback div
       const fallbackImg = avatar?.querySelector('img')
@@ -116,7 +116,7 @@ describe('Avatar component', () => {
         jsxElement: <Avatar avatarUrl="https://example.com/avatar.png" style={{ width: '64px', height: '64px' }} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const avatar = document.querySelector('shade-avatar') as HTMLElement
       expect(avatar).not.toBeNull()
@@ -135,7 +135,7 @@ describe('Avatar component', () => {
         jsxElement: <Avatar avatarUrl="https://example.com/avatar.png" className="custom-avatar" title="User Avatar" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const avatar = document.querySelector('shade-avatar') as HTMLElement
       expect(avatar).not.toBeNull()

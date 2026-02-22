@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { Form, FormService } from '../form.js'
@@ -26,7 +26,7 @@ describe('Input', () => {
         jsxElement: <Input />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shade-input')
       expect(input).not.toBeNull()
@@ -43,7 +43,7 @@ describe('Input', () => {
         jsxElement: <Input name="testField" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shade-input input') as HTMLInputElement
       expect(input).not.toBeNull()
@@ -61,7 +61,7 @@ describe('Input', () => {
         jsxElement: <Input labelTitle="Test Label" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-input label') as HTMLLabelElement
       expect(label).not.toBeNull()
@@ -80,7 +80,7 @@ describe('Input', () => {
           jsxElement: <Input variant="outlined" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input') as HTMLElement
         expect(input).not.toBeNull()
@@ -98,7 +98,7 @@ describe('Input', () => {
           jsxElement: <Input variant="contained" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input') as HTMLElement
         expect(input).not.toBeNull()
@@ -116,7 +116,7 @@ describe('Input', () => {
           jsxElement: <Input />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input') as HTMLElement
         expect(input).not.toBeNull()
@@ -136,7 +136,7 @@ describe('Input', () => {
           jsxElement: <Input disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input') as HTMLElement
         expect(input).not.toBeNull()
@@ -154,7 +154,7 @@ describe('Input', () => {
           jsxElement: <Input disabled={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input') as HTMLElement
         expect(input).not.toBeNull()
@@ -175,13 +175,13 @@ describe('Input', () => {
           jsxElement: <Input name="email" getValidationResult={getValidationResult} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.value = 'test@example.com'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getValidationResult).toHaveBeenCalled()
       })
@@ -203,14 +203,14 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
         input.value = 'invalid'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(inputWrapper.hasAttribute('data-invalid')).toBe(true)
       })
@@ -226,14 +226,14 @@ describe('Input', () => {
           jsxElement: <Input name="email" getValidationResult={() => ({ isValid: true })} value="valid@email.com" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
         input.value = 'valid@email.com'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(inputWrapper.hasAttribute('data-invalid')).toBe(false)
       })
@@ -251,14 +251,14 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
         input.value = ''
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
         expect(helperText.textContent).toBe('Email is required')
@@ -275,7 +275,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" required />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
@@ -283,7 +283,7 @@ describe('Input', () => {
         const invalidEvent = new Event('invalid', { bubbles: true, cancelable: true })
         input.dispatchEvent(invalidEvent)
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
         expect(helperText.textContent).toBe('Value is required')
@@ -302,7 +302,7 @@ describe('Input', () => {
           jsxElement: <Input name="email" getHelperText={() => 'Enter your email address'} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
@@ -324,13 +324,13 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.value = 'test'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getHelperText).toHaveBeenCalled()
 
@@ -363,13 +363,13 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.value = 'test'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
@@ -390,7 +390,7 @@ describe('Input', () => {
           jsxElement: <Input name="search" getStartIcon={() => '🔍'} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const startIcon = inputWrapper.querySelector('.startIcon') as HTMLElement
@@ -410,7 +410,7 @@ describe('Input', () => {
           jsxElement: <Input name="password" getEndIcon={() => '👁️'} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const endIcon = inputWrapper.querySelector('.endIcon') as HTMLElement
@@ -430,7 +430,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const startIcon = inputWrapper.querySelector('.startIcon')
@@ -449,7 +449,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" getEndIcon={({ state }) => (state.focused ? '✓' : '○')} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
@@ -458,7 +458,7 @@ describe('Input', () => {
         expect(endIcon.textContent).toBe('○')
 
         input.dispatchEvent(new FocusEvent('focus'))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(endIcon.textContent).toBe('✓')
       })
@@ -476,7 +476,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
 
@@ -498,7 +498,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" defaultColor="secondary" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
 
@@ -522,13 +522,13 @@ describe('Input', () => {
           jsxElement: <Input name="field" onTextChange={onTextChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.value = 'new value'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onTextChange).toHaveBeenCalledWith('new value')
       })
@@ -545,13 +545,13 @@ describe('Input', () => {
           jsxElement: <Input name="field" onchange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.value = 'test'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalled()
       })
@@ -570,12 +570,12 @@ describe('Input', () => {
           jsxElement: <Input name="field" getEndIcon={getEndIcon} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         input.dispatchEvent(new FocusEvent('focus'))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getEndIcon).toHaveBeenLastCalledWith(
           expect.objectContaining({
@@ -598,15 +598,15 @@ describe('Input', () => {
           jsxElement: <Input name="field" getEndIcon={getEndIcon} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
 
         input.dispatchEvent(new FocusEvent('focus'))
-        await sleepAsync(50)
+        await flushUpdates()
 
         input.dispatchEvent(new FocusEvent('blur'))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getEndIcon).toHaveBeenLastCalledWith(
           expect.objectContaining({
@@ -631,7 +631,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" autofocus getEndIcon={getEndIcon} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getEndIcon).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -661,7 +661,7 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -696,7 +696,7 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const inputWrapper = form.querySelector('shade-input') as HTMLElement
@@ -705,7 +705,7 @@ describe('Input', () => {
         input.value = 'invalid'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const formInjector = (form as unknown as { injector: Injector }).injector
         const formService = formInjector.getInstance(FormService)
@@ -735,7 +735,7 @@ describe('Input', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -745,7 +745,7 @@ describe('Input', () => {
 
         rootElement.innerHTML = ''
 
-        await sleepAsync(50)
+        await flushUpdates()
       })
     })
   })
@@ -761,7 +761,7 @@ describe('Input', () => {
           jsxElement: <Input name="email" type="email" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
@@ -770,7 +770,7 @@ describe('Input', () => {
         const invalidEvent = new Event('invalid', { bubbles: true, cancelable: true })
         input.dispatchEvent(invalidEvent)
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
         expect(helperText.textContent).toBe('Value is not valid')
@@ -787,7 +787,7 @@ describe('Input', () => {
           jsxElement: <Input name="code" pattern="[A-Z]{3}" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
         const input = inputWrapper.querySelector('input') as HTMLInputElement
@@ -796,7 +796,7 @@ describe('Input', () => {
         const invalidEvent = new Event('invalid', { bubbles: true, cancelable: true })
         input.dispatchEvent(invalidEvent)
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const helperText = inputWrapper.querySelector('.helperText') as HTMLElement
         expect(helperText.textContent).toBe('Value does not match the pattern')
@@ -815,7 +815,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" value="initial value" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-input input') as HTMLInputElement
         expect(input.value).toBe('initial value')
@@ -834,7 +834,7 @@ describe('Input', () => {
           jsxElement: <Input name="field" labelProps={{ className: 'custom-label' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const label = document.querySelector('shade-input label') as HTMLLabelElement
         expect(label.className).toContain('custom-label')

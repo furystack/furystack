@@ -95,7 +95,7 @@ test.describe('Data Grid component', () => {
     await expectSelectionCount(page, 3)
     await expectRowIsSelected(page, 1, 2, 3)
 
-    await expect(page.locator('shade-data-grid')).toHaveScreenshot('grid-with-selection.png')
+    await expect(page.locator('shade-data-grid thead')).toHaveScreenshot('grid-header.png')
 
     // Deselect row 2
     await page.keyboard.press('ArrowUp')
@@ -205,5 +205,93 @@ test.describe('Data Grid component', () => {
     }
     await expectRowHasFocus(page, 70)
     await expectRowIsInViewport(page, 70)
+  })
+
+  test('filtering: column filters user journey', async ({ page }) => {
+    await page.goto('/data-display/grid')
+
+    const rows = page.locator('shades-data-grid-row')
+    const TOTAL_ROWS = 100
+
+    await expect(rows).toHaveCount(TOTAL_ROWS, { timeout: 10000 })
+
+    // Columns: 0:id, 1:name, 2:type, 3:rarity, 4:level, 5:weight, 6:isQuestItem, 7:discoveredAt, 8:customAction
+    const openFilterDropdown = async (columnIndex: number) => {
+      const th = page.locator('th').nth(columnIndex)
+      await th.locator('data-grid-filter-button').locator('button').click()
+      await expect(page.locator('.filter-dropdown-panel.visible')).toBeVisible({ timeout: 2000 })
+    }
+
+    const dropdown = () => page.locator('.filter-dropdown-panel.visible')
+
+    // --- STRING FILTER on "name" (column 1) ---
+    await openFilterDropdown(1)
+    await page.locator('[data-testid="string-filter-value"]').fill('Scroll')
+    await dropdown().getByText('Apply').click()
+
+    await expect(rows).not.toHaveCount(TOTAL_ROWS)
+    let filteredCount = await rows.count()
+    expect(filteredCount).toBeGreaterThan(0)
+
+    await openFilterDropdown(1)
+    await dropdown().getByText('Clear').click()
+    await expect(rows).toHaveCount(TOTAL_ROWS)
+
+    // --- NUMBER FILTER on "level" (column 4) ---
+    await openFilterDropdown(4)
+    await dropdown().getByText('>', { exact: true }).click()
+    await page.locator('[data-testid="number-filter-value"]').fill('30')
+    await dropdown().getByText('Apply').click()
+
+    await expect(rows).not.toHaveCount(TOTAL_ROWS)
+    filteredCount = await rows.count()
+    expect(filteredCount).toBeGreaterThan(0)
+
+    await openFilterDropdown(4)
+    await dropdown().getByText('Clear').click()
+    await expect(rows).toHaveCount(TOTAL_ROWS)
+
+    // --- BOOLEAN FILTER on "isQuestItem" (column 6) ---
+    // Boolean filter applies immediately on selection (no Apply button)
+    await openFilterDropdown(6)
+    await dropdown().getByText('True', { exact: true }).click()
+
+    await expect(rows).not.toHaveCount(TOTAL_ROWS)
+    filteredCount = await rows.count()
+    expect(filteredCount).toBeGreaterThan(0)
+
+    // Clear by selecting "Any"
+    await openFilterDropdown(6)
+    await dropdown().getByText('Any', { exact: true }).click()
+    await expect(rows).toHaveCount(TOTAL_ROWS)
+
+    // --- ENUM FILTER on "type" (column 2) ---
+    await openFilterDropdown(2)
+    await dropdown().getByText('weapon', { exact: true }).click()
+    await dropdown().getByText('Apply').click()
+
+    await expect(rows).not.toHaveCount(TOTAL_ROWS)
+    filteredCount = await rows.count()
+    expect(filteredCount).toBeGreaterThan(0)
+
+    await openFilterDropdown(2)
+    await dropdown().getByText('Clear').click()
+    await expect(rows).toHaveCount(TOTAL_ROWS)
+
+    // --- DATE FILTER on "discoveredAt" (column 7) ---
+    // Items have discoveredAt dates within the past year. Use "After" mode
+    // with a date ~6 months ago so roughly half the items match.
+    await openFilterDropdown(7)
+    await dropdown().getByText('After', { exact: true }).click()
+    await page.locator('[data-testid="date-filter-value"]').fill('2025-08-01T00:00')
+    await dropdown().getByText('Apply').click()
+
+    await expect(rows).not.toHaveCount(TOTAL_ROWS)
+    filteredCount = await rows.count()
+    expect(filteredCount).toBeGreaterThan(0)
+
+    await openFilterDropdown(7)
+    await dropdown().getByText('Clear').click()
+    await expect(rows).toHaveCount(TOTAL_ROWS)
   })
 })

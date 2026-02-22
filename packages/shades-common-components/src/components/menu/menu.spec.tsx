@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MenuEntry } from './menu-types.js'
 import { Menu } from './menu.js'
@@ -29,7 +29,7 @@ describe('Menu', () => {
       rootElement: root,
       jsxElement: <Menu {...props} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       menu: root.querySelector('shade-menu') as HTMLElement,
@@ -219,7 +219,7 @@ describe('Menu', () => {
         const groupLabel = menu.querySelector('.menu-group-label-inline') as HTMLElement
         expect(groupLabel).toBeTruthy()
         groupLabel.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const groupItems = menu.querySelectorAll('[role="menuitem"]')
         expect(groupItems.length).toBe(1)
@@ -239,7 +239,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems() }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem).toBeTruthy()
@@ -251,7 +251,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems(), mode: 'horizontal' }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem).toBeTruthy()
@@ -265,10 +265,10 @@ describe('Menu', () => {
         menu.focus()
         // Navigate to first item
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         // Press Enter
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         expect(handleSelect).toHaveBeenCalledWith('home')
       })
     })
@@ -277,7 +277,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems() }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('settings')
@@ -289,10 +289,10 @@ describe('Menu', () => {
         menu.focus()
         // Go to end first
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         // Then Home
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('home')
@@ -308,10 +308,10 @@ describe('Menu', () => {
         menu.focus()
         // Navigate to end
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         // One more down should wrap to first
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('a')
@@ -327,10 +327,10 @@ describe('Menu', () => {
         menu.focus()
         // Navigate to Home first
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         // One more up should wrap to last
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('b')
@@ -342,9 +342,9 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems(), onSelect: handleSelect }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         expect(handleSelect).toHaveBeenCalledWith('home')
       })
     })
@@ -354,11 +354,11 @@ describe('Menu', () => {
         menu.focus()
         // First go to end
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Then ArrowUp
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('about')
@@ -370,11 +370,11 @@ describe('Menu', () => {
         menu.focus()
         // First go to end
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Then ArrowLeft
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem?.getAttribute('data-key')).toBe('about')
@@ -386,7 +386,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems(), onSelect: handleSelect }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         expect(handleSelect).not.toHaveBeenCalled()
       })
     })
@@ -397,7 +397,7 @@ describe('Menu', () => {
         menu.focus()
         // Press Enter without navigating to any item first
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         expect(handleSelect).not.toHaveBeenCalled()
       })
     })
@@ -407,7 +407,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items }), async ({ menu }) => {
         menu.focus()
         menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         const focusedItem = menu.querySelector('.menu-item.focused')
         expect(focusedItem).toBeNull()
       })
@@ -419,7 +419,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items: createTestItems() }), async ({ menu }) => {
         const item = menu.querySelector('[data-key="about"]') as HTMLElement
         item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(item.classList.contains('focused')).toBe(true)
       })
@@ -430,7 +430,7 @@ describe('Menu', () => {
       await usingAsync(await renderMenu({ items }), async ({ menu }) => {
         const item = menu.querySelector('[data-key="disabled-item"]') as HTMLElement
         item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(item.classList.contains('focused')).toBe(false)
       })
@@ -452,13 +452,13 @@ describe('Menu', () => {
 
         // Expand
         groupLabel.click()
-        await sleepAsync(50)
+        await flushUpdates()
         const groupChildren = menu.querySelector('.menu-group-children') as HTMLElement
         expect(groupChildren.style.display).toBe('')
 
         // Collapse
         groupLabel.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(groupChildren.style.display).toBe('none')
       })
     })

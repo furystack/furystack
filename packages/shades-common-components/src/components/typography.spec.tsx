@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TypographyProps, TypographyVariant } from './typography.js'
 import { Typography } from './typography.js'
@@ -22,7 +22,7 @@ describe('Typography', () => {
       rootElement: root,
       jsxElement: <Typography {...props}>{children}</Typography>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       element: root.querySelector('shade-typography') as HTMLElement,

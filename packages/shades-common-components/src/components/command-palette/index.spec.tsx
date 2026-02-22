@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CommandPaletteSuggestionResult, CommandProvider } from './command-provider.js'
 import { CommandPalette } from './index.js'
@@ -9,6 +9,7 @@ describe('CommandPalette', () => {
   let originalAnimate: typeof Element.prototype.animate
 
   beforeEach(() => {
+    vi.useFakeTimers()
     document.body.innerHTML = '<div id="root"></div>'
 
     originalAnimate = Element.prototype.animate
@@ -29,6 +30,7 @@ describe('CommandPalette', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     document.body.innerHTML = ''
     Element.prototype.animate = originalAnimate
     vi.restoreAllMocks()
@@ -59,7 +61,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette')
         expect(commandPalette).not.toBeNull()
@@ -77,7 +79,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(document.body.innerHTML).toContain('>')
       })
@@ -93,7 +95,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shades-command-palette-input')
         expect(input).not.toBeNull()
@@ -110,7 +112,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const suggestionList = document.querySelector('shade-command-palette-suggestion-list')
         expect(suggestionList).not.toBeNull()
@@ -146,7 +148,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -155,11 +157,12 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Press ArrowDown
         triggerKeyup(input, 'ArrowDown')
-        await sleepAsync(50)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems[1]?.classList.contains('selected')).toBe(true)
@@ -182,7 +185,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -191,13 +194,14 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Navigate down then up
         triggerKeyup(input, 'ArrowDown')
-        await sleepAsync(50)
+        await flushUpdates()
         triggerKeyup(input, 'ArrowUp')
-        await sleepAsync(50)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems[0]?.classList.contains('selected')).toBe(true)
@@ -216,7 +220,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -224,13 +228,14 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Press ArrowDown multiple times
         triggerKeyup(input, 'ArrowDown')
         triggerKeyup(input, 'ArrowDown')
         triggerKeyup(input, 'ArrowDown')
-        await sleepAsync(50)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems[1]?.classList.contains('selected')).toBe(true)
@@ -249,7 +254,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -257,11 +262,12 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Press ArrowUp when already at first item
         triggerKeyup(input, 'ArrowUp')
-        await sleepAsync(50)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems[0]?.classList.contains('selected')).toBe(true)
@@ -281,7 +287,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -289,11 +295,12 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Press Enter
         triggerKeyup(input, 'Enter')
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onSelected).toHaveBeenCalledTimes(1)
         expect(onSelected).toHaveBeenCalledWith(expect.objectContaining({ injector: expect.any(Injector) as unknown }))
@@ -325,14 +332,14 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
 
         // Open palette by clicking prefix
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(100) // Wait longer for the opened state to propagate
+        await flushUpdates() // Wait longer for the opened state to propagate
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
@@ -340,13 +347,14 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         // Click on first suggestion
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems.length).toBeGreaterThan(0)
         ;(suggestionItems[0] as HTMLElement).click()
-        await sleepAsync(100)
+        await flushUpdates()
 
         // Clicking a suggestion should close the palette
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
@@ -365,14 +373,14 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
 
         // Open palette
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
@@ -380,11 +388,11 @@ describe('CommandPalette', () => {
         input.value = 'test'
         triggerKeyup(input, 'a')
 
-        await sleepAsync(300)
+        await flushUpdates()
 
         // Select via Enter
         triggerKeyup(input, 'Enter')
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
@@ -416,7 +424,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider1, provider2]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -424,7 +432,8 @@ describe('CommandPalette', () => {
         input.value = 'search'
         triggerKeyup(input, 'h')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         expect(provider1).toHaveBeenCalled()
         expect(provider2).toHaveBeenCalled()
@@ -444,7 +453,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider1, provider2]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -452,7 +461,8 @@ describe('CommandPalette', () => {
         input.value = 'search'
         triggerKeyup(input, 'h')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems.length).toBe(2)
@@ -477,7 +487,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -485,7 +495,8 @@ describe('CommandPalette', () => {
         input.value = 'search'
         triggerKeyup(input, 'h')
 
-        await sleepAsync(300)
+        await vi.advanceTimersByTimeAsync(300)
+        await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
         expect(suggestionItems.length).toBe(3)
@@ -509,14 +520,14 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
 
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(true)
       })
@@ -532,20 +543,20 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
 
         // Open first
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         // Close
         const closeButton = commandPalette.querySelector('.close-suggestions') as HTMLElement
         closeButton.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
@@ -568,7 +579,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const input = commandPalette.querySelector('input') as HTMLInputElement
@@ -578,11 +589,13 @@ describe('CommandPalette', () => {
         Object.defineProperty(event, 'target', { value: input, writable: false })
         input.dispatchEvent(event)
 
-        await sleepAsync(260) // After debounce but before provider resolves
+        await vi.advanceTimersByTimeAsync(260)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-loading')).toBe(true)
 
-        await sleepAsync(200) // Wait for provider to resolve
+        await vi.advanceTimersByTimeAsync(200)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-loading')).toBe(false)
       })
@@ -605,20 +618,20 @@ describe('CommandPalette', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
 
         // Open first
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(commandPalette.hasAttribute('data-opened')).toBe(true)
 
         // Click outside
         const outsideElement = document.getElementById('outside') as HTMLElement
         outsideElement.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
       })
@@ -636,7 +649,7 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" style={{ maxWidth: '500px' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
         const inputContainer = commandPalette.querySelector('.input-container') as HTMLElement
@@ -657,14 +670,14 @@ describe('CommandPalette', () => {
           jsxElement: <CommandPalette commandProviders={[provider]} defaultPrefix=">" fullScreenSuggestions />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
 
         // Open and search
         const termIcon = commandPalette.querySelector('.term-icon') as HTMLElement
         termIcon.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
@@ -672,7 +685,7 @@ describe('CommandPalette', () => {
         Object.defineProperty(event, 'target', { value: input, writable: false })
         input.dispatchEvent(event)
 
-        await sleepAsync(300)
+        await flushUpdates()
 
         const suggestionList = commandPalette.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const suggestionContainer = suggestionList.querySelector('.suggestion-items-container') as HTMLElement

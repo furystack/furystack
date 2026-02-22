@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defaultDarkTheme } from '../services/default-dark-theme.js'
 import type { NotyModel } from '../services/noty-service.js'
@@ -80,7 +80,7 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const noty = document.querySelector('shade-noty')
       expect(noty).not.toBeNull()
@@ -100,7 +100,7 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(document.body.innerHTML).toContain('Success Title')
       expect(document.body.innerHTML).toContain('Success message body')
@@ -119,7 +119,7 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const noty = document.querySelector('shade-noty') as HTMLElement
       expect(noty).not.toBeNull()
@@ -139,7 +139,7 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const dismissButton = document.querySelector('.dismiss-button')
       expect(dismissButton).not.toBeNull()
@@ -148,6 +148,7 @@ describe('NotyComponent', () => {
   })
 
   it('should call onDismiss when dismiss button is clicked', async () => {
+    vi.useFakeTimers()
     const onDismiss = vi.fn()
 
     Element.prototype.animate = vi.fn(
@@ -181,16 +182,17 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={onDismiss} />,
       })
 
-      await sleepAsync(50)
+      await vi.advanceTimersByTimeAsync(50)
 
       const dismissButton = document.querySelector('.dismiss-button') as HTMLButtonElement
       expect(dismissButton).not.toBeNull()
       dismissButton.click()
 
-      await sleepAsync(50)
+      await vi.advanceTimersByTimeAsync(50)
 
       expect(onDismiss).toHaveBeenCalled()
     })
+    vi.useRealTimers()
   })
 
   it('should start fade-in animation on mount', async () => {
@@ -363,7 +365,7 @@ describe('NotyComponent', () => {
           jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const noty = document.querySelector('shade-noty') as HTMLElement
         expect(noty).not.toBeNull()
@@ -384,7 +386,7 @@ describe('NotyComponent', () => {
         jsxElement: <NotyComponent model={model} onDismiss={() => {}} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const noty = document.querySelector('shade-noty') as HTMLElement
       expect(noty).not.toBeNull()
@@ -443,7 +445,7 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const notyList = document.querySelector('shade-noty-list')
       expect(notyList).not.toBeNull()
@@ -461,7 +463,7 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const notyList = document.querySelector('shade-noty-list') as HTMLElement
       expect(notyList).not.toBeNull()
@@ -491,7 +493,7 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(2)
@@ -510,7 +512,7 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(0)
@@ -518,7 +520,7 @@ describe('NotyList', () => {
       const newNoty: NotyModel = { type: 'warning', title: 'Warning', body: 'Warning message' }
       notyService.emit('onNotyAdded', newNoty)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(1)
@@ -541,14 +543,14 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(1)
 
       notyService.emit('onNotyRemoved', noty)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(0)
@@ -567,7 +569,7 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const noty1: NotyModel = { type: 'info', title: 'Info 1', body: 'Body 1' }
       const noty2: NotyModel = { type: 'success', title: 'Success 1', body: 'Body 2' }
@@ -577,14 +579,14 @@ describe('NotyList', () => {
       notyService.emit('onNotyAdded', noty2)
       notyService.emit('onNotyAdded', noty3)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(3)
 
       notyService.emit('onNotyRemoved', noty2)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(2)
@@ -592,7 +594,7 @@ describe('NotyList', () => {
       notyService.emit('onNotyRemoved', noty1)
       notyService.emit('onNotyRemoved', noty3)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(0)
@@ -617,11 +619,11 @@ describe('NotyList', () => {
         jsxElement: <NotyList />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       notyService.emit('onNotyRemoved', noty2)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const notys = document.querySelectorAll('shade-noty')
       expect(notys.length).toBe(1)

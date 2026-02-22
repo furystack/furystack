@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LayoutService } from '../../services/layout-service.js'
 import { DrawerToggleButton } from './drawer-toggle-button.js'
@@ -37,7 +37,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('shade-drawer-toggle-button')
         expect(element).not.toBeNull()
         expect(element?.tagName.toLowerCase()).toBe('shade-drawer-toggle-button')
@@ -56,7 +56,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('button')
         expect(button).not.toBeNull()
       })
@@ -74,7 +74,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const hamburger = document.querySelector('.hamburger')
         expect(hamburger).not.toBeNull()
 
@@ -102,7 +102,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('[data-testid="drawer-toggle-left"]') as HTMLButtonElement
         expect(button).not.toBeNull()
         // Button is rendered, aria-label is set in JSX (may not be visible in JSDOM)
@@ -121,7 +121,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" ariaLabel="Toggle navigation menu" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('[data-testid="drawer-toggle-left"]') as HTMLButtonElement
         expect(button).not.toBeNull()
         // Button is rendered with custom ariaLabel prop (may not be visible in JSDOM)
@@ -143,7 +143,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('[data-testid="drawer-toggle-left"]') as HTMLButtonElement
         expect(button).not.toBeNull()
 
@@ -153,7 +153,7 @@ describe('DrawerToggleButton component', () => {
 
         // Close drawer
         layoutService.setDrawerOpen('left', false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Verify hamburger doesn't have open class when drawer is closed
         hamburger = document.querySelector('.hamburger')
@@ -173,7 +173,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('button')
         expect(button?.getAttribute('type')).toBe('button')
       })
@@ -196,19 +196,19 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
 
         // Click the button
         const button = document.querySelector('button') as HTMLButtonElement
         button.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(layoutService.drawerState.getValue().left?.open).toBe(false)
 
         // Click again
         button.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
       })
@@ -229,13 +229,13 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="right" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         expect(layoutService.drawerState.getValue().right?.open).toBe(true)
 
         // Click the button
         const button = document.querySelector('button') as HTMLButtonElement
         button.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(layoutService.drawerState.getValue().right?.open).toBe(false)
       })
@@ -253,7 +253,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Should not throw when clicking even though drawer isn't initialized
         const button = document.querySelector('button') as HTMLButtonElement
@@ -278,7 +278,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const hamburger = document.querySelector('.hamburger')
         expect(hamburger?.classList.contains('open')).toBe(false)
       })
@@ -299,7 +299,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const hamburger = document.querySelector('.hamburger')
         expect(hamburger?.classList.contains('open')).toBe(true)
       })
@@ -320,13 +320,13 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         let hamburger = document.querySelector('.hamburger')
         expect(hamburger?.classList.contains('open')).toBe(true)
 
         // Close drawer via LayoutService
         layoutService.setDrawerOpen('left', false)
-        await sleepAsync(50)
+        await flushUpdates()
 
         hamburger = document.querySelector('.hamburger')
         expect(hamburger?.classList.contains('open')).toBe(false)
@@ -347,7 +347,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="left" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('[data-testid="drawer-toggle-left"]')
         expect(button).not.toBeNull()
       })
@@ -365,7 +365,7 @@ describe('DrawerToggleButton component', () => {
           jsxElement: <DrawerToggleButton position="right" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = document.querySelector('[data-testid="drawer-toggle-right"]')
         expect(button).not.toBeNull()
       })

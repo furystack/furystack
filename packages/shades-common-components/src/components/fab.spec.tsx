@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { Fab } from './fab.js'
@@ -22,7 +22,7 @@ describe('Fab', () => {
       rootElement: root,
       jsxElement: <Fab>{children}</Fab>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       fab: root.querySelector('button[is="shade-fab"]') as HTMLButtonElement,
@@ -107,7 +107,7 @@ describe('Fab', () => {
           rootElement: root,
           jsxElement: <Fab onclick={handleClick}>+</Fab>,
         })
-        await sleepAsync(50)
+        await flushUpdates()
         const fab = root.querySelector('button[is="shade-fab"]') as HTMLButtonElement
 
         fab.click()

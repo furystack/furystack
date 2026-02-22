@@ -532,19 +532,18 @@ describe('vnode', () => {
     })
 
     describe('Shade component boundaries', () => {
-      it('should call updateComponent on child Shade when props change', () => {
+      it('should call updateComponentSync on child Shade when props change', () => {
         const parent = document.createElement('div')
 
         const fakeShadeEl = document.createElement('my-shade') as unknown as JSX.Element
         const updateFn = vi.fn()
-        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponent = updateFn
+        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponentSync = updateFn
         ;(fakeShadeEl as unknown as Record<string, unknown>).props = { count: 1 }
         ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
 
         const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
 
         const old: VChild[] = [{ _brand: 'vnode', type: factory, props: { count: 1 }, children: [], _el: fakeShadeEl }]
-        // Simulate initial mount by manually appending
         parent.appendChild(fakeShadeEl)
 
         const updated: VChild[] = [{ _brand: 'vnode', type: factory, props: { count: 2 }, children: [] }]
@@ -554,13 +553,13 @@ describe('vnode', () => {
         expect(fakeShadeEl.props).toEqual({ count: 2 })
       })
 
-      it('should NOT call updateComponent when props are unchanged', () => {
+      it('should NOT call updateComponentSync when props are unchanged', () => {
         const parent = document.createElement('div')
 
         const fakeShadeEl = document.createElement('my-shade-2') as unknown as JSX.Element
         const updateFn = vi.fn()
         const props = { count: 1 }
-        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponent = updateFn
+        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponentSync = updateFn
         ;(fakeShadeEl as unknown as Record<string, unknown>).props = props
         ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
 

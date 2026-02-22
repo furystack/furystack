@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AppBar } from './app-bar.js'
 
@@ -23,7 +23,9 @@ describe('AppBar component', () => {
       jsxElement: <AppBar>{children}</AppBar>,
     })
 
-    await sleepAsync(50)
+    await flushUpdates()
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+    await flushUpdates()
 
     return {
       injector,
@@ -63,7 +65,7 @@ describe('AppBar component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const appBar = document.querySelector('shade-app-bar')
         expect(appBar).not.toBeNull()

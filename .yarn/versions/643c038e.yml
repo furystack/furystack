@@ -1,0 +1,9 @@
+releases:
+  "@furystack/shades": patch
+  "@furystack/shades-common-components": minor
+  "@furystack/shades-i18n": patch
+  "@furystack/shades-lottie": patch
+  "@furystack/shades-mfe": patch
+  "@furystack/shades-nipple": patch
+  "@furystack/shades-showcase-app": minor
+  furystack: patch

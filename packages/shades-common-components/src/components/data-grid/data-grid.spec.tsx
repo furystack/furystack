@@ -1,7 +1,7 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGrid } from './data-grid.js'
@@ -70,7 +70,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         expect(grid).not.toBeNull()
@@ -99,7 +99,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const table = grid?.querySelector('table')
@@ -133,7 +133,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const customHeader = grid?.querySelector('[data-testid="custom-header-id"]')
@@ -163,7 +163,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const defaultHeaderId = grid?.querySelector('[data-testid="default-header-id"]')
@@ -193,11 +193,89 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const defaultHeaders = grid?.querySelectorAll('data-grid-header')
         expect(defaultHeaders?.length).toBe(2)
+      })
+    })
+
+    it('should render filter buttons when columnFilters are provided', async () => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              styles={{}}
+              columnFilters={{ name: { type: 'string' } }}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const grid = document.querySelector('shade-data-grid')
+        const filterButtons = grid?.querySelectorAll('data-grid-filter-button')
+        expect(filterButtons?.length).toBe(1)
+      })
+    })
+
+    it('should not render filter buttons when columnFilters is not provided', async () => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              styles={{}}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const grid = document.querySelector('shade-data-grid')
+        const filterButtons = grid?.querySelectorAll('data-grid-filter-button')
+        expect(filterButtons?.length).toBe(0)
+      })
+    })
+
+    it('should render without headerComponents and rowComponents', async () => {
+      await withTestGrid(async ({ injector, service, findOptions }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              styles={{}}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const grid = document.querySelector('shade-data-grid')
+        expect(grid).not.toBeNull()
+
+        const headers = grid?.querySelectorAll('data-grid-header')
+        expect(headers?.length).toBe(2)
       })
     })
   })
@@ -224,7 +302,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const wrapper = grid?.querySelector('.shade-grid-wrapper') as HTMLElement
@@ -257,7 +335,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const wrapper = grid?.querySelector('.shade-grid-wrapper') as HTMLElement
@@ -296,7 +374,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -327,7 +405,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -358,7 +436,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'Home', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -389,7 +467,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'End', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -419,7 +497,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -452,7 +530,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -485,7 +563,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -518,7 +596,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: '+', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -550,7 +628,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: '-', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -582,7 +660,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: '*', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -616,7 +694,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -648,7 +726,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'Insert', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -681,7 +759,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid') as HTMLElement
         expect(grid?.style.backgroundColor).toBe('red')
@@ -709,7 +787,7 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid')
         const headers = grid?.querySelectorAll('th') as NodeListOf<HTMLElement>
@@ -740,7 +818,7 @@ describe('DataGrid', () => {
             ),
           })
 
-          await sleepAsync(50)
+          await flushUpdates()
 
           const grid = document.querySelector('shade-data-grid')
           const emptyState = grid?.querySelector('[data-testid="empty-state"]')
@@ -779,7 +857,7 @@ describe('DataGrid', () => {
             ),
           })
 
-          await sleepAsync(50)
+          await flushUpdates()
 
           const grid = document.querySelector('shade-data-grid')
           const cell = grid?.querySelector('td') as HTMLTableCellElement
@@ -817,7 +895,7 @@ describe('DataGrid', () => {
             ),
           })
 
-          await sleepAsync(50)
+          await flushUpdates()
 
           const grid = document.querySelector('shade-data-grid')
           const cell = grid?.querySelector('td') as HTMLTableCellElement
@@ -854,12 +932,12 @@ describe('DataGrid', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const grid = document.querySelector('shade-data-grid') as HTMLElement
         grid.remove()
 
-        await sleepAsync(10)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })

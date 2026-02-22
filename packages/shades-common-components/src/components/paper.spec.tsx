@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Paper } from './paper.js'
 
@@ -21,7 +21,7 @@ describe('Paper', () => {
       rootElement: root,
       jsxElement: <Paper {...props}>{children}</Paper>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       paper: root.querySelector('div[is="shade-paper"]') as HTMLDivElement,

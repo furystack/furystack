@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Carousel } from './carousel.js'
@@ -29,7 +29,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       expect(document.getElementById('slide-1')).toBeTruthy()
       expect(document.getElementById('slide-2')).toBeTruthy()
@@ -47,7 +47,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const dots = document.querySelectorAll('.carousel-dot')
       expect(dots.length).toBe(3)
@@ -64,7 +64,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} dots={false} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const dots = document.querySelectorAll('.carousel-dot')
       expect(dots.length).toBe(0)
@@ -81,7 +81,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const prevButton = document.querySelector('.carousel-arrow-prev')
       const nextButton = document.querySelector('.carousel-arrow-next')
@@ -100,7 +100,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={[<div>Only slide</div>]} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const arrows = document.querySelectorAll('.carousel-arrow')
       const dots = document.querySelectorAll('.carousel-dot')
@@ -119,7 +119,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const activeDots = document.querySelectorAll('.carousel-dot[data-active]')
       expect(activeDots.length).toBe(1)
@@ -139,7 +139,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} defaultActiveIndex={2} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const dots = document.querySelectorAll('.carousel-dot')
       expect(dots[2].hasAttribute('data-active')).toBe(true)
@@ -157,7 +157,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} vertical />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       expect(carousel.hasAttribute('data-vertical')).toBe(true)
@@ -174,7 +174,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const track = document.querySelector('.carousel-track')
       expect(track).toBeTruthy()
@@ -192,7 +192,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} effect="fade" />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const fadeContainer = document.querySelector('.carousel-fade-container')
       expect(fadeContainer).toBeTruthy()
@@ -210,7 +210,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} effect="fade" />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const fadeSlides = document.querySelectorAll('.carousel-fade-slide')
       expect(fadeSlides[0].hasAttribute('data-active')).toBe(true)
@@ -228,7 +228,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       expect(carousel.getAttribute('role')).toBe('region')
@@ -247,7 +247,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       const slideGroups = carousel.querySelectorAll('[role="group"]')
@@ -267,7 +267,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const dots = document.querySelectorAll('.carousel-dot')
       ;(dots[2] as HTMLButtonElement).click()
@@ -288,7 +288,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
       nextButton.click()
@@ -309,7 +309,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} defaultActiveIndex={2} onChange={handleChange} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
       nextButton.click()
@@ -330,7 +330,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const prevButton = document.querySelector('.carousel-arrow-prev') as HTMLButtonElement
       prevButton.click()
@@ -349,7 +349,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const prevButton = document.querySelector('.carousel-arrow-prev') as HTMLButtonElement
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
@@ -368,7 +368,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} vertical />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const prevButton = document.querySelector('.carousel-arrow-prev') as HTMLButtonElement
       const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
@@ -387,7 +387,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} defaultActiveIndex={99} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const dots = document.querySelectorAll('.carousel-dot')
       // Should clamp to last slide (index 2)
@@ -405,7 +405,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} style={{ height: '300px' }} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       expect(carousel.style.height).toBe('300px')
@@ -422,7 +422,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={[]} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       expect(carousel).toBeTruthy()
@@ -444,7 +444,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
@@ -465,7 +465,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} defaultActiveIndex={2} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
@@ -486,7 +486,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -507,7 +507,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical defaultActiveIndex={2} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
@@ -528,7 +528,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -560,7 +560,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 200, 100))
@@ -582,7 +582,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} defaultActiveIndex={2} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
@@ -604,7 +604,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
@@ -626,7 +626,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 100, 200))
@@ -650,7 +650,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} autoplay autoplayInterval={100} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
         // Wait for at least one autoplay cycle
         await sleepAsync(200)
 
@@ -690,12 +690,12 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} effect="fade" onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
         nextButton.click()
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const fadeSlides = document.querySelectorAll('.carousel-fade-slide')
         expect(fadeSlides[0].hasAttribute('data-active')).toBe(false)
@@ -713,12 +713,12 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} effect="fade" />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
         nextButton.click()
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const dots = document.querySelectorAll('.carousel-dot')
         expect(dots[0].hasAttribute('data-active')).toBe(false)
@@ -738,12 +738,12 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
         nextButton.click()
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const track = document.querySelector('.carousel-track') as HTMLElement
         expect(track.style.transform).toContain('-100%')
@@ -760,12 +760,12 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
         nextButton.click()
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const dots = document.querySelectorAll('.carousel-dot')
         expect(dots[0].hasAttribute('data-active')).toBe(false)
@@ -784,7 +784,7 @@ describe('Carousel', () => {
         jsxElement: <Carousel slides={createSlides()} vertical={false} />,
       })
 
-      await sleepAsync(100)
+      await flushUpdates()
 
       const carousel = document.querySelector('shade-carousel') as HTMLElement
       expect(carousel.hasAttribute('data-vertical')).toBe(false)
@@ -804,12 +804,12 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical style={{ height: '300px' }} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const nextButton = document.querySelector('.carousel-arrow-next') as HTMLButtonElement
         nextButton.click()
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const track = document.querySelector('.carousel-track') as HTMLElement
         expect(track.style.transform).toContain('translateY')
@@ -838,7 +838,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical defaultActiveIndex={2} onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
@@ -860,7 +860,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} vertical onChange={handleChange} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const carousel = document.querySelector('shade-carousel') as HTMLElement
         carousel.dispatchEvent(createTouchEvent('touchstart', 100, 100))
@@ -882,7 +882,7 @@ describe('Carousel', () => {
           jsxElement: <Carousel slides={createSlides()} effect="fade" defaultActiveIndex={1} />,
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const fadeSlides = document.querySelectorAll('.carousel-fade-slide')
         expect(fadeSlides[0].hasAttribute('data-active')).toBe(false)

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RadioGroup } from './radio-group.js'
 import { Radio } from './radio.js'
@@ -30,7 +30,7 @@ describe('RadioGroup', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const group = document.querySelector('shade-radio-group')
       expect(group).not.toBeNull()
@@ -51,7 +51,7 @@ describe('RadioGroup', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const group = document.querySelector('shade-radio-group') as HTMLElement
       expect(group.getAttribute('role')).toBe('radiogroup')
@@ -72,7 +72,7 @@ describe('RadioGroup', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-radio-group .radio-group-label') as HTMLElement
       expect(label).not.toBeNull()
@@ -94,7 +94,7 @@ describe('RadioGroup', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-radio-group .radio-group-label')
       expect(label).toBeNull()
@@ -116,7 +116,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const group = document.querySelector('shade-radio-group') as HTMLElement
         expect(group.getAttribute('data-orientation')).toBe('vertical')
@@ -137,7 +137,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const group = document.querySelector('shade-radio-group') as HTMLElement
         expect(group.getAttribute('data-orientation')).toBe('horizontal')
@@ -161,7 +161,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         inputs.forEach((input) => {
@@ -188,7 +188,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         expect((inputs[0] as HTMLInputElement).checked).toBe(false)
@@ -213,7 +213,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         expect((inputs[0] as HTMLInputElement).checked).toBe(false)
@@ -239,7 +239,7 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         inputs.forEach((input) => {
@@ -266,13 +266,13 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await sleepAsync(100)
+        await flushUpdates()
 
         const input = document.querySelectorAll('shade-radio input[type="radio"]')[1] as HTMLInputElement
         input.checked = true
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalledWith('option2')
       })

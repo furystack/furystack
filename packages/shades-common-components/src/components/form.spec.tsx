@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, using, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Form, FormService } from './form.js'
 
@@ -144,7 +144,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]')
       expect(form).not.toBeNull()
@@ -177,7 +177,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -186,7 +186,7 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onSubmit).toHaveBeenCalledWith({ name: 'Test Name' })
     })
@@ -217,7 +217,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const nameInput = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -229,7 +229,7 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onSubmit).not.toHaveBeenCalled()
     })
@@ -258,7 +258,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="email"]') as HTMLInputElement
@@ -267,7 +267,7 @@ describe('Form component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       form.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
       const formService = formInjector.getInstance(FormService)
@@ -305,7 +305,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -314,7 +314,7 @@ describe('Form component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       form.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
       const formService = formInjector.getInstance(FormService)
@@ -324,7 +324,7 @@ describe('Form component', () => {
       const resetEvent = new Event('reset', { bubbles: true })
       form.dispatchEvent(resetEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(formService.rawFormData.getValue()).toBeNull()
       expect(formService.validationResult.getValue()).toEqual({ isValid: null })
@@ -354,7 +354,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="username"]') as HTMLInputElement
@@ -363,7 +363,7 @@ describe('Form component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       form.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
       const formService = formInjector.getInstance(FormService)
@@ -394,7 +394,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="title"]') as HTMLInputElement
@@ -403,7 +403,7 @@ describe('Form component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       form.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
       const formService = formInjector.getInstance(FormService)
@@ -430,7 +430,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
 
@@ -459,7 +459,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const formInjector = (form as unknown as { injector: Injector }).injector
@@ -495,7 +495,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="required"]') as HTMLInputElement
@@ -503,7 +503,7 @@ describe('Form component', () => {
       const invalidEvent = new Event('invalid', { bubbles: true })
       input.dispatchEvent(invalidEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
     })
   })
 
@@ -535,7 +535,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -549,11 +549,11 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.isSubmitting.getValue()).toBe(true)
 
       resolveSubmit!()
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.isSubmitting.getValue()).toBe(false)
     })
   })
@@ -585,7 +585,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -597,7 +597,7 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.isSubmitting.getValue()).toBe(false)
       expect(formService.submitError.getValue()).toBe(submitError)
     })
@@ -636,7 +636,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -646,17 +646,17 @@ describe('Form component', () => {
       const formService = formInjector.getInstance(FormService)
 
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.submitError.getValue()).toBeInstanceOf(Error)
 
       shouldThrow = false
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.submitError.getValue()).toBeUndefined()
       expect(formService.isSubmitting.getValue()).toBe(true)
 
       resolveSubmit!()
-      await sleepAsync(50)
+      await flushUpdates()
       expect(formService.isSubmitting.getValue()).toBe(false)
     })
   })
@@ -690,7 +690,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -701,11 +701,11 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(form.inert).toBe(true)
 
       resolveSubmit!()
-      await sleepAsync(50)
+      await flushUpdates()
       expect(form.inert).toBe(false)
     })
   })
@@ -738,7 +738,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -747,11 +747,11 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(form.inert).toBeFalsy()
 
       resolveSubmit!()
-      await sleepAsync(50)
+      await flushUpdates()
     })
   })
 
@@ -781,7 +781,7 @@ describe('Form component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
       const input = form.querySelector('input[name="name"]') as HTMLInputElement
@@ -790,7 +790,7 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
       expect(form.inert).toBe(false)
       const formInjector = (form as unknown as { injector: Injector }).injector
       const formService = formInjector.getInstance(FormService)

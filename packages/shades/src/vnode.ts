@@ -446,7 +446,7 @@ const patchChild = (_parentEl: Node, oldChild: VChild, newChild: VChild): void =
           patchProps(el, oldChild.props, newChild.props)
         }
         el.shadeChildren = newChild.children as unknown as ChildrenList
-        el.updateComponent()
+        ;(el as unknown as { updateComponentSync: () => void }).updateComponentSync()
       }
       return
     }

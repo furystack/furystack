@@ -10,6 +10,35 @@ import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { DataGridHeader } from './header.js'
 
+export type StringFilterConfig = { type: 'string' }
+export type NumberFilterConfig = { type: 'number' }
+export type BooleanFilterConfig = { type: 'boolean' }
+export type EnumFilterConfig = {
+  type: 'enum'
+  values: Array<{ label: string; value: string }>
+}
+export type DateFilterConfig = { type: 'date' }
+
+export type ColumnFilterConfig =
+  | StringFilterConfig
+  | NumberFilterConfig
+  | BooleanFilterConfig
+  | EnumFilterConfig
+  | DateFilterConfig
+
+/**
+ * Loosely typed find options used internally by filter components.
+ * Avoids generic entity types while supporting dynamic field access
+ * with explicit casts at each use site.
+ */
+export type FilterableFindOptions = {
+  top?: number
+  skip?: number
+  order?: Record<string, 'ASC' | 'DESC'>
+  filter?: Record<string, unknown>
+  select?: string[]
+}
+
 export type DataHeaderCells<Column extends string> = {
   [TKey in Column | 'default']?: (name: Column) => JSX.Element
 }
@@ -38,11 +67,17 @@ export interface DataGridProps<T, Column extends string> {
   /**
    * A list of custom header components to use
    */
-  headerComponents: DataHeaderCells<Column>
+  headerComponents?: DataHeaderCells<Column>
   /**
    * A list of custom row components to use
    */
-  rowComponents: DataRowCells<T, Column>
+  rowComponents?: DataRowCells<T, Column>
+
+  /**
+   * Filter configuration per column. Only columns with a config will show a filter button.
+   */
+  columnFilters?: { [K in Column]?: ColumnFilterConfig }
+
   /**
    * Optional autoFocus property to set the grid as focused
    */
@@ -96,20 +131,17 @@ export const DataGrid: <T, Column extends string>(
       backdropFilter: 'blur(12px) saturate(180%)',
       background: cssVariableTheme.action.activeBackground,
       color: cssVariableTheme.text.secondary,
-      height: '48px',
-      padding: '0 1.2em',
+      height: '36px',
+      padding: '0 0.6em',
       alignItems: 'center',
-      borderRadius: cssVariableTheme.shape.borderRadius.xs,
-      top: '2px',
+      top: '0',
       position: 'sticky',
-      fontVariant: 'all-petite-caps',
-      fontSize: '0.875rem',
+      fontSize: '0.75rem',
       fontWeight: cssVariableTheme.typography.fontWeight.semibold,
-      letterSpacing: '0.05em',
+      letterSpacing: '0.03em',
       textAlign: 'left',
       zIndex: '1',
-      boxShadow: cssVariableTheme.shadows.sm,
-      borderBottom: `2px solid ${cssVariableTheme.action.subtleBorder}`,
+      borderBottom: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
   },
@@ -156,6 +188,7 @@ export const DataGrid: <T, Column extends string>(
                       >
                         field={column}
                         findOptions={props.findOptions}
+                        filterConfig={props.columnFilters?.[column]}
                       />
                     )}
                   </th>

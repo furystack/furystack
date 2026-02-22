@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { InputNumber } from './input-number.js'
 
@@ -24,7 +24,7 @@ describe('InputNumber', () => {
         jsxElement: <InputNumber />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const el = document.querySelector('shade-input-number')
       expect(el).not.toBeNull()
@@ -41,7 +41,7 @@ describe('InputNumber', () => {
         jsxElement: <InputNumber value={5} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const wrapper = document.querySelector('shade-input-number') as HTMLElement
       const input = wrapper.querySelector('input') as HTMLInputElement
@@ -63,7 +63,7 @@ describe('InputNumber', () => {
         jsxElement: <InputNumber labelTitle="Quantity" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-input-number label') as HTMLLabelElement
       expect(label).not.toBeNull()
@@ -83,13 +83,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(6)
       })
@@ -106,13 +106,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const decrementBtn = wrapper.querySelectorAll('.step-button')[0] as HTMLButtonElement
         decrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(4)
       })
@@ -129,13 +129,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={10} step={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(15)
       })
@@ -154,13 +154,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={9} max={10} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(10)
       })
@@ -177,13 +177,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={1} min={0} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const decrementBtn = wrapper.querySelectorAll('.step-button')[0] as HTMLButtonElement
         decrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(0)
       })
@@ -199,7 +199,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={0} min={0} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const decrementBtn = wrapper.querySelectorAll('.step-button')[0] as HTMLButtonElement
@@ -218,7 +218,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={100} max={100} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
@@ -239,7 +239,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={3.1} precision={2} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -259,13 +259,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={1} step={0.01} precision={2} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(1.01)
       })
@@ -284,13 +284,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(6)
       })
@@ -307,13 +307,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(4)
       })
@@ -330,13 +330,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} disabled onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).not.toHaveBeenCalled()
       })
@@ -354,7 +354,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={1000} formatter={(v) => (v !== undefined ? `$${v.toLocaleString()}` : '')} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -384,7 +384,7 @@ describe('InputNumber', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -392,7 +392,7 @@ describe('InputNumber', () => {
         input.value = '$500'
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(500)
       })
@@ -411,7 +411,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={0} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -419,7 +419,7 @@ describe('InputNumber', () => {
         input.value = '42'
         input.dispatchEvent(new Event('blur', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(42)
       })
@@ -436,7 +436,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -444,7 +444,7 @@ describe('InputNumber', () => {
         input.value = ''
         input.dispatchEvent(new Event('blur', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(undefined)
       })
@@ -462,7 +462,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const el = document.querySelector('shade-input-number') as HTMLElement
         expect(el.hasAttribute('data-disabled')).toBe(true)
@@ -479,7 +479,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const buttons = wrapper.querySelectorAll('.step-button')
@@ -500,13 +500,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber value={5} disabled onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).not.toHaveBeenCalled()
       })
@@ -524,7 +524,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber variant="outlined" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const el = document.querySelector('shade-input-number') as HTMLElement
         expect(el.getAttribute('data-variant')).toBe('outlined')
@@ -541,7 +541,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber variant="contained" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const el = document.querySelector('shade-input-number') as HTMLElement
         expect(el.getAttribute('data-variant')).toBe('contained')
@@ -560,7 +560,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber helperText="Enter a quantity" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const helperText = wrapper.querySelector('.helperText') as HTMLElement
@@ -580,7 +580,7 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const helperText = wrapper.querySelector('.helperText')
@@ -602,7 +602,7 @@ describe('InputNumber', () => {
         })
 
         // Wait for render + requestAnimationFrame
-        await sleepAsync(100)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const input = wrapper.querySelector('input') as HTMLInputElement
@@ -625,7 +625,7 @@ describe('InputNumber', () => {
         })
 
         // Wait for render + requestAnimationFrame
-        await sleepAsync(100)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const buttons = wrapper.querySelectorAll('.step-button')
@@ -648,13 +648,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber min={1} onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(2)
       })
@@ -671,13 +671,13 @@ describe('InputNumber', () => {
           jsxElement: <InputNumber onValueChange={onValueChange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-input-number') as HTMLElement
         const incrementBtn = wrapper.querySelectorAll('.step-button')[1] as HTMLButtonElement
         incrementBtn.click()
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith(1)
       })

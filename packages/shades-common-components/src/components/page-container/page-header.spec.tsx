@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { PageHeader } from './page-header.js'
 
@@ -24,7 +24,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Test Title" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const element = document.querySelector('shade-page-header')
         expect(element).not.toBeNull()
         expect(element?.tagName.toLowerCase()).toBe('shade-page-header')
@@ -41,7 +41,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Users" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const title = document.querySelector('[data-testid="page-header-title"]')
         expect(title).not.toBeNull()
         expect(title?.textContent).toBe('Users')
@@ -58,7 +58,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Dashboard" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const title = document.querySelector('[data-testid="page-header-title"]')
         expect(title?.tagName.toLowerCase()).toBe('h2')
       })
@@ -76,7 +76,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader icon="👥" title="Users" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const icon = document.querySelector('.page-header-icon')
         expect(icon).not.toBeNull()
         expect(icon?.textContent).toBe('👥')
@@ -93,7 +93,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Users" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const icon = document.querySelector('.page-header-icon')
         expect(icon).toBeNull()
       })
@@ -109,7 +109,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader icon="📁" title="Projects" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const title = document.querySelector('[data-testid="page-header-title"]')
         expect(title?.textContent).toContain('📁')
         expect(title?.textContent).toContain('Projects')
@@ -128,7 +128,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Users" description="Manage user accounts." />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const description = document.querySelector('[data-testid="page-header-description"]')
         expect(description).not.toBeNull()
         expect(description?.textContent).toBe('Manage user accounts.')
@@ -145,7 +145,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Users" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const description = document.querySelector('[data-testid="page-header-description"]')
         expect(description).toBeNull()
       })
@@ -161,7 +161,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Dashboard" description="Overview of your data." />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const description = document.querySelector('[data-testid="page-header-description"]')
         expect(description?.tagName.toLowerCase()).toBe('p')
       })
@@ -188,7 +188,7 @@ describe('PageHeader component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const actionsContainer = document.querySelector('[data-testid="page-header-actions"]')
         expect(actionsContainer).not.toBeNull()
 
@@ -208,7 +208,7 @@ describe('PageHeader component', () => {
           jsxElement: <PageHeader title="Users" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const actionsContainer = document.querySelector('[data-testid="page-header-actions"]')
         expect(actionsContainer).toBeNull()
       })
@@ -234,7 +234,7 @@ describe('PageHeader component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const actionsContainer = document.querySelector('[data-testid="page-header-actions"]')
         const buttons = actionsContainer?.querySelectorAll('button')
         expect(buttons?.length).toBe(2)
@@ -260,7 +260,7 @@ describe('PageHeader component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const icon = document.querySelector('.page-header-icon')
         expect(icon?.textContent).toBe('👥')
@@ -292,7 +292,7 @@ describe('PageHeader component', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const container = document.querySelector('div[is="shade-page-container"]')
         expect(container).not.toBeNull()

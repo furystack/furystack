@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SelectOption, SelectOptionGroup, SelectProps, SelectState } from './select.js'
 import { Select } from './select.js'
@@ -29,7 +29,7 @@ describe('Select', () => {
       rootElement: root,
       jsxElement: <Select {...props} />,
     })
-    await sleepAsync(100)
+    await flushUpdates()
     return {
       injector,
       select: document.querySelector('shade-select') as HTMLElement,
@@ -315,7 +315,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, disabled: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(false)
       })
     })
@@ -326,7 +326,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(true)
         const dropdown = select.querySelector('.dropdown')
         expect(dropdown).not.toBeNull()
@@ -337,7 +337,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         const items = select.querySelectorAll('.dropdown-item')
         expect(items.length).toBe(3)
       })
@@ -347,12 +347,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(true)
 
         const backdrop = select.querySelector('.dropdown-backdrop') as HTMLElement
         backdrop.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(false)
       })
     })
@@ -361,13 +361,13 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(true)
 
         // Re-query after re-render
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(false)
       })
     })
@@ -379,11 +379,11 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         ;(items[1] as HTMLElement).click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith('b')
       })
@@ -394,11 +394,11 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         ;(items[0] as HTMLElement).click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(false)
       })
@@ -413,11 +413,11 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         ;(items[1] as HTMLElement).click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).not.toHaveBeenCalled()
       })
@@ -427,7 +427,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, value: 'b' }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const selected = select.querySelector('.dropdown-item[data-selected]')
         expect(selected).not.toBeNull()
@@ -477,11 +477,11 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const items = select.querySelectorAll('.dropdown-item')
           ;(items[1] as HTMLElement).click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onMultiValueChange).toHaveBeenCalledWith(['a', 'b'])
         },
@@ -500,11 +500,11 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const items = select.querySelectorAll('.dropdown-item')
           ;(items[0] as HTMLElement).click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onMultiValueChange).toHaveBeenCalledWith(['b'])
         },
@@ -524,7 +524,7 @@ describe('Select', () => {
           const chipRemoves = select.querySelectorAll('.select-chip-remove')
           expect(chipRemoves.length).toBe(2)
           ;(chipRemoves[0] as HTMLElement).click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onMultiValueChange).toHaveBeenCalledWith(['b'])
         },
@@ -547,7 +547,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(true)
       })
@@ -557,7 +557,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(true)
       })
@@ -567,7 +567,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(true)
       })
@@ -577,7 +577,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(true)
       })
@@ -587,11 +587,11 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(true)
 
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(false)
       })
@@ -602,15 +602,15 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Re-query trigger after re-render, then navigate and select
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         const trigger3 = select.querySelector('.select-trigger') as HTMLElement
         trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalled()
       })
@@ -621,15 +621,15 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Re-query trigger after re-render
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         const trigger3 = select.querySelector('.select-trigger') as HTMLElement
         trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith('c')
       })
@@ -639,7 +639,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, disabled: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(select.hasAttribute('data-open')).toBe(false)
       })
@@ -651,7 +651,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, showSearch: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search')
         expect(searchInput).not.toBeNull()
@@ -662,7 +662,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, showSearch: false }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search')
         expect(searchInput).toBeNull()
@@ -673,12 +673,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, showSearch: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
         searchInput.value = 'alp'
         searchInput.dispatchEvent(new Event('input', { bubbles: true }))
-        await sleepAsync(100)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         expect(items.length).toBe(1)
@@ -690,12 +690,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, showSearch: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
         searchInput.value = 'zzz'
         searchInput.dispatchEvent(new Event('input', { bubbles: true }))
-        await sleepAsync(100)
+        await flushUpdates()
 
         const noResults = select.querySelector('.dropdown-no-results')
         expect(noResults).not.toBeNull()
@@ -710,12 +710,12 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
           searchInput.value = 'anything'
           searchInput.dispatchEvent(new Event('input', { bubbles: true }))
-          await sleepAsync(100)
+          await flushUpdates()
 
           const items = select.querySelectorAll('.dropdown-item')
           expect(items.length).toBe(1)
@@ -743,7 +743,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ optionGroups }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const groupLabels = select.querySelectorAll('.dropdown-group-label')
         expect(groupLabels.length).toBe(2)
@@ -772,12 +772,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ optionGroups, showSearch: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
         searchInput.value = 'apple'
         searchInput.dispatchEvent(new Event('input', { bubbles: true }))
-        await sleepAsync(100)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         expect(items.length).toBe(1)
@@ -845,7 +845,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Focus handler sets data-focused on the inner container div (selectRootRef), not the host
         const innerContainer = select.querySelector('div') as HTMLElement
@@ -857,12 +857,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         const innerContainer = select.querySelector('div') as HTMLElement
         expect(innerContainer.hasAttribute('data-focused')).toBe(true)
 
         trigger.dispatchEvent(new FocusEvent('blur', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
         expect(innerContainer.hasAttribute('data-focused')).toBe(false)
       })
     })
@@ -948,7 +948,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Re-query after re-render
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
@@ -960,7 +960,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dropdown = select.querySelector('.dropdown')
         expect(dropdown?.getAttribute('role')).toBe('listbox')
@@ -971,7 +971,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect(), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = select.querySelectorAll('.dropdown-item')
         items.forEach((item) => {
@@ -984,7 +984,7 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, mode: 'multiple' }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const dropdown = select.querySelector('.dropdown')
         expect(dropdown?.getAttribute('aria-multiselectable')).toBe('true')
@@ -1006,11 +1006,11 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
           searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onMultiValueChange).toHaveBeenCalledWith(['a'])
         },
@@ -1024,22 +1024,22 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Navigate to End first
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Now ArrowUp
         const trigger3 = select.querySelector('.select-trigger') as HTMLElement
         trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Then select with Enter
         const trigger4 = select.querySelector('.select-trigger') as HTMLElement
         trigger4.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith('b')
       })
@@ -1052,15 +1052,15 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const trigger3 = select.querySelector('.select-trigger') as HTMLElement
         trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalled()
       })
@@ -1073,11 +1073,11 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
           searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           // Space should be ignored as a selection trigger when search is active
           expect(onValueChange).not.toHaveBeenCalled()
@@ -1092,15 +1092,15 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, onValueChange }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         const trigger3 = select.querySelector('.select-trigger') as HTMLElement
         trigger3.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).toHaveBeenCalledWith('a')
       })
@@ -1142,11 +1142,11 @@ describe('Select', () => {
         async ({ select }) => {
           const trigger = select.querySelector('.select-trigger') as HTMLElement
           trigger.click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           const items = select.querySelectorAll('.dropdown-item')
           ;(items[1] as HTMLElement).click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalledWith('a,b')
         },
@@ -1167,7 +1167,7 @@ describe('Select', () => {
         async ({ select }) => {
           const chipRemoves = select.querySelectorAll('.select-chip-remove')
           ;(chipRemoves[0] as HTMLElement).click()
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalledWith('b')
         },
@@ -1204,12 +1204,12 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ optionGroups, showSearch: true }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
         searchInput.value = 'zzz'
         searchInput.dispatchEvent(new Event('input', { bubbles: true }))
-        await sleepAsync(100)
+        await flushUpdates()
 
         const noResults = select.querySelector('.dropdown-no-results')
         expect(noResults).not.toBeNull()
@@ -1223,13 +1223,13 @@ describe('Select', () => {
       await usingAsync(await renderSelect({ options: defaultOptions, mode: 'multiple' }), async ({ select }) => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.click()
-        await sleepAsync(50)
+        await flushUpdates()
         expect(select.hasAttribute('data-open')).toBe(true)
 
         // In multi mode, clicking trigger again should NOT close (only backdrop closes)
         const trigger2 = select.querySelector('.select-trigger') as HTMLElement
         trigger2.click()
-        await sleepAsync(50)
+        await flushUpdates()
         // It should still remain open or re-open in multi mode
       })
     })

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ListService } from '../../services/list-service.js'
 import { List } from './list.js'
@@ -40,7 +40,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         expect(list).not.toBeNull()
@@ -62,7 +62,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const items = list?.querySelectorAll('shade-list-item')
@@ -85,7 +85,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listbox = list?.querySelector('[role="listbox"]')
@@ -109,7 +109,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const options = list?.querySelectorAll('[role="option"]')
@@ -137,7 +137,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const icons = list?.querySelectorAll('[data-testid="icon"]')
@@ -165,7 +165,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const actions = list?.querySelectorAll('[data-testid="action"]')
@@ -193,7 +193,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list') as HTMLElement
         expect(list?.getAttribute('data-variant')).toBe('contained')
@@ -215,7 +215,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(service.items.getValue()).toEqual(testItems)
 
@@ -240,7 +240,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const wrapper = list?.querySelector('.shade-list-wrapper') as HTMLElement
@@ -268,7 +268,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const wrapper = list?.querySelector('.shade-list-wrapper') as HTMLElement
@@ -298,7 +298,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
@@ -323,10 +323,10 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.focusedItem.setValue(testItems[1])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
@@ -352,10 +352,10 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([testItems[0], testItems[2]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
@@ -380,10 +380,10 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([testItems[0]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
@@ -413,10 +413,10 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         service.selection.setValue([testItems[0]])
-        await sleepAsync(10)
+        await flushUpdates()
 
         expect(onSelectionChange).toHaveBeenCalledWith([testItems[0]])
 
@@ -442,7 +442,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
@@ -468,7 +468,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
 
@@ -494,7 +494,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
 
@@ -520,7 +520,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
 
@@ -546,7 +546,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
         expect(service.selection.getValue()).toContain(testItems[0])
@@ -573,7 +573,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: '+', bubbles: true }))
 
@@ -599,7 +599,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: '-', bubbles: true }))
 
@@ -625,7 +625,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: '*', bubbles: true }))
 
@@ -655,7 +655,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
@@ -681,7 +681,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
 
@@ -707,7 +707,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
@@ -741,7 +741,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 
@@ -770,7 +770,7 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list')
         const listItems = list?.querySelectorAll('shade-list-item') as NodeListOf<HTMLElement>
@@ -800,12 +800,12 @@ describe('List', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const list = document.querySelector('shade-list') as HTMLElement
         list.remove()
 
-        await sleepAsync(10)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         expect(service.focusedItem.getValue()).toEqual(testItems[0])

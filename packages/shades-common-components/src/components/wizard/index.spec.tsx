@@ -1,7 +1,7 @@
 import { Injector } from '@furystack/inject'
 import type { ChildrenList } from '@furystack/shades'
-import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WizardStepProps } from './index.js'
 import { Wizard } from './index.js'
@@ -80,7 +80,7 @@ describe('Wizard', () => {
       rootElement: root,
       jsxElement: <Wizard steps={steps} onFinish={onFinish} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
 
     const wizard = root.querySelector('shades-wizard') as HTMLElement
 
@@ -96,12 +96,12 @@ describe('Wizard', () => {
       clickNext: async () => {
         const btn = getStepElement()?.querySelector('.next-btn') as HTMLButtonElement
         btn?.click()
-        await sleepAsync(50)
+        await flushUpdates()
       },
       clickPrev: async () => {
         const btn = getStepElement()?.querySelector('.prev-btn') as HTMLButtonElement
         btn?.click()
-        await sleepAsync(50)
+        await flushUpdates()
       },
       [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }

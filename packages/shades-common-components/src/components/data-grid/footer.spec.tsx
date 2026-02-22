@@ -1,7 +1,7 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGridFooter, dataGridItemsPerPage } from './footer.js'
@@ -42,7 +42,7 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       expect(footer).not.toBeNull()
@@ -61,7 +61,7 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = footer?.querySelectorAll('select')
@@ -82,13 +82,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -109,11 +109,11 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const pager = footer?.querySelector('.pager')
-      expect(pager?.textContent).toContain('Goto page')
+      expect(pager?.textContent).toContain('Page')
     })
   })
 
@@ -129,11 +129,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const pager = footer?.querySelector('.pager')
-      expect(pager?.textContent).not.toContain('Goto page')
+      const sections = Array.from(pager?.querySelectorAll('.pager-section') ?? [])
+      const pageSection = sections.find((s) => s.textContent?.includes('Page'))
+      expect(pageSection).toBeUndefined()
     })
   })
 
@@ -149,13 +151,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -176,13 +178,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -190,7 +192,7 @@ describe('DataGridFooter', () => {
       pageSelect!.value = '2'
       pageSelect!.dispatchEvent(new Event('change', { bubbles: true }))
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedOptions = findOptions.getValue()
       expect(updatedOptions.skip).toBe(20)
@@ -209,13 +211,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -223,7 +225,7 @@ describe('DataGridFooter', () => {
       itemsPerPageSelect!.value = '25'
       itemsPerPageSelect!.dispatchEvent(new Event('change', { bubbles: true }))
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedOptions = findOptions.getValue()
       expect(updatedOptions.top).toBe(25)
@@ -242,13 +244,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -256,7 +258,7 @@ describe('DataGridFooter', () => {
       itemsPerPageSelect!.value = '25'
       itemsPerPageSelect!.dispatchEvent(new Event('change', { bubbles: true }))
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const updatedOptions = findOptions.getValue()
       expect(updatedOptions.top).toBe(25)
@@ -276,13 +278,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -302,13 +304,13 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -328,22 +330,22 @@ describe('DataGridFooter', () => {
         jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let footer = document.querySelector('shade-data-grid-footer')
       let selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      let pageSelect = selects.find((s) => s.parentElement?.textContent?.includes('Goto page'))
+      let pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
       let pageOptions = pageSelect?.querySelectorAll('option')
 
       expect(pageOptions?.length).toBe(5)
 
       service.data.setValue({ entries: [], count: 100 })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       footer = document.querySelector('shade-data-grid-footer')
       selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      pageSelect = selects.find((s) => s.parentElement?.textContent?.includes('Goto page'))
+      pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
       pageOptions = pageSelect?.querySelectorAll('option')
 
       expect(pageOptions?.length).toBe(10)

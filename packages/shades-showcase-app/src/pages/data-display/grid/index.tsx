@@ -1,4 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
+import type { ColumnFilterConfig } from '@furystack/shades-common-components'
 import {
   Button,
   DataGrid,
@@ -11,6 +12,15 @@ import {
 } from '@furystack/shades-common-components'
 import { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
+import { itemRarities, itemTypes } from './game-item.js'
+
+const rarityColors: Record<string, string> = {
+  common: '#9d9d9d',
+  uncommon: '#1eff00',
+  rare: '#0070dd',
+  epic: '#a335ee',
+  legendary: '#ff8000',
+}
 
 export const GridPage = Shade({
   shadowDomName: 'shades-grid-page',
@@ -56,30 +66,56 @@ export const GridPage = Shade({
             <DataGrid
               columns={[
                 'id',
-                'stringValue1',
-                'stringValue2',
-                'booleanValue',
-                'dateValue',
-                'numberValue1',
-                'numberValue2',
+                'name',
+                'type',
+                'rarity',
+                'level',
+                'weight',
+                'isQuestItem',
+                'discoveredAt',
                 'customAction',
               ]}
               findOptions={gridPageService.findOptions}
               styles={undefined}
               collectionService={gridPageService.collectionService}
+              columnFilters={
+                {
+                  name: { type: 'string' },
+                  type: {
+                    type: 'enum',
+                    values: itemTypes.map((t) => ({ label: t, value: t })),
+                  },
+                  rarity: {
+                    type: 'enum',
+                    values: itemRarities.map((r) => ({ label: r, value: r })),
+                  },
+                  level: { type: 'number' },
+                  isQuestItem: { type: 'boolean' },
+                  discoveredAt: { type: 'date' },
+                } satisfies Record<string, ColumnFilterConfig>
+              }
               headerComponents={{
-                customAction: () => <span style={{ paddingLeft: '1em' }}>Custom Action</span>,
+                customAction: () => <span style={{ paddingLeft: '1em' }}>Actions</span>,
               }}
               rowComponents={{
                 id: (entry) => <SelectionCell entry={entry} service={gridPageService.collectionService} />,
-                booleanValue: ({ booleanValue }) => (
-                  <span>
-                    {booleanValue ? <Icon icon={icons.check} size="small" /> : <Icon icon={icons.close} size="small" />}
+                rarity: ({ rarity }) => (
+                  <span
+                    style={{
+                      color: rarityColors[rarity],
+                      fontWeight: rarity === 'legendary' || rarity === 'epic' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {rarity}
                   </span>
                 ),
-                dateValue: ({ dateValue }) => <span>{dateValue.toLocaleString()}</span>,
-                numberValue1: ({ numberValue1 }) => <span>{numberValue1.toFixed(2)}</span>,
-                numberValue2: ({ numberValue2 }) => <span>{numberValue2.toFixed(2)}</span>,
+                isQuestItem: ({ isQuestItem }) => (
+                  <span>
+                    {isQuestItem ? <Icon icon={icons.check} size="small" /> : <Icon icon={icons.close} size="small" />}
+                  </span>
+                ),
+                discoveredAt: ({ discoveredAt }) => <span>{discoveredAt.toLocaleDateString()}</span>,
+                weight: ({ weight }) => <span>{weight.toFixed(2)} lbs</span>,
                 customAction: () => (
                   <>
                     <Button>

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { Form, FormService } from '../form.js'
@@ -26,7 +26,7 @@ describe('Switch', () => {
         jsxElement: <Switch />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const switchEl = document.querySelector('shade-switch')
       expect(switchEl).not.toBeNull()
@@ -43,7 +43,7 @@ describe('Switch', () => {
         jsxElement: <Switch name="testSwitch" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
       expect(input).not.toBeNull()
@@ -62,7 +62,7 @@ describe('Switch', () => {
         jsxElement: <Switch />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const track = document.querySelector('shade-switch .switch-track')
       const thumb = document.querySelector('shade-switch .switch-thumb')
@@ -81,7 +81,7 @@ describe('Switch', () => {
         jsxElement: <Switch labelTitle="Enable notifications" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-switch label') as HTMLLabelElement
       expect(label).not.toBeNull()
@@ -99,7 +99,7 @@ describe('Switch', () => {
         jsxElement: <Switch />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const labelSpan = document.querySelector('shade-switch .switch-label')
       expect(labelSpan).toBeNull()
@@ -117,7 +117,7 @@ describe('Switch', () => {
           jsxElement: <Switch checked />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.checked).toBe(true)
@@ -134,7 +134,7 @@ describe('Switch', () => {
           jsxElement: <Switch checked={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.checked).toBe(false)
@@ -153,7 +153,7 @@ describe('Switch', () => {
           jsxElement: <Switch disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         expect(switchEl.hasAttribute('data-disabled')).toBe(true)
@@ -170,7 +170,7 @@ describe('Switch', () => {
           jsxElement: <Switch disabled={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         expect(switchEl.hasAttribute('data-disabled')).toBe(false)
@@ -187,7 +187,7 @@ describe('Switch', () => {
           jsxElement: <Switch disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.disabled).toBe(true)
@@ -206,7 +206,7 @@ describe('Switch', () => {
           jsxElement: <Switch size="small" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         expect(switchEl.getAttribute('data-size')).toBe('small')
@@ -223,7 +223,7 @@ describe('Switch', () => {
           jsxElement: <Switch size="medium" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         expect(switchEl.hasAttribute('data-size')).toBe(false)
@@ -243,12 +243,12 @@ describe('Switch', () => {
           jsxElement: <Switch name="toggle" onchange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalled()
       })
@@ -266,7 +266,7 @@ describe('Switch', () => {
           jsxElement: <Switch />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -284,7 +284,7 @@ describe('Switch', () => {
           jsxElement: <Switch color="secondary" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -310,7 +310,7 @@ describe('Switch', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -336,7 +336,7 @@ describe('Switch', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -346,7 +346,7 @@ describe('Switch', () => {
 
         rootElement.innerHTML = ''
 
-        await sleepAsync(50)
+        await flushUpdates()
       })
     })
   })
@@ -362,7 +362,7 @@ describe('Switch', () => {
           jsxElement: <Switch labelProps={{ className: 'custom-label' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const label = document.querySelector('shade-switch label') as HTMLLabelElement
         expect(label.className).toContain('custom-label')
@@ -381,7 +381,7 @@ describe('Switch', () => {
           jsxElement: <Switch required />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.required).toBe(true)
@@ -400,7 +400,7 @@ describe('Switch', () => {
           jsxElement: <Switch value="yes" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.value).toBe('yes')

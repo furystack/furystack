@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Autocomplete } from './autocomplete.js'
 
@@ -25,7 +25,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       expect(autocomplete).not.toBeNull()
@@ -55,7 +54,8 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      await flushUpdates()
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input')
@@ -80,7 +80,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement
@@ -90,7 +89,7 @@ describe('Autocomplete component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       input.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onchange).toHaveBeenCalledWith('foo')
     })
@@ -109,7 +108,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement
@@ -118,7 +116,7 @@ describe('Autocomplete component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       input.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onchange).toHaveBeenCalledWith('custom-value')
     })
@@ -137,7 +135,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement
@@ -148,7 +145,7 @@ describe('Autocomplete component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       input.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(setCustomValiditySpy).toHaveBeenCalledWith('Please select a valid entry!')
       // Verify that onchange was not called with the invalid string value
@@ -171,7 +168,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement
@@ -180,7 +176,7 @@ describe('Autocomplete component', () => {
       const changeEvent = new Event('change', { bubbles: true })
       input.dispatchEvent(changeEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(onchange).toHaveBeenCalledWith('valid1')
     })
@@ -206,7 +202,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement
@@ -228,7 +223,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       expect(autocomplete).not.toBeNull()
@@ -252,7 +246,6 @@ describe('Autocomplete component', () => {
       })
 
       await flushUpdates()
-      await sleepAsync(50)
 
       const autocomplete = document.querySelector('shade-autocomplete')
       const input = autocomplete?.querySelector('input') as HTMLInputElement

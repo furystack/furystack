@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { Slider } from './slider.js'
@@ -23,7 +23,7 @@ describe('Slider', () => {
       rootElement: root,
       jsxElement: <Slider {...props} />,
     })
-    await sleepAsync(100)
+    await flushUpdates()
     return {
       injector,
       slider: document.querySelector('shade-slider') as HTMLElement,
@@ -675,7 +675,7 @@ describe('Slider', () => {
 
           root.dispatchEvent(new MouseEvent('mousedown', { clientX: 150, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -691,7 +691,7 @@ describe('Slider', () => {
 
         slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
         document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onValueChange).not.toHaveBeenCalled()
       })
@@ -709,7 +709,7 @@ describe('Slider', () => {
           expect(root.hasAttribute('data-dragging')).toBe(true)
 
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(root.hasAttribute('data-dragging')).toBe(false)
         },
@@ -728,7 +728,7 @@ describe('Slider', () => {
 
           document.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -754,7 +754,7 @@ describe('Slider', () => {
           // Click at 90% (180px) → closer to thumb at 80%
           root.dispatchEvent(new MouseEvent('mousedown', { clientX: 180, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const val = onValueChange.mock.calls[0][0] as [number, number]
@@ -782,7 +782,7 @@ describe('Slider', () => {
           // New val for thumb[0]=20. 20 < 60, no swap.
           root.dispatchEvent(new MouseEvent('mousedown', { clientX: 40, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const val = onValueChange.mock.calls[0][0] as [number, number]
@@ -814,7 +814,7 @@ describe('Slider', () => {
           // Move to 60px (30%)
           document.dispatchEvent(new MouseEvent('mousemove', { clientX: 60, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const val = onValueChange.mock.calls[0][0] as [number, number]
@@ -835,7 +835,7 @@ describe('Slider', () => {
           // Click at bottom-50px (bottom=200, clientY=150 → (200-150)/200=25%)
           root.dispatchEvent(new MouseEvent('mousedown', { clientX: 2, clientY: 150, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -855,7 +855,7 @@ describe('Slider', () => {
           // Click far to the right beyond the track
           root.dispatchEvent(new MouseEvent('mousedown', { clientX: 400, clientY: 2, bubbles: true }))
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -895,7 +895,7 @@ describe('Slider', () => {
           const touch = { clientX: 100, clientY: 2, identifier: 0, target: root }
           root.dispatchEvent(new TouchEvent('touchstart', { touches: [touch as unknown as Touch] }))
           document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [touch as unknown as Touch] }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -922,7 +922,7 @@ describe('Slider', () => {
 
           const endTouch = { clientX: 150, clientY: 2, identifier: 0, target: slider }
           document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [endTouch as unknown as Touch] }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
           const calledWith = onValueChange.mock.calls[0][0] as number
@@ -974,7 +974,7 @@ describe('Slider', () => {
           expect(root!.hasAttribute('data-dragging')).toBe(true)
 
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-          await sleepAsync(50)
+          await flushUpdates()
 
           expect(onValueChange).toHaveBeenCalled()
         },
@@ -1003,7 +1003,7 @@ describe('Slider', () => {
 
         slider.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, clientY: 2, bubbles: true }))
         document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         // Should not have fired because getValueFromPointer returned null
         expect(onValueChange).not.toHaveBeenCalled()

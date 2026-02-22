@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Grid, type GridProps, type HeaderCells, type RowCells } from './grid.js'
 
@@ -24,7 +24,7 @@ describe('Grid', () => {
       rootElement: root,
       jsxElement: <Grid {...props} />,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     const grid = document.querySelector('shade-grid') as HTMLElement
     return {
       injector,

@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGridRow } from './data-grid-row.js'
@@ -71,7 +71,7 @@ describe('DataGridRow', () => {
         </div>
       ),
     })
-    await sleepAsync(50)
+    await flushUpdates()
 
     return {
       injector,
@@ -166,11 +166,11 @@ describe('DataGridRow', () => {
           expect(row?.hasAttribute('data-selected')).toBe(false)
 
           service.selection.setValue([entry])
-          await sleepAsync(50)
+          await flushUpdates()
           expect(row?.hasAttribute('data-selected')).toBe(true)
 
           service.selection.setValue([])
-          await sleepAsync(50)
+          await flushUpdates()
           expect(row?.hasAttribute('data-selected')).toBe(false)
         })
       })
@@ -184,7 +184,7 @@ describe('DataGridRow', () => {
           expect(row?.getAttribute('aria-selected')).toBe('false')
 
           service.selection.setValue([entry])
-          await sleepAsync(50)
+          await flushUpdates()
           expect(row?.getAttribute('aria-selected')).toBe('true')
         })
       })
@@ -256,11 +256,11 @@ describe('DataGridRow', () => {
           expect(row?.hasAttribute('data-focused')).toBe(false)
 
           service.focusedEntry.setValue(entry)
-          await sleepAsync(50)
+          await flushUpdates()
           expect(row?.hasAttribute('data-focused')).toBe(true)
 
           service.focusedEntry.setValue(undefined)
-          await sleepAsync(50)
+          await flushUpdates()
           expect(row?.hasAttribute('data-focused')).toBe(false)
         })
       })

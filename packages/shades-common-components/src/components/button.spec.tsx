@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Button } from './button.js'
 
@@ -22,7 +22,7 @@ describe('Button', () => {
       rootElement: root,
       jsxElement: <Button {...props}>{children}</Button>,
     })
-    await sleepAsync(50)
+    await flushUpdates()
     return {
       injector,
       button: root.querySelector('button[is="shade-button"]') as HTMLButtonElement,
@@ -86,7 +86,7 @@ describe('Button', () => {
           jsxElement: <TestComponent variant="contained" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
         const button = root.querySelector('button[is="shade-button"]') as HTMLButtonElement
         expect(button.getAttribute('data-variant')).toBe('contained')
       })

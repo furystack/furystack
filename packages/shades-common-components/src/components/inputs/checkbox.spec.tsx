@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { Form, FormService } from '../form.js'
@@ -26,7 +26,7 @@ describe('Checkbox', () => {
         jsxElement: <Checkbox />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const checkbox = document.querySelector('shade-checkbox')
       expect(checkbox).not.toBeNull()
@@ -43,7 +43,7 @@ describe('Checkbox', () => {
         jsxElement: <Checkbox name="testField" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
       expect(input).not.toBeNull()
@@ -61,7 +61,7 @@ describe('Checkbox', () => {
         jsxElement: <Checkbox labelTitle="Accept terms" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const label = document.querySelector('shade-checkbox label') as HTMLLabelElement
       expect(label).not.toBeNull()
@@ -79,7 +79,7 @@ describe('Checkbox', () => {
         jsxElement: <Checkbox />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const labelSpan = document.querySelector('shade-checkbox .checkbox-label')
       expect(labelSpan).toBeNull()
@@ -97,7 +97,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox checked />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
         expect(input.checked).toBe(true)
@@ -114,7 +114,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox checked={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
         expect(input.checked).toBe(false)
@@ -133,7 +133,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox disabled />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         expect(wrapper.hasAttribute('data-disabled')).toBe(true)
@@ -153,7 +153,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox disabled={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         expect(wrapper.hasAttribute('data-disabled')).toBe(false)
@@ -172,7 +172,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox indeterminate />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         expect(wrapper.hasAttribute('data-indeterminate')).toBe(true)
@@ -189,7 +189,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox indeterminate={false} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         expect(wrapper.hasAttribute('data-indeterminate')).toBe(false)
@@ -208,7 +208,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -226,7 +226,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox color="secondary" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
         const themeService = injector.getInstance(ThemeProviderService)
@@ -247,12 +247,12 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox onchange={onchange} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
         input.dispatchEvent(new Event('change', { bubbles: true }))
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(onchange).toHaveBeenCalled()
       })
@@ -270,7 +270,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox name="terms" value="accepted" />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
         expect(input.value).toBe('accepted')
@@ -290,7 +290,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox required />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const input = document.querySelector('shade-checkbox input[type="checkbox"]') as HTMLInputElement
         expect(input.required).toBe(true)
@@ -309,7 +309,7 @@ describe('Checkbox', () => {
           jsxElement: <Checkbox labelProps={{ className: 'custom-label' }} />,
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const label = document.querySelector('shade-checkbox label') as HTMLLabelElement
         expect(label.className).toContain('custom-label')
@@ -334,7 +334,7 @@ describe('Checkbox', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -360,7 +360,7 @@ describe('Checkbox', () => {
           ),
         })
 
-        await sleepAsync(50)
+        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -370,7 +370,7 @@ describe('Checkbox', () => {
 
         rootElement.innerHTML = ''
 
-        await sleepAsync(50)
+        await flushUpdates()
       })
     })
   })

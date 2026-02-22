@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ContextMenuItem } from './context-menu-manager.js'
 import { ContextMenuManager } from './context-menu-manager.js'
@@ -35,7 +35,7 @@ describe('ContextMenu', () => {
       jsxElement: <ContextMenu<TestData> manager={manager} onItemSelect={options?.onItemSelect} />,
     })
 
-    await sleepAsync(50)
+    await flushUpdates()
 
     return {
       injector,
@@ -71,7 +71,7 @@ describe('ContextMenu', () => {
     it('should render the menu container when opened', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 100, y: 200 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getMenu()).not.toBeNull()
         expect(getMenu().getAttribute('role')).toBe('menu')
@@ -81,7 +81,7 @@ describe('ContextMenu', () => {
     it('should render menu items', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenuItems }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getMenuItems().length).toBe(3)
       })
@@ -90,7 +90,7 @@ describe('ContextMenu', () => {
     it('should render separators', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getSeparators }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getSeparators().length).toBe(1)
       })
@@ -99,7 +99,7 @@ describe('ContextMenu', () => {
     it('should render items with menuitem role', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenuItems }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = getMenuItems()
         items.forEach((item) => {
@@ -111,7 +111,7 @@ describe('ContextMenu', () => {
     it('should render a backdrop element', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getBackdrop }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getBackdrop()).not.toBeNull()
       })
@@ -120,7 +120,7 @@ describe('ContextMenu', () => {
     it('should position the menu at the specified coordinates', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 150, y: 250 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const menu = getMenu()
         expect(menu.style.left).toBe('150px')
@@ -133,12 +133,12 @@ describe('ContextMenu', () => {
     it('should close when backdrop is clicked', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getBackdrop, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getMenu()).not.toBeNull()
 
         getBackdrop().click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(manager.isOpened.getValue()).toBe(false)
         expect(getMenu()).toBeNull()
@@ -148,12 +148,12 @@ describe('ContextMenu', () => {
     it('should close when Escape is pressed', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(getMenu()).not.toBeNull()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(manager.isOpened.getValue()).toBe(false)
         expect(getMenu()).toBeNull()
@@ -163,11 +163,11 @@ describe('ContextMenu', () => {
     it('should not close when clicking inside the menu container', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const menu = getMenu()
         menu.click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(manager.isOpened.getValue()).toBe(true)
       })
@@ -179,11 +179,11 @@ describe('ContextMenu', () => {
       const onItemSelect = vi.fn()
       await usingAsync(await renderContextMenu({ onItemSelect }), async ({ manager, getMenuItems }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = getMenuItems()
         ;(items[1] as HTMLElement).click()
-        await sleepAsync(10)
+        await flushUpdates()
 
         expect(onItemSelect).toHaveBeenCalledWith({ id: 2, name: 'Copy' })
       })
@@ -192,11 +192,11 @@ describe('ContextMenu', () => {
     it('should close the menu after item selection', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenuItems, getMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = getMenuItems()
         ;(items[0] as HTMLElement).click()
-        await sleepAsync(50)
+        await flushUpdates()
 
         expect(manager.isOpened.getValue()).toBe(false)
         expect(getMenu()).toBeNull()
@@ -207,11 +207,11 @@ describe('ContextMenu', () => {
       const onItemSelect = vi.fn()
       await usingAsync(await renderContextMenu({ onItemSelect }), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(1)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-        await sleepAsync(10)
+        await flushUpdates()
 
         expect(onItemSelect).toHaveBeenCalledWith({ id: 2, name: 'Copy' })
       })
@@ -222,7 +222,7 @@ describe('ContextMenu', () => {
     it('should move focus down with ArrowDown', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
@@ -233,7 +233,7 @@ describe('ContextMenu', () => {
     it('should move focus up with ArrowUp', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(1)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
@@ -245,7 +245,7 @@ describe('ContextMenu', () => {
     it('should skip separators during navigation', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(1)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -257,10 +257,10 @@ describe('ContextMenu', () => {
     it('should add focused class to the focused item', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getMenuItems }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(1)
-        await sleepAsync(10)
+        await flushUpdates()
 
         const items = getMenuItems()
         expect(items[0].hasAttribute('data-focused')).toBe(false)
@@ -272,7 +272,7 @@ describe('ContextMenu', () => {
     it('should move focus to Home', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(3)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
@@ -284,7 +284,7 @@ describe('ContextMenu', () => {
     it('should move focus to End', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
 
@@ -304,11 +304,11 @@ describe('ContextMenu', () => {
           ],
           position: { x: 0, y: 0 },
         })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = getMenuItems()
         ;(items[1] as HTMLElement).click()
-        await sleepAsync(10)
+        await flushUpdates()
 
         expect(onItemSelect).not.toHaveBeenCalled()
       })
@@ -323,7 +323,7 @@ describe('ContextMenu', () => {
           ],
           position: { x: 0, y: 0 },
         })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const items = getMenuItems()
         expect(items[0].getAttribute('aria-disabled')).toBeNull()
@@ -336,11 +336,11 @@ describe('ContextMenu', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
       await usingAsync(await renderContextMenu(), async ({ manager, getContextMenu }) => {
         manager.open({ items: createTestItems(), position: { x: 0, y: 0 } })
-        await sleepAsync(50)
+        await flushUpdates()
 
         const contextMenu = getContextMenu()
         contextMenu.remove()
-        await sleepAsync(10)
+        await flushUpdates()
 
         manager.focusedIndex.setValue(0)
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))

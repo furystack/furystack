@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
-import { sleepAsync, usingAsync } from '@furystack/utils'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Image, ImageGroup } from './image.js'
 
@@ -25,7 +25,7 @@ describe('Image component', () => {
         jsxElement: <Image src={testSrc} alt={testAlt} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image')
       expect(imageComponent).not.toBeNull()
@@ -47,7 +47,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img')
       expect(img).not.toBeNull()
@@ -65,7 +65,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" width="300px" height="200px" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       expect(img).not.toBeNull()
@@ -84,7 +84,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" objectFit="contain" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       expect(img).not.toBeNull()
@@ -102,7 +102,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" lazy />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       expect(img).not.toBeNull()
@@ -120,7 +120,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       expect(img).not.toBeNull()
@@ -138,7 +138,7 @@ describe('Image component', () => {
         jsxElement: <Image src="invalid-url" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image')
       expect(imageComponent).not.toBeNull()
@@ -149,7 +149,7 @@ describe('Image component', () => {
       const errorEvent = new Event('error')
       img.dispatchEvent(errorEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(img.style.display).toBe('none')
 
@@ -170,7 +170,7 @@ describe('Image component', () => {
         jsxElement: <Image src="invalid-url" fallback={<span data-testid="custom-fallback">Image not found</span>} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image')
       const img = imageComponent?.querySelector('img') as HTMLImageElement
@@ -178,7 +178,7 @@ describe('Image component', () => {
       const errorEvent = new Event('error')
       img.dispatchEvent(errorEvent)
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const customFallback = imageComponent?.querySelector('[data-testid="custom-fallback"]')
       expect(customFallback).not.toBeNull()
@@ -196,7 +196,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image') as HTMLElement
       expect(imageComponent).not.toBeNull()
@@ -217,7 +217,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image') as HTMLElement
       expect(imageComponent.hasAttribute('data-preview')).toBe(false)
@@ -237,12 +237,12 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" alt="My photo" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -271,12 +271,12 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).toBeNull()
@@ -293,19 +293,20 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
-      await sleepAsync(200)
+      await flushUpdates()
+      await flushUpdates()
 
       lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).toBeNull()
@@ -322,12 +323,12 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -354,7 +355,7 @@ describe('Image component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" alt="Test" />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image') as HTMLElement
       expect(imageComponent.getAttribute('data-src')).toBe('https://example.com/photo.jpg')
@@ -388,7 +389,7 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const group = document.querySelector('shade-image-group')
       expect(group).not.toBeNull()
@@ -413,7 +414,7 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const group = document.querySelector('shade-image-group') as HTMLElement
       expect(group).not.toBeNull()
@@ -437,7 +438,7 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const images = document.querySelectorAll('shade-image img')
       expect(images.length).toBe(3)
@@ -445,7 +446,7 @@ describe('ImageGroup component', () => {
       // Click the second image
       ;(images[1] as HTMLImageElement).click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -482,12 +483,12 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const images = document.querySelectorAll('shade-image img')
       ;(images[0] as HTMLImageElement).click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -499,7 +500,7 @@ describe('ImageGroup component', () => {
       const nextBtn = lightbox?.querySelector('.lightbox-next') as HTMLButtonElement
       nextBtn.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.src).toBe('https://example.com/2.jpg')
 
@@ -527,12 +528,12 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const images = document.querySelectorAll('shade-image img')
       ;(images[0] as HTMLImageElement).click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       const lightboxImg = lightbox?.querySelector('.lightbox-image') as HTMLImageElement
@@ -541,7 +542,7 @@ describe('ImageGroup component', () => {
       const prevBtn = lightbox?.querySelector('.lightbox-prev') as HTMLButtonElement
       prevBtn.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.src).toBe('https://example.com/3.jpg')
 
@@ -568,12 +569,12 @@ describe('ImageGroup component', () => {
         ),
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const images = document.querySelectorAll('shade-image img')
       ;(images[0] as HTMLImageElement).click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -583,13 +584,13 @@ describe('ImageGroup component', () => {
 
       // Navigate with ArrowRight
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.src).toBe('https://example.com/2.jpg')
 
       // Navigate with ArrowLeft
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.src).toBe('https://example.com/1.jpg')
 
@@ -608,12 +609,12 @@ describe('ImageGroup component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -623,14 +624,14 @@ describe('ImageGroup component', () => {
       // Zoom in
       const zoomInBtn = lightbox?.querySelector('.lightbox-zoom-in') as HTMLButtonElement
       zoomInBtn.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.style.transform).toContain('scale(1.25)')
 
       // Zoom out
       const zoomOutBtn = lightbox?.querySelector('.lightbox-zoom-out') as HTMLButtonElement
       zoomOutBtn.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.style.transform).toContain('scale(1)')
 
@@ -649,19 +650,19 @@ describe('ImageGroup component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop')
       const lightboxImg = lightbox?.querySelector('.lightbox-image') as HTMLImageElement
 
       const rotateBtn = lightbox?.querySelector('.lightbox-rotate') as HTMLButtonElement
       rotateBtn.click()
-      await sleepAsync(50)
+      await flushUpdates()
 
       expect(lightboxImg.style.transform).toContain('rotate(90deg)')
 
@@ -680,12 +681,12 @@ describe('ImageGroup component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       let lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).not.toBeNull()
@@ -693,7 +694,8 @@ describe('ImageGroup component', () => {
       const closeBtn = lightbox?.querySelector('.lightbox-close') as HTMLButtonElement
       closeBtn.click()
 
-      await sleepAsync(200)
+      await flushUpdates()
+      await flushUpdates()
 
       lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).toBeNull()
@@ -710,12 +712,12 @@ describe('ImageGroup component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" preview />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const img = document.querySelector('shade-image img') as HTMLImageElement
       img.click()
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const lightbox = document.querySelector('.lightbox-backdrop') as HTMLElement
       expect(lightbox).not.toBeNull()
@@ -723,7 +725,8 @@ describe('ImageGroup component', () => {
       // Click on the backdrop itself (not child elements)
       lightbox.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-      await sleepAsync(200)
+      await flushUpdates()
+      await flushUpdates()
 
       expect(document.querySelector('.lightbox-backdrop')).toBeNull()
     })
@@ -739,7 +742,7 @@ describe('ImageGroup component', () => {
         jsxElement: <Image src="https://example.com/photo.jpg" style={{ margin: '10px' }} />,
       })
 
-      await sleepAsync(50)
+      await flushUpdates()
 
       const imageComponent = document.querySelector('shade-image') as HTMLElement
       expect(imageComponent.style.margin).toBe('10px')
