@@ -64,9 +64,9 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const selects = footer?.querySelectorAll('select')
+      const rowsPerPageSelect = footer?.querySelector('.pager-section select')
 
-      expect(selects?.length).toBeGreaterThan(0)
+      expect(rowsPerPageSelect).not.toBeNull()
     })
   })
 
@@ -97,7 +97,7 @@ describe('DataGridFooter', () => {
     })
   })
 
-  it('should show page selector when pagination is enabled', async () => {
+  it('should show Pagination component when pagination is enabled', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
@@ -112,12 +112,12 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const pager = footer?.querySelector('.pager')
-      expect(pager?.textContent).toContain('Page')
+      const pagination = footer?.querySelector('shade-pagination')
+      expect(pagination).not.toBeNull()
     })
   })
 
-  it('should hide page selector when showing all items (Infinity)', async () => {
+  it('should hide Pagination when showing all items (Infinity)', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 50)
@@ -132,14 +132,12 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const pager = footer?.querySelector('.pager')
-      const sections = Array.from(pager?.querySelectorAll('.pager-section') ?? [])
-      const pageSection = sections.find((s) => s.textContent?.includes('Page'))
-      expect(pageSection).toBeUndefined()
+      const pagination = footer?.querySelector('shade-pagination')
+      expect(pagination).toBeNull()
     })
   })
 
-  it('should render correct number of page options based on data count and items per page', async () => {
+  it('should render page buttons in Pagination based on data count and items per page', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
@@ -154,19 +152,17 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      const pageSelect = selects.find((s) => {
-        const parent = s.closest('.pager-section')
-        return parent?.textContent?.includes('Page')
-      })
+      const pagination = footer?.querySelector('shade-pagination')
+      expect(pagination).not.toBeNull()
 
-      expect(pageSelect).toBeDefined()
-      const options = pageSelect?.querySelectorAll('option')
-      expect(options?.length).toBe(4)
+      const pageButtons = Array.from(pagination?.querySelectorAll('.pagination-item') ?? []).filter((btn) =>
+        btn.getAttribute('aria-label')?.startsWith('Go to page'),
+      )
+      expect(pageButtons.length).toBe(4)
     })
   })
 
-  it('should update findOptions when page is changed', async () => {
+  it('should update findOptions when page is changed via Pagination', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
@@ -181,21 +177,16 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      const pageSelect = selects.find((s) => {
-        const parent = s.closest('.pager-section')
-        return parent?.textContent?.includes('Page')
-      })
+      const pagination = footer?.querySelector('shade-pagination')
+      const nextButton = pagination?.querySelector('[aria-label="Go to next page"]') as HTMLButtonElement | null
 
-      expect(pageSelect).toBeDefined()
-
-      pageSelect!.value = '2'
-      pageSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+      expect(nextButton).not.toBeNull()
+      nextButton!.click()
 
       await flushUpdates()
 
       const updatedOptions = findOptions.getValue()
-      expect(updatedOptions.skip).toBe(20)
+      expect(updatedOptions.skip).toBe(10)
     })
   })
 
@@ -266,7 +257,7 @@ describe('DataGridFooter', () => {
     })
   })
 
-  it('should select the correct current page in the page selector', async () => {
+  it('should highlight the correct current page in Pagination', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
@@ -281,14 +272,11 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       const footer = document.querySelector('shade-data-grid-footer')
-      const selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      const pageSelect = selects.find((s) => {
-        const parent = s.closest('.pager-section')
-        return parent?.textContent?.includes('Page')
-      })
+      const pagination = footer?.querySelector('shade-pagination')
+      const selectedButton = pagination?.querySelector('.pagination-item[data-selected]')
 
-      expect(pageSelect).toBeDefined()
-      expect(pageSelect?.value).toBe('3')
+      expect(selectedButton).not.toBeNull()
+      expect(selectedButton?.textContent?.trim()).toBe('4')
     })
   })
 
@@ -321,7 +309,7 @@ describe('DataGridFooter', () => {
   it('should react to data count changes', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const service = createService([], 50)
+      const service = createService([], 30)
       const findOptions = createFindOptions(10, 0)
 
       initializeShadeRoot({
@@ -333,22 +321,22 @@ describe('DataGridFooter', () => {
       await flushUpdates()
 
       let footer = document.querySelector('shade-data-grid-footer')
-      let selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      let pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
-      let pageOptions = pageSelect?.querySelectorAll('option')
+      let pagination = footer?.querySelector('shade-pagination')
+      let pageButtons = Array.from(pagination?.querySelectorAll('.pagination-item') ?? []).filter((btn) =>
+        btn.getAttribute('aria-label')?.startsWith('Go to page'),
+      )
+      expect(pageButtons.length).toBe(3)
 
-      expect(pageOptions?.length).toBe(5)
-
-      service.data.setValue({ entries: [], count: 100 })
+      service.data.setValue({ entries: [], count: 50 })
 
       await flushUpdates()
 
       footer = document.querySelector('shade-data-grid-footer')
-      selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
-      pageOptions = pageSelect?.querySelectorAll('option')
-
-      expect(pageOptions?.length).toBe(10)
+      pagination = footer?.querySelector('shade-pagination')
+      pageButtons = Array.from(pagination?.querySelectorAll('.pagination-item') ?? []).filter((btn) =>
+        btn.getAttribute('aria-label')?.startsWith('Go to page'),
+      )
+      expect(pageButtons.length).toBe(5)
     })
   })
 

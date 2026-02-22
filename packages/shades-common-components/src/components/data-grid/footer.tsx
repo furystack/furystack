@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import { Pagination } from '../pagination.js'
 
 export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
@@ -54,29 +55,19 @@ export const DataGridFooter: <T>(props: {
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
 
-    const pages = new Array(Math.ceil(currentData.count / (currentOptions.top || Infinity)))
-      .fill(0)
-      .map((_, index) => index)
+    const pageCount = Math.ceil(currentData.count / (currentOptions.top || Infinity))
 
     return (
       <div className="pager">
-        {currentEntriesPerPage !== Infinity && (
-          <div className="pager-section">
-            <span>Page</span>
-            <select
-              onchange={(ev) => {
-                const value = parseInt((ev.target as HTMLInputElement).value, 10)
-                setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * value })
-              }}
-            >
-              {pages.map((index) => (
-                <option value={index.toString()} selected={currentPage === index}>
-                  {(index + 1).toString()}
-                </option>
-              ))}
-            </select>
-            <span>of {pages.length}</span>
-          </div>
+        {currentEntriesPerPage !== Infinity && pageCount > 1 && (
+          <Pagination
+            count={pageCount}
+            page={currentPage + 1}
+            size="small"
+            onPageChange={(newPage) => {
+              setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * (newPage - 1) })
+            }}
+          />
         )}
         <div className="pager-section">
           <span>Rows per page</span>
