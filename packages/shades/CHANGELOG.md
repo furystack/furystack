@@ -1,5 +1,19 @@
 # Changelog
 
+## [12.2.1] - 2026-02-22
+
+### ⚡ Performance
+
+### Synchronous child reconciliation
+
+Child Shade component updates during parent-to-child reconciliation are now performed synchronously via a new `updateComponentSync()` method. This eliminates cascading microtask ticks when a parent re-render propagates props to child components, settling the entire component tree in a single call frame. A single `await flushUpdates()` is now sufficient to settle the full tree after a state change.
+
+- Host props are now applied before patching children, allowing child components rendered synchronously to discover parent state (e.g. injector) via `getInjectorFromParent()` immediately
+
+### 🧪 Tests
+
+- Replaced `sleepAsync()` with `flushUpdates()` across all component tests for deterministic, timing-independent assertions
+
 ## [12.2.0] - 2026-02-22
 
 ### ✨ Features

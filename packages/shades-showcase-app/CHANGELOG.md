@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.1.0] - 2026-02-22
+
+### ✨ Features
+
+- Replaced the generic `TestClass` grid demo with a thematic `GameItem` model featuring RPG-style items with typed properties (name, type, rarity, level, weight, quest item flag, and discovery date)
+- Added typed filter configurations for grid columns: string filter on `name`, enum filters on `type` and `rarity`, number filter on `level`, boolean filter on `isQuestItem`, and date filter on `discoveredAt`
+- Added color-coded rarity display in the grid (common through legendary)
+
 ## [8.0.6] - 2026-02-22
 
 ### ⬆️ Dependencies

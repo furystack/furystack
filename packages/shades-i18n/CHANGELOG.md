@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.4] - 2026-02-22
+
+### 🧪 Tests
+
+- Replaced `sleepAsync()` with `flushUpdates()` across all i18n component tests for deterministic, timing-independent assertions
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` peer dependency
+
 ## [2.0.3] - 2026-02-22
 
 ### ⬆️ Dependencies

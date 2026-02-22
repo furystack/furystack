@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.0.8] - 2026-02-22
+
+### 🧪 Tests
+
+- Updated grid e2e test and snapshot to reflect the new `GameItem` data model and filter UI
+
+### ✨ Features
+
+- Added total entity count support to the entity-sync system — collection subscriptions now report entries and count as a unified, always-consistent state for building paginated UIs
+
 ## [8.0.7] - 2026-02-22
 
 ### ⬆️ Dependencies
