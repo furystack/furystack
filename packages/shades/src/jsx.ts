@@ -51,7 +51,6 @@ declare global {
       injector: Injector
       props: TProps
       updateComponent: () => void
-      updateComponentSync: () => void
       shadeChildren?: ChildrenList
       resourceManager: ResourceManager
       getRenderCount(): number

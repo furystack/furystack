@@ -101,6 +101,7 @@ describe('<MicroFrontend /> component', () => {
         ),
       })
       await flushUpdates()
+      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><div>Error...</div></div></shade-micro-frontend></div>`,
       )

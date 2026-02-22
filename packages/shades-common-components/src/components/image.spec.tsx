@@ -306,6 +306,7 @@ describe('Image component', () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
       await flushUpdates()
+      await flushUpdates()
 
       lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).toBeNull()
@@ -694,6 +695,7 @@ describe('ImageGroup component', () => {
       closeBtn.click()
 
       await flushUpdates()
+      await flushUpdates()
 
       lightbox = document.querySelector('.lightbox-backdrop')
       expect(lightbox).toBeNull()
@@ -723,6 +725,7 @@ describe('ImageGroup component', () => {
       // Click on the backdrop itself (not child elements)
       lightbox.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
+      await flushUpdates()
       await flushUpdates()
 
       expect(document.querySelector('.lightbox-backdrop')).toBeNull()
