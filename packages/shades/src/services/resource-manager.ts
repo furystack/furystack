@@ -7,22 +7,43 @@ import { ObservableValue, isAsyncDisposable, isDisposable } from '@furystack/uti
  */
 export class ResourceManager implements AsyncDisposable {
   private readonly disposables = new Map<string, Disposable | AsyncDisposable>()
+  private readonly disposableDeps = new Map<string, string>()
 
   /**
    * Returns an existing disposable resource by key, or creates and caches a new one.
    * Resources are automatically disposed when the component is removed from the DOM.
+   * When `deps` is provided, the resource is re-created (and the old one disposed) whenever
+   * the serialized deps value changes. This is useful for resources that depend on dynamic
+   * parameters (e.g., entity-sync subscriptions with changing query options).
    * @param key Unique key for caching this resource
    * @param factory Factory function called once to create the resource
+   * @param deps Optional dependency array -- when deps change, the old resource is disposed and a new one is created
    * @returns The cached or newly created resource
    */
-  public useDisposable<T extends Disposable | AsyncDisposable>(key: string, factory: () => T): T {
+  public useDisposable<T extends Disposable | AsyncDisposable>(
+    key: string,
+    factory: () => T,
+    deps?: readonly unknown[],
+  ): T {
     const existing = this.disposables.get(key)
-    if (!existing) {
-      const created = factory()
-      this.disposables.set(key, created)
-      return created
+    const depsKey = deps !== undefined ? JSON.stringify(deps) : undefined
+
+    if (existing) {
+      if (depsKey !== undefined && this.disposableDeps.get(key) !== depsKey) {
+        if (isDisposable(existing)) existing[Symbol.dispose]()
+        if (isAsyncDisposable(existing)) void existing[Symbol.asyncDispose]()
+        const created = factory()
+        this.disposables.set(key, created)
+        this.disposableDeps.set(key, depsKey)
+        return created
+      }
+      return existing as T
     }
-    return existing as T
+
+    const created = factory()
+    this.disposables.set(key, created)
+    if (depsKey !== undefined) this.disposableDeps.set(key, depsKey)
+    return created
   }
 
   public readonly observers = new Map<string, ValueObserver<any>>()
@@ -108,6 +129,7 @@ export class ResourceManager implements AsyncDisposable {
     }
 
     this.disposables.clear()
+    this.disposableDeps.clear()
     this.observers.forEach((r) => r[Symbol.dispose]())
     this.observers.clear()
 

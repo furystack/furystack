@@ -29,6 +29,8 @@ export class FormService<T> {
 
   public inputs = new Set<HTMLInputElement>()
 
+  public isSubmitting = new ObservableValue<boolean>(false)
+
   public setFieldState = (key: keyof T, validationResult: InputValidationResult, validity: ValidityState) => {
     this.fieldErrors.setValue({ ...this.fieldErrors.getValue(), [key]: { validationResult, validity } })
   }
@@ -37,13 +39,15 @@ export class FormService<T> {
     this.validatedFormData[Symbol.dispose]()
     this.rawFormData[Symbol.dispose]()
     this.validationResult[Symbol.dispose]()
+    this.isSubmitting[Symbol.dispose]()
   }
 }
 
 type FormProps<T> = {
-  onSubmit: (formData: T) => void
+  onSubmit: (formData: T) => void | Promise<void>
   onReset?: () => void
-  validate: (formData: any) => formData is T
+  validate: (formData: unknown) => formData is T
+  disableOnSubmit?: boolean
 } & PartialElement<Omit<HTMLFormElement, 'onsubmit' | 'onchange' | 'onreset'>>
 
 export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Element = Shade({
@@ -61,13 +65,14 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
     // `injector` setter defined on the Shade base class.
     useHostProps({ injector: formInjector })
 
-    const changeHandler = (ev: Event, shouldSubmit?: boolean) => {
+    const changeHandler = async (ev: Event, shouldSubmit?: boolean) => {
       formService.inputs.forEach((i) => {
         const e = document.createEvent('FocusEvent')
         e.initEvent('blur', true, true)
         i.dispatchEvent(e)
       })
-      const formData = Object.fromEntries(new FormData(ev.currentTarget as HTMLFormElement).entries())
+      const formElement = ev.currentTarget as HTMLFormElement
+      const formData = Object.fromEntries(new FormData(formElement).entries())
       formService.rawFormData.setValue(formData)
       const currentFieldErrors = formService.fieldErrors.getValue()
 
@@ -80,7 +85,20 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
         formService.validationResult.setValue({ isValid: true })
         formService.validatedFormData.setValue(formData)
         if (shouldSubmit) {
-          props.onSubmit(formData)
+          formService.isSubmitting.setValue(true)
+          if (props.disableOnSubmit) {
+            formElement.inert = true
+          }
+          try {
+            await props.onSubmit(formData)
+          } catch {
+            // Consumer is responsible for error handling within onSubmit
+          } finally {
+            formService.isSubmitting.setValue(false)
+            if (props.disableOnSubmit) {
+              formElement.inert = false
+            }
+          }
         }
       } else {
         formService.validationResult.setValue({ isValid: false, reason: 'validation-failed' })
@@ -89,14 +107,14 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
 
     useHostProps({
       oninvalid: (ev: Event) => {
-        changeHandler(ev)
+        void changeHandler(ev)
       },
       onsubmit: (ev: SubmitEvent) => {
         ev.preventDefault()
-        changeHandler(ev, true)
+        void changeHandler(ev, true)
       },
       onchange: (ev: Event) => {
-        changeHandler(ev)
+        void changeHandler(ev)
       },
       onreset: () => {
         formService.rawFormData.setValue(null)

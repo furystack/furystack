@@ -227,4 +227,87 @@ describe('ResourceManager', () => {
 
     expect(disposable[Symbol.asyncDispose]).toHaveBeenCalledTimes(1)
   })
+
+  describe('useDisposable with deps', () => {
+    it('Should behave identically without deps (backward compat)', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const factory = vi.fn(() => ({
+          [Symbol.dispose]: () => {},
+        }))
+        const d1 = rm.useDisposable('test', factory)
+        const d2 = rm.useDisposable('test', factory)
+
+        expect(d1).toBe(d2)
+        expect(factory).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('Should return cached resource when deps are the same', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const factory = vi.fn(() => ({
+          [Symbol.dispose]: () => {},
+        }))
+        const d1 = rm.useDisposable('test', factory, [1, 'a'])
+        const d2 = rm.useDisposable('test', factory, [1, 'a'])
+
+        expect(d1).toBe(d2)
+        expect(factory).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('Should dispose old resource and create new one when deps change', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const dispose1 = vi.fn()
+        const dispose2 = vi.fn()
+
+        const d1 = rm.useDisposable('test', () => ({ [Symbol.dispose]: dispose1 }), ['v1'])
+        expect(dispose1).not.toHaveBeenCalled()
+
+        const d2 = rm.useDisposable('test', () => ({ [Symbol.dispose]: dispose2 }), ['v2'])
+        expect(dispose1).toHaveBeenCalledTimes(1)
+        expect(d1).not.toBe(d2)
+      })
+    })
+
+    it('Should call Symbol.asyncDispose on old async-disposable resource when deps change', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const asyncDispose1 = vi.fn()
+
+        rm.useDisposable('test', () => ({ [Symbol.asyncDispose]: asyncDispose1 }), ['v1'])
+        rm.useDisposable('test', () => ({ [Symbol.dispose]: () => {} }), ['v2'])
+
+        expect(asyncDispose1).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('Should handle multiple sequential dep changes (A -> B -> C)', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const disposeA = vi.fn()
+        const disposeB = vi.fn()
+        const disposeC = vi.fn()
+
+        const a = rm.useDisposable('test', () => ({ [Symbol.dispose]: disposeA }), ['A'])
+        const b = rm.useDisposable('test', () => ({ [Symbol.dispose]: disposeB }), ['B'])
+        const c = rm.useDisposable('test', () => ({ [Symbol.dispose]: disposeC }), ['C'])
+
+        expect(a).not.toBe(b)
+        expect(b).not.toBe(c)
+        expect(disposeA).toHaveBeenCalledTimes(1)
+        expect(disposeB).toHaveBeenCalledTimes(1)
+        expect(disposeC).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should dispose the final resource on ResourceManager disposal', async () => {
+      const disposeFn = vi.fn()
+
+      await usingAsync(new ResourceManager(), async (rm) => {
+        rm.useDisposable('test', () => ({ [Symbol.dispose]: vi.fn() }), ['v1'])
+        rm.useDisposable('test', () => ({ [Symbol.dispose]: disposeFn }), ['v2'])
+        expect(disposeFn).not.toHaveBeenCalled()
+      })
+
+      expect(disposeFn).toHaveBeenCalledTimes(1)
+    })
+  })
 })
