@@ -368,7 +368,6 @@ describe('NestedRouter lifecycle hooks', () => {
 
       // --- Initial load at /parent/child-a ---
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('child-a')
       expect(onVisitParent).toBeCalledTimes(1)
       expect(onVisitChildA).toBeCalledTimes(1)
@@ -378,7 +377,6 @@ describe('NestedRouter lifecycle hooks', () => {
       callOrder.length = 0
       clickOn('child-a')
       await flushUpdates()
-      await flushUpdates()
       expect(onVisitParent).toBeCalledTimes(1)
       expect(onVisitChildA).toBeCalledTimes(1)
       expect(callOrder).toEqual([])
@@ -386,7 +384,6 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Switch child: only child lifecycle fires, parent stays ---
       callOrder.length = 0
       clickOn('child-b')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('child-b')
       expect(onLeaveChildA).toBeCalledTimes(1)
@@ -410,7 +407,6 @@ describe('NestedRouter lifecycle hooks', () => {
       // --- Navigate to non-matching URL: onLeave for all active ---
       callOrder.length = 0
       clickOn('nowhere')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('not found')
       expect(onLeaveOther).toBeCalledTimes(1)
@@ -496,7 +492,6 @@ describe('NestedRouter latest-wins on rapid navigation', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       // --- Initial load at /route-a ---
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(onVisitA).toHaveBeenCalledTimes(1)
@@ -590,7 +585,6 @@ describe('NestedRouter lifecycle element scope', () => {
 
       // --- Initial load at /parent/child-a ---
       await flushUpdates()
-      await flushUpdates()
       expect(visitElements).toHaveLength(2)
       // Parent's onVisit element should be the full tree (parent wrapping child)
       expect(visitElements[0].route).toBe('parent')
@@ -603,7 +597,6 @@ describe('NestedRouter lifecycle element scope', () => {
       visitElements.length = 0
       leaveElements.length = 0
       clickOn('child-b')
-      await flushUpdates()
       await flushUpdates()
 
       // onLeave should receive the child-a element, not the full wrapper
@@ -663,21 +656,17 @@ describe('NestedRouter flat routes', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('home-page')
 
       clickOn('about')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('about-page')
 
       clickOn('contact')
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('contact-page')
 
       clickOn('home')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('home-page')
     })
@@ -726,7 +715,6 @@ describe('NestedRouter outlet composition', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       // Parent layout should be rendered with child inside
       expect(document.getElementById('header')?.innerHTML).toBe('Dashboard Header')
@@ -767,7 +755,6 @@ describe('NestedRouter outlet composition', () => {
         ),
       })
 
-      await flushUpdates()
       await flushUpdates()
 
       // Parent matched alone, outlet is undefined, so the fallback renders
@@ -830,7 +817,6 @@ describe('NestedRouter route param changes', () => {
 
       // Initial load at /users/1
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('user-1')
       expect(onVisitUser).toHaveBeenCalledTimes(1)
       expect(callOrder).toEqual(['visit-user'])
@@ -838,7 +824,6 @@ describe('NestedRouter route param changes', () => {
       // Navigate to /users/2 — same route, different param → lifecycle should fire
       callOrder.length = 0
       clickOn('user-2')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('user-2')
       expect(onLeaveUser).toHaveBeenCalledTimes(1)
@@ -849,7 +834,6 @@ describe('NestedRouter route param changes', () => {
       callOrder.length = 0
       clickOn('user-3')
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('user-3')
       expect(onLeaveUser).toHaveBeenCalledTimes(2)
       expect(onVisitUser).toHaveBeenCalledTimes(3)
@@ -858,7 +842,6 @@ describe('NestedRouter route param changes', () => {
       // Click same user — no lifecycle change
       callOrder.length = 0
       clickOn('user-3')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('user-3')
       expect(onLeaveUser).toHaveBeenCalledTimes(2)
@@ -916,7 +899,6 @@ describe('NestedRouter route param changes', () => {
 
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
-      await flushUpdates()
       await flushUpdates()
       expect(document.getElementById('org')?.textContent).toContain('org-alpha')
       expect(document.getElementById('child')?.innerHTML).toBe('dashboard')

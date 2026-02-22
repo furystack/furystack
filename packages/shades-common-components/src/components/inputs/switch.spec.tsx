@@ -311,7 +311,6 @@ describe('Switch', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
@@ -337,7 +336,6 @@ describe('Switch', () => {
           ),
         })
 
-        await flushUpdates()
         await flushUpdates()
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement

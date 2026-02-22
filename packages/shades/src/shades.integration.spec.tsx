@@ -521,7 +521,6 @@ describe('Shades integration tests', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       const innerInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement
       expect(innerInput).toBeTruthy()
@@ -531,9 +530,6 @@ describe('Shades integration tests', () => {
       const toggleBtn = document.getElementById('toggle-disabled') as HTMLButtonElement
       toggleBtn.click()
 
-      // Wait for parent re-render + child re-render (two microtask levels)
-      await flushUpdates()
-      await flushUpdates()
       await flushUpdates()
 
       const updatedInput = document.querySelector('[data-testid="inner-input"]') as HTMLInputElement

@@ -162,7 +162,6 @@ describe('RadioGroup', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         inputs.forEach((input) => {
@@ -190,7 +189,6 @@ describe('RadioGroup', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         expect((inputs[0] as HTMLInputElement).checked).toBe(false)
@@ -215,7 +213,6 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await flushUpdates()
         await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
@@ -243,7 +240,6 @@ describe('RadioGroup', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const inputs = document.querySelectorAll('shade-radio input[type="radio"]')
         inputs.forEach((input) => {
@@ -270,7 +266,6 @@ describe('RadioGroup', () => {
           ),
         })
 
-        await flushUpdates()
         await flushUpdates()
 
         const input = document.querySelectorAll('shade-radio input[type="radio"]')[1] as HTMLInputElement

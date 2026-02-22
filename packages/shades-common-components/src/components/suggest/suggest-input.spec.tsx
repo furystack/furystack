@@ -59,7 +59,6 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       const suggestInput = document.querySelector('shades-suggest-input')
       expect(suggestInput).not.toBeNull()
@@ -79,7 +78,6 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
-      await flushUpdates()
       await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -102,7 +100,6 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
-      await flushUpdates()
       await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -128,7 +125,6 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
-      await flushUpdates()
       await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
@@ -158,7 +154,6 @@ describe('SuggestInput', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       const input = document.querySelector('shades-suggest-input input') as HTMLInputElement
 
@@ -180,7 +175,6 @@ describe('SuggestInput', () => {
         jsxElement: <SuggestInput manager={manager} />,
       })
 
-      await flushUpdates()
       await flushUpdates()
 
       const suggestInput = document.querySelector('shades-suggest-input') as HTMLElement

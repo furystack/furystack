@@ -79,7 +79,6 @@ describe('Modal', () => {
 
         setVisible(true)
         await flushUpdates()
-        await flushUpdates()
 
         expect(document.body.innerHTML).toContain('shade-backdrop')
         expect(document.body.innerHTML).toContain('modal-content')
@@ -110,7 +109,6 @@ describe('Modal', () => {
         expect(document.body.innerHTML).toContain('modal-content')
 
         setVisible(false)
-        await flushUpdates()
         await flushUpdates()
 
         expect(document.body.innerHTML).not.toContain('shade-backdrop')
@@ -225,7 +223,6 @@ describe('Modal', () => {
         expect(showAnimation).not.toHaveBeenCalled()
 
         setVisible(true)
-        await flushUpdates()
         await flushUpdates()
 
         expect(showAnimation).toHaveBeenCalled()

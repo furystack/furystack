@@ -39,7 +39,6 @@ describe('<MicroFrontend /> component', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><mfe-test-example><div>Loaded: ${value}</div></mfe-test-example></div></shade-micro-frontend></div>`,
@@ -102,7 +101,6 @@ describe('<MicroFrontend /> component', () => {
         ),
       })
       await flushUpdates()
-      await flushUpdates()
       expect(document.body.innerHTML).toBe(
         `<div id="root"><shade-micro-frontend><div style="display: contents;"><div>Error...</div></div></shade-micro-frontend></div>`,
       )
@@ -152,7 +150,6 @@ describe('<MicroFrontend /> component', () => {
         rootElement,
         jsxElement: <Host />,
       })
-      await flushUpdates()
       await flushUpdates()
       expect(document.body.innerHTML).toBe(
         '<div id="root"><mfe-test-example-w-destroy-host><button>Remove MFE</button><shade-micro-frontend><div style="display: contents;"></div></shade-micro-frontend></mfe-test-example-w-destroy-host></div>',

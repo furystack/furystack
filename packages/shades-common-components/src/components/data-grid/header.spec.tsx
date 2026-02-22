@@ -272,7 +272,6 @@ describe('DataGridHeader', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
@@ -290,7 +289,6 @@ describe('DataGridHeader', () => {
           jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
-        await flushUpdates()
         await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button')
@@ -311,13 +309,11 @@ describe('DataGridHeader', () => {
 
         // Parent renders, then child FilterButton renders
         await flushUpdates()
-        await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button button')
         expect(filterButton?.hasAttribute('data-selected')).toBe(true)
 
         findOptions.setValue({ filter: {} })
-        await flushUpdates()
         await flushUpdates()
 
         const updatedButton = document.querySelector('data-grid-filter-button button')

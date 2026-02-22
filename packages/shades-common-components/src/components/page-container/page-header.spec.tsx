@@ -293,7 +293,6 @@ describe('PageHeader component', () => {
         })
 
         await flushUpdates()
-        await flushUpdates()
 
         const container = document.querySelector('div[is="shade-page-container"]')
         expect(container).not.toBeNull()

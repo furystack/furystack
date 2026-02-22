@@ -637,14 +637,12 @@ describe('VNode reconciliation integration tests', () => {
           jsxElement: <ParentComponent />,
         })
         await flushUpdates()
-        await flushUpdates()
 
         expect(document.getElementById('child-value')?.textContent).toBe('0')
         const childElement = document.querySelector('morph-child-component')
 
         // Trigger parent re-render
         document.getElementById('parent-increment')?.click()
-        await flushUpdates()
         await flushUpdates()
 
         // Child should be the same DOM element (not recreated)

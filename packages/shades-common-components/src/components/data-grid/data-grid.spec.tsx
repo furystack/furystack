@@ -858,7 +858,6 @@ describe('DataGrid', () => {
           })
 
           await flushUpdates()
-          await flushUpdates()
 
           const grid = document.querySelector('shade-data-grid')
           const cell = grid?.querySelector('td') as HTMLTableCellElement
@@ -896,7 +895,6 @@ describe('DataGrid', () => {
             ),
           })
 
-          await flushUpdates()
           await flushUpdates()
 
           const grid = document.querySelector('shade-data-grid')

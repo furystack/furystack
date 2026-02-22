@@ -126,7 +126,6 @@ describe('AppBarLink component', () => {
         injector.getInstance(LocationService).updateState()
 
         await flushUpdates()
-        await flushUpdates()
 
         expect(appBarLink?.hasAttribute('data-active')).toBe(true)
       })
@@ -153,7 +152,6 @@ describe('AppBarLink component', () => {
         history.pushState(null, '', '/other')
         injector.getInstance(LocationService).updateState()
 
-        await flushUpdates()
         await flushUpdates()
 
         expect(appBarLink?.hasAttribute('data-active')).toBe(false)
@@ -277,7 +275,6 @@ describe('AppBarLink component', () => {
         history.pushState(null, '', '/settings')
         injector.getInstance(LocationService).updateState()
 
-        await flushUpdates()
         await flushUpdates()
 
         expect(links[0]?.hasAttribute('data-active')).toBe(false)

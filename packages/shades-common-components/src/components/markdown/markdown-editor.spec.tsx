@@ -128,7 +128,6 @@ describe('MarkdownEditor', () => {
       })
 
       await flushUpdates()
-      await flushUpdates()
 
       const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
       expect(textarea.value).toBe(mdContent)

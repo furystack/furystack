@@ -83,7 +83,6 @@ describe('Router', () => {
 
       // --- Initial load at /route-a ---
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(onVisitA).toHaveBeenCalledTimes(1)
 
@@ -172,7 +171,6 @@ describe('Router', () => {
       const clickOn = (name: string) => document.getElementById(name)?.click()
 
       await flushUpdates()
-      await flushUpdates()
 
       expect(getLocation()).toBe('/')
       expect(getContent()).toBe('home')
@@ -181,7 +179,6 @@ describe('Router', () => {
 
       clickOn('a')
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('route-a')
       expect(getLocation()).toBe('/route-a')
       expect(onRouteChange).toBeCalledTimes(1)
@@ -189,12 +186,10 @@ describe('Router', () => {
 
       clickOn('a')
       await flushUpdates()
-      await flushUpdates()
       expect(onVisit).toBeCalledTimes(1)
       expect(onLeave).not.toBeCalled()
 
       clickOn('b')
-      await flushUpdates()
       await flushUpdates()
       expect(onLeave).toBeCalledTimes(1)
 
@@ -203,19 +198,16 @@ describe('Router', () => {
 
       clickOn('b-with-id')
       await flushUpdates()
-      await flushUpdates()
       expect(getContent()).toBe('route-b123')
       expect(getLocation()).toBe('/route-b/123')
 
       clickOn('c')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('route-c')
       expect(getLocation()).toBe('/route-c')
 
       expect(onLastLeave).not.toBeCalled()
       clickOn('x')
-      await flushUpdates()
       await flushUpdates()
       expect(getContent()).toBe('not found')
       expect(getLocation()).toBe('/route-x')
