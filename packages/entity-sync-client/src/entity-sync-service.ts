@@ -402,7 +402,7 @@ export class EntitySyncService implements Disposable {
   private createLiveCollectionHandle<T>(internal: LiveCollectionInternal, collectionKey: string): LiveCollection<T> {
     let disposed = false
     return {
-      state: internal.state as unknown as ObservableValue<SyncState<{ entries: T[]; count: number }>>,
+      state: internal.state as ObservableValue<SyncState<{ entries: T[]; count: number }>>,
       [Symbol.dispose]: () => {
         if (disposed) return
         disposed = true
