@@ -25,7 +25,7 @@ type SuggestAsyncProps<T> = {
 
 type SuggestSyncProps = {
   defaultPrefix: JSX.Element | string
-  /** Static list of string suggestions. Filtered client-side by the search term. */
+  /** Static list of string suggestions. Filtered client-side by the search term. When the term is empty, all suggestions are shown. */
   suggestions: string[]
   onSelectSuggestion: (entry: string) => void
   style?: Partial<CSSStyleDeclaration>

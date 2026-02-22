@@ -16,8 +16,10 @@ type FieldOperatorFilter = {
   $regex?: string
 }
 
+const escapeRegexMeta = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 const evaluateLike = (value: string, likeString: string) => {
-  const likeRegex = `^${likeString.replace(/%/g, '.*')}$`
+  const likeRegex = `^${likeString.split('%').map(escapeRegexMeta).join('.*')}$`
   return value.match(new RegExp(likeRegex, 'i'))
 }
 
@@ -103,8 +105,15 @@ export function filterItems<T>(values: T[], filter?: FilterType<T>): T[] {
                   }
                   return false
                 case '$regex':
-                  if (!new RegExp(filterValue as string).test(String(itemValue))) {
-                    return false
+                  try {
+                    if (!new RegExp(filterValue as string).test(String(itemValue))) {
+                      return false
+                    }
+                  } catch (e) {
+                    throw new Error(
+                      `Invalid regular expression for $regex filter on field '${key}': ${(e as Error).message}`,
+                      { cause: e },
+                    )
                   }
                   break
                 case '$startsWith':

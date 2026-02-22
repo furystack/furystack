@@ -133,6 +133,12 @@ export const Wizard = Shade<WizardProps>({
   render: ({ props, useState }) => {
     const [currentPage, setCurrentPage] = useState('currentPage', 0)
 
+    if (props.stepLabels && props.stepLabels.length !== props.steps.length) {
+      console.warn(
+        `[Wizard] stepLabels length (${props.stepLabels.length}) does not match steps length (${props.steps.length}).`,
+      )
+    }
+
     const CurrentPage = props.steps[currentPage]
     const progressPercent = props.steps.length > 1 ? (currentPage / (props.steps.length - 1)) * 100 : 100
 
