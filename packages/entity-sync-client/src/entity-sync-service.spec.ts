@@ -256,7 +256,7 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(2)
+          expect(state.data.entries).toHaveLength(2)
         }
       })
     })
@@ -292,16 +292,18 @@ describe('EntitySyncService', () => {
     })
   })
 
-  describe('collection totalCount', () => {
-    it('should initialize totalCount to undefined', async () => {
+  describe('collection state shape', () => {
+    it('should not include entries or count in connecting state', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
-        expect(live.totalCount.getValue()).toBeUndefined()
+        const state = live.state.getValue()
+        expect(state).toEqual({ status: 'connecting' })
+        expect('data' in state).toBe(false)
       })
     })
 
-    it('should set totalCount from subscribed snapshot response', async () => {
+    it('should include count in synced state from snapshot response', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
@@ -318,36 +320,16 @@ describe('EntitySyncService', () => {
           42,
         )
 
-        expect(live.totalCount.getValue()).toBe(42)
+        const state = live.state.getValue()
+        expect(state.status).toBe('synced')
+        if (state.status === 'synced') {
+          expect(state.data.count).toBe(42)
+          expect(state.data.entries).toHaveLength(2)
+        }
       })
     })
 
-    it('should update totalCount on collection-count-updated message', async () => {
-      await usingAsync(setupClient(), async ({ mockWs, service }) => {
-        mockWs.simulateOpen()
-        const live = service.subscribeCollection(ChatMessage)
-        subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
-
-        mockWs.simulateMessage({
-          type: 'collection-count-updated',
-          subscriptionId: 'sub-1',
-          totalCount: 99,
-        })
-
-        expect(live.totalCount.getValue()).toBe(99)
-      })
-    })
-
-    it('should share totalCount between duplicate subscribers', async () => {
-      await usingAsync(setupClient(), async ({ mockWs, service }) => {
-        mockWs.simulateOpen()
-        const live1 = service.subscribeCollection(ChatMessage)
-        const live2 = service.subscribeCollection(ChatMessage)
-        expect(live1.totalCount).toBe(live2.totalCount)
-      })
-    })
-
-    it('should retain totalCount after connection loss', async () => {
+    it('should retain count after connection loss', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
@@ -363,7 +345,11 @@ describe('EntitySyncService', () => {
 
         mockWs.simulateError()
 
-        expect(live.totalCount.getValue()).toBe(10)
+        const state = live.state.getValue()
+        expect(state.status).toBe('cached')
+        if (state.status === 'cached') {
+          expect(state.data.count).toBe(10)
+        }
       })
     })
   })
@@ -385,7 +371,7 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(2)
+          expect(state.data.entries).toHaveLength(2)
         }
       })
     })
@@ -407,8 +393,8 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(1)
-          expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Updated' })
+          expect(state.data.entries).toHaveLength(1)
+          expect(state.data.entries[0]).toMatchObject({ id: 'msg-1', text: 'Updated' })
         }
       })
     })
@@ -437,8 +423,8 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(1)
-          expect(state.data[0]).toMatchObject({ id: 'msg-2' })
+          expect(state.data.entries).toHaveLength(1)
+          expect(state.data.entries[0]).toMatchObject({ id: 'msg-2' })
         }
       })
     })
@@ -478,9 +464,9 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(2)
-          expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
-          expect(state.data[1]).toMatchObject({ id: 'msg-2', text: 'World' })
+          expect(state.data.entries).toHaveLength(2)
+          expect(state.data.entries[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
+          expect(state.data.entries[1]).toMatchObject({ id: 'msg-2', text: 'World' })
         }
       })
     })
@@ -492,11 +478,14 @@ describe('EntitySyncService', () => {
         subscriptionKey: collectionKey,
         model: 'ChatMessage',
         lastSeq: 5,
-        data: [
-          { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
-          { id: 'msg-2', text: 'World', roomId: 'room-1' },
-          { id: 'msg-3', text: 'Stale', roomId: 'room-1' },
-        ],
+        data: {
+          entries: [
+            { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+            { id: 'msg-2', text: 'World', roomId: 'room-1' },
+            { id: 'msg-3', text: 'Stale', roomId: 'room-1' },
+          ],
+          count: 3,
+        },
         timestamp: new Date().toISOString(),
       })
 
@@ -541,10 +530,10 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
-          expect(state.data).toHaveLength(3)
-          expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
-          expect(state.data[1]).toMatchObject({ id: 'msg-2', text: 'Updated World' })
-          expect(state.data[2]).toMatchObject({ id: 'msg-4', text: 'New' })
+          expect(state.data.entries).toHaveLength(3)
+          expect(state.data.entries[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
+          expect(state.data.entries[1]).toMatchObject({ id: 'msg-2', text: 'Updated World' })
+          expect(state.data.entries[2]).toMatchObject({ id: 'msg-4', text: 'New' })
         }
       })
     })
@@ -575,7 +564,7 @@ describe('EntitySyncService', () => {
 
           expect(live1.state.getValue()).toEqual({
             status: 'suspended',
-            data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+            data: { entries: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], count: 1 },
           })
         })
       } finally {
@@ -600,7 +589,7 @@ describe('EntitySyncService', () => {
 
           expect(live2.state.getValue()).toEqual({
             status: 'synced',
-            data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+            data: { entries: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], count: 1 },
           })
         })
       } finally {
@@ -629,7 +618,7 @@ describe('EntitySyncService', () => {
           // State should be 'cached' with stale data (not 'connecting')
           expect(live2.state.getValue()).toEqual({
             status: 'cached',
-            data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+            data: { entries: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], count: 1 },
           })
         })
       } finally {
@@ -902,7 +891,7 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('cached')
         if (state.status === 'cached') {
-          expect(state.data).toEqual([{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }])
+          expect(state.data.entries).toEqual([{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }])
         }
       })
     })
@@ -1098,7 +1087,7 @@ describe('EntitySyncService', () => {
         const cached = await localStore.get('ChatMessage:collection:{}')
         expect(cached).toBeDefined()
         expect(cached!.lastSeq).toBe(3)
-        expect(cached!.data).toEqual([{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }])
+        expect(cached!.data).toEqual({ entries: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], count: 1 })
       })
     })
 
@@ -1109,7 +1098,7 @@ describe('EntitySyncService', () => {
         subscriptionKey: collectionKey,
         model: 'ChatMessage',
         lastSeq: 5,
-        data: [{ id: 'msg-1', text: 'Stale', roomId: 'room-1' }],
+        data: { entries: [{ id: 'msg-1', text: 'Stale', roomId: 'room-1' }], count: 1 },
         timestamp: new Date().toISOString(),
       })
 
@@ -1122,7 +1111,7 @@ describe('EntitySyncService', () => {
         const state = live.state.getValue()
         expect(state.status).toBe('cached')
         if (state.status === 'cached') {
-          expect(state.data).toEqual([{ id: 'msg-1', text: 'Stale', roomId: 'room-1' }])
+          expect(state.data.entries).toEqual([{ id: 'msg-1', text: 'Stale', roomId: 'room-1' }])
         }
 
         // Verify lastSeq was sent
@@ -1800,8 +1789,8 @@ describe('EntitySyncService', () => {
           const state = live.state.getValue()
           expect(state.status).toBe('synced')
           if (state.status === 'synced') {
-            expect(state.data).toHaveLength(2)
-            expect(state.data[1]).toMatchObject({ id: 'msg-temp', text: 'Optimistic' })
+            expect(state.data.entries).toHaveLength(2)
+            expect(state.data.entries[1]).toMatchObject({ id: 'msg-temp', text: 'Optimistic' })
           }
         })
       })
@@ -1822,7 +1811,7 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data).toHaveLength(1)
+            expect(state.data.entries).toHaveLength(1)
           }
         })
       })
@@ -1841,7 +1830,7 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Updated' })
+            expect(state.data.entries[0]).toMatchObject({ id: 'msg-1', text: 'Updated' })
           }
         })
       })
@@ -1860,7 +1849,7 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
+            expect(state.data.entries[0]).toMatchObject({ id: 'msg-1', text: 'Hello' })
           }
         })
       })
@@ -1885,8 +1874,8 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data).toHaveLength(1)
-            expect(state.data[0]).toMatchObject({ id: 'msg-2' })
+            expect(state.data.entries).toHaveLength(1)
+            expect(state.data.entries[0]).toMatchObject({ id: 'msg-2' })
           }
         })
       })
@@ -1911,7 +1900,7 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data).toHaveLength(2)
+            expect(state.data.entries).toHaveLength(2)
           }
         })
       })
@@ -1945,8 +1934,8 @@ describe('EntitySyncService', () => {
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
-            expect(state.data).toHaveLength(1)
-            expect(state.data[0]).toMatchObject({ id: 'msg-2' })
+            expect(state.data.entries).toHaveLength(1)
+            expect(state.data.entries[0]).toMatchObject({ id: 'msg-2' })
           }
         })
       })

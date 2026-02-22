@@ -51,9 +51,11 @@ export type ServerSyncMessage =
       version: SyncVersion
     }
   | {
-      type: 'collection-count-updated'
+      type: 'collection-snapshot'
       subscriptionId: string
+      data: unknown[]
       totalCount: number
+      version: SyncVersion
     }
   | {
       type: 'subscription-error'

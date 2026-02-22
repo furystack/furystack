@@ -463,7 +463,7 @@ describe('Entity Sync Integration tests', () => {
       })
     })
 
-    it('should receive entity-added notification when a new entity matches the collection', async () => {
+    it('should receive collection-snapshot when a new entity matches the collection', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
         const client = await createClient()
         await sendAndReceive(client, {
@@ -476,14 +476,15 @@ describe('Entity Sync Integration tests', () => {
         await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
 
         const notification = await addPromise
-        expect(notification.type).toBe('entity-added')
-        if (notification.type === 'entity-added') {
-          expect(notification.entity).toEqual({ id: '1', name: 'Alice', category: 'A' })
+        expect(notification.type).toBe('collection-snapshot')
+        if (notification.type === 'collection-snapshot') {
+          expect(notification.data).toEqual([{ id: '1', name: 'Alice', category: 'A' }])
+          expect(notification.totalCount).toBe(1)
         }
       })
     })
 
-    it('should receive entity-updated notification when a collection entity is updated', async () => {
+    it('should receive collection-snapshot when a collection entity is updated', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
         await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
 
@@ -498,15 +499,15 @@ describe('Entity Sync Integration tests', () => {
         await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
 
         const notification = await updatePromise
-        expect(notification.type).toBe('entity-updated')
-        if (notification.type === 'entity-updated') {
-          expect(notification.id).toBe('1')
-          expect(notification.change).toMatchObject({ name: 'Updated' })
+        expect(notification.type).toBe('collection-snapshot')
+        if (notification.type === 'collection-snapshot') {
+          expect(notification.data).toEqual([{ id: '1', name: 'Updated', category: 'A' }])
+          expect(notification.totalCount).toBe(1)
         }
       })
     })
 
-    it('should receive entity-removed notification when a collection entity is removed', async () => {
+    it('should receive collection-snapshot when a collection entity is removed', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
         await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
 
@@ -521,9 +522,10 @@ describe('Entity Sync Integration tests', () => {
         await dataSet.remove(injector, '1' as TestEntity['id'])
 
         const notification = await removePromise
-        expect(notification.type).toBe('entity-removed')
-        if (notification.type === 'entity-removed') {
-          expect(notification.id).toBe('1')
+        expect(notification.type).toBe('collection-snapshot')
+        if (notification.type === 'collection-snapshot') {
+          expect(notification.data).toEqual([])
+          expect(notification.totalCount).toBe(0)
         }
       })
     })
@@ -545,9 +547,10 @@ describe('Entity Sync Integration tests', () => {
         await dataSet.update(injector, '1' as TestEntity['id'], { category: 'B' } as Partial<TestEntity>)
 
         const notification = await removePromise
-        expect(notification.type).toBe('entity-removed')
-        if (notification.type === 'entity-removed') {
-          expect(notification.id).toBe('1')
+        expect(notification.type).toBe('collection-snapshot')
+        if (notification.type === 'collection-snapshot') {
+          expect(notification.data).toEqual([])
+          expect(notification.totalCount).toBe(0)
         }
       })
     })

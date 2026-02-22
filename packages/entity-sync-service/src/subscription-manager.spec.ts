@@ -412,10 +412,11 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.some((m) => m.type === 'entity-added')).toBe(true)
-        const addedMsg = messages.find((m) => m.type === 'entity-added')
-        if (addedMsg?.type === 'entity-added') {
-          expect(addedMsg.entity).toMatchObject({ id: '1', name: 'Alice', category: 'A' })
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Alice', category: 'A' }])
+          expect(snapshotMsg.totalCount).toBe(1)
         }
       })
     })
@@ -435,7 +436,7 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.filter((m) => m.type === 'entity-added')).toHaveLength(0)
+        expect(messages.filter((m) => m.type === 'collection-snapshot')).toHaveLength(0)
       })
     })
 
@@ -453,10 +454,11 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.some((m) => m.type === 'entity-updated')).toBe(true)
-        const updatedMsg = messages.find((m) => m.type === 'entity-updated')
-        if (updatedMsg?.type === 'entity-updated') {
-          expect(updatedMsg.change).toMatchObject({ name: 'Updated' })
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Updated', category: 'A' }])
+          expect(snapshotMsg.totalCount).toBe(1)
         }
       })
     })
@@ -475,10 +477,11 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.some((m) => m.type === 'entity-removed')).toBe(true)
-        const removedMsg = messages.find((m) => m.type === 'entity-removed')
-        if (removedMsg?.type === 'entity-removed') {
-          expect(removedMsg.id).toBe('1')
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toHaveLength(0)
+          expect(snapshotMsg.totalCount).toBe(0)
         }
       })
     })
@@ -500,11 +503,16 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.some((m) => m.type === 'entity-removed')).toBe(true)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toHaveLength(0)
+          expect(snapshotMsg.totalCount).toBe(0)
+        }
       })
     })
 
-    it('should send collection-count-updated when count changes on add', async () => {
+    it('should send collection-snapshot when entity is added', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
         manager.registerModel(TestEntity, 'id')
 
@@ -517,15 +525,16 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        const countMsg = messages.find((m) => m.type === 'collection-count-updated')
-        expect(countMsg).toBeDefined()
-        if (countMsg?.type === 'collection-count-updated') {
-          expect(countMsg.totalCount).toBe(1)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Alice', category: 'A' }])
+          expect(snapshotMsg.totalCount).toBe(1)
         }
       })
     })
 
-    it('should send collection-count-updated when count changes on remove', async () => {
+    it('should send collection-snapshot when entity is removed', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
         manager.registerModel(TestEntity, 'id')
         await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
@@ -539,15 +548,16 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        const countMsg = messages.find((m) => m.type === 'collection-count-updated')
-        expect(countMsg).toBeDefined()
-        if (countMsg?.type === 'collection-count-updated') {
-          expect(countMsg.totalCount).toBe(0)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toHaveLength(0)
+          expect(snapshotMsg.totalCount).toBe(0)
         }
       })
     })
 
-    it('should not send collection-count-updated when count does not change', async () => {
+    it('should send collection-snapshot when entity is updated', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
         manager.registerModel(TestEntity, 'id')
         await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
@@ -561,7 +571,12 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.filter((m) => m.type === 'collection-count-updated')).toHaveLength(0)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Updated', category: 'A' }])
+          expect(snapshotMsg.totalCount).toBe(1)
+        }
       })
     })
 
@@ -582,7 +597,12 @@ describe('SubscriptionManager', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
-        expect(messages.some((m) => m.type === 'entity-added')).toBe(true)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Alice', category: 'A' }])
+          expect(snapshotMsg.totalCount).toBe(1)
+        }
       })
     })
   })
@@ -811,7 +831,7 @@ describe('SubscriptionManager', () => {
         expect(getSentMessages(entitySocket).some((m) => m.type === 'entity-updated')).toBe(true)
 
         // Collection subscriber should also get notification (after evaluation)
-        expect(getSentMessages(collectionSocket).some((m) => m.type === 'entity-updated')).toBe(true)
+        expect(getSentMessages(collectionSocket).some((m) => m.type === 'collection-snapshot')).toBe(true)
       })
     })
   })

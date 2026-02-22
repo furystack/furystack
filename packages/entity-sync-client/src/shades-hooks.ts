@@ -54,31 +54,32 @@ export const useEntitySync = <T>(
 /**
  * Shades convenience hook for subscribing to a collection of entities via EntitySyncService.
  * Manages the subscription lifecycle (subscribe on mount, dispose on unmount)
- * and returns the current sync state reactively.
+ * and returns the current sync state reactively. The state data contains both
+ * the entries and the total count, keeping them always consistent.
  *
  * @param context Render options from the Shade component (or a subset with injector, useDisposable, useObservable)
  * @param model The model class
  * @param options Optional filter, pagination, and ordering options
- * @returns An object with the current SyncState for the collection and the total count of matching entities
+ * @returns The current SyncState for the collection (entries + count)
  *
  * @example
  * ```typescript
  * const ChatMessages = Shade<{ roomId: string }>({
  *   shadowDomName: 'chat-messages',
  *   render: (options) => {
- *     const { state, totalCount } = useCollectionSync(options, ChatMessage, {
+ *     const messagesState = useCollectionSync(options, ChatMessage, {
  *       filter: { roomId: { $eq: options.props.roomId } },
  *       top: 10,
  *       skip: 0,
  *     })
  *
- *     if (state.status === 'connecting') return <div>Loading...</div>
- *     if (state.status === 'error') return <div>Error: {state.error}</div>
+ *     if (messagesState.status === 'connecting') return <div>Loading...</div>
+ *     if (messagesState.status === 'error') return <div>Error: {messagesState.error}</div>
  *
  *     return (
  *       <div>
- *         <p>Total: {totalCount ?? '...'}</p>
- *         {state.data.map((msg) => <div>{msg.text}</div>)}
+ *         <p>Total: {messagesState.data.count}</p>
+ *         {messagesState.data.entries.map((msg) => <div>{msg.text}</div>)}
  *       </div>
  *     )
  *   },
@@ -94,13 +95,12 @@ export const useCollectionSync = <T>(
     skip?: number
     order?: { [P in keyof T]?: 'ASC' | 'DESC' }
   },
-): { state: SyncState<T[]>; totalCount: number | undefined } => {
+): SyncState<{ entries: T[]; count: number }> => {
   const syncService = context.injector.getInstance(EntitySyncService)
   const filterKey = JSON.stringify(options?.filter)
   const hookKey = `collectionSync:${model.name}:${filterKey}`
   const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
   const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
   const [state] = context.useObservable(hookKey, liveCollection.state)
-  const [totalCount] = context.useObservable(`${hookKey}:totalCount`, liveCollection.totalCount)
-  return { state, totalCount }
+  return state
 }

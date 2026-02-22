@@ -224,7 +224,7 @@ describe('Shades convenience hooks', () => {
         const context = createMockContext(injector)
         mockWs.simulateOpen()
 
-        const { state } = useCollectionSync(context, ChatMessage, { filter: { roomId: { $eq: 'room-1' } } })
+        const state = useCollectionSync(context, ChatMessage, { filter: { roomId: { $eq: 'room-1' } } })
         expect(state.status).toBe('connecting')
 
         // Simulate server response
@@ -243,14 +243,14 @@ describe('Shades convenience hooks', () => {
         })
 
         // Re-call to get updated state
-        const { state: updatedState, totalCount } = useCollectionSync(context, ChatMessage, {
+        const updatedState = useCollectionSync(context, ChatMessage, {
           filter: { roomId: { $eq: 'room-1' } },
         })
         expect(updatedState.status).toBe('synced')
         if (updatedState.status === 'synced') {
-          expect(updatedState.data).toHaveLength(1)
+          expect(updatedState.data.entries).toHaveLength(1)
+          expect(updatedState.data.count).toBe(1)
         }
-        expect(totalCount).toBe(1)
       } finally {
         service[Symbol.dispose]()
         await injector[Symbol.asyncDispose]()
@@ -419,11 +419,11 @@ describe('Shades convenience hooks', () => {
         await new Promise((resolve) => setTimeout(resolve, 10))
 
         // Switch back to page 1 -- should get cached data (stale-while-revalidate)
-        const { state: restoredState } = useCollectionSync(context, ChatMessage, { top: 10, skip: 0 })
+        const restoredState = useCollectionSync(context, ChatMessage, { top: 10, skip: 0 })
         expect(restoredState.status).toBe('cached')
         if (restoredState.status === 'cached') {
-          expect(restoredState.data).toHaveLength(1)
-          expect(restoredState.data[0]).toEqual({ id: 'msg-1', text: 'Hello', roomId: 'room-1' })
+          expect(restoredState.data.entries).toHaveLength(1)
+          expect(restoredState.data.entries[0]).toEqual({ id: 'msg-1', text: 'Hello', roomId: 'room-1' })
         }
       } finally {
         service[Symbol.dispose]()
