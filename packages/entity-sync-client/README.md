@@ -115,7 +115,8 @@ const ChatMessages = Shade<{ roomId: string }>({
 
     return (
       <div>
-        {messagesState.data.map((msg) => (
+        <p>Total: {messagesState.data.count}</p>
+        {messagesState.data.entries.map((msg) => (
           <div>{msg.text}</div>
         ))}
       </div>

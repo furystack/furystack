@@ -8,8 +8,8 @@ import type { SyncState } from '@furystack/entity-sync'
  * the subscription is suspended after `suspendDelayMs`.
  */
 export type LiveCollection<T> = {
-  /** Observable state that emits SyncState changes for the subscribed collection */
-  state: ObservableValue<SyncState<T[]>>
+  /** Observable state that emits SyncState changes for the subscribed collection (entries + count) */
+  state: ObservableValue<SyncState<{ entries: T[]; count: number }>>
   /** Dispose this handle (decrements ref count) */
   [Symbol.dispose](): void
 }

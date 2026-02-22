@@ -28,6 +28,8 @@ type CollectionSubscription = {
   currentSeq: number
   /** Tracks which entities are currently in the collection for diffing */
   currentEntities: Map<unknown, unknown>
+  /** Last sent total count, used to avoid redundant snapshot messages */
+  lastTotalCount?: number
 }
 
 type Subscription = EntitySubscription | CollectionSubscription
@@ -52,10 +54,12 @@ type ModelRegistration = {
       order?: Record<string, 'ASC' | 'DESC'>
     },
   ) => Promise<unknown[]>
+  countEntities: (injector: Injector, filter?: unknown) => Promise<number>
 }
 
 type QueryCacheEntry = {
   result: unknown[]
+  count: number
   timestamp: number
 }
 
@@ -144,6 +148,7 @@ export class SubscriptionManager implements Disposable {
         })
         return result as unknown[]
       },
+      countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<AnyEntity> | undefined),
     }
 
     registration.eventSubscriptions = [
@@ -335,8 +340,8 @@ export class SubscriptionManager implements Disposable {
   }
 
   /**
-   * Re-evaluates a collection subscription by re-querying the DataSet and diffing against stored state.
-   * Sends entity-added, entity-updated, and entity-removed messages as needed.
+   * Re-evaluates a collection subscription by re-querying the DataSet.
+   * Sends a full collection-snapshot if entries or count changed.
    */
   private async evaluateCollectionSubscription(sub: CollectionSubscription): Promise<void> {
     const registration = this.modelRegistrations.get(sub.modelName)
@@ -344,7 +349,7 @@ export class SubscriptionManager implements Disposable {
 
     if (!this.subscriptions.has(sub.subscriptionId)) return
 
-    const results = await this.queryWithCache(sub, registration)
+    const { result: results, count: totalCount } = await this.queryWithCache(sub, registration)
 
     const newEntities = new Map<unknown, unknown>()
     for (const entity of results) {
@@ -352,46 +357,36 @@ export class SubscriptionManager implements Disposable {
       newEntities.set(key, entity)
     }
 
-    const version: SyncVersion = { seq: registration.currentSeq, timestamp: new Date().toISOString() }
+    const hasChanges = this.hasCollectionChanged(sub.currentEntities, newEntities) || totalCount !== sub.lastTotalCount
 
-    // Detect removed entities (in old set but not in new set)
-    for (const [key] of sub.currentEntities) {
-      if (!newEntities.has(key)) {
-        this.sendMessage(sub.socket, {
-          type: 'entity-removed',
-          subscriptionId: sub.subscriptionId,
-          id: key,
-          version,
-        })
-      }
-    }
-
-    // Detect added and updated entities
-    for (const [key, entity] of newEntities) {
-      const oldEntity = sub.currentEntities.get(key)
-      if (!oldEntity) {
-        this.sendMessage(sub.socket, {
-          type: 'entity-added',
-          subscriptionId: sub.subscriptionId,
-          entity,
-          version,
-        })
-      } else {
-        const change = this.computeShallowDiff(oldEntity as Record<string, unknown>, entity as Record<string, unknown>)
-        if (change) {
-          this.sendMessage(sub.socket, {
-            type: 'entity-updated',
-            subscriptionId: sub.subscriptionId,
-            id: key,
-            change,
-            version,
-          })
-        }
-      }
+    if (hasChanges) {
+      const version: SyncVersion = { seq: registration.currentSeq, timestamp: new Date().toISOString() }
+      this.sendMessage(sub.socket, {
+        type: 'collection-snapshot',
+        subscriptionId: sub.subscriptionId,
+        data: results,
+        totalCount,
+        version,
+      })
     }
 
     sub.currentEntities = newEntities
+    sub.lastTotalCount = totalCount
     sub.currentSeq = registration.currentSeq
+  }
+
+  private hasCollectionChanged(oldEntities: Map<unknown, unknown>, newEntities: Map<unknown, unknown>): boolean {
+    if (oldEntities.size !== newEntities.size) return true
+    for (const [key] of oldEntities) {
+      if (!newEntities.has(key)) return true
+    }
+    for (const [key, newEntity] of newEntities) {
+      const oldEntity = oldEntities.get(key)
+      if (!oldEntity) return true
+      if (this.computeShallowDiff(oldEntity as Record<string, unknown>, newEntity as Record<string, unknown>))
+        return true
+    }
+    return false
   }
 
   private computeShallowDiff(
@@ -418,26 +413,32 @@ export class SubscriptionManager implements Disposable {
     return hasChange ? change : null
   }
 
-  private async queryWithCache(sub: CollectionSubscription, registration: ModelRegistration): Promise<unknown[]> {
+  private async queryWithCache(
+    sub: CollectionSubscription,
+    registration: ModelRegistration,
+  ): Promise<{ result: unknown[]; count: number }> {
     if (registration.queryTtlMs > 0) {
       const cached = this.queryCache.get(sub.subscriptionId)
       if (cached && Date.now() - cached.timestamp < registration.queryTtlMs) {
-        return cached.result
+        return { result: cached.result, count: cached.count }
       }
     }
 
-    const result = await registration.findEntities(sub.clientInjector, {
-      filter: sub.filter,
-      top: sub.top,
-      skip: sub.skip,
-      order: sub.order,
-    })
+    const [result, count] = await Promise.all([
+      registration.findEntities(sub.clientInjector, {
+        filter: sub.filter,
+        top: sub.top,
+        skip: sub.skip,
+        order: sub.order,
+      }),
+      registration.countEntities(sub.clientInjector, sub.filter),
+    ])
 
     if (registration.queryTtlMs > 0) {
-      this.queryCache.set(sub.subscriptionId, { result, timestamp: Date.now() })
+      this.queryCache.set(sub.subscriptionId, { result, count, timestamp: Date.now() })
     }
 
-    return result
+    return { result, count }
   }
 
   private sendMessage(socket: WebSocket, message: ServerSyncMessage): void {
@@ -564,12 +565,15 @@ export class SubscriptionManager implements Disposable {
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
 
-      const results = await registration.findEntities(clientInjector, {
-        filter,
-        top,
-        skip,
-        order,
-      })
+      const [results, totalCount] = await Promise.all([
+        registration.findEntities(clientInjector, {
+          filter,
+          top,
+          skip,
+          order,
+        }),
+        registration.countEntities(clientInjector, filter),
+      ])
 
       const currentEntities = new Map<unknown, unknown>()
       for (const entity of results) {
@@ -589,6 +593,7 @@ export class SubscriptionManager implements Disposable {
         order,
         currentSeq: registration.currentSeq,
         currentEntities,
+        lastTotalCount: totalCount,
       }
 
       this.subscriptions.set(subscriptionId, subscription)
@@ -602,6 +607,7 @@ export class SubscriptionManager implements Disposable {
         primaryKey: registration.primaryKey,
         mode: 'snapshot',
         data: results,
+        totalCount,
         version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {

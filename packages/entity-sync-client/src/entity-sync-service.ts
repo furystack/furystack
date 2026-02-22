@@ -56,7 +56,7 @@ type LiveEntityInternal = {
 
 type LiveCollectionInternal = {
   type: 'collection'
-  state: ObservableValue<SyncState<unknown[]>>
+  state: ObservableValue<SyncState<{ entries: unknown[]; count: number }>>
   refCount: number
   subscriptionId?: string
   suspendTimer?: ReturnType<typeof setTimeout>
@@ -363,7 +363,7 @@ export class EntitySyncService implements Disposable {
     const requestId = `req-${++this.requestCounter}`
     internal = {
       type: 'collection',
-      state: new ObservableValue<SyncState<unknown[]>>({ status: 'connecting' }),
+      state: new ObservableValue<SyncState<{ entries: unknown[]; count: number }>>({ status: 'connecting' }),
       refCount: 1,
       modelName,
       filter: options?.filter,
@@ -402,7 +402,7 @@ export class EntitySyncService implements Disposable {
   private createLiveCollectionHandle<T>(internal: LiveCollectionInternal, collectionKey: string): LiveCollection<T> {
     let disposed = false
     return {
-      state: internal.state as ObservableValue<SyncState<T[]>>,
+      state: internal.state as ObservableValue<SyncState<{ entries: T[]; count: number }>>,
       [Symbol.dispose]: () => {
         if (disposed) return
         disposed = true
@@ -567,8 +567,11 @@ export class EntitySyncService implements Disposable {
       void this.options.localStore.get(internal.cacheKey).then(
         (cached) => {
           if (cached && internal.state.getValue().status === 'connecting') {
-            internal.lastSeq = cached.lastSeq
-            internal.state.setValue({ status: 'cached', data: cached.data as unknown[] })
+            const { data } = cached
+            if (data && typeof data === 'object' && !Array.isArray(data) && 'entries' in data) {
+              internal.lastSeq = cached.lastSeq
+              internal.state.setValue({ status: 'cached', data: data as { entries: unknown[]; count: number } })
+            }
           }
           this.send({
             type: 'subscribe-collection',
@@ -642,23 +645,21 @@ export class EntitySyncService implements Disposable {
         } else if (internal.type === 'collection') {
           internal.primaryKey = message.primaryKey
           if (message.mode === 'snapshot') {
+            const entries = (message.data as unknown[]) ?? []
+            const totalCount = message.totalCount ?? entries.length
             internal.lastSeq = message.version.seq
-            internal.state.setValue({ status: 'synced', data: (message.data as unknown[]) ?? [] })
-            this.persistToCache(
-              internal.cacheKey,
-              internal.modelName,
-              (message.data as unknown[]) ?? [],
-              internal.lastSeq,
-            )
+            const data = { entries, count: totalCount }
+            internal.state.setValue({ status: 'synced', data })
+            this.persistToCache(internal.cacheKey, internal.modelName, data, internal.lastSeq)
           } else if (message.mode === 'delta') {
             const currentState = internal.state.getValue()
-            let data: unknown[] = 'data' in currentState ? currentState.data : []
+            let entries: unknown[] = 'data' in currentState ? currentState.data.entries : []
 
             for (const change of message.changes) {
               if (change.type === 'added') {
-                data = [...data, change.entity]
+                entries = [...entries, change.entity]
               } else if (change.type === 'updated' && internal.primaryKey) {
-                data = data.map((item) => {
+                entries = entries.map((item) => {
                   const pk = (item as Record<string, unknown>)[internal.primaryKey!]
                   if (pk === change.id) {
                     return { ...(item as Record<string, unknown>), ...change.change }
@@ -666,7 +667,7 @@ export class EntitySyncService implements Disposable {
                   return item
                 })
               } else if (change.type === 'removed' && internal.primaryKey) {
-                data = data.filter((item) => {
+                entries = entries.filter((item) => {
                   const pk = (item as Record<string, unknown>)[internal.primaryKey!]
                   return pk !== change.id
                 })
@@ -674,6 +675,8 @@ export class EntitySyncService implements Disposable {
             }
 
             internal.lastSeq = message.version.seq
+            const totalCount = message.totalCount ?? entries.length
+            const data = { entries, count: totalCount }
             internal.state.setValue({ status: 'synced', data })
             this.persistToCache(internal.cacheKey, internal.modelName, data, internal.lastSeq)
           }
@@ -682,72 +685,43 @@ export class EntitySyncService implements Disposable {
       }
       case 'entity-updated': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && currentState.data != null) {
-            const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
-            sub.lastSeq = message.version.seq
-            sub.state.setValue({ status: 'synced', data: updatedData })
-            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
-          }
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && Array.isArray(currentState.data) && sub.primaryKey) {
-            const updatedData = currentState.data.map((item) => {
-              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
-              if (entityKey === message.id) {
-                return { ...(item as Record<string, unknown>), ...message.change }
-              }
-              return item
-            })
-            sub.lastSeq = message.version.seq
-            sub.state.setValue({ status: 'synced', data: updatedData })
-            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
-          }
+        const currentState = sub.state.getValue()
+        if ('data' in currentState && currentState.data != null) {
+          const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
+          sub.lastSeq = message.version.seq
+          sub.state.setValue({ status: 'synced', data: updatedData })
+          this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
         }
         break
       }
       case 'entity-added': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          sub.lastSeq = message.version.seq
-          sub.state.setValue({ status: 'synced', data: message.entity })
-          this.persistToCache(sub.cacheKey, sub.modelName, message.entity, sub.lastSeq)
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && Array.isArray(currentState.data)) {
-            const updatedData = [...currentState.data, message.entity]
-            sub.lastSeq = message.version.seq
-            sub.state.setValue({ status: 'synced', data: updatedData })
-            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
-          }
-        }
+        sub.lastSeq = message.version.seq
+        sub.state.setValue({ status: 'synced', data: message.entity })
+        this.persistToCache(sub.cacheKey, sub.modelName, message.entity, sub.lastSeq)
         break
       }
       case 'entity-removed': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          sub.lastSeq = message.version.seq
-          sub.state.setValue({ status: 'synced', data: undefined })
-          this.persistToCache(sub.cacheKey, sub.modelName, undefined, sub.lastSeq)
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && Array.isArray(currentState.data) && sub.primaryKey) {
-            const filteredData = currentState.data.filter((item) => {
-              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
-              return entityKey !== message.id
-            })
-            sub.lastSeq = message.version.seq
-            sub.state.setValue({ status: 'synced', data: filteredData })
-            this.persistToCache(sub.cacheKey, sub.modelName, filteredData, sub.lastSeq)
-          }
-        }
+        sub.lastSeq = message.version.seq
+        sub.state.setValue({ status: 'synced', data: undefined })
+        this.persistToCache(sub.cacheKey, sub.modelName, undefined, sub.lastSeq)
+        break
+      }
+      case 'collection-snapshot': {
+        const sub = this.findBySubscriptionId(message.subscriptionId)
+        if (!sub || sub.type !== 'collection') return
+        const entries = message.data
+        sub.lastSeq = message.version.seq
+        const data = { entries, count: message.totalCount }
+        sub.state.setValue({ status: 'synced', data })
+        this.persistToCache(sub.cacheKey, sub.modelName, data, sub.lastSeq)
         break
       }
       case 'subscription-error': {
@@ -873,11 +847,15 @@ export class EntitySyncService implements Disposable {
     if (!internal || internal.state.isDisposed) return undefined
 
     const currentState = internal.state.getValue()
-    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+    if (!('data' in currentState)) return undefined
 
     const previousState = currentState
     const seqAtUpdate = internal.lastSeq
-    internal.state.setValue({ ...currentState, data: [...currentState.data, entity as unknown] })
+    const data = {
+      entries: [...currentState.data.entries, entity as unknown],
+      count: currentState.data.count + 1,
+    }
+    internal.state.setValue({ ...currentState, data })
 
     return () => {
       if (internal.state.isDisposed) return
@@ -906,18 +884,18 @@ export class EntitySyncService implements Disposable {
     if (!internal || internal.state.isDisposed || !internal.primaryKey) return undefined
 
     const currentState = internal.state.getValue()
-    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+    if (!('data' in currentState)) return undefined
 
     const previousState = currentState
     const seqAtUpdate = internal.lastSeq
-    const updatedData = currentState.data.map((item) => {
+    const updatedEntries = currentState.data.entries.map((item) => {
       const pk = (item as Record<string, unknown>)[internal.primaryKey!]
       if (pk === entityKey) {
         return { ...(item as Record<string, unknown>), ...(change as Record<string, unknown>) }
       }
       return item
     })
-    internal.state.setValue({ ...currentState, data: updatedData })
+    internal.state.setValue({ ...currentState, data: { entries: updatedEntries, count: currentState.data.count } })
 
     return () => {
       if (internal.state.isDisposed) return
@@ -944,15 +922,18 @@ export class EntitySyncService implements Disposable {
     if (!internal || internal.state.isDisposed || !internal.primaryKey) return undefined
 
     const currentState = internal.state.getValue()
-    if (!('data' in currentState) || !Array.isArray(currentState.data)) return undefined
+    if (!('data' in currentState)) return undefined
 
     const previousState = currentState
     const seqAtUpdate = internal.lastSeq
-    const filteredData = currentState.data.filter((item) => {
+    const filteredEntries = currentState.data.entries.filter((item) => {
       const pk = (item as Record<string, unknown>)[internal.primaryKey!]
       return pk !== entityKey
     })
-    internal.state.setValue({ ...currentState, data: filteredData })
+    internal.state.setValue({
+      ...currentState,
+      data: { entries: filteredEntries, count: Math.max(0, currentState.data.count - 1) },
+    })
 
     return () => {
       if (internal.state.isDisposed) return

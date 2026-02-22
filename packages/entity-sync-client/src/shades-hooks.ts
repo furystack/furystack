@@ -54,12 +54,13 @@ export const useEntitySync = <T>(
 /**
  * Shades convenience hook for subscribing to a collection of entities via EntitySyncService.
  * Manages the subscription lifecycle (subscribe on mount, dispose on unmount)
- * and returns the current sync state reactively.
+ * and returns the current sync state reactively. The state data contains both
+ * the entries and the total count, keeping them always consistent.
  *
  * @param context Render options from the Shade component (or a subset with injector, useDisposable, useObservable)
  * @param model The model class
  * @param options Optional filter, pagination, and ordering options
- * @returns The current SyncState for the collection
+ * @returns The current SyncState for the collection (entries + count)
  *
  * @example
  * ```typescript
@@ -68,6 +69,8 @@ export const useEntitySync = <T>(
  *   render: (options) => {
  *     const messagesState = useCollectionSync(options, ChatMessage, {
  *       filter: { roomId: { $eq: options.props.roomId } },
+ *       top: 10,
+ *       skip: 0,
  *     })
  *
  *     if (messagesState.status === 'connecting') return <div>Loading...</div>
@@ -75,7 +78,8 @@ export const useEntitySync = <T>(
  *
  *     return (
  *       <div>
- *         {messagesState.data.map((msg) => <div>{msg.text}</div>)}
+ *         <p>Total: {messagesState.data.count}</p>
+ *         {messagesState.data.entries.map((msg) => <div>{msg.text}</div>)}
  *       </div>
  *     )
  *   },
@@ -91,7 +95,7 @@ export const useCollectionSync = <T>(
     skip?: number
     order?: { [P in keyof T]?: 'ASC' | 'DESC' }
   },
-): SyncState<T[]> => {
+): SyncState<{ entries: T[]; count: number }> => {
   const syncService = context.injector.getInstance(EntitySyncService)
   const filterKey = JSON.stringify(options?.filter)
   const hookKey = `collectionSync:${model.name}:${filterKey}`

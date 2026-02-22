@@ -14,6 +14,8 @@ export type ServerSyncMessage =
       primaryKey?: string
       mode: 'snapshot'
       data: unknown
+      /** Total count of matching entities (ignoring top/skip). Included for collection subscriptions. */
+      totalCount?: number
       version: SyncVersion
     }
   | {
@@ -25,6 +27,8 @@ export type ServerSyncMessage =
       primaryKey?: string
       mode: 'delta'
       changes: SyncChangeEntry[]
+      /** Total count of matching entities (ignoring top/skip). Included for collection subscriptions. */
+      totalCount?: number
       version: SyncVersion
     }
   | {
@@ -44,6 +48,13 @@ export type ServerSyncMessage =
       type: 'entity-removed'
       subscriptionId: string
       id: unknown
+      version: SyncVersion
+    }
+  | {
+      type: 'collection-snapshot'
+      subscriptionId: string
+      data: unknown[]
+      totalCount: number
       version: SyncVersion
     }
   | {

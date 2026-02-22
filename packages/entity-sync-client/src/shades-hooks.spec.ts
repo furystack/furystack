@@ -238,14 +238,18 @@ describe('Shades convenience hooks', () => {
           primaryKey: 'id',
           mode: 'snapshot',
           data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+          totalCount: 1,
           version: { seq: 1, timestamp: new Date().toISOString() },
         })
 
         // Re-call to get updated state
-        const updatedState = useCollectionSync(context, ChatMessage, { filter: { roomId: { $eq: 'room-1' } } })
+        const updatedState = useCollectionSync(context, ChatMessage, {
+          filter: { roomId: { $eq: 'room-1' } },
+        })
         expect(updatedState.status).toBe('synced')
         if (updatedState.status === 'synced') {
-          expect(updatedState.data).toHaveLength(1)
+          expect(updatedState.data.entries).toHaveLength(1)
+          expect(updatedState.data.count).toBe(1)
         }
       } finally {
         service[Symbol.dispose]()
@@ -418,8 +422,8 @@ describe('Shades convenience hooks', () => {
         const restoredState = useCollectionSync(context, ChatMessage, { top: 10, skip: 0 })
         expect(restoredState.status).toBe('cached')
         if (restoredState.status === 'cached') {
-          expect(restoredState.data).toHaveLength(1)
-          expect(restoredState.data[0]).toEqual({ id: 'msg-1', text: 'Hello', roomId: 'room-1' })
+          expect(restoredState.data.entries).toHaveLength(1)
+          expect(restoredState.data.entries[0]).toEqual({ id: 'msg-1', text: 'Hello', roomId: 'room-1' })
         }
       } finally {
         service[Symbol.dispose]()
