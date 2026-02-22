@@ -17,7 +17,8 @@ export class ResourceManager implements AsyncDisposable {
    * parameters (e.g., entity-sync subscriptions with changing query options).
    * @param key Unique key for caching this resource
    * @param factory Factory function called once to create the resource
-   * @param deps Optional dependency array -- when deps change, the old resource is disposed and a new one is created
+   * @param deps Optional dependency array -- when deps change, the old resource is disposed and a new one is created.
+   *   Values are compared via `JSON.stringify`, so `undefined` and `null` are treated as equal within arrays.
    * @returns The cached or newly created resource
    */
   public useDisposable<T extends Disposable | AsyncDisposable>(

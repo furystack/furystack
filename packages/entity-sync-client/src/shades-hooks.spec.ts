@@ -205,55 +205,6 @@ describe('Shades convenience hooks', () => {
         await injector[Symbol.asyncDispose]()
       }
     })
-
-    it('should show cached data when re-subscribing to a previously seen entity', async () => {
-      const mockWs = createMockWebSocket()
-      const injector = new Injector()
-
-      const service = new EntitySyncService({
-        wsUrl: 'ws://test',
-        createWebSocket: () => mockWs as unknown as WebSocket,
-        reconnect: false,
-        suspendDelayMs: 0,
-      })
-      service.registerModel(User)
-      injector.setExplicitInstance(service, EntitySyncService)
-
-      try {
-        const context = createMockContext(injector)
-        mockWs.simulateOpen()
-
-        useEntitySync(context, User, '123')
-
-        const sentData = JSON.parse(mockWs.send.mock.calls[0][0] as string) as ClientSyncMessage
-        const requestId = 'requestId' in sentData ? sentData.requestId : ''
-        mockWs.simulateMessage({
-          type: 'subscribed',
-          requestId,
-          subscriptionId: 'sub-1',
-          model: 'User',
-          mode: 'snapshot',
-          data: { id: '123', name: 'John' },
-          version: { seq: 1, timestamp: new Date().toISOString() },
-        })
-
-        // Switch to a different entity (disposes the handle for '123')
-        useEntitySync(context, User, '456')
-
-        // Allow the suspend timer (0ms) to fire
-        await new Promise((resolve) => setTimeout(resolve, 10))
-
-        // Switch back to '123' -- should get cached data
-        const restoredState = useEntitySync(context, User, '123')
-        expect(restoredState.status).toBe('cached')
-        if (restoredState.status === 'cached') {
-          expect(restoredState.data).toEqual({ id: '123', name: 'John' })
-        }
-      } finally {
-        service[Symbol.dispose]()
-        await injector[Symbol.asyncDispose]()
-      }
-    })
   })
 
   describe('useCollectionSync', () => {

@@ -31,6 +31,8 @@ export class FormService<T> {
 
   public isSubmitting = new ObservableValue<boolean>(false)
 
+  public submitError = new ObservableValue<unknown>(undefined)
+
   public setFieldState = (key: keyof T, validationResult: InputValidationResult, validity: ValidityState) => {
     this.fieldErrors.setValue({ ...this.fieldErrors.getValue(), [key]: { validationResult, validity } })
   }
@@ -39,7 +41,9 @@ export class FormService<T> {
     this.validatedFormData[Symbol.dispose]()
     this.rawFormData[Symbol.dispose]()
     this.validationResult[Symbol.dispose]()
+    this.fieldErrors[Symbol.dispose]()
     this.isSubmitting[Symbol.dispose]()
+    this.submitError[Symbol.dispose]()
   }
 }
 
@@ -86,13 +90,14 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
         formService.validatedFormData.setValue(formData)
         if (shouldSubmit) {
           formService.isSubmitting.setValue(true)
+          formService.submitError.setValue(undefined)
           if (props.disableOnSubmit) {
             formElement.inert = true
           }
           try {
             await props.onSubmit(formData)
-          } catch {
-            // Consumer is responsible for error handling within onSubmit
+          } catch (error) {
+            formService.submitError.setValue(error)
           } finally {
             formService.isSubmitting.setValue(false)
             if (props.disableOnSubmit) {

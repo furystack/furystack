@@ -45,8 +45,8 @@ export const useEntitySync = <T>(
   key: unknown,
 ): SyncState<T | undefined> => {
   const syncService = context.injector.getInstance(EntitySyncService)
-  const hookKey = `entitySync:${model.name}`
-  const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key), [key])
+  const hookKey = `entitySync:${model.name}:${String(key)}`
+  const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key))
   const [state] = context.useObservable(hookKey, liveEntity.state)
   return state
 }

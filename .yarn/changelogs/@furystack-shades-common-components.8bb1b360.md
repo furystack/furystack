@@ -26,7 +26,7 @@ appear before simple list items within each section.
 
 ### Async form submission support
 
-The `Form` component's `onSubmit` callback now accepts async functions (`() => void | Promise<void>`). A new `isSubmitting` observable on `FormService` tracks whether a submission is in progress. When the `disableOnSubmit` prop is enabled, the form element becomes inert during submission, preventing duplicate submits.
+The `Form` component's `onSubmit` callback now accepts async functions (`() => void | Promise<void>`). New observables on `FormService`: `isSubmitting` tracks whether a submission is in progress, and `submitError` captures any error thrown during submission. When the `disableOnSubmit` prop is enabled, the form element becomes inert during submission, preventing duplicate submits.
 
 **Usage:**
 

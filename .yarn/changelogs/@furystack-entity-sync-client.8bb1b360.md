@@ -24,7 +24,6 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-- `useEntitySync` now uses a stable hook key based on the model name and passes the entity key as a dependency to `useDisposable`. The subscription is automatically re-created when the key changes, instead of requiring a new hook key per entity key.
 - `useCollectionSync` now uses `deps` for `top`, `skip`, and `order` options, keeping only the `filter` in the hook key. This allows the subscription to be re-created when pagination or ordering changes without creating a brand new cache entry.
 
 ## 🧪 Tests

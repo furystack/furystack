@@ -309,5 +309,18 @@ describe('ResourceManager', () => {
 
       expect(disposeFn).toHaveBeenCalledTimes(1)
     })
+
+    it('Should treat undefined and null as equal within deps (JSON.stringify behavior)', async () => {
+      await usingAsync(new ResourceManager(), async (rm) => {
+        const factory = vi.fn(() => ({
+          [Symbol.dispose]: vi.fn(),
+        }))
+
+        rm.useDisposable('test', factory, [undefined])
+        rm.useDisposable('test', factory, [null])
+
+        expect(factory).toHaveBeenCalledTimes(1)
+      })
+    })
   })
 })

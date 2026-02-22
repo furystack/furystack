@@ -41,6 +41,12 @@ describe('FormService', () => {
         expect(service.isSubmitting.getValue()).toBe(false)
       })
     })
+
+    it('should initialize submitError as undefined', () => {
+      using(new FormService(), (service) => {
+        expect(service.submitError.getValue()).toBeUndefined()
+      })
+    })
   })
 
   describe('setFieldState', () => {
@@ -90,14 +96,18 @@ describe('FormService', () => {
       const validatedFormDataDisposeSpy = vi.spyOn(service.validatedFormData, Symbol.dispose)
       const rawFormDataDisposeSpy = vi.spyOn(service.rawFormData, Symbol.dispose)
       const validationResultDisposeSpy = vi.spyOn(service.validationResult, Symbol.dispose)
+      const fieldErrorsDisposeSpy = vi.spyOn(service.fieldErrors, Symbol.dispose)
       const isSubmittingDisposeSpy = vi.spyOn(service.isSubmitting, Symbol.dispose)
+      const submitErrorDisposeSpy = vi.spyOn(service.submitError, Symbol.dispose)
 
       service[Symbol.dispose]()
 
       expect(validatedFormDataDisposeSpy).toHaveBeenCalled()
       expect(rawFormDataDisposeSpy).toHaveBeenCalled()
       expect(validationResultDisposeSpy).toHaveBeenCalled()
+      expect(fieldErrorsDisposeSpy).toHaveBeenCalled()
       expect(isSubmittingDisposeSpy).toHaveBeenCalled()
+      expect(submitErrorDisposeSpy).toHaveBeenCalled()
     })
   })
 })
@@ -548,11 +558,13 @@ describe('Form component', () => {
     })
   })
 
-  it('should reset isSubmitting to false even if onSubmit throws', async () => {
+  it('should reset isSubmitting to false and set submitError when onSubmit throws', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { name: string }
+
+      const submitError = new Error('Submit failed')
 
       initializeShadeRoot({
         injector,
@@ -560,7 +572,7 @@ describe('Form component', () => {
         jsxElement: (
           <Form<FormData>
             onSubmit={async () => {
-              throw new Error('Submit failed')
+              throw submitError
             }}
             validate={(data): data is FormData => {
               const d = data as Record<string, unknown>
@@ -585,6 +597,65 @@ describe('Form component', () => {
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
 
+      await sleepAsync(50)
+      expect(formService.isSubmitting.getValue()).toBe(false)
+      expect(formService.submitError.getValue()).toBe(submitError)
+    })
+  })
+
+  it('should clear submitError before a new submission', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      let shouldThrow = true
+      let resolveSubmit: () => void
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={async () => {
+              if (shouldThrow) {
+                throw new Error('First submit fails')
+              }
+              return new Promise<void>((resolve) => {
+                resolveSubmit = resolve
+              })
+            }}
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const formInjector = (form as unknown as { injector: Injector }).injector
+      const formService = formInjector.getInstance(FormService)
+
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      await sleepAsync(50)
+      expect(formService.submitError.getValue()).toBeInstanceOf(Error)
+
+      shouldThrow = false
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      await sleepAsync(50)
+      expect(formService.submitError.getValue()).toBeUndefined()
+      expect(formService.isSubmitting.getValue()).toBe(true)
+
+      resolveSubmit!()
       await sleepAsync(50)
       expect(formService.isSubmitting.getValue()).toBe(false)
     })
