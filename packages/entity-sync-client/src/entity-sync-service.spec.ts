@@ -355,16 +355,20 @@ describe('EntitySyncService', () => {
   })
 
   describe('collection live updates', () => {
-    it('should handle entity-added to collection', async () => {
+    it('should handle collection-snapshot with added entity', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
         subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
 
         mockWs.simulateMessage({
-          type: 'entity-added',
+          type: 'collection-snapshot',
           subscriptionId: 'sub-1',
-          entity: { id: 'msg-2', text: 'World', roomId: 'room-1' },
+          data: [
+            { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+            { id: 'msg-2', text: 'World', roomId: 'room-1' },
+          ],
+          totalCount: 2,
           version: { seq: 2, timestamp: new Date().toISOString() },
         })
 
@@ -372,21 +376,22 @@ describe('EntitySyncService', () => {
         expect(state.status).toBe('synced')
         if (state.status === 'synced') {
           expect(state.data.entries).toHaveLength(2)
+          expect(state.data.count).toBe(2)
         }
       })
     })
 
-    it('should handle entity-updated in collection', async () => {
+    it('should handle collection-snapshot with updated entity', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
         subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
 
         mockWs.simulateMessage({
-          type: 'entity-updated',
+          type: 'collection-snapshot',
           subscriptionId: 'sub-1',
-          id: 'msg-1',
-          change: { text: 'Updated' },
+          data: [{ id: 'msg-1', text: 'Updated', roomId: 'room-1' }],
+          totalCount: 1,
           version: { seq: 2, timestamp: new Date().toISOString() },
         })
 
@@ -399,7 +404,7 @@ describe('EntitySyncService', () => {
       })
     })
 
-    it('should handle entity-removed from collection', async () => {
+    it('should handle collection-snapshot with removed entity', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {
         mockWs.simulateOpen()
         const live = service.subscribeCollection(ChatMessage)
@@ -414,9 +419,10 @@ describe('EntitySyncService', () => {
         )
 
         mockWs.simulateMessage({
-          type: 'entity-removed',
+          type: 'collection-snapshot',
           subscriptionId: 'sub-1',
-          id: 'msg-1',
+          data: [{ id: 'msg-2', text: 'World', roomId: 'room-1' }],
+          totalCount: 1,
           version: { seq: 2, timestamp: new Date().toISOString() },
         })
 
@@ -1921,11 +1927,12 @@ describe('EntitySyncService', () => {
 
           const rollback = service.applyOptimisticCollectionRemove(ChatMessage, 'msg-1')
 
-          // Server confirms the removal
+          // Server confirms the removal via collection-snapshot
           mockWs.simulateMessage({
-            type: 'entity-removed',
+            type: 'collection-snapshot',
             subscriptionId: 'sub-1',
-            id: 'msg-1',
+            data: [{ id: 'msg-2', text: 'World', roomId: 'room-1' }],
+            totalCount: 1,
             version: { seq: 2, timestamp: new Date().toISOString() },
           })
 

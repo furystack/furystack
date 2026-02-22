@@ -24,7 +24,7 @@ appear before simple list items within each section.
 
 The `SubscriptionManager` no longer sends individual `entity-added`/`entity-updated`/`entity-removed` messages for collection subscription changes. Instead, it sends a single `collection-snapshot` message containing the full entries array and total count whenever a collection's data or count changes. This ensures the client always receives a consistent view of entries and count together.
 
-The `collection-count-updated` message type has been removed. See `@furystack/entity-sync` changelog for protocol-level details.
+See `@furystack/entity-sync` changelog for protocol-level details.
 
 ## ✨ Features
 

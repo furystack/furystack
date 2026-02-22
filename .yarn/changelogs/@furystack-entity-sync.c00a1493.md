@@ -20,24 +20,16 @@ appear before simple list items within each section.
 
 ## 💥 Breaking Changes
 
-### Replaced `collection-count-updated` with `collection-snapshot` in `ServerSyncMessage`
+### Added `collection-snapshot` variant to `ServerSyncMessage`
 
-The `collection-count-updated` variant has been removed from the `ServerSyncMessage` union type and replaced with `collection-snapshot`. The server now sends a full snapshot (entries + count) whenever a collection changes, instead of individual diff messages plus a separate count update. This ensures entries and count are always delivered together as a consistent unit.
+A new `collection-snapshot` variant has been added to the `ServerSyncMessage` union type. The server now sends a full snapshot (entries + count) whenever a collection changes, instead of individual diff messages. This ensures entries and count are always delivered together as a consistent unit.
 
-Any code that performs exhaustive pattern matching on `ServerSyncMessage.type` must handle `collection-snapshot` and remove the `collection-count-updated` case.
+Consumers that exhaustively match on `ServerSyncMessage.type` (without a `default`) must add a `collection-snapshot` case.
 
 **Examples:**
 
 ```typescript
-// ❌ Before — handled collection-count-updated
-switch (message.type) {
-  case 'collection-count-updated':
-    console.log(message.totalCount)
-    break
-  // ... other cases
-}
-
-// ✅ After — handle collection-snapshot
+// ✅ Handle the new collection-snapshot message
 switch (message.type) {
   case 'collection-snapshot':
     console.log(message.data, message.totalCount)
@@ -46,7 +38,7 @@ switch (message.type) {
 }
 ```
 
-**Impact:** Any consumer that matches on `ServerSyncMessage.type` will get a compile error until the new case is handled.
+**Impact:** Consumers that exhaustively match on `ServerSyncMessage.type` (without a `default`) will get a compile error until the new case is handled.
 
 ## ✨ Features
 

@@ -641,9 +641,9 @@ export class EntitySyncService implements Disposable {
           }
         } else if (internal.type === 'collection') {
           internal.primaryKey = message.primaryKey
-          const totalCount = message.totalCount ?? 0
           if (message.mode === 'snapshot') {
             const entries = (message.data as unknown[]) ?? []
+            const totalCount = message.totalCount ?? entries.length
             internal.lastSeq = message.version.seq
             const data = { entries, count: totalCount }
             internal.state.setValue({ status: 'synced', data })
@@ -672,6 +672,7 @@ export class EntitySyncService implements Disposable {
             }
 
             internal.lastSeq = message.version.seq
+            const totalCount = message.totalCount ?? entries.length
             const data = { entries, count: totalCount }
             internal.state.setValue({ status: 'synced', data })
             this.persistToCache(internal.cacheKey, internal.modelName, data, internal.lastSeq)
@@ -681,75 +682,33 @@ export class EntitySyncService implements Disposable {
       }
       case 'entity-updated': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && currentState.data != null) {
-            const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
-            sub.lastSeq = message.version.seq
-            sub.state.setValue({ status: 'synced', data: updatedData })
-            this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
-          }
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && sub.primaryKey) {
-            const updatedEntries = currentState.data.entries.map((item) => {
-              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
-              if (entityKey === message.id) {
-                return { ...(item as Record<string, unknown>), ...message.change }
-              }
-              return item
-            })
-            sub.lastSeq = message.version.seq
-            const data = { entries: updatedEntries, count: currentState.data.count }
-            sub.state.setValue({ status: 'synced', data })
-            this.persistToCache(sub.cacheKey, sub.modelName, data, sub.lastSeq)
-          }
+        const currentState = sub.state.getValue()
+        if ('data' in currentState && currentState.data != null) {
+          const updatedData = { ...(currentState.data as Record<string, unknown>), ...message.change }
+          sub.lastSeq = message.version.seq
+          sub.state.setValue({ status: 'synced', data: updatedData })
+          this.persistToCache(sub.cacheKey, sub.modelName, updatedData, sub.lastSeq)
         }
         break
       }
       case 'entity-added': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          sub.lastSeq = message.version.seq
-          sub.state.setValue({ status: 'synced', data: message.entity })
-          this.persistToCache(sub.cacheKey, sub.modelName, message.entity, sub.lastSeq)
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState) {
-            const updatedEntries = [...currentState.data.entries, message.entity]
-            sub.lastSeq = message.version.seq
-            const data = { entries: updatedEntries, count: currentState.data.count }
-            sub.state.setValue({ status: 'synced', data })
-            this.persistToCache(sub.cacheKey, sub.modelName, data, sub.lastSeq)
-          }
-        }
+        sub.lastSeq = message.version.seq
+        sub.state.setValue({ status: 'synced', data: message.entity })
+        this.persistToCache(sub.cacheKey, sub.modelName, message.entity, sub.lastSeq)
         break
       }
       case 'entity-removed': {
         const sub = this.findBySubscriptionId(message.subscriptionId)
-        if (!sub) return
+        if (!sub || sub.type !== 'entity') return
 
-        if (sub.type === 'entity') {
-          sub.lastSeq = message.version.seq
-          sub.state.setValue({ status: 'synced', data: undefined })
-          this.persistToCache(sub.cacheKey, sub.modelName, undefined, sub.lastSeq)
-        } else if (sub.type === 'collection') {
-          const currentState = sub.state.getValue()
-          if ('data' in currentState && sub.primaryKey) {
-            const filteredEntries = currentState.data.entries.filter((item) => {
-              const entityKey = (item as Record<string, unknown>)[sub.primaryKey!]
-              return entityKey !== message.id
-            })
-            sub.lastSeq = message.version.seq
-            const data = { entries: filteredEntries, count: currentState.data.count }
-            sub.state.setValue({ status: 'synced', data })
-            this.persistToCache(sub.cacheKey, sub.modelName, data, sub.lastSeq)
-          }
-        }
+        sub.lastSeq = message.version.seq
+        sub.state.setValue({ status: 'synced', data: undefined })
+        this.persistToCache(sub.cacheKey, sub.modelName, undefined, sub.lastSeq)
         break
       }
       case 'collection-snapshot': {
