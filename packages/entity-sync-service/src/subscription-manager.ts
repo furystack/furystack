@@ -28,6 +28,8 @@ type CollectionSubscription = {
   currentSeq: number
   /** Tracks which entities are currently in the collection for diffing */
   currentEntities: Map<unknown, unknown>
+  /** Last sent total count, used to avoid redundant collection-count-updated messages */
+  lastTotalCount?: number
 }
 
 type Subscription = EntitySubscription | CollectionSubscription
@@ -52,6 +54,7 @@ type ModelRegistration = {
       order?: Record<string, 'ASC' | 'DESC'>
     },
   ) => Promise<unknown[]>
+  countEntities: (injector: Injector, filter?: unknown) => Promise<number>
 }
 
 type QueryCacheEntry = {
@@ -144,6 +147,7 @@ export class SubscriptionManager implements Disposable {
         })
         return result as unknown[]
       },
+      countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<AnyEntity> | undefined),
     }
 
     registration.eventSubscriptions = [
@@ -344,7 +348,10 @@ export class SubscriptionManager implements Disposable {
 
     if (!this.subscriptions.has(sub.subscriptionId)) return
 
-    const results = await this.queryWithCache(sub, registration)
+    const [results, totalCount] = await Promise.all([
+      this.queryWithCache(sub, registration),
+      registration.countEntities(sub.clientInjector, sub.filter),
+    ])
 
     const newEntities = new Map<unknown, unknown>()
     for (const entity of results) {
@@ -388,6 +395,15 @@ export class SubscriptionManager implements Disposable {
           })
         }
       }
+    }
+
+    if (totalCount !== sub.lastTotalCount) {
+      sub.lastTotalCount = totalCount
+      this.sendMessage(sub.socket, {
+        type: 'collection-count-updated',
+        subscriptionId: sub.subscriptionId,
+        totalCount,
+      })
     }
 
     sub.currentEntities = newEntities
@@ -564,12 +580,15 @@ export class SubscriptionManager implements Disposable {
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
 
-      const results = await registration.findEntities(clientInjector, {
-        filter,
-        top,
-        skip,
-        order,
-      })
+      const [results, totalCount] = await Promise.all([
+        registration.findEntities(clientInjector, {
+          filter,
+          top,
+          skip,
+          order,
+        }),
+        registration.countEntities(clientInjector, filter),
+      ])
 
       const currentEntities = new Map<unknown, unknown>()
       for (const entity of results) {
@@ -589,6 +608,7 @@ export class SubscriptionManager implements Disposable {
         order,
         currentSeq: registration.currentSeq,
         currentEntities,
+        lastTotalCount: totalCount,
       }
 
       this.subscriptions.set(subscriptionId, subscription)
@@ -602,6 +622,7 @@ export class SubscriptionManager implements Disposable {
         primaryKey: registration.primaryKey,
         mode: 'snapshot',
         data: results,
+        totalCount,
         version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {

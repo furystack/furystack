@@ -10,6 +10,8 @@ import type { SyncState } from '@furystack/entity-sync'
 export type LiveCollection<T> = {
   /** Observable state that emits SyncState changes for the subscribed collection */
   state: ObservableValue<SyncState<T[]>>
+  /** Observable total count of matching entities (ignoring top/skip). Undefined until the server responds. */
+  totalCount: ObservableValue<number | undefined>
   /** Dispose this handle (decrements ref count) */
   [Symbol.dispose](): void
 }

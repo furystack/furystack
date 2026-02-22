@@ -57,6 +57,7 @@ type LiveEntityInternal = {
 type LiveCollectionInternal = {
   type: 'collection'
   state: ObservableValue<SyncState<unknown[]>>
+  totalCount: ObservableValue<number | undefined>
   refCount: number
   subscriptionId?: string
   suspendTimer?: ReturnType<typeof setTimeout>
@@ -364,6 +365,7 @@ export class EntitySyncService implements Disposable {
     internal = {
       type: 'collection',
       state: new ObservableValue<SyncState<unknown[]>>({ status: 'connecting' }),
+      totalCount: new ObservableValue<number | undefined>(undefined),
       refCount: 1,
       modelName,
       filter: options?.filter,
@@ -403,6 +405,7 @@ export class EntitySyncService implements Disposable {
     let disposed = false
     return {
       state: internal.state as ObservableValue<SyncState<T[]>>,
+      totalCount: internal.totalCount,
       [Symbol.dispose]: () => {
         if (disposed) return
         disposed = true
@@ -502,6 +505,9 @@ export class EntitySyncService implements Disposable {
       this.liveCollections.delete(collectionKey)
       if (!internal.state.isDisposed) {
         internal.state[Symbol.dispose]()
+      }
+      if (!internal.totalCount.isDisposed) {
+        internal.totalCount[Symbol.dispose]()
       }
     }
   }
@@ -641,6 +647,9 @@ export class EntitySyncService implements Disposable {
           }
         } else if (internal.type === 'collection') {
           internal.primaryKey = message.primaryKey
+          if (message.totalCount != null) {
+            internal.totalCount.setValue(message.totalCount)
+          }
           if (message.mode === 'snapshot') {
             internal.lastSeq = message.version.seq
             internal.state.setValue({ status: 'synced', data: (message.data as unknown[]) ?? [] })
@@ -748,6 +757,12 @@ export class EntitySyncService implements Disposable {
             this.persistToCache(sub.cacheKey, sub.modelName, filteredData, sub.lastSeq)
           }
         }
+        break
+      }
+      case 'collection-count-updated': {
+        const sub = this.findBySubscriptionId(message.subscriptionId)
+        if (!sub || sub.type !== 'collection') return
+        sub.totalCount.setValue(message.totalCount)
         break
       }
       case 'subscription-error': {
@@ -997,6 +1012,9 @@ export class EntitySyncService implements Disposable {
       }
       if (!internal.state.isDisposed) {
         internal.state[Symbol.dispose]()
+      }
+      if (!internal.totalCount.isDisposed) {
+        internal.totalCount[Symbol.dispose]()
       }
     }
     this.liveEntities.clear()

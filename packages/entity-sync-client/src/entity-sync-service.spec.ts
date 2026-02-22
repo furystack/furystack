@@ -108,6 +108,7 @@ const subscribeCollectionAndRespond = (
   primaryKey: string,
   model = 'ChatMessage',
   seq = 1,
+  totalCount?: number,
 ) => {
   const sentMsg = getSentMessages(mockWs).at(-1)
   if (sentMsg?.type === 'subscribe-collection') {
@@ -119,6 +120,7 @@ const subscribeCollectionAndRespond = (
       primaryKey,
       mode: 'snapshot',
       data,
+      totalCount: totalCount ?? data.length,
       version: { seq, timestamp: new Date().toISOString() },
     })
   }
@@ -286,6 +288,82 @@ describe('EntitySyncService', () => {
 
         mockWs.simulateOpen()
         expect(mockWs.send).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('collection totalCount', () => {
+    it('should initialize totalCount to undefined', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        mockWs.simulateOpen()
+        const live = service.subscribeCollection(ChatMessage)
+        expect(live.totalCount.getValue()).toBeUndefined()
+      })
+    })
+
+    it('should set totalCount from subscribed snapshot response', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        mockWs.simulateOpen()
+        const live = service.subscribeCollection(ChatMessage)
+        subscribeCollectionAndRespond(
+          mockWs,
+          'sub-1',
+          [
+            { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
+            { id: 'msg-2', text: 'World', roomId: 'room-1' },
+          ],
+          'id',
+          'ChatMessage',
+          1,
+          42,
+        )
+
+        expect(live.totalCount.getValue()).toBe(42)
+      })
+    })
+
+    it('should update totalCount on collection-count-updated message', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        mockWs.simulateOpen()
+        const live = service.subscribeCollection(ChatMessage)
+        subscribeCollectionAndRespond(mockWs, 'sub-1', [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], 'id')
+
+        mockWs.simulateMessage({
+          type: 'collection-count-updated',
+          subscriptionId: 'sub-1',
+          totalCount: 99,
+        })
+
+        expect(live.totalCount.getValue()).toBe(99)
+      })
+    })
+
+    it('should share totalCount between duplicate subscribers', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        mockWs.simulateOpen()
+        const live1 = service.subscribeCollection(ChatMessage)
+        const live2 = service.subscribeCollection(ChatMessage)
+        expect(live1.totalCount).toBe(live2.totalCount)
+      })
+    })
+
+    it('should retain totalCount after connection loss', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        mockWs.simulateOpen()
+        const live = service.subscribeCollection(ChatMessage)
+        subscribeCollectionAndRespond(
+          mockWs,
+          'sub-1',
+          [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
+          'id',
+          'ChatMessage',
+          1,
+          10,
+        )
+
+        mockWs.simulateError()
+
+        expect(live.totalCount.getValue()).toBe(10)
       })
     })
   })

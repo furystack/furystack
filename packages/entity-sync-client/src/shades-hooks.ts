@@ -59,23 +59,26 @@ export const useEntitySync = <T>(
  * @param context Render options from the Shade component (or a subset with injector, useDisposable, useObservable)
  * @param model The model class
  * @param options Optional filter, pagination, and ordering options
- * @returns The current SyncState for the collection
+ * @returns An object with the current SyncState for the collection and the total count of matching entities
  *
  * @example
  * ```typescript
  * const ChatMessages = Shade<{ roomId: string }>({
  *   shadowDomName: 'chat-messages',
  *   render: (options) => {
- *     const messagesState = useCollectionSync(options, ChatMessage, {
+ *     const { state, totalCount } = useCollectionSync(options, ChatMessage, {
  *       filter: { roomId: { $eq: options.props.roomId } },
+ *       top: 10,
+ *       skip: 0,
  *     })
  *
- *     if (messagesState.status === 'connecting') return <div>Loading...</div>
- *     if (messagesState.status === 'error') return <div>Error: {messagesState.error}</div>
+ *     if (state.status === 'connecting') return <div>Loading...</div>
+ *     if (state.status === 'error') return <div>Error: {state.error}</div>
  *
  *     return (
  *       <div>
- *         {messagesState.data.map((msg) => <div>{msg.text}</div>)}
+ *         <p>Total: {totalCount ?? '...'}</p>
+ *         {state.data.map((msg) => <div>{msg.text}</div>)}
  *       </div>
  *     )
  *   },
@@ -91,12 +94,13 @@ export const useCollectionSync = <T>(
     skip?: number
     order?: { [P in keyof T]?: 'ASC' | 'DESC' }
   },
-): SyncState<T[]> => {
+): { state: SyncState<T[]>; totalCount: number | undefined } => {
   const syncService = context.injector.getInstance(EntitySyncService)
   const filterKey = JSON.stringify(options?.filter)
   const hookKey = `collectionSync:${model.name}:${filterKey}`
   const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
   const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
   const [state] = context.useObservable(hookKey, liveCollection.state)
-  return state
+  const [totalCount] = context.useObservable(`${hookKey}:totalCount`, liveCollection.totalCount)
+  return { state, totalCount }
 }

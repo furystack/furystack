@@ -270,6 +270,52 @@ describe('SubscriptionManager', () => {
         })
         if (messages[0].type === 'subscribed' && messages[0].mode === 'snapshot') {
           expect(messages[0].data).toHaveLength(2)
+          expect(messages[0].totalCount).toBe(2)
+        }
+      })
+    })
+
+    it('should include totalCount matching the full unfiltered count', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntity, 'id')
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(
+          socket as unknown as WebSocket,
+          injector,
+          'req-1',
+          'TestEntity',
+          undefined,
+          2,
+          0,
+        )
+
+        const messages = getSentMessages(socket)
+        if (messages[0].type === 'subscribed' && messages[0].mode === 'snapshot') {
+          expect((messages[0].data as unknown[]).length).toBeLessThanOrEqual(2)
+          expect(messages[0].totalCount).toBe(3)
+        }
+      })
+    })
+
+    it('should include totalCount matching the filtered count', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntity, 'id')
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
+          category: { $eq: 'A' },
+        })
+
+        const messages = getSentMessages(socket)
+        if (messages[0].type === 'subscribed' && messages[0].mode === 'snapshot') {
+          expect(messages[0].totalCount).toBe(2)
         }
       })
     })
@@ -455,6 +501,67 @@ describe('SubscriptionManager', () => {
 
         const messages = getSentMessages(socket)
         expect(messages.some((m) => m.type === 'entity-removed')).toBe(true)
+      })
+    })
+
+    it('should send collection-count-updated when count changes on add', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntity, 'id')
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
+        socket.send.mockClear()
+
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+
+        await new Promise((r) => setTimeout(r, 50))
+
+        const messages = getSentMessages(socket)
+        const countMsg = messages.find((m) => m.type === 'collection-count-updated')
+        expect(countMsg).toBeDefined()
+        if (countMsg?.type === 'collection-count-updated') {
+          expect(countMsg.totalCount).toBe(1)
+        }
+      })
+    })
+
+    it('should send collection-count-updated when count changes on remove', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntity, 'id')
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
+        socket.send.mockClear()
+
+        await dataSet.remove(injector, '1' as TestEntity['id'])
+
+        await new Promise((r) => setTimeout(r, 50))
+
+        const messages = getSentMessages(socket)
+        const countMsg = messages.find((m) => m.type === 'collection-count-updated')
+        expect(countMsg).toBeDefined()
+        if (countMsg?.type === 'collection-count-updated') {
+          expect(countMsg.totalCount).toBe(0)
+        }
+      })
+    })
+
+    it('should not send collection-count-updated when count does not change', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntity, 'id')
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
+        socket.send.mockClear()
+
+        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
+
+        await new Promise((r) => setTimeout(r, 50))
+
+        const messages = getSentMessages(socket)
+        expect(messages.filter((m) => m.type === 'collection-count-updated')).toHaveLength(0)
       })
     })
 
