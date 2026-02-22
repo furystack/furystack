@@ -42,7 +42,7 @@ export const DateFilter = Shade<{
     const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
 
     const currentFilter = findOptions.filter?.[props.field] as
-      | { $lt?: string; $gt?: string; $gte?: string; $lte?: string }
+      | { $lt?: Date; $gt?: Date; $gte?: Date; $lte?: Date }
       | undefined
 
     const detectMode = (): DateMode => {
@@ -52,9 +52,9 @@ export const DateFilter = Shade<{
       return 'before'
     }
 
-    const toLocalDateTimeString = (isoStr?: string) => {
-      if (!isoStr) return ''
-      const d = new Date(isoStr)
+    const toLocalDateTimeString = (date?: Date) => {
+      if (!date) return ''
+      const d = date instanceof Date ? date : new Date(date)
       if (isNaN(d.getTime())) return ''
       const pad = (n: number) => n.toString().padStart(2, '0')
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
@@ -85,29 +85,25 @@ export const DateFilter = Shade<{
         return
       }
 
-      let filterValue: Record<string, string>
+      let filterValue: Record<string, Date>
       switch (selectedMode) {
         case 'before':
-          filterValue = { $lt: new Date(dateValue).toISOString() }
+          filterValue = { $lt: new Date(dateValue) }
           break
         case 'after':
-          filterValue = { $gt: new Date(dateValue).toISOString() }
+          filterValue = { $gt: new Date(dateValue) }
           break
         case 'between':
           filterValue = {
-            $gte: new Date(dateValue).toISOString(),
-            ...(secondDateValue ? { $lte: new Date(secondDateValue).toISOString() } : {}),
+            $gte: new Date(dateValue),
+            ...(secondDateValue ? { $lte: new Date(secondDateValue) } : {}),
           }
           break
         default:
           throw new Error(`Invalid date mode: ${selectedMode as unknown as string}`)
       }
 
-      if (filterValue) {
-        filter[props.field] = filterValue
-      } else {
-        delete filter[props.field]
-      }
+      filter[props.field] = filterValue
       setFindOptions({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
