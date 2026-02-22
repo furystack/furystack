@@ -10,6 +10,7 @@ export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 export const DataGridFooter: <T>(props: {
   service: CollectionService<T>
   findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+  paginationOptions?: number[]
 }) => JSX.Element = Shade({
   shadowDomName: 'shade-data-grid-footer',
   css: {
@@ -42,7 +43,7 @@ export const DataGridFooter: <T>(props: {
     },
   },
   render: ({ props, useObservable }) => {
-    const { service, findOptions } = props
+    const { service, findOptions, paginationOptions = dataGridItemsPerPage } = props
     const [currentData] = useObservable('dataUpdater', service.data)
     const [currentOptions, setCurrentOptions] = useObservable('optionsUpdater', findOptions, {
       filter: (newValue, oldValue) => {
@@ -69,25 +70,27 @@ export const DataGridFooter: <T>(props: {
             }}
           />
         )}
-        <div className="pager-section">
-          <span>Rows per page</span>
-          <select
-            onchange={(ev) => {
-              const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
-              setCurrentOptions({
-                ...currentOptions,
-                top: value,
-                skip: currentPage * value,
-              })
-            }}
-          >
-            {dataGridItemsPerPage.map((no) => (
-              <option value={no.toString()} selected={no === currentEntriesPerPage}>
-                {no === Infinity ? 'All' : no.toString()}
-              </option>
-            ))}
-          </select>
-        </div>
+        {paginationOptions.length > 1 && (
+          <div className="pager-section">
+            <span>Rows per page</span>
+            <select
+              onchange={(ev) => {
+                const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
+                setCurrentOptions({
+                  ...currentOptions,
+                  top: value,
+                  skip: currentPage * value,
+                })
+              }}
+            >
+              {paginationOptions.map((no) => (
+                <option value={no.toString()} selected={no === currentEntriesPerPage}>
+                  {no === Infinity ? 'All' : no.toString()}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     )
   },

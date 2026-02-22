@@ -343,4 +343,70 @@ describe('DataGridFooter', () => {
   it('should export dataGridItemsPerPage constant', () => {
     expect(dataGridItemsPerPage).toEqual([10, 20, 25, 50, 100, Infinity])
   })
+
+  it('should render custom paginationOptions', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const service = createService()
+      const findOptions = createFindOptions()
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <DataGridFooter service={service} findOptions={findOptions} paginationOptions={[5, 15, 30]} />,
+      })
+
+      await flushUpdates()
+
+      const footer = document.querySelector('shade-data-grid-footer')
+      const itemsPerPageSelect = footer?.querySelector('.pager-section select')
+
+      expect(itemsPerPageSelect).not.toBeNull()
+      const options = itemsPerPageSelect?.querySelectorAll('option')
+      expect(options?.length).toBe(3)
+      expect(options?.[0]?.textContent).toBe('5')
+      expect(options?.[1]?.textContent).toBe('15')
+      expect(options?.[2]?.textContent).toBe('30')
+    })
+  })
+
+  it('should hide the rows-per-page selector when only one paginationOption is provided', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const service = createService([], 50)
+      const findOptions = createFindOptions(10, 0)
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <DataGridFooter service={service} findOptions={findOptions} paginationOptions={[10]} />,
+      })
+
+      await flushUpdates()
+
+      const footer = document.querySelector('shade-data-grid-footer')
+      const pagerSection = footer?.querySelector('.pager-section')
+      expect(pagerSection).toBeNull()
+    })
+  })
+
+  it('should use default dataGridItemsPerPage when paginationOptions is not provided', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const service = createService()
+      const findOptions = createFindOptions()
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+      })
+
+      await flushUpdates()
+
+      const footer = document.querySelector('shade-data-grid-footer')
+      const options = footer?.querySelectorAll('.pager-section select option')
+      expect(options?.length).toBe(dataGridItemsPerPage.length)
+    })
+  })
 })
