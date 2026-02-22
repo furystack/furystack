@@ -35,6 +35,18 @@ describe('FormService', () => {
         expect(service.inputs.size).toBe(0)
       })
     })
+
+    it('should initialize isSubmitting as false', () => {
+      using(new FormService(), (service) => {
+        expect(service.isSubmitting.getValue()).toBe(false)
+      })
+    })
+
+    it('should initialize submitError as undefined', () => {
+      using(new FormService(), (service) => {
+        expect(service.submitError.getValue()).toBeUndefined()
+      })
+    })
   })
 
   describe('setFieldState', () => {
@@ -84,12 +96,18 @@ describe('FormService', () => {
       const validatedFormDataDisposeSpy = vi.spyOn(service.validatedFormData, Symbol.dispose)
       const rawFormDataDisposeSpy = vi.spyOn(service.rawFormData, Symbol.dispose)
       const validationResultDisposeSpy = vi.spyOn(service.validationResult, Symbol.dispose)
+      const fieldErrorsDisposeSpy = vi.spyOn(service.fieldErrors, Symbol.dispose)
+      const isSubmittingDisposeSpy = vi.spyOn(service.isSubmitting, Symbol.dispose)
+      const submitErrorDisposeSpy = vi.spyOn(service.submitError, Symbol.dispose)
 
       service[Symbol.dispose]()
 
       expect(validatedFormDataDisposeSpy).toHaveBeenCalled()
       expect(rawFormDataDisposeSpy).toHaveBeenCalled()
       expect(validationResultDisposeSpy).toHaveBeenCalled()
+      expect(fieldErrorsDisposeSpy).toHaveBeenCalled()
+      expect(isSubmittingDisposeSpy).toHaveBeenCalled()
+      expect(submitErrorDisposeSpy).toHaveBeenCalled()
     })
   })
 })
@@ -486,6 +504,297 @@ describe('Form component', () => {
       input.dispatchEvent(invalidEvent)
 
       await sleepAsync(50)
+    })
+  })
+
+  it('should set isSubmitting during async onSubmit and reset after', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      let resolveSubmit: () => void
+      const submitPromise = new Promise<void>((resolve) => {
+        resolveSubmit = resolve
+      })
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={() => submitPromise}
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const formInjector = (form as unknown as { injector: Injector }).injector
+      const formService = formInjector.getInstance(FormService)
+
+      expect(formService.isSubmitting.getValue()).toBe(false)
+
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      form.dispatchEvent(submitEvent)
+
+      await sleepAsync(50)
+      expect(formService.isSubmitting.getValue()).toBe(true)
+
+      resolveSubmit!()
+      await sleepAsync(50)
+      expect(formService.isSubmitting.getValue()).toBe(false)
+    })
+  })
+
+  it('should reset isSubmitting to false and set submitError when onSubmit throws', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      type FormData = { name: string }
+
+      const submitError = new Error('Submit failed')
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={async () => {
+              throw submitError
+            }}
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const formInjector = (form as unknown as { injector: Injector }).injector
+      const formService = formInjector.getInstance(FormService)
+
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      form.dispatchEvent(submitEvent)
+
+      await sleepAsync(50)
+      expect(formService.isSubmitting.getValue()).toBe(false)
+      expect(formService.submitError.getValue()).toBe(submitError)
+    })
+  })
+
+  it('should clear submitError before a new submission', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      let shouldThrow = true
+      let resolveSubmit: () => void
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={async () => {
+              if (shouldThrow) {
+                throw new Error('First submit fails')
+              }
+              return new Promise<void>((resolve) => {
+                resolveSubmit = resolve
+              })
+            }}
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const formInjector = (form as unknown as { injector: Injector }).injector
+      const formService = formInjector.getInstance(FormService)
+
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      await sleepAsync(50)
+      expect(formService.submitError.getValue()).toBeInstanceOf(Error)
+
+      shouldThrow = false
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      await sleepAsync(50)
+      expect(formService.submitError.getValue()).toBeUndefined()
+      expect(formService.isSubmitting.getValue()).toBe(true)
+
+      resolveSubmit!()
+      await sleepAsync(50)
+      expect(formService.isSubmitting.getValue()).toBe(false)
+    })
+  })
+
+  it('should set inert on form element when disableOnSubmit is true during async submit', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      let resolveSubmit: () => void
+      const submitPromise = new Promise<void>((resolve) => {
+        resolveSubmit = resolve
+      })
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={() => submitPromise}
+            disableOnSubmit
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      expect(form.inert).toBeFalsy()
+
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      form.dispatchEvent(submitEvent)
+
+      await sleepAsync(50)
+      expect(form.inert).toBe(true)
+
+      resolveSubmit!()
+      await sleepAsync(50)
+      expect(form.inert).toBe(false)
+    })
+  })
+
+  it('should not set inert when disableOnSubmit is not provided', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      let resolveSubmit: () => void
+      const submitPromise = new Promise<void>((resolve) => {
+        resolveSubmit = resolve
+      })
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={() => submitPromise}
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      form.dispatchEvent(submitEvent)
+
+      await sleepAsync(50)
+      expect(form.inert).toBeFalsy()
+
+      resolveSubmit!()
+      await sleepAsync(50)
+    })
+  })
+
+  it('should remove inert even if onSubmit throws when disableOnSubmit is true', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      type FormData = { name: string }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form<FormData>
+            onSubmit={async () => {
+              throw new Error('Submit failed')
+            }}
+            disableOnSubmit
+            validate={(data): data is FormData => {
+              const d = data as Record<string, unknown>
+              return typeof d.name === 'string'
+            }}
+          >
+            <input name="name" type="text" />
+            <button type="submit">Submit</button>
+          </Form>
+        ),
+      })
+
+      await sleepAsync(50)
+
+      const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+      const input = form.querySelector('input[name="name"]') as HTMLInputElement
+      input.value = 'Test'
+
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      form.dispatchEvent(submitEvent)
+
+      await sleepAsync(50)
+      expect(form.inert).toBe(false)
+      const formInjector = (form as unknown as { injector: Injector }).injector
+      const formService = formInjector.getInstance(FormService)
+      expect(formService.isSubmitting.getValue()).toBe(false)
     })
   })
 })

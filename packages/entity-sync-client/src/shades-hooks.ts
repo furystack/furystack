@@ -10,7 +10,7 @@ import { EntitySyncService } from './entity-sync-service.js'
  */
 export type SyncHookContext = {
   injector: Injector
-  useDisposable: <T extends Disposable>(key: string, factory: () => T) => T
+  useDisposable: <T extends Disposable>(key: string, factory: () => T, deps?: readonly unknown[]) => T
   useObservable: <T>(key: string, observable: ObservableValue<T>) => [value: T, setValue: (newValue: T) => void]
 }
 
@@ -93,14 +93,10 @@ export const useCollectionSync = <T>(
   },
 ): SyncState<T[]> => {
   const syncService = context.injector.getInstance(EntitySyncService)
-  const optionsKey = JSON.stringify({
-    filter: options?.filter,
-    top: options?.top,
-    skip: options?.skip,
-    order: options?.order,
-  })
-  const hookKey = `collectionSync:${model.name}:${optionsKey}`
-  const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options))
+  const filterKey = JSON.stringify(options?.filter)
+  const hookKey = `collectionSync:${model.name}:${filterKey}`
+  const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
+  const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
   const [state] = context.useObservable(hookKey, liveCollection.state)
   return state
 }
