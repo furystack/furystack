@@ -74,9 +74,7 @@ const FilterButton = Shade<{
     display: 'inline-block',
   },
   render: ({ props, useObservable }) => {
-    const [findOptions] = useObservable('currentValue', props.findOptions, {
-      filter: (newValue) => !!newValue.filter?.[props.field],
-    })
+    const [findOptions] = useObservable('currentValue', props.findOptions)
 
     const hasActiveFilter = !!findOptions.filter?.[props.field]
 
@@ -115,8 +113,10 @@ const renderFilterComponent = (
       return <DateFilter field={field} findOptions={findOptions} onClose={onClose} />
     case 'string':
       return <StringFilter field={field} findOptions={findOptions} onClose={onClose} />
-    default:
-      return <></>
+    default: {
+      const _exhaustive: never = filterConfig
+      throw new Error(`Unknown filter type: ${(_exhaustive as ColumnFilterConfig).type}`)
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from './data-grid.js'
@@ -293,6 +293,33 @@ describe('DataGridHeader', () => {
 
         const filterButton = document.querySelector('data-grid-filter-button')
         expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
+      })
+    })
+
+    it('should transition from active to inactive when filter is externally cleared', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const findOptions = createFindOptions({ filter: { name: { $regex: 'test' } } })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+        })
+
+        // Parent renders, then child FilterButton renders
+        await flushUpdates()
+        await flushUpdates()
+
+        const filterButton = document.querySelector('data-grid-filter-button button')
+        expect(filterButton?.hasAttribute('data-selected')).toBe(true)
+
+        findOptions.setValue({ filter: {} })
+        await flushUpdates()
+        await flushUpdates()
+
+        const updatedButton = document.querySelector('data-grid-filter-button button')
+        expect(updatedButton?.hasAttribute('data-selected')).toBe(false)
       })
     })
 
