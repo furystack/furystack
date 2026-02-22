@@ -202,12 +202,7 @@ export const WelcomeWizard = Shade({
           showAnimation={(el) => fadeIn(el)}
           hideAnimation={(el) => fadeOut(el)}
         >
-          <Wizard
-            steps={[Step1, Step2, Step3]}
-            showProgress
-            stepLabels={['Step 1', 'Step 2', 'Step 3']}
-            onFinish={() => setIsOpened(false)}
-          />
+          <Wizard steps={[Step1, Step2, Step3]} onFinish={() => setIsOpened(false)} />
         </Modal>
       </>
     )
