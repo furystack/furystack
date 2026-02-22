@@ -87,8 +87,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -113,7 +113,7 @@ describe('DataGridFooter', () => {
 
       const footer = document.querySelector('shade-data-grid-footer')
       const pager = footer?.querySelector('.pager')
-      expect(pager?.textContent).toContain('Goto page')
+      expect(pager?.textContent).toContain('Page')
     })
   })
 
@@ -133,7 +133,9 @@ describe('DataGridFooter', () => {
 
       const footer = document.querySelector('shade-data-grid-footer')
       const pager = footer?.querySelector('.pager')
-      expect(pager?.textContent).not.toContain('Goto page')
+      const sections = Array.from(pager?.querySelectorAll('.pager-section') ?? [])
+      const pageSection = sections.find((s) => s.textContent?.includes('Page'))
+      expect(pageSection).toBeUndefined()
     })
   })
 
@@ -154,8 +156,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -181,8 +183,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -214,8 +216,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -247,8 +249,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -281,8 +283,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const pageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('Goto page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Page')
       })
 
       expect(pageSelect).toBeDefined()
@@ -307,8 +309,8 @@ describe('DataGridFooter', () => {
       const footer = document.querySelector('shade-data-grid-footer')
       const selects = Array.from(footer?.querySelectorAll('select') ?? [])
       const itemsPerPageSelect = selects.find((s) => {
-        const parent = s.parentElement
-        return parent?.textContent?.includes('items per page')
+        const parent = s.closest('.pager-section')
+        return parent?.textContent?.includes('Rows per page')
       })
 
       expect(itemsPerPageSelect).toBeDefined()
@@ -332,7 +334,7 @@ describe('DataGridFooter', () => {
 
       let footer = document.querySelector('shade-data-grid-footer')
       let selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      let pageSelect = selects.find((s) => s.parentElement?.textContent?.includes('Goto page'))
+      let pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
       let pageOptions = pageSelect?.querySelectorAll('option')
 
       expect(pageOptions?.length).toBe(5)
@@ -343,7 +345,7 @@ describe('DataGridFooter', () => {
 
       footer = document.querySelector('shade-data-grid-footer')
       selects = Array.from(footer?.querySelectorAll('select') ?? [])
-      pageSelect = selects.find((s) => s.parentElement?.textContent?.includes('Goto page'))
+      pageSelect = selects.find((s) => s.closest('.pager-section')?.textContent?.includes('Page'))
       pageOptions = pageSelect?.querySelectorAll('option')
 
       expect(pageOptions?.length).toBe(10)

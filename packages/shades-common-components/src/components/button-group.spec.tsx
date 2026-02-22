@@ -132,6 +132,78 @@ describe('ButtonGroup', () => {
   })
 })
 
+describe('ToggleButton', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  const renderToggleButton = async (props: Parameters<typeof ToggleButton>[0]) => {
+    const injector = new Injector()
+    const root = document.getElementById('root')!
+    initializeShadeRoot({
+      injector,
+      rootElement: root,
+      jsxElement: <ToggleButton {...props}>Label</ToggleButton>,
+    })
+    await sleepAsync(50)
+    return {
+      injector,
+      button: root.querySelector('button[is="shade-toggle-button"]') as HTMLButtonElement,
+      [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
+    }
+  }
+
+  describe('pressed', () => {
+    it('should not set data-selected when pressed is not specified', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a' }), async ({ button }) => {
+        expect(button.hasAttribute('data-selected')).toBe(false)
+      })
+    })
+
+    it('should set data-selected when pressed is true', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a', pressed: true }), async ({ button }) => {
+        expect(button.hasAttribute('data-selected')).toBe(true)
+      })
+    })
+
+    it('should not set data-selected when pressed is false', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a', pressed: false }), async ({ button }) => {
+        expect(button.hasAttribute('data-selected')).toBe(false)
+      })
+    })
+  })
+
+  describe('size', () => {
+    it('should not set data-size by default', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a' }), async ({ button }) => {
+        expect(button.hasAttribute('data-size')).toBe(false)
+      })
+    })
+
+    it('should not set data-size for medium (default)', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a', size: 'medium' }), async ({ button }) => {
+        expect(button.hasAttribute('data-size')).toBe(false)
+      })
+    })
+
+    it('should set data-size="small" for small size', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a', size: 'small' }), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBe('small')
+      })
+    })
+
+    it('should set data-size="large" for large size', async () => {
+      await usingAsync(await renderToggleButton({ value: 'a', size: 'large' }), async ({ button }) => {
+        expect(button.getAttribute('data-size')).toBe('large')
+      })
+    })
+  })
+})
+
 describe('ToggleButtonGroup', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>'
@@ -312,6 +384,71 @@ describe('ToggleButtonGroup', () => {
       await usingAsync(await renderToggleGroup({ color: 'primary' }), async ({ group }) => {
         expect(group.style.getPropertyValue('--toggle-color-main')).toBe('var(--shades-theme-palette-primary-main)')
       })
+    })
+  })
+
+  describe('size', () => {
+    it('should not set data-size on children by default', async () => {
+      await usingAsync(
+        await renderToggleGroup({}, [
+          <ToggleButton value="a">A</ToggleButton>,
+          <ToggleButton value="b">B</ToggleButton>,
+        ] as unknown as JSX.Element[]),
+        async ({ group }) => {
+          await sleepAsync(50)
+          const buttons = group.querySelectorAll('button[data-value]')
+          buttons.forEach((btn) => {
+            expect(btn.hasAttribute('data-size')).toBe(false)
+          })
+        },
+      )
+    })
+
+    it('should propagate size="small" to child buttons', async () => {
+      await usingAsync(
+        await renderToggleGroup({ size: 'small' }, [
+          <ToggleButton value="a">A</ToggleButton>,
+          <ToggleButton value="b">B</ToggleButton>,
+        ] as unknown as JSX.Element[]),
+        async ({ group }) => {
+          await sleepAsync(50)
+          const buttons = group.querySelectorAll('button[data-value]')
+          buttons.forEach((btn) => {
+            expect(btn.getAttribute('data-size')).toBe('small')
+          })
+        },
+      )
+    })
+
+    it('should propagate size="large" to child buttons', async () => {
+      await usingAsync(
+        await renderToggleGroup({ size: 'large' }, [
+          <ToggleButton value="a">A</ToggleButton>,
+          <ToggleButton value="b">B</ToggleButton>,
+        ] as unknown as JSX.Element[]),
+        async ({ group }) => {
+          await sleepAsync(50)
+          const buttons = group.querySelectorAll('button[data-value]')
+          buttons.forEach((btn) => {
+            expect(btn.getAttribute('data-size')).toBe('large')
+          })
+        },
+      )
+    })
+
+    it('should remove data-size when size is medium', async () => {
+      await usingAsync(
+        await renderToggleGroup({ size: 'medium' }, [
+          <ToggleButton value="a" size="small">
+            A
+          </ToggleButton>,
+        ] as unknown as JSX.Element[]),
+        async ({ group }) => {
+          await sleepAsync(50)
+          const btn = group.querySelector('button[data-value]')
+          expect(btn?.hasAttribute('data-size')).toBe(false)
+        },
+      )
     })
   })
 })

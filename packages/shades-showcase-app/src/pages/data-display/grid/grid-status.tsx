@@ -17,7 +17,7 @@ export const GridStatus = Shade({
         data-selectionLength={selection.length}
         data-focusedEntry={focusedEntry ? focusedEntry.id : undefined}
       >
-        <Input labelTitle="Focused Entry" readOnly name="focusedEntry" value={focusedEntry?.stringValue1 ?? '-'} />
+        <Input labelTitle="Focused Entry" readOnly name="focusedEntry" value={focusedEntry?.name ?? '-'} />
         <Input labelTitle="Selection count" readOnly name="selectionCount" value={selection.length.toString() ?? '-'} />
       </div>
     )

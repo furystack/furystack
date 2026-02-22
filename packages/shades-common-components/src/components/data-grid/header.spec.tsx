@@ -102,7 +102,7 @@ describe('DataGridHeader', () => {
       })
     })
 
-    it('should render search button', async () => {
+    it('should not render filter button when no filterConfig is provided', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
@@ -115,12 +115,12 @@ describe('DataGridHeader', () => {
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton).not.toBeNull()
+        const filterButton = document.querySelector('data-grid-filter-button')
+        expect(filterButton).toBeNull()
       })
     })
 
-    it('should render search form', async () => {
+    it('should render filter button when filterConfig is provided', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
@@ -128,13 +128,13 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchForm = document.querySelector('data-grid-search-form')
-        expect(searchForm).not.toBeNull()
+        const filterButton = document.querySelector('data-grid-filter-button')
+        expect(filterButton).not.toBeNull()
       })
     })
   })
@@ -144,60 +144,6 @@ describe('DataGridHeader', () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
-        })
-
-        await sleepAsync(50)
-
-        const button = document.querySelector('data-grid-order-button')
-        expect(button?.querySelector('shade-icon')).not.toBeNull()
-      })
-    })
-
-    it('should show descending icon when ASC order is set for field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ order: { name: 'ASC' } })
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
-        })
-
-        await sleepAsync(50)
-
-        const button = document.querySelector('data-grid-order-button')
-        expect(button?.querySelector('shade-icon')).not.toBeNull()
-      })
-    })
-
-    it('should show ascending icon when DESC order is set for field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ order: { name: 'DESC' } })
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
-        })
-
-        await sleepAsync(50)
-
-        const button = document.querySelector('data-grid-order-button')
-        expect(button?.querySelector('shade-icon')).not.toBeNull()
-      })
-    })
-
-    it('should show neutral icon when order is set for different field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ order: { id: 'ASC' } })
 
         initializeShadeRoot({
           injector,
@@ -306,8 +252,8 @@ describe('DataGridHeader', () => {
     })
   })
 
-  describe('SearchButton', () => {
-    it('should show inactive icon when no filter is set', async () => {
+  describe('FilterButton', () => {
+    it('should show inactive state when no filter is set', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
@@ -315,17 +261,17 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
+        const filterButton = document.querySelector('data-grid-filter-button')
+        expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
-    it('should show active icon when filter is set for field', async () => {
+    it('should show active state when filter is set for field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions({ filter: { name: { $regex: 'test' } } })
@@ -333,37 +279,42 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
+        const filterButton = document.querySelector('data-grid-filter-button')
+        expect(filterButton?.querySelector('shade-icon')).not.toBeNull()
       })
     })
 
-    it('should show inactive icon when filter is set for different field', async () => {
+    it('should open filter dropdown when clicked', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { email: { $regex: 'test' } } })
+        const findOptions = createFindOptions()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')
-        expect(searchButton?.querySelector('shade-icon')).not.toBeNull()
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
+
+        await sleepAsync(50)
+
+        const dropdown = document.querySelector('data-grid-filter-dropdown')
+        expect(dropdown).not.toBeNull()
       })
     })
   })
 
-  describe('SearchForm', () => {
-    it('should expand search form when search button is clicked', async () => {
+  describe('filter type routing', () => {
+    it('should render StringFilter for string filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
@@ -371,22 +322,22 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
-        await sleepAsync(150)
+        await sleepAsync(50)
 
-        const searchForm = document.querySelector('.search-form') as HTMLElement
-        expect(searchForm.style.display).toBe('flex')
+        const stringFilter = document.querySelector('data-grid-string-filter')
+        expect(stringFilter).not.toBeNull()
       })
     })
 
-    it('should update findOptions when search is submitted', async () => {
+    it('should render NumberFilter for number filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const findOptions = createFindOptions()
@@ -394,152 +345,93 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="id" findOptions={findOptions} filterConfig={{ type: 'number' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
-
-        await sleepAsync(150)
-
-        const input = document.querySelector('.search-form input') as HTMLInputElement
-        input.value = 'test-search'
-        input.dispatchEvent(new Event('input', { bubbles: true }))
-
-        const form = document.querySelector('.search-form') as HTMLFormElement
-        form.dispatchEvent(new Event('submit', { bubbles: true }))
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
         await sleepAsync(50)
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.filter).toEqual({ name: { $regex: 'test-search' } })
+        const numberFilter = document.querySelector('data-grid-number-filter')
+        expect(numberFilter).not.toBeNull()
       })
     })
 
-    it('should clear filter when clear button is clicked', async () => {
+    it('should render BooleanFilter for boolean filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { name: { $regex: 'existing' } } })
+        const findOptions = createFindOptions()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'boolean' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
-
-        await sleepAsync(150)
-
-        const clearButton = document.querySelector('.search-form button[type="reset"]') as HTMLButtonElement
-        clearButton?.click()
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
         await sleepAsync(50)
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.filter?.name).toBeUndefined()
+        const booleanFilter = document.querySelector('data-grid-boolean-filter')
+        expect(booleanFilter).not.toBeNull()
       })
     })
 
-    it('should preserve filters for other fields when submitting search', async () => {
+    it('should render EnumFilter for enum filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { email: { $regex: 'existing' } } })
+        const findOptions = createFindOptions()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={findOptions}
+              filterConfig={{ type: 'enum', values: [{ label: 'A', value: 'a' }] }}
+            />
+          ),
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
-
-        await sleepAsync(150)
-
-        const input = document.querySelector('.search-form input') as HTMLInputElement
-        input.value = 'new-search'
-        input.dispatchEvent(new Event('input', { bubbles: true }))
-
-        const form = document.querySelector('.search-form') as HTMLFormElement
-        form.dispatchEvent(new Event('submit', { bubbles: true }))
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
         await sleepAsync(50)
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.filter).toEqual({
-          email: { $regex: 'existing' },
-          name: { $regex: 'new-search' },
-        })
+        const enumFilter = document.querySelector('data-grid-enum-filter')
+        expect(enumFilter).not.toBeNull()
       })
     })
 
-    it('should preserve other findOptions properties when updating filter', async () => {
+    it('should render DateFilter for date filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({
-          order: { id: 'ASC' },
-          top: 10,
-          skip: 20,
-        })
+        const findOptions = createFindOptions()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'date' }} />,
         })
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
-
-        await sleepAsync(150)
-
-        const input = document.querySelector('.search-form input') as HTMLInputElement
-        input.value = 'search-value'
-        input.dispatchEvent(new Event('input', { bubbles: true }))
-
-        const form = document.querySelector('.search-form') as HTMLFormElement
-        form.dispatchEvent(new Event('submit', { bubbles: true }))
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
         await sleepAsync(50)
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.order).toEqual({ id: 'ASC' })
-        expect(updatedOptions.top).toBe(10)
-        expect(updatedOptions.skip).toBe(20)
-        expect(updatedOptions.filter).toEqual({ name: { $regex: 'search-value' } })
-      })
-    })
-
-    it('should show current filter value in search input', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { name: { $regex: 'current-filter' } } })
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
-        })
-
-        await sleepAsync(50)
-
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
-
-        await sleepAsync(150)
-
-        const input = document.querySelector('.search-form input') as HTMLInputElement
-        expect(input.value).toBe('current-filter')
+        const dateFilter = document.querySelector('data-grid-date-filter')
+        expect(dateFilter).not.toBeNull()
       })
     })
   })
@@ -553,7 +445,7 @@ describe('DataGridHeader', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
         })
 
         await sleepAsync(50)
@@ -563,23 +455,15 @@ describe('DataGridHeader', () => {
 
         await sleepAsync(50)
 
-        const searchButton = document.querySelector('data-grid-search-button')?.querySelector('button')
-        searchButton?.click()
+        expect(findOptions.getValue().order).toEqual({ name: 'ASC' })
 
-        await sleepAsync(150)
-
-        const input = document.querySelector('.search-form input') as HTMLInputElement
-        input.value = 'filter-value'
-        input.dispatchEvent(new Event('input', { bubbles: true }))
-
-        const form = document.querySelector('.search-form') as HTMLFormElement
-        form.dispatchEvent(new Event('submit', { bubbles: true }))
+        const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
+        filterButton?.click()
 
         await sleepAsync(50)
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.order).toEqual({ name: 'ASC' })
-        expect(updatedOptions.filter).toEqual({ name: { $regex: 'filter-value' } })
+        const dropdown = document.querySelector('data-grid-filter-dropdown')
+        expect(dropdown).not.toBeNull()
       })
     })
   })
