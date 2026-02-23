@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.2] - 2026-02-23
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades-common-components` to pick up MarkdownEditor form integration features
+
 ## [8.1.1] - 2026-02-22
 
 ### ♻️ Refactoring

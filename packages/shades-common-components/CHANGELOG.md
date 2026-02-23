@@ -1,5 +1,36 @@
 # Changelog
 
+## [12.7.0] - 2026-02-23
+
+### ✨ Features
+
+### MarkdownEditor Form Integration
+
+`MarkdownEditor` now accepts form-related props forwarded from `MarkdownInputProps`, enabling direct use inside forms with validation and labeling support.
+
+**New props:** `name`, `required`, `labelTitle`, `disabled`, `placeholder`, `rows`, `getValidationResult`, `getHelperText`
+
+**Usage:**
+
+```tsx
+<MarkdownEditor
+  value={description}
+  onValueChange={setDescription}
+  labelTitle="Description"
+  name="description"
+  required
+  getValidationResult={({ value }) =>
+    value.length < 10 ? { isValid: false, message: 'Must be at least 10 characters' } : { isValid: true }
+  }
+/>
+```
+
+The editor renders a label above the editing area, displays validation errors and helper text below it, and sets a `data-invalid` attribute on the host element when validation fails — allowing external styling of the invalid state.
+
+### MarkdownInput `hideChrome` Prop
+
+- Added `hideChrome` prop to `MarkdownInput` — when `true`, suppresses the label and helper text rendering while preserving form semantics (textarea `name`, `required`, etc.). This is used internally by `MarkdownEditor` to avoid duplicate chrome when it manages its own label and validation display.
+
 ## [12.6.0] - 2026-02-22
 
 ### 🗑️ Deprecated
