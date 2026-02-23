@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { Form } from '../form.js'
 import { MarkdownInput } from './markdown-input.js'
 
 describe('MarkdownInput', () => {
@@ -157,6 +158,147 @@ describe('MarkdownInput', () => {
 
       const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
       expect(textarea.rows).toBe(20)
+    })
+  })
+
+  it('should set name attribute on textarea', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <MarkdownInput value="" name="description" />,
+      })
+
+      await flushUpdates()
+
+      const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
+      expect(textarea.name).toBe('description')
+    })
+  })
+
+  it('should set required attribute on textarea', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <MarkdownInput value="" required />,
+      })
+
+      await flushUpdates()
+
+      const textarea = document.querySelector('shade-markdown-input textarea') as HTMLTextAreaElement
+      expect(textarea.required).toBe(true)
+    })
+  })
+
+  it('should set data-invalid when required and value is empty', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <MarkdownInput value="" required />,
+      })
+
+      await flushUpdates()
+
+      const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+      expect(wrapper.hasAttribute('data-invalid')).toBe(true)
+    })
+  })
+
+  it('should not set data-invalid when required and value is provided', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <MarkdownInput value="some content" required />,
+      })
+
+      await flushUpdates()
+
+      const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+      expect(wrapper.hasAttribute('data-invalid')).toBe(false)
+    })
+  })
+
+  it('should show validation error message from getValidationResult', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <MarkdownInput
+            value="short"
+            getValidationResult={({ value }) =>
+              value.length < 10 ? { isValid: false, message: 'Too short' } : { isValid: true }
+            }
+          />
+        ),
+      })
+
+      await flushUpdates()
+
+      const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+      expect(wrapper.hasAttribute('data-invalid')).toBe(true)
+      expect(wrapper.textContent).toContain('Too short')
+    })
+  })
+
+  it('should show helper text from getHelperText', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <MarkdownInput value="" getHelperText={() => 'Write some markdown here'} />,
+      })
+
+      await flushUpdates()
+
+      const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+      expect(wrapper.textContent).toContain('Write some markdown here')
+    })
+  })
+
+  it('should render with validation inside a Form', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Form onSubmit={() => {}} validate={(_data): _data is { content: string } => true}>
+            <MarkdownInput
+              value="short"
+              name="content"
+              getValidationResult={({ value }) =>
+                value.length < 10 ? { isValid: false, message: 'Too short' } : { isValid: true }
+              }
+            />
+          </Form>
+        ),
+      })
+
+      await flushUpdates()
+
+      const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+      expect(wrapper.hasAttribute('data-invalid')).toBe(true)
+      expect(wrapper.textContent).toContain('Too short')
+
+      const textarea = wrapper.querySelector('textarea') as HTMLTextAreaElement
+      expect(textarea.name).toBe('content')
     })
   })
 

@@ -1,7 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import { FormService } from '../form.js'
 import type { InputValidationResult } from '../inputs/input.js'
+import { FormService } from '../form.js'
+
 
 const DEFAULT_MAX_IMAGE_SIZE = 256 * 1024
 

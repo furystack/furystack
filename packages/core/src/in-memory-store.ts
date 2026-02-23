@@ -1,25 +1,8 @@
 import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
-import { isLogicalOperator, isOperator, selectFields } from './models/physical-store.js'
-
-/**
- * Helper type representing all possible field filter operations
- */
-type FieldOperatorFilter = {
-  $eq?: unknown
-  $ne?: unknown
-  $in?: unknown[]
-  $nin?: unknown[]
-  $gt?: unknown
-  $gte?: unknown
-  $lt?: unknown
-  $lte?: unknown
-  $startsWith?: string
-  $endsWith?: string
-  $like?: string
-  $regex?: string
-}
+import { selectFields } from './models/physical-store.js'
+import { filterItems } from './filter-items.js'
 
 export class InMemoryStore<T, TPrimaryKey extends keyof T>
   extends EventHub<{
@@ -59,123 +42,8 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
     return Promise.resolve(item && select ? selectFields(item, ...select) : item)
   }
 
-  private evaluateLike = (value: string, likeString: string) => {
-    const likeRegex = `^${likeString.replace(/%/g, '.*')}$`
-    return value.match(new RegExp(likeRegex, 'i'))
-  }
-
-  private filterInternal(values: T[], filter?: FilterType<T>): T[] {
-    if (!filter) {
-      return values
-    }
-    return values.filter((item) => {
-      const filterRecord = filter as Record<string, Array<FilterType<T>> | FieldOperatorFilter | undefined>
-      const itemRecord = item as Record<string, unknown>
-
-      for (const key in filterRecord) {
-        if (isLogicalOperator(key)) {
-          const filterValue = filterRecord[key] as Array<FilterType<T>>
-          switch (key) {
-            case '$and':
-              if (filterValue.some((v: FilterType<T>) => !this.filterInternal([item], v).length)) {
-                return false
-              }
-              break
-            case '$or':
-              if (filterValue.some((v: FilterType<T>) => this.filterInternal([item], v).length)) {
-                break
-              }
-              return false
-            default:
-              throw new Error(`The logical operation '${key}' is not a valid operation`)
-          }
-        } else {
-          const fieldFilter = filterRecord[key] as FieldOperatorFilter | undefined
-          if (typeof fieldFilter === 'object' && fieldFilter !== null) {
-            for (const filterKey in fieldFilter) {
-              if (isOperator(filterKey)) {
-                const itemValue = itemRecord[key]
-                const filterValue = fieldFilter[filterKey as keyof FieldOperatorFilter]
-                switch (filterKey) {
-                  case '$eq':
-                    if (filterValue !== itemValue) {
-                      return false
-                    }
-                    break
-                  case '$ne':
-                    if (filterValue === itemValue) {
-                      return false
-                    }
-                    break
-                  case '$in':
-                    if (!(filterValue as unknown[]).includes(itemValue)) {
-                      return false
-                    }
-                    break
-
-                  case '$nin':
-                    if ((filterValue as unknown[]).includes(itemValue)) {
-                      return false
-                    }
-                    break
-                  case '$lt':
-                    if ((itemValue as number) < (filterValue as number)) {
-                      break
-                    }
-                    return false
-                  case '$lte':
-                    if ((itemValue as number) <= (filterValue as number)) {
-                      break
-                    }
-                    return false
-                  case '$gt':
-                    if ((itemValue as number) > (filterValue as number)) {
-                      break
-                    }
-                    return false
-                  case '$gte':
-                    if ((itemValue as number) >= (filterValue as number)) {
-                      break
-                    }
-                    return false
-                  case '$regex':
-                    if (!new RegExp(filterValue as string).test(String(itemValue))) {
-                      return false
-                    }
-                    break
-                  case '$startsWith':
-                    if (!(itemValue as string).startsWith(filterValue as string)) {
-                      return false
-                    }
-                    break
-                  case '$endsWith':
-                    if (!(itemValue as string).endsWith(filterValue as string)) {
-                      return false
-                    }
-                    break
-                  case '$like':
-                    if (!this.evaluateLike(itemValue as string, filterValue as string)) {
-                      return false
-                    }
-                    break
-                  default:
-                    throw new Error(`The expression (${filterKey}) is not supported by '${this.constructor.name}'!`)
-                }
-              } else {
-                throw new Error(`The filter key '${filterKey}' is not a valid operation`)
-              }
-            }
-          } else {
-            throw new Error(`The filter has to be an object, got ${typeof fieldFilter} for field '${key}'`)
-          }
-        }
-      }
-      return true
-    })
-  }
-
   public async find<TFields extends Array<keyof T>>(searchOptions: FindOptions<T, TFields>) {
-    let value: Array<PartialResult<T, TFields>> = this.filterInternal([...this.cache.values()], searchOptions.filter)
+    let value: Array<PartialResult<T, TFields>> = filterItems([...this.cache.values()], searchOptions.filter)
 
     if (searchOptions.order) {
       const orderRecord = searchOptions.order as Record<string, 'ASC' | 'DESC'>
@@ -203,7 +71,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
   }
 
   public async count(filter?: FilterType<T>) {
-    return this.filterInternal([...this.cache.values()], filter).length
+    return filterItems([...this.cache.values()], filter).length
   }
 
   public async update(id: T[TPrimaryKey], data: T) {

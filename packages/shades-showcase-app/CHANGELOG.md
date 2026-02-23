@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.1.1] - 2026-02-22
+
+### ♻️ Refactoring
+
+- Updated the Wizard showcase to demonstrate the new `showProgress` and `stepLabels` props
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades-common-components` dependency
+
 ## [8.1.0] - 2026-02-22
 
 ### ✨ Features
