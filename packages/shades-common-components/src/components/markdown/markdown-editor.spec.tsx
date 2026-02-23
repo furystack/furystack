@@ -139,4 +139,265 @@ describe('MarkdownEditor', () => {
       expect(heading?.textContent).toContain('Test Content')
     })
   })
+
+  describe('form integration', () => {
+    it('should render a label when labelTitle is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" labelTitle="Description" />,
+        })
+
+        await flushUpdates()
+
+        const label = document.querySelector('shade-markdown-editor .md-editor-label')
+        expect(label).not.toBeNull()
+        expect(label?.textContent).toBe('Description')
+      })
+    })
+
+    it('should not render a label when labelTitle is not provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" />,
+        })
+
+        await flushUpdates()
+
+        const label = document.querySelector('shade-markdown-editor .md-editor-label')
+        expect(label).toBeNull()
+      })
+    })
+
+    it('should set data-invalid when required and value is empty', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" required />,
+        })
+
+        await flushUpdates()
+
+        const editor = document.querySelector('shade-markdown-editor') as HTMLElement
+        expect(editor.hasAttribute('data-invalid')).toBe(true)
+      })
+    })
+
+    it('should not set data-invalid when required and value is provided', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="some content" required />,
+        })
+
+        await flushUpdates()
+
+        const editor = document.querySelector('shade-markdown-editor') as HTMLElement
+        expect(editor.hasAttribute('data-invalid')).toBe(false)
+      })
+    })
+
+    it('should show "Value is required" helper text when required and empty', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" required />,
+        })
+
+        await flushUpdates()
+
+        const helperText = document.querySelector('shade-markdown-editor .md-editor-helperText')
+        expect(helperText).not.toBeNull()
+        expect(helperText?.textContent).toBe('Value is required')
+      })
+    })
+
+    it('should set data-invalid when getValidationResult returns invalid', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <MarkdownEditor
+              value="short"
+              getValidationResult={({ value }) =>
+                value.length < 10 ? { isValid: false, message: 'Too short' } : { isValid: true }
+              }
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const editor = document.querySelector('shade-markdown-editor') as HTMLElement
+        expect(editor.hasAttribute('data-invalid')).toBe(true)
+        expect(editor.textContent).toContain('Too short')
+      })
+    })
+
+    it('should not set data-invalid when getValidationResult returns valid', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <MarkdownEditor
+              value="long enough content"
+              getValidationResult={({ value }) =>
+                value.length < 10 ? { isValid: false, message: 'Too short' } : { isValid: true }
+              }
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const editor = document.querySelector('shade-markdown-editor') as HTMLElement
+        expect(editor.hasAttribute('data-invalid')).toBe(false)
+      })
+    })
+
+    it('should display helper text from getHelperText', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" getHelperText={() => 'Enter your description'} />,
+        })
+
+        await flushUpdates()
+
+        const helperText = document.querySelector('shade-markdown-editor .md-editor-helperText')
+        expect(helperText).not.toBeNull()
+        expect(helperText?.textContent).toBe('Enter your description')
+      })
+    })
+
+    it('should forward name prop to the inner textarea', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" name="description" />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea.name).toBe('description')
+      })
+    })
+
+    it('should forward required prop to the inner textarea', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="content" required />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea.required).toBe(true)
+      })
+    })
+
+    it('should forward disabled prop to the inner textarea', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" disabled />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea.disabled).toBe(true)
+      })
+    })
+
+    it('should forward placeholder prop to the inner textarea', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" placeholder="Type here..." />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea.placeholder).toBe('Type here...')
+      })
+    })
+
+    it('should forward rows prop to the inner textarea', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" rows={5} />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea.rows).toBe(5)
+      })
+    })
+
+    it('should set hideChrome on the inner MarkdownInput', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="" labelTitle="My Label" />,
+        })
+
+        await flushUpdates()
+
+        const editorLabel = document.querySelector('shade-markdown-editor .md-editor-label')
+        expect(editorLabel?.textContent).toBe('My Label')
+
+        const inputLabel = document.querySelector('shade-markdown-editor shade-markdown-input label > span')
+        expect(inputLabel).toBeNull()
+      })
+    })
+  })
 })

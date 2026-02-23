@@ -2,6 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { InputValidationResult } from '../inputs/input.js'
 import { FormService } from '../form.js'
+import { resolveValidationState } from './markdown-validation.js'
 
 const DEFAULT_MAX_IMAGE_SIZE = 256 * 1024
 
@@ -30,6 +31,8 @@ export type MarkdownInputProps = {
   getValidationResult?: (options: { value: string }) => InputValidationResult
   /** Optional helper text callback */
   getHelperText?: (options: { value: string; validationResult?: InputValidationResult }) => JSX.Element | string
+  /** When true, suppresses visual label and helper text rendering while keeping form mechanics */
+  hideChrome?: boolean
 }
 
 /**
@@ -117,9 +120,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
       }
     })
 
-    const validationResult = props.getValidationResult?.({ value: props.value })
-    const isRequired = props.required && !props.value
-    const isInvalid = validationResult?.isValid === false || isRequired
+    const { validationResult, isRequired, isInvalid, helperNode } = resolveValidationState(props)
 
     if (injector.cachedSingletons.has(FormService) && props.name) {
       const formService = injector.getInstance(FormService)
@@ -134,12 +135,6 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
       'data-disabled': props.disabled ? '' : undefined,
       'data-invalid': isInvalid ? '' : undefined,
     })
-
-    const helperNode =
-      (validationResult?.isValid === false && validationResult?.message) ||
-      (isRequired && 'Value is required') ||
-      props.getHelperText?.({ value: props.value, validationResult }) ||
-      ''
 
     const handleInput = (ev: Event) => {
       const target = ev.target as HTMLTextAreaElement
@@ -187,7 +182,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
 
     return (
       <label>
-        {props.labelTitle ? <span>{props.labelTitle}</span> : null}
+        {!props.hideChrome && props.labelTitle ? <span>{props.labelTitle}</span> : null}
         <textarea
           ref={textareaRef}
           name={props.name}
@@ -200,7 +195,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
           placeholder={props.placeholder}
           rows={props.rows ?? 10}
         />
-        {helperNode ? <span className="helperText">{helperNode}</span> : null}
+        {!props.hideChrome && helperNode ? <span className="helperText">{helperNode}</span> : null}
       </label>
     )
   },

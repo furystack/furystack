@@ -2,7 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Tabs } from '../tabs.js'
 import { MarkdownDisplay } from './markdown-display.js'
-import { MarkdownInput } from './markdown-input.js'
+import { MarkdownInput, type MarkdownInputProps } from './markdown-input.js'
+import { resolveValidationState } from './markdown-validation.js'
 
 export type MarkdownEditorLayout = 'side-by-side' | 'tabs' | 'above-below'
 
@@ -19,7 +20,10 @@ export type MarkdownEditorProps = {
   readOnly?: boolean
   /** Inline styles applied to the host element */
   style?: Partial<CSSStyleDeclaration>
-}
+} & Pick<
+  MarkdownInputProps,
+  'name' | 'required' | 'labelTitle' | 'disabled' | 'placeholder' | 'rows' | 'getValidationResult' | 'getHelperText'
+>
 
 type TabType = 'edit' | 'preview'
 
@@ -32,10 +36,39 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
   css: {
     display: 'flex',
     flexDirection: 'column',
-    border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
-    borderRadius: cssVariableTheme.shape.borderRadius.md,
-    overflow: 'hidden',
     minHeight: '0',
+
+    '& .md-editor-label': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+      color: cssVariableTheme.text.secondary,
+      padding: `0 0 ${cssVariableTheme.spacing.sm} 0`,
+      transition: `color ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
+    },
+
+    '&[data-invalid] .md-editor-label': {
+      color: cssVariableTheme.palette.error.main,
+    },
+
+    '& .md-editor-frame': {
+      display: 'flex',
+      flexDirection: 'column',
+      border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
+      borderRadius: cssVariableTheme.shape.borderRadius.md,
+      overflow: 'hidden',
+      flex: '1',
+      minHeight: '0',
+    },
+
+    '&[data-invalid] .md-editor-frame': {
+      borderColor: cssVariableTheme.palette.error.main,
+    },
+
+    '& .md-editor-helperText': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+      padding: `${cssVariableTheme.spacing.sm} 0 0 0`,
+      opacity: '0.85',
+      lineHeight: '1.4',
+    },
 
     '& .md-editor-split': {
       display: 'flex',
@@ -119,8 +152,11 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
   render: ({ props, useState, useHostProps }) => {
     const layout = props.layout ?? 'side-by-side'
 
+    const { isInvalid, helperNode } = resolveValidationState(props)
+
     useHostProps({
       ...(props.style ? { style: props.style as Record<string, string> } : {}),
+      'data-invalid': isInvalid ? '' : undefined,
     })
 
     const [activeTab, setActiveTab] = useState<TabType>('activeTab', 'edit')
@@ -131,13 +167,22 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
         onValueChange={props.onValueChange}
         maxImageSizeBytes={props.maxImageSizeBytes}
         readOnly={props.readOnly}
+        name={props.name}
+        required={props.required}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        rows={props.rows}
+        getValidationResult={props.getValidationResult}
+        hideChrome
       />
     )
 
     const previewPane = <MarkdownDisplay content={props.value} readOnly={false} onChange={props.onValueChange} />
 
+    let content: JSX.Element
+
     if (layout === 'tabs') {
-      return (
+      content = (
         <Tabs
           activeKey={activeTab}
           onTabChange={(key) => setActiveTab(key as TabType)}
@@ -155,13 +200,21 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
           ]}
         />
       )
+    } else {
+      content = (
+        <div className="md-editor-split" data-layout={layout}>
+          <div className="md-editor-pane md-editor-pane-input">{inputPane}</div>
+          <div className="md-editor-pane md-editor-pane-preview">{previewPane}</div>
+        </div>
+      )
     }
 
     return (
-      <div className="md-editor-split" data-layout={layout}>
-        <div className="md-editor-pane md-editor-pane-input">{inputPane}</div>
-        <div className="md-editor-pane md-editor-pane-preview">{previewPane}</div>
-      </div>
+      <>
+        {props.labelTitle ? <span className="md-editor-label">{props.labelTitle}</span> : null}
+        <div className="md-editor-frame">{content}</div>
+        {helperNode ? <span className="md-editor-helperText">{helperNode}</span> : null}
+      </>
     )
   },
 })

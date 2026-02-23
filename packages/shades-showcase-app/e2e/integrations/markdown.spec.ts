@@ -58,8 +58,11 @@ test.describe('Markdown', () => {
     const content = page.locator('shades-markdown-page')
     await content.waitFor({ state: 'visible' })
 
+    const editorSection = content.locator('.markdown-editor-section')
+    await expect(editorSection).toBeVisible()
+
     // Verify the editor renders (side-by-side by default)
-    const editor = content.locator('shade-markdown-editor')
+    const editor = editorSection.locator('shade-markdown-editor')
     await expect(editor).toBeVisible()
 
     // Verify both input and display panes exist
@@ -70,7 +73,7 @@ test.describe('Markdown', () => {
     await expect(display).toBeVisible()
 
     // Switch to tabs layout
-    const tabsButton = content.getByRole('button', { name: 'Tabs' })
+    const tabsButton = editorSection.getByRole('button', { name: 'Tabs' })
     await tabsButton.click()
 
     // Verify tabs are rendered
@@ -78,7 +81,7 @@ test.describe('Markdown', () => {
     await expect(tabs).toBeVisible()
 
     // Switch to above-below layout
-    const aboveBelowButton = content.getByRole('button', { name: 'Above / Below' })
+    const aboveBelowButton = editorSection.getByRole('button', { name: 'Above / Below' })
     await aboveBelowButton.click()
 
     // Verify split layout is shown again with above-below direction
