@@ -3,7 +3,6 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { InputValidationResult } from '../inputs/input.js'
 import { FormService } from '../form.js'
 
-
 const DEFAULT_MAX_IMAGE_SIZE = 256 * 1024
 
 export type MarkdownInputProps = {
@@ -31,6 +30,8 @@ export type MarkdownInputProps = {
   getValidationResult?: (options: { value: string }) => InputValidationResult
   /** Optional helper text callback */
   getHelperText?: (options: { value: string; validationResult?: InputValidationResult }) => JSX.Element | string
+  /** When true, suppresses visual label and helper text rendering while keeping form mechanics */
+  hideChrome?: boolean
 }
 
 /**
@@ -188,7 +189,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
 
     return (
       <label>
-        {props.labelTitle ? <span>{props.labelTitle}</span> : null}
+        {!props.hideChrome && props.labelTitle ? <span>{props.labelTitle}</span> : null}
         <textarea
           ref={textareaRef}
           name={props.name}
@@ -201,7 +202,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
           placeholder={props.placeholder}
           rows={props.rows ?? 10}
         />
-        {helperNode ? <span className="helperText">{helperNode}</span> : null}
+        {!props.hideChrome && helperNode ? <span className="helperText">{helperNode}</span> : null}
       </label>
     )
   },
