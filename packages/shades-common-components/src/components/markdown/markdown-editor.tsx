@@ -2,7 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Tabs } from '../tabs.js'
 import { MarkdownDisplay } from './markdown-display.js'
-import { MarkdownInput } from './markdown-input.js'
+import { MarkdownInput, type MarkdownInputProps } from './markdown-input.js'
 
 export type MarkdownEditorLayout = 'side-by-side' | 'tabs' | 'above-below'
 
@@ -19,7 +19,7 @@ export type MarkdownEditorProps = {
   readOnly?: boolean
   /** Inline styles applied to the host element */
   style?: Partial<CSSStyleDeclaration>
-}
+} & Pick<MarkdownInputProps, 'disabled' | 'placeholder' | 'labelTitle' | 'rows'>
 
 type TabType = 'edit' | 'preview'
 
@@ -131,6 +131,10 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
         onValueChange={props.onValueChange}
         maxImageSizeBytes={props.maxImageSizeBytes}
         readOnly={props.readOnly}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        labelTitle={props.labelTitle}
+        rows={props.rows}
       />
     )
 
