@@ -149,7 +149,11 @@ export const MarkdownPage = Shade({
           />
         </Paper>
 
-        <Paper elevation={3} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Paper
+          className="markdown-editor-section"
+          elevation={3}
+          style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+        >
           <div
             style={{
               display: 'flex',
@@ -196,7 +200,11 @@ export const MarkdownPage = Shade({
             style={{ flex: '1', minHeight: '0' }}
           />
         </Paper>
-        <Paper elevation={3} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Paper
+          className="markdown-form-editor-section"
+          elevation={3}
+          style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+        >
           <Typography variant="h3">MarkdownEditor with Form Integration</Typography>
           <Typography variant="body2" color="textSecondary">
             The editor supports form-related props such as labels, required validation, and custom validation callbacks.
