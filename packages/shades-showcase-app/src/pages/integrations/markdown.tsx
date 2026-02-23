@@ -72,6 +72,9 @@ export const MarkdownPage = Shade({
     const editorLayout = useDisposable('editorLayout', () => new ObservableValue<MarkdownEditorLayout>('side-by-side'))
     const [currentLayout] = useObservable('editorLayout', editorLayout)
 
+    const formEditorContent = useDisposable('formEditorContent', () => new ObservableValue(''))
+    const [currentFormEditorContent] = useObservable('formEditorContent', formEditorContent)
+
     return (
       <PageContainer centered>
         <PageHeader
@@ -191,6 +194,31 @@ export const MarkdownPage = Shade({
             onValueChange={(v) => editorContent.setValue(v)}
             layout={currentLayout}
             style={{ flex: '1', minHeight: '0' }}
+          />
+        </Paper>
+        <Paper elevation={3} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <Typography variant="h3">MarkdownEditor with Form Integration</Typography>
+          <Typography variant="body2" color="textSecondary">
+            The editor supports form-related props such as labels, required validation, and custom validation callbacks.
+            Try clearing the field or entering fewer than 20 characters.
+          </Typography>
+          <MarkdownEditor
+            value={currentFormEditorContent}
+            onValueChange={(v) => formEditorContent.setValue(v)}
+            layout="above-below"
+            labelTitle="Description"
+            required
+            placeholder="Write a description (at least 20 characters)..."
+            getValidationResult={({ value }) =>
+              !value
+                ? { isValid: true }
+                : value.length < 20
+                  ? { isValid: false, message: 'Description must be at least 20 characters' }
+                  : { isValid: true }
+            }
+            getHelperText={({ value, validationResult }) =>
+              validationResult?.isValid !== false ? `${value.length} characters` : ''
+            }
           />
         </Paper>
       </PageContainer>

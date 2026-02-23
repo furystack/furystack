@@ -271,6 +271,69 @@ describe('MarkdownInput', () => {
     })
   })
 
+  describe('hideChrome', () => {
+    it('should suppress the label when hideChrome is true', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownInput value="" labelTitle="My Label" hideChrome />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+        const spans = wrapper.querySelectorAll('label > span')
+        const labelSpan = Array.from(spans).find((s) => s.textContent === 'My Label')
+        expect(labelSpan).toBeUndefined()
+      })
+    })
+
+    it('should suppress the helper text when hideChrome is true', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <MarkdownInput
+              value="short"
+              hideChrome
+              getValidationResult={({ value }) =>
+                value.length < 10 ? { isValid: false, message: 'Too short' } : { isValid: true }
+              }
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const helperText = document.querySelector('shade-markdown-input .helperText')
+        expect(helperText).toBeNull()
+      })
+    })
+
+    it('should still set data-invalid when hideChrome is true', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownInput value="" required hideChrome />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-markdown-input') as HTMLElement
+        expect(wrapper.hasAttribute('data-invalid')).toBe(true)
+      })
+    })
+  })
+
   it('should render with validation inside a Form', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement

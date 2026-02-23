@@ -3,6 +3,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Tabs } from '../tabs.js'
 import { MarkdownDisplay } from './markdown-display.js'
 import { MarkdownInput, type MarkdownInputProps } from './markdown-input.js'
+import { resolveValidationState } from './markdown-validation.js'
 
 export type MarkdownEditorLayout = 'side-by-side' | 'tabs' | 'above-below'
 
@@ -151,20 +152,12 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
   render: ({ props, useState, useHostProps }) => {
     const layout = props.layout ?? 'side-by-side'
 
-    const validationResult = props.getValidationResult?.({ value: props.value })
-    const isRequired = props.required && !props.value
-    const isInvalid = validationResult?.isValid === false || isRequired
+    const { isInvalid, helperNode } = resolveValidationState(props)
 
     useHostProps({
       ...(props.style ? { style: props.style as Record<string, string> } : {}),
       'data-invalid': isInvalid ? '' : undefined,
     })
-
-    const helperNode =
-      (validationResult?.isValid === false && validationResult?.message) ||
-      (isRequired && 'Value is required') ||
-      props.getHelperText?.({ value: props.value, validationResult }) ||
-      ''
 
     const [activeTab, setActiveTab] = useState<TabType>('activeTab', 'edit')
 
