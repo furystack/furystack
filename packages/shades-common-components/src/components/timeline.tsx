@@ -44,6 +44,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
       alignItems: 'center',
       flexShrink: '0',
       width: '24px',
+      paddingTop: cssVariableTheme.spacing.xs,
     },
 
     '& .timeline-dot': {
@@ -56,7 +57,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
       backgroundColor: 'var(--timeline-dot-color)',
       flexShrink: '0',
       zIndex: '1',
-      marginTop: '5px',
+      marginTop: `calc(${cssVariableTheme.typography.fontSize.sm} * ${cssVariableTheme.typography.lineHeight.normal} / 2 - 4px)`,
     },
 
     '& .timeline-dot[data-custom]': {
@@ -111,7 +112,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
 
     // Last item: hide tail
     '&[data-last] .timeline-tail': {
-      visibility: 'hidden',
+      display: 'none',
     },
   },
   render: ({ props, children, useHostProps }) => {
