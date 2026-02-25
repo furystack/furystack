@@ -33,7 +33,7 @@ shadesInjector
   })
 
 Object.assign(window, {
-  useTheme: async (themeName: 'dark' | 'light' | 'paladin' | 'chieftain') => {
+  useTheme: async (themeName: 'dark' | 'light' | 'paladin' | 'chieftain' | 'neon-runner') => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
       case 'dark':
@@ -52,6 +52,12 @@ Object.assign(window, {
         const { chieftainTheme } = await import('@furystack/shades-common-components/themes/chieftain')
         themeProvider.setAssignedTheme(chieftainTheme)
         console.log('It is a good day to die!')
+        break
+      }
+      case 'neon-runner': {
+        const { neonRunnerTheme } = await import('@furystack/shades-common-components/themes/neon-runner')
+        themeProvider.setAssignedTheme(neonRunnerTheme)
+        console.log('Wake up, Samurai. We have a city to burn.')
         break
       }
       default:

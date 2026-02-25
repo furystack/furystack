@@ -26,6 +26,10 @@
     "./themes/chieftain": {
       "types": "./esm/themes/chieftain-theme.d.ts",
       "import": "./esm/themes/chieftain-theme.js"
+    },
+    "./themes/neon-runner": {
+      "types": "./esm/themes/neon-runner-theme.d.ts",
+      "import": "./esm/themes/neon-runner-theme.js"
     }
   },
   "files": [
