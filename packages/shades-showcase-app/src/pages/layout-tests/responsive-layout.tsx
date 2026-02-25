@@ -7,6 +7,7 @@ import {
   PageHeader,
   PageLayout,
   Paper,
+  Typography,
 } from '@furystack/shades-common-components'
 
 const ToggleDrawerButton = Shade({
@@ -82,9 +83,9 @@ export const ResponsiveLayoutTest = Shade({
                   color: 'white',
                 }}
               >
-                <h3>Responsive Drawer (Brown)</h3>
-                <p>Width: 240px</p>
-                <p>This drawer responds to screen size changes.</p>
+                <Typography variant="h6">Responsive Drawer (Brown)</Typography>
+                <Typography variant="body2">Width: 240px</Typography>
+                <Typography variant="body2">This drawer responds to screen size changes.</Typography>
               </div>
             ),
           },
@@ -100,7 +101,7 @@ export const ResponsiveLayoutTest = Shade({
           <PageHeader title="📱 Responsive Layout" actions={<ToggleDrawerButton />} />
           <Paper>
             <div style={{ marginTop: '16px' }}>
-              <h3>Current State:</h3>
+              <Typography variant="h6">Current State:</Typography>
               <ul>
                 <li>
                   Screen size: <strong>{isAtLeastMd ? 'Medium or larger (≥900px)' : 'Small (<900px)'}</strong>
@@ -111,8 +112,8 @@ export const ResponsiveLayoutTest = Shade({
               </ul>
             </div>
             <div style={{ marginTop: '16px' }}>
-              <h3>Instructions:</h3>
-              <p>Resize the browser window to test responsive behavior:</p>
+              <Typography variant="h6">Instructions:</Typography>
+              <Typography variant="body1">Resize the browser window to test responsive behavior:</Typography>
               <ul>
                 <li>At ≥900px: The drawer can be toggled open/closed</li>
                 <li>At &lt;900px: The drawer collapses automatically</li>

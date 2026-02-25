@@ -8,6 +8,7 @@ import {
   PageHeader,
   PageLayout,
   Paper,
+  Typography,
 } from '@furystack/shades-common-components'
 
 const OpenLeftDrawerButton = Shade({
@@ -79,9 +80,9 @@ export const TemporaryDrawerTest = Shade({
                   color: 'white',
                 }}
               >
-                <h3>Left Temporary Drawer (Deep Orange)</h3>
-                <p>Width: 280px</p>
-                <p>Click the backdrop or outside to close this drawer.</p>
+                <Typography variant="h6">Left Temporary Drawer (Deep Orange)</Typography>
+                <Typography variant="body2">Width: 280px</Typography>
+                <Typography variant="body2">Click the backdrop or outside to close this drawer.</Typography>
               </div>
             ),
           },
@@ -100,9 +101,9 @@ export const TemporaryDrawerTest = Shade({
                   color: 'white',
                 }}
               >
-                <h3>Right Temporary Drawer (Brown)</h3>
-                <p>Width: 240px</p>
-                <p>Click the backdrop or outside to close this drawer.</p>
+                <Typography variant="h6">Right Temporary Drawer (Brown)</Typography>
+                <Typography variant="body2">Width: 240px</Typography>
+                <Typography variant="body2">Click the backdrop or outside to close this drawer.</Typography>
               </div>
             ),
           },
@@ -126,9 +127,11 @@ export const TemporaryDrawerTest = Shade({
             }
           />
           <Paper>
-            <p>This test page shows a layout with temporary (overlay) drawers.</p>
-            <p>Temporary drawers appear over the content with a backdrop overlay.</p>
-            <p>Click the backdrop to close them, or use the buttons in the header to open them.</p>
+            <Typography variant="body1">This test page shows a layout with temporary (overlay) drawers.</Typography>
+            <Typography variant="body1">Temporary drawers appear over the content with a backdrop overlay.</Typography>
+            <Typography variant="body1">
+              Click the backdrop to close them, or use the buttons in the header to open them.
+            </Typography>
           </Paper>
         </PageContainer>
       </PageLayout>

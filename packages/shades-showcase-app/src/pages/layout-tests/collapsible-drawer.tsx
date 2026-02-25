@@ -9,6 +9,7 @@ import {
   PageHeader,
   PageLayout,
   Paper,
+  Typography,
 } from '@furystack/shades-common-components'
 
 const ToggleDrawerButton = Shade({
@@ -70,9 +71,9 @@ export const CollapsibleDrawerTest = Shade({
                   color: 'white',
                 }}
               >
-                <h3>Collapsible Drawer (Cyan)</h3>
-                <p>Width: 240px</p>
-                <p>Click the hamburger icon in the AppBar to toggle this drawer.</p>
+                <Typography variant="h6">Collapsible Drawer (Cyan)</Typography>
+                <Typography variant="body2">Width: 240px</Typography>
+                <Typography variant="body2">Click the hamburger icon in the AppBar to toggle this drawer.</Typography>
               </div>
             ),
           },
@@ -87,8 +88,10 @@ export const CollapsibleDrawerTest = Shade({
         >
           <PageHeader icon={<Icon icon={icons.ruler} />} title="Collapsible Drawer" actions={<ToggleDrawerButton />} />
           <Paper>
-            <p>This test page shows a layout with a collapsible drawer.</p>
-            <p>Use the hamburger icon in the AppBar or the button in the header to toggle the drawer.</p>
+            <Typography variant="body1">This test page shows a layout with a collapsible drawer.</Typography>
+            <Typography variant="body1">
+              Use the hamburger icon in the AppBar or the button in the header to toggle the drawer.
+            </Typography>
           </Paper>
         </PageContainer>
       </PageLayout>

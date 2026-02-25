@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
 import { Icon } from './icons/icon.js'
+import { Typography } from './typography.js'
 import {
   checkCircle,
   errorCircle,
@@ -90,24 +91,11 @@ export const Result = Shade<ResultProps>({
     // ==========================================
 
     '& .result-title': {
-      fontSize: cssVariableTheme.typography.fontSize.xl,
-      fontWeight: cssVariableTheme.typography.fontWeight.bold,
-      color: cssVariableTheme.text.primary,
-      margin: '0',
       marginBottom: cssVariableTheme.spacing.sm,
-      lineHeight: cssVariableTheme.typography.lineHeight.tight,
     },
 
-    // ==========================================
-    // SUBTITLE
-    // ==========================================
-
     '& .result-subtitle': {
-      fontSize: cssVariableTheme.typography.fontSize.md,
-      color: cssVariableTheme.text.secondary,
-      margin: '0',
       marginBottom: cssVariableTheme.spacing.lg,
-      lineHeight: cssVariableTheme.typography.lineHeight.normal,
       maxWidth: '480px',
     },
 
@@ -144,8 +132,14 @@ export const Result = Shade<ResultProps>({
         <span className="result-icon" role="img">
           {displayIcon}
         </span>
-        <h3 className="result-title">{title}</h3>
-        {subtitle ? <p className="result-subtitle">{subtitle}</p> : null}
+        <Typography variant="h5" className="result-title" style={{ margin: '0' }}>
+          {title}
+        </Typography>
+        {subtitle ? (
+          <Typography variant="body2" color="textSecondary" className="result-subtitle" style={{ margin: '0' }}>
+            {subtitle}
+          </Typography>
+        ) : null}
         {hasChildren ? <div className="result-extra">{children}</div> : null}
       </>
     )

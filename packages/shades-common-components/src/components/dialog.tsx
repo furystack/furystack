@@ -4,6 +4,7 @@ import { promisifyAnimation } from '../utils/promisify-animation.js'
 import { Icon } from './icons/icon.js'
 import { close } from './icons/icon-definitions.js'
 import { Modal } from './modal.js'
+import { Typography } from './typography.js'
 
 export type DialogProps = {
   isVisible: boolean
@@ -78,10 +79,8 @@ export const Dialog = Shade<DialogProps>({
     },
 
     '& .dialog-title': {
-      margin: '0',
-      fontSize: cssVariableTheme.typography.fontSize.lg,
-      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
-      lineHeight: cssVariableTheme.typography.lineHeight.tight,
+      flex: '1',
+      minWidth: '0',
     },
 
     '& .dialog-close': {
@@ -157,7 +156,13 @@ export const Dialog = Shade<DialogProps>({
         >
           {title || onClose ? (
             <div className="dialog-header">
-              {title ? <h2 className="dialog-title">{title}</h2> : <span />}
+              {title ? (
+                <Typography variant="h5" className="dialog-title" style={{ margin: '0' }}>
+                  {title}
+                </Typography>
+              ) : (
+                <span />
+              )}
               {onClose ? (
                 <button className="dialog-close" onclick={handleClose} aria-label="Close dialog">
                   <Icon icon={close} size="small" />
@@ -260,16 +265,9 @@ export const ConfirmDialog = (isVisible: boolean, options: ConfirmDialogOptions)
       }
     >
       {typeof message === 'string' ? (
-        <p
-          style={{
-            margin: '0',
-            fontSize: cssVariableTheme.typography.fontSize.md,
-            lineHeight: cssVariableTheme.typography.lineHeight.normal,
-            color: cssVariableTheme.text.secondary,
-          }}
-        >
+        <Typography variant="body1" color="textSecondary" style={{ margin: '0' }}>
           {message}
-        </p>
+        </Typography>
       ) : (
         message
       )}

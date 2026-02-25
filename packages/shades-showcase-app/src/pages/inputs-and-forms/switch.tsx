@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Icon, icons, PageContainer, PageHeader, Paper, Switch } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Switch, Typography } from '@furystack/shades-common-components'
 
 export const SwitchPage = Shade({
   shadowDomName: 'switch-page',
@@ -15,7 +15,7 @@ export const SwitchPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>Basic Switches</h3>
+          <Typography variant="h6">Basic Switches</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Switch />
             <Switch checked />
@@ -25,7 +25,7 @@ export const SwitchPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Colors</h3>
+          <Typography variant="h6">Colors</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
               <Switch checked color={color} labelTitle={color} />
@@ -34,7 +34,7 @@ export const SwitchPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Sizes</h3>
+          <Typography variant="h6">Sizes</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Switch checked size="small" labelTitle="Small" />
             <Switch checked size="medium" labelTitle="Medium (default)" />
@@ -42,7 +42,7 @@ export const SwitchPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Disabled</h3>
+          <Typography variant="h6">Disabled</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Switch disabled labelTitle="Disabled off" />
             <Switch disabled checked labelTitle="Disabled on" />
@@ -51,7 +51,7 @@ export const SwitchPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginTop: '24px' }}>
-          <h3>Controlled</h3>
+          <Typography variant="h6">Controlled</Typography>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Switch
               checked={isControlledChecked}

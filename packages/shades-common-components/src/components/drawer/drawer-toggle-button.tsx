@@ -23,7 +23,7 @@ export type DrawerToggleButtonProps = {
  * // In AppBar
  * <AppBar>
  *   <DrawerToggleButton position="left" />
- *   <h1>My App</h1>
+ *   <Typography variant="h3">My App</Typography>
  * </AppBar>
  *
  * // With custom aria-label

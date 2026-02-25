@@ -32,7 +32,7 @@ describe('Result', () => {
     }
   })
 
-  it('should render the title text', async () => {
+  it('should render the title as Typography', async () => {
     const el = (
       <div>
         <Result status="success" title="Operation Successful" />
@@ -43,7 +43,7 @@ describe('Result', () => {
     await flushUpdates()
     const titleEl = result.querySelector('.result-title')
     expect(titleEl).not.toBeNull()
-    expect(titleEl?.textContent).toBe('Operation Successful')
+    expect(titleEl?.tagName.toLowerCase()).toBe('shade-typography')
   })
 
   it('should render the subtitle when provided', async () => {
@@ -57,7 +57,7 @@ describe('Result', () => {
     await flushUpdates()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).not.toBeNull()
-    expect(subtitleEl?.textContent).toBe('Some details here')
+    expect(subtitleEl?.tagName.toLowerCase()).toBe('shade-typography')
   })
 
   it('should not render the subtitle when not provided', async () => {

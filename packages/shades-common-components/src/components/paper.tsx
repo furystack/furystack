@@ -12,7 +12,7 @@ export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
     backgroundImage: cssVariableTheme.background.paperImage,
     color: cssVariableTheme.text.primary,
     borderStyle: 'solid',
-    borderWidth: (cssVariableTheme.shape.borderWidth ?? '0px'),
+    borderWidth: cssVariableTheme.shape.borderWidth ?? '0px',
     borderColor: `${cssVariableTheme.action.subtleBorder} ${cssVariableTheme.divider} ${cssVariableTheme.divider} ${cssVariableTheme.action.subtleBorder}`,
     '&[data-elevation="0"]': {
       boxShadow: cssVariableTheme.shadows.none,

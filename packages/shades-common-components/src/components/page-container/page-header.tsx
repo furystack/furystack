@@ -1,6 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Paper } from '../paper.js'
+import { Typography } from '../typography.js'
 
 /**
  * Props for the PageHeader component.
@@ -76,10 +77,6 @@ export const PageHeader = Shade<PageHeaderProps>({
 
     '& .page-header-title': {
       margin: '0',
-      fontSize: cssVariableTheme.typography.fontSize.xl,
-      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
-      lineHeight: cssVariableTheme.typography.lineHeight.tight,
-      color: cssVariableTheme.text.primary,
     },
 
     '& .page-header-icon': {
@@ -87,10 +84,7 @@ export const PageHeader = Shade<PageHeaderProps>({
     },
 
     '& .page-header-description': {
-      margin: `${cssVariableTheme.spacing.sm} 0 0 0`,
-      fontSize: cssVariableTheme.typography.fontSize.md,
-      lineHeight: cssVariableTheme.typography.lineHeight.normal,
-      color: cssVariableTheme.text.secondary,
+      marginTop: cssVariableTheme.spacing.sm,
     },
 
     '& .page-header-actions': {
@@ -106,14 +100,25 @@ export const PageHeader = Shade<PageHeaderProps>({
     return (
       <Paper elevation={2} className="page-header-container">
         <div className="page-header-content">
-          <h2 className="page-header-title" data-testid="page-header-title">
+          <Typography
+            variant="h4"
+            className="page-header-title"
+            data-testid="page-header-title"
+            style={{ margin: '0' }}
+          >
             {icon && <span className="page-header-icon">{icon}</span>}
             {title}
-          </h2>
+          </Typography>
           {description && (
-            <p className="page-header-description" data-testid="page-header-description">
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              className="page-header-description"
+              data-testid="page-header-description"
+              style={{ margin: '0' }}
+            >
               {description}
-            </p>
+            </Typography>
           )}
         </div>
         {actions && (

@@ -8,6 +8,7 @@ import {
   PageContainer,
   PageHeader,
   Paper,
+  Typography,
 } from '@furystack/shades-common-components'
 
 export const DialogPage = Shade({
@@ -29,21 +30,29 @@ export const DialogPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Basic Dialog</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>A simple dialog with a title and close button.</p>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Basic Dialog
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
+            A simple dialog with a title and close button.
+          </Typography>
           <div>
             <Button variant="contained" color="primary" onclick={() => setBasicOpen(true)}>
               Open Basic Dialog
             </Button>
           </div>
           <Dialog isVisible={isBasicOpen} title="Basic Dialog" onClose={() => setBasicOpen(false)}>
-            <p style={{ margin: '0' }}>
+            <Typography variant="body1" style={{ margin: '0' }}>
               This is a basic dialog with a title and a close button. Click the X or the backdrop to close it.
-            </p>
+            </Typography>
           </Dialog>
 
-          <h3 style={{ margin: '0' }}>Dialog with Actions</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>A dialog with custom action buttons in the footer.</p>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Dialog with Actions
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
+            A dialog with custom action buttons in the footer.
+          </Typography>
           <div>
             <Button variant="contained" color="primary" onclick={() => setActionsOpen(true)}>
               Open Actions Dialog
@@ -62,13 +71,17 @@ export const DialogPage = Shade({
               </>
             }
           >
-            <p style={{ margin: '0' }}>You have unsaved changes. Would you like to save them before leaving?</p>
+            <Typography variant="body1" style={{ margin: '0' }}>
+              You have unsaved changes. Would you like to save them before leaving?
+            </Typography>
           </Dialog>
 
-          <h3 style={{ margin: '0' }}>Full Width Dialog</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Full Width Dialog
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
             A dialog that stretches to fill the available width up to maxWidth.
-          </p>
+          </Typography>
           <div>
             <Button variant="contained" color="primary" onclick={() => setFullWidthOpen(true)}>
               Open Full Width Dialog
@@ -86,13 +99,17 @@ export const DialogPage = Shade({
               </Button>
             }
           >
-            <p style={{ margin: '0' }}>
+            <Typography variant="body1" style={{ margin: '0' }}>
               This dialog uses <code>fullWidth</code> with a <code>maxWidth</code> of 700px.
-            </p>
+            </Typography>
           </Dialog>
 
-          <h3 style={{ margin: '0' }}>Scrollable Content</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>When content exceeds the viewport, the dialog body scrolls.</p>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Scrollable Content
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
+            When content exceeds the viewport, the dialog body scrolls.
+          </Typography>
           <div>
             <Button variant="contained" color="primary" onclick={() => setScrollOpen(true)}>
               Open Scrollable Dialog
@@ -112,17 +129,19 @@ export const DialogPage = Shade({
             }
           >
             {Array.from({ length: 20 }, (_, i) => (
-              <p>
+              <Typography variant="body1">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
                 dolore magna aliqua. Paragraph {i + 1}.
-              </p>
+              </Typography>
             ))}
           </Dialog>
 
-          <h3 style={{ margin: '0' }}>Confirm Dialog Helper</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Confirm Dialog Helper
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
             A pre-built confirm dialog using the <code>ConfirmDialog</code> helper function.
-          </p>
+          </Typography>
           <div>
             <Button variant="contained" color="error" onclick={() => setConfirmOpen(true)}>
               Delete Item
@@ -140,8 +159,12 @@ export const DialogPage = Shade({
             onCancel: () => setConfirmOpen(false),
           })}
 
-          <h3 style={{ margin: '0' }}>Confirm Dialog with JSX Message</h3>
-          <p style={{ margin: '0', opacity: '0.7' }}>The confirm dialog also accepts JSX as the message content.</p>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Confirm Dialog with JSX Message
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
+            The confirm dialog also accepts JSX as the message content.
+          </Typography>
           <div>
             <Button variant="contained" color="warning" onclick={() => setCustomConfirmOpen(true)}>
               Reset Settings
@@ -151,7 +174,9 @@ export const DialogPage = Shade({
             title: 'Reset All Settings',
             message: (
               <div>
-                <p style={{ margin: '0 0 8px 0' }}>This will reset all settings to their defaults:</p>
+                <Typography variant="body1" style={{ margin: '0 0 8px 0' }}>
+                  This will reset all settings to their defaults:
+                </Typography>
                 <ul style={{ margin: '0', paddingLeft: '20px' }}>
                   <li>Theme preferences</li>
                   <li>Layout configuration</li>

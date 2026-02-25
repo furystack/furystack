@@ -44,7 +44,7 @@ export type PageContainerProps = {
  * ```tsx
  * // Full width container
  * <PageContainer gap="16px">
- *   <h2>Dashboard</h2>
+ *   <Typography variant="h4">Dashboard</Typography>
  *   <GridOfCards />
  * </PageContainer>
  * ```

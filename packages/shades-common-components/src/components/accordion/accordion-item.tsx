@@ -26,7 +26,7 @@ export type AccordionItemProps = {
  * @example
  * ```tsx
  * <AccordionItem title="Section 1" defaultExpanded>
- *   <p>Content goes here</p>
+ *   <Typography variant="body1">Content goes here</Typography>
  * </AccordionItem>
  * ```
  */
