@@ -33,7 +33,7 @@ shadesInjector
   })
 
 Object.assign(window, {
-  useTheme: async (themeName: 'dark' | 'light' | 'paladin') => {
+  useTheme: async (themeName: 'dark' | 'light' | 'paladin' | 'chieftain') => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
       case 'dark':
@@ -46,6 +46,12 @@ Object.assign(window, {
         const { paladinTheme } = await import('@furystack/shades-common-components/themes/paladin')
         themeProvider.setAssignedTheme(paladinTheme)
         console.log('Cheat Enabled, You Wascally Wabbit!')
+        break
+      }
+      case 'chieftain': {
+        const { chieftainTheme } = await import('@furystack/shades-common-components/themes/chieftain')
+        themeProvider.setAssignedTheme(chieftainTheme)
+        console.log('It is a good day to die!')
         break
       }
       default:

@@ -22,6 +22,10 @@
     "./themes/default-light": {
       "types": "./esm/themes/default-light-theme.d.ts",
       "import": "./esm/themes/default-light-theme.js"
+    },
+    "./themes/chieftain": {
+      "types": "./esm/themes/chieftain-theme.d.ts",
+      "import": "./esm/themes/chieftain-theme.js"
     }
   },
   "files": [
