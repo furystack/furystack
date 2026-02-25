@@ -4,7 +4,7 @@ test.describe('Image', () => {
   test('rendering and single image lightbox: open, controls, and close', async ({ page }) => {
     await page.goto('/data-display/image')
 
-    await expect(page.getByRole('heading', { name: 'Image', level: 2 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Image', level: 4 })).toBeVisible()
 
     const images = page.locator('shade-image')
     await expect(images.first()).toBeVisible()

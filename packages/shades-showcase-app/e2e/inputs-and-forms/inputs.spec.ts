@@ -10,9 +10,9 @@ test.describe('Inputs', () => {
     await expect(content.locator('shade-page-header')).toBeVisible()
 
     // Verify variant columns
-    await expect(content.locator('h3', { hasText: 'default' })).toBeVisible()
-    await expect(content.locator('h3', { hasText: 'outlined' })).toBeVisible()
-    await expect(content.locator('h3', { hasText: 'contained' })).toBeVisible()
+    await expect(content.locator('h6', { hasText: 'default' })).toBeVisible()
+    await expect(content.locator('h6', { hasText: 'outlined' })).toBeVisible()
+    await expect(content.locator('h6', { hasText: 'contained' })).toBeVisible()
 
     // Verify autocomplete components
     const autocompletes = content.locator('shade-autocomplete')

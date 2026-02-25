@@ -8,7 +8,7 @@ test.describe('Button Group', () => {
     await content.waitFor({ state: 'visible' })
 
     // Verify all sections
-    await expect(content.getByRole('heading', { name: 'Button Group', level: 2 })).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'Button Group', level: 4 })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'ButtonGroup', level: 3, exact: true })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'ToggleButtonGroup', level: 3 })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'SegmentedControl', level: 3 })).toBeVisible()

@@ -8,7 +8,7 @@ test.describe('Rating', () => {
     await content.waitFor({ state: 'visible' })
 
     // Verify sections
-    await expect(content.getByRole('heading', { name: 'Rating', level: 2 })).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'Rating', level: 4 })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Basic' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Interactive' })).toBeVisible()
     await expect(content.getByRole('heading', { name: 'Disabled' })).toBeVisible()
