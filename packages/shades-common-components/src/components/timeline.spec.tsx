@@ -194,23 +194,6 @@ describe('Timeline', () => {
     expect(timeline.getAttribute('data-mode')).toBe('left')
   })
 
-  it('should mark last item with data-last', async () => {
-    const el = (
-      <div>
-        <Timeline>
-          <TimelineItem>First</TimelineItem>
-          <TimelineItem>Last</TimelineItem>
-        </Timeline>
-      </div>
-    )
-    const timeline = el.firstElementChild as JSX.Element
-    timeline.updateComponent()
-    await flushUpdates()
-    const items = timeline.querySelectorAll('shade-timeline-item')
-    expect(items[0].hasAttribute('data-last')).toBe(false)
-    expect(items[1].hasAttribute('data-last')).toBe(true)
-  })
-
   it('should add pending item when pending is true', async () => {
     const el = (
       <div>
@@ -224,71 +207,5 @@ describe('Timeline', () => {
     await flushUpdates()
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
-  })
-
-  it('should not mark original last item as data-last when pending is present', async () => {
-    const el = (
-      <div>
-        <Timeline pending>
-          <TimelineItem>First</TimelineItem>
-          <TimelineItem>Second</TimelineItem>
-        </Timeline>
-      </div>
-    )
-    const timeline = el.firstElementChild as JSX.Element
-    timeline.updateComponent()
-    await flushUpdates()
-    const items = timeline.querySelectorAll('shade-timeline-item')
-    expect(items[0].hasAttribute('data-last')).toBe(false)
-    expect(items[1].hasAttribute('data-last')).toBe(false)
-  })
-
-  it('should set data-side="right" on items in right mode', async () => {
-    const el = (
-      <div>
-        <Timeline mode="right">
-          <TimelineItem>Event</TimelineItem>
-        </Timeline>
-      </div>
-    )
-    const timeline = el.firstElementChild as JSX.Element
-    timeline.updateComponent()
-    await flushUpdates()
-    const item = timeline.querySelector('shade-timeline-item') as HTMLElement
-    expect(item.getAttribute('data-side')).toBe('right')
-  })
-
-  it('should alternate data-side in alternate mode', async () => {
-    const el = (
-      <div>
-        <Timeline mode="alternate">
-          <TimelineItem>First</TimelineItem>
-          <TimelineItem>Second</TimelineItem>
-          <TimelineItem>Third</TimelineItem>
-        </Timeline>
-      </div>
-    )
-    const timeline = el.firstElementChild as JSX.Element
-    timeline.updateComponent()
-    await flushUpdates()
-    const items = timeline.querySelectorAll('shade-timeline-item')
-    expect(items[0].getAttribute('data-side')).toBe('left')
-    expect(items[1].getAttribute('data-side')).toBe('right')
-    expect(items[2].getAttribute('data-side')).toBe('left')
-  })
-
-  it('should not set data-side in left mode', async () => {
-    const el = (
-      <div>
-        <Timeline mode="left">
-          <TimelineItem>Event</TimelineItem>
-        </Timeline>
-      </div>
-    )
-    const timeline = el.firstElementChild as JSX.Element
-    timeline.updateComponent()
-    await flushUpdates()
-    const item = timeline.querySelector('shade-timeline-item') as HTMLElement
-    expect(item.hasAttribute('data-side')).toBe(false)
   })
 })

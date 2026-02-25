@@ -108,22 +108,6 @@ export const TimelineItem = Shade<TimelineItemProps>({
       boxSizing: 'border-box',
     },
 
-    '&[data-side="right"] .timeline-label': {
-      textAlign: 'left',
-      paddingRight: '0',
-      paddingLeft: cssVariableTheme.spacing.md,
-      order: '3',
-    },
-    '&[data-side="right"] .timeline-content': {
-      textAlign: 'right',
-      paddingLeft: '0',
-      paddingRight: cssVariableTheme.spacing.md,
-      order: '1',
-    },
-    '&[data-side="right"] .timeline-dot-column': {
-      order: '2',
-    },
-
     '&:last-of-type .timeline-tail': {
       display: 'none',
     },
@@ -181,6 +165,38 @@ export const Timeline = Shade<TimelineProps>({
     margin: '0',
     listStyle: 'none',
     fontFamily: cssVariableTheme.typography.fontFamily,
+
+    '&[data-mode="right"] > shade-timeline-item .timeline-label': {
+      textAlign: 'left',
+      paddingRight: '0',
+      paddingLeft: cssVariableTheme.spacing.md,
+      order: '3',
+    },
+    '&[data-mode="right"] > shade-timeline-item .timeline-content': {
+      textAlign: 'right',
+      paddingLeft: '0',
+      paddingRight: cssVariableTheme.spacing.md,
+      order: '1',
+    },
+    '&[data-mode="right"] > shade-timeline-item .timeline-dot-column': {
+      order: '2',
+    },
+
+    '&[data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-label': {
+      textAlign: 'left',
+      paddingRight: '0',
+      paddingLeft: cssVariableTheme.spacing.md,
+      order: '3',
+    },
+    '&[data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-content': {
+      textAlign: 'right',
+      paddingLeft: '0',
+      paddingRight: cssVariableTheme.spacing.md,
+      order: '1',
+    },
+    '&[data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-dot-column': {
+      order: '2',
+    },
   },
   render: ({ props, children, useHostProps }) => {
     const { mode = 'left', pending, style } = props
@@ -190,30 +206,11 @@ export const Timeline = Shade<TimelineProps>({
       ...(style ? { style: style as Record<string, string> } : {}),
     })
 
-    const items = (Array.isArray(children) ? children.flat() : children ? [children] : []) as JSX.Element[]
-
-    items.forEach((child, index) => {
-      if (child && typeof child === 'object' && 'setAttribute' in child) {
-        if (mode === 'right') {
-          child.setAttribute('data-side', 'right')
-        } else if (mode === 'alternate') {
-          child.setAttribute('data-side', index % 2 === 0 ? 'left' : 'right')
-        } else {
-          child.removeAttribute('data-side')
-        }
-      }
-    })
-
     const pendingItem = pending ? (
       <TimelineItem
         color="info"
         dot={<span style={{ fontSize: cssVariableTheme.typography.fontSize.md }}>⏳</span>}
         data-pending=""
-        {...(mode === 'right'
-          ? { 'data-side': 'right' }
-          : mode === 'alternate'
-            ? { 'data-side': items.length % 2 === 0 ? 'left' : 'right' }
-            : {})}
       >
         {pending === true ? 'Loading...' : pending}
       </TimelineItem>
@@ -221,7 +218,7 @@ export const Timeline = Shade<TimelineProps>({
 
     return (
       <>
-        {items}
+        {children}
         {pendingItem}
       </>
     )
