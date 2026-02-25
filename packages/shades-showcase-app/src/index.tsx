@@ -33,7 +33,22 @@ shadesInjector
   })
 
 Object.assign(window, {
-  useTheme: async (themeName: 'dark' | 'light' | 'paladin' | 'chieftain' | 'neon-runner') => {
+  useTheme: async (
+    themeName:
+      | 'dark'
+      | 'light'
+      | 'paladin'
+      | 'chieftain'
+      | 'neon-runner'
+      | 'vault-dweller'
+      | 'shadow-broker'
+      | 'dragonborn'
+      | 'plumber'
+      | 'auditore'
+      | 'replicant'
+      | 'sandworm'
+      | 'architect',
+  ) => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
       case 'dark':
@@ -58,6 +73,54 @@ Object.assign(window, {
         const { neonRunnerTheme } = await import('@furystack/shades-common-components/themes/neon-runner')
         themeProvider.setAssignedTheme(neonRunnerTheme)
         console.log('Wake up, Samurai. We have a city to burn.')
+        break
+      }
+      case 'vault-dweller': {
+        const { vaultDwellerTheme } = await import('@furystack/shades-common-components/themes/vault-dweller')
+        themeProvider.setAssignedTheme(vaultDwellerTheme)
+        console.log('War. War never changes.')
+        break
+      }
+      case 'shadow-broker': {
+        const { shadowBrokerTheme } = await import('@furystack/shades-common-components/themes/shadow-broker')
+        themeProvider.setAssignedTheme(shadowBrokerTheme)
+        console.log("I'm the Shadow Broker. I know everything.")
+        break
+      }
+      case 'dragonborn': {
+        const { dragonbornTheme } = await import('@furystack/shades-common-components/themes/dragonborn')
+        themeProvider.setAssignedTheme(dragonbornTheme)
+        console.log('Fus Ro Dah!')
+        break
+      }
+      case 'plumber': {
+        const { plumberTheme } = await import('@furystack/shades-common-components/themes/plumber')
+        themeProvider.setAssignedTheme(plumberTheme)
+        console.log("It's-a me, Mario!")
+        break
+      }
+      case 'auditore': {
+        const { auditoreTheme } = await import('@furystack/shades-common-components/themes/auditore')
+        themeProvider.setAssignedTheme(auditoreTheme)
+        console.log('Nothing is true, everything is permitted.')
+        break
+      }
+      case 'replicant': {
+        const { replicantTheme } = await import('@furystack/shades-common-components/themes/replicant')
+        themeProvider.setAssignedTheme(replicantTheme)
+        console.log('All those moments will be lost in time, like tears in rain.')
+        break
+      }
+      case 'sandworm': {
+        const { sandwormTheme } = await import('@furystack/shades-common-components/themes/sandworm')
+        themeProvider.setAssignedTheme(sandwormTheme)
+        console.log('The spice must flow.')
+        break
+      }
+      case 'architect': {
+        const { architectTheme } = await import('@furystack/shades-common-components/themes/architect')
+        themeProvider.setAssignedTheme(architectTheme)
+        console.log('There is no spoon.')
         break
       }
       default:

@@ -7,6 +7,8 @@ const paperImageValue = `url("data:image/svg+xml;base64,${btoa(`<svg xmlns="http
  * Theme inspired by the Warcraft 1 Human faction UI.
  * Cold dark stone backgrounds, white text, gold primary accents,
  * angular shapes, and serif typography for a medieval fantasy feel.
+ *
+ * @remarks Recommended Google Font: Cinzel
  */
 export const paladinTheme = {
   name: 'paladin-theme',

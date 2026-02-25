@@ -30,6 +30,38 @@
     "./themes/neon-runner": {
       "types": "./esm/themes/neon-runner-theme.d.ts",
       "import": "./esm/themes/neon-runner-theme.js"
+    },
+    "./themes/vault-dweller": {
+      "types": "./esm/themes/vault-dweller-theme.d.ts",
+      "import": "./esm/themes/vault-dweller-theme.js"
+    },
+    "./themes/shadow-broker": {
+      "types": "./esm/themes/shadow-broker-theme.d.ts",
+      "import": "./esm/themes/shadow-broker-theme.js"
+    },
+    "./themes/dragonborn": {
+      "types": "./esm/themes/dragonborn-theme.d.ts",
+      "import": "./esm/themes/dragonborn-theme.js"
+    },
+    "./themes/plumber": {
+      "types": "./esm/themes/plumber-theme.d.ts",
+      "import": "./esm/themes/plumber-theme.js"
+    },
+    "./themes/auditore": {
+      "types": "./esm/themes/auditore-theme.d.ts",
+      "import": "./esm/themes/auditore-theme.js"
+    },
+    "./themes/replicant": {
+      "types": "./esm/themes/replicant-theme.d.ts",
+      "import": "./esm/themes/replicant-theme.js"
+    },
+    "./themes/sandworm": {
+      "types": "./esm/themes/sandworm-theme.d.ts",
+      "import": "./esm/themes/sandworm-theme.js"
+    },
+    "./themes/architect": {
+      "types": "./esm/themes/architect-theme.d.ts",
+      "import": "./esm/themes/architect-theme.js"
     }
   },
   "files": [

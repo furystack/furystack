@@ -4,6 +4,8 @@ import type { Theme } from '../services/theme-provider-service.js'
 /**
  * Cyberpunk-inspired theme with dark backgrounds, neon accents,
  * monospace typography, and a hi-tech polished aesthetic.
+ *
+ * @remarks Recommended Google Font: Share Tech Mono
  */
 export const neonRunnerTheme = {
   name: 'neon-runner-theme',
