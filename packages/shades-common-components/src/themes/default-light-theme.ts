@@ -1,5 +1,5 @@
 import { defaultPalette } from './default-palette.js'
-import type { Theme } from './theme-provider-service.js'
+import type { Theme } from '../services/theme-provider-service.js'
 
 export const defaultLightTheme = {
   name: 'default-light-theme',
@@ -19,6 +19,7 @@ export const defaultLightTheme = {
   background: {
     default: '#fafafa',
     paper: '#fff',
+    paperImage: 'none',
   },
   divider: 'rgba(0, 0, 0, 0.12)',
   action: {
@@ -38,6 +39,7 @@ export const defaultLightTheme = {
       lg: '12px',
       full: '50%',
     },
+    borderWidth: '0px',
   },
   shadows: {
     none: 'none',

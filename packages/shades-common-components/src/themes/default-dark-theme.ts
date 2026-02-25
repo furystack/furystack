@@ -1,5 +1,5 @@
 import { defaultDarkPalette } from './default-dark-palette.js'
-import type { Theme } from './theme-provider-service.js'
+import type { Theme } from '../services/theme-provider-service.js'
 
 export const defaultDarkTheme = {
   name: 'default-dark-theme',
@@ -18,6 +18,7 @@ export const defaultDarkTheme = {
   background: {
     default: '#121212',
     paper: '#1e1e1e',
+    paperImage: 'none',
   },
   palette: defaultDarkPalette,
   divider: 'rgba(255, 255, 255, 0.12)',
@@ -38,6 +39,7 @@ export const defaultDarkTheme = {
       lg: '12px',
       full: '50%',
     },
+    borderWidth: '0px',
   },
   shadows: {
     none: 'none',

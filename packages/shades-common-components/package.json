@@ -10,6 +10,18 @@
     ".": {
       "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
+    },
+    "./themes/paladin": {
+      "types": "./esm/themes/paladin-theme.d.ts",
+      "import": "./esm/themes/paladin-theme.js"
+    },
+    "./themes/default-dark": {
+      "types": "./esm/themes/default-dark-theme.d.ts",
+      "import": "./esm/themes/default-dark-theme.js"
+    },
+    "./themes/default-light": {
+      "types": "./esm/themes/default-light-theme.d.ts",
+      "import": "./esm/themes/default-light-theme.js"
     }
   },
   "files": [

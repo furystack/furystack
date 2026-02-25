@@ -127,7 +127,7 @@ export const Checkbox = Shade<CheckboxProps>({
       top: '8px',
       width: '10px',
       height: '2px',
-      backgroundColor: cssVariableTheme.background.paper,
+      background: cssVariableTheme.background.paper,
       border: 'none',
       transform: 'none',
       pointerEvents: 'none',

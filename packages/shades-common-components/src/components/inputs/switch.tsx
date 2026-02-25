@@ -94,7 +94,7 @@ export const Switch = Shade<SwitchProps>({
       width: '18px',
       height: '18px',
       borderRadius: '50%',
-      backgroundColor: cssVariableTheme.background.paper,
+      background: cssVariableTheme.background.paper,
       transition: buildTransition(
         ['transform', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
         ['box-shadow', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],

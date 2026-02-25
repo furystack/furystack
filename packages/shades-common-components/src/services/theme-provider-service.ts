@@ -84,6 +84,8 @@ export interface Background {
   default: Color
   /** Elevated surface background (cards, dialogs, etc.) */
   paper: Color
+  /** Optional CSS background-image for paper surfaces (e.g. a tiled texture) */
+  paperImage?: string
 }
 
 /**
@@ -128,6 +130,8 @@ export type BorderRadiusScale = {
 export type Shape = {
   /** Border radius scale */
   borderRadius: BorderRadiusScale
+  /** Border width for surface components (paper, card, etc.). Defaults to 0. */
+  borderWidth?: string
 }
 
 /**

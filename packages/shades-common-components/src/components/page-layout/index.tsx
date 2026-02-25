@@ -131,6 +131,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       zIndex: cssVariableTheme.zIndex.drawer,
       overflow: 'hidden',
       background: cssVariableTheme.background.paper,
+      backgroundImage: cssVariableTheme.background.paperImage,
       transition: `transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
     '& .page-layout-drawer-left': {

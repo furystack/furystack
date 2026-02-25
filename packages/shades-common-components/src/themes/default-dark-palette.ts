@@ -1,9 +1,9 @@
-import type { Palette } from './theme-provider-service.js'
+import type { Palette } from '../services/theme-provider-service.js'
 
 /**
  * Color palette optimized for dark backgrounds (#121212).
  * Uses lighter Material Design color variants to ensure
- * WCAG AA contrast (≥4.5:1) against the dark theme background.
+ * WCAG AA contrast (>=4.5:1) against the dark theme background.
  */
 export const defaultDarkPalette: Palette = {
   primary: {

@@ -1,8 +1,13 @@
 /// <reference types="vite/client" />
 
 import { Injector } from '@furystack/inject'
-import { LocationService, createComponent, initializeShadeRoot } from '@furystack/shades'
-import { defaultLightTheme, ThemeProviderService, useThemeCssVariables } from '@furystack/shades-common-components'
+import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
+import {
+  defaultDarkTheme,
+  defaultLightTheme,
+  ThemeProviderService,
+  useThemeCssVariables,
+} from '@furystack/shades-common-components'
 import { App } from './app.js'
 import './style.css'
 
@@ -26,3 +31,25 @@ shadesInjector
   .subscribe((value) => {
     console.log('searchValue param changed', value)
   })
+
+Object.assign(window, {
+  useTheme: async (themeName: 'dark' | 'light' | 'paladin') => {
+    const themeProvider = shadesInjector.getInstance(ThemeProviderService)
+    switch (themeName) {
+      case 'dark':
+        themeProvider.setAssignedTheme(defaultDarkTheme)
+        break
+      case 'light':
+        themeProvider.setAssignedTheme(defaultLightTheme)
+        break
+      case 'paladin': {
+        const { paladinTheme } = await import('@furystack/shades-common-components/themes/paladin')
+        themeProvider.setAssignedTheme(paladinTheme)
+        console.log('Cheat Enabled, You Wascally Wabbit!')
+        break
+      }
+      default:
+        break
+    }
+  },
+})
