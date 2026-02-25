@@ -127,7 +127,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
 
     return (
       <>
-        {label !== undefined ? <div className="timeline-label">{label}</div> : null}
+        <div className="timeline-label">{label}</div>
         <div className="timeline-dot-column">
           <div className="timeline-dot-line">
             <div className="timeline-dot" {...(dot ? { 'data-custom': '' } : {})}>
@@ -167,6 +167,7 @@ export const Timeline = Shade<TimelineProps>({
     fontFamily: cssVariableTheme.typography.fontFamily,
 
     '&[data-mode="right"] > shade-timeline-item .timeline-label': {
+      display: 'block',
       textAlign: 'left',
       paddingRight: '0',
       paddingLeft: cssVariableTheme.spacing.md,
@@ -182,6 +183,9 @@ export const Timeline = Shade<TimelineProps>({
       order: '2',
     },
 
+    '&[data-mode="alternate"] > shade-timeline-item .timeline-label': {
+      display: 'block',
+    },
     '&[data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-label': {
       textAlign: 'left',
       paddingRight: '0',
