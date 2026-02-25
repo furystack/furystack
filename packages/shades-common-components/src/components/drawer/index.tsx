@@ -69,6 +69,7 @@ export const Drawer = Shade<DrawerProps>({
       zIndex: '1000',
       overflow: 'hidden',
       transition: `width ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}, transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
+      fontFamily: cssVariableTheme.typography.fontFamily,
       background: cssVariableTheme.background.paper,
     },
 

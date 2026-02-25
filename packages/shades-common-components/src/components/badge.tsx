@@ -28,6 +28,7 @@ export const Badge = Shade<BadgeProps>({
   shadowDomName: 'shade-badge',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     verticalAlign: 'middle',
     flexShrink: '0',

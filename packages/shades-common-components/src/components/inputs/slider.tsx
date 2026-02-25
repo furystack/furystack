@@ -214,6 +214,7 @@ export const Slider = Shade<SliderProps>({
   shadowDomName: 'shade-slider',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     width: '100%',
     padding: '10px',

@@ -42,6 +42,7 @@ export const RadioGroup: (props: RadioGroupProps, children: ChildrenList) => JSX
   shadowDomName: 'shade-radio-group',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
 
     '& .radio-group-label': {
       display: 'block',

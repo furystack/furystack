@@ -137,6 +137,7 @@ export const SidebarNavigation = Shade({
     display: 'block',
     height: '100%',
     overflow: 'hidden auto',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     color: cssVariableTheme.text.primary,
     scrollbarWidth: 'thin',
     scrollbarGutter: 'stable',

@@ -6,6 +6,7 @@ export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
   elementBase: HTMLDivElement,
   elementBaseName: 'div',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     borderRadius: cssVariableTheme.shape.borderRadius.md,
     padding: cssVariableTheme.spacing.md,
     background: cssVariableTheme.background.paper,

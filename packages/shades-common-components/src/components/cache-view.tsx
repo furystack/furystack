@@ -3,6 +3,7 @@ import { hasCacheValue, isFailedCacheResult, isObsoleteCacheResult } from '@fury
 import type { ShadeComponent } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { Button } from './button.js'
 import { Result } from './result.js'
 
@@ -58,6 +59,9 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  */
 export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData, TArgs>) => JSX.Element = Shade({
   shadowDomName: 'shade-cache-view',
+  css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
+  },
   render: ({ props, useObservable, useState }): JSX.Element | null => {
     const { cache, args, content, loader, error } = props
 

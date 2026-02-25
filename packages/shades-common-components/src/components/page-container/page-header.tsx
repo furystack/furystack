@@ -59,6 +59,7 @@ export const PageHeader = Shade<PageHeaderProps>({
   shadowDomName: 'shade-page-header',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'sticky',
     top: '0',
     zIndex: `calc(${cssVariableTheme.zIndex.drawer} - 1)`,

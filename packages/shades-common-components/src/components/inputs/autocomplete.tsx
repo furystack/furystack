@@ -1,4 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { TextInputProps } from './input.js'
 import { Input } from './input.js'
 
@@ -12,6 +13,7 @@ export const Autocomplete = Shade<{
   onchange?: (value: string) => void
 }>({
   shadowDomName: 'shade-autocomplete',
+  css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props, useState, useDisposable, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
 

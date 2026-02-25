@@ -1,5 +1,6 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { paletteMainColors } from '../../services/palette-css-vars.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import type { IconDefinition } from './icon-types.js'
@@ -39,6 +40,7 @@ export const Icon = Shade<IconProps>({
   shadowDomName: 'shade-icon',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
     justifyContent: 'center',
     verticalAlign: 'middle',

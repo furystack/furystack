@@ -1,6 +1,7 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { TreeService } from '../../services/tree-service.js'
 import { TreeItem } from './tree-item.js'
 
@@ -26,6 +27,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-tree',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',
     overflow: 'auto',
   },

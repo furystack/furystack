@@ -80,6 +80,7 @@ export const Select = Shade<SelectProps>({
   shadowDomName: 'shade-select',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     marginBottom: '1.25em',
 

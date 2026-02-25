@@ -83,6 +83,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
 
     '& .timeline-content': {
       flex: '1',
+      paddingTop: cssVariableTheme.spacing.xs,
       paddingLeft: cssVariableTheme.spacing.md,
       paddingBottom: cssVariableTheme.spacing.lg,
       fontFamily: cssVariableTheme.typography.fontFamily,

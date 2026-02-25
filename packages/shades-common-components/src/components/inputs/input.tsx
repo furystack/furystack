@@ -111,6 +111,7 @@ export const Input = Shade<TextInputProps>({
   shadowDomName: 'shade-input',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     marginBottom: '1.25em',
 
     // Base label styles

@@ -23,6 +23,7 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
   shadowDomName: 'shade-button-group',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     borderRadius: cssVariableTheme.shape.borderRadius.md,
 
     '&[data-orientation="vertical"]': {

@@ -1,6 +1,7 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { ListService } from '../../services/list-service.js'
 import { Pagination } from '../pagination.js'
 import { ListItem } from './list-item.js'
@@ -36,6 +37,7 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-list',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',
     overflow: 'auto',
     '& .shade-list-pagination': {

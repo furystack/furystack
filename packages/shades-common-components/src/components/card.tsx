@@ -24,6 +24,7 @@ export const Card = Shade<CardProps>({
   shadowDomName: 'shade-card',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     flexDirection: 'column',
     borderRadius: cssVariableTheme.shape.borderRadius.md,
     background: cssVariableTheme.background.paper,

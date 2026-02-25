@@ -36,6 +36,7 @@ export const LinearProgress = Shade<LinearProgressProps>({
   shadowDomName: 'shade-linear-progress',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',
     overflow: 'hidden',
     position: 'relative',

@@ -8,6 +8,7 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
   Shade<{ manager: SuggestManager<any> }>({
     shadowDomName: 'shade-suggest-suggestion-list',
     css: {
+      fontFamily: cssVariableTheme.typography.fontFamily,
       '& .suggestion-items-container': {
         borderTop: 'none',
         position: 'absolute',

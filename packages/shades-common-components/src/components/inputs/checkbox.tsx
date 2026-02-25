@@ -52,6 +52,7 @@ export const Checkbox = Shade<CheckboxProps>({
   shadowDomName: 'shade-checkbox',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
 
     '& label': {

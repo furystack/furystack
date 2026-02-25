@@ -6,6 +6,7 @@ import type { CommandPaletteManager } from './command-palette-manager.js'
 export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManager; fullScreenSuggestions?: boolean }>({
   shadowDomName: 'shade-command-palette-suggestion-list',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .suggestion-items-container': {
       borderTop: 'none',
       position: 'absolute',

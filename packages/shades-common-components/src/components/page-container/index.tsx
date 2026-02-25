@@ -55,6 +55,7 @@ export const PageContainer = Shade<PageContainerProps>({
   elementBaseName: 'div',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     flexDirection: 'column',
     boxSizing: 'border-box',
     color: cssVariableTheme.text.primary,

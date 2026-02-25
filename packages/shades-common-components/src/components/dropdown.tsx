@@ -60,6 +60,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
   shadowDomName: 'shade-dropdown',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
 
     '& .dropdown-trigger': {

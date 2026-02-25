@@ -14,6 +14,7 @@ export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, child
     shadowDomName: 'shade-context-menu-item',
     css: {
       display: 'flex',
+      fontFamily: cssVariableTheme.typography.fontFamily,
       alignItems: 'center',
       padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.md}`,
       cursor: 'default',

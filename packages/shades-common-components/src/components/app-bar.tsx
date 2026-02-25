@@ -16,6 +16,7 @@ export const AppBar = Shade({
     opacity: '0',
     position: 'fixed',
     zIndex: '1',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     color: cssVariableTheme.text.primary,
     '&[data-visible]': {
       opacity: '1',

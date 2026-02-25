@@ -65,6 +65,7 @@ export const Rating = Shade<RatingProps>({
   shadowDomName: 'shade-rating',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
 
     '& .rating-container': {

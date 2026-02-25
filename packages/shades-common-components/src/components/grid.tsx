@@ -31,6 +31,7 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
     shadowDomName: 'shade-grid',
     css: {
       display: 'block',
+      fontFamily: cssVariableTheme.typography.fontFamily,
       width: '100%',
       height: '100%',
       overflow: 'auto',

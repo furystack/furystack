@@ -74,6 +74,7 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
     alignItems: 'center',
     gap: cssVariableTheme.spacing.sm,
     padding: `${cssVariableTheme.spacing.sm} 0`,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     fontSize: '0.9em',
     color: cssVariableTheme.text.secondary,
 

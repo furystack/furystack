@@ -15,6 +15,7 @@ export const DataGridFooter: <T>(props: {
   shadowDomName: 'shade-data-grid-footer',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .pager': {
       backdropFilter: 'blur(10px)',
       color: cssVariableTheme.text.secondary,

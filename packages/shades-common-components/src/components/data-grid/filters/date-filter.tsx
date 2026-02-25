@@ -5,6 +5,7 @@ import { Button } from '../../button.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
 import { Icon } from '../../icons/icon.js'
 import type { FilterableFindOptions } from '../data-grid.js'
+import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import { filterBaseCss, filterInputCss } from './filter-styles.js'
 
 type DateMode = 'before' | 'after' | 'between'
@@ -17,6 +18,7 @@ export const DateFilter = Shade<{
   shadowDomName: 'data-grid-date-filter',
   css: {
     ...filterBaseCss,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& input[type="datetime-local"]': filterInputCss,
   },
   render: ({ props, useObservable, useState }) => {

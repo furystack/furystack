@@ -14,6 +14,7 @@ export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList
 >({
   shadowDomName: 'shade-context-menu',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .context-menu-backdrop': {
       opacity: '0',
       transition: `opacity ${cssVariableTheme.transitions.duration.fast} ease-out`,

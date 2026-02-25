@@ -52,6 +52,7 @@ export const Switch = Shade<SwitchProps>({
   shadowDomName: 'shade-switch',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
 
     '& label': {

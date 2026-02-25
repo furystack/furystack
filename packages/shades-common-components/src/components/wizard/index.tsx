@@ -44,6 +44,7 @@ export interface WizardProps {
 export const Wizard = Shade<WizardProps>({
   shadowDomName: 'shades-wizard',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .wizard-container': {
       display: 'flex',
       alignItems: 'center',

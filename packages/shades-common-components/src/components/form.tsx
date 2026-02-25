@@ -1,6 +1,7 @@
 import { Injectable } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { ObservableValue } from '@furystack/utils'
 import type { InputValidationResult } from './inputs/input.js'
 
@@ -58,6 +59,7 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   shadowDomName: 'shade-form',
   elementBase: HTMLFormElement,
   elementBaseName: 'form',
+  css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props, children, useDisposable, injector, useHostProps }) => {
     const formInjector = useDisposable('formInjector', () => injector.createChild())
     const formService = new FormService()

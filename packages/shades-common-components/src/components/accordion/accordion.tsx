@@ -27,6 +27,7 @@ export const Accordion = Shade<AccordionProps>({
   shadowDomName: 'shade-accordion',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     flexDirection: 'column',
     borderRadius: cssVariableTheme.shape.borderRadius.md,
     overflow: 'hidden',

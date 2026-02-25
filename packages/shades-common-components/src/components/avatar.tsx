@@ -9,6 +9,7 @@ export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & Partia
 export const Avatar = Shade<AvatarProps>({
   shadowDomName: 'shade-avatar',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '128px',
     height: '128px',
     overflow: 'hidden',

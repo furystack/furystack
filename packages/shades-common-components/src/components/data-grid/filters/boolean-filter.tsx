@@ -1,6 +1,7 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { ObservableValue } from '@furystack/utils'
 import { SegmentedControl } from '../../button-group.js'
+import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import type { FilterableFindOptions } from '../data-grid.js'
 
 type BooleanFilterValue = 'true' | 'false' | 'any'
@@ -11,6 +12,7 @@ export const BooleanFilter = Shade<{
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-boolean-filter',
+  css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props, useObservable }) => {
     const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
 

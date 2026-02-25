@@ -44,6 +44,7 @@ export const CircularProgress = Shade<CircularProgressProps>({
   shadowDomName: 'shade-circular-progress',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
     justifyContent: 'center',
     lineHeight: '1',

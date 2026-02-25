@@ -89,6 +89,7 @@ export const PageLayout = Shade<PageLayoutProps>({
   shadowDomName: 'shade-page-layout',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'fixed',
     top: '0',
     left: '0',

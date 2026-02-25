@@ -28,6 +28,7 @@ export const Loader = Shade<LoaderProps>({
   shadowDomName: 'shade-loader',
   css: {
     display: 'inline-block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     transformOrigin: 'center',
     opacity: '0',
   },

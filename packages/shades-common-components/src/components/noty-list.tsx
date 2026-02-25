@@ -145,6 +145,7 @@ export const NotyList = Shade({
   shadowDomName: 'shade-noty-list',
   css: {
     position: 'fixed',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     bottom: cssVariableTheme.spacing.md,
     right: cssVariableTheme.spacing.md,
     display: 'flex',
