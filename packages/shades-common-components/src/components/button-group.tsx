@@ -215,6 +215,37 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
       '&[data-orientation="vertical"]': {
         flexDirection: 'column',
       },
+
+      '&[data-disabled]': {
+        pointerEvents: 'none',
+        opacity: cssVariableTheme.action.disabledOpacity,
+      },
+
+      // Grouped appearance: box-shadow border + reset border-radius.
+      // Uses [data-value] attribute selector for specificity (0,1,2) to
+      // override ToggleButton's own CSS at (0,1,1).
+      '& button[data-value]': {
+        boxShadow: '0px 0px 0px 1px var(--toggle-color-main)',
+        borderRadius: '0',
+      },
+
+      '&:not([data-orientation="vertical"]) button:first-of-type': {
+        borderRadius: `${groupChildRadius} 0 0 ${groupChildRadius}`,
+      },
+      '&:not([data-orientation="vertical"]) button:last-of-type': {
+        borderRadius: `0 ${groupChildRadius} ${groupChildRadius} 0`,
+      },
+
+      '&[data-orientation="vertical"] button:first-of-type': {
+        borderRadius: `${groupChildRadius} ${groupChildRadius} 0 0`,
+      },
+      '&[data-orientation="vertical"] button:last-of-type': {
+        borderRadius: `0 0 ${groupChildRadius} ${groupChildRadius}`,
+      },
+
+      '& button:only-of-type': {
+        borderRadius: groupChildRadius,
+      },
     },
     render: ({ props, children, useDisposable, useHostProps, useRef }) => {
       const groupRef = useRef<HTMLDivElement>('group')
@@ -267,28 +298,26 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
       useHostProps({
         role: 'group',
         'data-orientation': orientation,
+        'data-disabled': disabled ? '' : undefined,
         style: {
           '--toggle-color-main': colors.main,
           ...(style as Record<string, string>),
         },
       })
 
-      const radius = cssVariableTheme.shape.borderRadius.md
-
-      // Update child toggle button states and apply grouping styles
+      // Sync data-selected, disabled, and data-size on child buttons.
+      // These can't be expressed in CSS because they depend on matching the
+      // group's value prop against each button's data-value attribute.
       requestAnimationFrame(() => {
         const buttons = Array.from(groupRef.current?.querySelectorAll('button[data-value]') ?? [])
-        const isVertical = orientation === 'vertical'
 
-        buttons.forEach((btn, index) => {
+        buttons.forEach((btn) => {
           const val = btn.getAttribute('data-value')
           if (val && selectedValues.includes(val)) {
             btn.setAttribute('data-selected', '')
           } else {
             btn.removeAttribute('data-selected')
           }
-
-          btn.setAttribute('data-grouped', '')
 
           if (disabled) {
             btn.setAttribute('disabled', '')
@@ -298,21 +327,6 @@ export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: Childr
             btn.setAttribute('data-size', size)
           } else if (size === 'medium') {
             btn.removeAttribute('data-size')
-          }
-
-          // Propagate color CSS variable
-          ;(btn as HTMLElement).style.setProperty('--toggle-color-main', colors.main)
-
-          // Apply grouping border-radius via inline styles
-          const el = btn as HTMLElement
-          if (buttons.length === 1) {
-            el.style.borderRadius = radius
-          } else if (index === 0) {
-            el.style.borderRadius = isVertical ? `${radius} ${radius} 0 0` : `${radius} 0 0 ${radius}`
-          } else if (index === buttons.length - 1) {
-            el.style.borderRadius = isVertical ? `0 0 ${radius} ${radius}` : `0 ${radius} ${radius} 0`
-          } else {
-            el.style.borderRadius = '0'
           }
         })
       })

@@ -729,7 +729,7 @@ describe('ToggleButtonGroup edge cases', () => {
     )
   })
 
-  it('should apply vertical orientation border radius', async () => {
+  it('should apply vertical orientation border radius via CSS', async () => {
     await usingAsync(
       await renderToggleGroup({ orientation: 'vertical' }, [
         <ToggleButton value="a">A</ToggleButton>,
@@ -737,12 +737,13 @@ describe('ToggleButtonGroup edge cases', () => {
       ] as unknown as JSX.Element[]),
       async ({ group }) => {
         await flushUpdates()
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+        // Border-radius is now applied via CSS rules targeting
+        // button:first-of-type / button:last-of-type within the group.
+        // Verify the host has the correct orientation data attribute
+        // that the CSS selectors depend on.
+        expect(group.getAttribute('data-orientation')).toBe('vertical')
         const buttons = group.querySelectorAll('button[data-value]')
-        // First button should have top radius
-        expect((buttons[0] as HTMLElement).style.borderRadius).toContain('0 0')
-        // Last button should have bottom radius
-        expect((buttons[1] as HTMLElement).style.borderRadius).toContain('0 0')
+        expect(buttons.length).toBe(2)
       },
     )
   })
