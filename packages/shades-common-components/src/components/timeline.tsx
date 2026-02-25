@@ -31,9 +31,10 @@ export const TimelineItem = Shade<TimelineItemProps>({
       flex: '1',
       textAlign: 'right',
       paddingRight: cssVariableTheme.spacing.md,
-      paddingTop: '2px',
+      paddingTop: cssVariableTheme.spacing.xs,
       fontFamily: cssVariableTheme.typography.fontFamily,
       fontSize: cssVariableTheme.typography.fontSize.sm,
+      lineHeight: cssVariableTheme.typography.lineHeight.normal,
       color: cssVariableTheme.text.secondary,
       boxSizing: 'border-box',
     },
@@ -47,6 +48,20 @@ export const TimelineItem = Shade<TimelineItemProps>({
       paddingTop: cssVariableTheme.spacing.xs,
     },
 
+    '& .timeline-dot-line': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: '0',
+    },
+
+    '& .timeline-dot-line::before': {
+      content: '"\\200b"',
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+      lineHeight: cssVariableTheme.typography.lineHeight.normal,
+      fontFamily: cssVariableTheme.typography.fontFamily,
+    },
+
     '& .timeline-dot': {
       display: 'flex',
       alignItems: 'center',
@@ -57,7 +72,6 @@ export const TimelineItem = Shade<TimelineItemProps>({
       backgroundColor: 'var(--timeline-dot-color)',
       flexShrink: '0',
       zIndex: '1',
-      marginTop: `calc(${cssVariableTheme.typography.fontSize.sm} * ${cssVariableTheme.typography.lineHeight.normal} / 2 - 4px)`,
     },
 
     '& .timeline-dot[data-custom]': {
@@ -89,11 +103,11 @@ export const TimelineItem = Shade<TimelineItemProps>({
       paddingBottom: cssVariableTheme.spacing.lg,
       fontFamily: cssVariableTheme.typography.fontFamily,
       fontSize: cssVariableTheme.typography.fontSize.sm,
+      lineHeight: cssVariableTheme.typography.lineHeight.normal,
       color: cssVariableTheme.text.primary,
       boxSizing: 'border-box',
     },
 
-    // When placed in a right-mode or alternate-right context, the label goes right and content goes left
     '&[data-side="right"] .timeline-label': {
       textAlign: 'left',
       paddingRight: '0',
@@ -110,8 +124,7 @@ export const TimelineItem = Shade<TimelineItemProps>({
       order: '2',
     },
 
-    // Last item: hide tail
-    '&[data-last] .timeline-tail': {
+    '&:last-of-type .timeline-tail': {
       display: 'none',
     },
   },
@@ -132,8 +145,10 @@ export const TimelineItem = Shade<TimelineItemProps>({
       <>
         {label !== undefined ? <div className="timeline-label">{label}</div> : null}
         <div className="timeline-dot-column">
-          <div className="timeline-dot" {...(dot ? { 'data-custom': '' } : {})}>
-            {dot ?? null}
+          <div className="timeline-dot-line">
+            <div className="timeline-dot" {...(dot ? { 'data-custom': '' } : {})}>
+              {dot ?? null}
+            </div>
           </div>
           <div className="timeline-tail" {...(isPending ? { 'data-pending': '' } : {})} />
         </div>
@@ -176,17 +191,9 @@ export const Timeline = Shade<TimelineProps>({
     })
 
     const items = (Array.isArray(children) ? children.flat() : children ? [children] : []) as JSX.Element[]
-    const totalItems = pending ? items.length + 1 : items.length
 
     items.forEach((child, index) => {
       if (child && typeof child === 'object' && 'setAttribute' in child) {
-        const isLast = index === totalItems - 1
-        if (isLast) {
-          child.setAttribute('data-last', '')
-        } else {
-          child.removeAttribute('data-last')
-        }
-
         if (mode === 'right') {
           child.setAttribute('data-side', 'right')
         } else if (mode === 'alternate') {
@@ -201,7 +208,6 @@ export const Timeline = Shade<TimelineProps>({
       <TimelineItem
         color="info"
         dot={<span style={{ fontSize: cssVariableTheme.typography.fontSize.md }}>⏳</span>}
-        data-last=""
         data-pending=""
         {...(mode === 'right'
           ? { 'data-side': 'right' }
