@@ -84,10 +84,6 @@ export const PageHeader = Shade<PageHeaderProps>({
       marginRight: cssVariableTheme.spacing.sm,
     },
 
-    '& .page-header-description': {
-      marginTop: cssVariableTheme.spacing.sm,
-    },
-
     '& .page-header-actions': {
       display: 'flex',
       alignItems: 'center',

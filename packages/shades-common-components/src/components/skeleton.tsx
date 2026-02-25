@@ -11,9 +11,6 @@ export type SkeletonProps = {
 
 export const Skeleton = Shade<SkeletonProps>({
   shadowDomName: 'shade-skeleton',
-  css: {
-    fontFamily: cssVariableTheme.typography.fontFamily,
-  },
   render: ({ props, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
     const { delay = 1500 } = props

@@ -49,6 +49,8 @@ Each theme provides a full set of semantic palette colors (`primary`, `secondary
 
 Refactored the `Typography` component to render semantic HTML elements (`h1`–`h6`, `p`, `span`) based on the `variant` prop instead of always rendering a generic `shade-typography` custom element. Ellipsis handling and copy functionality now apply directly to the host element, removing the need for an internal wrapper.
 
+**Breaking:** The `<shade-typography>` custom element tag no longer exists. Typography now renders as native tags with an `is` attribute (e.g. `<p is="shade-typography-p">`). Update any CSS or JS selectors targeting `shade-typography` to use `[is^="shade-typography"]` instead.
+
 ## 🐛 Bug Fixes
 
 - Fixed `Timeline` vertical alignment issues by replacing hardcoded pixel values with theme spacing tokens and adding consistent `lineHeight` to labels and content
