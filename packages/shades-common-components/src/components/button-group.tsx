@@ -441,11 +441,15 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
       const isSelected = value === option.value
       const isDisabled = disabled || option.disabled
 
-      const btn = (
+      return (
         <button
           type="button"
           className="segmented-option"
           disabled={isDisabled}
+          role="radio"
+          aria-checked={isSelected ? 'true' : 'false'}
+          data-value={option.value}
+          data-selected={isSelected ? '' : undefined}
           onclick={() => {
             if (!isDisabled && value !== option.value) {
               onValueChange?.(option.value)
@@ -454,16 +458,7 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
         >
           {option.label}
         </button>
-      ) as unknown as HTMLButtonElement
-
-      btn.setAttribute('role', 'radio')
-      btn.setAttribute('aria-checked', isSelected ? 'true' : 'false')
-      btn.setAttribute('data-value', option.value)
-      if (isSelected) {
-        btn.setAttribute('data-selected', '')
-      }
-
-      return btn
+      )
     })
 
     return <>{buttons}</>
