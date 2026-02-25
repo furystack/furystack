@@ -230,6 +230,8 @@ export type ThemeTypography = {
   lineHeight: LineHeightScale
   /** Letter spacing scale */
   letterSpacing?: LetterSpacingScale
+  /** CSS text-shadow value applied globally to text */
+  textShadow?: string
 }
 
 /**

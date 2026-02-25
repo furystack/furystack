@@ -127,6 +127,7 @@ export const cssVariableTheme = {
       wider: 'var(--shades-theme-typography-letter-spacing-wider)',
       widest: 'var(--shades-theme-typography-letter-spacing-widest)',
     },
+    textShadow: 'var(--shades-theme-typography-text-shadow, none)',
   },
   transitions: {
     duration: {

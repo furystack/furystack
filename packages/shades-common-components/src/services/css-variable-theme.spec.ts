@@ -66,6 +66,7 @@ describe('css-variable-theme', () => {
       expect(cssVariableTheme.typography.fontWeight.bold).toBe('var(--shades-theme-typography-font-weight-bold)')
       expect(cssVariableTheme.typography.lineHeight.tight).toBe('var(--shades-theme-typography-line-height-tight)')
       expect(cssVariableTheme.typography.lineHeight.normal).toBe('var(--shades-theme-typography-line-height-normal)')
+      expect(cssVariableTheme.typography.textShadow).toBe('var(--shades-theme-typography-text-shadow, none)')
     })
 
     it('should have transition properties with CSS variable references', () => {

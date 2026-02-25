@@ -20,7 +20,7 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-### 13 New Themes
+### 17 New Themes
 
 Added a collection of pop-culture-inspired themes, each with its own color palette and visual style:
 
@@ -29,14 +29,18 @@ Added a collection of pop-culture-inspired themes, each with its own color palet
 - `blackMesaTheme` - Half-Life-inspired with HEV-suit Lambda orange on dark industrial backgrounds and hazard-stripe textures
 - `chieftainTheme` - Warcraft 1 Orc-inspired with dark brown wood backgrounds and crimson accents
 - `dragonbornTheme` - Skyrim-inspired with nordic fantasy colors
+- `hawkinsTheme` - Stranger Things-inspired with warm dark backgrounds, CRT scanline pattern, Christmas-light red accents, and retro rounded typography
+- `jediTheme` - Star Wars Jedi Order-inspired light theme with warm parchment backgrounds and lightsaber-blue accents
 - `neonRunnerTheme` - Cyberpunk-inspired with neon accents on dark backgrounds
 - `paladinTheme` - Warcraft 1 Human-inspired with cold stone backgrounds and gold accents
 - `plumberTheme` - Mario-inspired with playful primary colors
 - `replicantTheme` - Blade Runner-inspired with noir cyberpunk aesthetics
 - `sandwormTheme` - Dune-inspired with desert earth tones
 - `shadowBrokerTheme` - Mass Effect-inspired with sci-fi blue tones
+- `sithTheme` - Star Wars Sith Order-inspired dark theme with near-black backgrounds, crimson accents, and bold angular typography
 - `vaultDwellerTheme` - Fallout-inspired with retro-futuristic styling
 - `wildHuntTheme` - Witcher 3-inspired with silver-steel accents and crimson highlights on dark stormy backgrounds
+- `xenomorphTheme` - Alien franchise-inspired with cold metallic backgrounds, acid green accents, and condensed monospace typography
 
 Each theme provides a full set of semantic palette colors (`primary`, `secondary`, `error`, `warning`, `success`, `info`) with `light`, `main`, `dark` variants and contrast colors.
 

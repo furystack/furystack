@@ -22,7 +22,7 @@ appear before simple list items within each section.
 
 ### Runtime Theme Switcher
 
-Added a `useTheme()` function exposed on the `window` object for switching between all 15 available themes at runtime. Supports `dark`, `light`, `paladin`, `chieftain`, `neon-runner`, `vault-dweller`, `shadow-broker`, `dragonborn`, `plumber`, `auditore`, `replicant`, `sandworm`, `architect`, `wild-hunt`, and `black-mesa` themes via lazy-loaded dynamic imports.
+Added a `useTheme()` function exposed on the `window` object for switching between all 19 available themes at runtime. Supports `dark`, `light`, `paladin`, `chieftain`, `neon-runner`, `vault-dweller`, `shadow-broker`, `dragonborn`, `plumber`, `auditore`, `replicant`, `sandworm`, `architect`, `wild-hunt`, `black-mesa`, `jedi`, `sith`, `xenomorph`, and `hawkins` themes via lazy-loaded dynamic imports.
 
 ## ♻️ Refactoring
 

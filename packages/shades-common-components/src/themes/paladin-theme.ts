@@ -8,7 +8,7 @@ const paperImageValue = `url("data:image/svg+xml;base64,${btoa(`<svg xmlns="http
  * Cold dark stone backgrounds, white text, gold primary accents,
  * angular shapes, and serif typography for a medieval fantasy feel.
  *
- * @remarks Recommended Google Font: Cinzel
+ * @remarks Recommended Google Font: Silkscreen
  */
 export const paladinTheme = {
   name: 'paladin-theme',
@@ -58,7 +58,7 @@ export const paladinTheme = {
     xl: '0 12px 32px rgba(0, 0, 0, 0.5), 0 6px 12px rgba(0, 0, 0, 0.3)',
   },
   typography: {
-    fontFamily: 'Cinzel, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif',
+    fontFamily: 'Silkscreen, "Courier New", monospace',
     fontSize: {
       xs: '11px',
       sm: '13px',
@@ -71,8 +71,8 @@ export const paladinTheme = {
     },
     fontWeight: {
       normal: '400',
-      medium: '500',
-      semibold: '600',
+      medium: '400',
+      semibold: '700',
       bold: '700',
     },
     lineHeight: {
@@ -81,13 +81,14 @@ export const paladinTheme = {
       relaxed: '1.75',
     },
     letterSpacing: {
-      tight: '-0.5px',
-      dense: '-0.25px',
-      normal: '0px',
-      wide: '0.25px',
-      wider: '0.75px',
-      widest: '1.5px',
+      tight: '0px',
+      dense: '0px',
+      normal: '0.5px',
+      wide: '1px',
+      wider: '1.5px',
+      widest: '2px',
     },
+    textShadow: '2px 2px 0px rgba(0, 0, 0, 0.8)',
   },
   transitions: {
     duration: {

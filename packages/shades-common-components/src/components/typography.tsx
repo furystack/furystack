@@ -191,6 +191,7 @@ const typographyCss = {
   padding: '0',
   fontFamily: cssVariableTheme.typography.fontFamily,
   color: 'var(--typo-color)',
+  textShadow: cssVariableTheme.typography.textShadow || 'none',
 
   ...buildVariantCssRules(),
 

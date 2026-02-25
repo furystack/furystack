@@ -1,5 +1,5 @@
-import { chieftainPalette } from './chieftain-palette.js'
 import type { Theme } from '../services/theme-provider-service.js'
+import { chieftainPalette } from './chieftain-palette.js'
 
 const paperImageValue = `url("data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.15" numOctaves="6" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" lighting-color="#6b4226" surfaceScale="3"><feDistantLight azimuth="45" elevation="50"/></feDiffuseLighting></filter><rect width="200" height="200" filter="url(#t)" opacity="0.2"/></svg>`)}")`
 
@@ -8,7 +8,7 @@ const paperImageValue = `url("data:image/svg+xml;base64,${btoa(`<svg xmlns="http
  * Dark brown wood backgrounds, parchment text, crimson primary accents,
  * angular shapes, and serif typography for a brutal medieval fantasy feel.
  *
- * @remarks Recommended Google Font: Cinzel
+ * @remarks Recommended Google Font: Silkscreen
  */
 export const chieftainTheme = {
   name: 'chieftain-theme',
@@ -58,7 +58,7 @@ export const chieftainTheme = {
     xl: '0 12px 32px rgba(0, 0, 0, 0.55), 0 6px 12px rgba(0, 0, 0, 0.35)',
   },
   typography: {
-    fontFamily: 'Cinzel, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif',
+    fontFamily: 'Silkscreen, "Courier New", monospace',
     fontSize: {
       xs: '11px',
       sm: '13px',
@@ -71,8 +71,8 @@ export const chieftainTheme = {
     },
     fontWeight: {
       normal: '400',
-      medium: '500',
-      semibold: '600',
+      medium: '400',
+      semibold: '700',
       bold: '700',
     },
     lineHeight: {
@@ -81,13 +81,14 @@ export const chieftainTheme = {
       relaxed: '1.75',
     },
     letterSpacing: {
-      tight: '-0.5px',
-      dense: '-0.25px',
-      normal: '0px',
-      wide: '0.25px',
-      wider: '0.75px',
-      widest: '1.5px',
+      tight: '0px',
+      dense: '0px',
+      normal: '0.5px',
+      wide: '1px',
+      wider: '1.5px',
+      widest: '2px',
     },
+    textShadow: '4px 4px 0px rgba(0, 0, 0, 0.8)',
   },
   transitions: {
     duration: {

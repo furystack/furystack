@@ -49,7 +49,11 @@ Object.assign(window, {
       | 'sandworm'
       | 'architect'
       | 'wild-hunt'
-      | 'black-mesa',
+      | 'black-mesa'
+      | 'jedi'
+      | 'sith'
+      | 'xenomorph'
+      | 'hawkins',
   ) => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
@@ -135,6 +139,30 @@ Object.assign(window, {
         const { blackMesaTheme } = await import('@furystack/shades-common-components/themes/black-mesa')
         themeProvider.setAssignedTheme(blackMesaTheme)
         console.log('Rise and shine, Mr. Freeman. Rise and shine.')
+        break
+      }
+      case 'jedi': {
+        const { jediTheme } = await import('@furystack/shades-common-components/themes/jedi')
+        themeProvider.setAssignedTheme(jediTheme)
+        console.log('Do or do not. There is no try.')
+        break
+      }
+      case 'sith': {
+        const { sithTheme } = await import('@furystack/shades-common-components/themes/sith')
+        themeProvider.setAssignedTheme(sithTheme)
+        console.log('Peace is a lie. There is only passion.')
+        break
+      }
+      case 'xenomorph': {
+        const { xenomorphTheme } = await import('@furystack/shades-common-components/themes/xenomorph')
+        themeProvider.setAssignedTheme(xenomorphTheme)
+        console.log('In space, no one can hear you scream.')
+        break
+      }
+      case 'hawkins': {
+        const { hawkinsTheme } = await import('@furystack/shades-common-components/themes/hawkins')
+        themeProvider.setAssignedTheme(hawkinsTheme)
+        console.log("Friends don't lie.")
         break
       }
       default:

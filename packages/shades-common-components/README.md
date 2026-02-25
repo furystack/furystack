@@ -261,7 +261,7 @@ Two default themes are included in the main entry point:
 | Default Light | `defaultLightTheme` | Light theme with system fonts |
 | Default Dark  | `defaultDarkTheme`  | Dark theme with system fonts  |
 
-13 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
+17 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
 
 | Theme         | Import Path                                                | Inspiration              |
 | ------------- | ---------------------------------------------------------- | ------------------------ |
@@ -270,14 +270,18 @@ Two default themes are included in the main entry point:
 | Black Mesa    | `@furystack/shades-common-components/themes/black-mesa`    | Half-Life                |
 | Chieftain     | `@furystack/shades-common-components/themes/chieftain`     | Warcraft 1 Orc faction   |
 | Dragonborn    | `@furystack/shades-common-components/themes/dragonborn`    | Skyrim                   |
+| Hawkins       | `@furystack/shades-common-components/themes/hawkins`       | Stranger Things          |
+| Jedi          | `@furystack/shades-common-components/themes/jedi`          | Star Wars (Jedi Order)   |
 | Neon Runner   | `@furystack/shades-common-components/themes/neon-runner`   | Cyberpunk                |
 | Paladin       | `@furystack/shades-common-components/themes/paladin`       | Warcraft 1 Human faction |
 | Plumber       | `@furystack/shades-common-components/themes/plumber`       | Super Mario              |
 | Replicant     | `@furystack/shades-common-components/themes/replicant`     | Blade Runner             |
 | Sandworm      | `@furystack/shades-common-components/themes/sandworm`      | Dune                     |
 | Shadow Broker | `@furystack/shades-common-components/themes/shadow-broker` | Mass Effect              |
+| Sith          | `@furystack/shades-common-components/themes/sith`          | Star Wars (Sith Order)   |
 | Vault Dweller | `@furystack/shades-common-components/themes/vault-dweller` | Fallout                  |
 | Wild Hunt     | `@furystack/shades-common-components/themes/wild-hunt`     | The Witcher 3            |
+| Xenomorph     | `@furystack/shades-common-components/themes/xenomorph`     | Alien                    |
 
 ### Applying a Theme
 

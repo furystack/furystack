@@ -70,6 +70,22 @@
     "./themes/black-mesa": {
       "types": "./esm/themes/black-mesa-theme.d.ts",
       "import": "./esm/themes/black-mesa-theme.js"
+    },
+    "./themes/jedi": {
+      "types": "./esm/themes/jedi-theme.d.ts",
+      "import": "./esm/themes/jedi-theme.js"
+    },
+    "./themes/sith": {
+      "types": "./esm/themes/sith-theme.d.ts",
+      "import": "./esm/themes/sith-theme.js"
+    },
+    "./themes/xenomorph": {
+      "types": "./esm/themes/xenomorph-theme.d.ts",
+      "import": "./esm/themes/xenomorph-theme.js"
+    },
+    "./themes/hawkins": {
+      "types": "./esm/themes/hawkins-theme.d.ts",
+      "import": "./esm/themes/hawkins-theme.js"
     }
   },
   "files": [
