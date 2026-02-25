@@ -179,37 +179,6 @@ const syncVisuals = (
   }
 }
 
-/**
- * Sets all ARIA attributes on thumb elements after render.
- */
-const syncAriaAttributes = (
-  thumb0: HTMLElement | null,
-  thumb1: HTMLElement | null,
-  value: number | [number, number],
-  min: number,
-  max: number,
-  vertical: boolean,
-  disabled: boolean,
-): void => {
-  const thumbs = [thumb0, thumb1].filter(Boolean) as HTMLElement[]
-  thumbs.forEach((thumb, i) => {
-    thumb.setAttribute('role', 'slider')
-    thumb.setAttribute('aria-valuemin', String(min))
-    thumb.setAttribute('aria-valuemax', String(max))
-    thumb.setAttribute('aria-orientation', vertical ? 'vertical' : 'horizontal')
-    if (disabled) {
-      thumb.setAttribute('aria-disabled', 'true')
-    } else {
-      thumb.removeAttribute('aria-disabled')
-    }
-    if (isRangeValue(value)) {
-      thumb.setAttribute('aria-valuenow', String(value[i]))
-    } else {
-      thumb.setAttribute('aria-valuenow', String(value))
-    }
-  })
-}
-
 export const Slider = Shade<SliderProps>({
   shadowDomName: 'shade-slider',
   css: {
@@ -615,10 +584,7 @@ export const Slider = Shade<SliderProps>({
       ...(hasLabels ? { 'data-has-labels': '' } : {}),
     })
 
-    // Set ARIA attributes on thumbs after render
-    queueMicrotask(() => {
-      syncAriaAttributes(thumb0Ref.current, thumb1Ref.current, value, min, max, vertical, disabled)
-    })
+    const orientation = vertical ? 'vertical' : 'horizontal'
 
     // Calculate positions
     const renderMarks = (activeCheck: (markValue: number) => boolean) =>
@@ -662,6 +628,12 @@ export const Slider = Shade<SliderProps>({
             data-index="0"
             tabIndex={disabled ? -1 : 0}
             style={thumbStartStyle}
+            role="slider"
+            aria-valuemin={String(min)}
+            aria-valuemax={String(max)}
+            aria-valuenow={String(value[0])}
+            aria-orientation={orientation}
+            aria-disabled={disabled ? 'true' : undefined}
           />
           <div
             ref={thumb1Ref}
@@ -669,6 +641,12 @@ export const Slider = Shade<SliderProps>({
             data-index="1"
             tabIndex={disabled ? -1 : 0}
             style={thumbEndStyle}
+            role="slider"
+            aria-valuemin={String(min)}
+            aria-valuemax={String(max)}
+            aria-valuenow={String(value[1])}
+            aria-orientation={orientation}
+            aria-disabled={disabled ? 'true' : undefined}
           />
           {renderMarks((v) => v >= value[0] && v <= value[1])}
         </div>
@@ -688,7 +666,19 @@ export const Slider = Shade<SliderProps>({
       <div ref={sliderRootRef} className="slider-root">
         <div className="slider-rail" />
         <div ref={trackRef} className="slider-track" style={trackStyle} />
-        <div ref={thumb0Ref} className="slider-thumb" data-index="0" tabIndex={disabled ? -1 : 0} style={thumbStyle} />
+        <div
+          ref={thumb0Ref}
+          className="slider-thumb"
+          data-index="0"
+          tabIndex={disabled ? -1 : 0}
+          style={thumbStyle}
+          role="slider"
+          aria-valuemin={String(min)}
+          aria-valuemax={String(max)}
+          aria-valuenow={String(value)}
+          aria-orientation={orientation}
+          aria-disabled={disabled ? 'true' : undefined}
+        />
         {renderMarks((v) => v <= value)}
         {props.name ? <input type="hidden" name={props.name} value={String(value)} /> : null}
       </div>

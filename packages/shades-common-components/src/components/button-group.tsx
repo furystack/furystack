@@ -19,6 +19,8 @@ export type ButtonGroupProps = PartialElement<HTMLElement> & {
   disabled?: boolean
 }
 
+const groupChildRadius = cssVariableTheme.shape.borderRadius.md
+
 export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => JSX.Element = Shade<ButtonGroupProps>({
   shadowDomName: 'shade-button-group',
   css: {
@@ -29,11 +31,34 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
     '&[data-orientation="vertical"]': {
       flexDirection: 'column',
     },
+
+    // Uses [role][data-orientation] for specificity (0,2,1) to override
+    // child Button CSS at (0,1,1)
+    '&[role][data-orientation] > *': {
+      margin: '0',
+      borderRadius: '0',
+    },
+
+    '&[role]:not([data-orientation="vertical"]) > :first-child': {
+      borderRadius: `${groupChildRadius} 0 0 ${groupChildRadius}`,
+    },
+    '&[role]:not([data-orientation="vertical"]) > :last-child': {
+      borderRadius: `0 ${groupChildRadius} ${groupChildRadius} 0`,
+    },
+
+    '&[role][data-orientation="vertical"] > :first-child': {
+      borderRadius: `${groupChildRadius} ${groupChildRadius} 0 0`,
+    },
+    '&[role][data-orientation="vertical"] > :last-child': {
+      borderRadius: `0 0 ${groupChildRadius} ${groupChildRadius}`,
+    },
+
+    '&[role][data-orientation] > :only-child': {
+      borderRadius: groupChildRadius,
+    },
   },
-  render: ({ props, children, useHostProps, useRef }) => {
+  render: ({ props, children, useHostProps }) => {
     const { orientation = 'horizontal', disabled, variant, color, style } = props
-    const radius = cssVariableTheme.shape.borderRadius.md
-    const wrapperRef = useRef<HTMLDivElement>('wrapper')
 
     useHostProps({
       role: 'group',
@@ -44,40 +69,7 @@ export const ButtonGroup: (props: ButtonGroupProps, children: ChildrenList) => J
       ...(style ? { style: style as Record<string, string> } : {}),
     })
 
-    // Apply inline styles to child elements so they appear joined.
-    // Inline styles are needed because child Button components have their
-    // own scoped CSS for margin and borderRadius that can't be overridden
-    // from the parent's stylesheet alone.
-    requestAnimationFrame(() => {
-      const childElements = Array.from(wrapperRef.current?.children ?? []) as HTMLElement[]
-      const isVertical = orientation === 'vertical'
-
-      childElements.forEach((child, index) => {
-        child.style.margin = '0'
-
-        if (childElements.length === 1) {
-          child.style.borderRadius = radius
-          return
-        }
-
-        const isFirst = index === 0
-        const isLast = index === childElements.length - 1
-
-        if (isFirst) {
-          child.style.borderRadius = isVertical ? `${radius} ${radius} 0 0` : `${radius} 0 0 ${radius}`
-        } else if (isLast) {
-          child.style.borderRadius = isVertical ? `0 0 ${radius} ${radius}` : `0 ${radius} ${radius} 0`
-        } else {
-          child.style.borderRadius = '0'
-        }
-      })
-    })
-
-    return (
-      <div ref={wrapperRef} style={{ display: 'contents' }}>
-        {children}
-      </div>
-    )
+    return <>{children}</>
   },
 })
 
@@ -449,7 +441,7 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
           role="radio"
           aria-checked={isSelected ? 'true' : 'false'}
           data-value={option.value}
-          data-selected={isSelected ? '' : undefined}
+          {...(isSelected ? { 'data-selected': '' } : {})}
           onclick={() => {
             if (!isDisabled && value !== option.value) {
               onValueChange?.(option.value)
