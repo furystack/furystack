@@ -8,6 +8,7 @@ import {
   Input,
   Modal,
   showParallax,
+  Typography,
   Wizard,
 } from '@furystack/shades-common-components'
 
@@ -15,7 +16,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
   shadowDomName: 'wizard-step',
 
   render: ({ props, children, useObservable, injector, useRef }) => {
-    const h1Ref = useRef<HTMLHeadingElement>('h1')
+    const h1Ref = useRef<HTMLElement>('h1')
     const contentRef = useRef<HTMLDivElement>('content')
     const actionsRef = useRef<HTMLDivElement>('actions')
     const formRef = useRef<HTMLFormElement>('form')
@@ -62,9 +63,9 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
           ...getResponsiveStyles(isLargeScreenInitial),
         }}
       >
-        <h1 ref={h1Ref} style={{ opacity: '0' }}>
+        <Typography variant="h3" ref={h1Ref} style={{ opacity: '0' }}>
           {props.title}
-        </h1>
+        </Typography>
         <div
           ref={contentRef}
           style={{ opacity: '0', flexShrink: '1', overflow: 'auto', padding: '0 .1em' }}
@@ -115,7 +116,9 @@ export const Step1 = Shade<WizardStepProps>({
     return (
       <WizardStep title="Step 1" {...props}>
         <div ref={wrapperRef}>
-          <p>Welcome in the Wizard Component Demo. Please enter your name and click on the "Next" button to continue</p>
+          <Typography variant="body1">
+            Welcome in the Wizard Component Demo. Please enter your name and click on the "Next" button to continue
+          </Typography>
           <Input
             labelTitle="Name"
             required
@@ -143,19 +146,21 @@ export const Step2 = Shade<WizardStepProps>({
   render: ({ props }) => {
     return (
       <WizardStep title="Step 2" {...props}>
-        <p>
+        <Typography variant="body1">
           This is the second step. You can go back or forward by clicking on the navigation buttons. You can also close
           with clicking on the background
-        </p>
-        <p>
+        </Typography>
+        <Typography variant="body1">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
           magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
           consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
           pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
           est laborum.
-        </p>
-        <h2>Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC</h2>
-        <p>
+        </Typography>
+        <Typography variant="h5">
+          Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
+        </Typography>
+        <Typography variant="body1">
           Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem
           aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
           Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni
@@ -165,7 +170,7 @@ export const Step2 = Shade<WizardStepProps>({
           laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
           voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla
           pariatur?"
-        </p>
+        </Typography>
       </WizardStep>
     )
   },
@@ -176,7 +181,7 @@ export const Step3 = Shade<WizardStepProps>({
   render: ({ props }) => {
     return (
       <WizardStep title="Step 3" {...props}>
-        <p>All Done, click on Finish to close the Wizard</p>
+        <Typography variant="body1">All Done, click on Finish to close the Wizard</Typography>
       </WizardStep>
     )
   },

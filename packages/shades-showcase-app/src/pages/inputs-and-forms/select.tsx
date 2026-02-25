@@ -1,6 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { SelectOptionGroup } from '@furystack/shades-common-components'
-import { Icon, icons, PageContainer, PageHeader, Paper, Select } from '@furystack/shades-common-components'
+import { Icon, icons, PageContainer, PageHeader, Paper, Select, Typography } from '@furystack/shades-common-components'
 
 const fruitOptions = [
   { value: 'apple', label: 'Apple' },
@@ -85,11 +85,13 @@ export const SelectPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
-          <h2 style={{ marginTop: '0' }}>Single Select</h2>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
+            Single Select
+          </Typography>
           <div style={{ display: 'flex', gap: '32px' }}>
             {([undefined, 'outlined', 'contained'] as const).map((variant) => (
               <div style={{ flex: '1' }}>
-                <h3>{variant || 'default'}</h3>
+                <Typography variant="h6">{variant || 'default'}</Typography>
                 <Select
                   variant={variant}
                   labelTitle="Fruit"
@@ -159,14 +161,16 @@ export const SelectPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
-          <h2 style={{ marginTop: '0' }}>Multi-Select</h2>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
+            Multi-Select
+          </Typography>
           <div style={{ opacity: '0.7', marginTop: '0', marginBottom: '16px', fontSize: '0.9rem' }}>
             Use mode="multiple" to allow selecting multiple options. Selected values are shown as chips.
           </div>
           <div style={{ display: 'flex', gap: '32px' }}>
             {([undefined, 'outlined', 'contained'] as const).map((variant) => (
               <div style={{ flex: '1' }}>
-                <h3>{variant || 'default'}</h3>
+                <Typography variant="h6">{variant || 'default'}</Typography>
                 <Select
                   variant={variant}
                   labelTitle="Favorite Fruits"
@@ -192,7 +196,9 @@ export const SelectPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
-          <h2 style={{ marginTop: '0' }}>Searchable Select</h2>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
+            Searchable Select
+          </Typography>
           <div style={{ opacity: '0.7', marginTop: '0', marginBottom: '16px', fontSize: '0.9rem' }}>
             Use showSearch to add a search/filter input inside the dropdown. Filters options in real-time.
           </div>
@@ -236,7 +242,9 @@ export const SelectPage = Shade({
         </Paper>
 
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h2 style={{ marginTop: '0' }}>Option Groups</h2>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
+            Option Groups
+          </Typography>
           <div style={{ opacity: '0.7', marginTop: '0', marginBottom: '16px', fontSize: '0.9rem' }}>
             Use optionGroups to organize options under labeled headers.
           </div>

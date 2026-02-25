@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import { Icon, icons, Input, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const StoredStatePage = Shade({
   shadowDomName: 'shades-stored-state-page',
@@ -14,10 +14,10 @@ export const StoredStatePage = Shade({
           description="Demonstrates useStoredState hook that persists component state to sessionStorage."
         />
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <p>
+          <Typography variant="body1">
             Stored state change ({renderCount})
             <Input placeholder="Search" value={searchValue} onTextChange={setSearchValue} />
-          </p>
+          </Typography>
         </Paper>
       </PageContainer>
     )

@@ -6,10 +6,15 @@ export const Paper = Shade<{ elevation?: 0 | 1 | 2 | 3 }>({
   elementBase: HTMLDivElement,
   elementBaseName: 'div',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     borderRadius: cssVariableTheme.shape.borderRadius.md,
     padding: cssVariableTheme.spacing.md,
-    backgroundColor: cssVariableTheme.background.paper,
+    background: cssVariableTheme.background.paper,
+    backgroundImage: cssVariableTheme.background.paperImage,
     color: cssVariableTheme.text.primary,
+    borderStyle: 'solid',
+    borderWidth: cssVariableTheme.shape.borderWidth,
+    borderColor: `${cssVariableTheme.action.subtleBorder} ${cssVariableTheme.divider} ${cssVariableTheme.divider} ${cssVariableTheme.action.subtleBorder}`,
     '&[data-elevation="0"]': {
       boxShadow: cssVariableTheme.shadows.none,
     },

@@ -89,6 +89,7 @@ export const PageLayout = Shade<PageLayoutProps>({
   shadowDomName: 'shade-page-layout',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'fixed',
     top: '0',
     left: '0',
@@ -131,6 +132,7 @@ export const PageLayout = Shade<PageLayoutProps>({
       zIndex: cssVariableTheme.zIndex.drawer,
       overflow: 'hidden',
       background: cssVariableTheme.background.paper,
+      backgroundImage: cssVariableTheme.background.paperImage,
       transition: `transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
     '& .page-layout-drawer-left': {

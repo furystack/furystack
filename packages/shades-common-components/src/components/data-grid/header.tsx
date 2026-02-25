@@ -5,6 +5,7 @@ import type { ObservableValue } from '@furystack/utils'
 import { ToggleButton } from '../button-group.js'
 import { arrowDown, arrowUp, arrowUpDown, filter as filterIcon } from '../icons/icon-definitions.js'
 import { Icon } from '../icons/icon.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { ColumnFilterConfig, FilterableFindOptions } from './data-grid.js'
 import { BooleanFilter } from './filters/boolean-filter.js'
 import { DateFilter } from './filters/date-filter.js'
@@ -127,6 +128,7 @@ export const DataGridHeader: <T, Column extends string>(
   shadowDomName: 'data-grid-header',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     '& .header-content': {
       display: 'flex',

@@ -19,7 +19,7 @@ test.describe('Markdown', () => {
     await content.waitFor({ state: 'visible' })
 
     // Verify headings are rendered
-    const heading = content.locator('shade-markdown-display shade-typography[data-variant="h1"]').first()
+    const heading = content.locator('shade-markdown-display [is^="shade-typography"][data-variant="h1"]').first()
     await expect(heading).toBeVisible()
     await expect(heading).toContainText('Markdown Components')
 

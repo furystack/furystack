@@ -1,6 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Paper } from '../paper.js'
+import { Typography } from '../typography.js'
 
 /**
  * Props for the PageHeader component.
@@ -58,6 +59,7 @@ export const PageHeader = Shade<PageHeaderProps>({
   shadowDomName: 'shade-page-header',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'sticky',
     top: '0',
     zIndex: `calc(${cssVariableTheme.zIndex.drawer} - 1)`,
@@ -76,21 +78,10 @@ export const PageHeader = Shade<PageHeaderProps>({
 
     '& .page-header-title': {
       margin: '0',
-      fontSize: cssVariableTheme.typography.fontSize.xl,
-      fontWeight: cssVariableTheme.typography.fontWeight.semibold,
-      lineHeight: cssVariableTheme.typography.lineHeight.tight,
-      color: cssVariableTheme.text.primary,
     },
 
     '& .page-header-icon': {
       marginRight: cssVariableTheme.spacing.sm,
-    },
-
-    '& .page-header-description': {
-      margin: `${cssVariableTheme.spacing.sm} 0 0 0`,
-      fontSize: cssVariableTheme.typography.fontSize.md,
-      lineHeight: cssVariableTheme.typography.lineHeight.normal,
-      color: cssVariableTheme.text.secondary,
     },
 
     '& .page-header-actions': {
@@ -106,14 +97,31 @@ export const PageHeader = Shade<PageHeaderProps>({
     return (
       <Paper elevation={2} className="page-header-container">
         <div className="page-header-content">
-          <h2 className="page-header-title" data-testid="page-header-title">
+          <Typography
+            variant="h4"
+            className="page-header-title"
+            data-testid="page-header-title"
+            style={{
+              margin: '0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: cssVariableTheme.spacing.sm,
+              lineHeight: '100%',
+            }}
+          >
             {icon && <span className="page-header-icon">{icon}</span>}
             {title}
-          </h2>
+          </Typography>
           {description && (
-            <p className="page-header-description" data-testid="page-header-description">
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              className="page-header-description"
+              data-testid="page-header-description"
+              style={{ margin: '0', marginTop: cssVariableTheme.spacing.md }}
+            >
               {description}
-            </p>
+            </Typography>
           )}
         </div>
         {actions && (

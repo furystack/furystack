@@ -124,6 +124,7 @@ export const DataGrid: <T, Column extends string>(
   shadowDomName: 'shade-data-grid',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',
     height: '100%',
     overflow: 'auto',

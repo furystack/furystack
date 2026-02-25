@@ -1,5 +1,15 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Button, Form, Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Button,
+  Form,
+  Icon,
+  icons,
+  Input,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 import { MicroFrontend } from '@furystack/shades-mfe'
 
 const importerService = async () => {
@@ -26,7 +36,7 @@ export const MFEPage = Shade({
         />
         <Paper elevation={3}>
           <Paper>
-            <p>Add Client</p>
+            <Typography variant="body1">Add Client</Typography>
             <Form
               onSubmit={(formData) => {
                 setMfeClients([
@@ -70,8 +80,8 @@ export const MFEPage = Shade({
                 loader={<Paper>Loading...</Paper>}
                 error={(error, retry) => (
                   <Paper>
-                    <h1>Error</h1>
-                    <p>{error}</p>
+                    <Typography variant="h4">Error</Typography>
+                    <Typography variant="body1">{error}</Typography>
                     <Button onclick={retry}>Retry</Button>
                   </Paper>
                 )}

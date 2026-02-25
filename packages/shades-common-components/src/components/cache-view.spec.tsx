@@ -102,7 +102,10 @@ describe('CacheView', () => {
       const resultComponent = resultEl as JSX.Element
       resultComponent.updateComponent()
       await flushUpdates()
-      expect(resultComponent.querySelector('.result-title')?.textContent).toBe('Something went wrong')
+      const titleEl = resultComponent.querySelector('.result-title') as JSX.Element
+      titleEl.updateComponent()
+      await flushUpdates()
+      expect(titleEl?.textContent).toBe('Something went wrong')
       cache[Symbol.dispose]()
     })
 

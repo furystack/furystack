@@ -5,6 +5,7 @@ import { SegmentedControl } from '../../button-group.js'
 import { Icon } from '../../icons/icon.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
 import type { FilterableFindOptions } from '../data-grid.js'
+import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import { filterBaseCss, filterInputCss } from './filter-styles.js'
 
 type StringOperator = '$regex' | '$startsWith' | '$endsWith' | '$eq'
@@ -24,6 +25,7 @@ export const StringFilter = Shade<{
   shadowDomName: 'data-grid-string-filter',
   css: {
     ...filterBaseCss,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& input': filterInputCss,
   },
   render: ({ props, useObservable, useState }) => {

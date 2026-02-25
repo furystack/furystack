@@ -1,6 +1,10 @@
 import { defaultPalette } from './default-palette.js'
-import type { Theme } from './theme-provider-service.js'
+import type { Theme } from '../services/theme-provider-service.js'
 
+/**
+ * Default light theme with neutral colors and system font stack.
+ * Uses the standard Material-style palette on a light (#fafafa) background.
+ */
 export const defaultLightTheme = {
   name: 'default-light-theme',
   palette: defaultPalette,
@@ -19,6 +23,7 @@ export const defaultLightTheme = {
   background: {
     default: '#fafafa',
     paper: '#fff',
+    paperImage: 'none',
   },
   divider: 'rgba(0, 0, 0, 0.12)',
   action: {
@@ -38,6 +43,7 @@ export const defaultLightTheme = {
       lg: '12px',
       full: '50%',
     },
+    borderWidth: '0px',
   },
   shadows: {
     none: 'none',

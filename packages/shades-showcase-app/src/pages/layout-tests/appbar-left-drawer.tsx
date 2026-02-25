@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Icon, icons, PageContainer, PageHeader, PageLayout, Paper } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  PageLayout,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 /**
  * Test page: AppBar with left drawer
@@ -44,8 +52,8 @@ export const AppBarLeftDrawerTest = Shade({
                 color: 'white',
               }}
             >
-              <h3>Left Drawer (Blue)</h3>
-              <p>Width: 200px</p>
+              <Typography variant="h6">Left Drawer (Blue)</Typography>
+              <Typography variant="body2">Width: 200px</Typography>
             </div>
           ),
         },
@@ -60,7 +68,9 @@ export const AppBarLeftDrawerTest = Shade({
       >
         <PageHeader icon={<Icon icon={icons.chevronLeft} />} title="AppBar + Left Drawer" />
         <Paper>
-          <p>This test page shows a layout with AppBar, left drawer, and content area.</p>
+          <Typography variant="body1">
+            This test page shows a layout with AppBar, left drawer, and content area.
+          </Typography>
         </Paper>
       </PageContainer>
     </PageLayout>

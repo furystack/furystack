@@ -8,6 +8,7 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
   Shade<{ manager: SuggestManager<any> }>({
     shadowDomName: 'shade-suggest-suggestion-list',
     css: {
+      fontFamily: cssVariableTheme.typography.fontFamily,
       '& .suggestion-items-container': {
         borderTop: 'none',
         position: 'absolute',
@@ -17,7 +18,8 @@ export const SuggestionList: <T>(props: { manager: SuggestManager<T> }, children
         overflow: 'hidden',
         zIndex: '1',
         left: 'auto',
-        backgroundColor: cssVariableTheme.background.paper,
+        background: cssVariableTheme.background.paper,
+        backgroundImage: cssVariableTheme.background.paperImage,
         color: cssVariableTheme.text.secondary,
         boxShadow: cssVariableTheme.shadows.lg,
         backdropFilter: `blur(${cssVariableTheme.effects.blurXl})`,

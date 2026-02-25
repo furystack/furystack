@@ -358,6 +358,7 @@ export const Image = Shade<ImageProps>({
   shadowDomName: 'shade-image',
   css: {
     display: 'inline-block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     overflow: 'hidden',
     borderRadius: cssVariableTheme.shape.borderRadius.sm,

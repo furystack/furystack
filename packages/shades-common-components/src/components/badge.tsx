@@ -28,6 +28,7 @@ export const Badge = Shade<BadgeProps>({
   shadowDomName: 'shade-badge',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     verticalAlign: 'middle',
     flexShrink: '0',
@@ -48,7 +49,7 @@ export const Badge = Shade<BadgeProps>({
       minWidth: '20px',
       height: '20px',
       padding: `0 ${cssVariableTheme.spacing.xs}`,
-      borderRadius: cssVariableTheme.shape.borderRadius.lg,
+      borderRadius: cssVariableTheme.shape.borderRadius.full,
       background: 'var(--badge-color-main)',
       color: 'var(--badge-color-contrast)',
       boxSizing: 'border-box',

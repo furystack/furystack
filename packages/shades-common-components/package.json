@@ -10,6 +10,10 @@
     ".": {
       "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
+    },
+    "./themes/*": {
+      "types": "./esm/themes/*-theme.d.ts",
+      "import": "./esm/themes/*-theme.js"
     }
   },
   "files": [

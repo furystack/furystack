@@ -847,9 +847,7 @@ describe('Select', () => {
         trigger.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
         await flushUpdates()
 
-        // Focus handler sets data-focused on the inner container div (selectRootRef), not the host
-        const innerContainer = select.querySelector('div') as HTMLElement
-        expect(innerContainer.hasAttribute('data-focused')).toBe(true)
+        expect(select.hasAttribute('data-focused')).toBe(true)
       })
     })
 
@@ -858,12 +856,11 @@ describe('Select', () => {
         const trigger = select.querySelector('.select-trigger') as HTMLElement
         trigger.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
         await flushUpdates()
-        const innerContainer = select.querySelector('div') as HTMLElement
-        expect(innerContainer.hasAttribute('data-focused')).toBe(true)
+        expect(select.hasAttribute('data-focused')).toBe(true)
 
         trigger.dispatchEvent(new FocusEvent('blur', { bubbles: true }))
         await flushUpdates()
-        expect(innerContainer.hasAttribute('data-focused')).toBe(false)
+        expect(select.hasAttribute('data-focused')).toBe(false)
       })
     })
   })

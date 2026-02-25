@@ -6,6 +6,7 @@ import { close as closeIcon, search as searchIcon } from '../../icons/icon-defin
 import { Icon } from '../../icons/icon.js'
 import { Checkbox } from '../../inputs/checkbox.js'
 import type { FilterableFindOptions } from '../data-grid.js'
+import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import { filterBaseCss } from './filter-styles.js'
 
 type EnumMode = 'include' | 'exclude'
@@ -19,6 +20,7 @@ export const EnumFilter = Shade<{
   shadowDomName: 'data-grid-enum-filter',
   css: {
     ...filterBaseCss,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .filter-mode': {
       marginBottom: '8px',
     },

@@ -1,4 +1,4 @@
-import type { Palette } from './theme-provider-service.js'
+import type { Palette } from '../services/theme-provider-service.js'
 
 /**
  * Default color palette with semantic colors for the application.

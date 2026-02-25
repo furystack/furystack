@@ -1,6 +1,15 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { IconDefinition } from '@furystack/shades-common-components'
-import { Icon, icons, PageContainer, PageHeader, Paper, Tree, TreeService } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Tree,
+  TreeService,
+  Typography,
+} from '@furystack/shades-common-components'
 
 type FileNode = { name: string; icon: IconDefinition; children?: FileNode[] }
 const fileTree: FileNode[] = [
@@ -53,10 +62,10 @@ export const TreePage = Shade({
           description="Hierarchical tree view with keyboard navigation and expand/collapse."
         />
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <h3>File system tree</h3>
-          <p style={{ marginBottom: '8px', opacity: '0.7' }}>
+          <Typography variant="h6">File system tree</Typography>
+          <Typography variant="body2" color="textSecondary" style={{ marginBottom: '8px' }}>
             Arrow Right/Left to expand/collapse, Up/Down to navigate, Space to select
-          </p>
+          </Typography>
           <div style={{ maxHeight: '300px', border: '1px solid rgba(128,128,128,0.3)', borderRadius: '6px' }}>
             <Tree<FileNode>
               rootItems={fileTree}

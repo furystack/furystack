@@ -13,6 +13,7 @@ export const TextArea = Shade<TextAreaProps>({
   shadowDomName: 'shade-text-area',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     marginBottom: '1em',
     '& label': {
       display: 'flex',

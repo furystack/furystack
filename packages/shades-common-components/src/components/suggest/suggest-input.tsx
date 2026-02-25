@@ -6,6 +6,7 @@ export const SuggestInput = Shade<{ manager: SuggestManager<any> }>({
   shadowDomName: 'shades-suggest-input',
   css: {
     width: '100%',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     overflow: 'hidden',
     '& input': {
       color: cssVariableTheme.text.primary,

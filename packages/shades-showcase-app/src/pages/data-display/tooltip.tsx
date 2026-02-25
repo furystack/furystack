@@ -8,6 +8,7 @@ import {
   PageHeader,
   Paper,
   Tooltip,
+  Typography,
 } from '@furystack/shades-common-components'
 
 export const TooltipPage = Shade({
@@ -22,7 +23,9 @@ export const TooltipPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <h3 style={{ margin: '0' }}>Basic</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Basic
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Tooltip title="This is a tooltip">
               <span style={{ cursor: 'default', textDecoration: 'underline dotted', textUnderlineOffset: '4px' }}>
@@ -39,7 +42,9 @@ export const TooltipPage = Shade({
             </Tooltip>
           </div>
 
-          <h3 style={{ margin: '0' }}>Placement</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Placement
+          </Typography>
           <div
             style={{
               display: 'flex',
@@ -64,7 +69,9 @@ export const TooltipPage = Shade({
             </Tooltip>
           </div>
 
-          <h3 style={{ margin: '0' }}>With delay</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            With delay
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Tooltip title="No delay (default)">
               <Button variant="outlined">No delay</Button>
@@ -80,7 +87,9 @@ export const TooltipPage = Shade({
             </Tooltip>
           </div>
 
-          <h3 style={{ margin: '0' }}>Disabled</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Disabled
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Tooltip title="You won't see this" disabled>
               <Button variant="outlined">Disabled tooltip</Button>
@@ -90,10 +99,12 @@ export const TooltipPage = Shade({
             </Tooltip>
           </div>
 
-          <h3 style={{ margin: '0' }}>On focusable elements</h3>
-          <p style={{ margin: '0', fontSize: '14px', opacity: '0.7' }}>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            On focusable elements
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ margin: '0' }}>
             Tooltips also appear when the trigger element receives focus (try tabbing to these buttons).
-          </p>
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Tooltip title="Focused via keyboard" placement="bottom">
               <Button variant="contained" color="primary">

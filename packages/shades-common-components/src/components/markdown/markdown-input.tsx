@@ -44,6 +44,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
   shadowDomName: 'shade-markdown-input',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     marginBottom: '1em',
 
     '& label': {

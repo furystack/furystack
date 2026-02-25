@@ -80,6 +80,7 @@ export const Select = Shade<SelectProps>({
   shadowDomName: 'shade-select',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     position: 'relative',
     marginBottom: '1.25em',
 
@@ -383,6 +384,8 @@ export const Select = Shade<SelectProps>({
     }
 
     const [state, setState] = useState<SelectState>('selectState', initialState)
+    const [isFocused, setIsFocused] = useState('isFocused', false)
+    const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('dropdownDirection', 'down')
 
     const validationResult = props.getValidationResult?.({ state })
 
@@ -392,7 +395,7 @@ export const Select = Shade<SelectProps>({
       'data-disabled': props.disabled ? '' : undefined,
       'data-multiple': isMultiple ? '' : undefined,
       'data-open': state.isOpen && !props.disabled ? '' : undefined,
-      'data-focused': state.isOpen && !props.disabled ? '' : undefined,
+      'data-focused': (state.isOpen || isFocused) && !props.disabled ? '' : undefined,
       'data-invalid': validationResult?.isValid === false ? '' : undefined,
       style: {
         '--select-primary-color': primaryColor,
@@ -564,16 +567,14 @@ export const Select = Shade<SelectProps>({
           }
         }
 
-        if (dropdownRef.current) {
-          const rect = selectRootRef.current?.getBoundingClientRect() ?? new DOMRect()
+        const rect = selectRootRef.current?.getBoundingClientRect()
+        const dropdownHeight = dropdownRef.current?.scrollHeight ?? 0
+        if (rect && dropdownHeight) {
           const spaceBelow = window.innerHeight - rect.bottom
-          const dropdownHeight = dropdownRef.current.scrollHeight
           const spaceAbove = rect.top
-
-          if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-            dropdownRef.current.setAttribute('data-direction', 'up')
-          } else {
-            dropdownRef.current.removeAttribute('data-direction')
+          const newDirection = spaceBelow < dropdownHeight && spaceAbove > spaceBelow ? 'up' : 'down'
+          if (newDirection !== dropdownDirection) {
+            setDropdownDirection(newDirection)
           }
         }
       })
@@ -721,14 +722,10 @@ export const Select = Shade<SelectProps>({
             }}
             onkeydown={handleKeyDown}
             onfocus={() => {
-              if (!props.disabled) {
-                selectRootRef.current?.setAttribute('data-focused', '')
-              }
+              if (!props.disabled) setIsFocused(true)
             }}
             onblur={() => {
-              if (!state.isOpen) {
-                selectRootRef.current?.removeAttribute('data-focused')
-              }
+              setIsFocused(false)
             }}
           >
             {renderSelectedValues()}
@@ -750,6 +747,7 @@ export const Select = Shade<SelectProps>({
               className="dropdown"
               role="listbox"
               aria-multiselectable={isMultiple ? 'true' : undefined}
+              data-direction={dropdownDirection === 'up' ? 'up' : undefined}
             >
               {props.showSearch ? (
                 <li role="presentation">

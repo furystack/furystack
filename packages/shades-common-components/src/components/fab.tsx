@@ -14,6 +14,7 @@ export const Fab = Shade<FabProps>({
   elementBaseName: 'button',
   css: {
     position: 'fixed',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     bottom: cssVariableTheme.spacing.xl,
     right: cssVariableTheme.spacing.xl,
     background: 'var(--fab-color-main)',

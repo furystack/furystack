@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Form, Paper } from '@furystack/shades-common-components'
+import { Form, Paper, Typography } from '@furystack/shades-common-components'
 import { createShadesMicroFrontend } from '@furystack/shades-mfe'
 
 type Api = {
@@ -15,7 +15,7 @@ const Component = Shade<Api>({
     const { title } = props
     return (
       <Paper elevation={3}>
-        <h1>{title}</h1>
+        <Typography variant="h4">{title}</Typography>
         <div
           style={{
             height: '600px',

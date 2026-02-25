@@ -24,6 +24,7 @@ export const DataGridRow: <T, Column extends string>(
   shadowDomName: 'shades-data-grid-row',
   css: {
     display: 'table-row',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     cursor: 'default',
     userSelect: 'none',
     transition: buildTransition(

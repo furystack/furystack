@@ -1,5 +1,6 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import { Icon } from '../icons/icon.js'
 import { close } from '../icons/icon-definitions.js'
@@ -43,6 +44,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
   shadowDomName: 'shade-suggest',
   css: {
     ...searchableInputStyles,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .suggest-wrapper': {
       display: 'flex',
       flexDirection: 'column',

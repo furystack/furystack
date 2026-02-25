@@ -133,7 +133,7 @@ describe('MarkdownEditor', () => {
       expect(textarea.value).toBe(mdContent)
 
       const heading = document.querySelector(
-        'shade-markdown-editor shade-markdown-display shade-typography[data-variant="h1"]',
+        'shade-markdown-editor shade-markdown-display [is^="shade-typography"][data-variant="h1"]',
       )
       expect(heading).not.toBeNull()
       expect(heading?.textContent).toContain('Test Content')

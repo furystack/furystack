@@ -1,6 +1,7 @@
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { DataGridRow } from './data-grid-row.js'
 import type { DataRowCells } from './data-grid.js'
 
@@ -28,6 +29,7 @@ export const DataGridBody: <T, Column extends string>(
   elementBaseName: 'tbody',
   css: {
     display: 'table-row-group',
+    fontFamily: cssVariableTheme.typography.fontFamily,
   },
   render: ({ props, useObservable }) => {
     const [data] = useObservable('data', props.service.data)

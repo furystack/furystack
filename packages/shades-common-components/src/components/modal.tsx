@@ -1,4 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 
 export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>
@@ -11,6 +12,7 @@ export type ModalProps = {
 export const Modal = Shade<ModalProps>({
   shadowDomName: 'shade-modal',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .shade-backdrop': {
       width: '100%',
       height: '100%',

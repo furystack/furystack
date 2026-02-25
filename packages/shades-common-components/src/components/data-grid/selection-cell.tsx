@@ -6,6 +6,7 @@ export const SelectionCell = Shade<{ entry: any; service: CollectionService<any>
   shadowDomName: 'shades-data-grid-selection-cell',
   css: {
     display: 'inline-flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
     justifyContent: 'center',
     '& input[type="checkbox"]': {

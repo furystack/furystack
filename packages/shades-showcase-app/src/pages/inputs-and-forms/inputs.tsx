@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Autocomplete, Icon, icons, Input, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Autocomplete,
+  Icon,
+  icons,
+  Input,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
   shadowDomName: 'inputs-page',
@@ -15,7 +24,7 @@ export const InputsPage = Shade({
           <div style={{ display: 'flex', gap: '32px' }}>
             {([undefined, 'outlined', 'contained'] as const).map((variant) => (
               <div>
-                <h3>{variant || 'default'}</h3>
+                <Typography variant="h6">{variant || 'default'}</Typography>
                 <Input
                   variant={variant}
                   labelTitle="Input Field"

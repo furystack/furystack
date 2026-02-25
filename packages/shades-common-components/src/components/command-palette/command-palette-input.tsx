@@ -35,6 +35,7 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
   shadowDomName: 'shades-command-palette-input',
   css: {
     width: '0%',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     overflow: 'hidden',
     '&[data-opened]': {
       width: '100%',

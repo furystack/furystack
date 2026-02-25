@@ -122,7 +122,7 @@ export const MarkdownDisplay = Shade<MarkdownDisplayProps>({
 
     '& .md-code-block': {
       fontFamily: 'monospace',
-      backgroundColor: cssVariableTheme.background.default,
+      background: cssVariableTheme.background.default,
       border: `1px solid ${cssVariableTheme.action.subtleBorder}`,
       borderRadius: cssVariableTheme.shape.borderRadius.md,
       padding: cssVariableTheme.spacing.md,

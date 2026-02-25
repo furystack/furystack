@@ -44,7 +44,7 @@ export type PageContainerProps = {
  * ```tsx
  * // Full width container
  * <PageContainer gap="16px">
- *   <h2>Dashboard</h2>
+ *   <Typography variant="h4">Dashboard</Typography>
  *   <GridOfCards />
  * </PageContainer>
  * ```
@@ -55,6 +55,7 @@ export const PageContainer = Shade<PageContainerProps>({
   elementBaseName: 'div',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     flexDirection: 'column',
     boxSizing: 'border-box',
     color: cssVariableTheme.text.primary,

@@ -1,5 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Icon, icons, PageContainer, PageHeader, Paper, Radio, RadioGroup } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Radio,
+  RadioGroup,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const RadioPage = Shade({
   shadowDomName: 'radio-page',
@@ -16,7 +25,9 @@ export const RadioPage = Shade({
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Paper elevation={3} style={{ padding: '32px' }}>
-            <h3 style={{ marginTop: '0' }}>Basic Radio Buttons</h3>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
+              Basic Radio Buttons
+            </Typography>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <Radio value="standalone1" name="standalone" labelTitle="Option A" checked />
               <Radio value="standalone2" name="standalone" labelTitle="Option B" />
@@ -25,7 +36,9 @@ export const RadioPage = Shade({
           </Paper>
 
           <Paper elevation={3} style={{ padding: '32px' }}>
-            <h3 style={{ marginTop: '0' }}>RadioGroup (Vertical)</h3>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
+              RadioGroup (Vertical)
+            </Typography>
             <div style={{ display: 'flex', gap: '48px' }}>
               <RadioGroup
                 name="color-group"
@@ -46,7 +59,9 @@ export const RadioPage = Shade({
           </Paper>
 
           <Paper elevation={3} style={{ padding: '32px' }}>
-            <h3 style={{ marginTop: '0' }}>RadioGroup (Horizontal)</h3>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
+              RadioGroup (Horizontal)
+            </Typography>
             <div style={{ display: 'flex', gap: '48px' }}>
               <RadioGroup
                 name="size-group"
@@ -66,7 +81,9 @@ export const RadioPage = Shade({
           </Paper>
 
           <Paper elevation={3} style={{ padding: '32px' }}>
-            <h3 style={{ marginTop: '0' }}>Palette Colors</h3>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
+              Palette Colors
+            </Typography>
             <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
               {(['primary', 'secondary', 'error', 'warning', 'success', 'info'] as const).map((color) => (
                 <Radio value={color} name="colors" labelTitle={color} color={color} checked={color === 'primary'} />
@@ -75,7 +92,9 @@ export const RadioPage = Shade({
           </Paper>
 
           <Paper elevation={3} style={{ padding: '32px' }}>
-            <h3 style={{ marginTop: '0' }}>Disabled State</h3>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
+              Disabled State
+            </Typography>
             <div style={{ display: 'flex', gap: '32px' }}>
               <RadioGroup name="disabled-group" labelTitle="Disabled Group" disabled defaultValue="opt1">
                 <Radio value="opt1" labelTitle="Disabled checked" />

@@ -1,5 +1,13 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { Checkbox, Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import {
+  Checkbox,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 export const CheckboxesPage = Shade({
   shadowDomName: 'checkboxes-page',
@@ -15,7 +23,9 @@ export const CheckboxesPage = Shade({
         />
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <h3 style={{ margin: '0 0 12px 0' }}>Basic</h3>
+            <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
+              Basic
+            </Typography>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               <Checkbox labelTitle="Unchecked" disabled={state.isDisabled} />
               <Checkbox labelTitle="Checked" checked disabled={state.isDisabled} />
@@ -24,7 +34,9 @@ export const CheckboxesPage = Shade({
           </div>
 
           <div>
-            <h3 style={{ margin: '0 0 12px 0' }}>Colors</h3>
+            <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
+              Colors
+            </Typography>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               <Checkbox labelTitle="Primary" color="primary" checked disabled={state.isDisabled} />
               <Checkbox labelTitle="Secondary" color="secondary" checked disabled={state.isDisabled} />
@@ -36,7 +48,9 @@ export const CheckboxesPage = Shade({
           </div>
 
           <div>
-            <h3 style={{ margin: '0 0 12px 0' }}>Disabled</h3>
+            <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
+              Disabled
+            </Typography>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               <Checkbox labelTitle="Disabled unchecked" disabled />
               <Checkbox labelTitle="Disabled checked" checked disabled />
@@ -45,7 +59,9 @@ export const CheckboxesPage = Shade({
           </div>
 
           <div>
-            <h3 style={{ margin: '0 0 12px 0' }}>Without labels</h3>
+            <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
+              Without labels
+            </Typography>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <Checkbox disabled={state.isDisabled} />
               <Checkbox checked disabled={state.isDisabled} />

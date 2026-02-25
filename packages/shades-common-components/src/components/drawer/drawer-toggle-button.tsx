@@ -23,7 +23,7 @@ export type DrawerToggleButtonProps = {
  * // In AppBar
  * <AppBar>
  *   <DrawerToggleButton position="left" />
- *   <h1>My App</h1>
+ *   <Typography variant="h3">My App</Typography>
  * </AppBar>
  *
  * // With custom aria-label
@@ -37,6 +37,7 @@ export const DrawerToggleButton = Shade<DrawerToggleButtonProps>({
   shadowDomName: 'shade-drawer-toggle-button',
   css: {
     display: 'inline-block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
 
     '& button': {
       display: 'flex',

@@ -1,5 +1,5 @@
 import { createComponent, NestedRouteLink, Shade } from '@furystack/shades'
-import { AppBar, cssVariableTheme, PageLayout } from '@furystack/shades-common-components'
+import { AppBar, cssVariableTheme, PageLayout, Typography } from '@furystack/shades-common-components'
 
 /**
  * Index page for layout tests - lists all available test pages
@@ -78,17 +78,19 @@ export const LayoutTestsIndex = Shade({
                 <span style={{ fontSize: '20px' }}>←</span>
                 <span>Back to Showcase App</span>
               </NestedRouteLink>
-              <h3 style={{ margin: '0', flex: '1' }}>Layout Test Pages</h3>
+              <Typography variant="h6" style={{ margin: '0', flex: '1' }}>
+                Layout Test Pages
+              </Typography>
             </AppBar>
           ),
         }}
         topGap="16px"
       >
         <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
-          <p style={{ color: cssVariableTheme.text.secondary, marginBottom: '24px' }}>
+          <Typography variant="body1" color="textSecondary" style={{ marginBottom: '24px' }}>
             These test pages are designed for E2E visual regression testing. Each page demonstrates a different
             PageLayout configuration with colored backgrounds to make layout boundaries visible.
-          </p>
+          </Typography>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {testPages.map((page) => (

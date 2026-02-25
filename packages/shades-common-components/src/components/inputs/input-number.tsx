@@ -127,6 +127,7 @@ export const InputNumber = Shade<InputNumberProps>({
   shadowDomName: 'shade-input-number',
   css: {
     display: 'block',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     marginBottom: '1.25em',
 
     '& label': {

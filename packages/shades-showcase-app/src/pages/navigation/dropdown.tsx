@@ -66,7 +66,9 @@ const BasicDropdownDemo = Shade({
           </Dropdown>
         </div>
         {lastSelected && (
-          <p style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>Last selected: {lastSelected}</p>
+          <Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
+            Last selected: {lastSelected}
+          </Typography>
         )}
       </div>
     )

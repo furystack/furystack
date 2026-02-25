@@ -1,6 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
 import type { Palette } from '@furystack/shades-common-components'
-import { Icon, icons, PageContainer, PageHeader, Pagination, Paper } from '@furystack/shades-common-components'
+import {
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Pagination,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
@@ -25,12 +33,16 @@ export const PaginationPage = Shade({
         />
 
         <Paper elevation={3} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <h3 style={{ margin: '0' }}>Basic</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Basic
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
             <Pagination count={10} page={state.basicPage} onPageChange={(p) => setState({ ...state, basicPage: p })} />
           </div>
 
-          <h3 style={{ margin: '0' }}>Colors</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Colors
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {paletteColors.map((color) => (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -50,7 +62,9 @@ export const PaginationPage = Shade({
             ))}
           </div>
 
-          <h3 style={{ margin: '0' }}>Sizes</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Sizes
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ minWidth: '60px' }}>Small</span>
@@ -83,7 +97,9 @@ export const PaginationPage = Shade({
             </div>
           </div>
 
-          <h3 style={{ margin: '0' }}>Sibling & boundary count</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Sibling & boundary count
+          </Typography>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ minWidth: '180px' }}>siblingCount=0</span>
@@ -117,7 +133,9 @@ export const PaginationPage = Shade({
             </div>
           </div>
 
-          <h3 style={{ margin: '0' }}>Disabled</h3>
+          <Typography variant="h6" style={{ margin: '0' }}>
+            Disabled
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
             <Pagination count={10} page={3} onPageChange={() => {}} disabled color="primary" />
           </div>

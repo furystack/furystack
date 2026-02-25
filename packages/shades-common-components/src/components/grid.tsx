@@ -31,6 +31,7 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
     shadowDomName: 'shade-grid',
     css: {
       display: 'block',
+      fontFamily: cssVariableTheme.typography.fontFamily,
       width: '100%',
       height: '100%',
       overflow: 'auto',
@@ -41,7 +42,8 @@ export const Grid: <T, Column extends string>(props: GridProps<T, Column>, child
       },
       '& th': {
         padding: '1em 1.2em',
-        backgroundColor: cssVariableTheme.background.paper,
+        background: cssVariableTheme.background.paper,
+        backgroundImage: cssVariableTheme.background.paperImage,
         color: cssVariableTheme.text.secondary,
         borderRadius: cssVariableTheme.shape.borderRadius.xs,
         top: '0',

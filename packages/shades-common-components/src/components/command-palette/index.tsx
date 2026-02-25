@@ -1,5 +1,6 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Icon } from '../icons/icon.js'
 import { close } from '../icons/icon-definitions.js'
 import { Loader } from '../loader.js'
@@ -25,6 +26,7 @@ export const CommandPalette = Shade<CommandPaletteProps>({
   shadowDomName: 'shade-command-palette',
   css: {
     ...searchableInputStyles,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& .command-palette-wrapper': {
       display: 'flex',
       flexDirection: 'column',

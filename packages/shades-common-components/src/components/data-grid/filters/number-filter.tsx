@@ -5,6 +5,7 @@ import { SegmentedControl } from '../../button-group.js'
 import { Icon } from '../../icons/icon.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
 import type { FilterableFindOptions } from '../data-grid.js'
+import { cssVariableTheme } from '../../../services/css-variable-theme.js'
 import { filterBaseCss, filterInputCss } from './filter-styles.js'
 
 type NumberOperator = '$eq' | '$gt' | '$gte' | '$lt' | '$lte'
@@ -25,6 +26,7 @@ export const NumberFilter = Shade<{
   shadowDomName: 'data-grid-number-filter',
   css: {
     ...filterBaseCss,
+    fontFamily: cssVariableTheme.typography.fontFamily,
     '& input': filterInputCss,
   },
   render: ({ props, useObservable, useState }) => {

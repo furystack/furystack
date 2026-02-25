@@ -15,6 +15,7 @@ export const Divider = Shade<DividerProps>({
   shadowDomName: 'shade-divider',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
     margin: '0',
     border: 'none',

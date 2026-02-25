@@ -74,6 +74,7 @@ export const Tabs = Shade<{
 }>({
   shadowDomName: 'shade-tabs',
   css: {
+    fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',
     height: '100%',
     display: 'flex',

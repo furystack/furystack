@@ -70,6 +70,7 @@ export const Button = Shade<ButtonProps>({
   elementBaseName: 'button',
   css: {
     // Base styles (layout, typography)
+    fontFamily: cssVariableTheme.typography.fontFamily,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',

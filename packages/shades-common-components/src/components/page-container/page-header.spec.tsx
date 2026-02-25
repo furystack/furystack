@@ -48,7 +48,7 @@ describe('PageHeader component', () => {
       })
     })
 
-    it('should render the title as h2', async () => {
+    it('should render the title as Typography with h4 variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -60,7 +60,8 @@ describe('PageHeader component', () => {
 
         await flushUpdates()
         const title = document.querySelector('[data-testid="page-header-title"]')
-        expect(title?.tagName.toLowerCase()).toBe('h2')
+        expect(title?.getAttribute('is')).toBe('shade-typography-h4')
+        expect(title?.getAttribute('data-variant')).toBe('h4')
       })
     })
   })
@@ -151,7 +152,7 @@ describe('PageHeader component', () => {
       })
     })
 
-    it('should render description as p element', async () => {
+    it('should render description as Typography with body1 variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -163,7 +164,8 @@ describe('PageHeader component', () => {
 
         await flushUpdates()
         const description = document.querySelector('[data-testid="page-header-description"]')
-        expect(description?.tagName.toLowerCase()).toBe('p')
+        expect(description?.getAttribute('is')).toBe('shade-typography-p')
+        expect(description?.getAttribute('data-variant')).toBe('body1')
       })
     })
   })

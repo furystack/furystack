@@ -26,6 +26,7 @@ export const Tooltip = Shade<TooltipProps>({
   shadowDomName: 'shade-tooltip',
   css: {
     position: 'relative',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     display: 'inline-flex',
 
     '& .tooltip-popup': {

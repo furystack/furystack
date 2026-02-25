@@ -23,6 +23,7 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
   shadowDomName: 'shade-tree-item',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     alignItems: 'center',
     cursor: 'default',
     userSelect: 'none',

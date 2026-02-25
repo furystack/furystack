@@ -35,6 +35,7 @@ export const MarkdownEditor = Shade<MarkdownEditorProps>({
   shadowDomName: 'shade-markdown-editor',
   css: {
     display: 'flex',
+    fontFamily: cssVariableTheme.typography.fontFamily,
     flexDirection: 'column',
     minHeight: '0',
 
