@@ -214,6 +214,204 @@ import { Fab } from '@furystack/shades-common-components'
 ;<Fab onclick={() => console.log('FAB clicked')}>+</Fab>
 ```
 
+### Typography
+
+A text component that renders semantic HTML elements (`h1`–`h6`, `p`, `span`) based on the `variant` prop.
+
+```tsx
+import { Typography } from '@furystack/shades-common-components'
+
+// Heading
+<Typography variant="h1">Page Title</Typography>
+
+// Body text (default variant is 'body1')
+<Typography>Regular paragraph text</Typography>
+
+// With color
+<Typography variant="h3" color="primary">Primary Heading</Typography>
+<Typography color="textSecondary">Secondary text</Typography>
+
+// Truncated with ellipsis (single line)
+<Typography ellipsis>This text will be truncated if it overflows...</Typography>
+
+// Multi-line clamp
+<Typography ellipsis={3}>This text will be clamped to 3 lines...</Typography>
+
+// Copyable
+<Typography copyable>Click the icon to copy this text</Typography>
+
+// Alignment and gutter
+<Typography align="center" gutterBottom>Centered with bottom margin</Typography>
+```
+
+**Variants:** `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `subtitle1`, `subtitle2`, `body1`, `body2`, `caption`, `overline`
+
+**Colors:** Any palette key (`primary`, `secondary`, `error`, `warning`, `success`, `info`) or `textPrimary`, `textSecondary`, `textDisabled`
+
+## Theming
+
+The component library includes a CSS-variable-based theming system with runtime theme switching.
+
+### Available Themes
+
+Two default themes are included in the main entry point:
+
+| Theme         | Export              | Description                   |
+| ------------- | ------------------- | ----------------------------- |
+| Default Light | `defaultLightTheme` | Light theme with system fonts |
+| Default Dark  | `defaultDarkTheme`  | Dark theme with system fonts  |
+
+11 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
+
+| Theme         | Import Path                                                | Inspiration              |
+| ------------- | ---------------------------------------------------------- | ------------------------ |
+| Architect     | `@furystack/shades-common-components/themes/architect`     | The Matrix               |
+| Auditore      | `@furystack/shades-common-components/themes/auditore`      | Assassin's Creed         |
+| Chieftain     | `@furystack/shades-common-components/themes/chieftain`     | Warcraft 1 Orc faction   |
+| Dragonborn    | `@furystack/shades-common-components/themes/dragonborn`    | Skyrim                   |
+| Neon Runner   | `@furystack/shades-common-components/themes/neon-runner`   | Cyberpunk                |
+| Paladin       | `@furystack/shades-common-components/themes/paladin`       | Warcraft 1 Human faction |
+| Plumber       | `@furystack/shades-common-components/themes/plumber`       | Super Mario              |
+| Replicant     | `@furystack/shades-common-components/themes/replicant`     | Blade Runner             |
+| Sandworm      | `@furystack/shades-common-components/themes/sandworm`      | Dune                     |
+| Shadow Broker | `@furystack/shades-common-components/themes/shadow-broker` | Mass Effect              |
+| Vault Dweller | `@furystack/shades-common-components/themes/vault-dweller` | Fallout                  |
+
+### Applying a Theme
+
+Use `useThemeCssVariables` to set CSS variables on `:root`:
+
+```tsx
+import { useThemeCssVariables, defaultLightTheme } from '@furystack/shades-common-components'
+
+// Apply on startup
+useThemeCssVariables(defaultLightTheme)
+```
+
+For reactive theme switching through the injector, use `ThemeProviderService`:
+
+```tsx
+import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
+
+const themeProvider = injector.getInstance(ThemeProviderService)
+themeProvider.setAssignedTheme(defaultDarkTheme)
+
+// Listen for changes
+themeProvider.subscribe('themeChanged', (theme) => {
+  console.log('Theme changed:', theme.name)
+})
+```
+
+Deep-imported themes can be loaded lazily:
+
+```tsx
+const { architectTheme } = await import('@furystack/shades-common-components/themes/architect')
+themeProvider.setAssignedTheme(architectTheme)
+```
+
+### Theme Structure
+
+A `Theme` object contains design tokens for the entire UI:
+
+- **`palette`** — Semantic colors (`primary`, `secondary`, `error`, `warning`, `success`, `info`) each with `light`/`main`/`dark` variants and contrast colors
+- **`text`** — Text colors at `primary`, `secondary`, and `disabled` emphasis levels
+- **`background`** — Surface colors (`default`, `paper`) and an optional `paperImage`
+- **`button`** — Button state colors (active, hover, selected, disabled)
+- **`typography`** — Font family, size scale, weight scale, line heights, and letter spacing
+- **`spacing`** — Spacing scale (`xs` through `xl`)
+- **`shape`** — Border radius scale and border width
+- **`shadows`** — Elevation presets (`none`, `sm`, `md`, `lg`, `xl`)
+- **`transitions`** — Duration and easing presets
+- **`action`** — Interactive state colors (hover, selected, focus ring, backdrop)
+- **`zIndex`** — Stacking layers (drawer, appBar, modal, tooltip, dropdown)
+- **`effects`** — Blur values for glassy surfaces
+
+### CSS Variable System
+
+All components reference tokens through `cssVariableTheme`, which resolves to CSS custom properties (e.g. `var(--shades-theme-text-primary)`). When you call `useThemeCssVariables(theme)`, the actual theme values are written to `:root`, and all components update automatically.
+
+```tsx
+import { cssVariableTheme, buildTransition } from '@furystack/shades-common-components'
+
+// Use tokens in component styles
+const style = {
+  color: cssVariableTheme.text.primary,
+  background: cssVariableTheme.background.paper,
+  borderRadius: cssVariableTheme.shape.borderRadius.md,
+  transition: buildTransition([
+    'background',
+    cssVariableTheme.transitions.duration.normal,
+    cssVariableTheme.transitions.easing.default,
+  ]),
+}
+```
+
+### Creating a Custom Theme
+
+Define a palette and a theme object satisfying the `Theme` interface:
+
+```tsx
+import type { Palette, Theme } from '@furystack/shades-common-components'
+
+const myPalette: Palette = {
+  primary: {
+    light: '#6ec6ff',
+    lightContrast: '#000',
+    main: '#2196f3',
+    mainContrast: '#fff',
+    dark: '#0069c0',
+    darkContrast: '#fff',
+  },
+  secondary: {
+    light: '#ff79b0',
+    lightContrast: '#000',
+    main: '#ff4081',
+    mainContrast: '#fff',
+    dark: '#c60055',
+    darkContrast: '#fff',
+  },
+  error: {
+    light: '#ff6659',
+    lightContrast: '#000',
+    main: '#f44336',
+    mainContrast: '#fff',
+    dark: '#ba000d',
+    darkContrast: '#fff',
+  },
+  warning: {
+    light: '#ffb74d',
+    lightContrast: '#000',
+    main: '#ff9800',
+    mainContrast: '#000',
+    dark: '#f57c00',
+    darkContrast: '#fff',
+  },
+  success: {
+    light: '#81c784',
+    lightContrast: '#000',
+    main: '#4caf50',
+    mainContrast: '#fff',
+    dark: '#388e3c',
+    darkContrast: '#fff',
+  },
+  info: {
+    light: '#64b5f6',
+    lightContrast: '#000',
+    main: '#2196f3',
+    mainContrast: '#fff',
+    dark: '#1976d2',
+    darkContrast: '#fff',
+  },
+}
+
+const myTheme: Theme = {
+  name: 'my-theme',
+  palette: myPalette,
+  text: { primary: '#fff', secondary: 'rgba(255,255,255,0.7)', disabled: 'rgba(255,255,255,0.5)' },
+  // ... remaining tokens (see defaultLightTheme or defaultDarkTheme for a full reference)
+}
+```
+
 ## Services
 
 ### CollectionService
@@ -240,14 +438,24 @@ service.data.subscribe((items) => {
 
 ### ThemeProviderService
 
-Provides theming capabilities for all components.
+A singleton service for managing the active theme. It updates CSS variables and emits a `themeChanged` event so components can react to theme switches.
 
 ```tsx
-import { ThemeProviderService } from '@furystack/shades-common-components'
+import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
 
-// Get the theme provider instance from the injector
 const themeProvider = injector.getInstance(ThemeProviderService)
 
-// Access theme properties
+// Access the CSS-variable-based theme reference (for use in styles)
 const primaryColor = themeProvider.theme.palette.primary.main
+
+// Switch theme at runtime
+themeProvider.setAssignedTheme(defaultDarkTheme)
+
+// Read the currently assigned theme
+const current = themeProvider.getAssignedTheme()
+
+// Listen for theme changes
+themeProvider.subscribe('themeChanged', (theme) => {
+  console.log('Switched to', theme.name)
+})
 ```

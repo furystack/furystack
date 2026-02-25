@@ -1,6 +1,10 @@
 import { defaultDarkPalette } from './default-dark-palette.js'
 import type { Theme } from '../services/theme-provider-service.js'
 
+/**
+ * Default dark theme with neutral colors and system font stack.
+ * Uses the dark Material-style palette on a dark (#121212) background.
+ */
 export const defaultDarkTheme = {
   name: 'default-dark-theme',
   text: {

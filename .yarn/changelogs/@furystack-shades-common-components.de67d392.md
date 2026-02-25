@@ -20,16 +20,16 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-### 12 New Themes
+### 11 New Themes
 
 Added a collection of pop-culture-inspired themes, each with its own color palette and visual style:
 
 - `architectTheme` - Matrix-inspired with digital green on black, monospace typography, and a digital rain paper background
 - `auditoreTheme` - Assassin's Creed-inspired with warm historical tones
-- `chieftainTheme` - Star Trek Klingon-inspired with bold, aggressive styling
+- `chieftainTheme` - Warcraft 1 Orc-inspired with dark brown wood backgrounds and crimson accents
 - `dragonbornTheme` - Skyrim-inspired with nordic fantasy colors
 - `neonRunnerTheme` - Cyberpunk-inspired with neon accents on dark backgrounds
-- `paladinTheme` - Fantasy RPG-inspired with noble, bright tones
+- `paladinTheme` - Warcraft 1 Human-inspired with cold stone backgrounds and gold accents
 - `plumberTheme` - Mario-inspired with playful primary colors
 - `replicantTheme` - Blade Runner-inspired with noir cyberpunk aesthetics
 - `sandwormTheme` - Dune-inspired with desert earth tones
