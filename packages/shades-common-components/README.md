@@ -261,7 +261,7 @@ Two default themes are included in the main entry point:
 | Default Light | `defaultLightTheme` | Light theme with system fonts |
 | Default Dark  | `defaultDarkTheme`  | Dark theme with system fonts  |
 
-11 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
+12 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
 
 | Theme         | Import Path                                                | Inspiration              |
 | ------------- | ---------------------------------------------------------- | ------------------------ |
@@ -276,6 +276,7 @@ Two default themes are included in the main entry point:
 | Sandworm      | `@furystack/shades-common-components/themes/sandworm`      | Dune                     |
 | Shadow Broker | `@furystack/shades-common-components/themes/shadow-broker` | Mass Effect              |
 | Vault Dweller | `@furystack/shades-common-components/themes/vault-dweller` | Fallout                  |
+| Wild Hunt     | `@furystack/shades-common-components/themes/wild-hunt`     | The Witcher 3            |
 
 ### Applying a Theme
 

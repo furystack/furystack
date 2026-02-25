@@ -47,7 +47,8 @@ Object.assign(window, {
       | 'auditore'
       | 'replicant'
       | 'sandworm'
-      | 'architect',
+      | 'architect'
+      | 'wild-hunt',
   ) => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
@@ -121,6 +122,12 @@ Object.assign(window, {
         const { architectTheme } = await import('@furystack/shades-common-components/themes/architect')
         themeProvider.setAssignedTheme(architectTheme)
         console.log('There is no spoon.')
+        break
+      }
+      case 'wild-hunt': {
+        const { wildHuntTheme } = await import('@furystack/shades-common-components/themes/wild-hunt')
+        themeProvider.setAssignedTheme(wildHuntTheme)
+        console.log("Wind's howling.")
         break
       }
       default:

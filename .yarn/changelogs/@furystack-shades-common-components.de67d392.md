@@ -20,7 +20,7 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-### 11 New Themes
+### 12 New Themes
 
 Added a collection of pop-culture-inspired themes, each with its own color palette and visual style:
 
@@ -35,6 +35,7 @@ Added a collection of pop-culture-inspired themes, each with its own color palet
 - `sandwormTheme` - Dune-inspired with desert earth tones
 - `shadowBrokerTheme` - Mass Effect-inspired with sci-fi blue tones
 - `vaultDwellerTheme` - Fallout-inspired with retro-futuristic styling
+- `wildHuntTheme` - Witcher 3-inspired with silver-steel accents and crimson highlights on dark stormy backgrounds
 
 Each theme provides a full set of semantic palette colors (`primary`, `secondary`, `error`, `warning`, `success`, `info`) with `light`, `main`, `dark` variants and contrast colors.
 

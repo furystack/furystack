@@ -53,6 +53,7 @@ useTheme('replicant') // Blade Runner
 useTheme('sandworm') // Dune
 useTheme('shadow-broker') // Mass Effect
 useTheme('vault-dweller') // Fallout
+useTheme('wild-hunt') // The Witcher 3
 ```
 
 ## Running E2E Tests

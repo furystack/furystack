@@ -62,6 +62,10 @@
     "./themes/architect": {
       "types": "./esm/themes/architect-theme.d.ts",
       "import": "./esm/themes/architect-theme.js"
+    },
+    "./themes/wild-hunt": {
+      "types": "./esm/themes/wild-hunt-theme.d.ts",
+      "import": "./esm/themes/wild-hunt-theme.js"
     }
   },
   "files": [
