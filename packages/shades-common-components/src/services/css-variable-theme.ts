@@ -182,8 +182,23 @@ export const setCssVariable = (key: string, value: string, root: HTMLElement) =>
   root.style.setProperty(extractVarName(key), value)
 }
 
+export const removeCssVariable = (key: string, root: HTMLElement) => {
+  root.style.removeProperty(extractVarName(key))
+}
+
 export const getCssVariable = (key: string, root: HTMLElement = document.querySelector(':root') as HTMLElement) => {
   return getComputedStyle(root).getPropertyValue(extractVarName(key))
+}
+
+const removeValue = <T extends object>(target: T, root: HTMLElement) => {
+  const keys = Object.keys(target) as Array<keyof T>
+  keys.forEach((key) => {
+    if (typeof target[key] === 'object') {
+      removeValue(target[key] as object, root)
+    } else {
+      removeCssVariable(target[key] as string, root)
+    }
+  })
 }
 
 const assignValue = <T extends object>(
@@ -194,11 +209,14 @@ const assignValue = <T extends object>(
 ) => {
   const keys = Object.keys(target) as Array<keyof T>
   keys.forEach((key) => {
-    if (source[key] === undefined) {
-      return
-    }
-    if (typeof source[key] === 'object' && typeof target[key] === 'object') {
-      assignValue(target[key] as object, source[key] as object, root)
+    if (typeof target[key] === 'object') {
+      if (source[key] === undefined) {
+        removeValue(target[key] as object, root)
+      } else {
+        assignValue(target[key] as object, source[key] as object, root, assignFn)
+      }
+    } else if (source[key] === undefined) {
+      removeCssVariable(target[key] as string, root)
     } else {
       assignFn(target[key] as string, source[key] as string, root)
     }

@@ -3,6 +3,7 @@ import {
   buildTransition,
   cssVariableTheme,
   getCssVariable,
+  removeCssVariable,
   setCssVariable,
   useThemeCssVariables,
 } from './css-variable-theme.js'
@@ -120,6 +121,37 @@ describe('css-variable-theme', () => {
       setCssVariable('--test-value', 'first', testElement)
       setCssVariable('--test-value', 'second', testElement)
       expect(testElement.style.getPropertyValue('--test-value')).toBe('second')
+    })
+  })
+
+  describe('removeCssVariable', () => {
+    let testElement: HTMLElement
+
+    beforeEach(() => {
+      testElement = document.createElement('div')
+      document.body.appendChild(testElement)
+    })
+
+    afterEach(() => {
+      testElement.remove()
+    })
+
+    it('should remove a CSS variable from element', () => {
+      testElement.style.setProperty('--test-color', 'red')
+      expect(testElement.style.getPropertyValue('--test-color')).toBe('red')
+
+      removeCssVariable('--test-color', testElement)
+      expect(testElement.style.getPropertyValue('--test-color')).toBe('')
+    })
+
+    it('should handle var() wrapper in key name', () => {
+      testElement.style.setProperty('--test-padding', '10px')
+      removeCssVariable('var(--test-padding)', testElement)
+      expect(testElement.style.getPropertyValue('--test-padding')).toBe('')
+    })
+
+    it('should not throw when removing a non-existent variable', () => {
+      expect(() => removeCssVariable('--non-existent', testElement)).not.toThrow()
     })
   })
 
@@ -262,6 +294,81 @@ describe('css-variable-theme', () => {
       })
 
       expect(root.style.getPropertyValue('--shades-theme-text-primary')).toBe('#bbb')
+    })
+
+    it('should remove stale CSS variables not present in the new theme', () => {
+      useThemeCssVariables({
+        text: {
+          primary: '#fff',
+          secondary: '#ccc',
+          disabled: '#999',
+        },
+        background: {
+          default: '#000',
+          paper: '#111',
+          paperImage: 'url(texture.png)',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-text-primary')).toBe('#fff')
+      expect(root.style.getPropertyValue('--shades-theme-text-secondary')).toBe('#ccc')
+      expect(root.style.getPropertyValue('--shades-theme-background-paper-image')).toBe('url(texture.png)')
+
+      useThemeCssVariables({
+        text: {
+          primary: '#eee',
+        },
+        background: {
+          default: '#000',
+          paper: '#222',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-text-primary')).toBe('#eee')
+      expect(root.style.getPropertyValue('--shades-theme-text-secondary')).toBe('')
+      expect(root.style.getPropertyValue('--shades-theme-text-disabled')).toBe('')
+      expect(root.style.getPropertyValue('--shades-theme-background-default')).toBe('#000')
+      expect(root.style.getPropertyValue('--shades-theme-background-paper')).toBe('#222')
+      expect(root.style.getPropertyValue('--shades-theme-background-paper-image')).toBe('')
+    })
+
+    it('should remove all nested CSS variables when a whole section is omitted', () => {
+      useThemeCssVariables({
+        palette: {
+          primary: {
+            light: '#aaa',
+            lightContrast: '#000',
+            main: '#bbb',
+            mainContrast: '#000',
+            dark: '#ccc',
+            darkContrast: '#fff',
+          },
+        },
+        spacing: {
+          xs: '4px',
+          sm: '8px',
+          md: '16px',
+          lg: '24px',
+          xl: '32px',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-palette-primary-main')).toBe('#bbb')
+      expect(root.style.getPropertyValue('--shades-theme-spacing-md')).toBe('16px')
+
+      useThemeCssVariables({
+        spacing: {
+          xs: '2px',
+          sm: '4px',
+          md: '8px',
+          lg: '16px',
+          xl: '24px',
+        },
+      })
+
+      expect(root.style.getPropertyValue('--shades-theme-palette-primary-main')).toBe('')
+      expect(root.style.getPropertyValue('--shades-theme-palette-primary-light')).toBe('')
+      expect(root.style.getPropertyValue('--shades-theme-spacing-md')).toBe('8px')
     })
 
     it('should set action CSS variables from theme', () => {
