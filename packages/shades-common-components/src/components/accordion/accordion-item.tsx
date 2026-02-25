@@ -157,30 +157,23 @@ export const AccordionItem = Shade<AccordionItemProps>({
       }
     }
 
-    const headerEl = (
-      <div
-        className="accordion-header"
-        role="button"
-        tabIndex={props.disabled ? -1 : 0}
-        onclick={handleToggle}
-        onkeydown={handleKeyDown}
-      >
-        {props.icon ? <span className="accordion-icon">{props.icon}</span> : null}
-        <span className="accordion-title">{props.title}</span>
-        <span className="accordion-chevron">
-          <Icon icon={chevronDown} size={16} />
-        </span>
-      </div>
-    ) as unknown as HTMLDivElement
-
-    headerEl.setAttribute('aria-expanded', String(isExpanded))
-    if (props.disabled) {
-      headerEl.setAttribute('data-disabled', '')
-    }
-
     return (
       <>
-        {headerEl}
+        <div
+          className="accordion-header"
+          role="button"
+          tabIndex={props.disabled ? -1 : 0}
+          onclick={handleToggle}
+          onkeydown={handleKeyDown}
+          aria-expanded={String(isExpanded)}
+          data-disabled={props.disabled ? '' : undefined}
+        >
+          {props.icon ? <span className="accordion-icon">{props.icon}</span> : null}
+          <span className="accordion-title">{props.title}</span>
+          <span className="accordion-chevron">
+            <Icon icon={chevronDown} size={16} />
+          </span>
+        </div>
         <div
           ref={contentRef}
           className="accordion-content"
