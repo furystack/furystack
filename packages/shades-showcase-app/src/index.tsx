@@ -48,7 +48,8 @@ Object.assign(window, {
       | 'replicant'
       | 'sandworm'
       | 'architect'
-      | 'wild-hunt',
+      | 'wild-hunt'
+      | 'black-mesa',
   ) => {
     const themeProvider = shadesInjector.getInstance(ThemeProviderService)
     switch (themeName) {
@@ -128,6 +129,12 @@ Object.assign(window, {
         const { wildHuntTheme } = await import('@furystack/shades-common-components/themes/wild-hunt')
         themeProvider.setAssignedTheme(wildHuntTheme)
         console.log("Wind's howling.")
+        break
+      }
+      case 'black-mesa': {
+        const { blackMesaTheme } = await import('@furystack/shades-common-components/themes/black-mesa')
+        themeProvider.setAssignedTheme(blackMesaTheme)
+        console.log('Rise and shine, Mr. Freeman. Rise and shine.')
         break
       }
       default:

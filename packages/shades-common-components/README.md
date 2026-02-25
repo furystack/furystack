@@ -261,12 +261,13 @@ Two default themes are included in the main entry point:
 | Default Light | `defaultLightTheme` | Light theme with system fonts |
 | Default Dark  | `defaultDarkTheme`  | Dark theme with system fonts  |
 
-12 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
+13 additional pop-culture-inspired themes are available as deep imports for tree-shaking:
 
 | Theme         | Import Path                                                | Inspiration              |
 | ------------- | ---------------------------------------------------------- | ------------------------ |
 | Architect     | `@furystack/shades-common-components/themes/architect`     | The Matrix               |
 | Auditore      | `@furystack/shades-common-components/themes/auditore`      | Assassin's Creed         |
+| Black Mesa    | `@furystack/shades-common-components/themes/black-mesa`    | Half-Life                |
 | Chieftain     | `@furystack/shades-common-components/themes/chieftain`     | Warcraft 1 Orc faction   |
 | Dragonborn    | `@furystack/shades-common-components/themes/dragonborn`    | Skyrim                   |
 | Neon Runner   | `@furystack/shades-common-components/themes/neon-runner`   | Cyberpunk                |

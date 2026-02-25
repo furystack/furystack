@@ -66,6 +66,10 @@
     "./themes/wild-hunt": {
       "types": "./esm/themes/wild-hunt-theme.d.ts",
       "import": "./esm/themes/wild-hunt-theme.js"
+    },
+    "./themes/black-mesa": {
+      "types": "./esm/themes/black-mesa-theme.d.ts",
+      "import": "./esm/themes/black-mesa-theme.js"
     }
   },
   "files": [
