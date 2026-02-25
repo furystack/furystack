@@ -43,7 +43,7 @@ describe('Result', () => {
     await flushUpdates()
     const titleEl = result.querySelector('.result-title')
     expect(titleEl).not.toBeNull()
-    expect(titleEl?.tagName.toLowerCase()).toBe('shade-typography')
+    expect(titleEl?.getAttribute('is')).toMatch(/^shade-typography-/)
   })
 
   it('should render the subtitle when provided', async () => {
@@ -57,7 +57,7 @@ describe('Result', () => {
     await flushUpdates()
     const subtitleEl = result.querySelector('.result-subtitle')
     expect(subtitleEl).not.toBeNull()
-    expect(subtitleEl?.tagName.toLowerCase()).toBe('shade-typography')
+    expect(subtitleEl?.getAttribute('is')).toMatch(/^shade-typography-/)
   })
 
   it('should not render the subtitle when not provided', async () => {

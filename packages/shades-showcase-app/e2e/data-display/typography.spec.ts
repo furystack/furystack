@@ -26,7 +26,7 @@ test.describe('Typography', () => {
       'overline',
     ]
     for (const variant of variantLabels) {
-      const el = content.locator(`shade-typography[data-variant="${variant}"]`).first()
+      const el = content.locator(`[is^="shade-typography"][data-variant="${variant}"]`).first()
       await expect(el).toBeVisible()
     }
 
@@ -40,11 +40,11 @@ test.describe('Typography', () => {
     // Verify ellipsis sections
     const singleLineHeading = content.getByRole('heading', { name: 'Ellipsis (single line)' })
     await expect(singleLineHeading).toBeVisible()
-    await expect(content.locator('shade-typography[data-ellipsis="true"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-ellipsis="true"]')).toBeVisible()
 
     const multiLineHeading = content.getByRole('heading', { name: /Ellipsis.*multi-line/ })
     await expect(multiLineHeading).toBeVisible()
-    await expect(content.locator('shade-typography[data-ellipsis="multiline"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-ellipsis="multiline"]')).toBeVisible()
 
     // Verify copyable text with copy buttons
     const copyableHeading = content.getByRole('heading', { name: 'Copyable', exact: true })
@@ -56,10 +56,10 @@ test.describe('Typography', () => {
     // Verify alignment variants
     const alignHeading = content.getByRole('heading', { name: 'Alignment' })
     await expect(alignHeading).toBeVisible()
-    await expect(content.locator('shade-typography[data-align="left"]')).toBeVisible()
-    await expect(content.locator('shade-typography[data-align="center"]')).toBeVisible()
-    await expect(content.locator('shade-typography[data-align="right"]')).toBeVisible()
-    await expect(content.locator('shade-typography[data-align="justify"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-align="left"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-align="center"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-align="right"]')).toBeVisible()
+    await expect(content.locator('[is^="shade-typography"][data-align="justify"]')).toBeVisible()
 
     await expect(content).toHaveScreenshot('typography-page.png')
   })

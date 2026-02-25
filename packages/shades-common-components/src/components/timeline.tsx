@@ -192,8 +192,16 @@ export const Timeline = Shade<TimelineProps>({
 
     const items = (Array.isArray(children) ? children.flat() : children ? [children] : []) as JSX.Element[]
 
+    const isLastItem = (index: number) => index === items.length - 1 && !pending
+
     items.forEach((child, index) => {
       if (child && typeof child === 'object' && 'setAttribute' in child) {
+        if (isLastItem(index)) {
+          child.setAttribute('data-last', '')
+        } else {
+          child.removeAttribute('data-last')
+        }
+
         if (mode === 'right') {
           child.setAttribute('data-side', 'right')
         } else if (mode === 'alternate') {

@@ -25,16 +25,17 @@ describe('Typography', () => {
     await flushUpdates()
     return {
       injector,
-      element: root.querySelector('shade-typography') as HTMLElement,
+      element: root.querySelector('[is^="shade-typography"]') as HTMLElement,
       [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
 
   describe('rendering', () => {
-    it('should render a shade-typography element', async () => {
+    it('should render a customized built-in element', async () => {
       await usingAsync(await renderTypography(), async ({ element }) => {
         expect(element).toBeTruthy()
-        expect(element.tagName.toLowerCase()).toBe('shade-typography')
+        expect(element.tagName.toLowerCase()).toBe('p')
+        expect(element.getAttribute('is')).toBe('shade-typography-p')
       })
     })
 
@@ -51,11 +52,11 @@ describe('Typography', () => {
     const subtitleVariants: TypographyVariant[] = ['subtitle1', 'subtitle2']
     const inlineVariants: TypographyVariant[] = ['caption', 'overline']
 
-    it('should default to body1 variant', async () => {
+    it('should default to body1 variant with p tag', async () => {
       await usingAsync(await renderTypography(), async ({ element }) => {
         expect(element.getAttribute('data-variant')).toBe('body1')
-        const inner = element.querySelector('.typo-inner')
-        expect(inner?.tagName.toLowerCase()).toBe('p')
+        expect(element.tagName.toLowerCase()).toBe('p')
+        expect(element.getAttribute('is')).toBe('shade-typography-p')
       })
     })
 
@@ -63,8 +64,8 @@ describe('Typography', () => {
       it(`should render ${variant} tag for variant="${variant}"`, async () => {
         await usingAsync(await renderTypography({ variant }), async ({ element }) => {
           expect(element.getAttribute('data-variant')).toBe(variant)
-          const inner = element.querySelector('.typo-inner')
-          expect(inner?.tagName.toLowerCase()).toBe(variant)
+          expect(element.tagName.toLowerCase()).toBe(variant)
+          expect(element.getAttribute('is')).toBe(`shade-typography-${variant}`)
         })
       })
     })
@@ -72,8 +73,8 @@ describe('Typography', () => {
     bodyVariants.forEach((variant) => {
       it(`should render p tag for variant="${variant}"`, async () => {
         await usingAsync(await renderTypography({ variant }), async ({ element }) => {
-          const inner = element.querySelector('.typo-inner')
-          expect(inner?.tagName.toLowerCase()).toBe('p')
+          expect(element.tagName.toLowerCase()).toBe('p')
+          expect(element.getAttribute('is')).toBe('shade-typography-p')
         })
       })
     })
@@ -81,8 +82,8 @@ describe('Typography', () => {
     subtitleVariants.forEach((variant) => {
       it(`should render h6 tag for variant="${variant}"`, async () => {
         await usingAsync(await renderTypography({ variant }), async ({ element }) => {
-          const inner = element.querySelector('.typo-inner')
-          expect(inner?.tagName.toLowerCase()).toBe('h6')
+          expect(element.tagName.toLowerCase()).toBe('h6')
+          expect(element.getAttribute('is')).toBe('shade-typography-h6')
         })
       })
     })
@@ -90,8 +91,8 @@ describe('Typography', () => {
     inlineVariants.forEach((variant) => {
       it(`should render span tag for variant="${variant}"`, async () => {
         await usingAsync(await renderTypography({ variant }), async ({ element }) => {
-          const inner = element.querySelector('.typo-inner')
-          expect(inner?.tagName.toLowerCase()).toBe('span')
+          expect(element.tagName.toLowerCase()).toBe('span')
+          expect(element.getAttribute('is')).toBe('shade-typography-span')
         })
       })
     })
@@ -139,8 +140,7 @@ describe('Typography', () => {
     it('should set data-ellipsis="multiline" for numeric ellipsis', async () => {
       await usingAsync(await renderTypography({ ellipsis: 3 }), async ({ element }) => {
         expect(element.getAttribute('data-ellipsis')).toBe('multiline')
-        const inner = element.querySelector('.typo-inner') as HTMLElement
-        expect(inner.style.webkitLineClamp).toBe('3')
+        expect(element.style.webkitLineClamp).toBe('3')
       })
     })
 

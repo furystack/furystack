@@ -60,7 +60,7 @@ describe('PageHeader component', () => {
 
         await flushUpdates()
         const title = document.querySelector('[data-testid="page-header-title"]')
-        expect(title?.tagName.toLowerCase()).toBe('shade-typography')
+        expect(title?.getAttribute('is')).toBe('shade-typography-h4')
         expect(title?.getAttribute('data-variant')).toBe('h4')
       })
     })
@@ -164,7 +164,7 @@ describe('PageHeader component', () => {
 
         await flushUpdates()
         const description = document.querySelector('[data-testid="page-header-description"]')
-        expect(description?.tagName.toLowerCase()).toBe('shade-typography')
+        expect(description?.getAttribute('is')).toBe('shade-typography-p')
         expect(description?.getAttribute('data-variant')).toBe('body1')
       })
     })

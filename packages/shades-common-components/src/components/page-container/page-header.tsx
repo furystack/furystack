@@ -105,7 +105,13 @@ export const PageHeader = Shade<PageHeaderProps>({
             variant="h4"
             className="page-header-title"
             data-testid="page-header-title"
-            style={{ margin: '0' }}
+            style={{
+              margin: '0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: cssVariableTheme.spacing.sm,
+              lineHeight: '100%',
+            }}
           >
             {icon && <span className="page-header-icon">{icon}</span>}
             {title}
@@ -116,7 +122,7 @@ export const PageHeader = Shade<PageHeaderProps>({
               color="textSecondary"
               className="page-header-description"
               data-testid="page-header-description"
-              style={{ margin: '0' }}
+              style={{ margin: '0', marginTop: cssVariableTheme.spacing.md }}
             >
               {description}
             </Typography>

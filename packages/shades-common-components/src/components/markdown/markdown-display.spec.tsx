@@ -43,7 +43,7 @@ describe('MarkdownDisplay', () => {
 
       await flushUpdates()
 
-      const typography = document.querySelector('shade-markdown-display shade-typography')
+      const typography = document.querySelector('shade-markdown-display [is^="shade-typography"]')
       expect(typography).not.toBeNull()
       expect(typography?.getAttribute('data-variant')).toBe('h1')
       expect(typography?.textContent).toContain('Hello World')
@@ -62,7 +62,7 @@ describe('MarkdownDisplay', () => {
 
       await flushUpdates()
 
-      const typography = document.querySelector('shade-markdown-display shade-typography[data-variant="body1"]')
+      const typography = document.querySelector('shade-markdown-display [is^="shade-typography"][data-variant="body1"]')
       expect(typography).not.toBeNull()
       expect(typography?.textContent).toContain('Just a paragraph.')
     })

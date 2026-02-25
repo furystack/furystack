@@ -1,4 +1,4 @@
-import type { PartialElement } from '@furystack/shades'
+import type { ChildrenList, PartialElement, RenderOptions } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
@@ -176,130 +176,140 @@ const colorToVar = (color: TypographyColor): string => {
   return paletteMainColors[color].main
 }
 
-const variantToTag = (variant: TypographyVariant): string => {
-  if (variant.startsWith('h')) return variant
+type TypographyTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span'
+
+const variantToTag = (variant: TypographyVariant): TypographyTag => {
+  if (variant.startsWith('h')) return variant as TypographyTag
   if (variant === 'subtitle1' || variant === 'subtitle2') return 'h6'
   if (variant === 'body1' || variant === 'body2') return 'p'
   return 'span'
+}
+
+const typographyCss = {
+  display: 'block',
+  margin: '0',
+  padding: '0',
+  fontFamily: cssVariableTheme.typography.fontFamily,
+  color: 'var(--typo-color)',
+
+  ...buildVariantCssRules(),
+
+  '&[data-gutter-bottom]': {
+    marginBottom: '0.35em',
+  },
+
+  '&[data-align="left"]': { textAlign: 'left' },
+  '&[data-align="center"]': { textAlign: 'center' },
+  '&[data-align="right"]': { textAlign: 'right' },
+  '&[data-align="justify"]': { textAlign: 'justify' },
+
+  '&[data-ellipsis="true"]': {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+
+  '&[data-ellipsis="multiline"]': {
+    overflow: 'hidden',
+    display: '-webkit-box',
+  },
+
+  '& .typo-copy-btn': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'transparent',
+    border: 'none',
+    color: cssVariableTheme.text.secondary,
+    cursor: 'pointer',
+    padding: `0 ${cssVariableTheme.spacing.xs}`,
+    fontSize: '0.85em',
+    lineHeight: '1',
+    verticalAlign: 'middle',
+    borderRadius: cssVariableTheme.shape.borderRadius.sm,
+    transition: buildTransition(
+      ['color', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
+      ['background', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
+    ),
+  },
+  '& .typo-copy-btn:hover': {
+    color: cssVariableTheme.text.primary,
+    background: cssVariableTheme.action.hoverBackground,
+  },
+}
+
+const typographyRender = ({ props, children, useHostProps }: RenderOptions<TypographyProps>): JSX.Element | null => {
+  const { variant = 'body1', color = 'textPrimary', ellipsis, copyable, gutterBottom, align, style } = props
+
+  const hostStyle: Record<string, string> = {
+    '--typo-color': colorToVar(color),
+  }
+  if (typeof ellipsis === 'number') {
+    hostStyle.webkitLineClamp = String(ellipsis)
+    hostStyle.webkitBoxOrient = 'vertical'
+  }
+  if (style) {
+    Object.assign(hostStyle, style)
+  }
+  useHostProps({
+    'data-gutter-bottom': gutterBottom ? '' : undefined,
+    'data-align': align || undefined,
+    'data-ellipsis': ellipsis === true ? 'true' : typeof ellipsis === 'number' ? 'multiline' : undefined,
+    'data-variant': variant,
+    style: hostStyle,
+  })
+
+  if (!copyable) {
+    return <>{children}</>
+  }
+
+  const handleCopy = (e: Event) => {
+    const btn = e.currentTarget as HTMLElement
+    const host = btn.parentElement
+    if (!host) return
+    const clone = host.cloneNode(true) as HTMLElement
+    clone.querySelectorAll('.typo-copy-btn').forEach((el) => el.remove())
+    navigator.clipboard.writeText(clone.textContent ?? '').catch(() => {})
+  }
+
+  return (
+    <>
+      {children}
+      <button type="button" className="typo-copy-btn" onclick={handleCopy} title="Copy to clipboard">
+        <Icon icon={clipboard} size={14} />
+      </button>
+    </>
+  )
+}
+
+const tagConfigs: Array<[TypographyTag, new () => HTMLElement]> = [
+  ['h1', HTMLHeadingElement],
+  ['h2', HTMLHeadingElement],
+  ['h3', HTMLHeadingElement],
+  ['h4', HTMLHeadingElement],
+  ['h5', HTMLHeadingElement],
+  ['h6', HTMLHeadingElement],
+  ['p', HTMLParagraphElement],
+  ['span', HTMLSpanElement],
+]
+
+const shadesByTag = {} as Record<TypographyTag, (props: TypographyProps, children?: ChildrenList) => JSX.Element>
+
+for (const [tag, elementBase] of tagConfigs) {
+  shadesByTag[tag] = Shade<TypographyProps>({
+    shadowDomName: `shade-typography-${tag}`,
+    elementBase,
+    elementBaseName: tag,
+    css: typographyCss,
+    render: typographyRender,
+  })
 }
 
 /**
  * Typography component for consistent text styling.
  * Maps variants to semantic HTML tags and uses theme typography tokens.
  */
-export const Typography = Shade<TypographyProps>({
-  shadowDomName: 'shade-typography',
-  css: {
-    display: 'block',
-    margin: '0',
-    padding: '0',
-    fontFamily: cssVariableTheme.typography.fontFamily,
-    color: 'var(--typo-color)',
-
-    // Variant-specific typography styles
-    ...buildVariantCssRules(),
-
-    // Gutter bottom
-    '&[data-gutter-bottom]': {
-      marginBottom: '0.35em',
-    },
-
-    // Alignment
-    '&[data-align="left"]': { textAlign: 'left' },
-    '&[data-align="center"]': { textAlign: 'center' },
-    '&[data-align="right"]': { textAlign: 'right' },
-    '&[data-align="justify"]': { textAlign: 'justify' },
-
-    // Inner tag resets
-    '& .typo-inner': {
-      margin: '0',
-      padding: '0',
-      font: 'inherit',
-      color: 'inherit',
-      letterSpacing: 'inherit',
-      textTransform: 'inherit',
-    },
-
-    // Ellipsis: single line
-    '&[data-ellipsis="true"] .typo-inner': {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    },
-
-    // Ellipsis: multi-line (webkit-box-orient applied inline in render)
-    '&[data-ellipsis="multiline"] .typo-inner': {
-      overflow: 'hidden',
-      display: '-webkit-box',
-    },
-
-    // Copy button
-    '& .typo-copy-btn': {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'transparent',
-      border: 'none',
-      color: cssVariableTheme.text.secondary,
-      cursor: 'pointer',
-      padding: `0 ${cssVariableTheme.spacing.xs}`,
-      fontSize: '0.85em',
-      lineHeight: '1',
-      verticalAlign: 'middle',
-      borderRadius: cssVariableTheme.shape.borderRadius.sm,
-      transition: buildTransition(
-        ['color', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
-        ['background', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
-      ),
-    },
-    '& .typo-copy-btn:hover': {
-      color: cssVariableTheme.text.primary,
-      background: cssVariableTheme.action.hoverBackground,
-    },
-  },
-  render: ({ props, children, useHostProps, useRef }) => {
-    const { variant = 'body1', color = 'textPrimary', ellipsis, copyable, gutterBottom, align, style } = props
-
-    const hostStyle: Record<string, string> = {
-      '--typo-color': colorToVar(color),
-    }
-    if (style) {
-      Object.assign(hostStyle, style)
-    }
-    useHostProps({
-      'data-gutter-bottom': gutterBottom ? '' : undefined,
-      'data-align': align || undefined,
-      'data-ellipsis': ellipsis === true ? 'true' : typeof ellipsis === 'number' ? 'multiline' : undefined,
-      'data-variant': variant,
-      style: hostStyle,
-    })
-
-    const tag = variantToTag(variant)
-
-    const innerRef = useRef<HTMLElement>('inner')
-    const handleCopy = () => {
-      const text = innerRef.current?.textContent ?? ''
-      navigator.clipboard.writeText(text).catch(() => {
-        // Fallback: do nothing on copy failure
-      })
-    }
-
-    const innerProps: Record<string, unknown> = { className: 'typo-inner', ref: innerRef }
-    if (typeof ellipsis === 'number') {
-      innerProps.style = { webkitLineClamp: String(ellipsis), webkitBoxOrient: 'vertical' }
-    }
-
-    const inner = children ? createComponent(tag, innerProps, ...children) : createComponent(tag, innerProps)
-
-    return (
-      <>
-        {inner}
-        {copyable ? (
-          <button type="button" className="typo-copy-btn" onclick={handleCopy} title="Copy to clipboard">
-            <Icon icon={clipboard} size={14} />
-          </button>
-        ) : null}
-      </>
-    )
-  },
-})
+export const Typography = (props: TypographyProps, children?: ChildrenList): JSX.Element => {
+  const tag = variantToTag(props.variant ?? 'body1')
+  return shadesByTag[tag](props, children)
+}
