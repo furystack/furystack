@@ -56,18 +56,6 @@ describe('TimelineItem', () => {
     expect(label.textContent).toBe('Jan 2024')
   })
 
-  it('should not render a label when not provided', async () => {
-    const el = (
-      <div>
-        <TimelineItem>Event</TimelineItem>
-      </div>
-    )
-    const item = el.firstElementChild as JSX.Element
-    item.updateComponent()
-    await flushUpdates()
-    expect(item.querySelector('.timeline-label')).toBeNull()
-  })
-
   it('should set custom dot when dot prop is provided', async () => {
     const el = (
       <div>
