@@ -1,4 +1,4 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/shades-common-components
 
@@ -18,7 +18,50 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
+## 💥 Breaking Changes
+
+### `getTextColor()` and `getRgbFromColorString()` removed from `ThemeProviderService`
+
+The `getTextColor()` and `getRgbFromColorString()` instance methods have been removed from `ThemeProviderService`. They are now standalone functions exported from their own modules.
+
+**Examples:**
+
+```typescript
+// ❌ Before
+import { ThemeProviderService } from '@furystack/shades-common-components'
+const themeProvider = injector.getInstance(ThemeProviderService)
+const textColor = themeProvider.getTextColor('#ff0000')
+const rgb = themeProvider.getRgbFromColorString('#3f51b5')
+
+// ✅ After
+import { getTextColor, getRgbFromColorString } from '@furystack/shades-common-components'
+const textColor = getTextColor('#ff0000')
+const rgb = getRgbFromColorString('#3f51b5')
+```
+
+**Impact:** All callers that accessed these methods via a `ThemeProviderService` instance must switch to the standalone function imports.
+
+### `RgbColor` class moved to its own module
+
+The `RgbColor` class is no longer exported from `theme-provider-service.ts`. It is now in its own `rgb-color.ts` module, re-exported through the package barrel.
+
+If you imported `RgbColor` from the package entry point, no change is needed. If you imported directly from `theme-provider-service.js`, update the import path:
+
+```typescript
+// ❌ Before
+import { RgbColor } from '@furystack/shades-common-components/services/theme-provider-service.js'
+
+// ✅ After
+import { RgbColor } from '@furystack/shades-common-components'
+// or
+import { RgbColor } from '@furystack/shades-common-components/services/rgb-color.js'
+```
+
 ## ✨ Features
+
+### Standalone Color Utilities
+
+Extracted `getRgbFromColorString()` and `getTextColor()` as standalone pure functions, making them usable without a `ThemeProviderService` instance. The new `getRgbFromColorString()` also adds support for `rgb()` syntax and common CSS named colors (e.g. `red`, `dodgerblue`, `white`), in addition to the previously supported `#hex` and `rgba()` formats.
 
 ### 17 New Themes
 
@@ -72,3 +115,55 @@ Refactored the `Typography` component to render semantic HTML elements (`h1`–`
 
 - Updated `Typography` tests to assert on semantic HTML tags (`p`, `h1`, `h6`, `span`) instead of inner wrapper elements
 - Updated `PageHeader`, `Result`, `CacheView`, `AppBar`, and `NotyList` tests for compatibility with the new `Typography`-based rendering
+- Added tests for the new `getRgbFromColorString()`, `getTextColor()`, and `RgbColor` standalone modules
+
+## 🔀 Migration Guide
+
+### Step 1: Replace `ThemeProviderService` color method calls
+
+Search for usages of `getTextColor` and `getRgbFromColorString` on a `ThemeProviderService` instance:
+
+```bash
+grep -rn "getTextColor\|getRgbFromColorString" --include="*.ts" --include="*.tsx" src/
+```
+
+Replace instance method calls with standalone function imports:
+
+```typescript
+// ❌ Before
+const themeProvider = injector.getInstance(ThemeProviderService)
+const color = themeProvider.getTextColor(bgColor)
+const rgb = themeProvider.getRgbFromColorString(cssColor)
+
+// ✅ After
+import { getTextColor, getRgbFromColorString } from '@furystack/shades-common-components'
+const color = getTextColor(bgColor)
+const rgb = getRgbFromColorString(cssColor)
+```
+
+### Step 2: Update `RgbColor` imports (if using deep imports)
+
+If you were importing `RgbColor` directly from the `theme-provider-service` module path, update to:
+
+```typescript
+import { RgbColor } from '@furystack/shades-common-components'
+```
+
+### Step 3: Update `Typography` selectors
+
+If you have CSS or JS selectors targeting `shade-typography`, update them:
+
+```css
+/* ❌ Before */
+shade-typography { ... }
+
+/* ✅ After */
+[is^="shade-typography"] { ... }
+```
+
+### Step 4: Verify
+
+```bash
+yarn build
+yarn test
+```
