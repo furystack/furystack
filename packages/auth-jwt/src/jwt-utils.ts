@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'crypto'
+import { createHash, createHmac, timingSafeEqual } from 'crypto'
 
 export const base64UrlEncode = (data: string | Buffer): string => {
   const buf = typeof data === 'string' ? Buffer.from(data) : data
@@ -19,7 +19,12 @@ export type JwtAccessTokenPayload = {
   exp: number
   iss?: string
   aud?: string
+  /** SHA-256 hash of the fingerprint cookie value (OWASP token sidejacking prevention). */
+  fpt?: string
 }
+
+/** Hashes a raw fingerprint value with SHA-256 for embedding in a JWT claim. */
+export const hashFingerprint = (raw: string): string => createHash('sha256').update(raw).digest('hex')
 
 export const signHs256 = (headerPayload: string, secret: string): string => {
   return createHmac('sha256', secret).update(headerPayload).digest('base64url')

@@ -12,6 +12,7 @@ import { JwtLoginAction } from './actions/jwt-login-action.js'
 import { JwtLogoutAction } from './actions/jwt-logout-action.js'
 import { JwtRefreshAction } from './actions/jwt-refresh-action.js'
 import { useJwtAuthentication } from './helpers.js'
+import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
 import { base64UrlEncode, createJwt } from './jwt-utils.js'
 import { RefreshToken } from './models/refresh-token.js'
 
@@ -33,8 +34,15 @@ interface JwtIntegrationApi extends RestApi {
 
 const ACCESS_TOKEN_EXPIRATION_SECONDS = 2
 const GRACE_PERIOD_SECONDS = 2
+const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
+  enabled: false,
+  name: 'fpt',
+  sameSite: 'Strict',
+  secure: true,
+  path: '/',
+}
 
-const createJwtTestServer = async () => {
+const createJwtTestServer = async (fingerprintCookie: FingerprintCookieSettings = FINGERPRINT_DISABLED) => {
   const injector = new Injector()
   const port = getPort()
   const root = 'api'
@@ -58,6 +66,7 @@ const createJwtTestServer = async () => {
     refreshTokenExpirationSeconds: 60,
     clockSkewToleranceSeconds: 0,
     refreshTokenRotationGracePeriodSeconds: GRACE_PERIOD_SECONDS,
+    fingerprintCookie,
   })
 
   await useRestService<JwtIntegrationApi>({
@@ -94,10 +103,10 @@ const seedUser = async (injector: Injector, username: string, password: string, 
 
 type TokenPair = { accessToken: string; refreshToken: string }
 
-const postJson = async (url: string, body: unknown): Promise<Response> =>
+const postJson = async (url: string, body: unknown, cookie?: string): Promise<Response> =>
   fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) },
     body: JSON.stringify(body),
   })
 
@@ -112,10 +121,22 @@ const login = async (
   return { response, ...tokens }
 }
 
-const authGet = async (apiUrl: string, path: string, accessToken: string): Promise<Response> =>
+const authGet = async (apiUrl: string, path: string, accessToken: string, cookie?: string): Promise<Response> =>
   fetch(PathHelper.joinPaths(apiUrl, path), {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { Authorization: `Bearer ${accessToken}`, ...(cookie ? { Cookie: cookie } : {}) },
   })
+
+const extractSetCookieValue = (response: Response, cookieName: string): string | null => {
+  const setCookie = response.headers.getSetCookie?.()
+  if (!setCookie) return null
+  for (const cookie of setCookie) {
+    if (cookie.startsWith(`${cookieName}=`)) {
+      const value = cookie.split(';')[0]?.split('=').slice(1).join('=')
+      return value || null
+    }
+  }
+  return null
+}
 
 describe('@furystack/auth-jwt integration tests', () => {
   describe('Happy path', () => {
@@ -401,6 +422,129 @@ describe('@furystack/auth-jwt integration tests', () => {
           refreshToken: 'this-token-does-not-exist-in-the-store',
         })
         expect(response.status).toBe(401)
+      })
+    })
+  })
+
+  describe('Refresh edge cases', () => {
+    it('Should return 401 when the user was deleted between login and refresh', async () => {
+      await usingAsync(await createJwtTestServer(), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const sm = injector.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').remove('testuser')
+
+        const refreshResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/refresh'), { refreshToken })
+        expect(refreshResponse.status).toBe(401)
+      })
+    })
+
+    it('Should propagate unexpected errors from the refresh action', async () => {
+      await usingAsync(await createJwtTestServer(), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const sm = injector.getInstance(StoreManager)
+        const refreshTokenStore = sm.getStoreFor(RefreshToken, 'token')
+        const originalFind = refreshTokenStore.find.bind(refreshTokenStore)
+        refreshTokenStore.find = async () => {
+          throw new Error('Unexpected DB failure')
+        }
+
+        const refreshResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/refresh'), { refreshToken })
+        expect(refreshResponse.status).toBe(500)
+
+        refreshTokenStore.find = originalFind
+      })
+    })
+  })
+
+  describe('Fingerprint cookie protection', () => {
+    const FINGERPRINT_ENABLED: FingerprintCookieSettings = {
+      enabled: true,
+      name: 'fpt',
+      sameSite: 'Strict',
+      secure: false,
+      path: '/',
+    }
+
+    it('Should set the fingerprint cookie on login', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { response } = await login(apiUrl, 'testuser', 'testpass')
+        expect(response.status).toBe(200)
+        const fptValue = extractSetCookieValue(response, 'fpt')
+        expect(fptValue).toBeTruthy()
+        expect(fptValue!.length).toBeGreaterThan(0)
+      })
+    })
+
+    it('Should authenticate when sending the fingerprint cookie', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass', ['admin'])
+        const { response, accessToken } = await login(apiUrl, 'testuser', 'testpass')
+        const fptValue = extractSetCookieValue(response, 'fpt')
+
+        const userResponse = await authGet(apiUrl, 'currentUser', accessToken, `fpt=${fptValue}`)
+        expect(userResponse.status).toBe(200)
+        const user = (await userResponse.json()) as User
+        expect(user.username).toBe('testuser')
+      })
+    })
+
+    it('Should reject requests without the fingerprint cookie', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { accessToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const userResponse = await authGet(apiUrl, 'currentUser', accessToken)
+        expect(userResponse.status).toBe(401)
+      })
+    })
+
+    it('Should reject requests with a wrong fingerprint cookie', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { accessToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const userResponse = await authGet(apiUrl, 'currentUser', accessToken, 'fpt=wrong-value')
+        expect(userResponse.status).toBe(401)
+      })
+    })
+
+    it('Should set a new fingerprint cookie on refresh', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { response: loginResponse, refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+        const loginFpt = extractSetCookieValue(loginResponse, 'fpt')
+
+        const refreshResponse = await postJson(
+          PathHelper.joinPaths(apiUrl, 'jwt/refresh'),
+          { refreshToken },
+          `fpt=${loginFpt}`,
+        )
+        expect(refreshResponse.status).toBe(200)
+        const refreshFpt = extractSetCookieValue(refreshResponse, 'fpt')
+        expect(refreshFpt).toBeTruthy()
+        expect(refreshFpt).not.toBe(loginFpt)
+
+        const newTokens = (await refreshResponse.json()) as TokenPair
+        const userResponse = await authGet(apiUrl, 'currentUser', newTokens.accessToken, `fpt=${refreshFpt}`)
+        expect(userResponse.status).toBe(200)
+      })
+    })
+
+    it('Should clear the fingerprint cookie on logout', async () => {
+      await usingAsync(await createJwtTestServer(FINGERPRINT_ENABLED), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const logoutResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/logout'), { refreshToken })
+        expect(logoutResponse.status).toBe(200)
+        const setCookieHeaders = logoutResponse.headers.getSetCookie?.() ?? []
+        const clearCookie = setCookieHeaders.find((c: string) => c.startsWith('fpt='))
+        expect(clearCookie).toContain('Max-Age=0')
       })
     })
   })

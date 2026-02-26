@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { base64UrlDecode, base64UrlEncode, createJwt, decodeJwt, signHs256, verifyHs256 } from './jwt-utils.js'
+import {
+  base64UrlDecode,
+  base64UrlEncode,
+  createJwt,
+  decodeJwt,
+  hashFingerprint,
+  signHs256,
+  verifyHs256,
+} from './jwt-utils.js'
 
 const SECRET = 'a-very-secret-key-at-least-32-bytes-long!'
 
@@ -59,6 +67,21 @@ describe('JWT Utils', () => {
       expect(() => decodeJwt('only.two')).toThrow('Invalid JWT format')
       expect(() => decodeJwt('one')).toThrow('Invalid JWT format')
       expect(() => decodeJwt('a.b.c.d')).toThrow('Invalid JWT format')
+    })
+  })
+
+  describe('hashFingerprint', () => {
+    it('Should return a hex-encoded SHA-256 hash', () => {
+      const hash = hashFingerprint('test-fingerprint')
+      expect(hash).toMatch(/^[0-9a-f]{64}$/)
+    })
+
+    it('Should return deterministic output', () => {
+      expect(hashFingerprint('same-input')).toBe(hashFingerprint('same-input'))
+    })
+
+    it('Should return different hashes for different inputs', () => {
+      expect(hashFingerprint('input-a')).not.toBe(hashFingerprint('input-b'))
     })
   })
 })

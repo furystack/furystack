@@ -1,5 +1,6 @@
 export * from './actions/index.js'
 export * from './authentication-providers/index.js'
+export * from './fingerprint-cookie.js'
 export * from './helpers.js'
 export * from './jwt-authentication-settings.js'
 export * from './jwt-token-service.js'

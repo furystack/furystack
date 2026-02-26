@@ -5,20 +5,32 @@ import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
 import { describe, expect, it } from 'vitest'
+import type { FingerprintCookieSettings } from '../jwt-authentication-settings.js'
 import { JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
 import { JwtTokenService } from '../jwt-token-service.js'
 import { RefreshToken } from '../models/refresh-token.js'
 import { createJwtAuthProvider } from './jwt-auth-provider.js'
 
 const SECRET = 'a-very-secret-key-at-least-32-bytes-long!'
+const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
+  enabled: false,
+  name: 'fpt',
+  sameSite: 'Strict',
+  secure: true,
+  path: '/',
+}
 
-const setupInjector = (i: Injector) => {
+const setupInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
     .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
   getRepository(i).createDataSet(User, 'username')
   getRepository(i).createDataSet(RefreshToken, 'token')
-  const settings = Object.assign(new JwtAuthenticationSettings(), { secret: SECRET })
+  const settings = Object.assign(new JwtAuthenticationSettings(), {
+    secret: SECRET,
+    fingerprintCookie: FINGERPRINT_DISABLED,
+    ...overrides,
+  })
   i.setExplicitInstance(settings, JwtAuthenticationSettings)
 }
 
@@ -63,7 +75,7 @@ describe('createJwtAuthProvider', () => {
       const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
       await userStore.add(testUser)
       const tokenService = i.getInstance(JwtTokenService)
-      const token = tokenService.signAccessToken(testUser)
+      const { token } = tokenService.signAccessToken(testUser)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
       const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const provider = createJwtAuthProvider({
@@ -103,7 +115,7 @@ describe('createJwtAuthProvider', () => {
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
       const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const tokenService = i.getInstance(JwtTokenService)
-      const token = tokenService.signAccessToken(testUser)
+      const { token } = tokenService.signAccessToken(testUser)
       const provider = createJwtAuthProvider({
         jwtTokenService: tokenService,
         userDataSet,
@@ -114,6 +126,84 @@ describe('createJwtAuthProvider', () => {
           headers: { authorization: `Bearer ${token}` },
         } as IncomingMessage),
       ).rejects.toThrow(UnauthenticatedError)
+    })
+  })
+
+  describe('Fingerprint cookie protection', () => {
+    const FINGERPRINT_ENABLED: FingerprintCookieSettings = {
+      enabled: true,
+      name: 'fpt',
+      sameSite: 'Strict',
+      secure: true,
+      path: '/',
+    }
+
+    it('Should authenticate when fingerprint cookie matches', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        await userStore.add(testUser)
+        const tokenService = i.getInstance(JwtTokenService)
+        const { token, fingerprint } = tokenService.signAccessToken(testUser)
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const provider = createJwtAuthProvider({
+          jwtTokenService: tokenService,
+          userDataSet,
+          injector: systemInjector,
+          fingerprintCookieName: 'fpt',
+        })
+        const result = await provider.authenticate({
+          headers: { authorization: `Bearer ${token}`, cookie: `fpt=${fingerprint}` },
+        } as unknown as IncomingMessage)
+        expect(result).toEqual(testUser)
+      })
+    })
+
+    it('Should reject when fingerprint cookie is missing', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        await userStore.add(testUser)
+        const tokenService = i.getInstance(JwtTokenService)
+        const { token } = tokenService.signAccessToken(testUser)
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const provider = createJwtAuthProvider({
+          jwtTokenService: tokenService,
+          userDataSet,
+          injector: systemInjector,
+          fingerprintCookieName: 'fpt',
+        })
+        await expect(
+          provider.authenticate({
+            headers: { authorization: `Bearer ${token}` },
+          } as IncomingMessage),
+        ).rejects.toThrow(UnauthenticatedError)
+      })
+    })
+
+    it('Should reject when fingerprint cookie has wrong value', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+        await userStore.add(testUser)
+        const tokenService = i.getInstance(JwtTokenService)
+        const { token } = tokenService.signAccessToken(testUser)
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const provider = createJwtAuthProvider({
+          jwtTokenService: tokenService,
+          userDataSet,
+          injector: systemInjector,
+          fingerprintCookieName: 'fpt',
+        })
+        await expect(
+          provider.authenticate({
+            headers: { authorization: `Bearer ${token}`, cookie: 'fpt=stolen-wrong-value' },
+          } as unknown as IncomingMessage),
+        ).rejects.toThrow(UnauthenticatedError)
+      })
     })
   })
 })
