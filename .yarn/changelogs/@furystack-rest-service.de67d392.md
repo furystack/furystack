@@ -1,4 +1,4 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/rest-service
 
@@ -28,4 +28,13 @@ Custom providers are appended after the built-in Basic Auth and Cookie Auth prov
 
 - `useHttpAuthentication()` now eagerly resolves `PasswordAuthenticator` and store dependencies at setup time, constructing providers with resolved instances rather than passing the `Injector`
 - `Authenticate()` middleware checks for a registered `'basic-auth'` provider by name instead of reading the `enableBasicAuth` flag when deciding whether to include the `WWW-Authenticate: Basic` response header
-- Extracted shared store lookup helpers (`authenticateUserWithStore`, `findSessionById`, `findUserByName`, `extractSessionIdFromCookies`) into `authentication-providers/helpers.ts`
+- Extracted shared store lookup helpers (`authenticateUserWithDataSet`, `findSessionById`, `findUserByName`, `extractSessionIdFromCookies`) into `authentication-providers/helpers.ts`
+
+## 💥 Breaking Changes
+
+- `HttpAuthenticationSettings.getUserStore(StoreManager)` → `getUserDataSet(Injector)` — now returns a `DataSet` instead of a `PhysicalStore`
+- `HttpAuthenticationSettings.getSessionStore(StoreManager)` → `getSessionDataSet(Injector)`
+- `HttpUserContext.getUserStore()` → `getUserDataSet()`
+- `HttpUserContext.getSessionStore()` → `getSessionDataSet()`
+- `authenticateUserWithStore()` → `authenticateUserWithDataSet()` — renamed helper with updated signature
+- `useHttpAuthentication()` now requires DataSets for `User` and `DefaultSession` to be registered via `getRepository(injector).createDataSet()` before calling

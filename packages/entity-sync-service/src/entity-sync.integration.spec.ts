@@ -1,7 +1,7 @@
 import { addStore, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
-import { Repository } from '@furystack/repository'
+import { getRepository, Repository } from '@furystack/repository'
 import { DefaultSession, useHttpAuthentication, useRestService, ServerManager } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import { useWebsockets } from '@furystack/websocket-api'
@@ -39,6 +39,8 @@ describe('Entity Sync Integration tests', () => {
     addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
       new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
     )
+    getRepository(injector).createDataSet(User, 'username')
+    getRepository(injector).createDataSet(DefaultSession, 'sessionId')
     useHttpAuthentication(injector, {})
 
     addStore(injector, new InMemoryStore({ model: TestEntity, primaryKey: 'id' }))

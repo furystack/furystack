@@ -2,6 +2,7 @@
 import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getRepository } from '@furystack/repository'
 import type { SwaggerDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
@@ -32,6 +33,10 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
 
   getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
   getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  getStoreManager(injector).addStore(new InMemoryStore({ model: MockClass, primaryKey: 'id' }))
+  getRepository(injector).createDataSet(MockClass, 'id')
+  getRepository(injector).createDataSet(User, 'username')
+  getRepository(injector).createDataSet(DefaultSession, 'sessionId')
 
   const api = await useRestService<ValidationApi>({
     injector,

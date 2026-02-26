@@ -90,14 +90,14 @@ export const selectFields = <T extends object, TField extends Array<keyof T>>(en
 /**
  * Interface that defines a physical store implementation.
  *
- * **Recommended:** {@link DataSet} is the preferred write gateway for application-level code.
+ * **Recommended:** `DataSet` from `@furystack/repository` is the preferred write gateway for application-level code.
  *
- * **Important:** Writing directly to a physical store bypasses the Repository {@link DataSet} layer.
+ * **Important:** Writing directly to a physical store bypasses the Repository `DataSet` layer.
  * This means authorization, modification hooks, and DataSet events (used by entity sync) will **not** be triggered.
  * For any write operation that should be observable by other parts of the system (e.g. entity sync, audit logging),
- * use the corresponding {@link DataSet} method instead via `getDataSetFor()`.
+ * use the corresponding `DataSet` method instead via `getDataSetFor()` from `@furystack/repository`.
  *
- * @see {@link DataSet} for the authorized, event-emitting write gateway
+ * @see `DataSet` from `@furystack/repository` for the authorized, event-emitting write gateway
  */
 export interface PhysicalStore<
   T,

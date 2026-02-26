@@ -16,14 +16,18 @@ import { SecurityPolicyManager } from './security-policy-manager.js'
 
 const randomString = () => randomBytes(32).toString('hex')
 
+const setupSecurityStores = (i: Injector) => {
+  addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+    .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  getRepository(i).createDataSet(PasswordCredential, 'userName')
+  getRepository(i).createDataSet(PasswordResetToken, 'token')
+}
+
 describe('PasswordAuthenticator', () => {
   it('Should be instantiated', async () => {
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-        .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-      getRepository(i).createDataSet(PasswordCredential, 'userName')
-      getRepository(i).createDataSet(PasswordResetToken, 'token')
+      setupSecurityStores(i)
       usePasswordPolicy(i)
       const auth = i.getInstance(PasswordAuthenticator)
       expect(auth).toBeInstanceOf(PasswordAuthenticator)
@@ -32,11 +36,7 @@ describe('PasswordAuthenticator', () => {
 
   it('Should inherit policy from the extension method', async () => {
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-        .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-        .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-      getRepository(i).createDataSet(PasswordCredential, 'userName')
-      getRepository(i).createDataSet(PasswordResetToken, 'token')
+      setupSecurityStores(i)
       usePasswordPolicy(i, {
         passwordComplexityRules: [createMinLengthComplexityRule(3)],
       })
@@ -52,11 +52,7 @@ describe('PasswordAuthenticator', () => {
         const userName = randomString()
         const password = randomString()
 
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i, {})
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -74,11 +70,7 @@ describe('PasswordAuthenticator', () => {
       await usingAsync(new Injector(), async (i) => {
         const userName = randomString()
         const password = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -97,11 +89,7 @@ describe('PasswordAuthenticator', () => {
       await usingAsync(new Injector(), async (i) => {
         const userName = randomString()
         const password = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -120,11 +108,7 @@ describe('PasswordAuthenticator', () => {
       await usingAsync(new Injector(), async (i) => {
         const userName = randomString()
         const password = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i, { passwordExpirationDays: 1 })
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -151,11 +135,7 @@ describe('PasswordAuthenticator', () => {
         const userName = randomString()
         const lastPassword = randomString()
         const password = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -189,11 +169,7 @@ describe('PasswordAuthenticator', () => {
         const userName = randomString()
         const lastPassword = randomString()
         const password = ''
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -231,11 +207,7 @@ describe('PasswordAuthenticator', () => {
         const userName = randomString()
         const lastPassword = randomString()
         const password = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -276,11 +248,7 @@ describe('PasswordAuthenticator', () => {
         const lastPassword = randomString()
         const password = randomString()
         const token = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -308,11 +276,7 @@ describe('PasswordAuthenticator', () => {
         const lastPassword = randomString()
         const password = ''
         const token = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -339,11 +303,7 @@ describe('PasswordAuthenticator', () => {
         const lastPassword = randomString()
         const password = ''
         const token = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i)
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
@@ -372,11 +332,7 @@ describe('PasswordAuthenticator', () => {
         const lastPassword = randomString()
         const password = ''
         const token = randomString()
-        addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-          .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-        getRepository(i).createDataSet(PasswordCredential, 'userName')
-        getRepository(i).createDataSet(PasswordResetToken, 'token')
+        setupSecurityStores(i)
         usePasswordPolicy(i, { resetTokenExpirationSeconds: 1 })
         const authenticator = i.getInstance(PasswordAuthenticator)
         const { hasher } = authenticator
