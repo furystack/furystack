@@ -2,7 +2,10 @@
 
 Google OAuth authentication for FuryStack.
 
-This package provides a service to authenticate users with Google ID tokens in your FuryStack backend.
+This package verifies Google ID tokens on the server using the
+[google-auth-library](https://github.com/googleapis/google-auth-library-nodejs)
+(local JWT signature check, audience/issuer/expiry validation) and provides a
+browser-side helper for Google Identity Services (GIS).
 
 ## Installation
 
@@ -12,45 +15,41 @@ npm install @furystack/auth-google
 yarn add @furystack/auth-google
 ```
 
-## Usage
+## Server setup
 
-### Backend Setup
+### 1. Configure Google authentication
 
-Set up Google authentication on your FuryStack backend:
+Call `useGoogleAuthentication` **after** `useHttpAuthentication`:
 
 ```ts
 import { Injector } from '@furystack/inject'
-import { GoogleLoginService, GoogleLoginSettings } from '@furystack/auth-google'
-import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
-import type { MyApi } from 'my-common-package'
+import { useHttpAuthentication } from '@furystack/rest-service'
+import { useGoogleAuthentication } from '@furystack/auth-google'
 
 const injector = new Injector()
 
-// Configure HTTP authentication first
 useHttpAuthentication(injector, {
-  // ... your authentication settings
+  /* … */
 })
 
-// Optionally customize how Google users are mapped to your users
-const googleSettings = injector.getInstance(GoogleLoginSettings)
-googleSettings.getUserFromGooglePayload = async (payload) => {
-  // payload contains: email, name, picture, given_name, family_name, locale
-  const users = await userStore.find({
-    filter: { username: { $eq: payload.email } },
-  })
-  return users[0]
-}
+useGoogleAuthentication(injector, {
+  clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+})
 ```
 
-### Creating a Login Endpoint
+`clientId` is required. It must match the client ID used on the frontend.
 
-Use `createGoogleLoginAction(strategy)` to create a login endpoint. The strategy determines what the response looks like — cookie sessions, JWT tokens, or anything custom.
+### 2. Create a login endpoint
+
+Use `createGoogleLoginAction(strategy)` to create a login action. The
+strategy determines what the response looks like — cookie sessions, JWT
+tokens, or anything custom.
 
 #### With cookie sessions
 
 ```ts
 import { createGoogleLoginAction } from '@furystack/auth-google'
-import { createCookieLoginStrategy } from '@furystack/rest-service'
+import { createCookieLoginStrategy, useRestService } from '@furystack/rest-service'
 
 const cookieStrategy = createCookieLoginStrategy(injector)
 const googleLogin = createGoogleLoginAction(cookieStrategy)
@@ -74,68 +73,101 @@ import { createJwtLoginStrategy } from '@furystack/auth-jwt'
 const jwtStrategy = createJwtLoginStrategy(injector)
 const googleLogin = createGoogleLoginAction(jwtStrategy)
 // googleLogin: RequestAction<{ result: { accessToken: string; refreshToken: string }; body: { token: string } }>
+```
 
-await useRestService({
-  injector,
-  api: myApi,
-  actions: {
-    '/login/google': googleLogin,
+The return type is fully inferred from the strategy.
+
+### 3. Customise user lookup (optional)
+
+Override `getUserFromGooglePayload` to change how Google accounts map to
+local users:
+
+```ts
+useGoogleAuthentication(injector, {
+  clientId: 'YOUR_CLIENT_ID',
+  getUserFromGooglePayload: async (payload) => {
+    // payload.email, payload.email_verified, payload.name, …
+    return myUserStore.findByEmail(payload.email!)
   },
 })
 ```
 
-The return type is fully inferred from the strategy — no manual type annotations needed.
+The default implementation requires `email_verified` to be `true` and
+looks up the user by `email` in the configured User DataSet.
 
-### Getting Google User Data
+### 4. CSRF protection (optional)
 
-You can also retrieve Google user data without logging in:
-
-```ts
-const googleService = injector.getInstance(GoogleLoginService)
-const googleData = await googleService.getGoogleUserData(idToken)
-
-// googleData contains:
-// - email: string
-// - email_verified: boolean
-// - name: string
-// - picture: string (URL)
-// - given_name: string
-// - family_name: string
-// - locale: string
-```
-
-### Frontend Integration
-
-On the frontend, use the Google Sign-In API to obtain an ID token:
+When using Google Identity Services on the frontend, you can enable
+the `g_csrf_token` double-submit cookie check:
 
 ```ts
-// Using Google Sign-In API
-const auth2 = gapi.auth2.getAuthInstance()
-const googleUser = await auth2.signIn()
-const idToken = googleUser.getAuthResponse().id_token
-
-// Send to your backend
-const response = await fetch('/api/auth/google', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ token: idToken }),
+useGoogleAuthentication(injector, {
+  clientId: 'YOUR_CLIENT_ID',
+  enableCsrfCheck: true,
 })
 ```
 
-## Google API Payload
+When enabled, the login action compares `g_csrf_token` from the cookie
+header against the value in the request body before processing the login.
 
-The `GoogleApiPayload` interface represents the data returned from Google:
+## Client setup
+
+The package also provides a `./client` sub-export for browser use. It
+does **not** import any server-side code and is safe for bundlers.
 
 ```ts
-interface GoogleApiPayload {
-  iss: string // Issuer
-  sub: number // Unique Google identifier
-  email: string // Email address
-  email_verified: boolean
-  name: string // Full name
-  picture: string // Profile picture URL
-  given_name: string // First name
-  family_name: string // Last name
-  locale: string // User's locale
-}
+import { initializeGoogleAuth, googleLogin } from '@furystack/auth-google/client'
 ```
+
+### Load and initialise Google Identity Services
+
+```ts
+import { initializeGoogleAuth, googleLogin } from '@furystack/auth-google/client'
+
+const auth = await initializeGoogleAuth({
+  client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  callback: async (response) => {
+    // response.credential contains the Google ID token
+    const user = await googleLogin({
+      endpointUrl: '/api/login/google',
+      credential: response.credential,
+    })
+    console.log('Logged in as', user)
+  },
+})
+
+// Render the "Sign in with Google" button
+auth.renderButton(document.getElementById('google-btn')!, {
+  type: 'standard',
+  size: 'large',
+  theme: 'outline',
+})
+
+// Or show the One Tap prompt
+auth.prompt()
+```
+
+### Client API
+
+| Export                         | Description                                                            |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `loadGoogleIdentityServices()` | Dynamically loads the GIS script. Idempotent.                          |
+| `initializeGoogleAuth(opts)`   | Loads GIS + calls `google.accounts.id.initialize()`. Returns controls. |
+| `googleLogin(opts)`            | POSTs the credential to your backend endpoint.                         |
+| `GoogleCredentialResponse`     | Type for the GIS credential callback response.                         |
+| `GoogleIdentityOptions`        | Type for GIS initialisation options.                                   |
+| `GsiButtonConfiguration`       | Type for the "Sign in with Google" button config.                      |
+| `GoogleAuthControls`           | Type returned by `initializeGoogleAuth`.                               |
+
+## Token payload
+
+The server re-exports `TokenPayload` from `google-auth-library` for
+convenience:
+
+```ts
+import type { TokenPayload } from '@furystack/auth-google'
+```
+
+Key fields: `sub` (unique Google ID, string), `email`, `email_verified`,
+`name`, `picture`, `given_name`, `family_name`, `locale`, `aud`, `iss`,
+`exp`.
