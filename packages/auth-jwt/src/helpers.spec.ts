@@ -1,6 +1,7 @@
 import { InMemoryStore, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { PasswordCredential } from '@furystack/security'
+import { getRepository } from '@furystack/repository'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { useHttpAuthentication, HttpAuthenticationSettings } from '@furystack/rest-service'
 import { DefaultSession } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
@@ -15,7 +16,17 @@ const prepareInjector = (i: Injector) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
     .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
     .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
+
+  const repo = getRepository(i)
+  repo.createDataSet(User, 'username')
+  repo.createDataSet(DefaultSession, 'sessionId')
+  repo.createDataSet(PasswordCredential, 'userName')
+  repo.createDataSet(PasswordResetToken, 'token')
+  repo.createDataSet(RefreshToken, 'token')
+
+  usePasswordPolicy(i)
   useHttpAuthentication(i)
 }
 

@@ -1,6 +1,7 @@
-import { addStore, InMemoryStore, StoreManager, User } from '@furystack/core'
+import { addStore, InMemoryStore, StoreManager, User, useSystemIdentityContext } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getDataSetFor, getRepository } from '@furystack/repository'
 import {
   DefaultSession,
   HttpUserContext,
@@ -8,6 +9,7 @@ import {
   useHttpAuthentication,
   useRestService,
 } from '@furystack/rest-service'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { WebSocket } from 'ws'
@@ -30,9 +32,18 @@ describe('WebSocket Integration tests', () => {
       port,
       hostName: host,
     })
-    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-      new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-    )
+    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+      .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+
+    const repo = getRepository(injector)
+    repo.createDataSet(User, 'username')
+    repo.createDataSet(DefaultSession, 'sessionId')
+    repo.createDataSet(PasswordCredential, 'userName')
+    repo.createDataSet(PasswordResetToken, 'token')
+
+    usePasswordPolicy(injector)
     useHttpAuthentication(injector, {})
     await useWebsockets(injector, { actions: [WhoAmI], path, port, host })
 
@@ -111,7 +122,9 @@ describe('WebSocket Integration tests', () => {
       const whoAmIResult = await getWhoAmIResult(authenticatedClient)
       expect(whoAmIResult.currentUser).toEqual(testUser)
 
-      await userStore.update(testUser.username, { ...testUser, roles: ['newFancyRole'] })
+      const systemInjector = useSystemIdentityContext({ injector, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
+      await userDataSet.update(systemInjector, testUser.username, { ...testUser, roles: ['newFancyRole'] })
 
       const updatedWhoAmIResult = await getWhoAmIResult(authenticatedClient)
       expect(updatedWhoAmIResult.currentUser.roles).toEqual(['newFancyRole'])

@@ -1,7 +1,8 @@
 import type { User } from '@furystack/core'
-import { StoreManager } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
+import type { DataSet } from '@furystack/repository'
 import { PasswordAuthenticator } from '@furystack/security'
 
 import type { ImplementApiOptions } from './api-manager.js'
@@ -9,9 +10,9 @@ import { ApiManager } from './api-manager.js'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { createBasicAuthProvider } from './authentication-providers/basic-auth-provider.js'
 import { createCookieAuthProvider } from './authentication-providers/cookie-auth-provider.js'
-import { authenticateUserWithStore, findSessionById, findUserByName } from './authentication-providers/helpers.js'
+import { authenticateUserWithDataSet, findSessionById, findUserByName } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import { DefaultSession } from './models/default-session.js'
+import type { DefaultSession } from './models/default-session.js'
 import type { ProxyOptions } from './proxy-manager.js'
 import { ProxyManager } from './proxy-manager.js'
 import type { StaticServerOptions } from './static-server-manager.js'
@@ -39,17 +40,22 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
   settings?: Partial<HttpAuthenticationSettings<TUser, TSession>>,
 ) => {
   const mergedSettings = Object.assign(new HttpAuthenticationSettings<TUser, TSession>(), settings)
-  const storeManager = injector.getInstance(StoreManager)
+  const systemInjector = useSystemIdentityContext({ injector, username: 'useHttpAuthentication' })
   const passwordAuthenticator = injector.getInstance(PasswordAuthenticator)
-  const userStore = mergedSettings.getUserStore(storeManager)
-  const sessionStore = storeManager.getStoreFor(DefaultSession, 'sessionId')
+  const userDataSet = mergedSettings.getUserDataSet(systemInjector)
+  // Narrow from DataSet<TSession, keyof TSession> to DataSet<DefaultSession, 'sessionId'>
+  // because the built-in providers operate on DefaultSession with the concrete 'sessionId' key
+  const sessionDataSet = mergedSettings.getSessionDataSet(systemInjector) as unknown as DataSet<
+    DefaultSession,
+    'sessionId'
+  >
 
   const providers: AuthenticationProvider[] = []
 
   if (mergedSettings.enableBasicAuth) {
     providers.push(
       createBasicAuthProvider((username, password) =>
-        authenticateUserWithStore(passwordAuthenticator, userStore, username, password),
+        authenticateUserWithDataSet(passwordAuthenticator, userDataSet, systemInjector, username, password),
       ),
     )
   }
@@ -57,8 +63,8 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
   providers.push(
     createCookieAuthProvider(
       mergedSettings.cookieName,
-      (sessionId) => findSessionById(sessionStore, sessionId),
-      (username) => findUserByName(userStore, username),
+      (sessionId) => findSessionById(sessionDataSet, systemInjector, sessionId),
+      (username) => findUserByName(userDataSet, systemInjector, username),
     ),
   )
 

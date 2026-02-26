@@ -7,5 +7,12 @@
     "baseUrl": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../rest-service" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../core" },
+    { "path": "../inject" },
+    { "path": "../repository" },
+    { "path": "../rest-service" },
+    { "path": "../security" },
+    { "path": "../utils" }
+  ]
 }

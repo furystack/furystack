@@ -1,6 +1,7 @@
 import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getRepository } from '@furystack/repository'
 import type { RestApi } from '@furystack/rest'
 import { DefaultSession, GetCurrentUser, useHttpAuthentication, useRestService } from '@furystack/rest-service'
 import { PasswordAuthenticator, PasswordCredential } from '@furystack/security'
@@ -42,6 +43,12 @@ const createJwtTestServer = async () => {
     .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
     .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
+
+  const repo = getRepository(injector)
+  repo.createDataSet(User, 'username')
+  repo.createDataSet(DefaultSession, 'sessionId')
+  repo.createDataSet(PasswordCredential, 'userName')
+  repo.createDataSet(RefreshToken, 'token')
 
   useHttpAuthentication(injector)
   usePasswordPolicy(injector)

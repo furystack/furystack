@@ -210,14 +210,15 @@ You can use the built-in authentication that comes with this package. It contain
 ```ts
 import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
 import { Injector } from '@furystack/inject'
+import { getDataSetFor } from '@furystack/repository'
 
 const myInjector = new Injector()
 useHttpAuthentication(myInjector, {
   cookieName: 'sessionId', // The session ID will be stored in this cookie
   enableBasicAuth: true, // Enables / disables standard Basic Authentication
   model: ApplicationUserModel, // The custom User model. Should implement `User`
-  getUserStore: (storeManager) => storeManager.getStoreFor(ApplicationUserModel, 'username'), // Callback to retrieve the User Store
-  getSessionStore: (storeManager) => storeManager.getStoreFor(MySessionModel, 'sessionId'), // Callback to retrieve the Session Store
+  getUserDataSet: (injector) => getDataSetFor(injector, ApplicationUserModel, 'username'),
+  getSessionDataSet: (injector) => getDataSetFor(injector, MySessionModel, 'sessionId'),
 })
 await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 ```

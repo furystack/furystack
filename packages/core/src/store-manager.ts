@@ -37,6 +37,12 @@ export class StoreManager implements AsyncDisposable {
   /**
    * Returns a store model for a constructable object.
    * Throws error if no store is registered
+   *
+   * **Note:** For application-level data access, prefer `getDataSetFor` from `@furystack/repository`.
+   * Writing through the DataSet ensures authorization, modification hooks, and change events
+   * (required for entity sync) are properly triggered.
+   * This method is intended for internal use by `Repository.createDataSet` and for physical store tests.
+   *
    * @param model The Constructable object
    * @param primaryKey The Primary Key field
    * @throws if the Store is not registered

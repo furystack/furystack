@@ -1,6 +1,8 @@
-import type { PhysicalStore } from '@furystack/core'
-import { StoreManager } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
+import type { DataSet } from '@furystack/repository'
+import { getDataSetFor } from '@furystack/repository'
 import { UnauthenticatedError } from './errors/index.js'
 import { PasswordComplexityError } from './errors/password-complexity-error.js'
 import type { PasswordCheckResult } from './models/index.js'
@@ -10,11 +12,14 @@ import { SecurityPolicyManager } from './security-policy-manager.js'
 
 @Injectable({ lifetime: 'singleton' })
 export class PasswordAuthenticator {
-  @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName'))
-  declare private readonly passwordStore: PhysicalStore<PasswordCredential, 'userName'>
+  @Injected((injector) => useSystemIdentityContext({ injector, username: 'PasswordAuthenticator' }))
+  declare private readonly systemInjector: Injector
 
-  @Injected((injector) => injector.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token'))
-  declare private readonly tokenStore: PhysicalStore<PasswordResetToken, 'token'>
+  @Injected((injector) => getDataSetFor(injector, PasswordCredential, 'userName'))
+  declare private readonly passwordDataSet: DataSet<PasswordCredential, 'userName'>
+
+  @Injected((injector) => getDataSetFor(injector, PasswordResetToken, 'token'))
+  declare private readonly tokenDataSet: DataSet<PasswordResetToken, 'token'>
 
   @Injected(function (this: PasswordAuthenticator, injector) {
     return injector.getInstance(this.policyManager.policy.hasher)
@@ -27,7 +32,7 @@ export class PasswordAuthenticator {
    * @returns An object that contains an { isValid } value that indicates if the password is valid
    */
   public async checkPasswordForUser(userName: string, plainPassword: string): Promise<PasswordCheckResult> {
-    const entry = await this.passwordStore.get(userName)
+    const entry = await this.passwordDataSet.get(this.systemInjector, userName)
     if (!entry) {
       return {
         isValid: false,
@@ -61,11 +66,11 @@ export class PasswordAuthenticator {
       throw new UnauthenticatedError()
     }
     const newCredential = await this.hasher.createCredential(userName, plainPassword)
-    const existing = await this.passwordStore.get(userName)
+    const existing = await this.passwordDataSet.get(this.systemInjector, userName)
     if (existing) {
-      await this.passwordStore.remove(existing.userName)
+      await this.passwordDataSet.remove(this.systemInjector, existing.userName)
     }
-    await this.passwordStore.add(newCredential)
+    await this.passwordDataSet.add(this.systemInjector, newCredential)
   }
 
   /**
@@ -74,14 +79,14 @@ export class PasswordAuthenticator {
    * @param plainPassword The new password in plain string
    */
   public async resetPasswordForUser(resetToken: string, plainPassword: string): Promise<void> {
-    const token = await this.tokenStore.get(resetToken)
+    const token = await this.tokenDataSet.get(this.systemInjector, resetToken)
 
     if (!token) {
       throw new UnauthenticatedError()
     }
 
     if (this.policyManager.hasTokenExpired(token)) {
-      await this.tokenStore.remove(resetToken) // clean up token
+      await this.tokenDataSet.remove(this.systemInjector, resetToken)
       throw new UnauthenticatedError()
     }
 
@@ -91,11 +96,11 @@ export class PasswordAuthenticator {
     }
 
     const newCredential = await this.hasher.createCredential(token.userName, plainPassword)
-    const existing = await this.passwordStore.get(token.userName)
+    const existing = await this.passwordDataSet.get(this.systemInjector, token.userName)
     if (existing) {
-      await this.passwordStore.remove(existing.userName)
+      await this.passwordDataSet.remove(this.systemInjector, existing.userName)
     }
-    await this.passwordStore.add(newCredential)
+    await this.passwordDataSet.add(this.systemInjector, newCredential)
   }
 
   @Injected(SecurityPolicyManager)

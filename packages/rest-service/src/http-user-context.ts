@@ -1,5 +1,6 @@
 import type { User } from '@furystack/core'
-import { StoreManager } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 import { randomBytes } from 'crypto'
@@ -13,13 +14,13 @@ import type { DefaultSession } from './models/default-session.js'
  */
 @Injectable({ lifetime: 'scoped' })
 export class HttpUserContext {
-  public getUserStore = () => this.authentication.getUserStore(this.storeManager)
+  public getUserDataSet = () => this.authentication.getUserDataSet(this.systemInjector)
 
-  public getSessionStore = () => this.authentication.getSessionStore(this.storeManager)
+  public getSessionDataSet = () => this.authentication.getSessionDataSet(this.systemInjector)
 
   private getUserByName = async (userName: string) => {
-    const userStore = this.getUserStore()
-    const users = await userStore.find({ filter: { username: { $eq: userName } }, top: 2 })
+    const userDataSet = this.getUserDataSet()
+    const users = await userDataSet.find(this.systemInjector, { filter: { username: { $eq: userName } }, top: 2 })
     if (users.length !== 1) {
       throw new UnauthenticatedError()
     }
@@ -113,7 +114,7 @@ export class HttpUserContext {
     serverResponse: { setHeader: (header: string, value: string) => void },
   ): Promise<User> {
     const sessionId = randomBytes(32).toString('hex')
-    await this.getSessionStore().add({ sessionId, username: user.username })
+    await this.getSessionDataSet().add(this.systemInjector, { sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     this.user = user
     return user
@@ -128,36 +129,36 @@ export class HttpUserContext {
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
 
     if (sessionId) {
-      const sessionStore = this.getSessionStore()
-      const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } } })
-      await this.getSessionStore().remove(...sessions.map((s) => s[sessionStore.primaryKey]))
+      const sessionDataSet = this.getSessionDataSet()
+      const sessions = await sessionDataSet.find(this.systemInjector, { filter: { sessionId: { $eq: sessionId } } })
+      await sessionDataSet.remove(this.systemInjector, ...sessions.map((s) => s[sessionDataSet.primaryKey]))
     }
   }
 
   @Injected(HttpAuthenticationSettings)
   declare public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>
 
-  @Injected(StoreManager)
-  declare private readonly storeManager: StoreManager
+  @Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'HttpUserContext' }))
+  declare private readonly systemInjector: Injector
 
   @Injected(PasswordAuthenticator)
   declare private readonly authenticator: PasswordAuthenticator
 
   public init() {
-    this.getUserStore().addListener('onEntityUpdated', ({ id, change }) => {
+    this.getUserDataSet().addListener('onEntityUpdated', ({ id, change }) => {
       if (this.user?.username === id) {
         this.user = { ...this.user, ...change }
       }
     })
 
-    this.getUserStore().addListener('onEntityRemoved', ({ key }) => {
+    this.getUserDataSet().addListener('onEntityRemoved', ({ key }) => {
       if (this.user?.username === key) {
         this.user = undefined
       }
     })
 
-    this.getSessionStore().addListener('onEntityRemoved', () => {
-      this.user = undefined // as user cannot be determined by the session id anymore
+    this.getSessionDataSet().addListener('onEntityRemoved', () => {
+      this.user = undefined
     })
   }
 }

@@ -1,7 +1,8 @@
 import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
-import { PasswordCredential } from '@furystack/security'
+import { getRepository } from '@furystack/repository'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { ApiManager } from './api-manager.js'
@@ -11,13 +12,24 @@ import { DefaultSession } from './models/default-session.js'
 import { ProxyManager } from './proxy-manager.js'
 import { StaticServerManager } from './static-server-manager.js'
 
+const setupAuthStores = (i: Injector) => {
+  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  const repo = getRepository(i)
+  repo.createDataSet(User, 'username')
+  repo.createDataSet(DefaultSession, 'sessionId')
+  repo.createDataSet(PasswordCredential, 'userName')
+  repo.createDataSet(PasswordResetToken, 'token')
+  usePasswordPolicy(i)
+}
+
 describe('Injector extensions', () => {
   describe('useHttpAuthentication', () => {
     it('Should set up HTTP Authentication', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+        setupAuthStores(i)
         useHttpAuthentication(i)
         expect(i.cachedSingletons.get(HttpAuthenticationSettings)).toBeDefined()
       })
@@ -25,9 +37,7 @@ describe('Injector extensions', () => {
 
     it('Should register basic-auth and cookie-auth providers by default', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+        setupAuthStores(i)
         useHttpAuthentication(i)
         const settings = i.getInstance(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)
@@ -38,9 +48,7 @@ describe('Injector extensions', () => {
 
     it('Should not register basic-auth provider when disabled', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+        setupAuthStores(i)
         useHttpAuthentication(i, { enableBasicAuth: false })
         const settings = i.getInstance(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)

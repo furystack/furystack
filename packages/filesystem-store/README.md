@@ -33,3 +33,5 @@ useFileSystemStore({
 const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
 await myStore.add({ id: 1, value: 'foo' })
 ```
+
+> **Tip:** For application-level data access, wrap the physical store with a Repository DataSet using `getRepository(injector).createDataSet(Model, 'primaryKey')` and then use `getDataSetFor(injector, Model, 'primaryKey')` from `@furystack/repository`. This ensures authorization, hooks, and entity sync events are properly triggered.

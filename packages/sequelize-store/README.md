@@ -38,3 +38,5 @@ useSequelize({
 
 const myStore: PhysicalStore<TestEntry, '_id'> = myInjector.getInstance(StoreManager).getStoreFor(TestEntry, '_id')
 ```
+
+> **Tip:** For application-level data access, wrap the physical store with a Repository DataSet using `getRepository(injector).createDataSet(Model, 'primaryKey')` and then use `getDataSetFor(injector, Model, 'primaryKey')` from `@furystack/repository`. This ensures authorization, hooks, and entity sync events are properly triggered.

@@ -1,5 +1,6 @@
 import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
+import { getRepository } from '@furystack/repository'
 import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
@@ -16,6 +17,7 @@ const setupInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSetting
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
 
   const settings = Object.assign(new JwtAuthenticationSettings(), { secret: SECRET, ...overrides })
+  getRepository(i).createDataSet(RefreshToken, 'token')
   i.setExplicitInstance(settings, JwtAuthenticationSettings)
 }
 

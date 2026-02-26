@@ -45,10 +45,22 @@ describe('MongoDB Store', () => {
     },
   })
 
+  const createTestClassWithIdStore = (injector: Injector) => {
+    const mongoOptions = { ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' as const }
+    useMongoDb(mongoOptions)
+    const oldDispose = injector[Symbol.asyncDispose]
+    injector[Symbol.asyncDispose] = async () => {
+      const client = injector.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
+      const db = client.db(mongoOptions.db)
+      await db.dropDatabase()
+      await oldDispose.call(injector)
+    }
+    return injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+  }
+
   it('Should retrieve an entity with its id', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
 
       expect(typeof created[0]._id).toBe('string')
@@ -60,8 +72,7 @@ describe('MongoDB Store', () => {
 
   it('Should retrieve more entities with theis ids', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
       const retrieved = await store.find({ filter: { _id: { $in: created.map((c) => c._id) } } })
       expect(retrieved.length).toBe(3)
@@ -71,8 +82,7 @@ describe('MongoDB Store', () => {
 
   it('Should filter by _id as a string', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
       const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
       expect(retrieved.length).toBe(1)
@@ -82,8 +92,7 @@ describe('MongoDB Store', () => {
 
   it('Should filter by _id.$eq as a string', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
       const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
       expect(retrieved.length).toBe(1)
@@ -93,8 +102,7 @@ describe('MongoDB Store', () => {
 
   it('Should filter by _id.$in as array of strings', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
       const ids = created.map((c) => c._id)
       const retrieved = await store.find({ filter: { _id: { $in: ids } } })
@@ -105,8 +113,7 @@ describe('MongoDB Store', () => {
 
   it('Should filter by _id.$nin as array of strings', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
       const ids = created.map((c) => c._id)
       const retrieved = await store.find({ filter: { _id: { $nin: [ids[0]] } } })
@@ -117,8 +124,7 @@ describe('MongoDB Store', () => {
 
   it('Should filter by a non-_id field', async () => {
     await usingAsync(new Injector(), async (injector) => {
-      useMongoDb({ ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' })
-      const store = injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+      const store = createTestClassWithIdStore(injector)
       await store.add({ value: 'value1' }, { value: 'value2' })
       const retrieved = await store.find({ filter: { value: { $eq: 'value2' } } })
       expect(retrieved.length).toBe(1)

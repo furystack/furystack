@@ -44,6 +44,7 @@
   "dependencies": {
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
+    "@furystack/repository": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/rest-client-fetch": "workspace:^",
     "@furystack/rest-service": "workspace:^",

@@ -1,12 +1,15 @@
-import type { PhysicalStore, User } from '@furystack/core'
+import type { User } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import type { PasswordAuthenticator } from '@furystack/security'
 import { UnauthenticatedError } from '@furystack/security'
+import type { DataSet } from '@furystack/repository'
 import type { IncomingMessage } from 'http'
 import type { DefaultSession } from '../models/default-session.js'
 
-export const authenticateUserWithStore = async (
+export const authenticateUserWithDataSet = async (
   authenticator: PasswordAuthenticator,
-  userStore: PhysicalStore<User, 'username'>,
+  userDataSet: DataSet<User, 'username'>,
+  injector: Injector,
   userName: string,
   password: string,
 ): Promise<User> => {
@@ -14,7 +17,7 @@ export const authenticateUserWithStore = async (
   if (!result.isValid) {
     throw new UnauthenticatedError()
   }
-  const users = await userStore.find({ filter: { username: { $eq: userName } }, top: 2 })
+  const users = await userDataSet.find(injector, { filter: { username: { $eq: userName } }, top: 2 })
   if (users.length !== 1) {
     throw new UnauthenticatedError()
   }
@@ -22,10 +25,11 @@ export const authenticateUserWithStore = async (
 }
 
 export const findSessionById = async (
-  sessionStore: PhysicalStore<DefaultSession, 'sessionId'>,
+  sessionDataSet: DataSet<DefaultSession, 'sessionId'>,
+  injector: Injector,
   sessionId: string,
 ): Promise<DefaultSession | null> => {
-  const sessions = await sessionStore.find({
+  const sessions = await sessionDataSet.find(injector, {
     filter: { sessionId: { $eq: sessionId } },
     top: 2,
   })
@@ -35,8 +39,12 @@ export const findSessionById = async (
   return sessions[0]
 }
 
-export const findUserByName = async (userStore: PhysicalStore<User, 'username'>, userName: string): Promise<User> => {
-  const users = await userStore.find({ filter: { username: { $eq: userName } }, top: 2 })
+export const findUserByName = async (
+  userDataSet: DataSet<User, 'username'>,
+  injector: Injector,
+  userName: string,
+): Promise<User> => {
+  const users = await userDataSet.find(injector, { filter: { username: { $eq: userName } }, top: 2 })
   if (users.length !== 1) {
     throw new UnauthenticatedError()
   }
