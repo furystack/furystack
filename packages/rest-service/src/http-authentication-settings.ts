@@ -1,7 +1,6 @@
 import { User } from '@furystack/core'
 import type { Constructable, Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
-import type { DataSet } from '@furystack/repository'
 import { getDataSetFor } from '@furystack/repository'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { DefaultSession } from './models/default-session.js'
@@ -13,10 +12,13 @@ import { DefaultSession } from './models/default-session.js'
 export class HttpAuthenticationSettings<TUser extends User, TSession extends DefaultSession> {
   public model: Constructable<TUser> = User as Constructable<TUser>
 
-  public getUserDataSet = (injector: Injector) => getDataSetFor(injector, User, 'username')
+  public getUserDataSet = (injector: Injector) =>
+    getDataSetFor(injector, this.model, 'username' as 'username' & keyof TUser)
 
-  public getSessionDataSet: (injector: Injector) => DataSet<TSession, keyof TSession> = (injector) =>
-    getDataSetFor(injector, DefaultSession, 'sessionId') as unknown as DataSet<TSession, keyof TSession>
+  public sessionModel: Constructable<TSession> = DefaultSession as Constructable<TSession>
+
+  public getSessionDataSet = (injector: Injector) =>
+    getDataSetFor(injector, this.sessionModel, 'sessionId' as 'sessionId' & keyof TSession)
 
   public cookieName = 'fss'
   public enableBasicAuth = true
