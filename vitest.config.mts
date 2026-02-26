@@ -32,6 +32,7 @@ export default defineConfig({
           name: 'Service',
           include: [
             'packages/auth-google/src/**/*.spec.ts',
+            'packages/auth-jwt/src/**/*.spec.ts',
             'packages/filesystem-store/src/**/*.spec.ts',
             'packages/rest/src/**/*.spec.ts',
             'packages/rest-service/src/**/*.spec.ts',

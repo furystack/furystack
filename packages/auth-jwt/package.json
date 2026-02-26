@@ -1,0 +1,62 @@
+{
+  "name": "@furystack/auth-jwt",
+  "version": "0.0.1",
+  "description": "JWT Authentication Provider for FuryStack",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    },
+    "./client": {
+      "types": "./esm/client/index.d.ts",
+      "import": "./esm/client/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "authentication",
+    "JWT",
+    "Bearer",
+    "token",
+    "login"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/core": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/rest": "workspace:^",
+    "@furystack/rest-client-fetch": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
+    "@furystack/security": "workspace:^"
+  },
+  "devDependencies": {
+    "@furystack/utils": "workspace:^",
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

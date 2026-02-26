@@ -9,12 +9,12 @@ import { useHttpAuthentication } from './helpers.js'
 import { HttpUserContext } from './http-user-context.js'
 import { DefaultSession } from './models/default-session.js'
 
-export const prepareInjector = async (i: Injector) => {
+export const prepareInjector = async (i: Injector, options?: { enableBasicAuth?: boolean }) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
     .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
 
-  useHttpAuthentication(i)
+  useHttpAuthentication(i, { enableBasicAuth: options?.enableBasicAuth ?? true })
 }
 
 const setupUser = async (i: Injector, userName: string, password: string) => {
@@ -184,31 +184,28 @@ describe('HttpUserContext', () => {
   })
 
   describe('authenticateRequest', () => {
-    it('Should try to authenticate with Basic, if enabled', async () => {
+    it('Should authenticate with Basic Auth when enabled and valid credentials provided', async () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
+        await setupUser(i, 'testuser', 'password')
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authenticateUser = vi.fn(async () => testUser)
         const result = await ctx.authenticateRequest({
           headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
         } as IncomingMessage)
-        expect(ctx.authenticateUser).toBeCalledWith('testuser', 'password')
-        expect(result).toBe(testUser)
+        expect(result.username).toBe('testuser')
       })
     })
 
-    it('Should NOT try to authenticate with Basic, if disabled', async () => {
+    it('Should NOT try to authenticate with Basic when disabled', async () => {
       await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
+        await prepareInjector(i, { enableBasicAuth: false })
+        await setupUser(i, 'testuser', 'password')
         const ctx = i.getInstance(HttpUserContext)
-        ctx.authentication.enableBasicAuth = false
-        ctx.authenticateUser = vi.fn(async () => testUser)
         await expect(
           ctx.authenticateRequest({
             headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
           } as IncomingMessage),
         ).rejects.toThrowError(UnauthenticatedError)
-        expect(ctx.authenticateUser).not.toBeCalled()
       })
     })
 
@@ -255,6 +252,49 @@ describe('HttpUserContext', () => {
         } as IncomingMessage)
 
         expect(result).toEqual(testUser)
+      })
+    })
+
+    it('Should iterate providers and return null results pass to next', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const provider1 = vi.fn(async () => null)
+        const provider2 = vi.fn(async () => testUser)
+        ctx.authentication.authenticationProviders = [
+          { name: 'test-1', authenticate: provider1 },
+          { name: 'test-2', authenticate: provider2 },
+        ]
+        const result = await ctx.authenticateRequest(request)
+        expect(provider1).toHaveBeenCalledOnce()
+        expect(provider2).toHaveBeenCalledOnce()
+        expect(result).toBe(testUser)
+      })
+    })
+
+    it('Should throw if provider throws (skipping remaining providers)', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const provider1 = vi.fn(async () => {
+          throw new UnauthenticatedError()
+        })
+        const provider2 = vi.fn(async () => testUser)
+        ctx.authentication.authenticationProviders = [
+          { name: 'test-1', authenticate: provider1 },
+          { name: 'test-2', authenticate: provider2 },
+        ]
+        await expect(ctx.authenticateRequest(request)).rejects.toThrowError(UnauthenticatedError)
+        expect(provider2).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should throw UnauthenticatedError if no provider returns a user', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        ctx.authentication.authenticationProviders = [{ name: 'test-1', authenticate: async () => null }]
+        await expect(ctx.authenticateRequest(request)).rejects.toThrowError(UnauthenticatedError)
       })
     })
   })

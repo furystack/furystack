@@ -1,10 +1,13 @@
+import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { PasswordCredential } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { ApiManager } from './api-manager.js'
 import { useHttpAuthentication, useProxy, useRestService, useStaticFiles } from './helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { DefaultSession } from './models/default-session.js'
 import { ProxyManager } from './proxy-manager.js'
 import { StaticServerManager } from './static-server-manager.js'
 
@@ -12,8 +15,37 @@ describe('Injector extensions', () => {
   describe('useHttpAuthentication', () => {
     it('Should set up HTTP Authentication', async () => {
       await usingAsync(new Injector(), async (i) => {
+        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
         useHttpAuthentication(i)
         expect(i.cachedSingletons.get(HttpAuthenticationSettings)).toBeDefined()
+      })
+    })
+
+    it('Should register basic-auth and cookie-auth providers by default', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+        useHttpAuthentication(i)
+        const settings = i.getInstance(HttpAuthenticationSettings)
+        const providerNames = settings.authenticationProviders.map((p) => p.name)
+        expect(providerNames).toContain('basic-auth')
+        expect(providerNames).toContain('cookie-auth')
+      })
+    })
+
+    it('Should not register basic-auth provider when disabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+          .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+          .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+        useHttpAuthentication(i, { enableBasicAuth: false })
+        const settings = i.getInstance(HttpAuthenticationSettings)
+        const providerNames = settings.authenticationProviders.map((p) => p.name)
+        expect(providerNames).not.toContain('basic-auth')
+        expect(providerNames).toContain('cookie-auth')
       })
     })
   })
