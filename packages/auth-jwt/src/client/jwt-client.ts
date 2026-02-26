@@ -62,9 +62,15 @@ export const createJwtClient = <TApi extends RestApi>(
 
   const rawFetch = clientOptions.fetch || fetch
 
+  const joinUrl = (base: string, path: string): string => {
+    const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
+    if (!path) return normalizedBase
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    return `${normalizedBase}${normalizedPath}`
+  }
+
   const fetchJson = async <T>(url: string, body: unknown): Promise<T> => {
-    const { PathHelper } = await import('@furystack/utils')
-    const fullUrl = PathHelper.joinUrl(clientOptions.endpointUrl, url)
+    const fullUrl = joinUrl(clientOptions.endpointUrl, url)
     const response = await rawFetch(fullUrl, {
       ...clientOptions.requestInit,
       method: 'POST',

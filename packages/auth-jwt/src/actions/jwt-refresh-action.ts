@@ -2,6 +2,7 @@ import { RequestError } from '@furystack/rest'
 import type { RequestAction } from '@furystack/rest-service'
 import { JsonResult } from '@furystack/rest-service'
 import { HttpUserContext } from '@furystack/rest-service'
+import { UnauthenticatedError } from '@furystack/security'
 import { JwtTokenService } from '../jwt-token-service.js'
 
 /**
@@ -21,7 +22,7 @@ export const JwtRefreshAction: RequestAction<{
     const userStore = userContext.getUserStore()
     const users = await userStore.find({ filter: { username: { $eq: username } }, top: 2 })
     if (users.length !== 1) {
-      throw new Error('User not found')
+      throw new UnauthenticatedError()
     }
     const user = users[0]
 
@@ -35,6 +36,9 @@ export const JwtRefreshAction: RequestAction<{
     await tokenService.rotateRefreshToken(body.refreshToken, newRefreshToken)
     return JsonResult({ accessToken: newAccessToken, refreshToken: newRefreshToken }, 200)
   } catch (error) {
-    throw new RequestError('Token refresh failed', 401)
+    if (error instanceof UnauthenticatedError) {
+      throw new RequestError('Token refresh failed', 401)
+    }
+    throw error
   }
 }

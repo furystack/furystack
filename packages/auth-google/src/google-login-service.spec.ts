@@ -1,6 +1,7 @@
 import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { useHttpAuthentication } from '@furystack/rest-service'
+import { DefaultSession, useHttpAuthentication } from '@furystack/rest-service'
+import { PasswordCredential } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import type { get } from 'http'
 import { describe, expect, it } from 'vitest'
@@ -14,11 +15,17 @@ const getGoogleUser = (overrides?: Partial<GoogleApiPayload>) =>
     ...overrides,
   }) as GoogleApiPayload
 
+const setupStores = (i: Injector) => {
+  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+}
+
 describe('Google Login Service', () => {
   describe('Settings', () => {
     it('Can parse the user from the Google Response post body', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+        setupStores(i)
         useHttpAuthentication(i, {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
@@ -40,8 +47,7 @@ describe('Google Login Service', () => {
 
     it('Should reject on invalide Google API responses', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-
+        setupStores(i)
         useHttpAuthentication(i, {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
@@ -61,7 +67,7 @@ describe('Google Login Service', () => {
 
     it('Should reject if the user is not in the DB', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+        setupStores(i)
         useHttpAuthentication(i, {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
@@ -78,7 +84,7 @@ describe('Google Login Service', () => {
 
     it('Should reject on unverified e-mail addresses', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+        setupStores(i)
         useHttpAuthentication(i, {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
@@ -98,7 +104,7 @@ describe('Google Login Service', () => {
 
     it('Should login the user on valid Google Payload response ', async () => {
       await usingAsync(new Injector(), async (i) => {
-        addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
+        setupStores(i)
         useHttpAuthentication(i, {
           getUserStore: (sm) => sm.getStoreFor(User, 'username'),
         })
