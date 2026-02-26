@@ -32,6 +32,11 @@ export const useJwtAuthentication = (
   const userDataSet = httpAuthSettings.getUserDataSet(systemInjector)
 
   httpAuthSettings.authenticationProviders.push(
-    createJwtAuthProvider({ jwtTokenService, userDataSet, injector: systemInjector }),
+    createJwtAuthProvider({
+      jwtTokenService,
+      userDataSet,
+      injector: systemInjector,
+      fingerprintCookieName: jwtSettings.fingerprintCookie.enabled ? jwtSettings.fingerprintCookie.name : null,
+    }),
   )
 }

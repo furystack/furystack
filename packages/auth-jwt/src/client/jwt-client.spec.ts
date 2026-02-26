@@ -43,6 +43,48 @@ describe('createJwtClient', () => {
     return { tokenStore, client }
   }
 
+  describe('credentials default', () => {
+    it('Should set credentials: include by default for fingerprint cookie support', async () => {
+      const accessToken = createMockToken(futureExp())
+      loginMock.mockResolvedValueOnce({ accessToken, refreshToken: 'rt' })
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ data: 'result' }),
+      })
+
+      const { tokenStore, client } = createTestSetup()
+      await tokenStore.login({ username: 'admin', password: 'secret' })
+      await client.call({ method: 'GET', action: '/test' } as Parameters<typeof client.call>[0])
+
+      const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit]
+      expect(requestInit.credentials).toBe('include')
+    })
+
+    it('Should allow overriding credentials via requestInit', async () => {
+      const accessToken = createMockToken(futureExp())
+      loginMock.mockResolvedValueOnce({ accessToken, refreshToken: 'rt' })
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ data: 'result' }),
+      })
+
+      const tokenStore = createJwtTokenStore({ login: loginMock, refresh: refreshMock })
+      const client = createJwtClient({
+        endpointUrl: 'http://localhost:8080/api',
+        fetch: fetchMock as unknown as typeof fetch,
+        tokenStore,
+        requestInit: { credentials: 'same-origin' },
+      })
+      await tokenStore.login({ username: 'admin', password: 'secret' })
+      await client.call({ method: 'GET', action: '/test' } as Parameters<typeof client.call>[0])
+
+      const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit]
+      expect(requestInit.credentials).toBe('same-origin')
+    })
+  })
+
   describe('call with Bearer injection', () => {
     it('Should inject Authorization header on authenticated calls', async () => {
       const accessToken = createMockToken(futureExp())

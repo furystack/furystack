@@ -4,6 +4,36 @@ import { getDataSetFor } from '@furystack/repository'
 import { RefreshToken } from './models/refresh-token.js'
 
 /**
+ * Settings for the fingerprint cookie used to prevent token sidejacking (XSS token theft).
+ *
+ * When enabled, a random fingerprint is hashed and embedded in the JWT `fpt` claim,
+ * while the raw value is sent as an HTTP-only cookie. On verification, the cookie
+ * value is hashed and compared against the claim.
+ *
+ * @see https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html#token-sidejacking
+ */
+export type FingerprintCookieSettings = {
+  /** Whether fingerprint cookie protection is enabled. Default: `true`. */
+  enabled: boolean
+  /** Cookie name. Default: `'fpt'`. Consider `'__Secure-fpt'` or `'__Host-fpt'` in production. */
+  name: string
+  /** SameSite attribute. Default: `'Strict'`. */
+  sameSite: 'Strict' | 'Lax' | 'None'
+  /** Whether the Secure flag is set (cookie only sent over HTTPS). Default: `true`. */
+  secure: boolean
+  /** Cookie path. Default: `'/'`. */
+  path: string
+}
+
+const DEFAULT_FINGERPRINT_COOKIE_SETTINGS: FingerprintCookieSettings = {
+  enabled: true,
+  name: 'fpt',
+  sameSite: 'Strict',
+  secure: true,
+  path: '/',
+}
+
+/**
  * Configuration for JWT Bearer token authentication.
  *
  * @important HTTPS is strongly recommended when using JWT Bearer tokens,
@@ -42,6 +72,12 @@ export class JwtAuthenticationSettings {
 
   /** JWT 'aud' claim. If set, tokens are signed with this audience and verified against it. */
   public audience?: string
+
+  /**
+   * Fingerprint cookie settings for OWASP token sidejacking prevention.
+   * Enabled by default. Set `enabled: false` to opt out (e.g. for non-browser clients).
+   */
+  public fingerprintCookie: FingerprintCookieSettings = { ...DEFAULT_FINGERPRINT_COOKIE_SETTINGS }
 
   /** Returns the DataSet for refresh tokens. */
   public getRefreshTokenDataSet = (injector: Injector) => getDataSetFor(injector, RefreshToken, 'token')

@@ -4,12 +4,20 @@ import { getRepository } from '@furystack/repository'
 import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
+import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
 import { JwtAuthenticationSettings } from './jwt-authentication-settings.js'
 import { JwtTokenService } from './jwt-token-service.js'
-import { base64UrlEncode, signHs256 } from './jwt-utils.js'
+import { base64UrlEncode, decodeJwt, hashFingerprint, signHs256 } from './jwt-utils.js'
 import { RefreshToken } from './models/refresh-token.js'
 
 const SECRET = 'a-very-secret-key-at-least-32-bytes-long!'
+const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
+  enabled: false,
+  name: 'fpt',
+  sameSite: 'Strict',
+  secure: true,
+  path: '/',
+}
 
 const setupInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
@@ -29,8 +37,8 @@ describe('JwtTokenService', () => {
       await usingAsync(new Injector(), async (i) => {
         setupInjector(i)
         const service = i.getInstance(JwtTokenService)
-        const token = service.signAccessToken(testUser)
-        const payload = service.verifyAccessToken(token)
+        const { token, fingerprint } = service.signAccessToken(testUser)
+        const payload = service.verifyAccessToken(token, fingerprint)
         expect(payload.sub).toBe('testuser')
         expect(payload.roles).toEqual(['admin', 'user'])
         expect(payload.exp).toBeGreaterThan(payload.iat)
@@ -41,8 +49,8 @@ describe('JwtTokenService', () => {
       await usingAsync(new Injector(), async (i) => {
         setupInjector(i, { issuer: 'my-app', audience: 'my-client' })
         const service = i.getInstance(JwtTokenService)
-        const token = service.signAccessToken(testUser)
-        const payload = service.verifyAccessToken(token)
+        const { token, fingerprint } = service.signAccessToken(testUser)
+        const payload = service.verifyAccessToken(token, fingerprint)
         expect(payload.iss).toBe('my-app')
         expect(payload.aud).toBe('my-client')
       })
@@ -50,7 +58,7 @@ describe('JwtTokenService', () => {
 
     it('Should reject a token with wrong issuer', async () => {
       await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { issuer: 'correct-issuer' })
+        setupInjector(i, { issuer: 'correct-issuer', fingerprintCookie: FINGERPRINT_DISABLED })
         const service = i.getInstance(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
@@ -67,7 +75,7 @@ describe('JwtTokenService', () => {
 
     it('Should reject an expired token', async () => {
       await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { clockSkewToleranceSeconds: 0 })
+        setupInjector(i, { clockSkewToleranceSeconds: 0, fingerprintCookie: FINGERPRINT_DISABLED })
         const service = i.getInstance(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
@@ -113,7 +121,7 @@ describe('JwtTokenService', () => {
       await usingAsync(new Injector(), async (i) => {
         setupInjector(i)
         const service = i.getInstance(JwtTokenService)
-        const token = service.signAccessToken(testUser)
+        const { token } = service.signAccessToken(testUser)
         const parts = token.split('.')
         const tamperedPayload = base64UrlEncode(
           JSON.stringify({ sub: 'hacker', roles: ['admin'], iat: 0, exp: 99999999999 }),
@@ -130,6 +138,67 @@ describe('JwtTokenService', () => {
         const service = i.getInstance(JwtTokenService)
         expect(() => service.verifyAccessToken('not-a-jwt')).toThrow(UnauthenticatedError)
         expect(() => service.verifyAccessToken('')).toThrow(UnauthenticatedError)
+      })
+    })
+  })
+
+  describe('Fingerprint cookie protection', () => {
+    it('Should embed fpt claim in the access token when enabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i)
+        const service = i.getInstance(JwtTokenService)
+        const { token, fingerprint } = service.signAccessToken(testUser)
+        expect(fingerprint).toBeTruthy()
+        const decoded = decodeJwt(token)
+        expect(decoded.payload.fpt).toBe(hashFingerprint(fingerprint!))
+      })
+    })
+
+    it('Should not embed fpt claim when fingerprinting is disabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.getInstance(JwtTokenService)
+        const { token, fingerprint } = service.signAccessToken(testUser)
+        expect(fingerprint).toBeNull()
+        const decoded = decodeJwt(token)
+        expect(decoded.payload.fpt).toBeUndefined()
+      })
+    })
+
+    it('Should verify successfully with the correct fingerprint', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i)
+        const service = i.getInstance(JwtTokenService)
+        const { token, fingerprint } = service.signAccessToken(testUser)
+        expect(() => service.verifyAccessToken(token, fingerprint)).not.toThrow()
+      })
+    })
+
+    it('Should reject a token with a wrong fingerprint', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i)
+        const service = i.getInstance(JwtTokenService)
+        const { token } = service.signAccessToken(testUser)
+        expect(() => service.verifyAccessToken(token, 'wrong-fingerprint-value')).toThrow(UnauthenticatedError)
+      })
+    })
+
+    it('Should reject a token with a missing fingerprint when enabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i)
+        const service = i.getInstance(JwtTokenService)
+        const { token } = service.signAccessToken(testUser)
+        expect(() => service.verifyAccessToken(token)).toThrow(UnauthenticatedError)
+        expect(() => service.verifyAccessToken(token, null)).toThrow(UnauthenticatedError)
+      })
+    })
+
+    it('Should skip fingerprint check when disabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        setupInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.getInstance(JwtTokenService)
+        const { token } = service.signAccessToken(testUser)
+        expect(() => service.verifyAccessToken(token)).not.toThrow()
       })
     })
   })

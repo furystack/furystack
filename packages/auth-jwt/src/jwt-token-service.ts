@@ -3,9 +3,9 @@ import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import { UnauthenticatedError } from '@furystack/security'
-import { randomBytes } from 'crypto'
+import { randomBytes, timingSafeEqual } from 'crypto'
 import { JwtAuthenticationSettings } from './jwt-authentication-settings.js'
-import { createJwt, decodeJwt, verifyHs256 } from './jwt-utils.js'
+import { createJwt, decodeJwt, hashFingerprint, verifyHs256 } from './jwt-utils.js'
 import type { RefreshToken } from './models/refresh-token.js'
 
 /**
@@ -31,12 +31,20 @@ export class JwtTokenService {
 
   /**
    * Signs an access token JWT for the given user.
+   *
+   * When fingerprint cookie protection is enabled, a random fingerprint is generated,
+   * its SHA-256 hash is embedded as the `fpt` claim, and the raw value is returned
+   * so the caller can set it as an HTTP-only cookie.
+   *
    * @param user The user to create a token for
-   * @returns The signed JWT string
+   * @returns The signed JWT string and the raw fingerprint (or `null` if fingerprinting is disabled)
    */
-  public signAccessToken(user: Pick<User, 'username' | 'roles'>): string {
+  public signAccessToken(user: Pick<User, 'username' | 'roles'>): { token: string; fingerprint: string | null } {
     const now = Math.floor(Date.now() / 1000)
-    return createJwt(
+
+    const fingerprint = this.settings.fingerprintCookie.enabled ? randomBytes(32).toString('hex') : null
+
+    const token = createJwt(
       {
         sub: user.username,
         roles: user.roles,
@@ -44,18 +52,27 @@ export class JwtTokenService {
         exp: now + this.settings.accessTokenExpirationSeconds,
         ...(this.settings.issuer ? { iss: this.settings.issuer } : {}),
         ...(this.settings.audience ? { aud: this.settings.audience } : {}),
+        ...(fingerprint ? { fpt: hashFingerprint(fingerprint) } : {}),
       },
       this.settings.secret,
     )
+
+    return { token, fingerprint }
   }
 
   /**
    * Verifies an access token and returns its payload.
+   *
+   * When fingerprint cookie protection is enabled, the caller must provide the raw
+   * fingerprint value from the HTTP-only cookie. Its hash is compared against the
+   * `fpt` claim in the token using timing-safe comparison.
+   *
    * @param token The JWT string to verify
+   * @param fingerprint The raw fingerprint cookie value (required when fingerprinting is enabled)
    * @returns The decoded payload
-   * @throws UnauthenticatedError if the token is invalid, expired, or has a wrong algorithm
+   * @throws UnauthenticatedError if the token is invalid, expired, has a wrong algorithm, or fingerprint mismatch
    */
-  public verifyAccessToken(token: string) {
+  public verifyAccessToken(token: string, fingerprint?: string | null) {
     try {
       const { header, payload, headerPayload, signature } = decodeJwt(token)
 
@@ -78,6 +95,19 @@ export class JwtTokenService {
 
       if (this.settings.audience && payload.aud !== this.settings.audience) {
         throw new UnauthenticatedError()
+      }
+
+      if (this.settings.fingerprintCookie.enabled) {
+        if (!payload.fpt || !fingerprint) {
+          throw new UnauthenticatedError()
+        }
+        const expectedHash = payload.fpt
+        const actualHash = hashFingerprint(fingerprint)
+        const expected = Buffer.from(expectedHash, 'hex')
+        const actual = Buffer.from(actualHash, 'hex')
+        if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+          throw new UnauthenticatedError()
+        }
       }
 
       return payload

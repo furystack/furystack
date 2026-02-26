@@ -16,6 +16,10 @@ export type JwtClientOptions = ClientOptions & {
  * {@link JwtTokenStore}, proactively refreshes expiring tokens before each
  * request, and retries once on 401.
  *
+ * Sets `credentials: 'include'` by default so the browser sends HTTP-only
+ * cookies (e.g. the fingerprint cookie for OWASP token sidejacking prevention).
+ * Override via `requestInit.credentials` if needed.
+ *
  * All token lifecycle operations (login, logout, setTokens) live on the
  * token store, not on this client.
  *
@@ -27,7 +31,13 @@ export type JwtClientOptions = ClientOptions & {
  */
 export const createJwtClient = <TApi extends RestApi>(options: JwtClientOptions) => {
   const { tokenStore } = options
-  const innerClient = createClient<TApi>(options)
+  const innerClient = createClient<TApi>({
+    ...options,
+    requestInit: {
+      credentials: 'include',
+      ...options.requestInit,
+    },
+  })
 
   return {
     /**

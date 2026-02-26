@@ -1,9 +1,13 @@
 import type { RequestAction } from '@furystack/rest-service'
 import { EmptyResult } from '@furystack/rest-service'
+
+import { clearFingerprintSetCookie } from '../fingerprint-cookie.js'
+import { JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
 import { JwtTokenService } from '../jwt-token-service.js'
 
 /**
  * Action that revokes a refresh token (hard revocation, no grace period).
+ * When fingerprint cookie protection is enabled, also clears the fingerprint cookie.
  */
 export const JwtLogoutAction: RequestAction<{
   result: unknown
@@ -11,5 +15,9 @@ export const JwtLogoutAction: RequestAction<{
 }> = async ({ injector, getBody }) => {
   const body = await getBody()
   await injector.getInstance(JwtTokenService).revokeRefreshToken(body.refreshToken)
-  return EmptyResult()
+  const settings = injector.getInstance(JwtAuthenticationSettings)
+  const headers = settings.fingerprintCookie.enabled
+    ? { 'Set-Cookie': clearFingerprintSetCookie(settings.fingerprintCookie) }
+    : undefined
+  return EmptyResult(200, headers)
 }
