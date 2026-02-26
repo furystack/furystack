@@ -83,13 +83,13 @@ Override `getUserFromGooglePayload` to change how Google accounts map to
 local users:
 
 ```ts
-import { GoogleLoginSettings } from '@furystack/auth-google'
-
-const settings = injector.getInstance(GoogleLoginSettings)
-settings.getUserFromGooglePayload = async (payload) => {
-  // payload.email, payload.email_verified, payload.name, …
-  return myUserStore.findByEmail(payload.email!)
-}
+useGoogleAuthentication(injector, {
+  clientId: 'YOUR_CLIENT_ID',
+  getUserFromGooglePayload: async (payload) => {
+    // payload.email, payload.email_verified, payload.name, …
+    return myUserStore.findByEmail(payload.email!)
+  },
+})
 ```
 
 The default implementation requires `email_verified` to be `true` and
@@ -115,11 +115,8 @@ header against the value in the request body before processing the login.
 The package also provides a `./client` sub-export for browser use. It
 does **not** import any server-side code and is safe for bundlers.
 
-```bash
-import {
-  initializeGoogleAuth,
-  googleLogin,
-} from '@furystack/auth-google/client'
+```ts
+import { initializeGoogleAuth, googleLogin } from '@furystack/auth-google/client'
 ```
 
 ### Load and initialise Google Identity Services

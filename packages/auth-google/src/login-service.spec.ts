@@ -102,6 +102,20 @@ describe('GoogleLoginService', () => {
     })
   })
 
+  it('Should reject when email is missing from payload', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      await expect(
+        i
+          .getInstance(GoogleLoginService)
+          .getUserFromGooglePayload(createTokenPayload({ email: undefined, email_verified: true })),
+      ).rejects.toThrow('Google token does not contain an email address.')
+    })
+  })
+
   it('Should return undefined when user is not in the database', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupStores(i)

@@ -28,6 +28,99 @@ describe('loadGoogleIdentityServices', () => {
       })
     }
   })
+
+  it('Should load the GIS script and resolve on success', async () => {
+    const originalDocument = globalThis.document
+    try {
+      let capturedScript: { onload?: (() => void) | null; onerror?: (() => void) | null; src?: string } = {}
+      const mockHead = {
+        appendChild: vi.fn((el: typeof capturedScript) => {
+          capturedScript = el
+          queueMicrotask(() => el.onload?.())
+          return el
+        }),
+      }
+      Object.defineProperty(globalThis, 'document', {
+        value: { createElement: () => ({ async: false, defer: false, onload: null, onerror: null }), head: mockHead },
+        writable: true,
+        configurable: true,
+      })
+
+      vi.resetModules()
+      const mod = await import('./google-identity.js')
+
+      await mod.loadGoogleIdentityServices()
+
+      expect(mockHead.appendChild).toHaveBeenCalledOnce()
+      expect(capturedScript.src).toBe('https://accounts.google.com/gsi/client')
+    } finally {
+      Object.defineProperty(globalThis, 'document', {
+        value: originalDocument,
+        writable: true,
+        configurable: true,
+      })
+    }
+  })
+
+  it('Should reject and reset state when script fails to load', async () => {
+    const originalDocument = globalThis.document
+    try {
+      const mockHead = {
+        appendChild: vi.fn((el: { onload?: (() => void) | null; onerror?: (() => void) | null; src?: string }) => {
+          queueMicrotask(() => el.onerror?.())
+          return el
+        }),
+      }
+      Object.defineProperty(globalThis, 'document', {
+        value: { createElement: () => ({ async: false, defer: false, onload: null, onerror: null }), head: mockHead },
+        writable: true,
+        configurable: true,
+      })
+
+      vi.resetModules()
+      const mod = await import('./google-identity.js')
+
+      await expect(mod.loadGoogleIdentityServices()).rejects.toThrow('Failed to load Google Identity Services script.')
+    } finally {
+      Object.defineProperty(globalThis, 'document', {
+        value: originalDocument,
+        writable: true,
+        configurable: true,
+      })
+    }
+  })
+
+  it('Should return the same promise on subsequent calls', async () => {
+    const originalDocument = globalThis.document
+    try {
+      const mockHead = {
+        appendChild: vi.fn((el: { onload?: (() => void) | null; onerror?: (() => void) | null }) => {
+          queueMicrotask(() => el.onload?.())
+          return el
+        }),
+      }
+      Object.defineProperty(globalThis, 'document', {
+        value: { createElement: () => ({ async: false, defer: false, onload: null, onerror: null }), head: mockHead },
+        writable: true,
+        configurable: true,
+      })
+
+      vi.resetModules()
+      const mod = await import('./google-identity.js')
+
+      const p1 = mod.loadGoogleIdentityServices()
+      const p2 = mod.loadGoogleIdentityServices()
+      expect(p1).toBe(p2)
+      await p1
+      expect(mockHead.appendChild).toHaveBeenCalledOnce()
+    } finally {
+      Object.defineProperty(globalThis, 'document', {
+        value: originalDocument,
+        writable: true,
+        configurable: true,
+      })
+    }
+  })
 })
 
 describe('initializeGoogleAuth', () => {

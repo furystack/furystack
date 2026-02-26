@@ -31,6 +31,8 @@ export class GoogleLoginService {
    */
   public enableCsrfCheck = false
 
+  private oauthClient?: OAuth2Client
+
   @Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'GoogleLoginService' }))
   declare private readonly systemInjector: Injector
 
@@ -44,8 +46,8 @@ export class GoogleLoginService {
    * @returns The verified token payload
    */
   public async getGoogleUserData(token: string): Promise<TokenPayload> {
-    const client = new OAuth2Client()
-    const ticket = await client.verifyIdToken({
+    this.oauthClient ??= new OAuth2Client()
+    const ticket = await this.oauthClient.verifyIdToken({
       idToken: token,
       audience: this.clientId,
     })
@@ -70,10 +72,13 @@ export class GoogleLoginService {
     if (!payload.email_verified) {
       throw new Error('Google email is not verified.')
     }
+    if (!payload.email) {
+      throw new Error('Google token does not contain an email address.')
+    }
     const users = await this.userDataSet.find(this.systemInjector, {
       top: 2,
       filter: {
-        username: { $eq: payload.email! },
+        username: { $eq: payload.email },
       },
     })
     if (users.length === 1) {

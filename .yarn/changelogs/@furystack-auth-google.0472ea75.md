@@ -79,7 +79,7 @@ New `@furystack/auth-google/client` entry point for browser-only code (no server
 - `loadGoogleIdentityServices()` — dynamically loads the GIS script (idempotent)
 - `initializeGoogleAuth(options)` — loads GIS and calls `google.accounts.id.initialize()`, returns controls for rendering buttons and prompts
 - `googleLogin(options)` — POSTs the Google ID token to a backend endpoint with `credentials: 'include'`
-- Type definitions: `GoogleCredentialResponse`, `GoogleIdentityOptions`, `GsiButtonConfiguration`, `GoogleAccountsId`, `GoogleAuthControls`
+- Type definitions: `GoogleCredentialResponse`, `GoogleIdentityOptions`, `GsiButtonConfiguration`, `GoogleAccountsId`, `GoogleAuthControls`, `GoogleLoginOptions`
 
 ### Optional CSRF token validation
 

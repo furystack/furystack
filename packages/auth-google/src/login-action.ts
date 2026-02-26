@@ -33,17 +33,16 @@ export const createGoogleLoginAction = <TResult>(
 ): RequestAction<{ result: TResult; body: { token: string; g_csrf_token?: string } }> => {
   return async ({ injector, getBody, request }) => {
     const service = injector.getInstance(GoogleLoginService)
+    const body = await getBody()
 
     if (service.enableCsrfCheck) {
-      const body = await getBody()
       const cookieToken = extractCookieValue(request.headers.cookie, 'g_csrf_token')
       if (!cookieToken || !body.g_csrf_token || cookieToken !== body.g_csrf_token) {
         throw new RequestError('CSRF token validation failed.', 403)
       }
     }
 
-    const { token } = await getBody()
-    const googleData = await service.getGoogleUserData(token)
+    const googleData = await service.getGoogleUserData(body.token)
     const user = await service.getUserFromGooglePayload(googleData)
     if (!user) {
       throw new RequestError('Attached user not found.', 401)
