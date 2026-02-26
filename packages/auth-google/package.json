@@ -10,6 +10,10 @@
     ".": {
       "types": "./esm/index.d.ts",
       "import": "./esm/index.js"
+    },
+    "./client": {
+      "types": "./esm/client/index.d.ts",
+      "import": "./esm/client/index.js"
     }
   },
   "files": [
@@ -42,7 +46,8 @@
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
     "@furystack/rest": "workspace:^",
-    "@furystack/rest-service": "workspace:^"
+    "@furystack/rest-service": "workspace:^",
+    "google-auth-library": "^10.6.1"
   },
   "devDependencies": {
     "@furystack/utils": "workspace:^",

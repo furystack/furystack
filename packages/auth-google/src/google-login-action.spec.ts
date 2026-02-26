@@ -7,10 +7,10 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createGoogleLoginAction } from './login-action.js'
-import { GoogleLoginService } from './login-service.js'
+import { GoogleLoginService, GoogleLoginSettings } from './login-service.js'
 
 describe('createGoogleLoginAction', () => {
-  const request = { url: 'https://google.com' } as IncomingMessage
+  const request = { url: 'https://google.com', headers: {} } as IncomingMessage
   const response = {} as ServerResponse
 
   it('Should delegate to the strategy after Google login', async () => {
@@ -100,6 +100,120 @@ describe('createGoogleLoginAction', () => {
           getBody: () => Promise.resolve({ token: 'bad-token' }),
         }),
       ).rejects.toThrow('Attached user not found.')
+    })
+  })
+
+  describe('CSRF validation', () => {
+    it('Should pass when CSRF tokens match and enableCsrfCheck is true', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const testUser: User = { username: 'example', roles: [] }
+        const strategy: LoginResponseStrategy<User> = {
+          createLoginResponse: async (user) => JsonResult(user, 200),
+        }
+
+        const settings = new GoogleLoginSettings()
+        settings.enableCsrfCheck = true
+        i.setExplicitInstance(settings, GoogleLoginSettings)
+
+        i.setExplicitInstance(i.getInstance(GoogleLoginService))
+        i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+
+        const csrfToken = 'abc123'
+        const csrfRequest = {
+          url: 'https://google.com',
+          headers: { cookie: `g_csrf_token=${csrfToken}; other=value` },
+        } as unknown as IncomingMessage
+
+        const action = createGoogleLoginAction(strategy)
+        const result = await action({
+          request: csrfRequest,
+          response,
+          injector: i,
+          getBody: () => Promise.resolve({ token: 'google-id-token', g_csrf_token: csrfToken }),
+        })
+
+        expect(result.chunk.username).toBe('example')
+      })
+    })
+
+    it('Should reject when CSRF tokens do not match', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const strategy: LoginResponseStrategy<User> = {
+          createLoginResponse: async (user) => JsonResult(user, 200),
+        }
+
+        const settings = new GoogleLoginSettings()
+        settings.enableCsrfCheck = true
+        i.setExplicitInstance(settings, GoogleLoginSettings)
+
+        i.setExplicitInstance(i.getInstance(GoogleLoginService))
+        i.getInstance(GoogleLoginService).login = () => Promise.resolve({ username: 'x', roles: [] })
+
+        const csrfRequest = {
+          url: 'https://google.com',
+          headers: { cookie: 'g_csrf_token=cookie-value' },
+        } as unknown as IncomingMessage
+
+        const action = createGoogleLoginAction(strategy)
+        await expect(
+          action({
+            request: csrfRequest,
+            response,
+            injector: i,
+            getBody: () => Promise.resolve({ token: 'tok', g_csrf_token: 'body-value' }),
+          }),
+        ).rejects.toThrow('CSRF token validation failed.')
+      })
+    })
+
+    it('Should reject when CSRF cookie is missing', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const strategy: LoginResponseStrategy<User> = {
+          createLoginResponse: async (user) => JsonResult(user, 200),
+        }
+
+        const settings = new GoogleLoginSettings()
+        settings.enableCsrfCheck = true
+        i.setExplicitInstance(settings, GoogleLoginSettings)
+
+        i.setExplicitInstance(i.getInstance(GoogleLoginService))
+
+        const action = createGoogleLoginAction(strategy)
+        await expect(
+          action({
+            request: { url: 'https://google.com', headers: {} } as IncomingMessage,
+            response,
+            injector: i,
+            getBody: () => Promise.resolve({ token: 'tok', g_csrf_token: 'body-value' }),
+          }),
+        ).rejects.toThrow('CSRF token validation failed.')
+      })
+    })
+
+    it('Should skip CSRF check when enableCsrfCheck is false', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const testUser: User = { username: 'example', roles: [] }
+        const strategy: LoginResponseStrategy<User> = {
+          createLoginResponse: async (user) => JsonResult(user, 200),
+        }
+
+        const settings = new GoogleLoginSettings()
+        settings.enableCsrfCheck = false
+        i.setExplicitInstance(settings, GoogleLoginSettings)
+
+        i.setExplicitInstance(i.getInstance(GoogleLoginService))
+        i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+
+        const action = createGoogleLoginAction(strategy)
+        const result = await action({
+          request: { url: 'https://google.com', headers: {} } as IncomingMessage,
+          response,
+          injector: i,
+          getBody: () => Promise.resolve({ token: 'tok' }),
+        })
+
+        expect(result.chunk.username).toBe('example')
+      })
     })
   })
 })

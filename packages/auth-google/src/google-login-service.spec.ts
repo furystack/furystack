@@ -4,17 +4,37 @@ import { getRepository } from '@furystack/repository'
 import { DefaultSession, useHttpAuthentication } from '@furystack/rest-service'
 import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
-import type { get } from 'http'
-import { describe, expect, it } from 'vitest'
-import type { GoogleApiPayload } from './login-service.js'
+import type { TokenPayload } from 'google-auth-library'
+import { describe, expect, it, vi } from 'vitest'
+
+import { useGoogleAuthentication } from './helpers.js'
 import { GoogleLoginService, GoogleLoginSettings } from './login-service.js'
 
-const getGoogleUser = (overrides?: Partial<GoogleApiPayload>) =>
+const mockVerifyIdToken = vi.fn()
+
+vi.mock('google-auth-library', () => ({
+  OAuth2Client: class MockOAuth2Client {
+    verifyIdToken = mockVerifyIdToken
+  },
+}))
+
+const CLIENT_ID = 'test-client-id.apps.googleusercontent.com'
+
+const createTokenPayload = (overrides?: Partial<TokenPayload>): TokenPayload =>
   ({
+    iss: 'accounts.google.com',
+    sub: '1234567890',
+    aud: CLIENT_ID,
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000),
     email: 'user@example.com',
     email_verified: true,
+    name: 'Test User',
+    picture: 'https://example.com/photo.jpg',
+    given_name: 'Test',
+    family_name: 'User',
     ...overrides,
-  }) as GoogleApiPayload
+  }) as TokenPayload
 
 const setupStores = (i: Injector) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
@@ -31,104 +51,136 @@ const setupStores = (i: Injector) => {
   usePasswordPolicy(i)
 }
 
-describe('Google Login Service', () => {
-  describe('Settings', () => {
-    it('Can parse the user from the Google Response post body', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupStores(i)
-        useHttpAuthentication(i)
-
-        await i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
-
-        const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(getGoogleUser())
-        expect(user && user.roles).toEqual([])
-      })
+describe('useGoogleAuthentication', () => {
+  it('Should register GoogleLoginSettings with the provided clientId', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+      const settings = i.getInstance(GoogleLoginSettings)
+      expect(settings.clientId).toBe(CLIENT_ID)
     })
   })
 
-  describe('Service', () => {
-    it('Can be constructed', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        expect(i.getInstance(GoogleLoginService)).toBeInstanceOf(GoogleLoginService)
-      })
+  it('Should throw if clientId is empty', () => {
+    const i = new Injector()
+    expect(() => useGoogleAuthentication(i, { clientId: '' })).toThrow('Google clientId is required.')
+  })
+})
+
+describe('GoogleLoginSettings', () => {
+  it('Should resolve user from Google payload when email is verified', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      await i.getInstance(StoreManager).getStoreFor(User, 'username').add({ username: 'user@example.com', roles: [] })
+
+      const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(createTokenPayload())
+      expect(user?.username).toBe('user@example.com')
     })
+  })
 
-    it('Should reject on invalide Google API responses', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupStores(i)
-        useHttpAuthentication(i)
-        const loginService = i.getInstance(GoogleLoginService)
-        loginService.readPostBody = async <T>() =>
-          getGoogleUser({
-            email_verified: false,
-          }) as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: unknown, done: (...args: unknown[]) => unknown) => {
-          done({
-            statusCode: 404,
-          })
-        }) as GoogleLoginSettings['get']
-        await expect(loginService.login('')).rejects.toThrow()
-      })
+  it('Should reject when email is not verified', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      await expect(
+        i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(createTokenPayload({ email_verified: false })),
+      ).rejects.toThrow('Google email is not verified.')
     })
+  })
 
-    it('Should reject if the user is not in the DB', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupStores(i)
-        useHttpAuthentication(i)
-        const loginService = i.getInstance(GoogleLoginService)
-        loginService.readPostBody = async <T>() => getGoogleUser() as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: unknown, done: (...args: unknown[]) => unknown) => {
-          done({
-            statusCode: 200,
-          })
-        }) as typeof get
-        await expect(loginService.login('')).rejects.toThrow()
-      })
+  it('Should return undefined when user is not in the database', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      const user = await i.getInstance(GoogleLoginSettings).getUserFromGooglePayload(createTokenPayload())
+      expect(user).toBeUndefined()
     })
+  })
+})
 
-    it('Should reject on unverified e-mail addresses', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupStores(i)
-        useHttpAuthentication(i)
-        const loginService = i.getInstance(GoogleLoginService)
-        loginService.readPostBody = <T>() =>
-          getGoogleUser({
-            email_verified: false,
-          }) as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
-          done({
-            statusCode: 200,
-          })
-        }) as typeof get
-        await expect(loginService.login('token')).rejects.toThrow()
-      })
+describe('GoogleLoginService', () => {
+  it('Can be constructed', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      expect(i.getInstance(GoogleLoginService)).toBeInstanceOf(GoogleLoginService)
     })
+  })
 
-    it('Should login the user on valid Google Payload response ', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupStores(i)
-        useHttpAuthentication(i)
+  it('Should verify the token and return the user on valid payload', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
 
-        const usr = { username: 'user@example.com', roles: [] }
-        await i.getInstance(StoreManager).getStoreFor(User, 'username').add(usr)
+      const usr = { username: 'user@example.com', roles: [] }
+      await i.getInstance(StoreManager).getStoreFor(User, 'username').add(usr)
 
-        const loginService = i.getInstance(GoogleLoginService)
+      const payload = createTokenPayload()
+      mockVerifyIdToken.mockResolvedValueOnce({ getPayload: () => payload })
 
-        loginService.readPostBody = async <T>() =>
-          ({
-            email: 'user@example.com',
-            email_verified: true,
-          }) as T
-        i.getInstance(GoogleLoginSettings).get = ((_options: any, done: (...args: any[]) => any) => {
-          done({
-            statusCode: 200,
-          })
-        }) as typeof get
+      const user = await i.getInstance(GoogleLoginService).login('valid-token')
+      expect(user).toEqual(usr)
+    })
+  })
 
-        const user = await loginService.login('token')
+  it('Should reject when verifyIdToken fails', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
 
-        expect(user).toEqual(usr)
-      })
+      mockVerifyIdToken.mockRejectedValueOnce(new Error('Token verification failed'))
+
+      await expect(i.getInstance(GoogleLoginService).login('invalid-token')).rejects.toThrow(
+        'Token verification failed',
+      )
+    })
+  })
+
+  it('Should reject when payload is empty', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      mockVerifyIdToken.mockResolvedValueOnce({ getPayload: () => undefined })
+
+      await expect(i.getInstance(GoogleLoginService).login('token')).rejects.toThrow(
+        'Failed to get payload from Google ID token.',
+      )
+    })
+  })
+
+  it('Should reject when user is not in the database', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      const payload = createTokenPayload()
+      mockVerifyIdToken.mockResolvedValueOnce({ getPayload: () => payload })
+
+      await expect(i.getInstance(GoogleLoginService).login('token')).rejects.toThrow('Attached user not found.')
+    })
+  })
+
+  it('Should reject on unverified email addresses', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      setupStores(i)
+      useHttpAuthentication(i)
+      useGoogleAuthentication(i, { clientId: CLIENT_ID })
+
+      const payload = createTokenPayload({ email_verified: false })
+      mockVerifyIdToken.mockResolvedValueOnce({ getPayload: () => payload })
+
+      await expect(i.getInstance(GoogleLoginService).login('token')).rejects.toThrow('Google email is not verified.')
     })
   })
 })
