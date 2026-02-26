@@ -44,29 +44,47 @@ googleSettings.getUserFromGooglePayload = async (payload) => {
 
 ### Creating a Login Endpoint
 
+Use `createGoogleLoginAction(strategy)` to create a login endpoint. The strategy determines what the response looks like — cookie sessions, JWT tokens, or anything custom.
+
+#### With cookie sessions
+
 ```ts
-import { GoogleLoginService } from '@furystack/auth-google'
-import { JsonResult, RequestAction } from '@furystack/rest-service'
+import { createGoogleLoginAction } from '@furystack/auth-google'
+import { createCookieLoginStrategy } from '@furystack/rest-service'
 
-// Define the endpoint type
-type GoogleLoginAction = RequestAction<{
-  body: { token: string }
-  result: { success: boolean; user?: User }
-}>
+const cookieStrategy = createCookieLoginStrategy(injector)
+const googleLogin = createGoogleLoginAction(cookieStrategy)
+// googleLogin: RequestAction<{ result: User; body: { token: string } }>
 
-// Implement the endpoint
-const googleLoginEndpoint: GoogleLoginAction = async ({ getBody, injector }) => {
-  const { token } = await getBody()
-  const googleService = injector.getInstance(GoogleLoginService)
-
-  try {
-    const user = await googleService.login(token)
-    return JsonResult({ success: true, user }, 200)
-  } catch (error) {
-    return JsonResult({ success: false }, 401)
-  }
-}
+await useRestService({
+  injector,
+  api: myApi,
+  actions: {
+    '/login/google': googleLogin,
+  },
+})
 ```
+
+#### With JWT tokens
+
+```ts
+import { createGoogleLoginAction } from '@furystack/auth-google'
+import { createJwtLoginStrategy } from '@furystack/auth-jwt'
+
+const jwtStrategy = createJwtLoginStrategy(injector)
+const googleLogin = createGoogleLoginAction(jwtStrategy)
+// googleLogin: RequestAction<{ result: { accessToken: string; refreshToken: string }; body: { token: string } }>
+
+await useRestService({
+  injector,
+  api: myApi,
+  actions: {
+    '/login/google': googleLogin,
+  },
+})
+```
+
+The return type is fully inferred from the strategy — no manual type annotations needed.
 
 ### Getting Google User Data
 

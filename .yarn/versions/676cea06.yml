@@ -1,0 +1,5 @@
+releases:
+  "@furystack/auth-google": major
+  "@furystack/auth-jwt": minor
+  "@furystack/rest-service": minor
+  furystack: patch

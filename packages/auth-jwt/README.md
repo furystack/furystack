@@ -19,7 +19,7 @@ import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
 import { usePasswordPolicy } from '@furystack/security'
 import {
   useJwtAuthentication,
-  JwtLoginAction,
+  createJwtLoginAction,
   JwtRefreshAction,
   JwtLogoutAction,
   RefreshToken,
@@ -46,13 +46,33 @@ await useRestService({
   root: 'api',
   api: {
     POST: {
-      '/jwt/login': JwtLoginAction,
+      '/jwt/login': createJwtLoginAction(injector),
       '/jwt/refresh': JwtRefreshAction,
       '/jwt/logout': JwtLogoutAction,
     },
   },
 })
 ```
+
+## Login Response Strategy
+
+The JWT login strategy can be used with any authentication mechanism, not just password-based login. Use `createJwtLoginStrategy(injector)` to create a strategy, then pass it to any login action factory:
+
+```typescript
+import { createJwtLoginStrategy } from '@furystack/auth-jwt'
+import { createPasswordLoginAction } from '@furystack/rest-service'
+import { createGoogleLoginAction } from '@furystack/auth-google'
+
+const jwtStrategy = createJwtLoginStrategy(injector)
+
+// Password login with JWT tokens
+const passwordLogin = createPasswordLoginAction(jwtStrategy)
+
+// Google login with JWT tokens
+const googleLogin = createGoogleLoginAction(jwtStrategy)
+```
+
+The return type is inferred from the strategy — both actions above return `ActionResult<{ accessToken: string; refreshToken: string }>`.
 
 ## Client Setup
 
