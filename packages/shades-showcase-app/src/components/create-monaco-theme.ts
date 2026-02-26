@@ -31,9 +31,14 @@ export const createMonacoTheme = (
   themeProvider: ThemeProviderService,
 ): { name: string; data: editor.IStandaloneThemeData } => {
   const bg = theme.background?.default
-  const base: editor.BuiltinTheme = bg
-    ? (themeProvider.getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme)
-    : 'vs-dark'
+  let base: editor.BuiltinTheme = 'vs-dark'
+  try {
+    if (bg) {
+      base = themeProvider.getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme
+    }
+  } catch (e) {
+    console.warn('Failed to determine Monaco base theme from background color, falling back to vs-dark', e)
+  }
 
   const colors: Record<string, string> = {}
 

@@ -1,6 +1,10 @@
 import { Injectable } from '@furystack/inject'
 import { EventHub, type DeepPartial } from '@furystack/utils'
-import { cssVariableTheme, getCssVariable, useThemeCssVariables } from './css-variable-theme.js'
+
+import { cssVariableTheme, useThemeCssVariables } from './css-variable-theme.js'
+import { getRgbFromColorString } from './get-rgb-from-color-string.js'
+import { getTextColor } from './get-text-color.js'
+import { RgbColor } from './rgb-color.js'
 
 /**
  * Represents a CSS color value.
@@ -362,23 +366,9 @@ export interface Theme {
   effects?: Effects
 }
 
-export class RgbColor {
-  constructor(
-    public r: number,
-    public g: number,
-    public b: number,
-    public a: number = 1,
-  ) {}
-
-  public update(key: 'r' | 'g' | 'b' | 'a', value: number): RgbColor {
-    this[key] = value
-    return this
-  }
-
-  public toString(): string {
-    return `rgba(${this.r},${this.g},${this.b},${this.a})`
-  }
-}
+export { RgbColor } from './rgb-color.js'
+export { getRgbFromColorString } from './get-rgb-from-color-string.js'
+export { getTextColor } from './get-text-color.js'
 
 /**
  * Service class for theme-related operations
@@ -386,56 +376,17 @@ export class RgbColor {
 @Injectable({ lifetime: 'singleton' })
 export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<Theme> }> {
   /**
-   * @deprecated does not respect CSS vars
-   * @param color The background color
-   * @param bright The Bright color
-   * @param dark The Dark color
-   * @returns The bright or dark color variant that fits the background color
+   * @deprecated Use the standalone {@link getTextColor} function instead.
    */
-  public getTextColor(color: string, bright = '#000000', dark = '#FFFFFF') {
-    const { r, g, b } = this.getRgbFromColorString(color)
-    const yiq = (r * 299 + g * 587 + b * 114) / 1000
-    return yiq >= 128 ? bright : dark
+  public getTextColor(color: string, bright = '#000000', dark = '#FFFFFF'): string {
+    return getTextColor(color, bright, dark)
   }
 
   /**
-   * Parses a color string and returns RGB values
-   * @param color The color string
-   * @returns The parsed R,G,B, A values
+   * @deprecated Use the standalone {@link getRgbFromColorString} function instead.
    */
   public getRgbFromColorString(color: string): RgbColor {
-    if (color.startsWith('var(--')) {
-      return this.getRgbFromColorString(getCssVariable(color))
-    }
-
-    if (color.startsWith('#')) {
-      if (color.length === 7) {
-        const r = parseInt(color.substr(1, 2), 16)
-        const g = parseInt(color.substr(3, 2), 16)
-        const b = parseInt(color.substr(5, 2), 16)
-        return new RgbColor(r, g, b)
-      }
-      if (color.length === 4) {
-        const r = parseInt(color.substr(1, 1) + color.substr(1, 1), 16)
-        const g = parseInt(color.substr(2, 1) + color.substr(2, 1), 16)
-        const b = parseInt(color.substr(3, 1) + color.substr(3, 1), 16)
-        return new RgbColor(r, g, b)
-      }
-    }
-    if (color.startsWith('rgba(')) {
-      const result = new RegExp(
-        /^rgba[(](?<red>[\d]+)[,][\s]?(?<green>[\d]+)[,][\s]?(?<blue>[\d]+)[,][\s]?(?<alpha>[\d|.]+)[)]/gm,
-      ).exec(color)
-      if (result && result.groups) {
-        return new RgbColor(
-          parseInt(result.groups.red, 10),
-          parseInt(result.groups.green, 10),
-          parseInt(result.groups.blue, 10),
-          parseInt(result.groups.alpha, 10),
-        )
-      }
-    }
-    throw Error(`Color format '${color}' is not supported.'`)
+    return getRgbFromColorString(color)
   }
 
   public readonly theme = cssVariableTheme

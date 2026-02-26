@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { ThemeProviderService } from '@furystack/shades-common-components'
 import { RgbColor } from '@furystack/shades-common-components'
@@ -176,6 +176,26 @@ describe('createMonacoTheme', () => {
       const result = createMonacoTheme(theme, badProvider)
       expect(result.data.colors['editor.foreground']).toBeUndefined()
       expect(result.data.colors['editor.background']).toBe('#1a1a2e')
+    })
+  })
+
+  describe('base theme fallback', () => {
+    it('should fall back to vs-dark and warn when getTextColor throws', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const failingProvider = {
+        ...createMockThemeProvider(),
+        getTextColor: () => {
+          throw new Error('Unsupported color')
+        },
+      } as unknown as ThemeProviderService
+
+      const theme: DeepPartial<Theme> = {
+        background: { default: '#1a1a2e' },
+      }
+      const result = createMonacoTheme(theme, failingProvider)
+      expect(result.data.base).toBe('vs-dark')
+      expect(warnSpy).toHaveBeenCalledOnce()
+      warnSpy.mockRestore()
     })
   })
 })
