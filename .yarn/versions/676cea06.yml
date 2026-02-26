@@ -1,0 +1,7 @@
+releases:
+  "@furystack/auth-google": major
+  "@furystack/auth-jwt": minor
+  "@furystack/entity-sync-service": patch
+  "@furystack/rest-service": minor
+  "@furystack/websocket-api": patch
+  furystack: patch
