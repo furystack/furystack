@@ -1,7 +1,6 @@
 import type { DeepPartial } from '@furystack/utils'
 
-import type { Theme } from '@furystack/shades-common-components'
-import type { ThemeProviderService } from '@furystack/shades-common-components'
+import type { Theme, ThemeProviderService } from '@furystack/shades-common-components'
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const SHADES_THEME_NAME = 'shades-theme'
@@ -22,12 +21,6 @@ const withAlpha = (hex: string, alpha: number): string => {
   return `${base}${toHex(alpha * 255)}`
 }
 
-const isDarkBackground = (themeProvider: ThemeProviderService, color: string): boolean => {
-  const { r, g, b } = themeProvider.getRgbFromColorString(color)
-  const luminance = (r * 299 + g * 587 + b * 114) / 1000
-  return luminance < 128
-}
-
 /**
  * Creates a Monaco `IStandaloneThemeData` from a FuryStack Shades theme.
  * Inherits syntax highlighting from the closest built-in base (`vs` or `vs-dark`)
@@ -38,7 +31,9 @@ export const createMonacoTheme = (
   themeProvider: ThemeProviderService,
 ): { name: string; data: editor.IStandaloneThemeData } => {
   const bg = theme.background?.default
-  const base: editor.BuiltinTheme = bg ? (isDarkBackground(themeProvider, bg) ? 'vs-dark' : 'vs') : 'vs-dark'
+  const base: editor.BuiltinTheme = bg
+    ? (themeProvider.getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme)
+    : 'vs-dark'
 
   const colors: Record<string, string> = {}
 
