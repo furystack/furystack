@@ -18,6 +18,10 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
+## ✨ Features
+
+- Monaco editor in the showcase app now uses theme-derived colors instead of generic built-in themes
+
 ## 🔧 Chores
 
 - Version bumps for `@furystack/shades-common-components` and `@furystack/shades-showcase-app`

@@ -1,11 +1,12 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
+import { getTextColor } from '../services/get-text-color.js'
 import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
-import { Icon } from './icons/icon.js'
 import { close } from './icons/icon-definitions.js'
+import { Icon } from './icons/icon.js'
 
 export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
   switch (type) {
@@ -96,7 +97,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
-    const textColor = themeProvider.getTextColor(colors.main)
+    const textColor = getTextColor(colors.main)
 
     const removeSelf = async () => {
       const hostEl = wrapperRef.current?.closest('shade-noty') as HTMLElement | null

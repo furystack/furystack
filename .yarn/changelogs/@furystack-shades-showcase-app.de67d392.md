@@ -24,6 +24,14 @@ appear before simple list items within each section.
 
 Added a `useTheme()` function exposed on the `window` object for switching between all 19 available themes at runtime. Supports `dark`, `light`, `paladin`, `chieftain`, `neon-runner`, `vault-dweller`, `shadow-broker`, `dragonborn`, `plumber`, `auditore`, `replicant`, `sandworm`, `architect`, `wild-hunt`, `black-mesa`, `jedi`, `sith`, `xenomorph`, and `hawkins` themes via lazy-loaded dynamic imports.
 
+### Monaco Editor Theme Integration
+
+The Monaco editor now derives its color scheme from the active Shades theme instead of falling back to the generic `vs-dark` / `vs` built-in themes.
+
+A new `createMonacoTheme()` utility maps Shades design tokens (background, text, palette, divider, action colors) to Monaco editor chrome colors — including editor background/foreground, line numbers, cursor, selection highlights, find-match markers, widgets, error/warning squiggles, bracket matching, and scrollbar styling.
+
+The theme also updates dynamically when the user switches themes at runtime.
+
 ## ♻️ Refactoring
 
 - Updated showcase pages to use `Typography` components instead of raw HTML heading/paragraph tags

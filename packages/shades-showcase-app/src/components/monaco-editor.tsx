@@ -3,8 +3,15 @@ import type { editor as editorTypes } from 'monaco-editor/esm/vs/editor/editor.a
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import 'monaco-editor/esm/vs/editor/editor.main.js'
 
-import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
+import { ThemeProviderService } from '@furystack/shades-common-components'
+import { createMonacoTheme } from './create-monaco-theme.js'
 import './worker-config.js'
+
+const registerShadesTheme = (themeProvider: ThemeProviderService) => {
+  const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme())
+  editor.defineTheme(monacoTheme.name, monacoTheme.data)
+  return monacoTheme.name
+}
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
@@ -35,8 +42,10 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
         if (!containerRef.current) return
         const themeProvider = injector.getInstance(ThemeProviderService)
 
+        const themeName = registerShadesTheme(themeProvider)
+
         editorInstance = editor.create(containerRef.current, {
-          theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
+          theme: themeName,
           ...props.options,
         })
         editorInstance.setValue(props.value || '')
@@ -48,9 +57,8 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
         }
 
         themeSub = themeProvider.subscribe('themeChanged', () => {
-          editorInstance!.updateOptions({
-            theme: themeProvider.getAssignedTheme().name === defaultDarkTheme.name ? 'vs-dark' : 'vs-light',
-          })
+          const updatedName = registerShadesTheme(themeProvider)
+          editor.setTheme(updatedName)
         })
       })
 
