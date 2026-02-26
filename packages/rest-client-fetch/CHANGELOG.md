@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.39] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest` dependency
+
 ## [8.0.38] - 2026-02-22
 
 ### ⬆️ Dependencies

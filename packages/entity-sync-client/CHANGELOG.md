@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest-client-fetch` dependency
+
 ## [1.0.1] - 2026-02-22
 
 ### ⬆️ Dependencies

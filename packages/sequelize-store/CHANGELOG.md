@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.0.40] - 2026-02-26
+
+### 📝 Documentation
+
+- Added tip about wrapping the physical store with a Repository DataSet for application-level data access
+
 ## [6.0.39] - 2026-02-22
 
 ### ⬆️ Dependencies

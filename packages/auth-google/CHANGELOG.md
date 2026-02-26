@@ -1,5 +1,19 @@
 # Changelog
 
+## [9.0.41] - 2026-02-26
+
+### ♻️ Refactoring
+
+- `GoogleLoginSettings` now uses `DataSet` and `SystemIdentityContext` instead of direct `PhysicalStore` access for user lookups
+
+### 🧪 Tests
+
+- Updated test setup to register DataSets for `User`, `DefaultSession`, `PasswordCredential`, and `PasswordResetToken`
+
+### 📦 Dependencies
+
+- Added `@furystack/repository` for repository layer enforcement
+
 ## [9.0.40] - 2026-02-22
 
 ### ⬆️ Dependencies

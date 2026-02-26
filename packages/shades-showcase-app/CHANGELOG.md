@@ -1,5 +1,30 @@
 # Changelog
 
+## [8.2.0] - 2026-02-26
+
+### ✨ Features
+
+### Runtime Theme Switcher
+
+Added a `useTheme()` function exposed on the `window` object for switching between all 19 available themes at runtime. Supports `dark`, `light`, `paladin`, `chieftain`, `neon-runner`, `vault-dweller`, `shadow-broker`, `dragonborn`, `plumber`, `auditore`, `replicant`, `sandworm`, `architect`, `wild-hunt`, `black-mesa`, `jedi`, `sith`, `xenomorph`, and `hawkins` themes via lazy-loaded dynamic imports.
+
+### Monaco Editor Theme Integration
+
+The Monaco editor now derives its color scheme from the active Shades theme instead of falling back to the generic `vs-dark` / `vs` built-in themes.
+
+A new `createMonacoTheme()` utility maps Shades design tokens (background, text, palette, divider, action colors) to Monaco editor chrome colors — including editor background/foreground, line numbers, cursor, selection highlights, find-match markers, widgets, error/warning squiggles, bracket matching, and scrollbar styling.
+
+The theme also updates dynamically when the user switches themes at runtime.
+
+### ♻️ Refactoring
+
+- Updated showcase pages to use `Typography` components instead of raw HTML heading/paragraph tags
+- Updated layout test pages, input demos, and surface demos to align with the new theme-aware component APIs
+
+### 🧪 Tests
+
+- Updated typography and markdown E2E tests for compatibility with semantic HTML tag rendering
+
 ## [8.1.2] - 2026-02-23
 
 ### ⬆️ Dependencies

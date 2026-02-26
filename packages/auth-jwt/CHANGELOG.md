@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/auth-jwt
+## [1.0.0] - 2026-02-26
 
-## ✨ Features
+### ✨ Features
 
 ### JWT Bearer Token Authentication
 
@@ -21,14 +21,14 @@ New package providing stateless JWT-based authentication with access and refresh
 
 - `createJwtClient()` - JWT-aware REST client wrapper with automatic Bearer header injection, proactive token refresh before expiry, and refresh queuing to prevent thundering herd on concurrent requests
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 - `createJwtAuthProvider({ jwtTokenService, userStore })` → `createJwtAuthProvider({ jwtTokenService, userDataSet, injector })` — now takes a `DataSet` and `Injector` instead of a `PhysicalStore`
 - `JwtAuthenticationSettings.getRefreshTokenStore(StoreManager)` → `getRefreshTokenDataSet(Injector)` — returns a `DataSet` instead of a `PhysicalStore`
 - `JwtTokenService` now operates through the Repository DataSet layer instead of direct `PhysicalStore` access
 - `useJwtAuthentication()` now requires a DataSet for `RefreshToken` to be registered via `getRepository(injector).createDataSet()` before calling
 
-## 🔄 Migration
+### 🔄 Migration
 
 **Setup:**
 
@@ -53,6 +53,6 @@ const userDataSet = getDataSetFor(injector, User, 'username')
 createJwtAuthProvider({ jwtTokenService, userDataSet, injector })
 ```
 
-## 📦 Dependencies
+### 📦 Dependencies
 
 - Added `@furystack/repository` for repository layer enforcement

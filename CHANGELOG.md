@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.0.10] - 2026-02-26
+
+### ✨ Features
+
+- Monaco editor in the showcase app now uses theme-derived colors instead of generic built-in themes
+
+### 🔧 Chores
+
+- Version bumps for `@furystack/shades-common-components` and `@furystack/shades-showcase-app`
+
 ## [8.0.9] - 2026-02-23
 
 ### ⬆️ Dependencies

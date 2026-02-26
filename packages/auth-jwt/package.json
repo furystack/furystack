@@ -1,6 +1,6 @@
 {
   "name": "@furystack/auth-jwt",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "JWT Authentication Provider for FuryStack",
   "type": "module",
   "scripts": {

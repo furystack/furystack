@@ -1,5 +1,11 @@
 # Changelog
 
+## [15.2.1] - 2026-02-26
+
+### 📝 Documentation
+
+- Added JSDoc recommendations to `PhysicalStore` and `StoreManager.getStoreFor()` pointing to `DataSet` as the preferred write gateway for application-level code
+
 ## [15.2.0] - 2026-02-22
 
 ### ✨ Features
