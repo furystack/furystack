@@ -1,5 +1,13 @@
 # Changelog
 
+## [12.2.4] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated internal `@furystack/*` dependencies
+- Bumped `@types/jsdom` from ^27.0.0 to ^28.0.0
+- Bumped `@types/node` from ^25.3.0 to ^25.3.1
+
 ## [12.2.3] - 2026-02-26
 
 ### ⬆️ Dependencies

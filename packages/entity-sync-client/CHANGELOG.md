@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated internal `@furystack/*` dependencies
+- Bumped due to updated workspace dependencies
+
 ## [1.0.2] - 2026-02-26
 
 ### ⬆️ Dependencies

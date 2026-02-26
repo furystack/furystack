@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.31] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Bumped `@types/node` from ^25.3.0 to ^25.3.1
+
 ## [1.0.30] - 2026-02-19
 
 ### ⬆️ Dependencies

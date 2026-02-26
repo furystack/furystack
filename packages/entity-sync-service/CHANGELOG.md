@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated internal `@furystack/*` dependencies
+- Updated `@furystack/rest-service` dependency to pick up the new `LoginResponseStrategy` abstraction
+- Bumped due to updated workspace dependencies
+
 ## [1.0.2] - 2026-02-26
 
 ### ⬆️ Dependencies

@@ -1,5 +1,21 @@
 # Changelog
 
+## [8.0.11] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated lockfile for new `google-auth-library` dependency in `@furystack/auth-google`
+- Updated internal `@furystack/*` dependencies
+- Bumped `@types/jsdom` from ^27.0.0 to ^28.0.0
+- Bumped `eslint` from ^10.0.0 to ^10.0.2
+- Bumped `eslint-plugin-jsdoc` from ^62.6.0 to ^62.7.1
+- Bumped `eslint-plugin-playwright` from ^2.7.0 to ^2.7.1
+- Bumped `typescript-eslint` from ^8.56.0 to ^8.56.1
+
+### ✨ Features
+
+- Added `LoginResponseStrategy` abstraction to decouple authentication from session/token creation across `@furystack/rest-service`, `@furystack/auth-jwt`, and `@furystack/auth-google`
+
 ## [8.0.10] - 2026-02-26
 
 ### ✨ Features

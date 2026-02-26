@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.0.1] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated internal `@furystack/*` dependencies
+- Bumped `@types/node` from ^25.3.0 to ^25.3.1
+
 ## [7.0.0] - 2026-02-26
 
 ### 💥 Breaking Changes

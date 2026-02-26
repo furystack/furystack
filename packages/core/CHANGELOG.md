@@ -1,5 +1,15 @@
 # Changelog
 
+## [15.2.2] - 2026-02-26
+
+### 🔧 Chores
+
+- Normalized line endings in `store-manager.ts`
+
+### ⬆️ Dependencies
+
+- Bumped `@types/node` from ^25.3.0 to ^25.3.1
+
 ## [15.2.1] - 2026-02-26
 
 ### 📝 Documentation

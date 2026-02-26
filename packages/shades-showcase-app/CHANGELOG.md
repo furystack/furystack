@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.1] - 2026-02-26
+
+### ⬆️ Dependencies
+
+- Updated internal `@furystack/*` dependencies
+- Bumped due to updated workspace dependencies
+
 ## [8.2.0] - 2026-02-26
 
 ### ✨ Features
