@@ -2,7 +2,13 @@ import type { IncomingMessage } from 'http'
 import { describe, expect, it } from 'vitest'
 
 import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
-import { buildFingerprintSetCookie, clearFingerprintSetCookie, extractFingerprintCookie } from './fingerprint-cookie.js'
+import {
+  buildFingerprintSetCookie,
+  clearFingerprintSetCookie,
+  extractFingerprintCookie,
+  fingerprintSetCookieHeaders,
+  fingerprintClearCookieHeaders,
+} from './fingerprint-cookie.js'
 
 const DEFAULT_SETTINGS: FingerprintCookieSettings = {
   enabled: true,
@@ -83,5 +89,37 @@ describe('extractFingerprintCookie', () => {
   it('Should handle whitespace around cookie name and value', () => {
     const request = { headers: { cookie: ' fpt = abc123 ; other=val' } } as Pick<IncomingMessage, 'headers'>
     expect(extractFingerprintCookie(request, 'fpt')).toBe('abc123')
+  })
+
+  it('Should decode URL-encoded cookie values', () => {
+    const request = { headers: { cookie: 'fpt=hello%20world%3D%3D' } } as Pick<IncomingMessage, 'headers'>
+    expect(extractFingerprintCookie(request, 'fpt')).toBe('hello world==')
+  })
+
+  it('Should return the raw value if decodeURIComponent fails', () => {
+    const request = { headers: { cookie: 'fpt=%E0%A4%A' } } as Pick<IncomingMessage, 'headers'>
+    expect(extractFingerprintCookie(request, 'fpt')).toBe('%E0%A4%A')
+  })
+})
+
+describe('fingerprintSetCookieHeaders', () => {
+  it('Should return Set-Cookie header when fingerprint is provided', () => {
+    const result = fingerprintSetCookieHeaders('abc123', DEFAULT_SETTINGS)
+    expect(result).toEqual({ 'Set-Cookie': 'fpt=abc123; Path=/; HttpOnly; Secure; SameSite=Strict' })
+  })
+
+  it('Should return undefined when fingerprint is null', () => {
+    expect(fingerprintSetCookieHeaders(null, DEFAULT_SETTINGS)).toBeUndefined()
+  })
+})
+
+describe('fingerprintClearCookieHeaders', () => {
+  it('Should return Set-Cookie header when fingerprinting is enabled', () => {
+    const result = fingerprintClearCookieHeaders(DEFAULT_SETTINGS)
+    expect(result).toEqual({ 'Set-Cookie': 'fpt=; Path=/; HttpOnly; Max-Age=0; Secure; SameSite=Strict' })
+  })
+
+  it('Should return undefined when fingerprinting is disabled', () => {
+    expect(fingerprintClearCookieHeaders({ ...DEFAULT_SETTINGS, enabled: false })).toBeUndefined()
   })
 })

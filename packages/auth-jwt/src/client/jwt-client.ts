@@ -81,7 +81,7 @@ export const createJwtClient = <TApi extends RestApi>(options: JwtClientOptions)
           tokenStore.getAccessToken()
         ) {
           try {
-            await tokenStore.ensureValidToken()
+            await tokenStore.forceRefresh()
             return await makeRequest()
           } catch {
             throw error

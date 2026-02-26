@@ -299,6 +299,62 @@ describe('createJwtTokenStore', () => {
     })
   })
 
+  describe('forceRefresh', () => {
+    it('Should refresh even when the token has not expired', async () => {
+      const validToken = createMockToken(futureExp())
+      const freshToken = createMockToken(futureExp())
+
+      loginMock.mockResolvedValueOnce({ accessToken: validToken, refreshToken: 'rt1' })
+      refreshMock.mockResolvedValueOnce({ accessToken: freshToken, refreshToken: 'rt2' })
+
+      const store = createTestStore()
+      await store.login({ username: 'admin', password: 'secret' })
+
+      await store.forceRefresh()
+
+      expect(refreshMock).toHaveBeenCalledWith('rt1')
+      expect(store.getAccessToken()).toBe(freshToken)
+    })
+
+    it('Should do nothing when not authenticated', async () => {
+      const store = createTestStore()
+      await store.forceRefresh()
+      expect(refreshMock).not.toHaveBeenCalled()
+    })
+
+    it('Should queue concurrent forceRefresh calls', async () => {
+      const validToken = createMockToken(futureExp())
+      const freshToken = createMockToken(futureExp())
+
+      loginMock.mockResolvedValueOnce({ accessToken: validToken, refreshToken: 'rt1' })
+      refreshMock.mockResolvedValueOnce({ accessToken: freshToken, refreshToken: 'rt2' })
+
+      const store = createTestStore()
+      await store.login({ username: 'admin', password: 'secret' })
+
+      await Promise.all([store.forceRefresh(), store.forceRefresh(), store.forceRefresh()])
+
+      expect(refreshMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('Should call onRefreshFailed and clear tokens on forceRefresh error', async () => {
+      const validToken = createMockToken(futureExp())
+      const refreshError = new Error('Refresh failed')
+
+      loginMock.mockResolvedValueOnce({ accessToken: validToken, refreshToken: 'rt1' })
+      refreshMock.mockRejectedValueOnce(refreshError)
+
+      const onRefreshFailed = vi.fn()
+      const store = createTestStore({ onRefreshFailed })
+
+      await store.login({ username: 'admin', password: 'secret' })
+      await expect(store.forceRefresh()).rejects.toThrow('Refresh failed')
+
+      expect(onRefreshFailed).toHaveBeenCalledWith(refreshError)
+      expect(store.getAccessToken()).toBeNull()
+    })
+  })
+
   describe('decodeTokenExp edge cases', () => {
     it('Should treat a token with fewer than 3 parts as not authenticated', () => {
       const store = createTestStore()

@@ -6,7 +6,7 @@ import { HttpUserContext } from '@furystack/rest-service'
 import { UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 
-import { buildFingerprintSetCookie } from '../fingerprint-cookie.js'
+import { fingerprintSetCookieHeaders } from '../fingerprint-cookie.js'
 import { JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
 import { JwtTokenService } from '../jwt-token-service.js'
 
@@ -40,19 +40,21 @@ export const JwtRefreshAction: RequestAction<{
 
     if (replacedByToken) {
       const { token: accessToken, fingerprint } = tokenService.signAccessToken(user)
-      const headers = fingerprint
-        ? { 'Set-Cookie': buildFingerprintSetCookie(fingerprint, settings.fingerprintCookie) }
-        : undefined
-      return JsonResult({ accessToken, refreshToken: replacedByToken }, 200, headers)
+      return JsonResult(
+        { accessToken, refreshToken: replacedByToken },
+        200,
+        fingerprintSetCookieHeaders(fingerprint, settings.fingerprintCookie),
+      )
     }
 
     const { token: newAccessToken, fingerprint } = tokenService.signAccessToken(user)
     const newRefreshToken = await tokenService.signRefreshToken(user)
     await tokenService.rotateRefreshToken(body.refreshToken, newRefreshToken)
-    const headers = fingerprint
-      ? { 'Set-Cookie': buildFingerprintSetCookie(fingerprint, settings.fingerprintCookie) }
-      : undefined
-    return JsonResult({ accessToken: newAccessToken, refreshToken: newRefreshToken }, 200, headers)
+    return JsonResult(
+      { accessToken: newAccessToken, refreshToken: newRefreshToken },
+      200,
+      fingerprintSetCookieHeaders(fingerprint, settings.fingerprintCookie),
+    )
   } catch (error) {
     if (error instanceof UnauthenticatedError) {
       throw new RequestError('Token refresh failed', 401)

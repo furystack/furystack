@@ -157,6 +157,34 @@ export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
      * to prevent thundering herd.
      */
     ensureValidToken,
+
+    /**
+     * Forces a token refresh regardless of expiry. Use when the server rejects
+     * a token (e.g. 401) that hasn't technically expired yet (revocation,
+     * fingerprint mismatch, etc.). Concurrent callers share the same refresh
+     * promise.
+     */
+    forceRefresh: async (): Promise<void> => {
+      if (!tokens) return
+
+      if (refreshPromise) {
+        await refreshPromise
+        return
+      }
+
+      refreshPromise = refreshTokens()
+        .catch((error) => {
+          options.onRefreshFailed?.(error)
+          const previousTokens = tokens
+          setTokensInternal(null, previousTokens)
+          throw error
+        })
+        .finally(() => {
+          refreshPromise = null
+        })
+
+      await refreshPromise
+    },
   }
 }
 

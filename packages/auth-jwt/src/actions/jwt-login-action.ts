@@ -5,7 +5,7 @@ import { JsonResult } from '@furystack/rest-service'
 import { HttpUserContext } from '@furystack/rest-service'
 import { sleepAsync } from '@furystack/utils'
 
-import { buildFingerprintSetCookie } from '../fingerprint-cookie.js'
+import { fingerprintSetCookieHeaders } from '../fingerprint-cookie.js'
 import { JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
 import { JwtTokenService } from '../jwt-token-service.js'
 
@@ -26,10 +26,11 @@ export const JwtLoginAction: RequestAction<{
     const settings = injector.getInstance(JwtAuthenticationSettings)
     const { token: accessToken, fingerprint } = tokenService.signAccessToken(user)
     const refreshToken = await tokenService.signRefreshToken(user)
-    const headers = fingerprint
-      ? { 'Set-Cookie': buildFingerprintSetCookie(fingerprint, settings.fingerprintCookie) }
-      : undefined
-    return JsonResult({ accessToken, refreshToken }, 200, headers)
+    return JsonResult(
+      { accessToken, refreshToken },
+      200,
+      fingerprintSetCookieHeaders(fingerprint, settings.fingerprintCookie),
+    )
   } catch (error) {
     await sleepAsync(Math.random() * 1000)
     throw new RequestError('Login Failed', 400)

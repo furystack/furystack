@@ -426,6 +426,40 @@ describe('@furystack/auth-jwt integration tests', () => {
     })
   })
 
+  describe('Refresh edge cases', () => {
+    it('Should return 401 when the user was deleted between login and refresh', async () => {
+      await usingAsync(await createJwtTestServer(), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const sm = injector.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').remove('testuser')
+
+        const refreshResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/refresh'), { refreshToken })
+        expect(refreshResponse.status).toBe(401)
+      })
+    })
+
+    it('Should propagate unexpected errors from the refresh action', async () => {
+      await usingAsync(await createJwtTestServer(), async ({ injector, apiUrl }) => {
+        await seedUser(injector, 'testuser', 'testpass')
+        const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
+
+        const sm = injector.getInstance(StoreManager)
+        const refreshTokenStore = sm.getStoreFor(RefreshToken, 'token')
+        const originalFind = refreshTokenStore.find.bind(refreshTokenStore)
+        refreshTokenStore.find = async () => {
+          throw new Error('Unexpected DB failure')
+        }
+
+        const refreshResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/refresh'), { refreshToken })
+        expect(refreshResponse.status).toBe(500)
+
+        refreshTokenStore.find = originalFind
+      })
+    })
+  })
+
   describe('Fingerprint cookie protection', () => {
     const FINGERPRINT_ENABLED: FingerprintCookieSettings = {
       enabled: true,
