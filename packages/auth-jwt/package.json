@@ -47,10 +47,10 @@
     "@furystack/rest": "workspace:^",
     "@furystack/rest-client-fetch": "workspace:^",
     "@furystack/rest-service": "workspace:^",
-    "@furystack/security": "workspace:^"
+    "@furystack/security": "workspace:^",
+    "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "@furystack/utils": "workspace:^",
     "@types/node": "^25.3.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

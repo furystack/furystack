@@ -22,7 +22,7 @@ export const authenticateUserWithStore = async (
 }
 
 export const findSessionById = async (
-  sessionStore: PhysicalStore<DefaultSession, keyof DefaultSession>,
+  sessionStore: PhysicalStore<DefaultSession, 'sessionId'>,
   sessionId: string,
 ): Promise<DefaultSession | null> => {
   const sessions = await sessionStore.find({
