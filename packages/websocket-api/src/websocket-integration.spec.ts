@@ -9,6 +9,7 @@ import {
   useHttpAuthentication,
   useRestService,
 } from '@furystack/rest-service'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { WebSocket } from 'ws'
@@ -31,14 +32,18 @@ describe('WebSocket Integration tests', () => {
       port,
       hostName: host,
     })
-    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-      new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-    )
+    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+      .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
 
     const repo = getRepository(injector)
     repo.createDataSet(User, 'username')
     repo.createDataSet(DefaultSession, 'sessionId')
+    repo.createDataSet(PasswordCredential, 'userName')
+    repo.createDataSet(PasswordResetToken, 'token')
 
+    usePasswordPolicy(injector)
     useHttpAuthentication(injector, {})
     await useWebsockets(injector, { actions: [WhoAmI], path, port, host })
 

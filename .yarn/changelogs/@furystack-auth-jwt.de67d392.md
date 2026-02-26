@@ -28,6 +28,31 @@ New package providing stateless JWT-based authentication with access and refresh
 - `JwtTokenService` now operates through the Repository DataSet layer instead of direct `PhysicalStore` access
 - `useJwtAuthentication()` now requires a DataSet for `RefreshToken` to be registered via `getRepository(injector).createDataSet()` before calling
 
+## 🔄 Migration
+
+**Setup:**
+
+```typescript
+// Before
+useJwtAuthentication(injector, { secret: '...' })
+
+// After — register the RefreshToken DataSet first
+getRepository(injector).createDataSet(RefreshToken, 'token')
+useJwtAuthentication(injector, { secret: '...' })
+```
+
+**Custom auth provider:**
+
+```typescript
+// Before
+const userStore = storeManager.getStoreFor(User, 'username')
+createJwtAuthProvider({ jwtTokenService, userStore })
+
+// After
+const userDataSet = getDataSetFor(injector, User, 'username')
+createJwtAuthProvider({ jwtTokenService, userDataSet, injector })
+```
+
 ## 📦 Dependencies
 
 - Added `@furystack/repository` for repository layer enforcement

@@ -43,7 +43,8 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
   const systemInjector = useSystemIdentityContext({ injector, username: 'useHttpAuthentication' })
   const passwordAuthenticator = injector.getInstance(PasswordAuthenticator)
   const userDataSet = mergedSettings.getUserDataSet(systemInjector)
-  // getSessionDataSet returns DataSet<TSession, keyof TSession> but providers need the concrete DefaultSession type
+  // Narrow from DataSet<TSession, keyof TSession> to DataSet<DefaultSession, 'sessionId'>
+  // because the built-in providers operate on DefaultSession with the concrete 'sessionId' key
   const sessionDataSet = mergedSettings.getSessionDataSet(systemInjector) as unknown as DataSet<
     DefaultSession,
     'sessionId'

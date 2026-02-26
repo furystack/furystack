@@ -1,8 +1,10 @@
+import { useSystemIdentityContext } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
 import type { RequestAction } from '@furystack/rest-service'
 import { JsonResult } from '@furystack/rest-service'
 import { HttpUserContext } from '@furystack/rest-service'
 import { UnauthenticatedError } from '@furystack/security'
+import { usingAsync } from '@furystack/utils'
 import { JwtTokenService } from '../jwt-token-service.js'
 
 /**
@@ -20,11 +22,16 @@ export const JwtRefreshAction: RequestAction<{
 
     const userContext = injector.getInstance(HttpUserContext)
     const userDataSet = userContext.getUserDataSet()
-    const users = await userDataSet.find(injector, { filter: { username: { $eq: username } }, top: 2 })
-    if (users.length !== 1) {
-      throw new UnauthenticatedError()
-    }
-    const user = users[0]
+    const user = await usingAsync(
+      useSystemIdentityContext({ injector, username: 'JwtRefreshAction' }),
+      async (systemInjector) => {
+        const users = await userDataSet.find(systemInjector, { filter: { username: { $eq: username } }, top: 2 })
+        if (users.length !== 1) {
+          throw new UnauthenticatedError()
+        }
+        return users[0]
+      },
+    )
 
     if (replacedByToken) {
       const accessToken = tokenService.signAccessToken(user)

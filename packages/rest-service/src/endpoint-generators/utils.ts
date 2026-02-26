@@ -30,5 +30,8 @@ export const setupContext = (i: Injector) => {
         primaryKey: 'sessionId',
       }),
     )
-  getRepository(i).createDataSet(MockClass, 'id')
+  getRepository(i)
+    .createDataSet(MockClass, 'id')
+    .createDataSet(User, 'username')
+    .createDataSet(DefaultSession, 'sessionId')
 }

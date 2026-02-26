@@ -38,3 +38,32 @@ Custom providers are appended after the built-in Basic Auth and Cookie Auth prov
 - `HttpUserContext.getSessionStore()` → `getSessionDataSet()`
 - `authenticateUserWithStore()` → `authenticateUserWithDataSet()` — renamed helper with updated signature
 - `useHttpAuthentication()` now requires DataSets for `User` and `DefaultSession` to be registered via `getRepository(injector).createDataSet()` before calling
+
+## 🔄 Migration
+
+**Setup:**
+
+```typescript
+// Before
+useHttpAuthentication(injector, {
+  getUserStore: (sm) => sm.getStoreFor(User, 'username'),
+  getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
+})
+
+// After — register DataSets first, defaults resolve them automatically
+getRepository(injector).createDataSet(User, 'username')
+getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+useHttpAuthentication(injector)
+```
+
+**Custom store accessors:**
+
+```typescript
+// Before
+settings.getUserStore(storeManager)
+settings.getSessionStore(storeManager)
+
+// After
+settings.getUserDataSet(injector)
+settings.getSessionDataSet(injector)
+```

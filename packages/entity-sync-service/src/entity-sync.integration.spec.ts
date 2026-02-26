@@ -3,6 +3,7 @@ import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { getRepository, Repository } from '@furystack/repository'
 import { DefaultSession, useHttpAuthentication, useRestService, ServerManager } from '@furystack/rest-service'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { useWebsockets } from '@furystack/websocket-api'
 import { describe, expect, it } from 'vitest'
@@ -36,11 +37,16 @@ describe('Entity Sync Integration tests', () => {
       hostName: host,
     })
 
-    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-      new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-    )
-    getRepository(injector).createDataSet(User, 'username')
-    getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
+      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+      .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+    getRepository(injector)
+      .createDataSet(User, 'username')
+      .createDataSet(DefaultSession, 'sessionId')
+      .createDataSet(PasswordCredential, 'userName')
+      .createDataSet(PasswordResetToken, 'token')
+    usePasswordPolicy(injector)
     useHttpAuthentication(injector, {})
 
     addStore(injector, new InMemoryStore({ model: TestEntity, primaryKey: 'id' }))

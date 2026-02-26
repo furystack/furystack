@@ -3,9 +3,18 @@ releases:
   "@furystack/auth-jwt": major
   "@furystack/core": patch
   "@furystack/entity-sync-service": patch
+  "@furystack/filesystem-store": patch
+  "@furystack/mongodb-store": patch
+  "@furystack/redis-store": patch
   "@furystack/rest-service": major
-  "@furystack/security": minor
+  "@furystack/security": major
+  "@furystack/sequelize-store": patch
   "@furystack/shades-common-components": major
   "@furystack/shades-showcase-app": minor
   "@furystack/websocket-api": patch
   furystack: patch
+
+declined:
+  - "@furystack/entity-sync"
+  - "@furystack/repository"
+  - "@furystack/rest"
