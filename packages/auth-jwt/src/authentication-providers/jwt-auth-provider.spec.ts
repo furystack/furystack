@@ -1,5 +1,6 @@
-import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
+import { InMemoryStore, StoreManager, User, addStore, useSystemIdentityContext } from '@furystack/core'
 import { Injector } from '@furystack/inject'
+import { getDataSetFor, getRepository } from '@furystack/repository'
 import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
@@ -15,6 +16,8 @@ const setupInjector = (i: Injector) => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
     .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  getRepository(i).createDataSet(User, 'username')
+  getRepository(i).createDataSet(RefreshToken, 'token')
   const settings = Object.assign(new JwtAuthenticationSettings(), { secret: SECRET })
   i.setExplicitInstance(settings, JwtAuthenticationSettings)
 }
@@ -25,10 +28,12 @@ describe('createJwtAuthProvider', () => {
   it('Should return null for requests without Bearer header', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupInjector(i)
-      const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+      const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const provider = createJwtAuthProvider({
         jwtTokenService: i.getInstance(JwtTokenService),
-        userStore,
+        userDataSet,
+        injector: systemInjector,
       })
       const result = await provider.authenticate({ headers: {} } as IncomingMessage)
       expect(result).toBeNull()
@@ -38,10 +43,12 @@ describe('createJwtAuthProvider', () => {
   it('Should return null for requests with non-Bearer authorization', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupInjector(i)
-      const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+      const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const provider = createJwtAuthProvider({
         jwtTokenService: i.getInstance(JwtTokenService),
-        userStore,
+        userDataSet,
+        injector: systemInjector,
       })
       const result = await provider.authenticate({
         headers: { authorization: 'Basic dXNlcjpwYXNz' },
@@ -57,7 +64,13 @@ describe('createJwtAuthProvider', () => {
       await userStore.add(testUser)
       const tokenService = i.getInstance(JwtTokenService)
       const token = tokenService.signAccessToken(testUser)
-      const provider = createJwtAuthProvider({ jwtTokenService: tokenService, userStore })
+      const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
+      const provider = createJwtAuthProvider({
+        jwtTokenService: tokenService,
+        userDataSet,
+        injector: systemInjector,
+      })
       const result = await provider.authenticate({
         headers: { authorization: `Bearer ${token}` },
       } as IncomingMessage)
@@ -68,9 +81,14 @@ describe('createJwtAuthProvider', () => {
   it('Should throw UnauthenticatedError for invalid Bearer token', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupInjector(i)
-      const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+      const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const tokenService = i.getInstance(JwtTokenService)
-      const provider = createJwtAuthProvider({ jwtTokenService: tokenService, userStore })
+      const provider = createJwtAuthProvider({
+        jwtTokenService: tokenService,
+        userDataSet,
+        injector: systemInjector,
+      })
       await expect(
         provider.authenticate({
           headers: { authorization: 'Bearer invalid.token.here' },
@@ -82,10 +100,15 @@ describe('createJwtAuthProvider', () => {
   it('Should throw UnauthenticatedError when user not found', async () => {
     await usingAsync(new Injector(), async (i) => {
       setupInjector(i)
-      const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
+      const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+      const userDataSet = getDataSetFor(systemInjector, User, 'username')
       const tokenService = i.getInstance(JwtTokenService)
       const token = tokenService.signAccessToken(testUser)
-      const provider = createJwtAuthProvider({ jwtTokenService: tokenService, userStore })
+      const provider = createJwtAuthProvider({
+        jwtTokenService: tokenService,
+        userDataSet,
+        injector: systemInjector,
+      })
       await expect(
         provider.authenticate({
           headers: { authorization: `Bearer ${token}` },

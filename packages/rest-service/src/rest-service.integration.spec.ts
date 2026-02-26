@@ -33,10 +33,7 @@ const createIntegrationApi = async () => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
     new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
   )
-  useHttpAuthentication(i, {
-    getUserStore: (sm) => sm.getStoreFor(User, 'username'),
-    getSessionStore: (sm) => sm.getStoreFor(DefaultSession, 'sessionId'),
-  })
+  useHttpAuthentication(i)
   await useRestService<IntegrationTestApi>({
     injector: i,
     root,

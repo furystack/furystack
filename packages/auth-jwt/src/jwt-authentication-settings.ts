@@ -1,5 +1,6 @@
-import type { StoreManager } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import { getDataSetFor } from '@furystack/repository'
 import { RefreshToken } from './models/refresh-token.js'
 
 /**
@@ -42,6 +43,6 @@ export class JwtAuthenticationSettings {
   /** JWT 'aud' claim. If set, tokens are signed with this audience and verified against it. */
   public audience?: string
 
-  /** Returns the PhysicalStore for refresh tokens. */
-  public getRefreshTokenStore = (sm: StoreManager) => sm.getStoreFor(RefreshToken, 'token')
+  /** Returns the DataSet for refresh tokens. */
+  public getRefreshTokenDataSet = (injector: Injector) => getDataSetFor(injector, RefreshToken, 'token')
 }

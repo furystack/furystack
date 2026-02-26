@@ -755,6 +755,7 @@ export class Logger {}
 - [ ] Semantic versioning followed
 - [ ] No breaking changes without deprecation
 - [ ] No side effects on import
+- [ ] Repository/DataSet preferred over direct PhysicalStore access
 
 **Tools:**
 
@@ -763,3 +764,73 @@ export class Logger {}
 - Build: `yarn build` (tsc -b packages)
 - Test: `yarn test`
 - Version: `yarn bumpVersions`
+
+## Data Access: Repository over PhysicalStore
+
+**Always prefer the Repository/DataSet layer over direct PhysicalStore access** for application-level code.
+
+### Why
+
+Direct `PhysicalStore` writes bypass:
+
+- Authorization checks
+- Modification hooks (`modifyOnAdd`, `modifyOnUpdate`)
+- DataSet events (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`)
+- Entity sync (which depends on DataSet events)
+
+### Pattern
+
+```typescript
+// ✅ Good — use DataSet via Repository
+import { getDataSetFor } from '@furystack/repository'
+import { useSystemIdentityContext } from '@furystack/core'
+
+const systemInjector = useSystemIdentityContext({ injector, username: 'MyService' })
+const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
+await dataSet.add(systemInjector, entity)
+await dataSet.find(systemInjector, { filter: { ... } })
+
+// ❌ Avoid — direct PhysicalStore access in application code
+import { StoreManager } from '@furystack/core'
+const store = injector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
+await store.add(entity) // bypasses authorization, hooks, and events
+```
+
+### When to use PhysicalStore directly
+
+- **Store implementations** (e.g. `InMemoryStore`, `SequelizeStore`) — testing the store layer itself
+- **Inside `Repository.createDataSet`** — the Repository uses `StoreManager.getStoreFor` internally
+- **Test data seeding** — acceptable in test setup to seed data into the physical store
+
+### Setup helpers
+
+Setup functions should create DataSets for the models they manage:
+
+```typescript
+// usePasswordPolicy creates DataSets for PasswordCredential and PasswordResetToken
+usePasswordPolicy(injector)
+
+// useHttpAuthentication creates DataSets for User and DefaultSession
+useHttpAuthentication(injector)
+
+// useJwtAuthentication creates DataSet for RefreshToken
+useJwtAuthentication(injector, { secret: '...' })
+```
+
+### System Identity Context
+
+Server-internal services (like `PasswordAuthenticator`, `JwtTokenService`) use `SystemIdentityContext`
+to perform elevated operations through the DataSet layer. This ensures events fire while authorization
+is bypassed for trusted code paths:
+
+```typescript
+@Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'MyService' }))
+declare private readonly systemInjector: Injector
+
+@Injected((injector) => getDataSetFor(injector, MyModel, 'id'))
+declare private readonly myDataSet: DataSet<MyModel, 'id'>
+
+async doWork() {
+  await this.myDataSet.find(this.systemInjector, { ... })
+}
+```

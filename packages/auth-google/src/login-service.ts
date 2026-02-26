@@ -1,6 +1,8 @@
-import type { PhysicalStore, User } from '@furystack/core'
-import { StoreManager } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
+import type { DataSet } from '@furystack/repository'
 import { HttpAuthenticationSettings, readPostBody } from '@furystack/rest-service'
 import { get } from 'https'
 
@@ -26,13 +28,14 @@ export interface GoogleApiPayload {
 export class GoogleLoginSettings {
   public get = get
 
-  @Injected((injector) =>
-    injector.getInstance(HttpAuthenticationSettings).getUserStore(injector.getInstance(StoreManager)),
-  )
-  declare private readonly userStore: PhysicalStore<User, 'username'>
+  @Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'GoogleLoginSettings' }))
+  declare private readonly systemInjector: Injector
+
+  @Injected((injector: Injector) => injector.getInstance(HttpAuthenticationSettings).getUserDataSet(injector))
+  declare private readonly userDataSet: DataSet<User, 'username'>
 
   public getUserFromGooglePayload: (payload: GoogleApiPayload) => Promise<User | undefined> = async (payload) => {
-    const users = await this.userStore.find({
+    const users = await this.userDataSet.find(this.systemInjector, {
       top: 2,
       filter: {
         username: { $eq: payload.email },

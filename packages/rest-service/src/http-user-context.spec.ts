@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
+import { InMemoryStore, StoreManager, User, addStore, useSystemIdentityContext } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { PasswordAuthenticator, PasswordCredential, UnauthenticatedError } from '@furystack/security'
+import { getDataSetFor } from '@furystack/repository'
+import {
+  PasswordAuthenticator,
+  PasswordCredential,
+  PasswordResetToken,
+  UnauthenticatedError,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, expect, it, vi } from 'vitest'
@@ -13,7 +20,9 @@ export const prepareInjector = async (i: Injector, options?: { enableBasicAuth?:
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
     .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
     .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
 
+  usePasswordPolicy(i)
   useHttpAuthentication(i, { enableBasicAuth: options?.enableBasicAuth ?? true })
 }
 
@@ -225,9 +234,10 @@ describe('HttpUserContext', () => {
       await usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        await ctx.authentication
-          .getSessionStore(i.getInstance(StoreManager))
-          .add({ sessionId: '666', username: testUser.username })
+        await i.getInstance(StoreManager).getStoreFor(DefaultSession, 'sessionId').add({
+          sessionId: '666',
+          username: testUser.username,
+        })
         await expect(
           ctx.authenticateRequest({
             headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
@@ -241,11 +251,15 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
 
         const ctx = i.getInstance(HttpUserContext)
-        await ctx.authentication
-          .getSessionStore(i.getInstance(StoreManager))
-          .add({ sessionId: '666', username: testUser.username })
+        await i.getInstance(StoreManager).getStoreFor(DefaultSession, 'sessionId').add({
+          sessionId: '666',
+          username: testUser.username,
+        })
 
-        await ctx.authentication.getUserStore(i.getInstance(StoreManager)).add({ ...testUser })
+        await i
+          .getInstance(StoreManager)
+          .getStoreFor(User, 'username')
+          .add({ ...testUser })
 
         const result = await ctx.authenticateRequest({
           headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
@@ -320,14 +334,13 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        const addMock = vi.fn(async () => ({}))
         // @ts-expect-error
-        ctx.getSessionStore().add = vi.fn(async () => {
-          return {}
-        })
+        ctx.getSessionDataSet = vi.fn(() => ({ add: addMock }))
         const authResult = await ctx.cookieLogin(testUser, { setHeader })
         expect(authResult).toBe(testUser)
         expect(setHeader).toBeCalled()
-        expect(ctx.getSessionStore().add).toBeCalled()
+        expect(addMock).toBeCalled()
       })
     })
   })
@@ -338,18 +351,22 @@ describe('HttpUserContext', () => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
         const setHeader = vi.fn()
+        const removeMock = vi.fn(async () => undefined)
+        const sessionDataSetMock = {
+          add: vi.fn(async () => ({})),
+          find: vi.fn(async () => [{ sessionId: 'example-session-id' }]),
+          remove: removeMock,
+          primaryKey: 'sessionId' as const,
+        }
         // @ts-expect-error
-        ctx.getSessionStore().add = vi.fn(async () => {
-          return {}
-        })
+        ctx.getSessionDataSet = vi.fn(() => sessionDataSetMock)
         ctx.authenticateRequest = vi.fn(async () => testUser)
-        ctx.getSessionStore().remove = vi.fn(async () => undefined)
         ctx.getSessionIdFromRequest = () => 'example-session-id'
         response.setHeader = vi.fn(() => response)
         await ctx.cookieLogin(testUser, { setHeader })
         await ctx.cookieLogout(request, response)
         expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
-        expect(ctx.getSessionStore().remove).toBeCalled()
+        expect(removeMock).toBeCalled()
       })
     })
   })
@@ -359,23 +376,25 @@ describe('HttpUserContext', () => {
       return usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
+        const sm = i.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').add(testUser)
 
         const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
 
         await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
 
         const originalUser = await ctx.getCurrentUser(request)
         expect(originalUser).toEqual(testUser)
 
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
         const updatedUser = { ...testUser, roles: ['newFancyRole'] }
-        await userStore.update(testUser.username, updatedUser)
+        await userDataSet.update(systemInjector, testUser.username, updatedUser)
         const updatedUserFromContext = await ctx.getCurrentUser(request)
         expect(updatedUserFromContext.roles).toEqual(['newFancyRole'])
 
-        await userStore.update(testUser.username, { ...updatedUser, roles: [] })
+        await userDataSet.update(systemInjector, testUser.username, { ...updatedUser, roles: [] })
         const reloadedUserFromContext = await ctx.getCurrentUser(request)
         expect(reloadedUserFromContext.roles).toEqual([])
       })
@@ -385,18 +404,20 @@ describe('HttpUserContext', () => {
       return usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
+        const sm = i.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').add(testUser)
 
         const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
 
         await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
 
         const originalUser = await ctx.getCurrentUser(request)
         expect(originalUser).toEqual(testUser)
 
-        await userStore.remove(testUser.username)
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        await userDataSet.remove(systemInjector, testUser.username)
 
         await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
       })
@@ -406,17 +427,17 @@ describe('HttpUserContext', () => {
       return usingAsync(new Injector(), async (i) => {
         await prepareInjector(i)
         const ctx = i.getInstance(HttpUserContext)
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
+        const sm = i.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').add(testUser)
 
         let sessionId = ''
 
         const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName').add(pw)
+        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
 
         await ctx.cookieLogin(testUser, {
           setHeader: (_headerName, headerValue) => {
-            sessionId = headerValue
+            sessionId = headerValue.split('=')[1].split(';')[0]
             return {} as ServerResponse
           },
         })
@@ -424,8 +445,9 @@ describe('HttpUserContext', () => {
         const originalUser = await ctx.getCurrentUser(request)
         expect(originalUser).toEqual(testUser)
 
-        const sessionStore = ctx.getSessionStore()
-        await sessionStore.remove(sessionId)
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const sessionDataSet = getDataSetFor(systemInjector, DefaultSession, 'sessionId')
+        await sessionDataSet.remove(systemInjector, sessionId)
 
         await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
       })

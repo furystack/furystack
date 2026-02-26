@@ -1,4 +1,6 @@
-import type { PhysicalStore, User } from '@furystack/core'
+import type { User } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
+import type { DataSet } from '@furystack/repository'
 import type { AuthenticationProvider } from '@furystack/rest-service'
 import { UnauthenticatedError } from '@furystack/security'
 import type { JwtTokenService } from '../jwt-token-service.js'
@@ -10,10 +12,12 @@ import type { JwtTokenService } from '../jwt-token-service.js'
  */
 export const createJwtAuthProvider = ({
   jwtTokenService,
-  userStore,
+  userDataSet,
+  injector,
 }: {
   jwtTokenService: JwtTokenService
-  userStore: PhysicalStore<User, 'username'>
+  userDataSet: DataSet<User, 'username'>
+  injector: Injector
 }): AuthenticationProvider => ({
   name: 'jwt-bearer',
   authenticate: async (request) => {
@@ -21,7 +25,7 @@ export const createJwtAuthProvider = ({
     if (!authHeader?.startsWith('Bearer ')) return null
     const token = authHeader.slice(7)
     const payload = jwtTokenService.verifyAccessToken(token)
-    const users = await userStore.find({ filter: { username: { $eq: payload.sub } }, top: 2 })
+    const users = await userDataSet.find(injector, { filter: { username: { $eq: payload.sub } }, top: 2 })
     if (users.length !== 1) throw new UnauthenticatedError()
     return users[0]
   },

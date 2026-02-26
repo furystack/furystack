@@ -1,7 +1,8 @@
-import type { PhysicalStore, StoreManager } from '@furystack/core'
 import { User } from '@furystack/core'
-import type { Constructable } from '@furystack/inject'
+import type { Constructable, Injector } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import type { DataSet } from '@furystack/repository'
+import { getDataSetFor } from '@furystack/repository'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { DefaultSession } from './models/default-session.js'
 
@@ -12,10 +13,10 @@ import { DefaultSession } from './models/default-session.js'
 export class HttpAuthenticationSettings<TUser extends User, TSession extends DefaultSession> {
   public model: Constructable<TUser> = User as Constructable<TUser>
 
-  public getUserStore = (sm: StoreManager) => sm.getStoreFor(User, 'username')
+  public getUserDataSet = (injector: Injector) => getDataSetFor(injector, User, 'username')
 
-  public getSessionStore: (storeManager: StoreManager) => PhysicalStore<TSession, keyof TSession> = (sm) =>
-    sm.getStoreFor(DefaultSession, 'sessionId') as unknown as PhysicalStore<TSession, keyof TSession>
+  public getSessionDataSet: (injector: Injector) => DataSet<TSession, keyof TSession> = (injector) =>
+    getDataSetFor(injector, DefaultSession, 'sessionId') as unknown as DataSet<TSession, keyof TSession>
 
   public cookieName = 'fss'
   public enableBasicAuth = true

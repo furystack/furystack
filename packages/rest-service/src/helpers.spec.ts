@@ -1,7 +1,7 @@
 import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
-import { PasswordCredential } from '@furystack/security'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { ApiManager } from './api-manager.js'
@@ -18,6 +18,8 @@ describe('Injector extensions', () => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
           .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
           .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+        usePasswordPolicy(i)
         useHttpAuthentication(i)
         expect(i.cachedSingletons.get(HttpAuthenticationSettings)).toBeDefined()
       })
@@ -28,6 +30,8 @@ describe('Injector extensions', () => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
           .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
           .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+        usePasswordPolicy(i)
         useHttpAuthentication(i)
         const settings = i.getInstance(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)
@@ -41,6 +45,8 @@ describe('Injector extensions', () => {
         addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
           .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
           .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+          .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+        usePasswordPolicy(i)
         useHttpAuthentication(i, { enableBasicAuth: false })
         const settings = i.getInstance(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)

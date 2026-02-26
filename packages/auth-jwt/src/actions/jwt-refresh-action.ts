@@ -19,8 +19,8 @@ export const JwtRefreshAction: RequestAction<{
     const { username, replacedByToken } = await tokenService.verifyRefreshToken(body.refreshToken)
 
     const userContext = injector.getInstance(HttpUserContext)
-    const userStore = userContext.getUserStore()
-    const users = await userStore.find({ filter: { username: { $eq: username } }, top: 2 })
+    const userDataSet = userContext.getUserDataSet()
+    const users = await userDataSet.find(injector, { filter: { username: { $eq: username } }, top: 2 })
     if (users.length !== 1) {
       throw new UnauthenticatedError()
     }
