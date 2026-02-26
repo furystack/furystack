@@ -4,23 +4,39 @@ import type { LoginResponseStrategy } from '@furystack/rest-service'
 import { JsonResult } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage, ServerResponse } from 'http'
+import type { TokenPayload } from 'google-auth-library'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createGoogleLoginAction } from './login-action.js'
-import { GoogleLoginService, GoogleLoginSettings } from './login-service.js'
+import { GoogleLoginService } from './login-service.js'
+
+const mockPayload: TokenPayload = {
+  iss: 'accounts.google.com',
+  sub: '123',
+  aud: 'test',
+  exp: 0,
+  iat: 0,
+  email: 'user@example.com',
+  email_verified: true,
+} as TokenPayload
+
+const createMockService = (user: User | undefined): GoogleLoginService =>
+  Object.assign(new GoogleLoginService(), {
+    getGoogleUserData: vi.fn(async () => mockPayload),
+    getUserFromGooglePayload: vi.fn(async () => user),
+  })
 
 describe('createGoogleLoginAction', () => {
   const request = { url: 'https://google.com', headers: {} } as IncomingMessage
   const response = {} as ServerResponse
 
-  it('Should delegate to the strategy after Google login', async () => {
+  it('Should delegate to the strategy after resolving the user', async () => {
     await usingAsync(new Injector(), async (i) => {
       const testUser: User = { username: 'example', roles: [] }
       const strategyFn = vi.fn(async (user: User) => JsonResult(user, 200))
       const strategy: LoginResponseStrategy<User> = { createLoginResponse: strategyFn }
 
-      i.setExplicitInstance(i.getInstance(GoogleLoginService))
-      i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
 
       const action = createGoogleLoginAction(strategy)
       const result = await action({
@@ -41,8 +57,7 @@ describe('createGoogleLoginAction', () => {
       const strategyFn = vi.fn(async (user: User) => JsonResult(user, 200))
       const strategy: LoginResponseStrategy<User> = { createLoginResponse: strategyFn }
 
-      i.setExplicitInstance(i.getInstance(GoogleLoginService))
-      i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
 
       const action = createGoogleLoginAction(strategy)
       await action({
@@ -66,8 +81,7 @@ describe('createGoogleLoginAction', () => {
         createLoginResponse: async () => JsonResult({ accessToken: 'access-tok', refreshToken: 'refresh-tok' }, 200),
       }
 
-      i.setExplicitInstance(i.getInstance(GoogleLoginService))
-      i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
 
       const action = createGoogleLoginAction(tokenStrategy)
       const result = await action({
@@ -82,14 +96,13 @@ describe('createGoogleLoginAction', () => {
     })
   })
 
-  it('Should propagate errors from GoogleLoginService', async () => {
+  it('Should reject when user is not found', async () => {
     await usingAsync(new Injector(), async (i) => {
       const strategy: LoginResponseStrategy<User> = {
         createLoginResponse: async (user) => JsonResult(user, 200),
       }
 
-      i.setExplicitInstance(i.getInstance(GoogleLoginService))
-      i.getInstance(GoogleLoginService).login = () => Promise.reject(new Error('Attached user not found.'))
+      i.setExplicitInstance(createMockService(undefined), GoogleLoginService)
 
       const action = createGoogleLoginAction(strategy)
       await expect(
@@ -103,6 +116,32 @@ describe('createGoogleLoginAction', () => {
     })
   })
 
+  it('Should propagate errors from getGoogleUserData', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const strategy: LoginResponseStrategy<User> = {
+        createLoginResponse: async (user) => JsonResult(user, 200),
+      }
+
+      const service = Object.assign(new GoogleLoginService(), {
+        getGoogleUserData: vi.fn(async () => {
+          throw new Error('Token verification failed')
+        }),
+        getUserFromGooglePayload: vi.fn(),
+      })
+      i.setExplicitInstance(service, GoogleLoginService)
+
+      const action = createGoogleLoginAction(strategy)
+      await expect(
+        action({
+          request,
+          response,
+          injector: i,
+          getBody: () => Promise.resolve({ token: 'bad-token' }),
+        }),
+      ).rejects.toThrow('Token verification failed')
+    })
+  })
+
   describe('CSRF validation', () => {
     it('Should pass when CSRF tokens match and enableCsrfCheck is true', async () => {
       await usingAsync(new Injector(), async (i) => {
@@ -111,12 +150,9 @@ describe('createGoogleLoginAction', () => {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const settings = new GoogleLoginSettings()
-        settings.enableCsrfCheck = true
-        i.setExplicitInstance(settings, GoogleLoginSettings)
-
-        i.setExplicitInstance(i.getInstance(GoogleLoginService))
-        i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+        const service = createMockService(testUser)
+        service.enableCsrfCheck = true
+        i.setExplicitInstance(service, GoogleLoginService)
 
         const csrfToken = 'abc123'
         const csrfRequest = {
@@ -142,12 +178,9 @@ describe('createGoogleLoginAction', () => {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const settings = new GoogleLoginSettings()
-        settings.enableCsrfCheck = true
-        i.setExplicitInstance(settings, GoogleLoginSettings)
-
-        i.setExplicitInstance(i.getInstance(GoogleLoginService))
-        i.getInstance(GoogleLoginService).login = () => Promise.resolve({ username: 'x', roles: [] })
+        const service = createMockService({ username: 'x', roles: [] })
+        service.enableCsrfCheck = true
+        i.setExplicitInstance(service, GoogleLoginService)
 
         const csrfRequest = {
           url: 'https://google.com',
@@ -172,11 +205,9 @@ describe('createGoogleLoginAction', () => {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const settings = new GoogleLoginSettings()
-        settings.enableCsrfCheck = true
-        i.setExplicitInstance(settings, GoogleLoginSettings)
-
-        i.setExplicitInstance(i.getInstance(GoogleLoginService))
+        const service = createMockService(undefined)
+        service.enableCsrfCheck = true
+        i.setExplicitInstance(service, GoogleLoginService)
 
         const action = createGoogleLoginAction(strategy)
         await expect(
@@ -197,12 +228,9 @@ describe('createGoogleLoginAction', () => {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const settings = new GoogleLoginSettings()
-        settings.enableCsrfCheck = false
-        i.setExplicitInstance(settings, GoogleLoginSettings)
-
-        i.setExplicitInstance(i.getInstance(GoogleLoginService))
-        i.getInstance(GoogleLoginService).login = () => Promise.resolve(testUser)
+        const service = createMockService(testUser)
+        service.enableCsrfCheck = false
+        i.setExplicitInstance(service, GoogleLoginService)
 
         const action = createGoogleLoginAction(strategy)
         const result = await action({

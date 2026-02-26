@@ -1,6 +1,6 @@
 import type { Injector } from '@furystack/inject'
 
-import { GoogleLoginSettings } from './login-service.js'
+import { GoogleLoginService } from './login-service.js'
 
 /**
  * Configures Google OAuth authentication.
@@ -11,11 +11,11 @@ import { GoogleLoginSettings } from './login-service.js'
  */
 export const useGoogleAuthentication = (
   injector: Injector,
-  settings: Partial<GoogleLoginSettings> & Pick<GoogleLoginSettings, 'clientId'>,
+  settings: Partial<GoogleLoginService> & Pick<GoogleLoginService, 'clientId'>,
 ): void => {
   if (!settings.clientId) {
     throw new Error('Google clientId is required.')
   }
-  const googleSettings = Object.assign(new GoogleLoginSettings(), settings)
-  injector.setExplicitInstance(googleSettings, GoogleLoginSettings)
+  const service = Object.assign(new GoogleLoginService(), settings)
+  injector.setExplicitInstance(service, GoogleLoginService)
 }
