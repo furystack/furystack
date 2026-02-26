@@ -8,7 +8,7 @@ import { createMonacoTheme } from './create-monaco-theme.js'
 import './worker-config.js'
 
 const registerShadesTheme = (themeProvider: ThemeProviderService) => {
-  const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme(), themeProvider)
+  const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme())
   editor.defineTheme(monacoTheme.name, monacoTheme.data)
   return monacoTheme.name
 }

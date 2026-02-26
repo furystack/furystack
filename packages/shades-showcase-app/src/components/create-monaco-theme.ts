@@ -1,6 +1,6 @@
 import type { DeepPartial } from '@furystack/utils'
 
-import type { Theme, ThemeProviderService } from '@furystack/shades-common-components'
+import { getRgbFromColorString, getTextColor, type Theme } from '@furystack/shades-common-components'
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const SHADES_THEME_NAME = 'shades-theme'
@@ -10,8 +10,8 @@ const toHex = (n: number): string =>
     .toString(16)
     .padStart(2, '0')
 
-const rgbToHex = (themeProvider: ThemeProviderService, color: string): string => {
-  const { r, g, b, a } = themeProvider.getRgbFromColorString(color)
+const rgbToHex = (color: string): string => {
+  const { r, g, b, a } = getRgbFromColorString(color)
   const base = `#${toHex(r)}${toHex(g)}${toHex(b)}`
   return a < 1 ? `${base}${toHex(a * 255)}` : base
 }
@@ -26,15 +26,12 @@ const withAlpha = (hex: string, alpha: number): string => {
  * Inherits syntax highlighting from the closest built-in base (`vs` or `vs-dark`)
  * and maps Shades design tokens to Monaco editor chrome colors.
  */
-export const createMonacoTheme = (
-  theme: DeepPartial<Theme>,
-  themeProvider: ThemeProviderService,
-): { name: string; data: editor.IStandaloneThemeData } => {
+export const createMonacoTheme = (theme: DeepPartial<Theme>): { name: string; data: editor.IStandaloneThemeData } => {
   const bg = theme.background?.default
   let base: editor.BuiltinTheme = 'vs-dark'
   try {
     if (bg) {
-      base = themeProvider.getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme
+      base = getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme
     }
   } catch (e) {
     console.warn('Failed to determine Monaco base theme from background color, falling back to vs-dark', e)
@@ -45,7 +42,7 @@ export const createMonacoTheme = (
   const map = (monacoKey: string, color: string | undefined) => {
     if (!color) return
     try {
-      colors[monacoKey] = rgbToHex(themeProvider, color)
+      colors[monacoKey] = rgbToHex(color)
     } catch {
       // skip unresolvable colors
     }
@@ -54,7 +51,7 @@ export const createMonacoTheme = (
   const mapWithAlpha = (monacoKey: string, color: string | undefined, alpha: number) => {
     if (!color) return
     try {
-      colors[monacoKey] = withAlpha(rgbToHex(themeProvider, color), alpha)
+      colors[monacoKey] = withAlpha(rgbToHex(color), alpha)
     } catch {
       // skip unresolvable colors
     }

@@ -2,9 +2,6 @@ import { Injectable } from '@furystack/inject'
 import { EventHub, type DeepPartial } from '@furystack/utils'
 
 import { cssVariableTheme, useThemeCssVariables } from './css-variable-theme.js'
-import { getRgbFromColorString } from './get-rgb-from-color-string.js'
-import { getTextColor } from './get-text-color.js'
-import { RgbColor } from './rgb-color.js'
 
 /**
  * Represents a CSS color value.
@@ -366,29 +363,11 @@ export interface Theme {
   effects?: Effects
 }
 
-export { RgbColor } from './rgb-color.js'
-export { getRgbFromColorString } from './get-rgb-from-color-string.js'
-export { getTextColor } from './get-text-color.js'
-
 /**
  * Service class for theme-related operations
  */
 @Injectable({ lifetime: 'singleton' })
 export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<Theme> }> {
-  /**
-   * @deprecated Use the standalone {@link getTextColor} function instead.
-   */
-  public getTextColor(color: string, bright = '#000000', dark = '#FFFFFF'): string {
-    return getTextColor(color, bright, dark)
-  }
-
-  /**
-   * @deprecated Use the standalone {@link getRgbFromColorString} function instead.
-   */
-  public getRgbFromColorString(color: string): RgbColor {
-    return getRgbFromColorString(color)
-  }
-
   public readonly theme = cssVariableTheme
 
   private _assignedTheme: DeepPartial<Theme> = cssVariableTheme
