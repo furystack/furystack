@@ -833,6 +833,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/auth-jwt@workspace:packages/auth-jwt":
+  version: 0.0.0-use.local
+  resolution: "@furystack/auth-jwt@workspace:packages/auth-jwt"
+  dependencies:
+    "@furystack/core": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/rest": "workspace:^"
+    "@furystack/rest-client-fetch": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
+    "@furystack/security": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@types/node": "npm:^25.3.0"
+    typescript: "npm:^5.9.3"
+    vitest: "npm:^4.0.18"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/cache@workspace:^, @furystack/cache@workspace:packages/cache":
   version: 0.0.0-use.local
   resolution: "@furystack/cache@workspace:packages/cache"

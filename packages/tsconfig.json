@@ -6,6 +6,9 @@
       "path": "./auth-google"
     },
     {
+      "path": "./auth-jwt"
+    },
+    {
       "path": "./core"
     },
     {

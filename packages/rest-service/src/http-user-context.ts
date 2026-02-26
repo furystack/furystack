@@ -4,6 +4,7 @@ import { Injectable, Injected } from '@furystack/inject'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 import { randomBytes } from 'crypto'
 import type { IncomingMessage } from 'http'
+import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
 import type { DefaultSession } from './models/default-session.js'
 
@@ -23,15 +24,6 @@ export class HttpUserContext {
       throw new UnauthenticatedError()
     }
     return users[0]
-  }
-
-  private getSessionById = async (sessionId: string) => {
-    const sessionStore = this.getSessionStore()
-    const sessions = await sessionStore.find({ filter: { sessionId: { $eq: sessionId } }, top: 2 })
-    if (sessions.length !== 1) {
-      throw new UnauthenticatedError()
-    }
-    return sessions[0]
   }
 
   private user?: User
@@ -93,43 +85,20 @@ export class HttpUserContext {
   }
 
   public getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null {
-    if (request.headers.cookie) {
-      const cookies = request.headers.cookie
-        .toString()
-        .split(';')
-        .filter((val) => val.length > 0)
-        .map((val) => {
-          const [name, value] = val.split('=')
-          return { name: name?.trim(), value: value?.trim() }
-        })
-      const sessionCookie = cookies.find((c) => c.name === this.authentication.cookieName)
-      if (sessionCookie) {
-        return sessionCookie.value
-      }
-    }
-    return null
+    return extractSessionIdFromCookies(request, this.authentication.cookieName)
   }
 
+  /**
+   * Iterates registered authentication providers in order.
+   * - A provider returning `User` means authentication succeeded.
+   * - A provider returning `null` means it does not apply; try the next one.
+   * - A provider throwing means it owns the request but auth failed; propagate the error.
+   */
   public async authenticateRequest(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
-    // Basic auth
-    if (this.authentication.enableBasicAuth && request.headers.authorization) {
-      const authData = Buffer.from(request.headers.authorization.toString().split(' ')[1], 'base64')
-      const [userName, password] = authData.toString().split(':')
-      return await this.authenticateUser(userName, password)
+    for (const provider of this.authentication.authenticationProviders) {
+      const user = await provider.authenticate(request)
+      if (user) return user
     }
-
-    // Cookie auth
-    const sessionId = this.getSessionIdFromRequest(request)
-    if (sessionId) {
-      const session = await this.getSessionById(sessionId)
-      if (session) {
-        const user = await this.getUserByName(session.username)
-        if (user) {
-          return user
-        }
-      }
-    }
-
     throw new UnauthenticatedError()
   }
 

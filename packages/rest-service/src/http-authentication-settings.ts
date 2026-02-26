@@ -2,6 +2,7 @@ import type { PhysicalStore, StoreManager } from '@furystack/core'
 import { User } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
+import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { DefaultSession } from './models/default-session.js'
 
 /**
@@ -18,4 +19,11 @@ export class HttpAuthenticationSettings<TUser extends User, TSession extends Def
 
   public cookieName = 'fss'
   public enableBasicAuth = true
+
+  /**
+   * Ordered list of authentication providers. Populated by {@link useHttpAuthentication}
+   * and extended by `useJwtAuthentication()` or other auth plugins.
+   * Safe to mutate only during setup, before the first request is served.
+   */
+  public authenticationProviders: AuthenticationProvider[] = []
 }

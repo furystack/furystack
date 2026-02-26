@@ -31,10 +31,13 @@ export const Authenticate =
       const authenticated = await isAuthenticated(injector)
       if (!authenticated) {
         await sleepAsync(Math.random() * 1000)
+        const hasBasicAuth = injector
+          .getInstance(HttpUserContext)
+          .authentication.authenticationProviders.some((p) => p.name === 'basic-auth')
         return JsonResult(
           { error: 'unauthorized' },
           401,
-          injector.getInstance(HttpUserContext).authentication.enableBasicAuth ? { 'WWW-Authenticate': 'Basic' } : {},
+          hasBasicAuth ? { 'WWW-Authenticate': 'Basic' } : {},
         ) as unknown as ActionResult<T>
       }
       return (await action(args)) as ActionResult<T>

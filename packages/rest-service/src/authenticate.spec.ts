@@ -11,7 +11,7 @@ describe('Authenticate', () => {
   const response = {} as any as ServerResponse
   const request = { url: 'http://google.com' } as IncomingMessage
 
-  it('Should return 403 w/o basic auth header, when unauthorized and basic auth is disabled', async () => {
+  it('Should return 401 without WWW-Authenticate header when no basic-auth provider is registered', async () => {
     await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = vi.fn(async () => false)
 
@@ -22,7 +22,7 @@ describe('Authenticate', () => {
 
       i.setExplicitInstance(
         {
-          authentication: { enableBasicAuth: false },
+          authentication: { authenticationProviders: [] },
         },
         HttpUserContext,
       )
@@ -37,14 +37,16 @@ describe('Authenticate', () => {
     })
   })
 
-  it('Should return 403 with basic auth headers when unauthorized and basic auth is enabled', async () => {
+  it('Should return 401 with WWW-Authenticate: Basic header when basic-auth provider is registered', async () => {
     await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = vi.fn(async () => false)
       i.setExplicitInstance(
         {
           isAuthenticated: isAuthenticatedAction,
           getCurrentUser: async () => Promise.reject(new Error(':(')),
-          authentication: { enableBasicAuth: true },
+          authentication: {
+            authenticationProviders: [{ name: 'basic-auth', authenticate: async () => null }],
+          },
         },
         HttpUserContext,
       )
