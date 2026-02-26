@@ -1,7 +1,9 @@
 import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injectable, Injector } from '@furystack/inject'
+import { getRepository } from '@furystack/repository'
 import { DefaultSession } from '@furystack/rest-service'
+import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { WebSocket, type Data } from 'ws'
@@ -9,22 +11,32 @@ import { useWebsockets } from './helpers.js'
 import type { WebSocketAction } from './models/websocket-action.js'
 import { WebSocketApi } from './websocket-api.js'
 
+const setupStoresAndDataSets = (injector: Injector) => {
+  addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
+    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+
+  const repo = getRepository(injector)
+  repo.createDataSet(User, 'username')
+  repo.createDataSet(DefaultSession, 'sessionId')
+  repo.createDataSet(PasswordCredential, 'userName')
+  repo.createDataSet(PasswordResetToken, 'token')
+
+  usePasswordPolicy(injector)
+}
+
 describe('WebSocketApi', () => {
   it('Should be built', async () => {
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-      )
+      setupStoresAndDataSets(i)
       await useWebsockets(i, { port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
   })
   it('Should be built with settings', async () => {
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-      )
-
+      setupStoresAndDataSets(i)
       await useWebsockets(i, { path: '/web-socket', port: getPort() })
       expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
     })
@@ -33,27 +45,37 @@ describe('WebSocketApi', () => {
   it('Should broadcast messages', async () => {
     const port = getPort()
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-      )
+      setupStoresAndDataSets(i)
 
-      expect.assertions(5) // All 5 clients should receive the message
       await useWebsockets(i, { path: '/web-socket', port })
       const api = i.getInstance(WebSocketApi)
-      await Promise.all(
+
+      const clients = await Promise.all(
         [1, 2, 3, 4, 5].map(async () => {
           const client = new WebSocket(`ws://localhost:${port}/web-socket`)
-          await new Promise<void>((resolve) =>
-            client.once('open', () => {
-              resolve()
-            }),
-          )
-          client.once('message', (data) => {
-            expect((data as Buffer).toString()).toBe('alma')
-          })
-          await api.broadcast(({ ws }) => {
-            ws.send('alma')
-          })
+          await new Promise<void>((resolve) => client.once('open', () => resolve()))
+          return client
+        }),
+      )
+
+      const messagePromises = clients.map(
+        (client) =>
+          new Promise<string>((resolve) => {
+            client.once('message', (data) => resolve((data as Buffer).toString()))
+          }),
+      )
+
+      await api.broadcast(({ ws }) => {
+        ws.send('alma')
+      })
+
+      const messages = await Promise.all(messagePromises)
+      for (const msg of messages) {
+        expect(msg).toBe('alma')
+      }
+
+      await Promise.all(
+        clients.map(async (client) => {
           client.close()
           await new Promise<void>((resolve) => client.once('close', () => resolve()))
         }),
@@ -64,11 +86,8 @@ describe('WebSocketApi', () => {
   it('Should receive client messages', async () => {
     const port = getPort()
     await usingAsync(new Injector(), async (i) => {
-      addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
-        new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
-      )
+      setupStoresAndDataSets(i)
 
-      expect.assertions(2) // The action may be invoked twice due to test isolation issues
       const data = { value: 'test-message-unique' }
       @Injectable()
       class ExampleWsAction implements WebSocketAction {
@@ -91,7 +110,6 @@ describe('WebSocketApi', () => {
 
         public async execute(options: { data: Data; socket: WebSocket }) {
           expect(JSON.parse((options.data as Buffer).toString())).toEqual(data)
-          // Send a response back so the client knows the action completed
           options.socket.send('done')
         }
       }
@@ -100,7 +118,6 @@ describe('WebSocketApi', () => {
       const client = new WebSocket(`ws://localhost:${port}/web-socket-test`)
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
 
-      // Wait for the response from the server
       const responsePromise = new Promise<void>((resolve) => {
         client.once('message', () => {
           resolve()

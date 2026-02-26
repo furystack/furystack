@@ -1195,7 +1195,9 @@ __metadata:
   dependencies:
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
+    "@furystack/repository": "workspace:^"
     "@furystack/rest-service": "workspace:^"
+    "@furystack/security": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/ws": "npm:^8.18.1"
     typescript: "npm:^5.9.3"

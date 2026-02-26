@@ -44,6 +44,8 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@furystack/repository": "workspace:^",
+    "@furystack/security": "workspace:^",
     "@types/ws": "^8.18.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
