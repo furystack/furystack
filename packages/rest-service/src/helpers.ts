@@ -1,8 +1,8 @@
-import { User, useSystemIdentityContext } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
 import type { DataSet } from '@furystack/repository'
-import { getRepository } from '@furystack/repository'
 import { PasswordAuthenticator } from '@furystack/security'
 
 import type { ImplementApiOptions } from './api-manager.js'
@@ -12,7 +12,7 @@ import { createBasicAuthProvider } from './authentication-providers/basic-auth-p
 import { createCookieAuthProvider } from './authentication-providers/cookie-auth-provider.js'
 import { authenticateUserWithDataSet, findSessionById, findUserByName } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import { DefaultSession } from './models/default-session.js'
+import type { DefaultSession } from './models/default-session.js'
 import type { ProxyOptions } from './proxy-manager.js'
 import { ProxyManager } from './proxy-manager.js'
 import type { StaticServerOptions } from './static-server-manager.js'
@@ -40,11 +40,6 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
   settings?: Partial<HttpAuthenticationSettings<TUser, TSession>>,
 ) => {
   const mergedSettings = Object.assign(new HttpAuthenticationSettings<TUser, TSession>(), settings)
-
-  const repo = getRepository(injector)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-
   const systemInjector = useSystemIdentityContext({ injector, username: 'useHttpAuthentication' })
   const passwordAuthenticator = injector.getInstance(PasswordAuthenticator)
   const userDataSet = mergedSettings.getUserDataSet(systemInjector)

@@ -1,6 +1,7 @@
 import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
+import { getRepository } from '@furystack/repository'
 import type { RestApi } from '@furystack/rest'
 import { serializeValue } from '@furystack/rest'
 import { PathHelper, usingAsync } from '@furystack/utils'
@@ -33,6 +34,9 @@ const createIntegrationApi = async () => {
   addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' })).addStore(
     new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }),
   )
+  const repo = getRepository(i)
+  repo.createDataSet(User, 'username')
+  repo.createDataSet(DefaultSession, 'sessionId')
   useHttpAuthentication(i)
   await useRestService<IntegrationTestApi>({
     injector: i,

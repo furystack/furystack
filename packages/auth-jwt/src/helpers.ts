@@ -1,11 +1,9 @@
 import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
 import { HttpAuthenticationSettings } from '@furystack/rest-service'
 import { createJwtAuthProvider } from './authentication-providers/jwt-auth-provider.js'
 import { JwtAuthenticationSettings } from './jwt-authentication-settings.js'
 import { JwtTokenService } from './jwt-token-service.js'
-import { RefreshToken } from './models/refresh-token.js'
 
 /**
  * Configures JWT Bearer token authentication.
@@ -27,8 +25,6 @@ export const useJwtAuthentication = (
 
   const jwtSettings = Object.assign(new JwtAuthenticationSettings(), settings)
   injector.setExplicitInstance(jwtSettings, JwtAuthenticationSettings)
-
-  getRepository(injector).createDataSet(RefreshToken, 'token')
 
   const httpAuthSettings = injector.getInstance(HttpAuthenticationSettings)
   const jwtTokenService = injector.getInstance(JwtTokenService)
