@@ -72,6 +72,7 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  * <CacheView cache={userCache} args={[userId]} content={MyContentWithLabel} contentProps={{ label: 'User' }} />
  * ```
  */
+/** @internal Ungeneric props used by the Shade runtime; the public generic signature is applied via the export cast. */
 type InternalCacheViewProps = {
   cache: Cache<unknown, unknown[]>
   args: unknown[]

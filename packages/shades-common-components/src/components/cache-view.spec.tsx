@@ -247,5 +247,30 @@ describe('CacheView', () => {
       expect(valueEl?.textContent).toBe('Greeting: Hello world')
       cache[Symbol.dispose]()
     })
+
+    it('should forward contentProps when cache entry is obsolete', async () => {
+      const loadFn = vi.fn(async (key: string) => `Hello ${key}`)
+      const cache = new Cache<string, [string]>({ load: loadFn })
+      await cache.get('world')
+      cache.setObsolete('world')
+
+      const el = (
+        <div>
+          <CacheView cache={cache} args={['world']} content={TestContentWithLabel} contentProps={{ label: 'Stale' }} />
+        </div>
+      )
+      const cacheView = el.firstElementChild as JSX.Element
+      cacheView.updateComponent()
+      await flushUpdates()
+
+      const contentEl = cacheView.querySelector('test-cache-content-with-label') as JSX.Element
+      expect(contentEl).not.toBeNull()
+      contentEl.updateComponent()
+      await flushUpdates()
+      const valueEl = contentEl.querySelector('.content-value')
+      expect(valueEl?.textContent).toBe('Stale: Hello world')
+      expect(loadFn).toHaveBeenCalledTimes(2)
+      cache[Symbol.dispose]()
+    })
   })
 })
