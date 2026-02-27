@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.1.1] - 2026-02-27
+
+### 🐛 Bug Fixes
+
+- Fixed `HttpAuthenticationSettings` not respecting its `TUser` and `TSession` generic type parameters when resolving data sets. `getUserDataSet` now uses the configurable `model` property instead of the hardcoded `User` class, and `getSessionDataSet` now uses the new `sessionModel` property instead of the hardcoded `DefaultSession` class. This allows custom user and session types to work correctly with `useHttpAuthentication`.
+
 ## [12.1.0] - 2026-02-26
 
 ### 🔧 Chores

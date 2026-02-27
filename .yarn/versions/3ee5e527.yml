@@ -1,7 +1,0 @@
-releases:
-  "@furystack/auth-google": patch
-  "@furystack/auth-jwt": patch
-  "@furystack/entity-sync-service": patch
-  "@furystack/rest-service": patch
-  "@furystack/websocket-api": patch
-  furystack: patch

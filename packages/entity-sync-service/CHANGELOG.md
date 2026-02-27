@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4] - 2026-02-27
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest-service` dependency
+
 ## [1.0.3] - 2026-02-26
 
 ### ⬆️ Dependencies
