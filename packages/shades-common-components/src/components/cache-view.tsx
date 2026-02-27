@@ -1,6 +1,6 @@
 import type { Cache, CacheWithValue } from '@furystack/cache'
 import { hasCacheValue, isFailedCacheResult, isObsoleteCacheResult } from '@furystack/cache'
-import type { ShadeComponent } from '@furystack/shades'
+import type { PartialElement, ShadeComponent } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 
 import { cssVariableTheme } from '../services/css-variable-theme.js'
@@ -11,14 +11,19 @@ import { Result } from './result.js'
  * Props for the CacheView component.
  * @typeParam TData - The type of data stored in the cache
  * @typeParam TArgs - The tuple type of arguments used to identify the cache entry
+ * @typeParam TContentProps - The full props type of the content component (must include `data`)
  */
-export type CacheViewProps<TData, TArgs extends any[]> = {
+export type CacheViewProps<
+  TData,
+  TArgs extends any[],
+  TContentProps extends { data: CacheWithValue<TData> } = { data: CacheWithValue<TData> },
+> = {
   /** The cache instance to observe and control */
   cache: Cache<TData, TArgs>
   /** The arguments identifying which cache entry to display */
   args: TArgs
-  /** Shades component rendered when a value is available (loaded or obsolete). Receives CacheWithValue<TData>. */
-  content: ShadeComponent<{ data: CacheWithValue<TData> }>
+  /** Shades component rendered when a value is available (loaded or obsolete). */
+  content: ShadeComponent<TContentProps>
   /** Optional custom loader element. Default: null (nothing shown when loading). */
   loader?: JSX.Element
   /**
@@ -27,7 +32,9 @@ export type CacheViewProps<TData, TArgs extends any[]> = {
    * If not provided, a default Result + retry Button is shown.
    */
   error?: (error: unknown, retry: () => void) => JSX.Element
-}
+} & (keyof Omit<TContentProps, 'data' | keyof PartialElement<HTMLElement>> extends never
+  ? { contentProps?: never }
+  : { contentProps: Omit<TContentProps, 'data' | keyof PartialElement<HTMLElement>> })
 
 const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
   (
@@ -55,15 +62,32 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  * })
  *
  * <CacheView cache={userCache} args={[userId]} content={MyContent} />
+ *
+ * // With custom content props
+ * const MyContentWithLabel = Shade<{ data: CacheWithValue<User>; label: string }>({
+ *   shadowDomName: 'my-content-with-label',
+ *   render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
+ * })
+ *
+ * <CacheView cache={userCache} args={[userId]} content={MyContentWithLabel} contentProps={{ label: 'User' }} />
  * ```
  */
-export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData, TArgs>) => JSX.Element = Shade({
+type InternalCacheViewProps = {
+  cache: Cache<unknown, unknown[]>
+  args: unknown[]
+  content: ShadeComponent<{ data: CacheWithValue<unknown> }>
+  contentProps?: Record<string, unknown>
+  loader?: JSX.Element
+  error?: (error: unknown, retry: () => void) => JSX.Element
+}
+
+export const CacheView = Shade<InternalCacheViewProps>({
   shadowDomName: 'shade-cache-view',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
   },
   render: ({ props, useObservable, useState }): JSX.Element | null => {
-    const { cache, args, content, loader, error } = props
+    const { cache, args, content, loader, error, contentProps } = props
 
     const argsKey = JSON.stringify(args)
     const observable = cache.getObservable(...args)
@@ -96,12 +120,19 @@ export const CacheView: <TData, TArgs extends any[]>(props: CacheViewProps<TData
       } else if (lastReloadedArgsKey !== null) {
         setLastReloadedArgsKey(null)
       }
-      return createComponent(content as ShadeComponent<{ data: CacheWithValue<unknown> }>, {
+      return createComponent(content, {
         data: result,
+        ...(contentProps ?? {}),
       }) as unknown as JSX.Element
     }
 
     // 3. Loading last
     return loader ?? null
   },
-})
+}) as unknown as <
+  TData,
+  TArgs extends any[],
+  TContentProps extends { data: CacheWithValue<TData> } = { data: CacheWithValue<TData> },
+>(
+  props: CacheViewProps<TData, TArgs, TContentProps>,
+) => JSX.Element

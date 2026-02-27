@@ -36,6 +36,23 @@ const DemoContent = Shade<{ data: CacheWithValue<DemoData> }>({
   },
 })
 
+const DemoContentWithLabel = Shade<{ data: CacheWithValue<DemoData>; label: string }>({
+  shadowDomName: 'demo-cache-content-with-label',
+  render: ({ props }) => {
+    const { value, status, updatedAt } = props.data
+    return (
+      <div style={{ padding: '16px' }}>
+        <Typography variant="body1">
+          <strong>{props.label}:</strong> {value.message}
+        </Typography>
+        <Typography variant="body2" style={{ color: 'var(--shades-theme-text-secondary)' }}>
+          Status: {status} | Updated: {updatedAt.toLocaleTimeString()} | Timestamp: {value.timestamp}
+        </Typography>
+      </div>
+    )
+  },
+})
+
 const demoCache = new Cache<DemoData, [string]>({
   load: async (key) => {
     await sleepAsync(1000)
@@ -208,6 +225,21 @@ export const CacheViewPage = Shade({
                   </Alert>
                 ) as unknown as JSX.Element
               }
+            />
+          </Paper>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            With custom content props
+          </Typography>
+          <Typography variant="body2" style={{ color: 'var(--shades-theme-text-secondary)' }}>
+            The content component receives a type-checked <code>label</code> prop via <code>contentProps</code>.
+          </Typography>
+          <Paper elevation={1} style={{ padding: '16px', minHeight: '80px' }}>
+            <CacheView
+              cache={demoCache}
+              args={DEMO_ARGS}
+              content={DemoContentWithLabel}
+              contentProps={{ label: 'Custom Label' }}
             />
           </Paper>
         </Paper>
