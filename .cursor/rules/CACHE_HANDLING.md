@@ -6,13 +6,14 @@
 
 ### Props
 
-| Prop      | Type                                                 | Required | Default | Description                                                              |
-| --------- | ---------------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------ |
-| `cache`   | `Cache<TData, TArgs>`                                | Yes      |         | The cache instance to observe                                            |
-| `args`    | `TArgs`                                              | Yes      |         | Arguments identifying which cache entry to display                       |
-| `content` | `ShadeComponent<{ data: CacheWithValue<TData> }>`    | Yes      |         | Shades component rendered when a value is available (loaded or obsolete) |
-| `loader`  | `JSX.Element`                                        | No       | `null`  | Custom loader shown when loading and no value exists                     |
-| `error`   | `(error: unknown, retry: () => void) => JSX.Element` | No       | Result  | Custom error UI; receives error and retry callback                       |
+| Prop           | Type                                                 | Required                         | Default | Description                                                              |
+| -------------- | ---------------------------------------------------- | -------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `cache`        | `Cache<TData, TArgs>`                                | Yes                              |         | The cache instance to observe                                            |
+| `args`         | `TArgs`                                              | Yes                              |         | Arguments identifying which cache entry to display                       |
+| `content`      | `ShadeComponent<TContentProps>`                      | Yes                              |         | Shades component rendered when a value is available (loaded or obsolete) |
+| `contentProps` | `Omit<TContentProps, 'data'>`                        | Yes when content has extra props |         | Additional props forwarded to the content component                      |
+| `loader`       | `JSX.Element`                                        | No                               | `null`  | Custom loader shown when loading and no value exists                     |
+| `error`        | `(error: unknown, retry: () => void) => JSX.Element` | No                               | Result  | Custom error UI; receives error and retry callback                       |
 
 ### Evaluation Order
 
@@ -54,6 +55,19 @@ const UserContent = Shade<{ data: CacheWithValue<User> }>({
     </Alert>
   )}
 />
+
+// With custom content props (type-checked)
+const UserContentWithLabel = Shade<{ data: CacheWithValue<User>; label: string }>({
+  shadowDomName: 'user-content-with-label',
+  render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
+})
+
+<CacheView
+  cache={userCache}
+  args={[userId]}
+  content={UserContentWithLabel}
+  contentProps={{ label: 'User name' }}
+/>
 ```
 
 ### Key Details
@@ -63,3 +77,4 @@ const UserContent = Shade<{ data: CacheWithValue<User> }>({
 - **Args reactivity**: When `args` change, the component re-subscribes to the observable for the new cache entry.
 - **Default loader**: `null` (nothing shown). Pass a `loader` prop when you want a visible loading state.
 - **Content type**: `CacheWithValue<TData>` guarantees `.value` and `.updatedAt` are present. Content can check `result.status` to distinguish between `'loaded'` and `'obsolete'`.
+- **Custom content props**: When the content component accepts props beyond `data`, pass them via `contentProps`. TypeScript enforces that `contentProps` is required when the content component declares extra props, and type-checks the values.
