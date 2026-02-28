@@ -143,6 +143,11 @@ export const Drawer = Shade<DrawerProps>({
       layoutService.setDrawerWidth(position, width)
     }
 
+    // Clean up drawer state from LayoutService when this component is disposed
+    useDisposable('drawer-cleanup', () => ({
+      [Symbol.dispose]: () => layoutService.removeDrawer(position),
+    }))
+
     // Subscribe to drawer state
     const [drawerState] = useObservable('drawerState', layoutService.drawerState)
     const isOpen = drawerState[position]?.open ?? false
