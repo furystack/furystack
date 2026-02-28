@@ -382,10 +382,11 @@ export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<T
   /**
    * Assigns a new theme, updates the CSS variables and emits a themeChanged event
    * @param theme The Theme instance
+   * @param root Optional HTML element to scope CSS variables to. Defaults to `:root`.
    */
-  public setAssignedTheme(theme: DeepPartial<Theme>) {
+  public setAssignedTheme(theme: DeepPartial<Theme>, root?: HTMLElement) {
     this._assignedTheme = theme
-    useThemeCssVariables(theme)
+    useThemeCssVariables(theme, root)
     this.emit('themeChanged', theme)
   }
 }

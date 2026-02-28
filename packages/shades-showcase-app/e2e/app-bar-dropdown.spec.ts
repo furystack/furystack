@@ -6,7 +6,7 @@ const getThemeBackground = (page: Page) =>
 test.describe('AppBar Theme Dropdown', () => {
   test('open dropdown, close via backdrop, and select a theme', async ({ page }) => {
     await page.goto('/')
-    await page.locator('showcase-app-bar').waitFor({ state: 'visible' })
+    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
 
     const dropdown = page.locator('theme-switch shade-dropdown')
     const trigger = dropdown.locator('.dropdown-trigger')
@@ -27,7 +27,7 @@ test.describe('AppBar Theme Dropdown', () => {
 
   test('should apply the light theme when selected', async ({ page }) => {
     await page.goto('/')
-    await page.locator('showcase-app-bar').waitFor({ state: 'visible' })
+    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
 
     const dropdown = page.locator('theme-switch shade-dropdown')
     const trigger = dropdown.locator('.dropdown-trigger')
@@ -45,7 +45,7 @@ test.describe('AppBar Theme Dropdown', () => {
 
   test('should switch back to dark theme', async ({ page }) => {
     await page.goto('/')
-    await page.locator('showcase-app-bar').waitFor({ state: 'visible' })
+    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
 
     const dropdown = page.locator('theme-switch shade-dropdown')
     const trigger = dropdown.locator('.dropdown-trigger')
@@ -64,7 +64,7 @@ test.describe('AppBar Theme Dropdown', () => {
 
   test('should show a notification when a special theme is selected', async ({ page }) => {
     await page.goto('/')
-    await page.locator('showcase-app-bar').waitFor({ state: 'visible' })
+    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
 
     const dropdown = page.locator('theme-switch shade-dropdown')
     const trigger = dropdown.locator('.dropdown-trigger')

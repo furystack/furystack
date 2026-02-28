@@ -222,8 +222,8 @@ const assignValue = <T extends object>(
     }
   })
 }
-export const useThemeCssVariables = (theme: DeepPartial<Theme>) => {
-  const root = document.querySelector(':root') as HTMLElement
+export const useThemeCssVariables = (theme: DeepPartial<Theme>, root?: HTMLElement) => {
+  root ??= document.querySelector(':root') as HTMLElement
   assignValue(cssVariableTheme, theme, root)
 
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {

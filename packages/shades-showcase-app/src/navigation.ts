@@ -122,6 +122,12 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Stored State', slug: 'stored-state' },
     ],
   },
+  {
+    label: 'Themes',
+    slug: 'themes',
+    icon: icons.sun,
+    children: [{ label: 'Themes', slug: '' }],
+  },
 ]
 
 /**
