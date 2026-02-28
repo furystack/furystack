@@ -140,6 +140,14 @@ const ThemeBlock = Shade<ThemeBlockProps>({
       return { [Symbol.dispose]: () => {} }
     })
 
+    const handleApply = () => {
+      const globalThemeProvider = injector.getInstance(ThemeProviderService)
+      void props.entry.loader().then((theme) => {
+        globalThemeProvider.setAssignedTheme(theme)
+        localStorage.setItem('theme', JSON.stringify(props.entry.key))
+      })
+    }
+
     return (
       <div
         ref={wrapperRef}
@@ -148,6 +156,7 @@ const ThemeBlock = Shade<ThemeBlockProps>({
           color: cssVariableTheme.text.primary,
           fontFamily: cssVariableTheme.typography.fontFamily,
           borderRadius: cssVariableTheme.shape.borderRadius.lg,
+          boxShadow: cssVariableTheme.shadows.md,
           padding: cssVariableTheme.spacing.lg,
           display: 'flex',
           flexDirection: 'column',
@@ -156,9 +165,14 @@ const ThemeBlock = Shade<ThemeBlockProps>({
           overflow: 'hidden',
         }}
       >
-        <Typography variant="h4" style={{ margin: '0' }}>
-          {props.entry.label}
-        </Typography>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" style={{ margin: '0' }}>
+            {props.entry.label}
+          </Typography>
+          <Button variant="outlined" onclick={handleApply}>
+            Apply
+          </Button>
+        </div>
 
         <div style={{ display: 'flex', gap: cssVariableTheme.spacing.sm, flexWrap: 'wrap' }}>
           <Button variant="contained">Primary</Button>
@@ -206,8 +220,8 @@ export const ThemesPage = Shade({
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '24px',
-            padding: '0 0 32px 0',
+            gap: cssVariableTheme.spacing.xl,
+            padding: `0 0 ${cssVariableTheme.spacing.xl} 0`,
           }}
         >
           {themeEntries.map((entry) => (
