@@ -245,6 +245,8 @@ export class LayoutService implements Disposable {
    * @param position - Which drawer to remove ('left' or 'right')
    */
   public removeDrawer(position: 'left' | 'right'): void {
+    if (this.drawerState.isDisposed) return
+
     const currentState = this.drawerState.getValue()
 
     if (currentState[position]) {

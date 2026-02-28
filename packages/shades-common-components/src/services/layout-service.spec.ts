@@ -287,6 +287,14 @@ describe('LayoutService', () => {
         })
       })
 
+      it('should be a no-op if the service is already disposed', () => {
+        const service = new LayoutService(mockElement as unknown as HTMLElement)
+        service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+        service[Symbol.dispose]()
+
+        expect(() => service.removeDrawer('left')).not.toThrow()
+      })
+
       it('should reset CSS variables after removing a drawer', () => {
         using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
