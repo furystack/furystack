@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.2.3] - 2026-02-28
+
+### ✨ Features
+
+- Rewrote `ThemeSwitch` with a `Dropdown` and `Avatar` trigger, supporting 19 lazy-loaded themes organized in groups
+- Added info notification with themed quote when selecting a special theme
+
+### 🧪 Tests
+
+- Added Playwright e2e test for `AppBar` theme dropdown open/close and selection flow
+
+### 🔧 Chores
+
+- Version bump for `@furystack/shades-common-components` dependency update
+
 ## [8.2.2] - 2026-02-28
 
 ### ✨ Features

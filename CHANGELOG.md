@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.14] - 2026-02-28
+
+### 🔧 Chores
+
+- Version bump for `@furystack/shades-common-components` dependency update
+
 ## [8.0.13] - 2026-02-28
 
 ### 📚 Documentation
