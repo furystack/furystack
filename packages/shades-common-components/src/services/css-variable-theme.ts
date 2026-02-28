@@ -17,7 +17,7 @@ export const cssVariableTheme = {
   background: {
     default: 'var(--shades-theme-background-default)',
     paper: 'var(--shades-theme-background-paper)',
-    paperImage: 'var(--shades-theme-background-paper-image, none)',
+    paperImage: 'var(--shades-theme-background-paper-image)',
   },
   palette: {
     primary: {
@@ -87,7 +87,7 @@ export const cssVariableTheme = {
       lg: 'var(--shades-theme-shape-border-radius-lg)',
       full: 'var(--shades-theme-shape-border-radius-full)',
     },
-    borderWidth: 'var(--shades-theme-shape-border-width, 0px)',
+    borderWidth: 'var(--shades-theme-shape-border-width)',
   },
   shadows: {
     none: 'var(--shades-theme-shadows-none)',
@@ -127,7 +127,7 @@ export const cssVariableTheme = {
       wider: 'var(--shades-theme-typography-letter-spacing-wider)',
       widest: 'var(--shades-theme-typography-letter-spacing-widest)',
     },
-    textShadow: 'var(--shades-theme-typography-text-shadow, none)',
+    textShadow: 'var(--shades-theme-typography-text-shadow)',
   },
   transitions: {
     duration: {

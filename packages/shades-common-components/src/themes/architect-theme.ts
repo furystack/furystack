@@ -88,6 +88,7 @@ export const architectTheme = {
       wider: '1.5px',
       widest: '2.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

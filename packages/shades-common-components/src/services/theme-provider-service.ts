@@ -85,8 +85,8 @@ export interface Background {
   default: Color
   /** Elevated surface background (cards, dialogs, etc.) */
   paper: Color
-  /** Optional CSS background-image for paper surfaces (e.g. a tiled texture) */
-  paperImage?: string
+  /** CSS background-image for paper surfaces (e.g. a tiled texture). Use 'none' for no image. */
+  paperImage: string
 }
 
 /**
@@ -131,8 +131,8 @@ export type BorderRadiusScale = {
 export type Shape = {
   /** Border radius scale */
   borderRadius: BorderRadiusScale
-  /** Border width for surface components (paper, card, etc.). Defaults to 0. */
-  borderWidth?: string
+  /** Border width for surface components (paper, card, etc.). Use '0px' for no border. */
+  borderWidth: string
 }
 
 /**
@@ -230,9 +230,9 @@ export type ThemeTypography = {
   /** Line height scale */
   lineHeight: LineHeightScale
   /** Letter spacing scale */
-  letterSpacing?: LetterSpacingScale
-  /** CSS text-shadow value applied globally to text */
-  textShadow?: string
+  letterSpacing: LetterSpacingScale
+  /** CSS text-shadow value applied globally to text. Use 'none' for no shadow. */
+  textShadow: string
 }
 
 /**
@@ -358,9 +358,9 @@ export interface Theme {
   /** Spacing scale */
   spacing: Spacing
   /** Z-index stacking layers */
-  zIndex?: ZIndex
+  zIndex: ZIndex
   /** Visual effect tokens (blur, backdrop) */
-  effects?: Effects
+  effects: Effects
 }
 
 /**

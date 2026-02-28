@@ -83,6 +83,7 @@ export const defaultLightTheme = {
       wider: '0.5px',
       widest: '1.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

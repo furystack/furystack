@@ -88,6 +88,7 @@ export const dragonbornTheme = {
       wider: '1px',
       widest: '1.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

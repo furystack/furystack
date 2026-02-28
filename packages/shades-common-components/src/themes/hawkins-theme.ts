@@ -88,6 +88,7 @@ export const hawkinsTheme = {
       wider: '1px',
       widest: '2px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {
