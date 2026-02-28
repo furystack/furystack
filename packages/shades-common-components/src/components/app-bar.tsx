@@ -5,9 +5,6 @@ export const AppBar = Shade({
   shadowDomName: 'shade-app-bar',
   css: {
     width: '100%',
-    background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 85%, transparent)`,
-    backgroundImage: cssVariableTheme.background.paperImage,
-    backdropFilter: `blur(${cssVariableTheme.effects.blurLg})`,
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -18,6 +15,18 @@ export const AppBar = Shade({
     zIndex: '1',
     fontFamily: cssVariableTheme.typography.fontFamily,
     color: cssVariableTheme.text.primary,
+    // backdrop-filter on the host would create a containing block for position:fixed
+    // descendants (per CSS spec), breaking Dropdown overlays inside the AppBar.
+    // Using a pseudo-element avoids this while preserving the visual effect.
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      inset: '0',
+      zIndex: '-1',
+      background: `color-mix(in srgb, ${cssVariableTheme.background.paper} 85%, transparent)`,
+      backgroundImage: cssVariableTheme.background.paperImage,
+      backdropFilter: `blur(${cssVariableTheme.effects.blurLg})`,
+    },
     '&[data-visible]': {
       opacity: '1',
     },

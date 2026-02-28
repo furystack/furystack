@@ -67,7 +67,7 @@ describe('css-variable-theme', () => {
       expect(cssVariableTheme.typography.fontWeight.bold).toBe('var(--shades-theme-typography-font-weight-bold)')
       expect(cssVariableTheme.typography.lineHeight.tight).toBe('var(--shades-theme-typography-line-height-tight)')
       expect(cssVariableTheme.typography.lineHeight.normal).toBe('var(--shades-theme-typography-line-height-normal)')
-      expect(cssVariableTheme.typography.textShadow).toBe('var(--shades-theme-typography-text-shadow, none)')
+      expect(cssVariableTheme.typography.textShadow).toBe('var(--shades-theme-typography-text-shadow)')
     })
 
     it('should have transition properties with CSS variable references', () => {
@@ -445,6 +445,48 @@ describe('css-variable-theme', () => {
       expect(root.style.getPropertyValue('--shades-theme-spacing-xs')).toBe('4px')
       expect(root.style.getPropertyValue('--shades-theme-spacing-md')).toBe('16px')
       expect(root.style.getPropertyValue('--shades-theme-spacing-xl')).toBe('32px')
+    })
+
+    it('should set CSS variables on a custom root element instead of :root', () => {
+      const customRoot = document.createElement('div')
+      document.body.appendChild(customRoot)
+
+      useThemeCssVariables(
+        {
+          text: { primary: '#ff0000' },
+          divider: '#00ff00',
+        },
+        customRoot,
+      )
+
+      expect(customRoot.style.getPropertyValue('--shades-theme-text-primary')).toBe('#ff0000')
+      expect(customRoot.style.getPropertyValue('--shades-theme-divider')).toBe('#00ff00')
+      expect(root.style.getPropertyValue('--shades-theme-text-primary')).toBe('')
+
+      customRoot.remove()
+    })
+
+    it('should scope nested palette variables to custom root element', () => {
+      const customRoot = document.createElement('div')
+      document.body.appendChild(customRoot)
+
+      useThemeCssVariables(
+        {
+          palette: {
+            primary: {
+              main: '#1976d2',
+              mainContrast: '#ffffff',
+            },
+          },
+        },
+        customRoot,
+      )
+
+      expect(customRoot.style.getPropertyValue('--shades-theme-palette-primary-main')).toBe('#1976d2')
+      expect(customRoot.style.getPropertyValue('--shades-theme-palette-primary-main-contrast')).toBe('#ffffff')
+      expect(root.style.getPropertyValue('--shades-theme-palette-primary-main')).toBe('')
+
+      customRoot.remove()
     })
   })
 

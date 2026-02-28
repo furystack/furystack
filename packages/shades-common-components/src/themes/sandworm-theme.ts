@@ -88,6 +88,7 @@ export const sandwormTheme = {
       wider: '1px',
       widest: '1.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

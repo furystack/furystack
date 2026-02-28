@@ -786,6 +786,18 @@ export const appRoutes = {
           },
         },
       },
+      '/themes': {
+        ...withFadeTransition,
+        component: () => (
+          <LazyLoad
+            loader={<PageLoader />}
+            component={async () => {
+              const { ThemesPage } = await import('./pages/themes.js')
+              return <ThemesPage />
+            }}
+          />
+        ),
+      },
     },
   },
 } satisfies Record<string, NestedRoute<any>>

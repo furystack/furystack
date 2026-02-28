@@ -86,6 +86,7 @@ export const plumberTheme = {
       wider: '1px',
       widest: '1.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

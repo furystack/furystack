@@ -238,6 +238,24 @@ export class LayoutService implements Disposable {
   }
 
   /**
+   * Removes a drawer from the state, clearing its configuration.
+   * Use this when a Drawer component is unmounted to prevent stale state
+   * from affecting content margins.
+   *
+   * @param position - Which drawer to remove ('left' or 'right')
+   */
+  public removeDrawer(position: 'left' | 'right'): void {
+    if (this.drawerState.isDisposed) return
+
+    const currentState = this.drawerState.getValue()
+
+    if (currentState[position]) {
+      const { [position]: _, ...rest } = currentState
+      this.drawerState.setValue(rest)
+    }
+  }
+
+  /**
    * Sets the top gap spacing between AppBar and content.
    *
    * @param gap - CSS value for the gap (e.g., '0px', '16px')

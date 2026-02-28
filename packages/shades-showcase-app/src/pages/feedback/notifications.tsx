@@ -1,14 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import {
-  Button,
-  Icon,
-  icons,
-  NotyList,
-  NotyService,
-  PageContainer,
-  PageHeader,
-  Paper,
-} from '@furystack/shades-common-components'
+import { Button, Icon, icons, NotyService, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 
 export const NotysPage = Shade({
   shadowDomName: 'shade-notys',
@@ -72,7 +63,6 @@ export const NotysPage = Shade({
               Error
             </Button>
           </div>
-          <NotyList />
         </Paper>
       </PageContainer>
     )

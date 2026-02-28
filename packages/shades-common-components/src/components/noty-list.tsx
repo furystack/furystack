@@ -1,6 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
-import { getTextColor } from '../services/get-text-color.js'
 import type { NotyModel } from '../services/noty-service.js'
 import { NotyService } from '../services/noty-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
@@ -97,7 +96,6 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     const themeProvider = injector.getInstance(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
-    const textColor = getTextColor(colors.main)
 
     const removeSelf = async () => {
       const hostEl = wrapperRef.current?.closest('shade-noty') as HTMLElement | null
@@ -123,7 +121,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 
     useHostProps({
       'data-noty-type': props.model.type,
-      style: { '--noty-bg': colors.main, '--noty-text': textColor },
+      style: { '--noty-bg': colors.main, '--noty-text': colors.mainContrast },
     })
 
     return (

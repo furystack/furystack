@@ -104,17 +104,24 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
       setIsExpanded(true)
     }
 
+    const hasChildren = props.category.children.length > 0
+
+    const handleHeaderClick = () => {
+      if (hasChildren) {
+        setIsExpanded(!isExpanded)
+      } else {
+        history.pushState({}, '', `/${props.category.slug}`)
+      }
+    }
+
     return (
       <div>
-        <div
-          className={`category-header${isCategoryActive ? ' active' : ''}`}
-          onclick={() => setIsExpanded(!isExpanded)}
-        >
-          <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>
+        <div className={`category-header${isCategoryActive ? ' active' : ''}`} onclick={handleHeaderClick}>
+          {hasChildren && <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>}
           <Icon icon={props.category.icon} size={16} />
           <span>{props.category.label}</span>
         </div>
-        {isExpanded && (
+        {hasChildren && isExpanded && (
           <div className="category-children">
             {props.category.children.map((page) => (
               <SidebarPageLink category={props.category} page={page} />

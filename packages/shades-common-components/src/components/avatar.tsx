@@ -1,7 +1,6 @@
 import type { PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
-import { Icon } from './icons/icon.js'
 import { user as userIcon } from './icons/icon-definitions.js'
 
 export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & PartialElement<HTMLDivElement>
@@ -37,14 +36,13 @@ export const Avatar = Shade<AvatarProps>({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '64px',
-      height: '64px',
+      width: '100%',
+      height: '100%',
       borderRadius: cssVariableTheme.shape.borderRadius.full,
       background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 20%, transparent)`,
       backdropFilter: 'blur(10px)',
       textAlign: 'center',
       userSelect: 'none',
-      fontSize: '48px',
       lineHeight: '1',
     },
   },
@@ -59,7 +57,24 @@ export const Avatar = Shade<AvatarProps>({
     if (hasError) {
       return (
         <div className="avatar-fallback-container">
-          <div className="avatar-fallback-icon">{props.fallback || <Icon icon={userIcon} size={48} />}</div>
+          <div className="avatar-fallback-icon">
+            {props.fallback || (
+              <svg
+                width="100%"
+                height="100%"
+                viewBox={userIcon.viewBox ?? '0 0 24 24'}
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                {userIcon.paths.map((p) => (
+                  <path d={p.d} />
+                ))}
+              </svg>
+            )}
+          </div>
         </div>
       )
     }

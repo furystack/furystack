@@ -221,6 +221,15 @@ describe('LayoutService', () => {
         })
       })
 
+      it('should overwrite existing drawer config', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+          service.initDrawer('left', { open: false, width: '300px', variant: 'permanent' })
+
+          expect(service.drawerState.getValue().left).toEqual({ open: false, width: '300px', variant: 'permanent' })
+        })
+      })
+
       it('should initialize drawer with all variant types', () => {
         using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
           service.initDrawer('left', { open: true, width: '240px', variant: 'permanent' })
@@ -231,6 +240,71 @@ describe('LayoutService', () => {
 
           service.initDrawer('left', { open: true, width: '240px', variant: 'temporary' })
           expect(service.drawerState.getValue().left?.variant).toBe('temporary')
+        })
+      })
+    })
+
+    describe('removeDrawer', () => {
+      it('should remove left drawer state', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+
+          service.removeDrawer('left')
+
+          expect(service.drawerState.getValue().left).toBeUndefined()
+        })
+      })
+
+      it('should remove right drawer state', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          service.initDrawer('right', { open: true, width: '200px', variant: 'temporary' })
+
+          service.removeDrawer('right')
+
+          expect(service.drawerState.getValue().right).toBeUndefined()
+        })
+      })
+
+      it('should not affect the other drawer when removing one', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+          service.initDrawer('right', { open: true, width: '200px', variant: 'temporary' })
+
+          service.removeDrawer('left')
+
+          expect(service.drawerState.getValue().left).toBeUndefined()
+          expect(service.drawerState.getValue().right).toEqual({ open: true, width: '200px', variant: 'temporary' })
+        })
+      })
+
+      it('should be a no-op if the drawer does not exist', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          const stateBefore = service.drawerState.getValue()
+
+          service.removeDrawer('left')
+
+          expect(service.drawerState.getValue()).toEqual(stateBefore)
+        })
+      })
+
+      it('should be a no-op if the service is already disposed', () => {
+        const service = new LayoutService(mockElement as unknown as HTMLElement)
+        service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+        service[Symbol.dispose]()
+
+        expect(() => service.removeDrawer('left')).not.toThrow()
+      })
+
+      it('should reset CSS variables after removing a drawer', () => {
+        using(new LayoutService(mockElement as unknown as HTMLElement), (service) => {
+          service.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+          mockSetProperty.mockClear()
+
+          service.removeDrawer('left')
+
+          expect(mockSetProperty).toHaveBeenCalledWith('--layout-drawer-left-width', '0px')
+          expect(mockSetProperty).toHaveBeenCalledWith('--layout-drawer-left-configured-width', '0px')
+          expect(mockSetProperty).toHaveBeenCalledWith('--layout-content-margin-left', '0px')
         })
       })
     })

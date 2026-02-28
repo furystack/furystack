@@ -88,6 +88,7 @@ export const jediTheme = {
       wider: '0.75px',
       widest: '1.5px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

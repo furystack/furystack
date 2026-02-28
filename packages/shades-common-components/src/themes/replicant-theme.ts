@@ -88,6 +88,7 @@ export const replicantTheme = {
       wider: '2px',
       widest: '3px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

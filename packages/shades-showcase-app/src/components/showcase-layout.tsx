@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import { PageLayout } from '@furystack/shades-common-components'
+import { NotyList, PageLayout } from '@furystack/shades-common-components'
 
 import { ShowcaseAppBar } from './showcase-app-bar.js'
 import { SidebarNavigation } from './sidebar-navigation.js'
@@ -27,6 +27,7 @@ export const ShowcaseLayout = Shade({
       }}
     >
       {children}
+      <NotyList />
     </PageLayout>
   ),
 })

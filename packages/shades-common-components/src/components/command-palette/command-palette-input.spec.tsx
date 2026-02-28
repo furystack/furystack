@@ -6,42 +6,14 @@ import { CommandPaletteInput } from './command-palette-input.js'
 import { CommandPaletteManager } from './command-palette-manager.js'
 
 describe('CommandPaletteInput', () => {
-  let originalAnimate: typeof Element.prototype.animate
-  let animateCalls: Array<{ keyframes: unknown; options: unknown }>
-
   beforeEach(() => {
     vi.useFakeTimers()
     document.body.innerHTML = '<div id="root"></div>'
-    animateCalls = []
-    originalAnimate = Element.prototype.animate
-
-    Element.prototype.animate = vi.fn(
-      (keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions) => {
-        animateCalls.push({ keyframes, options })
-        const mockAnimation = {
-          onfinish: null as ((event: AnimationPlaybackEvent) => void) | null,
-          oncancel: null as ((event: AnimationPlaybackEvent) => void) | null,
-          cancel: vi.fn(),
-          play: vi.fn(),
-          pause: vi.fn(),
-          finish: vi.fn(),
-          addEventListener: vi.fn(),
-          removeEventListener: vi.fn(),
-        }
-
-        setTimeout(() => {
-          mockAnimation.onfinish?.({} as AnimationPlaybackEvent)
-        }, 10)
-
-        return mockAnimation as unknown as Animation
-      },
-    ) as typeof Element.prototype.animate
   })
 
   afterEach(() => {
     vi.useRealTimers()
     document.body.innerHTML = ''
-    Element.prototype.animate = originalAnimate
     vi.restoreAllMocks()
   })
 
@@ -89,7 +61,7 @@ describe('CommandPaletteInput', () => {
     })
   })
 
-  it('should start with width 0% when closed', async () => {
+  it('should always have width 100%', async () => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
@@ -104,142 +76,8 @@ describe('CommandPaletteInput', () => {
         await flushUpdates()
 
         const component = document.querySelector('shades-command-palette-input') as HTMLElement
-        expect(component.hasAttribute('data-opened')).toBe(false)
-      })
-    })
-  })
-
-  it('should have width 100% when opened', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      await usingAsync(createManager(), async (manager) => {
-        manager.isOpened.setValue(true)
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <CommandPaletteInput manager={manager} />,
-        })
-
-        await flushUpdates()
-
-        const component = document.querySelector('shades-command-palette-input') as HTMLElement
-        expect(component.hasAttribute('data-opened')).toBe(true)
-      })
-    })
-  })
-
-  it('should animate width when opening', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      await usingAsync(createManager(), async (manager) => {
-        manager.isOpened.setValue(false)
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <CommandPaletteInput manager={manager} />,
-        })
-
-        await flushUpdates()
-        animateCalls = []
-
-        manager.isOpened.setValue(true)
-        await flushUpdates()
-
-        const widthAnimation = animateCalls.find(
-          (call) =>
-            Array.isArray(call.keyframes) &&
-            call.keyframes.some((kf: Keyframe) => kf.width === '0%') &&
-            call.keyframes.some((kf: Keyframe) => kf.width === '100%'),
-        )
-
-        expect(widthAnimation).toBeDefined()
-        expect((widthAnimation?.options as KeyframeAnimationOptions)?.duration).toBe(300)
-      })
-    })
-  })
-
-  it('should animate width when closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      await usingAsync(createManager(), async (manager) => {
-        manager.isOpened.setValue(true)
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <CommandPaletteInput manager={manager} />,
-        })
-
-        await flushUpdates()
-        animateCalls = []
-
-        manager.isOpened.setValue(false)
-        await flushUpdates()
-
-        const widthAnimation = animateCalls.find(
-          (call) =>
-            Array.isArray(call.keyframes) &&
-            call.keyframes.some((kf: Keyframe) => kf.width === '100%') &&
-            call.keyframes.some((kf: Keyframe) => kf.width === '0%'),
-        )
-
-        expect(widthAnimation).toBeDefined()
-      })
-    })
-  })
-
-  it('should clear input value when opening', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      await usingAsync(createManager(), async (manager) => {
-        manager.isOpened.setValue(false)
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <CommandPaletteInput manager={manager} />,
-        })
-
-        await flushUpdates()
-
-        const component = document.querySelector('shades-command-palette-input') as HTMLElement
-        const inputElement = component?.querySelector('input') as HTMLInputElement
-        inputElement.value = 'some text'
-
-        manager.isOpened.setValue(true)
-        await flushUpdates()
-
-        expect(inputElement.value).toBe('')
-      })
-    })
-  })
-
-  it('should clear input value when closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      await usingAsync(createManager(), async (manager) => {
-        manager.isOpened.setValue(true)
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: <CommandPaletteInput manager={manager} />,
-        })
-
-        await flushUpdates()
-
-        const component = document.querySelector('shades-command-palette-input') as HTMLElement
-        const inputElement = component?.querySelector('input') as HTMLInputElement
-        inputElement.value = 'search term'
-
-        manager.isOpened.setValue(false)
-        await flushUpdates()
-        await vi.advanceTimersByTimeAsync(20)
-        await flushUpdates()
-
-        expect(inputElement.value).toBe('')
+        const computedStyle = window.getComputedStyle(component)
+        expect(computedStyle.width).toBe('100%')
       })
     })
   })
@@ -264,7 +102,7 @@ describe('CommandPaletteInput', () => {
     })
   })
 
-  it('should use cubic-bezier easing for animations', async () => {
+  it('should focus input when opened', async () => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
@@ -277,24 +115,46 @@ describe('CommandPaletteInput', () => {
         })
 
         await flushUpdates()
-        animateCalls = []
+
+        const component = document.querySelector('shades-command-palette-input') as HTMLElement
+        const inputElement = component?.querySelector('input') as HTMLInputElement
+        const focusSpy = vi.spyOn(inputElement, 'focus')
 
         manager.isOpened.setValue(true)
         await flushUpdates()
 
-        const widthAnimation = animateCalls.find(
-          (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'width' in kf),
-        )
-
-        expect(widthAnimation).toBeDefined()
-        expect((widthAnimation?.options as KeyframeAnimationOptions)?.easing).toBe(
-          'cubic-bezier(0.595, 0.425, 0.415, 0.845)',
-        )
+        expect(focusSpy).toHaveBeenCalled()
       })
     })
   })
 
-  it('should fill animation forwards', async () => {
+  it('should clear input value when closing', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createManager(), async (manager) => {
+        manager.isOpened.setValue(true)
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPaletteInput manager={manager} />,
+        })
+
+        await flushUpdates()
+
+        const component = document.querySelector('shades-command-palette-input') as HTMLElement
+        const inputElement = component?.querySelector('input') as HTMLInputElement
+        inputElement.value = 'search term'
+
+        manager.isOpened.setValue(false)
+        await flushUpdates()
+
+        expect(inputElement.value).toBe('')
+      })
+    })
+  })
+
+  it('should preserve input value when opening', async () => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
@@ -307,17 +167,15 @@ describe('CommandPaletteInput', () => {
         })
 
         await flushUpdates()
-        animateCalls = []
+
+        const component = document.querySelector('shades-command-palette-input') as HTMLElement
+        const inputElement = component?.querySelector('input') as HTMLInputElement
+        inputElement.value = 'some text'
 
         manager.isOpened.setValue(true)
         await flushUpdates()
 
-        const widthAnimation = animateCalls.find(
-          (call) => Array.isArray(call.keyframes) && call.keyframes.some((kf: Keyframe) => 'width' in kf),
-        )
-
-        expect(widthAnimation).toBeDefined()
-        expect((widthAnimation?.options as KeyframeAnimationOptions)?.fill).toBe('forwards')
+        expect(inputElement.value).toBe('some text')
       })
     })
   })

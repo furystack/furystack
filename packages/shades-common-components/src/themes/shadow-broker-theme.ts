@@ -86,6 +86,7 @@ export const shadowBrokerTheme = {
       wider: '1.25px',
       widest: '2px',
     },
+    textShadow: 'none',
   },
   transitions: {
     duration: {

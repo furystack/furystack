@@ -718,6 +718,70 @@ describe('Drawer component', () => {
     })
   })
 
+  describe('cleanup on disposal', () => {
+    it('should call removeDrawer on LayoutService when the component is removed from DOM', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const layoutService = new LayoutService(createMockElement())
+        injector.setExplicitInstance(layoutService, LayoutService)
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Drawer position="left" variant="collapsible">
+              <div>Drawer</div>
+            </Drawer>
+          ),
+        })
+
+        await flushUpdates()
+        expect(layoutService.drawerState.getValue().left).toBeDefined()
+
+        const removeDrawerSpy = vi.spyOn(layoutService, 'removeDrawer')
+        const drawer = document.querySelector('shade-drawer') as HTMLElement
+        drawer.remove()
+        await flushUpdates()
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        expect(removeDrawerSpy).toHaveBeenCalledWith('left')
+      })
+    })
+
+    it('should only clean up its own drawer position on disposal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const layoutService = new LayoutService(createMockElement())
+        injector.setExplicitInstance(layoutService, LayoutService)
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Drawer position="right" variant="temporary">
+              <div>Right Drawer</div>
+            </Drawer>
+          ),
+        })
+
+        await flushUpdates()
+        expect(layoutService.drawerState.getValue().right).toBeDefined()
+        expect(layoutService.drawerState.getValue().left).toBeDefined()
+
+        const removeDrawerSpy = vi.spyOn(layoutService, 'removeDrawer')
+        const drawer = document.querySelector('shade-drawer') as HTMLElement
+        drawer.remove()
+        await flushUpdates()
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        expect(removeDrawerSpy).toHaveBeenCalledWith('right')
+        expect(removeDrawerSpy).not.toHaveBeenCalledWith('left')
+      })
+    })
+  })
+
   describe('preserving user interactions', () => {
     it('should not reset drawer state if already initialized', async () => {
       await usingAsync(new Injector(), async (injector) => {

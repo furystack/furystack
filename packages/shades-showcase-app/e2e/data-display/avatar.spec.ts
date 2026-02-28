@@ -8,8 +8,8 @@ test.describe('Avatar', () => {
     await expect(pageHeader).toBeVisible()
     await expect(pageHeader).toContainText('Avatar')
 
-    // All three avatars should be present
-    const avatars = page.locator('shade-avatar')
+    // All three avatars should be present on the page content (excludes the AppBar theme avatar)
+    const avatars = page.locator('shades-avatar-page shade-avatar')
     await expect(avatars).toHaveCount(3)
 
     // The fallback avatar should show the fallback content

@@ -74,7 +74,7 @@ test.describe('Select', () => {
 
     await expect(multiSelect).toHaveScreenshot('select-multi-chips.png')
 
-    await page.locator('.dropdown-backdrop').click()
+    await content.locator('.dropdown-backdrop').click()
     await expect(multiSelect.locator('.helperText')).toHaveText('2 selected')
 
     // Remove a chip from pre-selected multi-select

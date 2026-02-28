@@ -85,6 +85,10 @@ export const CommandPalette = Shade<CommandPaletteProps>({
             )
           }
 
+          if (!manager.isOpened.getValue()) {
+            manager.isOpened.setValue(true)
+          }
+
           void manager.getSuggestion({ injector, term: (ev.target as HTMLInputElement).value })
         }}
       >
