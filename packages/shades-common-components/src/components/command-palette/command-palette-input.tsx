@@ -1,45 +1,13 @@
-import type { RefObject } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import { promisifyAnimation } from '../../utils/promisify-animation.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
-
-const animateOpenState = async (
-  wrapperRef: RefObject<HTMLDivElement>,
-  inputRef: RefObject<HTMLInputElement>,
-  isOpened: boolean,
-) => {
-  const wrapper = wrapperRef.current
-  const input = inputRef.current
-  if (wrapper && input) {
-    if (isOpened) {
-      input.value = ''
-      await promisifyAnimation(wrapper, [{ width: '0%' }, { width: '100%' }], {
-        duration: 300,
-        fill: 'forwards',
-        easing: 'cubic-bezier(0.595, 0.425, 0.415, 0.845)',
-      })
-      input.focus()
-    } else {
-      await promisifyAnimation(wrapper, [{ width: '100%' }, { width: '0%' }], {
-        duration: 300,
-        fill: 'forwards',
-        easing: 'cubic-bezier(0.595, 0.425, 0.415, 0.845)',
-      })
-      input.value = ''
-    }
-  }
-}
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
   shadowDomName: 'shades-command-palette-input',
   css: {
-    width: '0%',
+    width: '100%',
     fontFamily: cssVariableTheme.typography.fontFamily,
     overflow: 'hidden',
-    '&[data-opened]': {
-      width: '100%',
-    },
     '& input': {
       color: cssVariableTheme.text.primary,
       outline: 'none',
@@ -53,20 +21,20 @@ export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
       letterSpacing: '0.01em',
     },
   },
-  render: ({ props, useObservable, useRef, useHostProps }) => {
-    const { manager } = props
-    const wrapperRef = useRef<HTMLDivElement>('wrapper')
+  render: ({ props, useObservable, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('input')
-
-    const [isCurrentlyOpened] = useObservable('isOpened', manager.isOpened, {
-      onChange: (newValue) => void animateOpenState(wrapperRef, inputRef, newValue),
+    useObservable('isOpened', props.manager.isOpened, {
+      onChange: (isOpened) => {
+        if (inputRef.current) {
+          if (isOpened) {
+            inputRef.current.focus()
+          } else {
+            inputRef.current.value = ''
+          }
+        }
+      },
     })
-    useHostProps({ ...(isCurrentlyOpened ? { 'data-opened': '' } : {}) })
 
-    return (
-      <div ref={wrapperRef} style={{ width: isCurrentlyOpened ? '100%' : '0%', overflow: 'hidden' }}>
-        <input ref={inputRef} autofocus placeholder="Type to search commands..." />
-      </div>
-    )
+    return <input ref={inputRef} autofocus placeholder="Type to search commands..." />
   },
 })
