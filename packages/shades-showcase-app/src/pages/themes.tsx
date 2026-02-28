@@ -1,11 +1,8 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { Theme } from '@furystack/shades-common-components'
 import {
   Button,
   Chip,
   cssVariableTheme,
-  defaultDarkTheme,
-  defaultLightTheme,
   Icon,
   icons,
   Input,
@@ -15,103 +12,8 @@ import {
   ThemeProviderService,
   Typography,
 } from '@furystack/shades-common-components'
-import type { DeepPartial } from '@furystack/utils'
 
-type ThemeEntry = {
-  key: string
-  label: string
-  loader: () => Promise<DeepPartial<Theme>>
-}
-
-const themeEntries: ThemeEntry[] = [
-  { key: 'dark', label: 'Dark', loader: async () => defaultDarkTheme },
-  { key: 'light', label: 'Light', loader: async () => defaultLightTheme },
-  {
-    key: 'paladin',
-    label: 'Paladin',
-    loader: async () => (await import('@furystack/shades-common-components/themes/paladin')).paladinTheme,
-  },
-  {
-    key: 'chieftain',
-    label: 'Chieftain',
-    loader: async () => (await import('@furystack/shades-common-components/themes/chieftain')).chieftainTheme,
-  },
-  {
-    key: 'neon-runner',
-    label: 'Neon Runner',
-    loader: async () => (await import('@furystack/shades-common-components/themes/neon-runner')).neonRunnerTheme,
-  },
-  {
-    key: 'vault-dweller',
-    label: 'Vault Dweller',
-    loader: async () => (await import('@furystack/shades-common-components/themes/vault-dweller')).vaultDwellerTheme,
-  },
-  {
-    key: 'shadow-broker',
-    label: 'Shadow Broker',
-    loader: async () => (await import('@furystack/shades-common-components/themes/shadow-broker')).shadowBrokerTheme,
-  },
-  {
-    key: 'dragonborn',
-    label: 'Dragonborn',
-    loader: async () => (await import('@furystack/shades-common-components/themes/dragonborn')).dragonbornTheme,
-  },
-  {
-    key: 'plumber',
-    label: 'Plumber',
-    loader: async () => (await import('@furystack/shades-common-components/themes/plumber')).plumberTheme,
-  },
-  {
-    key: 'auditore',
-    label: 'Auditore',
-    loader: async () => (await import('@furystack/shades-common-components/themes/auditore')).auditoreTheme,
-  },
-  {
-    key: 'replicant',
-    label: 'Replicant',
-    loader: async () => (await import('@furystack/shades-common-components/themes/replicant')).replicantTheme,
-  },
-  {
-    key: 'sandworm',
-    label: 'Sandworm',
-    loader: async () => (await import('@furystack/shades-common-components/themes/sandworm')).sandwormTheme,
-  },
-  {
-    key: 'architect',
-    label: 'Architect',
-    loader: async () => (await import('@furystack/shades-common-components/themes/architect')).architectTheme,
-  },
-  {
-    key: 'wild-hunt',
-    label: 'Wild Hunt',
-    loader: async () => (await import('@furystack/shades-common-components/themes/wild-hunt')).wildHuntTheme,
-  },
-  {
-    key: 'black-mesa',
-    label: 'Black Mesa',
-    loader: async () => (await import('@furystack/shades-common-components/themes/black-mesa')).blackMesaTheme,
-  },
-  {
-    key: 'jedi',
-    label: 'Jedi',
-    loader: async () => (await import('@furystack/shades-common-components/themes/jedi')).jediTheme,
-  },
-  {
-    key: 'sith',
-    label: 'Sith',
-    loader: async () => (await import('@furystack/shades-common-components/themes/sith')).sithTheme,
-  },
-  {
-    key: 'xenomorph',
-    label: 'Xenomorph',
-    loader: async () => (await import('@furystack/shades-common-components/themes/xenomorph')).xenomorphTheme,
-  },
-  {
-    key: 'hawkins',
-    label: 'Hawkins',
-    loader: async () => (await import('@furystack/shades-common-components/themes/hawkins')).hawkinsTheme,
-  },
-]
+import { type ThemeEntry, applyTheme, themeEntries } from '../theme-registry.js'
 
 type ThemeBlockProps = {
   entry: ThemeEntry
@@ -131,19 +33,19 @@ const ThemeBlock = Shade<ThemeBlockProps>({
     useHostProps({ injector: childInjector })
 
     useDisposable('loadTheme', () => {
+      const controller = new AbortController()
       void props.entry.loader().then((theme) => {
-        if (wrapperRef.current) {
+        if (!controller.signal.aborted && wrapperRef.current) {
           const themeProvider = childInjector.getInstance(ThemeProviderService)
           themeProvider.setAssignedTheme(theme, wrapperRef.current)
         }
       })
-      return { [Symbol.dispose]: () => {} }
+      return { [Symbol.dispose]: () => controller.abort() }
     })
 
     const handleApply = () => {
       const globalThemeProvider = injector.getInstance(ThemeProviderService)
-      void props.entry.loader().then((theme) => {
-        globalThemeProvider.setAssignedTheme(theme)
+      void applyTheme(props.entry.key, globalThemeProvider).then(() => {
         localStorage.setItem('theme', JSON.stringify(props.entry.key))
       })
     }

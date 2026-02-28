@@ -126,7 +126,7 @@ export const navigationConfig: NavCategory[] = [
     label: 'Themes',
     slug: 'themes',
     icon: icons.sun,
-    children: [{ label: 'Themes', slug: '' }],
+    children: [],
   },
 ]
 

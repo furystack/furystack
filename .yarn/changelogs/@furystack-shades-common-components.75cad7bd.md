@@ -20,7 +20,23 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-<!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
+- `useThemeCssVariables()` and `ThemeProviderService.setAssignedTheme()` now accept an optional `root` parameter to scope CSS variables to a specific element instead of `:root`
+
+### 💥 Theme Type Changes
+
+Several previously optional fields on the `Theme` type are now **required**. Any code that creates a `Theme` object and omits these fields will need to provide explicit values:
+
+| Type              | Field           | Default value to use  |
+| ----------------- | --------------- | --------------------- |
+| `Background`      | `paperImage`    | `'none'`              |
+| `Shape`           | `borderWidth`   | `'0px'`               |
+| `ThemeTypography` | `letterSpacing` | _(full scale object)_ |
+| `ThemeTypography` | `textShadow`    | `'none'`              |
+| `Theme`           | `zIndex`        | _(full object)_       |
+| `Theme`           | `effects`       | _(full object)_       |
+
+> **Note:** Most consumer code uses `DeepPartial<Theme>` (e.g. `setAssignedTheme()`) and is **not affected**.
+> Only code that implements the full `Theme` interface directly needs to be updated.
 
 ## 🐛 Bug Fixes
 
