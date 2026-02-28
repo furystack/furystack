@@ -154,7 +154,7 @@ describe('CommandPaletteInput', () => {
     })
   })
 
-  it('should clear input value when opening', async () => {
+  it('should preserve input value when opening', async () => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
@@ -175,9 +175,7 @@ describe('CommandPaletteInput', () => {
         manager.isOpened.setValue(true)
         await flushUpdates()
 
-        // Focus is called, which doesn't clear - but the input value stays from before
-        // This matches SuggestInput behavior
-        expect(inputElement).not.toBeNull()
+        expect(inputElement.value).toBe('some text')
       })
     })
   })

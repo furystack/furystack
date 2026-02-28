@@ -36,8 +36,8 @@ export const Avatar = Shade<AvatarProps>({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '50%',
-      height: '50%',
+      width: '100%',
+      height: '100%',
       borderRadius: cssVariableTheme.shape.borderRadius.full,
       background: `color-mix(in srgb, ${cssVariableTheme.palette.primary.main} 20%, transparent)`,
       backdropFilter: 'blur(10px)',
@@ -60,8 +60,8 @@ export const Avatar = Shade<AvatarProps>({
           <div className="avatar-fallback-icon">
             {props.fallback || (
               <svg
-                width="75%"
-                height="75%"
+                width="100%"
+                height="100%"
                 viewBox={userIcon.viewBox ?? '0 0 24 24'}
                 fill="none"
                 stroke="currentColor"
