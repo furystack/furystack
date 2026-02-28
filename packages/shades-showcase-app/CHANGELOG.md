@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.2.2] - 2026-02-28
+
+### ✨ Features
+
+- Added a "With custom content props" demo section to the CacheView showcase page, demonstrating type-safe `contentProps` forwarding
+
 ## [8.2.1] - 2026-02-26
 
 ### ⬆️ Dependencies

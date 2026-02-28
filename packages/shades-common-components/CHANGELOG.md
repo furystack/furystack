@@ -1,5 +1,33 @@
 # Changelog
 
+## [13.1.0] - 2026-02-28
+
+### ✨ Features
+
+### `contentProps` support for `CacheView`
+
+`CacheView` now accepts a `contentProps` prop to forward additional type-safe props to the content component beyond `data`. The `CacheViewProps` type gained a third generic parameter `TContentProps` that constrains the content component's full props shape. When the content component requires extra props (excluding `data` and HTML element attributes), `contentProps` becomes required; otherwise it can be omitted.
+
+**Usage:**
+
+```tsx
+const MyContent = Shade<{ data: CacheWithValue<User>; label: string }>({
+  shadowDomName: 'my-content',
+  render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
+})
+
+<CacheView
+  cache={userCache}
+  args={[userId]}
+  content={MyContent}
+  contentProps={{ label: 'User' }}
+/>
+```
+
+### 🧪 Tests
+
+- Added tests for `contentProps` forwarding to the content component
+
 ## [13.0.1] - 2026-02-26
 
 ### ⬆️ Dependencies

@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.13] - 2026-02-28
+
+### 📚 Documentation
+
+- Updated the `CACHE_HANDLING` cursor rule with `contentProps` usage examples for `CacheView`
+
 ## [8.0.12] - 2026-02-27
 
 ### ⬆️ Dependencies
