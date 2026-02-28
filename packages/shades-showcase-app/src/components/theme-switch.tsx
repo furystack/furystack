@@ -6,6 +6,7 @@ import {
   defaultDarkTheme,
   defaultLightTheme,
   Dropdown,
+  NotyService,
   ThemeProviderService,
 } from '@furystack/shades-common-components'
 import type { DeepPartial } from '@furystack/utils'
@@ -47,6 +48,26 @@ const themeItems: MenuEntry[] = [
   },
 ]
 
+const themeQuotes: Record<string, string> = {
+  paladin: 'Cheat Enabled, You Wascally Wabbit!',
+  chieftain: 'It is a good day to die!',
+  'neon-runner': 'Wake up, Samurai. We have a city to burn.',
+  'vault-dweller': 'War. War never changes.',
+  'shadow-broker': "I'm the Shadow Broker. I know everything.",
+  dragonborn: 'Fus Ro Dah!',
+  plumber: "It's-a me, Mario!",
+  auditore: 'Nothing is true, everything is permitted.',
+  replicant: 'All those moments will be lost in time, like tears in rain.',
+  sandworm: 'The spice must flow.',
+  architect: 'There is no spoon.',
+  'wild-hunt': "Wind's howling.",
+  'black-mesa': 'Rise and shine, Mr. Freeman. Rise and shine.',
+  jedi: 'Do or do not. There is no try.',
+  sith: 'Peace is a lie. There is only passion.',
+  xenomorph: 'In space, no one can hear you scream.',
+  hawkins: "Friends don't lie.",
+}
+
 const themeLoaders: Record<string, () => Promise<DeepPartial<Theme>>> = {
   dark: async () => defaultDarkTheme,
   light: async () => defaultLightTheme,
@@ -81,15 +102,30 @@ const applyTheme = async (key: string, themeProvider: ThemeProviderService) => {
 
 export const ThemeSwitch = Shade({
   shadowDomName: 'theme-switch',
-  render: ({ injector, useStoredState }) => {
+  render: ({ injector, useStoredState, useDisposable }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const [currentThemeKey, setCurrentThemeKey] = useStoredState<string>('theme', 'dark')
+    const notyService = injector.getInstance(NotyService)
+    const [, setCurrentThemeKey] = useStoredState<string>('theme', 'dark')
 
-    void applyTheme(currentThemeKey, themeProvider)
+    useDisposable('initial-theme', () => {
+      const raw = localStorage.getItem('theme')
+      const storedKey = raw ? (JSON.parse(raw) as string) : 'dark'
+      void applyTheme(storedKey, themeProvider)
+      return { [Symbol.dispose]: () => {} }
+    })
 
     const handleSelect = (key: string) => {
       setCurrentThemeKey(key)
-      void applyTheme(key, themeProvider)
+      void applyTheme(key, themeProvider).then(() => {
+        const quote = themeQuotes[key]
+        if (quote) {
+          notyService.emit('onNotyAdded', {
+            type: 'info',
+            title: `Theme: ${key}`,
+            body: quote,
+          })
+        }
+      })
     }
 
     return (

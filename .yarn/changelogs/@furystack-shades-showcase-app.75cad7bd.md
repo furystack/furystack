@@ -20,7 +20,8 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-<!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
+- Rewrote `ThemeSwitch` with a `Dropdown` and `Avatar` trigger, supporting 19 lazy-loaded themes organized in groups
+- Added info notification with themed quote when selecting a special theme
 
 ## 🐛 Bug Fixes
 
@@ -40,7 +41,7 @@ appear before simple list items within each section.
 
 ## 🧪 Tests
 
-<!-- PLACEHOLDER: Describe test changes (test:) -->
+- Added Playwright e2e test for `AppBar` theme dropdown open/close and selection flow
 
 ## 📦 Build
 
