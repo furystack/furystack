@@ -1,0 +1,18 @@
+declined:
+  - furystack
+
+releases:
+  "@furystack/auth-google": patch
+  "@furystack/auth-jwt": patch
+  "@furystack/entity-sync-service": patch
+  "@furystack/rest": patch
+  "@furystack/rest-client-fetch": patch
+  "@furystack/rest-service": patch
+  "@furystack/shades": patch
+  "@furystack/shades-common-components": patch
+  "@furystack/shades-i18n": patch
+  "@furystack/shades-lottie": patch
+  "@furystack/shades-mfe": patch
+  "@furystack/shades-nipple": patch
+  "@furystack/shades-showcase-app": patch
+  "@furystack/websocket-api": patch
