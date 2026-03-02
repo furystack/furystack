@@ -169,4 +169,22 @@ describe('@furystack/rest-service inregration tests', () => {
       )
     })
   })
+
+  it('Should respond with 400 for malformed query parameter values', async () => {
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
+      const response = await fetch(PathHelper.joinPaths(apiUrl, 'testQuery?param1=not-valid-base64!!!'))
+      expect(response.status).toBe(400)
+      const result = (await response.json()) as { message: string }
+      expect(result.message).toBe('Failed to decode query parameter value')
+    })
+  })
+
+  it('Should respond with 400 for malformed percent-encoded path parameters', async () => {
+    await usingAsync(await createIntegrationApi(), async ({ apiUrl }) => {
+      const response = await fetch(`${apiUrl}/testUrlParams/%E0%A4%A`)
+      expect(response.status).toBe(400)
+      const result = (await response.json()) as { message: string }
+      expect(result.message).toBe('Failed to decode URL path parameter')
+    })
+  })
 })

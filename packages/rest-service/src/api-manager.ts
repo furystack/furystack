@@ -3,7 +3,7 @@ import { IdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import type { Method, RestApi } from '@furystack/rest'
-import { deserializeQueryString } from '@furystack/rest'
+import { RequestError, deserializeQueryString } from '@furystack/rest'
 import { PathHelper, usingAsync } from '@furystack/utils'
 import type { MatchFunction } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
@@ -274,7 +274,22 @@ export class ApiManager {
       return
     }
 
-    const action = this.getActionFromEndpoint(options.compiledApi, fullUrl, options.req.method?.toUpperCase() as Method)
+    let action: ReturnType<typeof this.getActionFromEndpoint>
+    try {
+      action = this.getActionFromEndpoint(options.compiledApi, fullUrl, options.req.method?.toUpperCase() as Method)
+    } catch (error) {
+      const responseError =
+        error instanceof URIError ? new RequestError('Failed to decode URL path parameter', 400) : (error as Error)
+      const errorActionResult = await ErrorAction({
+        request: options.req,
+        response: options.res,
+        injector: options.injector,
+        getBody: async () => responseError,
+      })
+      options.res.sendActionResult(errorActionResult)
+      return
+    }
+
     if (action) {
       await this.executeAction({ ...options, ...action, fullUrl })
     } else {
