@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { describe, expect, it } from 'vitest'
-import { deserializeQueryString } from './deserialize-query-string.js'
+import { decode, deserializeQueryString } from './deserialize-query-string.js'
+import { RequestError } from './request-error.js'
 import { serializeToQueryString, serializeValue } from './serialize-to-query-string.js'
 
 describe('deserializeQueryString', () => {
@@ -72,5 +73,48 @@ describe('deserializeQueryString', () => {
 
   it('Should deserialize escaped values', () => {
     expect(deserializeQueryString(`?alma=${serializeValue('asd/*-@?')}`)).toEqual({ alma: 'asd/*-@?' })
+  })
+
+  describe('decode error handling', () => {
+    it('Should throw a RequestError with 400 for invalid base64 input', () => {
+      expect(() => decode('not-valid-base64!!!')).toThrowError(RequestError)
+      try {
+        decode('not-valid-base64!!!')
+      } catch (e) {
+        expect(e).toBeInstanceOf(RequestError)
+        expect((e as RequestError).responseCode).toBe(400)
+      }
+    })
+
+    it('Should throw a RequestError with 400 for invalid percent-encoding', () => {
+      expect(() => decode('%ZZ')).toThrowError(RequestError)
+      try {
+        decode('%ZZ')
+      } catch (e) {
+        expect(e).toBeInstanceOf(RequestError)
+        expect((e as RequestError).responseCode).toBe(400)
+      }
+    })
+
+    it('Should throw a RequestError with 400 for invalid JSON after decoding', () => {
+      const invalidJsonBase64 = btoa('not-json')
+      expect(() => decode(invalidJsonBase64)).toThrowError(RequestError)
+      try {
+        decode(invalidJsonBase64)
+      } catch (e) {
+        expect(e).toBeInstanceOf(RequestError)
+        expect((e as RequestError).responseCode).toBe(400)
+      }
+    })
+  })
+
+  it('Should throw a RequestError with 400 for malformed query parameter values', () => {
+    expect(() => deserializeQueryString('?key=not-valid-base64!!!')).toThrowError(RequestError)
+    try {
+      deserializeQueryString('?key=not-valid-base64!!!')
+    } catch (e) {
+      expect(e).toBeInstanceOf(RequestError)
+      expect((e as RequestError).responseCode).toBe(400)
+    }
   })
 })
