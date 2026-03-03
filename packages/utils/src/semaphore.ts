@@ -30,6 +30,8 @@ type QueuedTask<T = unknown> = {
   resolve: (value: T) => void
   reject: (reason: unknown) => void
   abortController: AbortController
+  callerSignal?: AbortSignal
+  callerAbortHandler?: () => void
 }
 
 /**
@@ -131,14 +133,13 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
       const entry = { task, resolve, reject, abortController } as unknown as QueuedTask
 
       if (options?.signal) {
-        options.signal.addEventListener(
-          'abort',
-          () => {
-            abortController.abort(options.signal!.reason)
-            this.removePending(entry)
-          },
-          { once: true },
-        )
+        const callerAbortHandler = () => {
+          abortController.abort(options.signal!.reason)
+          this.removePending(entry)
+        }
+        entry.callerSignal = options.signal
+        entry.callerAbortHandler = callerAbortHandler
+        options.signal.addEventListener('abort', callerAbortHandler, { once: true })
       }
 
       this.queue.push(entry)
@@ -165,6 +166,14 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
     }
   }
 
+  private cleanupCallerSignal(entry: QueuedTask): void {
+    if (entry.callerSignal && entry.callerAbortHandler) {
+      entry.callerSignal.removeEventListener('abort', entry.callerAbortHandler)
+      entry.callerSignal = undefined
+      entry.callerAbortHandler = undefined
+    }
+  }
+
   private startTask(entry: QueuedTask): void {
     this.running.add(entry)
     this.runningCount.setValue(this.runningCount.getValue() + 1)
@@ -175,6 +184,7 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
       .then(
         (value) => {
           this.running.delete(entry)
+          this.cleanupCallerSignal(entry)
           if (!this.disposed) {
             this.runningCount.setValue(this.runningCount.getValue() - 1)
             this.completedCount.setValue(this.completedCount.getValue() + 1)
@@ -184,6 +194,7 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
         },
         (error: unknown) => {
           this.running.delete(entry)
+          this.cleanupCallerSignal(entry)
           if (!this.disposed) {
             this.runningCount.setValue(this.runningCount.getValue() - 1)
             this.failedCount.setValue(this.failedCount.getValue() + 1)

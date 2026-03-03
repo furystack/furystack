@@ -172,6 +172,19 @@ export const semaphoreTests = describe('Semaphore', () => {
       s[Symbol.dispose]()
     })
 
+    it('should clean up the caller signal listener when the task completes normally', async () => {
+      const s = new Semaphore(1)
+      const controller = new AbortController()
+
+      const removeSpy = vi.spyOn(controller.signal, 'removeEventListener')
+
+      await s.execute(async () => 'done', { signal: controller.signal })
+
+      expect(removeSpy).toHaveBeenCalledWith('abort', expect.any(Function))
+      removeSpy.mockRestore()
+      s[Symbol.dispose]()
+    })
+
     it('should abort the signal passed to a running task when the caller signal aborts', async () => {
       const s = new Semaphore(1)
       const signalAborted = vi.fn()

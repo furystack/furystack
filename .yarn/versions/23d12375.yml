@@ -12,7 +12,7 @@ releases:
   "@furystack/filesystem-store": minor
   "@furystack/i18n": patch
   "@furystack/inject": patch
-  "@furystack/logging": patch
+  "@furystack/logging": minor
   "@furystack/mongodb-store": minor
   "@furystack/redis-store": patch
   "@furystack/repository": patch

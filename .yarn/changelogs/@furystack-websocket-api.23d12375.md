@@ -22,6 +22,10 @@ webSocketApi.addListener('onClientConnected', ({ ws, message }) => {
 })
 ```
 
+## 🐛 Bug Fixes
+
+- Action execution now properly waits for async `execute()` to complete before calling `Symbol.dispose` on the action — the previous `using()` pattern disposed immediately while execution was still running
+
 ## ♻️ Refactoring
 
 - Action execution now uses explicit try/catch and `Promise.resolve().then()` instead of `using()`, ensuring errors are properly caught and emitted rather than silently dropped

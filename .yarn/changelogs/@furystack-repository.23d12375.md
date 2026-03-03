@@ -2,6 +2,6 @@
 
 # @furystack/repository
 
-## ♻️ Refactoring
+## 🔧 Changed
 
 - Added `onListenerError` to `DataSet` event map for consistent EventHub listener error handling across all stores
