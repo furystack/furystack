@@ -87,8 +87,12 @@ export const semaphoreTests = describe('Semaphore', () => {
       const pendingChanges: number[] = []
       const runningChanges: number[] = []
 
-      s.pendingCount.subscribe((v) => pendingChanges.push(v))
-      s.runningCount.subscribe((v) => runningChanges.push(v))
+      s.pendingCount.subscribe((v) => {
+        pendingChanges.push(v)
+      })
+      s.runningCount.subscribe((v) => {
+        runningChanges.push(v)
+      })
 
       let resolve!: () => void
       const p1 = s.execute(async () => {
@@ -237,8 +241,12 @@ export const semaphoreTests = describe('Semaphore', () => {
       const s = new Semaphore(1)
       const events: string[] = []
 
-      s.subscribe('taskStarted', () => events.push('started'))
-      s.subscribe('taskCompleted', () => events.push('completed'))
+      s.subscribe('taskStarted', () => {
+        events.push('started')
+      })
+      s.subscribe('taskCompleted', () => {
+        events.push('completed')
+      })
 
       await Promise.all([s.execute(async () => 'a'), s.execute(async () => 'b')])
 
