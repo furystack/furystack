@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { EventHub } from '@furystack/utils'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
@@ -34,7 +34,10 @@ export interface ServerRecord {
 
 @Injectable({ lifetime: 'singleton' })
 export class ServerManager
-  extends EventHub<{ onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>] }>
+  extends EventHub<{
+    onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>]
+    onListenerError: ListenerErrorPayload
+  }>
   implements AsyncDisposable
 {
   public static DEFAULT_HOST = 'localhost'

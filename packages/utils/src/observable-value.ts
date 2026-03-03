@@ -23,6 +23,12 @@ export type ObservableValueOptions<T> = {
    * @returns whether the value should be updated and the observers should be notified
    */
   compare: (lastValue: T, nextValue: T) => boolean
+  /**
+   * Called when an observer callback or filter throws (sync) or rejects (async).
+   * All remaining observers are still notified even when one fails.
+   * Defaults to logging the error via `console.error`.
+   */
+  onError: (options: { error: unknown; observer: ValueObserver<T> }) => void
 }
 
 const defaultComparer = <T>(a: T, b: T) => a !== b
@@ -112,8 +118,17 @@ export class ObservableValue<T> implements Disposable {
     if (this.options.compare(this.currentValue, newValue)) {
       this.currentValue = newValue
       this.observers.forEach((observer) => {
-        if (observer.options?.filter?.(this.currentValue, newValue) !== false) {
-          observer.callback(newValue)
+        try {
+          if (observer.options?.filter?.(this.currentValue, newValue) !== false) {
+            const result = observer.callback(newValue)
+            if (result && typeof result.then === 'function') {
+              result.then(undefined, (error: unknown) => {
+                this.options.onError({ error, observer })
+              })
+            }
+          }
+        } catch (error) {
+          this.options.onError({ error, observer })
         }
       })
     }
@@ -136,6 +151,7 @@ export class ObservableValue<T> implements Disposable {
   constructor(initialValue: T, options?: Partial<ObservableValueOptions<T>>) {
     this.options = {
       compare: defaultComparer,
+      onError: ({ error }) => console.error('Error in ObservableValue observer', error),
       ...options,
     }
     this.currentValue = initialValue

@@ -112,8 +112,12 @@ export class EntitySyncService implements Disposable {
 
     this.ws.onmessage = (event: MessageEvent) => {
       if (this.disposed) return
-      const message = JSON.parse(String(event.data)) as ServerSyncMessage
-      this.handleMessage(message)
+      try {
+        const message = JSON.parse(String(event.data)) as ServerSyncMessage
+        this.handleMessage(message)
+      } catch (error) {
+        console.error('Error handling WebSocket message in EntitySyncService', error)
+      }
     }
 
     this.ws.onerror = () => {

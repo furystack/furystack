@@ -156,6 +156,25 @@ describe('Loggers', () => {
       })
       expect(doneCallback).toBeCalledTimes(1)
     })
+
+    it('Should not throw when fatal entry fails to persist', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const loggers = new LoggerCollection()
+      loggers.attachLogger(
+        new TestLogger(async () => {
+          throw new Error('persistence failure')
+        }),
+      )
+      await expect(loggers.fatal({ message: 'critical', scope: 'test' })).resolves.toBeUndefined()
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to persist fatal log entry',
+        expect.objectContaining({
+          originalEntry: expect.any(Object) as object,
+          error: expect.any(Error) as Error,
+        }) as object,
+      )
+      consoleErrorSpy.mockRestore()
+    })
   })
 
   describe('Console Logger', () => {

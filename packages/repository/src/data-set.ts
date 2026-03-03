@@ -1,7 +1,7 @@
 import type { CreateResult, FilterType, FindOptions, PartialResult, WithOptionalId } from '@furystack/core'
 import { AuthorizationError, selectFields } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
-import { EventHub } from '@furystack/utils'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { DataSetSettings } from './data-set-setting.js'
 
 /**
@@ -38,6 +38,7 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     onEntityAdded: { injector: Injector; entity: T }
     onEntityUpdated: { injector: Injector; id: T[TPrimaryKey]; change: Partial<T> }
     onEntityRemoved: { injector: Injector; key: T[TPrimaryKey] }
+    onListenerError: ListenerErrorPayload
   }>
   implements Disposable
 {

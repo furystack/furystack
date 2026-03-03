@@ -1,5 +1,5 @@
 import { Injectable, Injected } from '@furystack/inject'
-import { EventHub, PathHelper } from '@furystack/utils'
+import { EventHub, PathHelper, type ListenerErrorPayload } from '@furystack/utils'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import type { Duplex } from 'stream'
 import { HttpProxyHandler } from './http-proxy-handler.js'
@@ -27,6 +27,7 @@ export interface ProxyOptions {
 export class ProxyManager extends EventHub<{
   onProxyFailed: { from: string; to: string; error: unknown }
   onWebSocketProxyFailed: { from: string; to: string; error: unknown }
+  onListenerError: ListenerErrorPayload
 }> {
   @Injected(ServerManager)
   declare private readonly serverManager: ServerManager
