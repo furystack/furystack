@@ -55,7 +55,7 @@ type QueuedTask<T = unknown> = {
  * ```
  */
 export class Semaphore extends EventHub<SemaphoreEvents> {
-  private readonly queue: QueuedTask[] = []
+  private readonly queue: Array<QueuedTask<any>> = []
   private readonly running = new Set<QueuedTask>()
   private disposed = false
 
@@ -130,7 +130,7 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
     return new Promise<T>((resolve, reject) => {
       const abortController = new AbortController()
 
-      const entry = { task, resolve, reject, abortController } as unknown as QueuedTask
+      const entry: QueuedTask<T> = { task, resolve, reject, abortController }
 
       if (options?.signal) {
         const callerAbortHandler = () => {
@@ -149,12 +149,12 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
     })
   }
 
-  private removePending(entry: QueuedTask): void {
+  private removePending<T>(entry: QueuedTask<T>): void {
     const idx = this.queue.indexOf(entry)
     if (idx !== -1) {
       this.queue.splice(idx, 1)
       this.pendingCount.setValue(this.pendingCount.getValue() - 1)
-      entry.reject(entry.abortController.signal.reason as unknown)
+      entry.reject(entry.abortController.signal.reason)
     }
   }
 
