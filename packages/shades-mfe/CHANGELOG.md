@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.8] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` with updated `@furystack/utils` dependency
+- Updated `@furystack/shades` with transitive dependency fixes
+
 ## [2.0.7] - 2026-02-26
 
 ### ⬆️ Dependencies

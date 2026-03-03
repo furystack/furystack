@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.1.4] - 2026-03-03
+
+### 🔧 Changed
+
+- Added `onListenerError` to `DataSet` event map for consistent EventHub listener error handling across all stores
+
 ## [10.1.3] - 2026-02-26
 
 ### ⬆️ Dependencies

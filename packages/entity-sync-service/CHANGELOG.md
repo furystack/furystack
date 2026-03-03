@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/entity-sync-client` with new lifecycle events via EventHub
+- Updated `@furystack/rest-service` with improved error handling for malformed requests
+
 ## [1.0.4] - 2026-02-27
 
 ### ⬆️ Dependencies

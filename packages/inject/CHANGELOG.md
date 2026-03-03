@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.0.31] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/utils` with EventHub listener error handling
+
 ## [12.0.30] - 2026-02-11
 
 ### ⬆️ Dependencies

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades",
-  "version": "12.2.4",
+  "version": "12.2.5",
   "description": "A lightweight UI framework for FuryStack with JSX support",
   "type": "module",
   "scripts": {

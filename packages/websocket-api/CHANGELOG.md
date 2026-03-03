@@ -1,5 +1,39 @@
 # Changelog
 
+## [13.2.0] - 2026-03-03
+
+### ✨ Features
+
+### Lifecycle and error events via `EventHub`
+
+`WebSocketApi` now extends `EventHub` and emits structured events:
+
+- `onError` — emitted when action execution fails (`canExecute`, `getInstance`, or `execute`), or when a WebSocket error occurs
+- `onClientConnected` — emitted when a client connects, with `{ ws, message }`
+- `onClientDisconnected` — emitted when a client disconnects, with `{ ws }`
+
+```typescript
+webSocketApi.addListener('onError', ({ error, data, socket }) => {
+  logger.error('WebSocket action error', { error })
+})
+
+webSocketApi.addListener('onClientConnected', ({ ws, message }) => {
+  logger.info('Client connected')
+})
+```
+
+### 🐛 Bug Fixes
+
+- Action execution now properly waits for async `execute()` to complete before calling `Symbol.dispose` on the action — the previous `using()` pattern disposed immediately while execution was still running
+
+### ♻️ Refactoring
+
+- Action execution now uses explicit try/catch and `Promise.resolve().then()` instead of `using()`, ensuring errors are properly caught and emitted rather than silently dropped
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest-service` with improved error handling for malformed requests
+
 ## [13.1.14] - 2026-02-27
 
 ### ⬆️ Dependencies

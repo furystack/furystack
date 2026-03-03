@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.4] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated multiple `@furystack/*` dependencies with EventHub error handling improvements
+- Updated `@furystack/rest` and `@furystack/rest-service` with improved error handling for malformed requests
+
 ## [8.2.3] - 2026-02-28
 
 ### ✨ Features

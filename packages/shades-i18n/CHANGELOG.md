@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.8] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/utils` with EventHub listener error handling
+- Updated `@furystack/shades` with transitive dependency fixes
+
 ## [2.0.7] - 2026-02-26
 
 ### ⬆️ Dependencies

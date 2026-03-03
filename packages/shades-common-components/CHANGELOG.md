@@ -1,5 +1,24 @@
 # Changelog
 
+## [13.3.0] - 2026-03-03
+
+### 🗑️ Deprecated
+
+- `CollectionServiceOptions.onRowClick` — use `subscribe('onRowClick', ...)` on the `CollectionService` instance instead
+- `CollectionServiceOptions.onRowDoubleClick` — use `subscribe('onRowDoubleClick', ...)` on the `CollectionService` instance instead
+
+### ♻️ Refactoring
+
+- `CollectionService` now extends `EventHub` and routes row click/double-click through `onRowClick` and `onRowDoubleClick` events, enabling multiple subscribers
+
+### 🧪 Tests
+
+- Added tests for `onRowClick` and `onRowDoubleClick` event emission
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` with transitive dependency fixes
+
 ## [13.2.0] - 2026-02-28
 
 ### ✨ Features

@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.0.41] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/utils` with EventHub listener error handling
+
+### 🐛 Bug Fixes
+
+- `decode()` now throws a `RequestError` with status 400 when query parameter values contain invalid base64, invalid percent-encoding, or invalid JSON, instead of letting raw errors propagate
+
+### 🧪 Tests
+
+- Added unit tests for `decode()` error handling covering invalid base64, invalid percent-encoding, and invalid JSON inputs
+- Added test for `deserializeQueryString()` rejecting malformed query parameter values
+
 ## [8.0.40] - 2026-02-26
 
 ### ⬆️ Dependencies

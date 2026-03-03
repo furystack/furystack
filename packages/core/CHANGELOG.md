@@ -1,5 +1,11 @@
 # Changelog
 
+## [15.2.3] - 2026-03-03
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/utils` with EventHub listener error handling and ObservableValue `onError` support
+
 ## [15.2.2] - 2026-02-26
 
 ### 🔧 Chores

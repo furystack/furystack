@@ -1,5 +1,39 @@
 # Changelog
 
+## [12.2.0] - 2026-03-03
+
+### ✨ Features
+
+### Server lifecycle events in `ServerManager`
+
+`ServerManager` now emits `onServerListening` and `onServerClosed` events, allowing consumers to observe when HTTP servers start and stop:
+
+```typescript
+serverManager.addListener('onServerListening', ({ url, port, hostName }) => {
+  console.log(`Server listening at ${url}`)
+})
+
+serverManager.addListener('onServerClosed', ({ url }) => {
+  console.log(`Server at ${url} closed`)
+})
+```
+
+### Authentication events in `HttpUserContext`
+
+`HttpUserContext` now extends `EventHub` and emits `onLogin`, `onLogout`, and `onSessionInvalidated` events for authentication lifecycle observability.
+
+### `onListenerError` support
+
+`ServerManager`, `ProxyManager`, and `HttpUserContext` event maps now include `onListenerError` for consistent listener error handling.
+
+### 🐛 Bug Fixes
+
+- `ApiManager` now catches `URIError` from malformed percent-encoded URL path parameters and responds with a 400 error instead of crashing
+
+### 🧪 Tests
+
+- Added integration tests for 400 responses on malformed query parameter values and malformed percent-encoded path parameters
+
 ## [12.1.1] - 2026-02-27
 
 ### 🐛 Bug Fixes

@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.1.0] - 2026-03-03
+
+### 🐛 Bug Fixes
+
+- `AbstractLogger.fatal()` now catches errors from `addEntry()` and logs them via `console.error` instead of letting them propagate — fatal log persistence failures no longer crash the caller
+
+### 🧪 Tests
+
+- Added test verifying `fatal()` does not throw when `addEntry()` fails
+
 ## [8.0.30] - 2026-02-11
 
 ### ⬆️ Dependencies
