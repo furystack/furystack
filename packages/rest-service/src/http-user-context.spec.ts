@@ -377,6 +377,101 @@ describe('HttpUserContext', () => {
     })
   })
 
+  describe('EventHub events', () => {
+    it('Should emit onLogin when cookieLogin succeeds', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const handler = vi.fn()
+        ctx.addListener('onLogin', handler)
+
+        const addMock = vi.fn(async () => ({}))
+        // @ts-expect-error
+        ctx.getSessionDataSet = vi.fn(() => ({ add: addMock }))
+
+        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
+
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(handler).toHaveBeenCalledWith({ user: testUser })
+      })
+    })
+
+    it('Should emit onLogout when cookieLogout is called', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const handler = vi.fn()
+        ctx.addListener('onLogout', handler)
+
+        const sessionDataSetMock = {
+          add: vi.fn(async () => ({})),
+          find: vi.fn(async () => [{ sessionId: 'sid' }]),
+          remove: vi.fn(async () => undefined),
+          primaryKey: 'sessionId' as const,
+        }
+        // @ts-expect-error
+        ctx.getSessionDataSet = vi.fn(() => sessionDataSetMock)
+        ctx.getSessionIdFromRequest = () => 'sid'
+
+        await ctx.cookieLogout(request, { setHeader: vi.fn() })
+
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(handler).toHaveBeenCalledWith(undefined)
+      })
+    })
+
+    it('Should emit onSessionInvalidated when the user entity is removed', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const sm = i.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').add(testUser)
+
+        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
+        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
+
+        const handler = vi.fn()
+        ctx.addListener('onSessionInvalidated', handler)
+
+        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
+
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        await userDataSet.remove(systemInjector, testUser.username)
+
+        expect(handler).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('Should emit onSessionInvalidated when the session entity is removed', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        await prepareInjector(i)
+        const ctx = i.getInstance(HttpUserContext)
+        const sm = i.getInstance(StoreManager)
+        await sm.getStoreFor(User, 'username').add(testUser)
+
+        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
+        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
+
+        const handler = vi.fn()
+        ctx.addListener('onSessionInvalidated', handler)
+
+        let sessionId = ''
+        await ctx.cookieLogin(testUser, {
+          setHeader: (_headerName, headerValue) => {
+            sessionId = headerValue.split('=')[1].split(';')[0]
+          },
+        })
+
+        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
+        const sessionDataSet = getDataSetFor(systemInjector, DefaultSession, 'sessionId')
+        await sessionDataSet.remove(systemInjector, sessionId)
+
+        expect(handler).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
   describe('Changes in the store during the context lifetime', () => {
     it('Should update user roles', () => {
       return usingAsync(new Injector(), async (i) => {

@@ -5,7 +5,7 @@ import { getRepository } from '@furystack/repository'
 import { DefaultSession } from '@furystack/rest-service'
 import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { WebSocket, type Data } from 'ws'
 import { useWebsockets } from './helpers.js'
 import type { WebSocketAction } from './models/websocket-action.js'
@@ -80,6 +80,73 @@ describe('WebSocketApi', () => {
           await new Promise<void>((resolve) => client.once('close', () => resolve()))
         }),
       )
+    })
+  })
+
+  it('Should emit onClientConnected and onClientDisconnected events', async () => {
+    const port = getPort()
+    await usingAsync(new Injector(), async (i) => {
+      setupStoresAndDataSets(i)
+      await useWebsockets(i, { path: '/ws-events', port })
+      const api = i.getInstance(WebSocketApi)
+
+      const connectedHandler = vi.fn()
+      const disconnectedHandler = vi.fn()
+      api.addListener('onClientConnected', connectedHandler)
+      api.addListener('onClientDisconnected', disconnectedHandler)
+
+      const client = new WebSocket(`ws://localhost:${port}/ws-events`)
+      await new Promise<void>((resolve) => client.once('open', () => resolve()))
+
+      expect(connectedHandler).toHaveBeenCalled()
+      expect(connectedHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ ws: expect.any(Object) as object, message: expect.any(Object) as object }),
+      )
+
+      client.close()
+      await new Promise<void>((resolve) => client.once('close', () => resolve()))
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(disconnectedHandler).toHaveBeenCalled()
+    })
+  })
+
+  it('Should emit onError when action execution throws', async () => {
+    const port = getPort()
+    await usingAsync(new Injector(), async (i) => {
+      setupStoresAndDataSets(i)
+
+      @Injectable()
+      class FailingAction implements WebSocketAction {
+        public [Symbol.dispose]() {
+          /** */
+        }
+        public static canExecute() {
+          return true
+        }
+        public async execute(): Promise<void> {
+          throw new Error('action failed')
+        }
+      }
+
+      await useWebsockets(i, { path: '/ws-error-test', port, actions: [FailingAction] })
+      const api = i.getInstance(WebSocketApi)
+
+      const errorHandler = vi.fn()
+      api.addListener('onError', errorHandler)
+
+      const client = new WebSocket(`ws://localhost:${port}/ws-error-test`)
+      await new Promise<void>((resolve) => client.once('open', () => resolve()))
+
+      await new Promise<void>((resolve, reject) => client.send('trigger', (err) => (err ? reject(err) : resolve())))
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(errorHandler).toHaveBeenCalled()
+      expect(errorHandler).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(Error) as Error }))
+
+      client.close()
+      await new Promise<void>((resolve) => client.once('close', () => resolve()))
     })
   })
 

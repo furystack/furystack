@@ -102,10 +102,14 @@ export abstract class AbstractLogger implements Logger {
    * @param entry  The Log entry
    */
   public async fatal<T>(entry: LogEntry<T>) {
-    await this.addEntry({
-      ...entry,
-      level: 'fatal',
-    })
+    try {
+      await this.addEntry({
+        ...entry,
+        level: 'fatal',
+      })
+    } catch (error) {
+      console.error('Failed to persist fatal log entry', { originalEntry: entry, error })
+    }
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Injectable } from '@furystack/inject'
-import { EventHub } from '@furystack/utils'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { IncomingMessage, Server, ServerResponse } from 'http'
 import { createServer } from 'http'
 import type { Socket } from 'net'
@@ -34,7 +34,12 @@ export interface ServerRecord {
 
 @Injectable({ lifetime: 'singleton' })
 export class ServerManager
-  extends EventHub<{ onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>] }>
+  extends EventHub<{
+    onRequestFailed: [unknown, IncomingMessage, ServerResponse<IncomingMessage>]
+    onServerListening: { url: string; port: number; hostName?: string }
+    onServerClosed: { url: string }
+    onListenerError: ListenerErrorPayload
+  }>
   implements AsyncDisposable
 {
   public static DEFAULT_HOST = 'localhost'
@@ -52,10 +57,17 @@ export class ServerManager
     await Promise.allSettled([...this.pendingCreates.values()])
     this.openedSockets.forEach((s) => s.destroy())
     await Promise.allSettled(
-      [...this.servers.values()].map(
-        (s) =>
+      [...this.servers.entries()].map(
+        ([url, s]) =>
           new Promise<void>((resolve, reject) => {
-            s.server.close((err) => (err ? reject(err) : resolve()))
+            s.server.close((err) => {
+              if (err) {
+                reject(err)
+              } else {
+                this.emit('onServerClosed', { url })
+                resolve()
+              }
+            })
             s.server.off('connection', this.onConnection)
           }),
       ),
@@ -114,6 +126,7 @@ export class ServerManager
       })
       const record: ServerRecord = { server, apis }
       this.servers.set(url, record)
+      this.emit('onServerListening', { url, port: options.port, hostName: options.hostName })
       return record
     } finally {
       this.pendingCreates.delete(url)

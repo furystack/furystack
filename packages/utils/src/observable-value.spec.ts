@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ObservableValue } from './observable-value.js'
+import { sleepAsync } from './sleep-async.js'
 import { using } from './using.js'
 
 /**
@@ -203,6 +204,107 @@ export const observableTests = describe('Observable', () => {
         expect(onChange).toBeCalledTimes(1)
         expect(onChange).toBeCalledWith({ shouldNotify: true, value: 3 })
       })
+    })
+  })
+
+  describe('Observer error handling', () => {
+    it('should catch sync throws from observer callbacks and still notify other observers', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      using(new ObservableValue(0), (v) => {
+        const goodCallback = vi.fn()
+
+        v.subscribe(() => {
+          throw new Error('observer error')
+        })
+        v.subscribe(goodCallback)
+
+        v.setValue(1)
+
+        expect(goodCallback).toBeCalledWith(1)
+        expect(goodCallback).toBeCalledTimes(1)
+        expect(consoleErrorSpy).toHaveBeenCalled()
+      })
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('should catch async rejections from observer callbacks', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      using(new ObservableValue(0), (v) => {
+        v.subscribe(async () => {
+          throw new Error('async observer error')
+        })
+
+        v.setValue(1)
+      })
+
+      await sleepAsync(10)
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error in ObservableValue observer', expect.any(Error))
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('should catch errors thrown by filter functions', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      using(new ObservableValue(0), (v) => {
+        const goodCallback = vi.fn()
+
+        v.subscribe(
+          () => {
+            /* never reached */
+          },
+          {
+            filter: () => {
+              throw new Error('filter error')
+            },
+          },
+        )
+        v.subscribe(goodCallback)
+
+        v.setValue(1)
+
+        expect(goodCallback).toBeCalledWith(1)
+        expect(consoleErrorSpy).toHaveBeenCalled()
+      })
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('should use custom onError callback when provided', () => {
+      const onError = vi.fn()
+
+      using(new ObservableValue(0, { onError }), (v) => {
+        v.subscribe(() => {
+          throw new Error('custom error')
+        })
+
+        v.setValue(1)
+
+        expect(onError).toBeCalledTimes(1)
+        expect(onError).toBeCalledWith({
+          error: expect.any(Error) as Error,
+          observer: expect.objectContaining({ callback: expect.any(Function) as () => void }) as object,
+        })
+      })
+    })
+
+    it('should update the value even when observers throw', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      using(new ObservableValue(0), (v) => {
+        v.subscribe(() => {
+          throw new Error('error')
+        })
+
+        v.setValue(42)
+        expect(v.getValue()).toBe(42)
+      })
+
+      consoleErrorSpy.mockRestore()
     })
   })
 })

@@ -5,11 +5,12 @@ import { getRepository } from '@furystack/repository'
 import type { RestApi } from '@furystack/rest'
 import { serializeValue } from '@furystack/rest'
 import { PathHelper, usingAsync } from '@furystack/utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions/index.js'
 import './helpers'
 import { useHttpAuthentication, useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
+import { ServerManager } from './server-manager.js'
 import { JsonResult } from './request-action-implementation.js'
 
 interface IntegrationTestApi extends RestApi {
@@ -185,6 +186,74 @@ describe('@furystack/rest-service inregration tests', () => {
       expect(response.status).toBe(400)
       const result = (await response.json()) as { message: string }
       expect(result.message).toBe('Failed to decode URL path parameter')
+    })
+  })
+})
+
+describe('ServerManager events', () => {
+  it('Should emit onServerListening when a server is created', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const serverManager = i.getInstance(ServerManager)
+      const handler = vi.fn()
+      serverManager.addListener('onServerListening', handler)
+
+      const port = getPort()
+      await serverManager.getOrCreate({ port })
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({
+        url: `http://localhost:${port}`,
+        port,
+        hostName: undefined,
+      })
+    })
+  })
+
+  it('Should emit onServerListening with hostName when provided', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const serverManager = i.getInstance(ServerManager)
+      const handler = vi.fn()
+      serverManager.addListener('onServerListening', handler)
+
+      const port = getPort()
+      await serverManager.getOrCreate({ port, hostName: '127.0.0.1' })
+
+      expect(handler).toHaveBeenCalledWith({
+        url: `http://127.0.0.1:${port}`,
+        port,
+        hostName: '127.0.0.1',
+      })
+    })
+  })
+
+  it('Should emit onServerClosed when the server manager is disposed', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const serverManager = i.getInstance(ServerManager)
+      const handler = vi.fn()
+      serverManager.addListener('onServerClosed', handler)
+
+      const port = getPort()
+      await serverManager.getOrCreate({ port })
+
+      await serverManager[Symbol.asyncDispose]()
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({ url: `http://localhost:${port}` })
+    })
+  })
+
+  it('Should not emit onServerListening for an existing server', async () => {
+    await usingAsync(new Injector(), async (i) => {
+      const serverManager = i.getInstance(ServerManager)
+      const port = getPort()
+      await serverManager.getOrCreate({ port })
+
+      const handler = vi.fn()
+      serverManager.addListener('onServerListening', handler)
+
+      await serverManager.getOrCreate({ port })
+
+      expect(handler).not.toHaveBeenCalled()
     })
   })
 })

@@ -3,6 +3,7 @@ import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import { randomBytes } from 'crypto'
 import type { IncomingMessage } from 'http'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
@@ -10,10 +11,20 @@ import { HttpAuthenticationSettings } from './http-authentication-settings.js'
 import type { DefaultSession } from './models/default-session.js'
 
 /**
+ * Events emitted by the {@link HttpUserContext}
+ */
+export type HttpUserContextEvents = {
+  onLogin: { user: User }
+  onLogout: undefined
+  onSessionInvalidated: undefined
+  onListenerError: ListenerErrorPayload
+}
+
+/**
  * Injectable UserContext for FuryStack HTTP Api
  */
 @Injectable({ lifetime: 'scoped' })
-export class HttpUserContext {
+export class HttpUserContext extends EventHub<HttpUserContextEvents> {
   public getUserDataSet = () => this.authentication.getUserDataSet(this.systemInjector)
 
   public getSessionDataSet = () => this.authentication.getSessionDataSet(this.systemInjector)
@@ -117,6 +128,7 @@ export class HttpUserContext {
     await this.getSessionDataSet().add(this.systemInjector, { sessionId, username: user.username })
     serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     this.user = user
+    this.emit('onLogin', { user })
     return user
   }
 
@@ -133,6 +145,7 @@ export class HttpUserContext {
       const sessions = await sessionDataSet.find(this.systemInjector, { filter: { sessionId: { $eq: sessionId } } })
       await sessionDataSet.remove(this.systemInjector, ...sessions.map((s) => s[sessionDataSet.primaryKey]))
     }
+    this.emit('onLogout', undefined)
   }
 
   @Injected(HttpAuthenticationSettings)
@@ -154,11 +167,13 @@ export class HttpUserContext {
     this.getUserDataSet().addListener('onEntityRemoved', ({ key }) => {
       if (this.user?.username === key) {
         this.user = undefined
+        this.emit('onSessionInvalidated', undefined)
       }
     })
 
     this.getSessionDataSet().addListener('onEntityRemoved', () => {
       this.user = undefined
+      this.emit('onSessionInvalidated', undefined)
     })
   }
 }

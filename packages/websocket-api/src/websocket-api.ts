@@ -2,7 +2,7 @@ import { AggregatedError, IdentityContext, type User } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { Injectable, Injected } from '@furystack/inject'
 import { HttpUserContext, ServerManager } from '@furystack/rest-service'
-import { using } from '@furystack/utils'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import { IncomingMessage } from 'http'
 import { URL } from 'url'
 import type WebSocket from 'ws'
@@ -12,10 +12,24 @@ import type { WebSocketAction } from './models/websocket-action.js'
 import { WebSocketApiSettings } from './websocket-api-settings.js'
 
 /**
+ * Events emitted by the {@link WebSocketApi}
+ */
+export type WebSocketApiEvents = {
+  /** Emitted when an error occurs during action execution (canExecute, getInstance, or execute) */
+  onError: { error: unknown; data?: Data; socket?: WebSocket }
+  /** Emitted when a client connects */
+  onClientConnected: { ws: WebSocket; message: IncomingMessage }
+  /** Emitted when a client disconnects */
+  onClientDisconnected: { ws: WebSocket }
+  /** Emitted when an event listener throws or rejects */
+  onListenerError: ListenerErrorPayload
+}
+
+/**
  * A WebSocket API implementation for FuryStack
  */
 @Injectable({ lifetime: 'scoped' })
-export class WebSocketApi implements AsyncDisposable {
+export class WebSocketApi extends EventHub<WebSocketApiEvents> implements AsyncDisposable {
   public readonly socket = new WebSocketServer({ noServer: true })
 
   private clients = new Map<ws, { injector: Injector; ws: ws; message: IncomingMessage }>()
@@ -45,14 +59,20 @@ export class WebSocketApi implements AsyncDisposable {
         )
 
         this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
+        this.emit('onClientConnected', { ws: websocket, message: msg })
         websocket.on('message', (message) => {
           this.execute(message, msg, connectionInjector, websocket)
         })
 
+        websocket.on('error', (error) => {
+          this.emit('onError', { error, socket: websocket })
+        })
+
         websocket.on('close', () => {
           this.clients.delete(websocket)
+          this.emit('onClientDisconnected', { ws: websocket })
           connectionInjector[Symbol.asyncDispose]().catch((err) => {
-            console.error('Error disposing connection injector:', err)
+            this.emit('onError', { error: err, socket: websocket })
           })
         })
       })
@@ -87,6 +107,7 @@ export class WebSocketApi implements AsyncDisposable {
     // Dispose all child injectors
     await Promise.allSettled([...this.clients.values()].map((client) => client.injector[Symbol.asyncDispose]()))
     this.clients.clear()
+    super[Symbol.dispose]()
   }
 
   public async broadcast(
@@ -110,11 +131,21 @@ export class WebSocketApi implements AsyncDisposable {
   }
 
   public execute(data: Data, request: IncomingMessage, injector: Injector, socket: WebSocket) {
-    const Action = this.settings.actions.find((a) => a.canExecute({ data, request, socket }))
-    if (Action) {
-      using(injector.getInstance<WebSocketAction>(Action), (action) => {
-        void action.execute({ data, request, socket })
-      })
+    try {
+      const Action = this.settings.actions.find((a) => a.canExecute({ data, request, socket }))
+      if (Action) {
+        const action = injector.getInstance<WebSocketAction>(Action)
+        Promise.resolve()
+          .then(() => action.execute({ data, request, socket }))
+          .catch((error: unknown) => {
+            this.emit('onError', { error, data, socket })
+          })
+          .finally(() => {
+            action[Symbol.dispose]()
+          })
+      }
+    } catch (error) {
+      this.emit('onError', { error, data, socket })
     }
   }
 }

@@ -517,4 +517,50 @@ describe('CollectionService', () => {
       })
     })
   })
+
+  describe('EventHub integration', () => {
+    it('Should allow subscribing to onRowClick via EventHub', () => {
+      const testEntries = createTestEntries()
+      const handler = vi.fn()
+
+      using(new CollectionService<TestEntry>(), (service) => {
+        service.addListener('onRowClick', handler)
+        service.data.setValue({ count: 3, entries: testEntries })
+        service.handleRowClick(testEntries[1], createMouseEvent())
+
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(handler).toHaveBeenCalledWith(testEntries[1])
+      })
+    })
+
+    it('Should allow subscribing to onRowDoubleClick via EventHub', () => {
+      const testEntries = createTestEntries()
+      const handler = vi.fn()
+
+      using(new CollectionService<TestEntry>(), (service) => {
+        service.addListener('onRowDoubleClick', handler)
+        service.data.setValue({ count: 3, entries: testEntries })
+        service.handleRowDoubleClick(testEntries[2])
+
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(handler).toHaveBeenCalledWith(testEntries[2])
+      })
+    })
+
+    it('Should support multiple subscribers for the same event', () => {
+      const testEntries = createTestEntries()
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+
+      using(new CollectionService<TestEntry>(), (service) => {
+        service.addListener('onRowClick', handler1)
+        service.addListener('onRowClick', handler2)
+        service.data.setValue({ count: 3, entries: testEntries })
+        service.handleRowClick(testEntries[0], createMouseEvent())
+
+        expect(handler1).toHaveBeenCalledTimes(1)
+        expect(handler2).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
 })

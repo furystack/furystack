@@ -407,4 +407,68 @@ describe('createJwtTokenStore', () => {
       expect(store.getAccessToken()).toBe(freshToken)
     })
   })
+
+  describe('EventHub integration', () => {
+    it('should emit onAccessTokenChanged via subscribe', async () => {
+      const handler = vi.fn()
+      const token: TokenPair = { accessToken: createMockToken(futureExp()), refreshToken: 'rt1' }
+      loginMock.mockResolvedValueOnce(token)
+
+      const store = createTestStore()
+      store.subscribe('onAccessTokenChanged', handler)
+
+      await store.login({ username: 'test', password: 'pass' })
+
+      expect(handler).toHaveBeenCalledWith(token.accessToken)
+    })
+
+    it('should emit onRefreshTokenChanged via subscribe', async () => {
+      const handler = vi.fn()
+      const token: TokenPair = { accessToken: createMockToken(futureExp()), refreshToken: 'rt1' }
+      loginMock.mockResolvedValueOnce(token)
+
+      const store = createTestStore()
+      store.subscribe('onRefreshTokenChanged', handler)
+
+      await store.login({ username: 'test', password: 'pass' })
+
+      expect(handler).toHaveBeenCalledWith('rt1')
+    })
+
+    it('should support multiple subscribers for the same event', async () => {
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+      const token: TokenPair = { accessToken: createMockToken(futureExp()), refreshToken: 'rt1' }
+      loginMock.mockResolvedValueOnce(token)
+
+      const store = createTestStore()
+      store.addListener('onAccessTokenChanged', handler1)
+      store.addListener('onAccessTokenChanged', handler2)
+
+      await store.login({ username: 'test', password: 'pass' })
+
+      expect(handler1).toHaveBeenCalledTimes(1)
+      expect(handler2).toHaveBeenCalledTimes(1)
+    })
+
+    it('should still support legacy option callbacks alongside EventHub', async () => {
+      const legacyHandler = vi.fn()
+      const eventHandler = vi.fn()
+      const token: TokenPair = { accessToken: createMockToken(futureExp()), refreshToken: 'rt1' }
+      loginMock.mockResolvedValueOnce(token)
+
+      const store = createTestStore({ onAccessTokenChanged: legacyHandler })
+      store.addListener('onAccessTokenChanged', eventHandler)
+
+      await store.login({ username: 'test', password: 'pass' })
+
+      expect(legacyHandler).toHaveBeenCalledWith(token.accessToken)
+      expect(eventHandler).toHaveBeenCalledWith(token.accessToken)
+    })
+
+    it('should dispose the internal EventHub', () => {
+      const store = createTestStore()
+      expect(() => store[Symbol.dispose]()).not.toThrow()
+    })
+  })
 })

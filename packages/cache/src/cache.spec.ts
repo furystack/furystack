@@ -416,4 +416,18 @@ describe('Cache', () => {
       })
     })
   })
+
+  describe('onLoadError event', () => {
+    it('should emit onLoadError when getObservable auto-triggers a failing load', async () => {
+      const loadError = new Error('load failed')
+      const errorHandler = vi.fn()
+      await usingAsync(new Cache({ load: () => Promise.reject(loadError) }), async (cache) => {
+        cache.addListener('onLoadError', errorHandler)
+        cache.getObservable()
+        await sleepAsync(50)
+        expect(errorHandler).toHaveBeenCalledTimes(1)
+        expect(errorHandler).toHaveBeenCalledWith({ args: [], error: loadError })
+      })
+    })
+  })
 })

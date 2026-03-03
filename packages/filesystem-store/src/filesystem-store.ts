@@ -1,7 +1,7 @@
 import type { FilterType, FindOptions, PhysicalStore } from '@furystack/core'
 import { InMemoryStore } from '@furystack/core'
 import type { Constructable } from '@furystack/inject'
-import { EventHub } from '@furystack/utils'
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { FSWatcher } from 'fs'
 import { promises, watch } from 'fs'
 
@@ -15,6 +15,8 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     onEntityAdded: { entity: T }
     onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
     onEntityRemoved: { key: T[TPrimaryKey] }
+    onWatcherError: { error: unknown }
+    onListenerError: ListenerErrorPayload
   }>
   implements PhysicalStore<T, TPrimaryKey, T>
 {
@@ -128,7 +130,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
         void this.reloadData()
       })
     } catch (error) {
-      // Error registering file watcher for store. External updates won't be updated.
+      this.emit('onWatcherError', { error })
     }
   }
 }

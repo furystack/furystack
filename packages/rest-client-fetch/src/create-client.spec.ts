@@ -245,4 +245,54 @@ describe('@furystack/rest-client-fetch', () => {
     })
     expect(formData).toBeCalled()
   })
+
+  describe('onResponseParseError', () => {
+    it('should call onResponseParseError when JSON parsing fails', async () => {
+      const parseError = vi.fn()
+      const json = vi.fn(async () => {
+        throw new Error('invalid json')
+      })
+      const fetchMock = vi.fn((async () => ({
+        json,
+        ok: true,
+        headers: { get: () => 'application/json' },
+      })) as unknown as fetchType)
+
+      const client = createClient<{ GET: { '/test': { result: { foo: number } } } }>({
+        endpointUrl,
+        fetch: fetchMock,
+        onResponseParseError: parseError,
+      })
+
+      const result = await client({ action: '/test', method: 'GET' })
+
+      expect(parseError).toHaveBeenCalledTimes(1)
+      expect(parseError).toHaveBeenCalledWith({
+        response: expect.objectContaining({ ok: true }) as object,
+        error: expect.any(Error) as Error,
+      })
+      expect(result.result).toBeNull()
+    })
+
+    it('should not call onResponseParseError when JSON parsing succeeds', async () => {
+      const parseError = vi.fn()
+      const json = vi.fn(async () => ({ value: 1 }))
+      const fetchMock = vi.fn((async () => ({
+        json,
+        ok: true,
+        headers: { get: () => 'application/json' },
+      })) as unknown as fetchType)
+
+      const client = createClient<{ GET: { '/test': { result: { value: number } } } }>({
+        endpointUrl,
+        fetch: fetchMock,
+        onResponseParseError: parseError,
+      })
+
+      const result = await client({ action: '/test', method: 'GET' })
+
+      expect(parseError).not.toHaveBeenCalled()
+      expect(result.result).toEqual({ value: 1 })
+    })
+  })
 })

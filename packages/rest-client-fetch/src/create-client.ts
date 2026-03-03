@@ -20,9 +20,14 @@ export interface ClientOptions {
   fetch?: typeof fetch
   requestInit?: RequestInit
   serializeQueryParams?: (param: any) => string
+  /** Called when `response.json()` fails during response parsing. The default behavior (returning `null`) is unchanged. */
+  onResponseParseError?: (options: { response: Response; error: unknown }) => void
 }
 
-export const defaultResponseParser = async <T>(response: Response): Promise<{ response: Response; result: T }> => {
+const parseResponseCore = async <T>(
+  response: Response,
+  onJsonParseError: (error: unknown) => void,
+): Promise<{ response: Response; result: T }> => {
   if (!response.ok) {
     throw new ResponseError(response.statusText, response)
   }
@@ -43,9 +48,13 @@ export const defaultResponseParser = async <T>(response: Response): Promise<{ re
     const result = (await response.json()) as T
     return { response, result }
   } catch (error) {
+    onJsonParseError(error)
     return { response, result: null as T }
   }
 }
+
+export const defaultResponseParser = async <T>(response: Response): Promise<{ response: Response; result: T }> =>
+  parseResponseCore<T>(response, () => {})
 
 const stringifyObjectValues = (params: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(params).map(([key, value]) => [key, value?.toString()]))
@@ -53,8 +62,15 @@ const stringifyObjectValues = (params: Record<string, unknown>) =>
 export const compileRoute = <T extends Record<string, unknown>>(url: string, params: T) =>
   compile(url)(stringifyObjectValues(params))
 
+const createResponseParser = (onParseError?: ClientOptions['onResponseParseError']) => {
+  if (!onParseError) return defaultResponseParser
+  return async <T>(response: Response): Promise<{ response: Response; result: T }> =>
+    parseResponseCore<T>(response, (error) => onParseError({ response, error }))
+}
+
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   const fetchMethod = clientOptions.fetch || fetch
+  const responseParser = createResponseParser(clientOptions.onResponseParseError)
 
   return async <
     TMethod extends keyof T,
@@ -103,6 +119,6 @@ export const createClient = <T extends RestApi>(clientOptions: ClientOptions) =>
         : {}),
     })
 
-    return (options.responseParser || defaultResponseParser)(response)
+    return (options.responseParser || responseParser)(response)
   }
 }

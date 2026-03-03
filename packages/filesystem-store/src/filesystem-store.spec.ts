@@ -77,6 +77,20 @@ describe('FileSystemStore', () => {
     )
   })
 
+  describe('onWatcherError event', () => {
+    it('should emit onWatcherError when file watcher registration fails', () => {
+      const emitSpy = vi.spyOn(FileSystemStore.prototype, 'emit')
+      const store = new FileSystemStore({
+        fileName: '/nonexistent-dir/impossible-path/test.json',
+        primaryKey: 'id' as const,
+        model: TestClass,
+      })
+      expect(emitSpy).toHaveBeenCalledWith('onWatcherError', { error: expect.any(Error) as Error })
+      emitSpy.mockRestore()
+      store[Symbol.dispose]()
+    })
+  })
+
   afterAll(async () => {
     for (const fileName of storeNames) {
       try {
