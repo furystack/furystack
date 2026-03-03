@@ -134,25 +134,33 @@ describe('MongoDB Store', () => {
 })
 
 describe('MongoClientFactory EventHub', () => {
-  it('should emit onClientCreated when a new client is created', () => {
+  it('should emit onClientCreated when a new client is created', async () => {
     const factory = new MongoClientFactory()
-    const handler = vi.fn()
-    factory.addListener('onClientCreated', handler)
+    try {
+      const handler = vi.fn()
+      factory.addListener('onClientCreated', handler)
 
-    factory.getClientFor('mongodb://localhost:27017/test-db')
+      factory.getClientFor('mongodb://localhost:27017/test-db')
 
-    expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler).toHaveBeenCalledWith({ url: 'mongodb://localhost:27017/test-db' })
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({ url: 'mongodb://localhost:27017/test-db' })
+    } finally {
+      await factory[Symbol.asyncDispose]()
+    }
   })
 
-  it('should not emit onClientCreated when returning an existing client', () => {
+  it('should not emit onClientCreated when returning an existing client', async () => {
     const factory = new MongoClientFactory()
-    const handler = vi.fn()
+    try {
+      const handler = vi.fn()
 
-    factory.getClientFor('mongodb://localhost:27017/test-db')
-    factory.addListener('onClientCreated', handler)
-    factory.getClientFor('mongodb://localhost:27017/test-db')
+      factory.getClientFor('mongodb://localhost:27017/test-db')
+      factory.addListener('onClientCreated', handler)
+      factory.getClientFor('mongodb://localhost:27017/test-db')
 
-    expect(handler).not.toHaveBeenCalled()
+      expect(handler).not.toHaveBeenCalled()
+    } finally {
+      await factory[Symbol.asyncDispose]()
+    }
   })
 })

@@ -24,7 +24,10 @@ export interface ClientOptions {
   onResponseParseError?: (options: { response: Response; error: unknown }) => void
 }
 
-export const defaultResponseParser = async <T>(response: Response): Promise<{ response: Response; result: T }> => {
+const parseResponseCore = async <T>(
+  response: Response,
+  onJsonParseError: (error: unknown) => void,
+): Promise<{ response: Response; result: T }> => {
   if (!response.ok) {
     throw new ResponseError(response.statusText, response)
   }
@@ -45,9 +48,13 @@ export const defaultResponseParser = async <T>(response: Response): Promise<{ re
     const result = (await response.json()) as T
     return { response, result }
   } catch (error) {
+    onJsonParseError(error)
     return { response, result: null as T }
   }
 }
+
+export const defaultResponseParser = async <T>(response: Response): Promise<{ response: Response; result: T }> =>
+  parseResponseCore<T>(response, () => {})
 
 const stringifyObjectValues = (params: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(params).map(([key, value]) => [key, value?.toString()]))
@@ -57,31 +64,8 @@ export const compileRoute = <T extends Record<string, unknown>>(url: string, par
 
 const createResponseParser = (onParseError?: ClientOptions['onResponseParseError']) => {
   if (!onParseError) return defaultResponseParser
-  return async <T>(response: Response): Promise<{ response: Response; result: T }> => {
-    if (!response.ok) {
-      throw new ResponseError(response.statusText, response)
-    }
-
-    const contentType = response.headers?.get?.('Content-Type')
-
-    if (contentType?.startsWith('text/')) {
-      const result = (await response.text()) as T
-      return { response, result }
-    }
-
-    if (contentType === 'form/multipart') {
-      const result = (await response.formData()) as T
-      return { response, result }
-    }
-
-    try {
-      const result = (await response.json()) as T
-      return { response, result }
-    } catch (error) {
-      onParseError({ response, error })
-      return { response, result: null as T }
-    }
-  }
+  return async <T>(response: Response): Promise<{ response: Response; result: T }> =>
+    parseResponseCore<T>(response, (error) => onParseError({ response, error }))
 }
 
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {

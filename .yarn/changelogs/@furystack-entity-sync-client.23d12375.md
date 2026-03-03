@@ -10,7 +10,7 @@
 
 - `onConnect` — emitted when the WebSocket connection is established
 - `onDisconnect` — emitted when the connection is lost or closed
-- `onReconnect` — emitted on a successful reconnect attempt, with `{ attempt }` count
+- `onReconnectAttempt` — emitted when a reconnection attempt is scheduled, with `{ attempt }` count
 - `onReconnectFailed` — emitted when a reconnect attempt fails, with `{ attempt }` count
 - `onMessageError` — emitted when parsing an incoming message throws
 - `onCacheError` — emitted when a cache store operation fails, with `{ cacheKey, error }`

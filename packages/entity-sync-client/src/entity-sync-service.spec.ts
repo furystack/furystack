@@ -1949,6 +1949,116 @@ describe('EntitySyncService', () => {
     })
   })
 
+  describe('EventHub events', () => {
+    it('should emit onConnect when WebSocket opens', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        const handler = vi.fn()
+        service.addListener('onConnect', handler)
+        mockWs.simulateOpen()
+        expect(handler).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('should emit onDisconnect when WebSocket closes', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        const handler = vi.fn()
+        service.addListener('onDisconnect', handler)
+        mockWs.simulateOpen()
+        mockWs.simulateClose()
+        expect(handler).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('should not double-emit onDisconnect on error followed by close', async () => {
+      await usingAsync(setupClient({ reconnect: false }), async ({ mockWs, service }) => {
+        const handler = vi.fn()
+        service.addListener('onDisconnect', handler)
+        mockWs.simulateOpen()
+        mockWs.simulateError()
+        mockWs.simulateClose()
+        expect(handler).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('should emit onMessageError when incoming message parsing fails', async () => {
+      await usingAsync(setupClient(), async ({ mockWs, service }) => {
+        const handler = vi.fn()
+        service.addListener('onMessageError', handler)
+        mockWs.simulateOpen()
+        mockWs.onmessage?.({ data: 'invalid json{{{' } as MessageEvent)
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(handler).toHaveBeenCalledWith({ error: expect.any(Error) as Error })
+      })
+    })
+
+    it('should emit onCacheError when local store set fails', async () => {
+      const localStore: SyncCacheStore = {
+        get: async () => undefined,
+        set: async () => {
+          throw new Error('write failed')
+        },
+      }
+      await usingAsync(setupClient({ localStore }), async ({ mockWs, service }) => {
+        const handler = vi.fn()
+        service.addListener('onCacheError', handler)
+        mockWs.simulateOpen()
+        service.subscribeEntity(User, '123')
+
+        // Wait for async cache load, which sends the subscribe message
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' })
+
+        // Wait for async persistToCache (which fails and emits onCacheError)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        expect(handler).toHaveBeenCalledWith({
+          cacheKey: 'User:123',
+          error: expect.any(Error) as Error,
+        })
+      })
+    })
+
+    it('should emit onReconnectAttempt when scheduling a reconnect', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(setupClient({ reconnectBaseMs: 100 }), async ({ webSockets, service }) => {
+          const handler = vi.fn()
+          service.addListener('onReconnectAttempt', handler)
+          webSockets[0].simulateOpen()
+          webSockets[0].simulateClose()
+          expect(handler).toHaveBeenCalledTimes(1)
+          expect(handler).toHaveBeenCalledWith({ attempt: 1 })
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should emit onReconnectFailed when max attempts exhausted', async () => {
+      vi.useFakeTimers()
+      try {
+        await usingAsync(
+          setupClient({ reconnectBaseMs: 100, maxReconnectAttempts: 1 }),
+          async ({ webSockets, service }) => {
+            const handler = vi.fn()
+            service.addListener('onReconnectFailed', handler)
+            webSockets[0].simulateOpen()
+            webSockets[0].simulateClose()
+
+            vi.advanceTimersByTime(100)
+            webSockets[1].simulateClose()
+
+            expect(handler).toHaveBeenCalledTimes(1)
+            expect(handler).toHaveBeenCalledWith({ attempt: 1 })
+          },
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
   describe('dispose', () => {
     it('should close WebSocket and clean up', async () => {
       await usingAsync(setupClient(), async ({ mockWs, service }) => {

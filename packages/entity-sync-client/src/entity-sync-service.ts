@@ -12,7 +12,7 @@ import type { SyncCacheEntry, SyncCacheStore } from './sync-cache-entry.js'
 export type EntitySyncServiceEvents = {
   onConnect: undefined
   onDisconnect: undefined
-  onReconnect: { attempt: number }
+  onReconnectAttempt: { attempt: number }
   onReconnectFailed: { attempt: number }
   onMessageError: { error: unknown }
   onCacheError: { cacheKey: string; error: unknown }
@@ -137,7 +137,6 @@ export class EntitySyncService extends EventHub<EntitySyncServiceEvents> impleme
 
     this.ws.onerror = () => {
       this.handleConnectionLoss()
-      this.emit('onDisconnect', undefined)
     }
 
     this.ws.onclose = () => {
@@ -183,7 +182,7 @@ export class EntitySyncService extends EventHub<EntitySyncServiceEvents> impleme
     const delay = Math.min(baseMs * Math.pow(2, this.reconnectAttempt), maxMs)
 
     this.reconnectAttempt++
-    this.emit('onReconnect', { attempt: this.reconnectAttempt })
+    this.emit('onReconnectAttempt', { attempt: this.reconnectAttempt })
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = undefined
       this.connect()
