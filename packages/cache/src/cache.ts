@@ -1,3 +1,4 @@
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
@@ -26,8 +27,15 @@ interface CacheSettings<TData, TArgs extends any[]> {
   cacheTimeMs?: number
 }
 
-export class Cache<TData, TArgs extends any[]> implements Disposable {
+export class Cache<TData, TArgs extends any[]>
+  extends EventHub<{
+    onLoadError: { args: TArgs; error: unknown }
+    onListenerError: ListenerErrorPayload
+  }>
+  implements Disposable
+{
   constructor(private readonly options: CacheSettings<TData, TArgs>) {
+    super()
     this.stateManager = new CacheStateManager<TData, TArgs>({ capacity: this.options.capacity })
   }
 
@@ -42,6 +50,7 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
   public [Symbol.dispose]() {
     this.pendingLoads.clear()
     this.stateManager[Symbol.dispose]()
+    super[Symbol.dispose]()
   }
 
   private getIndex = (...args: TArgs) => JSON.stringify(args)
@@ -191,8 +200,8 @@ export class Cache<TData, TArgs extends any[]> implements Disposable {
         .then(() => {
           /** */
         })
-        .catch(() => {
-          /** */
+        .catch((error) => {
+          this.emit('onLoadError', { args, error })
         })
     }
     return observable

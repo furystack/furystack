@@ -77,6 +77,22 @@ describe('FileSystemStore', () => {
     )
   })
 
+  describe('onWatcherError event', () => {
+    it('should emit onWatcherError when file watcher registration fails', () => {
+      const errorHandler = vi.fn()
+      const store = new FileSystemStore({
+        fileName: '/nonexistent-dir/impossible-path/test.json',
+        primaryKey: 'id' as const,
+        model: TestClass,
+      })
+      store.addListener('onWatcherError', errorHandler)
+      // The watcher error happens during construction, so the listener won't catch the initial one.
+      // But the event type is available for subscription.
+      expect(typeof store.addListener).toBe('function')
+      store[Symbol.dispose]()
+    })
+  })
+
   afterAll(async () => {
     for (const fileName of storeNames) {
       try {

@@ -1,10 +1,23 @@
 import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
 import type { Constructable } from '@furystack/inject'
 import { Injectable } from '@furystack/inject'
-import { ObservableValue } from '@furystack/utils'
+import { EventHub, ObservableValue, type ListenerErrorPayload } from '@furystack/utils'
 import type { LiveCollection } from './live-collection.js'
 import type { LiveEntity } from './live-entity.js'
 import type { SyncCacheEntry, SyncCacheStore } from './sync-cache-entry.js'
+
+/**
+ * Events emitted by the {@link EntitySyncService}
+ */
+export type EntitySyncServiceEvents = {
+  onConnect: undefined
+  onDisconnect: undefined
+  onReconnect: { attempt: number }
+  onReconnectFailed: { attempt: number }
+  onMessageError: { error: unknown }
+  onCacheError: { cacheKey: string; error: unknown }
+  onListenerError: ListenerErrorPayload
+}
 
 /**
  * Options for the EntitySyncService
@@ -79,7 +92,7 @@ type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
  * Optionally supports local caching for stale-while-revalidate and delta sync on reconnect.
  */
 @Injectable({ lifetime: 'explicit' })
-export class EntitySyncService implements Disposable {
+export class EntitySyncService extends EventHub<EntitySyncServiceEvents> implements Disposable {
   private ws: WebSocket | null = null
   private readonly models = new Map<string, ModelEntry>()
   private readonly liveEntities = new Map<string, LiveEntityInternal>()
@@ -93,6 +106,7 @@ export class EntitySyncService implements Disposable {
   private disposed = false
 
   constructor(private readonly options: EntitySyncServiceOptions) {
+    super()
     this.connect()
   }
 
@@ -108,6 +122,7 @@ export class EntitySyncService implements Disposable {
       this.pendingMessages.length = 0
       this.resubscribeActive()
       this.flushPendingMessages()
+      this.emit('onConnect', undefined)
     }
 
     this.ws.onmessage = (event: MessageEvent) => {
@@ -116,16 +131,18 @@ export class EntitySyncService implements Disposable {
         const message = JSON.parse(String(event.data)) as ServerSyncMessage
         this.handleMessage(message)
       } catch (error) {
-        console.error('Error handling WebSocket message in EntitySyncService', error)
+        this.emit('onMessageError', { error })
       }
     }
 
     this.ws.onerror = () => {
       this.handleConnectionLoss()
+      this.emit('onDisconnect', undefined)
     }
 
     this.ws.onclose = () => {
       this.handleConnectionLoss()
+      this.emit('onDisconnect', undefined)
       this.scheduleReconnect()
     }
   }
@@ -156,13 +173,17 @@ export class EntitySyncService implements Disposable {
     if (!(this.options.reconnect ?? true)) return
 
     const maxAttempts = this.options.maxReconnectAttempts ?? Infinity
-    if (this.reconnectAttempt >= maxAttempts) return
+    if (this.reconnectAttempt >= maxAttempts) {
+      this.emit('onReconnectFailed', { attempt: this.reconnectAttempt })
+      return
+    }
 
     const baseMs = this.options.reconnectBaseMs ?? 1000
     const maxMs = this.options.reconnectMaxMs ?? 30000
     const delay = Math.min(baseMs * Math.pow(2, this.reconnectAttempt), maxMs)
 
     this.reconnectAttempt++
+    this.emit('onReconnect', { attempt: this.reconnectAttempt })
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = undefined
       this.connect()
@@ -782,8 +803,8 @@ export class EntitySyncService implements Disposable {
       data,
       timestamp: new Date().toISOString(),
     }
-    void this.options.localStore.set(cacheKey, entry).catch(() => {
-      /* ignore persistence errors */
+    void this.options.localStore.set(cacheKey, entry).catch((error) => {
+      this.emit('onCacheError', { cacheKey, error })
     })
   }
 
@@ -990,5 +1011,6 @@ export class EntitySyncService implements Disposable {
     this.subscriptionIdIndex.clear()
     this.pendingMessages.length = 0
     this.ws?.close()
+    super[Symbol.dispose]()
   }
 }

@@ -1,6 +1,18 @@
+import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
+
 export type TokenPair = {
   accessToken: string
   refreshToken: string
+}
+
+/**
+ * Events emitted by the JWT token store created via {@link createJwtTokenStore}
+ */
+export type JwtTokenStoreEvents = {
+  onAccessTokenChanged: string | null
+  onRefreshTokenChanged: string | null
+  onRefreshFailed: { error: unknown }
+  onListenerError: ListenerErrorPayload
 }
 
 export type JwtTokenStoreOptions = {
@@ -12,11 +24,20 @@ export type JwtTokenStoreOptions = {
   logout?: (refreshToken: string) => Promise<void>
   /** Refresh when the access token expires within this many seconds. Default: 60. */
   refreshThresholdSeconds?: number
-  /** Called whenever the access token changes (including to `null` on logout or refresh failure). */
+  /**
+   * Called whenever the access token changes (including to `null` on logout or refresh failure).
+   * @deprecated Use `subscribe('onAccessTokenChanged', ...)` on the returned store instead.
+   */
   onAccessTokenChanged?: (accessToken: string | null) => void
-  /** Called whenever the refresh token changes (including to `null` on logout or refresh failure). */
+  /**
+   * Called whenever the refresh token changes (including to `null` on logout or refresh failure).
+   * @deprecated Use `subscribe('onRefreshTokenChanged', ...)` on the returned store instead.
+   */
   onRefreshTokenChanged?: (refreshToken: string | null) => void
-  /** Called when a token refresh attempt fails. */
+  /**
+   * Called when a token refresh attempt fails.
+   * @deprecated Use `subscribe('onRefreshFailed', ...)` on the returned store instead.
+   */
   onRefreshFailed?: (error: unknown) => void
 }
 
@@ -47,9 +68,25 @@ const decodeTokenExp = (token: string): number | null => {
  * async callbacks (`login`, `refresh`, `logout`) that handle the actual network
  * requests. This allows multiple API clients to share a single token store.
  *
+ * Token change and refresh failure events are emitted via EventHub. Use
+ * `subscribe('onAccessTokenChanged', ...)` etc. to observe them. The legacy
+ * option callbacks are still supported for backward compatibility.
+ *
  * @param options Configuration including operation callbacks and change listeners
  */
 export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
+  const hub = new EventHub<JwtTokenStoreEvents>()
+
+  if (options.onAccessTokenChanged) {
+    hub.addListener('onAccessTokenChanged', options.onAccessTokenChanged)
+  }
+  if (options.onRefreshTokenChanged) {
+    hub.addListener('onRefreshTokenChanged', options.onRefreshTokenChanged)
+  }
+  if (options.onRefreshFailed) {
+    hub.addListener('onRefreshFailed', ({ error }) => options.onRefreshFailed!(error))
+  }
+
   const refreshThresholdSeconds = options.refreshThresholdSeconds ?? 60
   let tokens: TokenPair | null = null
   let refreshPromise: Promise<TokenPair> | null = null
@@ -57,10 +94,10 @@ export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
   const setTokensInternal = (newTokens: TokenPair | null, previousTokens: TokenPair | null) => {
     tokens = newTokens
     if (newTokens?.accessToken !== previousTokens?.accessToken) {
-      options.onAccessTokenChanged?.(newTokens?.accessToken ?? null)
+      hub.emit('onAccessTokenChanged', newTokens?.accessToken ?? null)
     }
     if (newTokens?.refreshToken !== previousTokens?.refreshToken) {
-      options.onRefreshTokenChanged?.(newTokens?.refreshToken ?? null)
+      hub.emit('onRefreshTokenChanged', newTokens?.refreshToken ?? null)
     }
   }
 
@@ -91,7 +128,7 @@ export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
 
     refreshPromise = refreshTokens()
       .catch((error) => {
-        options.onRefreshFailed?.(error)
+        hub.emit('onRefreshFailed', { error })
         const previousTokens = tokens
         setTokensInternal(null, previousTokens)
         throw error
@@ -174,7 +211,7 @@ export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
 
       refreshPromise = refreshTokens()
         .catch((error) => {
-          options.onRefreshFailed?.(error)
+          hub.emit('onRefreshFailed', { error })
           const previousTokens = tokens
           setTokensInternal(null, previousTokens)
           throw error
@@ -185,6 +222,16 @@ export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
 
       await refreshPromise
     },
+
+    /** Subscribe to token store events */
+    subscribe: hub.subscribe.bind(hub),
+    /** Add a listener for token store events */
+    addListener: hub.addListener.bind(hub),
+    /** Remove a listener for token store events */
+    removeListener: hub.removeListener.bind(hub),
+
+    /** Disposes the internal EventHub, removing all listeners */
+    [Symbol.dispose]: () => hub[Symbol.dispose](),
   }
 }
 

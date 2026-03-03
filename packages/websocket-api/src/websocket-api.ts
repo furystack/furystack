@@ -17,6 +17,10 @@ import { WebSocketApiSettings } from './websocket-api-settings.js'
 export type WebSocketApiEvents = {
   /** Emitted when an error occurs during action execution (canExecute, getInstance, or execute) */
   onError: { error: unknown; data?: Data; socket?: WebSocket }
+  /** Emitted when a client connects */
+  onClientConnected: { ws: WebSocket; message: IncomingMessage }
+  /** Emitted when a client disconnects */
+  onClientDisconnected: { ws: WebSocket }
   /** Emitted when an event listener throws or rejects */
   onListenerError: ListenerErrorPayload
 }
@@ -55,6 +59,7 @@ export class WebSocketApi extends EventHub<WebSocketApiEvents> implements AsyncD
         )
 
         this.clients.set(websocket, { injector: connectionInjector, message: msg, ws: websocket })
+        this.emit('onClientConnected', { ws: websocket, message: msg })
         websocket.on('message', (message) => {
           this.execute(message, msg, connectionInjector, websocket)
         })
@@ -65,8 +70,9 @@ export class WebSocketApi extends EventHub<WebSocketApiEvents> implements AsyncD
 
         websocket.on('close', () => {
           this.clients.delete(websocket)
+          this.emit('onClientDisconnected', { ws: websocket })
           connectionInjector[Symbol.asyncDispose]().catch((err) => {
-            console.error('Error disposing connection injector:', err)
+            this.emit('onError', { error: err, socket: websocket })
           })
         })
       })

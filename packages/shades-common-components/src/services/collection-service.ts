@@ -1,4 +1,4 @@
-import { ObservableValue } from '@furystack/utils'
+import { EventHub, ObservableValue, type ListenerErrorPayload } from '@furystack/utils'
 
 export interface CollectionData<T> {
   entries: T[]
@@ -12,25 +12,32 @@ export interface CollectionServiceOptions<T> {
   searchField?: keyof T
   /**
    * @param entry The clicked entry
-   * optional callback for row clicks
+   * @deprecated Use `subscribe('onRowClick', ...)` instead
    */
   onRowClick?: (entry: T) => void
 
   /**
-   * Optional callback for row double clicks
    * @param entry The clicked entry
+   * @deprecated Use `subscribe('onRowDoubleClick', ...)` instead
    */
-
   onRowDoubleClick?: (entry: T) => void
 }
 
-export class CollectionService<T> implements Disposable {
+export class CollectionService<T>
+  extends EventHub<{
+    onRowClick: T
+    onRowDoubleClick: T
+    onListenerError: ListenerErrorPayload
+  }>
+  implements Disposable
+{
   public [Symbol.dispose]() {
     this.data[Symbol.dispose]()
     this.selection[Symbol.dispose]()
     this.searchTerm[Symbol.dispose]()
     this.hasFocus[Symbol.dispose]()
     this.focusedEntry[Symbol.dispose]()
+    super[Symbol.dispose]()
   }
 
   public isSelected = (entry: T) => this.selection.getValue().includes(entry)
@@ -143,7 +150,7 @@ export class CollectionService<T> implements Disposable {
   }
 
   public handleRowClick(entry: T, ev: MouseEvent) {
-    this.options.onRowClick?.(entry)
+    this.emit('onRowClick', entry)
     const currentSelectionValue = this.selection.getValue()
     const lastFocused = this.focusedEntry.getValue()
     if (ev.ctrlKey) {
@@ -171,9 +178,17 @@ export class CollectionService<T> implements Disposable {
     this.focusedEntry.setValue(entry)
   }
 
-  constructor(private options: CollectionServiceOptions<T> = {}) {}
+  constructor(private options: CollectionServiceOptions<T> = {}) {
+    super()
+    if (options.onRowClick) {
+      this.addListener('onRowClick', options.onRowClick)
+    }
+    if (options.onRowDoubleClick) {
+      this.addListener('onRowDoubleClick', options.onRowDoubleClick)
+    }
+  }
 
   public handleRowDoubleClick(entry: T) {
-    this.options.onRowDoubleClick?.(entry)
+    this.emit('onRowDoubleClick', entry)
   }
 }
