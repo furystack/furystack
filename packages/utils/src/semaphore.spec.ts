@@ -7,6 +7,7 @@ export const semaphoreTests = describe('Semaphore', () => {
   it('should be constructed with a given concurrency limit', () => {
     using(new Semaphore(3), (s) => {
       expect(s).toBeInstanceOf(Semaphore)
+      expect(s.getMaxConcurrent()).toBe(3)
       expect(s.pendingCount.getValue()).toBe(0)
       expect(s.runningCount.getValue()).toBe(0)
       expect(s.completedCount.getValue()).toBe(0)
@@ -253,6 +254,123 @@ export const semaphoreTests = describe('Semaphore', () => {
       await sleepAsync(10)
 
       expect(events).toEqual(['started', 'completed', 'started', 'completed'])
+      s[Symbol.dispose]()
+    })
+  })
+
+  describe('setMaxConcurrent', () => {
+    it('should return the updated value from getMaxConcurrent', () => {
+      const s = new Semaphore(2)
+      s.setMaxConcurrent(5)
+      expect(s.getMaxConcurrent()).toBe(5)
+      s[Symbol.dispose]()
+    })
+
+    it('should throw when given a non-positive integer', () => {
+      const s = new Semaphore(2)
+      expect(() => s.setMaxConcurrent(0)).toThrow('maxConcurrent must be a positive integer')
+      expect(() => s.setMaxConcurrent(-1)).toThrow('maxConcurrent must be a positive integer')
+      expect(() => s.setMaxConcurrent(1.5)).toThrow('maxConcurrent must be a positive integer')
+      s[Symbol.dispose]()
+    })
+
+    it('should immediately start queued tasks when increased', async () => {
+      const s = new Semaphore(1)
+      const running: string[] = []
+      const resolvers: Array<() => void> = []
+
+      const createTask = (name: string) =>
+        s.execute(async () => {
+          running.push(name)
+          await new Promise<void>((resolve) => resolvers.push(resolve))
+          return name
+        })
+
+      const p1 = createTask('a')
+      const p2 = createTask('b')
+      const p3 = createTask('c')
+
+      await sleepAsync(10)
+      expect(running).toEqual(['a'])
+      expect(s.runningCount.getValue()).toBe(1)
+      expect(s.pendingCount.getValue()).toBe(2)
+
+      s.setMaxConcurrent(3)
+
+      await sleepAsync(10)
+      expect(running).toEqual(['a', 'b', 'c'])
+      expect(s.runningCount.getValue()).toBe(3)
+      expect(s.pendingCount.getValue()).toBe(0)
+
+      resolvers.forEach((r) => r())
+      await Promise.all([p1, p2, p3])
+      s[Symbol.dispose]()
+    })
+
+    it('should not abort running tasks when decreased', async () => {
+      const s = new Semaphore(3)
+      const resolvers: Array<() => void> = []
+
+      const createTask = () =>
+        s.execute(async () => {
+          await new Promise<void>((resolve) => resolvers.push(resolve))
+        })
+
+      const p1 = createTask()
+      const p2 = createTask()
+      const p3 = createTask()
+
+      await sleepAsync(10)
+      expect(s.runningCount.getValue()).toBe(3)
+
+      s.setMaxConcurrent(1)
+
+      expect(s.runningCount.getValue()).toBe(3)
+
+      resolvers.forEach((r) => r())
+      await Promise.all([p1, p2, p3])
+      expect(s.completedCount.getValue()).toBe(3)
+      s[Symbol.dispose]()
+    })
+
+    it('should not start new tasks until running count drops below new lower limit', async () => {
+      const s = new Semaphore(2)
+      const running: string[] = []
+      const resolvers: Array<() => void> = []
+
+      const createTask = (name: string) =>
+        s.execute(async () => {
+          running.push(name)
+          await new Promise<void>((resolve) => resolvers.push(resolve))
+          return name
+        })
+
+      const p1 = createTask('a')
+      const p2 = createTask('b')
+      const p3 = createTask('c')
+
+      await sleepAsync(10)
+      expect(running).toEqual(['a', 'b'])
+      expect(s.pendingCount.getValue()).toBe(1)
+
+      s.setMaxConcurrent(1)
+
+      resolvers[0]()
+      await p1
+      await sleepAsync(10)
+
+      expect(running).toEqual(['a', 'b'])
+      expect(s.pendingCount.getValue()).toBe(1)
+
+      resolvers[1]()
+      await p2
+      await sleepAsync(10)
+
+      expect(running).toEqual(['a', 'b', 'c'])
+      expect(s.pendingCount.getValue()).toBe(0)
+
+      resolvers[2]()
+      await p3
       s[Symbol.dispose]()
     })
   })

@@ -15,9 +15,13 @@ export class SemaphoreDisposedError extends Error {
  * Event map for the Semaphore's EventHub.
  */
 export type SemaphoreEvents = {
+  /** Fired when a queued task begins execution */
   taskStarted: undefined
+  /** Fired when a running task resolves successfully */
   taskCompleted: undefined
+  /** Fired when a running task rejects, carrying the thrown error */
   taskFailed: { error: unknown }
+  /** Fired when an event listener throws during emission */
   onListenerError: ListenerErrorPayload
 }
 
@@ -38,16 +42,14 @@ type QueuedTask<T = unknown> = {
  *
  * @example
  * ```ts
- * const semaphore = new Semaphore(3)
+ * const results = await usingAsync(new Semaphore(3), async (semaphore) => {
+ *   semaphore.pendingCount.subscribe((count) => console.log('Pending:', count))
+ *   semaphore.subscribe('taskCompleted', () => console.log('A task completed'))
  *
- * semaphore.pendingCount.subscribe((count) => console.log('Pending:', count))
- * semaphore.subscribe('taskCompleted', () => console.log('A task completed'))
- *
- * const results = await Promise.all(
- *   urls.map((url) => semaphore.execute(({ signal }) => fetch(url, { signal }))),
- * )
- *
- * semaphore[Symbol.dispose]()
+ *   return await Promise.all(
+ *     urls.map((url) => semaphore.execute(({ signal }) => fetch(url, { signal }))),
+ *   )
+ * })
  * ```
  */
 export class Semaphore extends EventHub<SemaphoreEvents> {
@@ -55,16 +57,49 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
   private readonly running = new Set<QueuedTask>()
   private disposed = false
 
+  /** The number of tasks waiting in the queue to be started */
   public readonly pendingCount = new ObservableValue<number>(0)
+  /** The number of tasks currently executing */
   public readonly runningCount = new ObservableValue<number>(0)
+  /** The total number of tasks that have resolved successfully */
   public readonly completedCount = new ObservableValue<number>(0)
+  /** The total number of tasks that have rejected */
   public readonly failedCount = new ObservableValue<number>(0)
+
+  private _maxConcurrent: number
 
   /**
    * @param maxConcurrent The maximum number of tasks that can run concurrently
    */
-  constructor(private readonly maxConcurrent: number) {
+  constructor(maxConcurrent: number) {
     super()
+    this._maxConcurrent = maxConcurrent
+  }
+
+  /**
+   * Returns the current maximum number of tasks that can run concurrently.
+   * @returns The current concurrency limit
+   */
+  public getMaxConcurrent(): number {
+    return this._maxConcurrent
+  }
+
+  /**
+   * Updates the maximum number of tasks that can run concurrently.
+   *
+   * If the new limit is higher than the current one, queued tasks will
+   * be started immediately to fill the new slots.
+   * If the new limit is lower, already-running tasks will not be aborted,
+   * but no new tasks will start until the running count drops below the new limit.
+   *
+   * @param value The new concurrency limit (must be a positive integer)
+   */
+  public setMaxConcurrent(value: number): void {
+    if (!Number.isInteger(value) || value < 1) {
+      throw new Error('maxConcurrent must be a positive integer')
+    }
+    this._maxConcurrent = value
+    this.drain()
   }
 
   /**
@@ -123,7 +158,7 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
   }
 
   private drain(): void {
-    while (this.running.size < this.maxConcurrent && this.queue.length > 0) {
+    while (this.running.size < this._maxConcurrent && this.queue.length > 0) {
       const entry = this.queue.shift()!
       this.pendingCount.setValue(this.pendingCount.getValue() - 1)
       this.startTask(entry)
@@ -164,6 +199,10 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
       })
   }
 
+  /**
+   * Disposes the semaphore: rejects all pending tasks with {@link SemaphoreDisposedError},
+   * aborts the signal of every running task, and disposes all observable counters and event listeners.
+   */
   public override [Symbol.dispose](): void {
     this.disposed = true
 
