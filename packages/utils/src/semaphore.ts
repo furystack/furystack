@@ -1,4 +1,4 @@
-import { EventHub } from './event-hub.js'
+import { EventHub, type ListenerErrorPayload } from './event-hub.js'
 import { ObservableValue } from './observable-value.js'
 
 /**
@@ -18,6 +18,7 @@ export type SemaphoreEvents = {
   taskStarted: undefined
   taskCompleted: undefined
   taskFailed: { error: unknown }
+  onListenerError: ListenerErrorPayload
 }
 
 type QueuedTask<T = unknown> = {

@@ -35,7 +35,23 @@ const value = new ObservableValue('initial', {
 })
 ```
 
+### `Semaphore` for concurrent task limiting
+
+New `Semaphore` class limits concurrent async task execution to a configurable number of slots. Extends `EventHub` with `taskStarted`, `taskCompleted`, and `taskFailed` events. Exposes `pendingCount`, `runningCount`, `completedCount`, and `failedCount` as `ObservableValue` counters for reactive state monitoring. Supports `AbortSignal` for cancellation of pending and running tasks.
+
+```typescript
+const semaphore = new Semaphore(3)
+
+semaphore.pendingCount.subscribe((count) => console.log('Pending:', count))
+semaphore.subscribe('taskCompleted', () => console.log('A task completed'))
+
+const results = await Promise.all(urls.map((url) => semaphore.execute(({ signal }) => fetch(url, { signal }))))
+
+semaphore[Symbol.dispose]()
+```
+
 ## 🧪 Tests
 
 - Added tests for `EventHub` listener error routing (sync throws, async rejections, `onListenerError` dispatch)
 - Added tests for `ObservableValue` observer error handling (sync throws, async rejections, custom `onError` callback)
+- Added tests for `Semaphore` (concurrent execution, abort signals, disposal, EventHub events, ObservableValue counters)

@@ -180,6 +180,25 @@ describe('EventHub', () => {
       })
     })
 
+    it('should fall back to console.error if onListenerError handler returns a rejected promise', async () => {
+      const hub = new EventHub<{ test: number; onListenerError: ListenerErrorPayload }>()
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      hub.addListener('onListenerError', async () => {
+        throw new Error('async error handler fails')
+      })
+      hub.addListener('test', () => {
+        throw new Error('original error')
+      })
+
+      hub.emit('test', 1)
+      await sleepAsync(10)
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error in onListenerError handler', expect.any(Error))
+
+      consoleErrorSpy.mockRestore()
+    })
+
     it('should fall back to console.error if onListenerError handler itself throws', () => {
       const hub = new EventHub<{ test: number; onListenerError: ListenerErrorPayload }>()
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
