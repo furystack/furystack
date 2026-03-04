@@ -246,10 +246,11 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          * runs are coalesced into a single render pass.
          */
         public updateComponent() {
+          if (!this.isConnected) return
           if (!this._updateScheduled) {
             this._updateScheduled = true
             queueMicrotask(() => {
-              if (!this._updateScheduled) return
+              if (!this._updateScheduled || !this.isConnected) return
               this._updateScheduled = false
               this._performUpdate()
             })
@@ -262,6 +263,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          * in a single call frame rather than cascading across microtask ticks.
          */
         public updateComponentSync() {
+          if (!this.isConnected) return
           this._updateScheduled = false
           this._performUpdate()
         }

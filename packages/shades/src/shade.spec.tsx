@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
-import { sleepAsync, usingAsync } from '@furystack/utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from './initialize.js'
 import { createComponent } from './shade-component.js'
 import { flushUpdates, Shade } from './shade.js'
@@ -94,6 +94,83 @@ describe('Shade edge cases', () => {
           expect(childCapturedInjector).toBe(propsInjector)
           expect(childCapturedInjector).not.toBe(rootInjector)
         })
+      })
+    })
+  })
+
+  describe('disconnected component should not re-render', () => {
+    it('should not re-render when updateComponent is called after removal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const renderCounter = vi.fn()
+
+        const ExampleComponent = Shade({
+          shadowDomName: 'shade-no-render-after-disconnect',
+          render: () => {
+            renderCounter()
+            return <div>content</div>
+          },
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <ExampleComponent />,
+        })
+        await flushUpdates()
+
+        const element = document.querySelector('shade-no-render-after-disconnect') as JSX.Element
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
+
+        element.remove()
+        await flushUpdates()
+
+        element.updateComponent()
+        await flushUpdates()
+
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
+      })
+    })
+
+    it('should not re-render when an observable fires during disposal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const renderCounter = vi.fn()
+        const obs = new ObservableValue(0)
+
+        const ExampleComponent = Shade({
+          shadowDomName: 'shade-no-render-during-disposal',
+          render: ({ useObservable, useDisposable }) => {
+            useObservable('obs', obs)
+            useDisposable('cleanup', () => ({
+              [Symbol.dispose]: () => {
+                obs.setValue(999)
+              },
+            }))
+            renderCounter()
+            return <div>{obs.getValue()}</div>
+          },
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <ExampleComponent />,
+        })
+        await flushUpdates()
+
+        const element = document.querySelector('shade-no-render-during-disposal') as JSX.Element
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
+
+        element.remove()
+        await flushUpdates()
+        await sleepAsync(10)
+
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
       })
     })
   })
