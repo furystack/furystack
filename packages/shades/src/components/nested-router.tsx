@@ -3,8 +3,21 @@ import type { MatchOptions, MatchResult } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
 import type { RenderOptions } from '../models/render-options.js'
 import { LocationService } from '../services/location-service.js'
+import { RouteMatchService } from '../services/route-match-service.js'
 import { createComponent, setRenderMode } from '../shade-component.js'
 import { Shade } from '../shade.js'
+
+/**
+ * Metadata associated with a route entry.
+ * Used by consumers (breadcrumbs, document title, navigation trees) to
+ * derive display information from the route hierarchy.
+ * @typeParam TMatchResult - The type of matched URL parameters
+ */
+export type NestedRouteMeta<TMatchResult = unknown> = {
+  title?:
+    | string
+    | ((match: MatchResult<TMatchResult extends object ? TMatchResult : object>) => string | Promise<string>)
+}
 
 /**
  * A single route entry in a NestedRouter configuration.
@@ -13,6 +26,7 @@ import { Shade } from '../shade.js'
  * @typeParam TMatchResult - The type of matched URL parameters
  */
 export type NestedRoute<TMatchResult = unknown> = {
+  meta?: NestedRouteMeta<TMatchResult>
   component: (options: {
     currentUrl: string
     match: MatchResult<TMatchResult extends object ? TMatchResult : object>
@@ -216,6 +230,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             }
             if (version !== versionRef.current) return
             setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
+            injector.getInstance(RouteMatchService).currentMatchChain.setValue(newChain)
 
             // Call onVisit for routes that are being entered (from divergence point to end of new chain)
             for (let i = divergeIndex; i < newChain.length; i++) {
@@ -237,6 +252,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             jsx: options.props.notFound || <div />,
             chainElements: [],
           })
+          injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
         }
       } catch (e) {
         if (!(e instanceof ObservableAlreadyDisposedError)) {

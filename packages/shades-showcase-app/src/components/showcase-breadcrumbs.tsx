@@ -1,70 +1,49 @@
-import { createComponent, LocationService, Shade, type ExtractRoutePaths } from '@furystack/shades'
+import { createComponent, RouteMatchService, Shade, resolveRouteTitles } from '@furystack/shades'
+import type { MatchChainEntry } from '@furystack/shades'
 import { createBreadcrumb, Icon, icons, type BreadcrumbItem } from '@furystack/shades-common-components'
+
 import type { appRoutes } from '../routes.tsx'
-import { findNavItemByPath } from '../navigation.js'
-
-type AppRoutePath = ExtractRoutePaths<typeof appRoutes>
-
-const getBreadcrumbItems = (currentPath: string): Array<BreadcrumbItem<AppRoutePath>> => {
-  if (currentPath === '/') return []
-
-  // Check navigation config first
-  const navItem = findNavItemByPath(currentPath)
-  if (navItem) {
-    const items: Array<BreadcrumbItem<AppRoutePath>> = [
-      {
-        path: `/${navItem.category.slug}` as AppRoutePath,
-        label: navItem.category.label,
-      },
-    ]
-    if ('page' in navItem) {
-      items.push({
-        path: `/${navItem.category.slug}/${navItem.page.slug}` as AppRoutePath,
-        label: navItem.page.label,
-      })
-    }
-    return items
-  }
-
-  // Handle layout-tests (not in navigation config)
-  if (currentPath.startsWith('/layout-tests')) {
-    const items: Array<BreadcrumbItem<AppRoutePath>> = [{ path: '/layout-tests', label: 'Layout Tests' }]
-
-    const layoutTestLabels: Partial<Record<string, string>> = {
-      '/layout-tests/appbar-only': 'AppBar Only',
-      '/layout-tests/appbar-left-drawer': 'AppBar + Left Drawer',
-      '/layout-tests/appbar-right-drawer': 'AppBar + Right Drawer',
-      '/layout-tests/appbar-both-drawers': 'AppBar + Both Drawers',
-      '/layout-tests/collapsible-drawer': 'Collapsible Drawer',
-      '/layout-tests/auto-hide-appbar': 'Auto-hide AppBar',
-      '/layout-tests/responsive-layout': 'Responsive Layout',
-      '/layout-tests/temporary-drawer': 'Temporary Drawer',
-    }
-
-    const subLabel = layoutTestLabels[currentPath]
-    if (subLabel) {
-      items.push({ path: currentPath as AppRoutePath, label: subLabel })
-    }
-
-    return items
-  }
-
-  return []
-}
 
 const ShowcaseBreadcrumbItem = createBreadcrumb<typeof appRoutes>()
 
 export const ShowcaseBreadcrumbComponent = Shade({
   shadowDomName: 'showcase-breadcrumb-component',
-  render: ({ injector, useObservable }) => {
-    const locationService = injector.getInstance(LocationService)
-    const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
-    const breadcrumbItems = getBreadcrumbItems(currentPath)
+  render: ({ injector, useObservable, useState }) => {
+    const routeMatchService = injector.getInstance(RouteMatchService)
+    const [matchChain] = useObservable('matchChain', routeMatchService.currentMatchChain, {
+      onChange: (chain) => {
+        void resolveAndSetTitles(chain)
+      },
+    })
+
+    const [resolvedItems, setResolvedItems] = useState<BreadcrumbItem[]>('resolvedItems', [])
+
+    const resolveAndSetTitles = async (chain: MatchChainEntry[]) => {
+      const titles = await resolveRouteTitles(chain)
+      const items: BreadcrumbItem[] = []
+      let accumulatedPath = ''
+
+      for (let i = 0; i < chain.length; i++) {
+        const title = titles[i]
+        if (!title) continue
+
+        // Skip the root "/" route in breadcrumbs (it's represented by the home icon)
+        const matchPath = chain[i].match.path
+        if (matchPath === '/') continue
+
+        accumulatedPath += matchPath
+        items.push({ path: accumulatedPath, label: title })
+      }
+
+      setResolvedItems(items)
+    }
+
+    void resolveAndSetTitles(matchChain)
 
     return (
       <ShowcaseBreadcrumbItem
         homeItem={{ path: '/', label: <Icon icon={icons.home} size="small" /> }}
-        items={breadcrumbItems}
+        items={resolvedItems}
         separator=" › "
       />
     )

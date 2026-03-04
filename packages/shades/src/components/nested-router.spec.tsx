@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
 import { flushUpdates } from '../shade.js'
+import { RouteMatchService } from '../services/route-match-service.js'
 import {
   buildMatchChain,
   findDivergenceIndex,
@@ -12,7 +13,7 @@ import {
   type MatchChainEntry,
   type NestedRoute,
 } from './nested-router.js'
-import { RouteLink } from './route-link.js'
+import { NestedRouteLink } from './nested-route-link.js'
 
 describe('buildMatchChain', () => {
   it('should match a simple leaf route', () => {
@@ -320,18 +321,18 @@ describe('NestedRouter lifecycle hooks', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="child-a" href="/parent/child-a">
+            <NestedRouteLink id="child-a" href="/parent/child-a">
               child-a
-            </RouteLink>
-            <RouteLink id="child-b" href="/parent/child-b">
+            </NestedRouteLink>
+            <NestedRouteLink id="child-b" href="/parent/child-b">
               child-b
-            </RouteLink>
-            <RouteLink id="other" href="/other">
+            </NestedRouteLink>
+            <NestedRouteLink id="other" href="/other">
               other
-            </RouteLink>
-            <RouteLink id="nowhere" href="/nowhere">
+            </NestedRouteLink>
+            <NestedRouteLink id="nowhere" href="/nowhere">
               nowhere
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/parent': {
@@ -456,15 +457,15 @@ describe('NestedRouter latest-wins on rapid navigation', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="go-a" href="/route-a">
+            <NestedRouteLink id="go-a" href="/route-a">
               a
-            </RouteLink>
-            <RouteLink id="go-b" href="/route-b">
+            </NestedRouteLink>
+            <NestedRouteLink id="go-b" href="/route-b">
               b
-            </RouteLink>
-            <RouteLink id="go-c" href="/route-c">
+            </NestedRouteLink>
+            <NestedRouteLink id="go-c" href="/route-c">
               c
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/route-a': {
@@ -538,12 +539,12 @@ describe('NestedRouter lifecycle element scope', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="child-a" href="/parent/child-a">
+            <NestedRouteLink id="child-a" href="/parent/child-a">
               child-a
-            </RouteLink>
-            <RouteLink id="child-b" href="/parent/child-b">
+            </NestedRouteLink>
+            <NestedRouteLink id="child-b" href="/parent/child-b">
               child-b
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/parent': {
@@ -631,15 +632,15 @@ describe('NestedRouter flat routes', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="home" href="/">
+            <NestedRouteLink id="home" href="/">
               home
-            </RouteLink>
-            <RouteLink id="about" href="/about">
+            </NestedRouteLink>
+            <NestedRouteLink id="about" href="/about">
               about
-            </RouteLink>
-            <RouteLink id="contact" href="/contact">
+            </NestedRouteLink>
+            <NestedRouteLink id="contact" href="/contact">
               contact
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/about': { component: () => <div id="content">about-page</div> },
@@ -790,15 +791,15 @@ describe('NestedRouter route param changes', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="user-1" href="/users/1">
+            <NestedRouteLink id="user-1" href="/users/1">
               User 1
-            </RouteLink>
-            <RouteLink id="user-2" href="/users/2">
+            </NestedRouteLink>
+            <NestedRouteLink id="user-2" href="/users/2">
               User 2
-            </RouteLink>
-            <RouteLink id="user-3" href="/users/3">
+            </NestedRouteLink>
+            <NestedRouteLink id="user-3" href="/users/3">
               User 3
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/users/:id': {
@@ -866,12 +867,12 @@ describe('NestedRouter route param changes', () => {
         rootElement,
         jsxElement: (
           <div>
-            <RouteLink id="alpha-dash" href="/org/alpha/dashboard">
+            <NestedRouteLink id="alpha-dash" href="/org/alpha/dashboard">
               Alpha Dashboard
-            </RouteLink>
-            <RouteLink id="beta-dash" href="/org/beta/dashboard">
+            </NestedRouteLink>
+            <NestedRouteLink id="beta-dash" href="/org/beta/dashboard">
               Beta Dashboard
-            </RouteLink>
+            </NestedRouteLink>
             <NestedRouter
               routes={{
                 '/org/:orgId': {
@@ -916,6 +917,108 @@ describe('NestedRouter route param changes', () => {
       expect(onLeaveDash).toHaveBeenCalledTimes(1)
       expect(onVisitOrg).toHaveBeenCalledTimes(2)
       expect(onVisitDash).toHaveBeenCalledTimes(2)
+    })
+  })
+})
+
+describe('NestedRouter + RouteMatchService integration', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  it('should update RouteMatchService with the current match chain on navigation', async () => {
+    history.pushState(null, '', '/parent/child-a')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const routeMatchService = injector.getInstance(RouteMatchService)
+
+      const parentRoute: NestedRoute = {
+        meta: { title: 'Parent' },
+        component: ({ outlet }) => <div>{outlet ?? <div>parent-index</div>}</div>,
+        children: {
+          '/child-a': {
+            meta: { title: 'Child A' },
+            component: () => <div id="content">child-a</div>,
+          },
+          '/child-b': {
+            meta: { title: 'Child B' },
+            component: () => <div id="content">child-b</div>,
+          },
+        },
+      }
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="child-a" href="/parent/child-a">
+              child-a
+            </NestedRouteLink>
+            <NestedRouteLink id="child-b" href="/parent/child-b">
+              child-b
+            </NestedRouteLink>
+            <NestedRouteLink id="nowhere" href="/nowhere">
+              nowhere
+            </NestedRouteLink>
+            <NestedRouter routes={{ '/parent': parentRoute }} notFound={<div id="content">not found</div>} />
+          </div>
+        ),
+      })
+
+      // Initial load
+      await flushUpdates()
+      const initialChain = routeMatchService.currentMatchChain.getValue()
+      expect(initialChain).toHaveLength(2)
+      expect(initialChain[0].route.meta?.title).toBe('Parent')
+      expect(initialChain[1].route.meta?.title).toBe('Child A')
+
+      // Navigate to sibling child
+      document.getElementById('child-b')?.click()
+      await flushUpdates()
+      const updatedChain = routeMatchService.currentMatchChain.getValue()
+      expect(updatedChain).toHaveLength(2)
+      expect(updatedChain[0].route.meta?.title).toBe('Parent')
+      expect(updatedChain[1].route.meta?.title).toBe('Child B')
+
+      // Navigate to not-found
+      document.getElementById('nowhere')?.click()
+      await flushUpdates()
+      const notFoundChain = routeMatchService.currentMatchChain.getValue()
+      expect(notFoundChain).toEqual([])
+    })
+  })
+
+  it('should expose match params through RouteMatchService', async () => {
+    history.pushState(null, '', '/users/42')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+      const routeMatchService = injector.getInstance(RouteMatchService)
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouter
+            routes={{
+              '/users/:id': {
+                meta: { title: (match) => `User ${(match.params as { id: string }).id}` },
+                component: ({ match }) => <div id="content">user-{(match.params as { id: string }).id}</div>,
+              },
+            }}
+          />
+        ),
+      })
+
+      await flushUpdates()
+      const chain = routeMatchService.currentMatchChain.getValue()
+      expect(chain).toHaveLength(1)
+      expect(chain[0].match.params).toEqual({ id: '42' })
     })
   })
 })

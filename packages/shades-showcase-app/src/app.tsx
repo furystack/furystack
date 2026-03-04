@@ -1,5 +1,6 @@
 import { createComponent, NestedRouter, Shade } from '@furystack/shades'
 
+import { DocumentTitleUpdater } from './components/document-title-updater.js'
 import { NotFoundPage } from './components/not-found-page.js'
 import { appRoutes } from './routes.js'
 
@@ -11,6 +12,11 @@ import { appRoutes } from './routes.js'
 export const App = Shade({
   shadowDomName: 'shades-app',
   render: () => {
-    return <NestedRouter routes={appRoutes} notFound={<NotFoundPage />} />
+    return (
+      <>
+        <DocumentTitleUpdater />
+        <NestedRouter routes={appRoutes} notFound={<NotFoundPage />} />
+      </>
+    )
   },
 })

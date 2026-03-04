@@ -25,6 +25,7 @@ const withFadeTransition = {
  */
 export const appRoutes = {
   '/layout-tests': {
+    meta: { title: 'Layout Tests' },
     component: ({ outlet }) => {
       return (
         outlet ?? (
@@ -40,6 +41,7 @@ export const appRoutes = {
     },
     children: {
       '/appbar-only': {
+        meta: { title: 'AppBar Only' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -51,6 +53,7 @@ export const appRoutes = {
         ),
       },
       '/appbar-left-drawer': {
+        meta: { title: 'AppBar + Left Drawer' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -62,6 +65,7 @@ export const appRoutes = {
         ),
       },
       '/appbar-right-drawer': {
+        meta: { title: 'AppBar + Right Drawer' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -73,6 +77,7 @@ export const appRoutes = {
         ),
       },
       '/appbar-both-drawers': {
+        meta: { title: 'AppBar + Both Drawers' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -84,6 +89,7 @@ export const appRoutes = {
         ),
       },
       '/collapsible-drawer': {
+        meta: { title: 'Collapsible Drawer' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -95,6 +101,7 @@ export const appRoutes = {
         ),
       },
       '/auto-hide-appbar': {
+        meta: { title: 'Auto-hide AppBar' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -106,6 +113,7 @@ export const appRoutes = {
         ),
       },
       '/responsive-layout': {
+        meta: { title: 'Responsive Layout' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -117,6 +125,7 @@ export const appRoutes = {
         ),
       },
       '/temporary-drawer': {
+        meta: { title: 'Temporary Drawer' },
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
@@ -130,6 +139,7 @@ export const appRoutes = {
     },
   },
   '/': {
+    meta: { title: 'Home' },
     component: ({ outlet }) => (
       <ShowcaseLayout>
         {outlet ?? (
@@ -145,9 +155,11 @@ export const appRoutes = {
     ),
     children: {
       '/inputs-and-forms': {
+        meta: { title: 'Inputs & Forms' },
         component: ({ outlet }) => outlet ?? <Navigate to="/inputs-and-forms/buttons" />,
         children: {
           '/buttons': {
+            meta: { title: 'Buttons' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -161,6 +173,7 @@ export const appRoutes = {
             ),
           },
           '/button-group': {
+            meta: { title: 'Button Group' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -173,6 +186,7 @@ export const appRoutes = {
             ),
           },
           '/checkboxes': {
+            meta: { title: 'Checkboxes' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -185,6 +199,7 @@ export const appRoutes = {
             ),
           },
           '/input-number': {
+            meta: { title: 'Input Number' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -197,6 +212,7 @@ export const appRoutes = {
             ),
           },
           '/inputs': {
+            meta: { title: 'Inputs' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -209,6 +225,7 @@ export const appRoutes = {
             ),
           },
           '/radio': {
+            meta: { title: 'Radio' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -221,6 +238,7 @@ export const appRoutes = {
             ),
           },
           '/rating': {
+            meta: { title: 'Rating' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -233,6 +251,7 @@ export const appRoutes = {
             ),
           },
           '/select': {
+            meta: { title: 'Select' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -245,6 +264,7 @@ export const appRoutes = {
             ),
           },
           '/slider': {
+            meta: { title: 'Slider' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -257,6 +277,7 @@ export const appRoutes = {
             ),
           },
           '/switch': {
+            meta: { title: 'Switch' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -269,6 +290,7 @@ export const appRoutes = {
             ),
           },
           '/form': {
+            meta: { title: 'Form' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -284,9 +306,11 @@ export const appRoutes = {
         },
       },
       '/data-display': {
+        meta: { title: 'Data Display' },
         component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
         children: {
           '/accordion': {
+            meta: { title: 'Accordion' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -299,6 +323,7 @@ export const appRoutes = {
             ),
           },
           '/grid': {
+            meta: { title: 'Grid' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -311,6 +336,7 @@ export const appRoutes = {
             ),
           },
           '/list': {
+            meta: { title: 'List' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -323,6 +349,7 @@ export const appRoutes = {
             ),
           },
           '/tree': {
+            meta: { title: 'Tree' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -335,6 +362,7 @@ export const appRoutes = {
             ),
           },
           '/avatar': {
+            meta: { title: 'Avatar' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -347,6 +375,7 @@ export const appRoutes = {
             ),
           },
           '/badge': {
+            meta: { title: 'Badge' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -359,6 +388,7 @@ export const appRoutes = {
             ),
           },
           '/breadcrumb': {
+            meta: { title: 'Breadcrumb' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -371,6 +401,7 @@ export const appRoutes = {
             ),
           },
           '/carousel': {
+            meta: { title: 'Carousel' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -383,6 +414,7 @@ export const appRoutes = {
             ),
           },
           '/chip': {
+            meta: { title: 'Chip' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -395,6 +427,7 @@ export const appRoutes = {
             ),
           },
           '/icons': {
+            meta: { title: 'Icons' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -407,6 +440,7 @@ export const appRoutes = {
             ),
           },
           '/image': {
+            meta: { title: 'Image' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -419,6 +453,7 @@ export const appRoutes = {
             ),
           },
           '/timeline': {
+            meta: { title: 'Timeline' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -431,6 +466,7 @@ export const appRoutes = {
             ),
           },
           '/tooltip': {
+            meta: { title: 'Tooltip' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -443,6 +479,7 @@ export const appRoutes = {
             ),
           },
           '/typography': {
+            meta: { title: 'Typography' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -455,6 +492,7 @@ export const appRoutes = {
             ),
           },
           '/cache-view': {
+            meta: { title: 'Cache View' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -469,9 +507,11 @@ export const appRoutes = {
         },
       },
       '/navigation': {
+        meta: { title: 'Navigation' },
         component: ({ outlet }) => outlet ?? <Navigate to="/navigation/tabs" />,
         children: {
           '/tabs': {
+            meta: { title: 'Tabs' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -484,6 +524,7 @@ export const appRoutes = {
             ),
           },
           '/menu': {
+            meta: { title: 'Menu' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -496,6 +537,7 @@ export const appRoutes = {
             ),
           },
           '/dropdown': {
+            meta: { title: 'Dropdown' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -508,6 +550,7 @@ export const appRoutes = {
             ),
           },
           '/context-menu': {
+            meta: { title: 'Context Menu' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -520,6 +563,7 @@ export const appRoutes = {
             ),
           },
           '/command-palette': {
+            meta: { title: 'Command Palette' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -532,6 +576,7 @@ export const appRoutes = {
             ),
           },
           '/suggest': {
+            meta: { title: 'Suggest' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -544,6 +589,7 @@ export const appRoutes = {
             ),
           },
           '/pagination': {
+            meta: { title: 'Pagination' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -558,9 +604,11 @@ export const appRoutes = {
         },
       },
       '/feedback': {
+        meta: { title: 'Feedback' },
         component: ({ outlet }) => outlet ?? <Navigate to="/feedback/alert" />,
         children: {
           '/alert': {
+            meta: { title: 'Alert' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -573,6 +621,7 @@ export const appRoutes = {
             ),
           },
           '/notifications': {
+            meta: { title: 'Notifications' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -585,6 +634,7 @@ export const appRoutes = {
             ),
           },
           '/progress': {
+            meta: { title: 'Progress' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -597,6 +647,7 @@ export const appRoutes = {
             ),
           },
           '/result': {
+            meta: { title: 'Result' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -611,9 +662,11 @@ export const appRoutes = {
         },
       },
       '/layout': {
+        meta: { title: 'Layout' },
         component: ({ outlet }) => outlet ?? <Navigate to="/layout/divider" />,
         children: {
           '/divider': {
+            meta: { title: 'Divider' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -628,9 +681,11 @@ export const appRoutes = {
         },
       },
       '/surfaces': {
+        meta: { title: 'Surfaces' },
         component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/card" />,
         children: {
           '/card': {
+            meta: { title: 'Card' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -643,6 +698,7 @@ export const appRoutes = {
             ),
           },
           '/wizard': {
+            meta: { title: 'Wizard' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -655,6 +711,7 @@ export const appRoutes = {
             ),
           },
           '/dialog': {
+            meta: { title: 'Dialog' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -667,6 +724,7 @@ export const appRoutes = {
             ),
           },
           '/fab': {
+            meta: { title: 'FAB' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -681,9 +739,11 @@ export const appRoutes = {
         },
       },
       '/integrations': {
+        meta: { title: 'Integrations' },
         component: ({ outlet }) => outlet ?? <Navigate to="/integrations/monaco" />,
         children: {
           '/monaco': {
+            meta: { title: 'Monaco' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -696,6 +756,7 @@ export const appRoutes = {
             ),
           },
           '/lottie': {
+            meta: { title: 'Lottie' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -708,6 +769,7 @@ export const appRoutes = {
             ),
           },
           '/nipple': {
+            meta: { title: 'Nipple' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -720,6 +782,7 @@ export const appRoutes = {
             ),
           },
           '/mfe': {
+            meta: { title: 'MFE' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -732,6 +795,7 @@ export const appRoutes = {
             ),
           },
           '/i18n': {
+            meta: { title: 'I18N' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -744,6 +808,7 @@ export const appRoutes = {
             ),
           },
           '/markdown': {
+            meta: { title: 'Markdown' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -758,9 +823,11 @@ export const appRoutes = {
         },
       },
       '/utilities': {
+        meta: { title: 'Utilities' },
         component: ({ outlet }) => outlet ?? <Navigate to="/utilities/search-state" />,
         children: {
           '/search-state': {
+            meta: { title: 'Search State' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -773,6 +840,7 @@ export const appRoutes = {
             ),
           },
           '/stored-state': {
+            meta: { title: 'Stored State' },
             ...withFadeTransition,
             component: () => (
               <LazyLoad
@@ -787,6 +855,7 @@ export const appRoutes = {
         },
       },
       '/themes': {
+        meta: { title: 'Themes' },
         ...withFadeTransition,
         component: () => (
           <LazyLoad
