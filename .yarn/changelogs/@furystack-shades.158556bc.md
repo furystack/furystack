@@ -1,4 +1,4 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 
 # @furystack/shades
 

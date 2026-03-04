@@ -1,16 +1,13 @@
-import { createComponent, extractNavTree, Shade, type ExtractRoutePaths, type NavTreeNode } from '@furystack/shades'
+import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
 import { AppBar, createAppBarLink, cssVariableTheme, Divider } from '@furystack/shades-common-components'
 
-import '../route-meta-augmentation.js'
-import { appRoutes, type appRoutes as AppRoutes } from '../routes.js'
+import { type appRoutes as AppRoutes } from '../routes.js'
+import { getCategoryNodes } from '../nav-tree.js'
 import { ShowcaseBreadcrumbComponent } from './showcase-breadcrumbs.tsx'
 import { ThemeSwitch } from './theme-switch.js'
 
 type AppRoutePath = ExtractRoutePaths<typeof AppRoutes>
 const ShowcaseAppBarLinks = createAppBarLink<typeof AppRoutes>()
-
-let categoryNodes: NavTreeNode[] | undefined
-const getCategoryNodes = () => (categoryNodes ??= extractNavTree(appRoutes['/'].children, '/'))
 
 /**
  * Main navigation AppBar for the showcase application.

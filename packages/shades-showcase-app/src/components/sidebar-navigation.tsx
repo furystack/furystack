@@ -1,11 +1,7 @@
-import { createComponent, extractNavTree, LocationService, Shade, type NavTreeNode } from '@furystack/shades'
+import { createComponent, LocationService, Shade, type NavTreeNode } from '@furystack/shades'
 import { cssVariableTheme, Icon, icons } from '@furystack/shades-common-components'
 
-import '../route-meta-augmentation.js'
-import { appRoutes } from '../routes.js'
-
-let categoryNodes: NavTreeNode[] | undefined
-const getCategoryNodes = () => (categoryNodes ??= extractNavTree(appRoutes['/'].children, '/'))
+import { getCategoryNodes } from '../nav-tree.js'
 
 const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
   shadowDomName: 'sidebar-page-link',

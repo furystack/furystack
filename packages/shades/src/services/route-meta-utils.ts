@@ -73,10 +73,13 @@ export type NavTreeNode = {
  * @returns An array of navigation tree nodes
  */
 export const extractNavTree = (routes: Record<string, NestedRoute<unknown>>, parentPath?: string): NavTreeNode[] => {
-  return Object.entries(routes).map(([pattern, route]) => ({
-    pattern,
-    fullPath: parentPath ? `${parentPath === '/' ? '' : parentPath}${pattern}` : pattern,
-    meta: route.meta,
-    children: route.children ? extractNavTree(route.children, pattern) : undefined,
-  }))
+  return Object.entries(routes).map(([pattern, route]) => {
+    const fullPath = parentPath ? `${parentPath === '/' ? '' : parentPath}${pattern}` : pattern
+    return {
+      pattern,
+      fullPath,
+      meta: route.meta,
+      children: route.children ? extractNavTree(route.children, fullPath) : undefined,
+    }
+  })
 }

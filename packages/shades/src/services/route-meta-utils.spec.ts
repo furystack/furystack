@@ -211,6 +211,28 @@ describe('extractNavTree', () => {
     expect(tree[0].children![0].fullPath).toBe('/settings')
   })
 
+  it('should compute correct fullPath for deeply nested routes (3+ levels)', () => {
+    const routes: Record<string, NestedRoute<unknown>> = {
+      '/a': {
+        meta: { title: 'A' },
+        component: () => ({}) as JSX.Element,
+        children: {
+          '/b': {
+            meta: { title: 'B' },
+            component: () => ({}) as JSX.Element,
+            children: {
+              '/c': { meta: { title: 'C' }, component: () => ({}) as JSX.Element },
+            },
+          },
+        },
+      },
+    }
+    const tree = extractNavTree(routes)
+    expect(tree[0].fullPath).toBe('/a')
+    expect(tree[0].children![0].fullPath).toBe('/a/b')
+    expect(tree[0].children![0].children![0].fullPath).toBe('/a/b/c')
+  })
+
   it('should include routes without meta', () => {
     const routes: Record<string, NestedRoute<unknown>> = {
       '/hidden': { component: () => ({}) as JSX.Element },
