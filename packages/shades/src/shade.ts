@@ -110,11 +110,19 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          */
         private _refs = new Map<string, RefObject<Element>>()
 
+        /**
+         * Set to true once disconnectedCallback fires. Prevents ghost re-renders
+         * triggered by observable changes during async disposal.
+         */
+        private _disconnected = false
+
         public connectedCallback() {
+          this._disconnected = false
           this._performUpdate()
         }
 
         public async disconnectedCallback() {
+          this._disconnected = true
           this._refs.clear()
           this._prevVTree = null
           this._prevHostProps = null
@@ -246,11 +254,11 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          * runs are coalesced into a single render pass.
          */
         public updateComponent() {
-          if (!this.isConnected) return
+          if (this._disconnected) return
           if (!this._updateScheduled) {
             this._updateScheduled = true
             queueMicrotask(() => {
-              if (!this._updateScheduled || !this.isConnected) return
+              if (!this._updateScheduled || this._disconnected) return
               this._updateScheduled = false
               this._performUpdate()
             })
@@ -263,7 +271,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
          * in a single call frame rather than cascading across microtask ticks.
          */
         public updateComponentSync() {
-          if (!this.isConnected) return
+          if (this._disconnected) return
           this._updateScheduled = false
           this._performUpdate()
         }
