@@ -748,6 +748,36 @@ describe('Drawer component', () => {
       })
     })
 
+    it('should not re-add drawer state via ghost render during disposal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const layoutService = new LayoutService(createMockElement())
+        injector.setExplicitInstance(layoutService, LayoutService)
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Drawer position="left" variant="collapsible" defaultOpen={true}>
+              <div>Drawer</div>
+            </Drawer>
+          ),
+        })
+
+        await flushUpdates()
+        expect(layoutService.drawerState.getValue().left).toBeDefined()
+        expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+
+        const drawer = document.querySelector('shade-drawer') as HTMLElement
+        drawer.remove()
+        await flushUpdates()
+        await new Promise((resolve) => setTimeout(resolve, 10))
+
+        // Drawer state must remain cleared — a ghost re-render must not re-add it
+        expect(layoutService.drawerState.getValue().left).toBeUndefined()
+      })
+    })
+
     it('should only clean up its own drawer position on disposal', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const layoutService = new LayoutService(createMockElement())
