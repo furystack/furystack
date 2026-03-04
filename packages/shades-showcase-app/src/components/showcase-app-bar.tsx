@@ -1,13 +1,13 @@
 import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
 import { AppBar, createAppBarLink, cssVariableTheme, Divider } from '@furystack/shades-common-components'
 
-import type { appRoutes } from '../routes.tsx'
-import { navigationConfig } from '../navigation.js'
+import { type appRoutes as AppRoutes } from '../routes.js'
+import { getCategoryNodes } from '../nav-tree.js'
 import { ShowcaseBreadcrumbComponent } from './showcase-breadcrumbs.tsx'
 import { ThemeSwitch } from './theme-switch.js'
 
-type AppRoutePath = ExtractRoutePaths<typeof appRoutes>
-const ShowcaseAppBarLinks = createAppBarLink<typeof appRoutes>()
+type AppRoutePath = ExtractRoutePaths<typeof AppRoutes>
+const ShowcaseAppBarLinks = createAppBarLink<typeof AppRoutes>()
 
 /**
  * Main navigation AppBar for the showcase application.
@@ -44,9 +44,9 @@ export const ShowcaseAppBar = Shade({
           }}
         >
           <ShowcaseAppBarLinks href="/">Home</ShowcaseAppBarLinks>
-          {navigationConfig.map((category) => (
-            <ShowcaseAppBarLinks href={`/${category.slug}` as AppRoutePath} routingOptions={{ end: false }}>
-              {category.label}
+          {getCategoryNodes().map((node) => (
+            <ShowcaseAppBarLinks href={node.fullPath as AppRoutePath} routingOptions={{ end: false }}>
+              {node.meta?.title ?? node.pattern}
             </ShowcaseAppBarLinks>
           ))}
           <ShowcaseAppBarLinks href="/layout-tests" routingOptions={{ end: false }}>
