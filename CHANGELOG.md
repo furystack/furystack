@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.15] - 2026-03-04
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` with nested router metadata support
+
 ## [8.0.14] - 2026-02-28
 
 ### 🔧 Chores

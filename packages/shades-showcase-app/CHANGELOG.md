@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.2.5] - 2026-03-04
+
+### ✨ Features
+
+- Added `meta` objects with `title` and `icon` to all route definitions, enabling automatic breadcrumbs, document title, and sidebar navigation from route metadata
+- Added `DocumentTitleUpdater` component that reactively updates `document.title` from the current route match chain (e.g. "FuryStack Shades / Data Display / Icons")
+- Added `route-meta-augmentation.ts` to extend `NestedRouteMeta` with an `icon` field via declaration merging
+
+### ♻️ Refactoring
+
+- Refactored `ShowcaseAppBar` to derive top-level nav links from `extractNavTree()` instead of a manually maintained navigation config
+- Refactored `ShowcaseBreadcrumbComponent` to resolve breadcrumb items from `RouteMatchService` and `resolveRouteTitles()`, removing hardcoded path-to-label mappings
+- Refactored `SidebarNavigation` to build the sidebar tree from `extractNavTree()`, keeping navigation in sync with route definitions automatically
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` with ghost rendering race condition fix
+
 ## [8.2.4] - 2026-03-03
 
 ### ⬆️ Dependencies

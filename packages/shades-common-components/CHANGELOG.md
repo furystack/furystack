@@ -1,5 +1,15 @@
 # Changelog
 
+## [13.3.1] - 2026-03-04
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` dependency with nested router metadata support
+
+### 🧪 Tests
+
+- Added regression test for the Drawer component verifying that ghost renders during disposal do not re-add cleared drawer state to `LayoutService`
+
 ## [13.3.0] - 2026-03-03
 
 ### 🗑️ Deprecated

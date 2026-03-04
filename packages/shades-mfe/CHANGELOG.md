@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.9] - 2026-03-04
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` dependency with nested router metadata support
+- Updated `@furystack/shades` with ghost rendering race condition fix
+
 ## [2.0.8] - 2026-03-03
 
 ### ⬆️ Dependencies
